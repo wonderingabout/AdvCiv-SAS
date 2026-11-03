@@ -6083,9 +6083,9 @@ void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes e
 	{
 		if (AI_getWarPlanStateCounter(eTarget) > ((15 * iAbandonTimeModifier) / (100)))
 		{
-			if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=INACTIVE_TIMEOUT stateTurns=%d enemyPowerPercent=%d",
-				GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-				GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(AI_getWarPlan(eTarget)),
+			if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=INACTIVE_TIMEOUT stateTurns=%d enemyPowerPercent=%d",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+				GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(AI_getWarPlan(eTarget)),
 				AI_getWarPlanStateCounter(eTarget), iEnemyPowerPercent);
 			AI_setWarPlan(eTarget, NO_WARPLAN);
 		}
@@ -6096,9 +6096,9 @@ void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes e
 	{
 		if (GET_TEAM(eTarget).getNumWars() <= 0)
 		{
-			if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=WARPLAN_DOGPILE newPlan=NO_WARPLAN reason=TARGET_NO_LONGER_AT_WAR stateTurns=%d",
-				GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-				GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eTarget));
+			if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=WARPLAN_DOGPILE newPlan=NO_WARPLAN reason=TARGET_NO_LONGER_AT_WAR stateTurns=%d",
+				GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+				GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), AI_getWarPlanStateCounter(eTarget));
 			AI_setWarPlan(eTarget, NO_WARPLAN);
 		}
 	}
@@ -6175,9 +6175,9 @@ void CvTeamAI::AI_doWar()
 			if (AI_getAtWarCounter(eLoopTeam) >
 				(GET_TEAM(eLoopTeam).AI_isLandTarget(getID()) ? 9 : 3))
 			{
-				if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=SWITCH oldPlan=WARPLAN_ATTACKED_RECENT newPlan=WARPLAN_ATTACKED reason=ATTACKED_RECENT_EXPIRED atWarTurns=%d enemyPowerPercent=%d",
-					GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-					GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getAtWarCounter(eLoopTeam), iEnemyPowerPercent);
+				if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=SWITCH oldPlan=WARPLAN_ATTACKED_RECENT newPlan=WARPLAN_ATTACKED reason=ATTACKED_RECENT_EXPIRED atWarTurns=%d enemyPowerPercent=%d",
+					GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+					GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), AI_getAtWarCounter(eLoopTeam), iEnemyPowerPercent);
 				AI_setWarPlan(eLoopTeam, WARPLAN_ATTACKED);
 			}
 		}
@@ -6198,9 +6198,9 @@ void CvTeamAI::AI_doWar()
 				{
 					if (AI_getWarPlanStateCounter(eLoopTeam) > 20 * iAbandonTimeModifier / 100)
 					{
-						if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=HUMAN_OR_VASSAL_TIMEOUT stateTurns=%d",
-							GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-							GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(AI_getWarPlan(eLoopTeam)), AI_getWarPlanStateCounter(eLoopTeam));
+						if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=HUMAN_OR_VASSAL_TIMEOUT stateTurns=%d",
+							GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+							GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(AI_getWarPlan(eLoopTeam)), AI_getWarPlanStateCounter(eLoopTeam));
 						AI_setWarPlan(eLoopTeam, NO_WARPLAN);
 					}
 				}
@@ -6208,9 +6208,9 @@ void CvTeamAI::AI_doWar()
 				{
 					if (kOurMaster.AI_getWarPlan(eLoopTeam) == NO_WARPLAN)
 					{
-						if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=MASTER_CANCELLED masterTeam=%d",
-							GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-							GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(AI_getWarPlan(eLoopTeam)), getMasterTeam());
+						if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=%s newPlan=NO_WARPLAN reason=MASTER_CANCELLED masterTeam=%d",
+							GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+							GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(AI_getWarPlan(eLoopTeam)), getMasterTeam());
 						AI_setWarPlan(eLoopTeam, NO_WARPLAN);
 					}
 				}
@@ -6266,16 +6266,16 @@ void CvTeamAI::AI_doWar()
 				if (AI_startWarVal(eLoopTeam, WARPLAN_LIMITED) > 0) // K-Mod. Last chance to change our mind if circumstances have changed
 				{
 					AI_setWarPlan(eLoopTeam, WARPLAN_LIMITED);
-					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=SWITCH oldPlan=WARPLAN_PREPARING_LIMITED newPlan=WARPLAN_LIMITED reason=PREPARATION_COMPLETE stateTurns=%d enemyPowerPercent=%d",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-						GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=SWITCH oldPlan=WARPLAN_PREPARING_LIMITED newPlan=WARPLAN_LIMITED reason=PREPARATION_COMPLETE stateTurns=%d enemyPowerPercent=%d",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 				else
 				{	// advc.001: Actually abandon the war plan
 					AI_setWarPlan(eLoopTeam, NO_WARPLAN);
-					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=WARPLAN_PREPARING_LIMITED newPlan=NO_WARPLAN reason=START_WAR_VALUE_NONPOSITIVE stateTurns=%d enemyPowerPercent=%d",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-						GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=WARPLAN_PREPARING_LIMITED newPlan=NO_WARPLAN reason=START_WAR_VALUE_NONPOSITIVE stateTurns=%d enemyPowerPercent=%d",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 			}
 		}
@@ -6330,16 +6330,16 @@ void CvTeamAI::AI_doWar()
 					AI_startWarVal(eLoopTeam, WARPLAN_TOTAL) > 0)) // K-Mod. Last chance to change our mind if circumstances have changed
 				{
 					AI_setWarPlan(eLoopTeam, WARPLAN_TOTAL);
-					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=SWITCH oldPlan=WARPLAN_PREPARING_TOTAL newPlan=WARPLAN_TOTAL reason=PREPARATION_COMPLETE stateTurns=%d enemyPowerPercent=%d",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-						GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=SWITCH oldPlan=WARPLAN_PREPARING_TOTAL newPlan=WARPLAN_TOTAL reason=PREPARATION_COMPLETE stateTurns=%d enemyPowerPercent=%d",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 				else if (AI_getWarPlanStateCounter(eLoopTeam) > ((20 * iAbandonTimeModifier) / 100))
 				{
 					AI_setWarPlan(eLoopTeam, NO_WARPLAN);
-					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=ABANDON oldPlan=WARPLAN_PREPARING_TOTAL newPlan=NO_WARPLAN reason=PREPARATION_TIMEOUT stateTurns=%d enemyPowerPercent=%d",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam,
-						GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("WAR_PLAN_REVIEW turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=ABANDON oldPlan=WARPLAN_PREPARING_TOTAL newPlan=NO_WARPLAN reason=PREPARATION_TIMEOUT stateTurns=%d enemyPowerPercent=%d",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eLoopTeam,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationType()).getType(), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 			}
 		}
@@ -6442,9 +6442,9 @@ void CvTeamAI::AI_doWar()
 						if (bNoFighting)
 						{
 							makePeace(eEnemy);
-							if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=MAKE_PEACE reason=NO_FIGHTING_TIMEOUT atWarTurns=%d",
-								GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eEnemy,
-								GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationDescription(0), AI_getAtWarCounter(eEnemy));
+							if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=MAKE_PEACE reason=NO_FIGHTING_TIMEOUT atWarTurns=%d",
+								GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eEnemy,
+								GC.getInfo(GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationType()).getType(), AI_getAtWarCounter(eEnemy));
 							continue;
 						}
 					}
@@ -6460,9 +6460,9 @@ void CvTeamAI::AI_doWar()
 					// advc: Took these inequations times 2 to reduce rounding errors
 					if (2 * iOurValue > iTheirValue && 2 * iTheirValue > iOurValue)
 					{
-						if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=MAKE_PEACE reason=LONG_DRAW atWarTurns=%d ourEndWarValue=%d theirEndWarValue=%d",
-							GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eEnemy,
-							GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationDescription(0), AI_getAtWarCounter(eEnemy), iOurValue, iTheirValue);
+						if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=MAKE_PEACE reason=LONG_DRAW atWarTurns=%d ourEndWarValue=%d theirEndWarValue=%d",
+							GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eEnemy,
+							GC.getInfo(GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationType()).getType(), AI_getAtWarCounter(eEnemy), iOurValue, iTheirValue);
 						makePeace(eEnemy);
 						continue;
 					}
@@ -6477,9 +6477,9 @@ void CvTeamAI::AI_doWar()
 						int iTheirValue = GET_TEAM(eEnemy).AI_endWarVal(getID());
 						if (2 * iTheirValue > iOurValue) // advc: *2 (see previous comment)
 						{
-							if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=MAKE_PEACE reason=ONLY_DOGPILER_LEFT ourEndWarValue=%d theirEndWarValue=%d",
-								GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eEnemy,
-								GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationDescription(0), iOurValue, iTheirValue);
+							if (gTeamLogLevel >= 1) logBBAI("TEAM_PEACE_DECISION turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=MAKE_PEACE reason=ONLY_DOGPILER_LEFT ourEndWarValue=%d theirEndWarValue=%d",
+								GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eEnemy,
+								GC.getInfo(GET_PLAYER(GET_TEAM(eEnemy).getLeaderID()).getCivilizationType()).getType(), iOurValue, iTheirValue);
 							makePeace(eEnemy);
 							continue;
 						}
@@ -6664,9 +6664,9 @@ void CvTeamAI::AI_doWar()
 										GET_TEAM(eTarget).AI_anyMemberAtVictoryStage4())
 									{
 										int iValue = AI_startWarVal(eTarget, WARPLAN_TOTAL);
-										if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S plan=WARPLAN_TOTAL value=%d pass=%d adjacentLandPlots=%d",
-											GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-											GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), iValue, iPass, AI_calculateAdjacentLandPlots(eTarget));
+										if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s plan=WARPLAN_TOTAL value=%d pass=%d adjacentLandPlots=%d",
+											GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+											GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), iValue, iPass, AI_calculateAdjacentLandPlots(eTarget));
 
 										if (iValue > iBestValue)
 										{
@@ -6683,9 +6683,9 @@ void CvTeamAI::AI_doWar()
 
 					if (eBestTarget != NO_TEAM)
 					{
-					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=START plan=%s source=TOTAL pass=%d",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTarget,
-						GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(iDaggerCount > 0 ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL), iPass);
+					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=START plan=%s source=TOTAL pass=%d",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eBestTarget,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(iDaggerCount > 0 ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL), iPass);
 						AI_setWarPlan(eBestTarget, iDaggerCount > 0 ?
 								WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL);
 						break;
@@ -6722,9 +6722,9 @@ void CvTeamAI::AI_doWar()
 								(iOurPower * AI_limitedWarPowerRatio()) / 100)
 							{
 								int iValue = AI_startWarVal(eTarget, WARPLAN_LIMITED);
-								if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S plan=WARPLAN_LIMITED value=%d",
-									GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-									GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), iValue);
+								if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s plan=WARPLAN_LIMITED value=%d",
+									GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+									GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), iValue);
 								if (iValue > iBestValue)
 								{
 									//FAssert(!AI_shareWar(eTarget)); // disabled by K-Mod. (It isn't always true.)
@@ -6739,9 +6739,9 @@ void CvTeamAI::AI_doWar()
 
 				if (eBestTarget != NO_TEAM)
 				{
-					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=START plan=%s source=LIMITED",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTarget,
-						GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(iDaggerCount > 0 ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
+					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=START plan=%s source=LIMITED",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eBestTarget,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(iDaggerCount > 0 ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
 					AI_setWarPlan(eBestTarget, iDaggerCount > 0 ?
 							WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED);
 				}
@@ -6789,9 +6789,9 @@ void CvTeamAI::AI_doWar()
 							if ((GET_TEAM(eTarget).getDefensivePower(getID()) * 3) / 2 < iDogpilePower)
 							{
 								int iValue = AI_startWarVal(eTarget, WARPLAN_DOGPILE);
-								if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S plan=WARPLAN_DOGPILE value=%d",
-									GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-									GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), iValue);
+								if (gTeamLogLevel >= 2 && iValue > 0) logBBAI("WAR_PLAN_START_CANDIDATE turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s plan=WARPLAN_DOGPILE value=%d",
+									GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+									GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), iValue);
 								if (iValue > iBestValue)
 								{
 									//FAssert(!AI_shareWar((TeamTypes)iI)); // disabled by K-Mod. (why is this even here?)
@@ -6805,9 +6805,9 @@ void CvTeamAI::AI_doWar()
 				}
 				if (eBestTarget != NO_TEAM)
 				{
-					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%S targetTeam=%d targetCiv=%S action=START plan=WARPLAN_DOGPILE source=DOGPILE",
-						GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTarget,
-						GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationDescription(0));
+					if (gTeamLogLevel >= 1) logBBAI("WAR_PLAN_START turn=%d team=%d civ=%s targetTeam=%d targetCiv=%s action=START plan=WARPLAN_DOGPILE source=DOGPILE",
+						GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eBestTarget,
+						GC.getInfo(GET_PLAYER(GET_TEAM(eBestTarget).getLeaderID()).getCivilizationType()).getType());
 					AI_setWarPlan(eBestTarget, WARPLAN_DOGPILE);
 				}
 			}

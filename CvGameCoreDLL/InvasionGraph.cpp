@@ -69,7 +69,7 @@ namespace
 		}
 		logBBAI("UWAI_INVASION_GRAPH_TRAINABILITY_CONTEXT turn=%d agentPlayer=%d player=%d cities=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d scope=LAND_FULL_COMBAT playerEligibleTypeCount=%d capitalTrainableTypeCount=%d playerEligibleUnits=%s capitalTrainableUnits=%s capitalNetworkBonuses=%s",
 				GC.getGame().getGameTurn(), eAgent, ePlayer, kOwner.getNumCities(),
-				pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? L"-" : pCapital->getName().GetCString(),
+				pCapital == NULL ? -1 : pCapital->getID(), getSASDiagnosticQuoted(pCapital == NULL ? NULL : pCapital->getName().GetCString()).GetCString(),
 				pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
 				iPlayerEligible, pCapital == NULL ? -1 : iCapitalTrainable, szPlayerEligible.empty() ? "-" : szPlayerEligible.GetCString(),
 				szCapitalTrainable.empty() ? "-" : szCapitalTrainable.GetCString(), szCapitalBonuses.empty() ? "-" : szCapitalBonuses.GetCString());
@@ -541,7 +541,7 @@ void InvasionGraph::Node::resolveLossesRec()
 void InvasionGraph::Node::addConquest(UWAICache::City const& kConqCity)
 {
 	if (gUWAIInvasionGraphLogLevel >= 1 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_INVASION_GRAPH_CITY_CONQUERED turn=%d agentPlayer=%d attacker=%d defender=%d city=%S cityX=%d cityY=%d",
-			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kConqCity.city().getOwner(), kConqCity.city().getName().GetCString(),
+			GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kConqCity.city().getOwner(), getSASDiagnosticQuoted(kConqCity.city().getName().GetCString()).GetCString(),
 			kConqCity.city().getX(), kConqCity.city().getY());
 	m_conquests.push_back(&kConqCity);
 	// Advance cache index past the city just conquered
@@ -613,8 +613,8 @@ void InvasionGraph::Node::logTypicalUnits()
 		/*	(iAgentCost and iActualCost often won't match b/c iActualCost here
 			ignores handicap) */
 		// <!-- custom: The branch's actual typical unit and the agent-view estimate describe one model input; keep both on one row instead of emitting a second row only when power differs. (ChatGPT-5.6-Sol) -->
-		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=%S actualCost=%d actualPower=%d agentEstimatedCost=%d agentEstimatedPower=%d estimatePowerDiffers=%d",
-				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), GC.getInfo(eUnit).getDescription(),
+		logBBAI("UWAI_INVASION_GRAPH_TYPICAL_UNIT turn=%d agentPlayer=%d player=%d branch=%s unit=%s actualCost=%d actualPower=%d agentEstimatedCost=%d agentEstimatedPower=%d estimatePowerDiffers=%d",
+				GC.getGame().getGameTurn(), m_eAgent, m_ePlayer, kBranch.str(), GC.getInfo(eUnit).getType(),
 				iActualCost, iActualPow, iAgentCost, iAgentPow, iAgentPow != iActualPow);
 	}
 }

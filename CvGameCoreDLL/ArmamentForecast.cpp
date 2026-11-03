@@ -76,7 +76,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
 			bNavalArmament = true;
 		}
 		if (bLogArmamentForecastDetail) logBBAI("UWAI_ARMAMENT_FORECAST_TARGET_CITY turn=%d player=%d targetTeam=%d city=%S naval=%d",
-				GC.getGame().getGameTurn(), ePlayer, kParams.getTarget(), (pTargetCity->city()).getName().GetCString(), bNavalArmament);
+				GC.getGame().getGameTurn(), ePlayer, kParams.getTarget(), getSASDiagnosticQuoted((pTargetCity->city()).getName().GetCString()).GetCString(), bNavalArmament);
 	}
 	TeamTypes const eTargetTeam = kParams.getTarget();
 	int iTotalWars = 0, iWars = 0;

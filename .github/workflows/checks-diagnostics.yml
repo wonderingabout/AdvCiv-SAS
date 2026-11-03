@@ -32,6 +32,9 @@ jobs:
       - name: BBAI disabled logging defaults
         run: python .github/workflows/build/diagnostics/bbai_log.py
 
+      - name: BBAI and SASGameRecord greppable record format
+        run: python .github/workflows/build/diagnostics/diagnostic_record_format.py
+
       - name: SASGameRecord defaults and revision
         run: python .github/workflows/build/diagnostics/sas_game_record_log.py
 

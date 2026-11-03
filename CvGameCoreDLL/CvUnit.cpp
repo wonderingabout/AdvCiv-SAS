@@ -465,9 +465,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		bool const bSASGreatGeneralAttached = (getLeaderUnitType() != NO_UNIT);
 		// <!-- custom: The KI#334 visibility contract now needs the killer's team as well as its display identity across several branches; bind the validated ePlayer once instead of mixing repeated player lookups with victim/observer references. See KI#334. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		CvPlayer const& kKiller = GET_PLAYER(ePlayer);
-		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached)) logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(),
-			getReplayName().GetCString(), bSASGreatGeneralUnit,
+		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached)) logBBAI("GREAT_GENERAL_DIED turn=%d player=%d civ=%s unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), GC.getInfo(getUnitType()).getType(),
+			getSASDiagnosticQuoted(getReplayName().GetCString()).GetCString(), bSASGreatGeneralUnit,
 			bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
 		// <!-- custom: Base AdvCiv passed getNameKey() directly to the Great General death texts.
 		// Once a Great General or its combat unit has a personal name, getNameKey() returns only that name, hiding whether the dead unit was the free Great General itself or e.g. a named Longbowman carrying one.
@@ -3830,8 +3830,8 @@ void CvUnit::scrapInternal()
 		getUnitAIString(szAITypeString, AI_getUnitAIType());
 		// <!-- custom: Central actual-scrap event log.
 		// Caller logs are decision/context lines and can repeat; this fires once per successful routine or forced scrap before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
-		logBBAI("    SCRAP_EVENT turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getUnitType(), szAITypeString.GetCString(), getName(0).GetCString(),
+		logBBAI("SCRAP_EVENT turn=%d player=%d civ=%s unitId=%d unitType=%s unitAI=%S name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASInfoTypeOrNone(getUnitType()), getSASDiagnosticQuoted(szAITypeString.GetCString()).GetCString(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
 			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
 	}
@@ -7917,9 +7917,9 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
 	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
 	if (gUnitLogLevel > 2)
 	{
-		logBBAI("UNIT_UPGRADE_APPLIED turn=%d player=%d civ=%S oldUnit=%s oldUnitId=%d newUnit=%s newUnitId=%d unitAI=%d price=%d plot=%d,%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), GC.getInfo(getUnitType()).getType(), getID(),
-			GC.getInfo(pUpgradeUnit->getUnitType()).getType(), pUpgradeUnit->getID(), pUpgradeUnit->AI_getUnitAIType(), iUpgradeCost, getX(), getY());
+		logBBAI("UNIT_UPGRADE_APPLIED turn=%d player=%d civ=%s oldUnit=%s oldUnitId=%d newUnit=%s newUnitId=%d unitAI=%s price=%d plot=%d,%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), GC.getInfo(getUnitType()).getType(), getID(),
+			GC.getInfo(pUpgradeUnit->getUnitType()).getType(), pUpgradeUnit->getID(), getSASInfoTypeOrNone(pUpgradeUnit->AI_getUnitAIType()), iUpgradeCost, getX(), getY());
 	}
 
 	return pUpgradeUnit; // K-Mod

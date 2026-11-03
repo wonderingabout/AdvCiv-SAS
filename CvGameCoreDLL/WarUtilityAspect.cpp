@@ -4393,8 +4393,8 @@ void FairPlay::evaluate()
 	if (iAttitudeDiv > 1)
 		rFairnessCost /= iAttitudeDiv;
 	int const iUtility = std::max(0, rFairnessCost.round());
-	if (bLogWarUtilityDetail && (iTurnsRemaining > 0 || rFromCityLoss >= fixp(0.5) || iFromRecentDoW != 0 || iAttitudeDiv > 1 || iUtility != 0)) logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_EARLY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d startEra=%d targetTurn=%d elapsedTurns=%d turnsRemaining=%d gameEraAdvanced=%d rivalEraAdvanced=%d scoreRatioPercent=%d appliedScoreRatioPercent=%d foundedCities=%d currentCities=%d cityLossCost=%d recentDoWCost=%d attitudeDivisor=%d utility=%d",
-			GC.getGame().getGameTurn(), eWe, eThey, eStartEra, iTargetTurn, iElapsed,
+	if (bLogWarUtilityDetail && (iTurnsRemaining > 0 || rFromCityLoss >= fixp(0.5) || iFromRecentDoW != 0 || iAttitudeDiv > 1 || iUtility != 0)) logBBAI("UWAI_WAR_UTILITY_FAIR_PLAY_EARLY_RESULT turn=%d agentPlayer=%d rivalPlayer=%d startEra=%s targetTurn=%d elapsedTurns=%d turnsRemaining=%d gameEraAdvanced=%d rivalEraAdvanced=%d scoreRatioPercent=%d appliedScoreRatioPercent=%d foundedCities=%d currentCities=%d cityLossCost=%d recentDoWCost=%d attitudeDivisor=%d utility=%d",
+			GC.getGame().getGameTurn(), eWe, eThey, getSASInfoTypeOrNone(eStartEra), iTargetTurn, iElapsed,
 			iTurnsRemaining, bGameEraAdvanced, bRivalEraAdvanced, rScoreRatioRaw.getPercent(),
 			rScoreRatioApplied.getPercent(), iCitiesTheyFounded, iCitiesTheyHave,
 			rFromCityLoss.round(), iFromRecentDoW, iAttitudeDiv, -iUtility);

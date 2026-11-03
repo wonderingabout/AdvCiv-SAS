@@ -2448,8 +2448,8 @@ void CvGame::normalizeAddFoodBonuses(/* advc.027: */ NormalizationTarget const* 
 							continue;
 						}
 						p.setBonusType(eLoopBonus);
-						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=ADD_FOOD_BONUS plot=%d,%d bonus=%s",
-							getGameTurn(), itPlayer->getID(), itPlayer->getCivilizationDescription(0), p.getX(), p.getY(), GC.getInfo(eLoopBonus).getType()); // advc
+						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FOOD_BONUS plot=%d,%d bonus=%s",
+							getGameTurn(), itPlayer->getID(), GC.getInfo(itPlayer->getCivilizationType()).getType(), p.getX(), p.getY(), GC.getInfo(eLoopBonus).getType()); // advc
 						if (p.isWater())
 							iFoodBonus += 2;
 						else
@@ -2591,8 +2591,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 				if (p.getBonusType() == NO_BONUS ||
 					GC.getInfo(p.getBonusType()).isHills())
 				{
-					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=ADD_HILLS plot=%d,%d",
-						getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0), p.getX(), p.getY()); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_HILLS plot=%d,%d",
+						getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), p.getX(), p.getY()); // K-Mod
 					p.setPlotType(PLOT_HILLS, false, true);
 					iHills++;
 					// <advc.108>
@@ -2689,12 +2689,12 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 					if (pTarget != NULL ? pTarget->isReached(*pStartingPlot) : // advc.027
 						citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 					{
-						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%S phase=FEATURES_1 reason=TARGET_REACHED",
-							getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0)); // K-Mod
+						if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=FEATURES_1 reason=TARGET_REACHED",
+							getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 						goto next_player; // advc
 					}
-					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=ADD_FEATURE phase=FEATURES_1 plot=%d,%d feature=%s",
-						getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0), kLoopPlot.getX(), kLoopPlot.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FEATURE phase=FEATURES_1 plot=%d,%d feature=%s",
+						getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kLoopPlot.getX(), kLoopPlot.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
 					kLoopPlot.setFeatureType(eLoopFeature);
 					// <advc.108>
 					if (bFood)
@@ -2774,8 +2774,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 				if (pTarget != NULL ? pTarget->isNearlyReached(*pStartingPlot) : // advc.027
 					citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 				{
-					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%S phase=BONUSES reason=TARGET_NEARLY_REACHED",
-					getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0)); // K-Mod
+					if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=BONUSES reason=TARGET_NEARLY_REACHED",
+					getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 					goto done_placing_resources;
 				}
 				bool const bCoast = (p.isWater() && p.isAdjacentToLand());
@@ -2854,8 +2854,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 			if (pTarget != NULL ? pTarget->isReached(*pStartingPlot) : // advc.027
 				citySiteEval.evaluate(*pStartingPlot) >= rTargetValue)
 			{
-				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%S phase=FEATURES_2 reason=TARGET_REACHED",
-				getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0)); // K-Mod
+				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_PLAYER_LIMIT turn=%d player=%d civ=%s phase=FEATURES_2 reason=TARGET_REACHED",
+				getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType()); // K-Mod
 				break;
 			}
 			FOR_EACH_ENUM_RAND(Feature, getMapRand()) // advc.129: randomize
@@ -2893,8 +2893,8 @@ void CvGame::normalizeAddExtras(/* advc.027: */ NormalizationTarget const* pTarg
 					if (!SyncRandOneChanceIn(std::max(iProductionFeatures - 2, 1)))
 						bProductionFeatureDone = true;
 				} // </advc.108>
-				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=ADD_FEATURE phase=FEATURES_2 plot=%d,%d feature=%s",
-					getGameTurn(), kPlayer.getID(), kPlayer.getCivilizationDescription(0), p.getX(), p.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
+				if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_FEATURE phase=FEATURES_2 plot=%d,%d feature=%s",
+					getGameTurn(), kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), p.getX(), p.getY(), GC.getInfo(eLoopFeature).getType()); // K-Mod
 				p.setFeatureType(eLoopFeature);
 				break;
 			}
@@ -2944,7 +2944,7 @@ void CvGame::normalizeStartingPlots(NormalizationTarget const* pTarget)
 		for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
 		{
 			if (it->getStartingPlot() != NULL)
-				logBBAI("MAP_NORMALIZATION_RESULT turn=%d player=%d civ=%S start=%d,%d foundValue=%d", getGameTurn(), it->getID(), it->getCivilizationDescription(0),
+				logBBAI("MAP_NORMALIZATION_RESULT turn=%d player=%d civ=%s start=%d,%d foundValue=%d", getGameTurn(), it->getID(), GC.getInfo(it->getCivilizationType()).getType(),
 					it->getStartingPlot()->getX(), it->getStartingPlot()->getY(), it->AI_foundValue(it->getStartingPlot()->getX(), it->getStartingPlot()->getY(), -1, false, true));
 		}
 		logBBAI("MAP_NORMALIZATION_PHASE turn=%d action=COMPLETE", getGameTurn());
@@ -3004,8 +3004,8 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bChec
 	}
 	if (bRemoveFeature && kPlot.isFeature())
 	{
-		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=REMOVE_FEATURE_FOR_BONUS plot=%d,%d feature=%s",
-			getGameTurn(), eStartPlayer, GET_PLAYER(eStartPlayer).getCivilizationDescription(0), kPlot.getX(), kPlot.getY(), GC.getInfo(kPlot.getFeatureType()).getType()); // K-Mod
+		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=REMOVE_FEATURE_FOR_BONUS plot=%d,%d feature=%s",
+			getGameTurn(), eStartPlayer, GC.getInfo(GET_PLAYER(eStartPlayer).getCivilizationType()).getType(), kPlot.getX(), kPlot.getY(), GC.getInfo(kPlot.getFeatureType()).getType()); // K-Mod
 		kPlot.setFeatureType(NO_FEATURE);
 	}
 	// advc.129: Try the resources in a random order
@@ -3026,8 +3026,8 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bChec
 		// <advc.004z>
 		if (kPlot.isGoody())
 			kPlot.setImprovementType(NO_IMPROVEMENT); // </advc.004z>
-		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%S action=ADD_BONUS plot=%d,%d bonus=%s",
-			getGameTurn(), eStartPlayer, GET_PLAYER(eStartPlayer).getCivilizationDescription(0), kPlot.getX(), kPlot.getY(), kLoopBonus.getType()); // K-Mod
+		if (gMapLogLevel > 0) logBBAI("MAP_NORMALIZATION_CHANGE turn=%d player=%d civ=%s action=ADD_BONUS plot=%d,%d bonus=%s",
+			getGameTurn(), eStartPlayer, GC.getInfo(GET_PLAYER(eStartPlayer).getCivilizationType()).getType(), kPlot.getX(), kPlot.getY(), kLoopBonus.getType()); // K-Mod
 		kPlot.setBonusType(eLoopBonus);
 		return true;
 	}
@@ -8869,8 +8869,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	{
 		FAssert(NO_PLAYER != kData.kVoteOption.ePlayer);
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_PEACE vote=%s voteSource=%d targetPlayer=%d targetCiv=%S targetTeam=%d",
-			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), kPlayer.getCivilizationDescription(0), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_PEACE vote=%s voteSource=%d targetPlayer=%d targetCiv=%s targetTeam=%d",
+			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		// <kekm.25> 'Cancel defensive pacts with the attackers first'
 		FOR_EACH_DEAL_VAR(pLoopDeal)
 		{
@@ -8918,8 +8918,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 	else if (kVote.isForceWar())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(kData.kVoteOption.ePlayer);
-		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_WAR vote=%s voteSource=%d targetPlayer=%d targetCiv=%S targetTeam=%d",
-			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), kPlayer.getCivilizationDescription(0), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=FORCE_WAR vote=%s voteSource=%d targetPlayer=%d targetCiv=%s targetTeam=%d",
+			getGameTurn(), kVote.getType(), kData.eVoteSource, kPlayer.getID(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kPlayer.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 		CvTeamAI& kTeam = GET_TEAM(kPlayer.getTeam());
 		// advc.001: Exclude dead civs
 		for (PlayerIter<MAJOR_CIV,POTENTIAL_ENEMY_OF> it(kTeam.getID());
@@ -8950,9 +8950,9 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 			CvPlayer& kNewOwner = GET_PLAYER(kData.kVoteOption.eOtherPlayer);
 			if (kNewOwner.getID() != pCity->getOwner())
 			{
-				if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=ASSIGN_CITY vote=%s voteSource=%d city=%S cityId=%d oldOwner=%d newOwner=%d newCiv=%S newTeam=%d",
-					getGameTurn(), kVote.getType(), kData.eVoteSource, pCity->getName().GetCString(), pCity->getID(), pCity->getOwner(),
-					kNewOwner.getID(), kNewOwner.getCivilizationDescription(0), kNewOwner.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+				if (gTeamLogLevel >= 1) logBBAI("DIPLO_VOTE_RESULT turn=%d action=PASS resolution=ASSIGN_CITY vote=%s voteSource=%d city=%S cityId=%d oldOwner=%d newOwner=%d newCiv=%s newTeam=%d",
+					getGameTurn(), kVote.getType(), kData.eVoteSource, getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), pCity->getOwner(),
+					kNewOwner.getID(), GC.getInfo(kNewOwner.getCivilizationType()).getType(), kNewOwner.getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 				kNewOwner.acquireCity(pCity, false, true, true,
 						false, true); // advc.ctr
 			}

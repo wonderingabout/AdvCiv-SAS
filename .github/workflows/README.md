@@ -91,6 +91,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/diagnostics/runtime_status.py`](#builddiagnosticsruntime_statuspy)
     - [`build/diagnostics/runtime_revision_history.py`](#builddiagnosticsruntime_revision_historypy)
     - [`build/diagnostics/bbai_log.py`](#builddiagnosticsbbai_logpy)
+    - [`build/diagnostics/diagnostic_record_format.py`](#builddiagnosticsdiagnostic_record_formatpy)
     - [`build/diagnostics/sas_game_record_log.py`](#builddiagnosticssas_game_record_logpy)
     - [`build/diagnostics/revision_commit_references.py`](#builddiagnosticsrevision_commit_referencespy)
     - [`build/diagnostics/sas_revision_history.py`](#builddiagnosticssas_revision_historypy)
@@ -932,6 +933,18 @@ The regression tests cover multiple commits, missed increments, jumps/regression
 Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added.
 
 The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+
+#### `build/diagnostics/diagnostic_record_format.py`
+
+Checks that active `logBBAI` and `logSASGameRecord` rows in `CvGameCoreDLL/*.cpp` keep the shared greppable record format: the line starts with an uppercase record ID (or a leading `%s` stage ID such as `FOUND_SITE_%s`), names every field, passes display text that has no XML type through `getSASDiagnosticQuoted` (a `city=%S` argument, as SASGameRecord does for `playerName="PC"`), and repeats no key.
+
+Quotes written into the literal (`city=\"%S\"`) fail because they do not escape a quote inside the name.
+
+- It was added after the BBAI modernization, when a T201 Huge run still showed older rows indented (`    WORKER_...`), civs logged unnamed after `player=%d`, and keys such as `target=%S ... target=(%d,%d)` repeated; one pass fixed 381 formats.
+- Every token after the ID must be a `key=value` field: a rerun still showed bare words and groups such as `civ=CIVILIZATION_CHINA stageFlags C1=0` and `rejects(edgeOrIgnored=0 ...)`, now `rejectEdgeOrIgnored=0`.
+- SASGameRecord shares the check: it already followed the format except four city names (`city=Emain Macha`, `slowCity=Philadelphia`, `targetCity=Rome`), fixed in revision 189. A display field fails only when its argument reads raw text such as `getName()` without a quoting helper, because SGR often passes a name quoted earlier.
+- Pre-keyed `%s` fragments such as `techRows=%d %s` stay legal. Comments are skipped, so disabled rows and the `TrueStarts.cpp` debug surface stay outside the check.
+- It does not check field values: identities should use narrow `%s` XML types (`getType()`), but a `getDescription()` passed where `getType()` belongs still needs review.
 
 #### `build/diagnostics/sas_game_record_log.py`
 

@@ -348,29 +348,29 @@ void WarEvaluator::logPreamble()
 			m_kParams.isImmediateDoW(), m_kParams.isIgnoreDistraction(), m_kAgent.isHuman(), m_kTarget.isHuman());
 	for (MemberIter agentIt(m_kAgent.getID()); agentIt.hasNext(); ++agentIt)
 		logBBAI("UWAI_WAR_EVALUATION_AGENT_MEMBER turn=%d agentTeam=%d player=%d name=%S",
-			GC.getGame().getGameTurn(), m_kAgent.getID(), agentIt->getID(), GET_PLAYER(agentIt->getID()).getName(0));
+			GC.getGame().getGameTurn(), m_kAgent.getID(), agentIt->getID(), getSASDiagnosticQuoted(GET_PLAYER(agentIt->getID()).getName(0)).GetCString());
 	for (MemberIter targetIt(m_kTarget.getID()); targetIt.hasNext(); ++targetIt)
 		logBBAI("UWAI_WAR_EVALUATION_TARGET_MEMBER turn=%d targetTeam=%d player=%d name=%S",
-			GC.getGame().getGameTurn(), m_kTarget.getID(), targetIt->getID(), GET_PLAYER(targetIt->getID()).getName(0));
+			GC.getGame().getGameTurn(), m_kTarget.getID(), targetIt->getID(), getSASDiagnosticQuoted(GET_PLAYER(targetIt->getID()).getName(0)).GetCString());
 	if (m_kAgent.isAVassal()) logBBAI("UWAI_WAR_EVALUATION_AGENT_VASSAL turn=%d agentTeam=%d masterTeam=%d masterName=%S",
-		GC.getGame().getGameTurn(), m_kAgent.getID(), m_kAgent.getMasterTeam(), GET_TEAM(m_kAgent.getMasterTeam()).getName().GetCString());
+		GC.getGame().getGameTurn(), m_kAgent.getID(), m_kAgent.getMasterTeam(), getSASDiagnosticQuoted(GET_TEAM(m_kAgent.getMasterTeam()).getName().GetCString()).GetCString());
 	if (m_kTarget.isAVassal()) logBBAI("UWAI_WAR_EVALUATION_TARGET_VASSAL turn=%d targetTeam=%d masterTeam=%d masterName=%S",
-		GC.getGame().getGameTurn(), m_kTarget.getID(), m_kTarget.getMasterTeam(), GET_TEAM(m_kTarget.getMasterTeam()).getName().GetCString());
+		GC.getGame().getGameTurn(), m_kTarget.getID(), m_kTarget.getMasterTeam(), getSASDiagnosticQuoted(GET_TEAM(m_kTarget.getMasterTeam()).getName().GetCString()).GetCString());
 	FOR_EACH_ENUM2(Team, eAlly)
 	{
 		if (m_kParams.isWarAlly(eAlly)) logBBAI("UWAI_WAR_EVALUATION_WAR_ALLY turn=%d agentTeam=%d targetTeam=%d allyTeam=%d allyName=%S",
-			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), eAlly, GET_TEAM(eAlly).getName().GetCString());
+			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), eAlly, getSASDiagnosticQuoted(GET_TEAM(eAlly).getName().GetCString()).GetCString());
 	}
 	FOR_EACH_ENUM2(Team, eExtraTarget)
 	{
 		if (m_kParams.isExtraTarget(eExtraTarget)) logBBAI("UWAI_WAR_EVALUATION_EXTRA_TARGET turn=%d agentTeam=%d targetTeam=%d extraTargetTeam=%d extraTargetName=%S",
-			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), eExtraTarget, GET_TEAM(eExtraTarget).getName().GetCString());
+			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), eExtraTarget, getSASDiagnosticQuoted(GET_TEAM(eExtraTarget).getName().GetCString()).GetCString());
 	}
 	if (m_kParams.getSponsor() != NO_PLAYER)
 	{
 		logBBAI("UWAI_WAR_EVALUATION_SPONSOR turn=%d agentTeam=%d targetTeam=%d sponsorPlayer=%d sponsorName=%S",
 			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), m_kParams.getSponsor(),
-			GET_PLAYER(m_kParams.getSponsor()).getName(0));
+			getSASDiagnosticQuoted(GET_PLAYER(m_kParams.getSponsor()).getName(0)).GetCString());
 		FAssert(m_kParams.isImmediateDoW());
 	}
 }
@@ -665,7 +665,7 @@ void WarEvaluator::evaluate(PlayerTypes eAgentPlayer, vector<WarUtilityAspect*>&
 		}
 	}
 	if (gUWAIWarUtilityLogLevel >= 2 && !m_kLogMuteState.isMuted()) logBBAI("UWAI_WAR_PLAYER_UTILITY_BEGIN turn=%d agentTeam=%d targetTeam=%d scenario=%s player=%d name=%S",
-			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), m_bPeaceScenario ? "PEACE" : "WAR", eAgentPlayer, GET_PLAYER(eAgentPlayer).getName(0));
+			GC.getGame().getGameTurn(), m_kAgent.getID(), m_kTarget.getID(), m_bPeaceScenario ? "PEACE" : "WAR", eAgentPlayer, getSASDiagnosticQuoted(GET_PLAYER(eAgentPlayer).getName(0)).GetCString());
 	int iU = 0;
 	// <!-- custom: The first KI#53.6 aspect run showed that many strong/near island candidates had no GreedForAssets at all, meaning MilitaryAnalyst predicted no city gain from the target.
 	// Log the underlying naval simulation only for ordinary (non-hard-rejected) opportunity candidates so we can distinguish Army, Fleet, Logistics, and projected-conquest failures before changing behavior. (ChatGPT-5.6-Sol) -->

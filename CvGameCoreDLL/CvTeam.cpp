@@ -1218,9 +1218,9 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 	// <!-- custom: A declaration can cancel deals, swap contested-border ownership, emit the primary WAR_STARTED row and synchronously trigger defensive-pact/vassal wars.
 	// Nested declarations join the root tx. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	SASGameRecordTransactionScope kSASWarDeclarationTransaction("WAR_DECLARATION", gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized());
-	if (gWarLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=DECLARE_WAR team=%d civ=%S targetTeam=%d targetCiv=%S warPlan=%s primary=%d sponsor=%d randomEvent=%d cause=%s",
-		GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-		GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationDescription(0), getSASWarPlanType(eWarPlan), bPrimaryDoW, eSponsor, bRandomEvent, getSASWarDeclarationCause(eCause)); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
+	if (gWarLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=DECLARE_WAR team=%d civ=%s targetTeam=%d targetCiv=%s warPlan=%s primary=%d sponsor=%d randomEvent=%d cause=%s",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+		GC.getInfo(GET_PLAYER(GET_TEAM(eTarget).getLeaderID()).getCivilizationType()).getType(), getSASWarPlanType(eWarPlan), bPrimaryDoW, eSponsor, bRandomEvent, getSASWarDeclarationCause(eCause)); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -1441,9 +1441,9 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bo
 
 	AI().AI_preMakePeace(eTarget, pReparations); // advc: AI code moved into new function
 
-	if (gTeamLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=MAKE_PEACE team=%d civ=%S targetTeam=%d targetCiv=%S brokerTeam=%d capitulation=%d randomEvent=%d reparationsFrom=%d",
-		GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget,
-		GET_PLAYER(kTarget.getLeaderID()).getCivilizationDescription(0), eBroker, bCapitulate, bRandomEvent, eReparationsFrom); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
+	if (gTeamLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("TEAM_WAR_STATE_CHANGE turn=%d action=MAKE_PEACE team=%d civ=%s targetTeam=%d targetCiv=%s brokerTeam=%d capitulation=%d randomEvent=%d reparationsFrom=%d",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTarget,
+		GC.getInfo(GET_PLAYER(kTarget.getLeaderID()).getCivilizationType()).getType(), eBroker, bCapitulate, bRandomEvent, eReparationsFrom); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
 
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updatePlunder(-1, false);
@@ -1829,9 +1829,9 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // a
 		}
 	} // </advc.120l>
 
-	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("TEAM_CONTACT turn=%d action=MEET team=%d civ=%S otherTeam=%d otherCiv=%S newDiplo=%d",
-		GC.getGame().getGameTurn(), getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTeam,
-		GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationDescription(0), bNewDiplo); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
+	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("TEAM_CONTACT turn=%d action=MEET team=%d civ=%s otherTeam=%d otherCiv=%s newDiplo=%d",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(GET_PLAYER(getLeaderID()).getCivilizationType()).getType(), eTeam,
+		GC.getInfo(GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationType()).getType(), bNewDiplo); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
 	// <advc.001> Moved from makeHasMet in order to get the attitude update right
 	for (TeamIter<ALIVE,VASSAL_OF> it(getID()); it.hasNext(); ++it)
 		it->meet(eTeam, bNewDiplo, /* advc.071: */ pData);
@@ -4790,8 +4790,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 
 	if (isHasTech(eTech))
 	{
-		if (gTeamLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("TEAM_TECH_ACQUIRED turn=%d team=%d teamName=%S player=%d civ=%S tech=%s first=%d announce=%d cause=%s",
-			kGame.getGameTurn(), getID(), getName().GetCString(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), kTech.getType(), bFirst, bAnnounce,
+		if (gTeamLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("TEAM_TECH_ACQUIRED turn=%d team=%d teamName=%S player=%d civ=%s tech=%s first=%d announce=%d cause=%s",
+			kGame.getGameTurn(), getID(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), kTech.getType(), bFirst, bAnnounce,
 			getSASTechAcquisitionCause(eCause)); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 		// <!-- custom: AdvCiv practical 1837 made this inherited all-member era propagation alive-only.
@@ -4917,9 +4917,9 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 				kMember.popResearch(eTech);
 			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase.
 			// Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
-			if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d",
-				kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(),
-				(kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()),
+			if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d civ=%s acquired=%s next=%s queueLength=%d",
+				kGame.getGameTurn(), kMember.getID(), GC.getInfo(kMember.getCivilizationType()).getType(), kTech.getType(),
+				(kMember.getCurrentResearch() == NO_TECH ? "-" : GC.getInfo(kMember.getCurrentResearch()).getType()),
 				kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
@@ -5009,8 +5009,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 							Clearing the queue is currently the only way to do that. */
 						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's.
 						// Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
-						if (gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d",
-							kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
+						if (gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d civ=%s competingTech=%s claimedByTeam=%d",
+							kGame.getGameTurn(), itOther->getID(), GC.getInfo(itOther->getCivilizationType()).getType(), kTech.getType(), getID());
 						if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(itOther->getID(), RESEARCH_TARGET_CHANGE_FIRST_DISCOVERY_PERK_INVALIDATION);
 						itOther->clearResearchQueue();
 					}

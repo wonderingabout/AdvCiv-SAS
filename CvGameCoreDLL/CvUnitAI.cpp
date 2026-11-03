@@ -47,13 +47,13 @@ static void logBBAIRetreatUnitResult(SASRetreatResult eResult, CvUnitAI const& k
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logBBAI("RETREAT_UNIT_RESULT action=%s turn=%d player=%d civ=%S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
-		getSASRetreatResultBBAIName(eResult), GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation,
-		(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
+	logBBAI("RETREAT_UNIT_RESULT action=%s turn=%d player=%d civ=%s doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%s domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
+		getSASRetreatResultBBAIName(eResult), GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), bDoomedCityEvacuation,
+		getSASDiagnosticQuoted((pSourceCity == NULL ? NULL : pSourceCity->getName().GetCString())).GetCString(), (pSourceCity == NULL ? -1 : pSourceCity->getID()),
 		(pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(),
-		kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
+		getSASDiagnosticQuoted(kUnit.getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
 		(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
-		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
+		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
 		(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger,
 		(pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
@@ -74,9 +74,9 @@ static void logBBAISafetyUnitResult(char const* szAction, CvUnitAI const& kUnit,
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
-	logBBAI("SAFETY_UNIT_RESULT action=%s turn=%d player=%d civ=%S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
-		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(),
-		kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
+	logBBAI("SAFETY_UNIT_RESULT action=%s turn=%d player=%d civ=%s unitId=%d unit=%S unitAI=%s domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
+		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(),
+		getSASDiagnosticQuoted(kUnit.getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()),
 		(pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()),
 		(pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(),
 		kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()),
@@ -356,11 +356,11 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 	MissionTypes const eMission = (pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0));
 	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
 	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
-	logBBAI("SETTLER_PARKED turn=%d player=%d %S reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
-		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(),
+	logBBAI("SETTLER_PARKED turn=%d player=%d civ=%s reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szReason, kSettler.getID(),
 		SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()),
 		GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(),
-		(kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()),
+		getSASDiagnosticQuoted((kCityPool.pCity == NULL ? NULL : kCityPool.pCity->getName().GetCString())).GetCString(),
 		(kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI,
 		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue,
 		(pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders,
@@ -376,7 +376,7 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 		(kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())),
 		(kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
 	if (iSettlerLogLevel >= 3 && kCityPool.pCity != NULL) logBBAI("SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
-		GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(),
+		GC.getGame().getGameTurn(), kSettler.getOwner(), getSASDiagnosticQuoted(kCityPool.pCity->getName().GetCString()).GetCString(), kCityPool.pCity->getID(),
 		kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders,
 		kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders,
 		kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates,
@@ -406,9 +406,9 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	pEscort->joinGroup(pSettlerGroup);
 	if (bLogSettler2PlusEscort)
 	{
-		logBBAI("SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d %S city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
-			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0),
-			kPool.pCity->getName().GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(),
+		logBBAI("SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d civ=%s city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
+			GC.getGame().getGameTurn(), kSettler.getOwner(), GC.getInfo(GET_PLAYER(kSettler.getOwner()).getCivilizationType()).getType(),
+			getSASDiagnosticQuoted(kPool.pCity->getName().GetCString()).GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(),
 			SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(),
 			pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits,
 			kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates,
@@ -491,8 +491,8 @@ static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& 
 	int iGroupHealthyDefenders = 0;
 	int iGroupSettlers = 0;
 	SAS_countSettlerGroupUnits(pGroup, iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
-	logBBAI("SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
-		GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), szAction, szReason,
+	logBBAI("SETTLER_MISSION_DECISION turn=%d player=%d civ=%s action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), GC.getInfo(GET_PLAYER(kSettler.getOwner()).getCivilizationType()).getType(), szAction, szReason,
 		kSettler.getID(), kSettler.getX(), kSettler.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()),
 		(pTargetPlot == NULL ? -1 : pTargetPlot->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()),
 		(pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), (pTargetPlot == NULL ? NO_PLAYER : pTargetPlot->getOwner()), iFoundValue,
@@ -508,13 +508,13 @@ static void logBBAIEvacuationUnitDecision(char const* szMode, CvUnitAI const& kU
 	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
 	CvCityAI const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->AI_getPlotCity());
 	int const iGameTurn = GC.getGame().getGameTurn();
-	logBBAI("EVACUATION_UNIT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
-		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
-		kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(), kUnit.getID(), kUnit.getName(0).GetCString(),
-		kUnit.AI_getUnitAIType(), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()),
+	logBBAI("EVACUATION_UNIT_DECISION turn=%d player=%d civ=%s city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%s domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
+		iGameTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
+		kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(), kUnit.getID(), getSASDiagnosticQuoted(kUnit.getName(0).GetCString()).GetCString(),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()),
 		(pGroup == NULL ? 0 : pGroup->getNumUnits()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()),
 		(pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
-		(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionCity == NULL ? L"-" : pMissionCity->getName().GetCString()),
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getSASDiagnosticQuoted((pMissionCity == NULL ? NULL : pMissionCity->getName().GetCString())).GetCString(),
 		(pMissionCity == NULL ? -1 : pMissionCity->getID()), (pMissionCity == NULL ? 0 : pMissionCity->AI_isEvacuating()),
 		(pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? 0 : pGroup->isForceUpdate()), kUnit.currHitPoints(),
 		kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), kUnit.getFortifyTurns(), kUnit.getMoves(), kUnit.movesLeft(),
@@ -539,18 +539,18 @@ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUni
 	ImprovementTypes const eTargetImprovement = (pMissionPlot == NULL ? NO_IMPROVEMENT : pMissionPlot->getImprovementType());
 	CvWString const szCity = (pCity == NULL ? CvWString(L"-") : pCity->getName());
 	CvWString const szTargetWorkingCity = (pTargetWorkingCity == NULL ? CvWString(L"-") : pTargetWorkingCity->getName());
-	wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
-	wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
-	wchar const* szTargetBonus = (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription());
-	wchar const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetImprovement).getDescription());
+	char const* szBonus = (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
+	char const* szImprovement = (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
+	char const* szTargetBonus = (eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType());
+	char const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetImprovement).getType());
 	int const iTargetMissionAIsSkipSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, pGroup, 0, MAX_INT));
 	int const iTargetMissionAIsIncludingSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT));
-	logBBAI("    WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d %S unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%S improvement=%S missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%S targetImprovement=%S targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
-		szReason, GC.getGame().getGameTurn(), kUnit.getOwner(), kPlayer.getCivilizationDescription(0), kUnit.getID(),
-		kUnit.getName(0).GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), szCity.GetCString(), szBonus,
+	logBBAI("WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d civ=%s unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%s improvement=%s missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%s targetImprovement=%s targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
+		szReason, GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), kUnit.getID(),
+		getSASDiagnosticQuoted(kUnit.getName(0).GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), getSASDiagnosticQuoted(szCity.GetCString()).GetCString(), szBonus,
 		szImprovement, eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()),
 		iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus,
-		szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()),
+		szTargetImprovement, getSASDiagnosticQuoted(szTargetWorkingCity.GetCString()).GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()),
 		(pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
 }
 
@@ -564,12 +564,12 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
 	CorporationTypes const eCorporation = (eBuilding == NO_BUILDING ? NO_CORPORATION : GC.getInfo(eBuilding).getFoundsCorporation());
 	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
 	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
-	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d %S unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d slowBase=%d slowPathTurns=%d previousMissionAI=%d previousMissionPlot=(%d,%d) discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
-		szAction, kGame.getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(),
+	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d civ=%s unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d slowBase=%d slowPathTurns=%d previousMissionAI=%d previousMissionPlot=(%d,%d) discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
+		szAction, kGame.getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(),
 		kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iSlowBaseValue, (iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns),
 		ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()),
 		(pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iDiscoverValue, iGoldenAgeValue, iTradeValue, iCultureValue,
-		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
+		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
 		(pMovePlot == NULL ? -1 : pMovePlot->getX()), (pMovePlot == NULL ? -1 : pMovePlot->getY()),
 		(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()),
@@ -2054,30 +2054,30 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 			FeatureTypes const eActualFeature = pLoopPlot->getFeatureType();
 			// <!-- custom: These rows describe a candidate site before any city exists; the BBAI modernization draft logged city=/cityId= from an undeclared kCity and failed to compile, so they record the context and site instead. (Claude code Opus 5.5) -->
 			// <!-- custom: The player-known line remains explicitly unrevealed, while level-3 diagnostics retain the true tile underneath so later analysis can tell whether a scouting direction approached food, river terrain or a hidden resource instead of merely revealing more fog. (GPT-5.6-Sol) -->
-			logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%S context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=0 actualFood=%d actualProduction=%d actualCommerce=%d actualTerrain=%S actualFeature=%S actualBonus=%S",
-				GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), szContext, kCityPlot.getX(), kCityPlot.getY(),
+			logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%s context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=0 actualFood=%d actualProduction=%d actualCommerce=%d actualTerrain=%s actualFeature=%s actualBonus=%s",
+				GC.getGame().getGameTurn(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), szContext, kCityPlot.getX(), kCityPlot.getY(),
 				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM, false),
 				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, false), pLoopPlot->calculateNatureYield(YIELD_COMMERCE, NO_TEAM, false),
-				(eActualTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eActualTerrain).getDescription()),
-				(eActualFeature == NO_FEATURE ? L"-" : GC.getInfo(eActualFeature).getDescription()),
-				(eActualBonus == NO_BONUS ? L"-" : GC.getInfo(eActualBonus).getDescription()));
+				(eActualTerrain == NO_TERRAIN ? "-" : GC.getInfo(eActualTerrain).getType()),
+				(eActualFeature == NO_FEATURE ? "-" : GC.getInfo(eActualFeature).getType()),
+				(eActualBonus == NO_BONUS ? "-" : GC.getInfo(eActualBonus).getType()));
 			continue;
 		}
 		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
 		BonusTypes const eActualBonus = pLoopPlot->getBonusType();
 		TerrainTypes const eTerrain = pLoopPlot->getTerrainType();
 		FeatureTypes const eFeature = pLoopPlot->getFeatureType();
-		wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
-		wchar const* szTerrain = (eTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eTerrain).getDescription());
-		wchar const* szFeature = (eFeature == NO_FEATURE ? L"-" : GC.getInfo(eFeature).getDescription());
+		char const* szBonus = (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
+		char const* szTerrain = (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
+		char const* szFeature = (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
 		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
-		logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%S context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=1 home=%d food=%d production=%d commerce=%d foodEnvironmentScore=%d hasYield=%d terrain=%S feature=%S bonusKnown=%S bonusActual=%S bonusHidden=%d water=%d hills=%d fresh=%d river=%d",
-				GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), szContext, kCityPlot.getX(), kCityPlot.getY(),
+		logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%s context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=1 home=%d food=%d production=%d commerce=%d foodEnvironmentScore=%d hasYield=%d terrain=%s feature=%s bonusKnown=%s bonusActual=%s bonusHidden=%d water=%d hills=%d fresh=%d river=%d",
+				GC.getGame().getGameTurn(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), szContext, kCityPlot.getX(), kCityPlot.getY(),
 				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), iCityPlot == CITY_HOME_PLOT,
 				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false), pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
 				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, eTeam, false),
 				pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement), pLoopPlot->hasYield(),
-				szTerrain, szFeature, szBonus, (eActualBonus == NO_BONUS ? L"-" : GC.getInfo(eActualBonus).getDescription()),
+				szTerrain, szFeature, szBonus, (eActualBonus == NO_BONUS ? "-" : GC.getInfo(eActualBonus).getType()),
 				eBonus != eActualBonus, pLoopPlot->isWater(), pLoopPlot->isHills(), pLoopPlot->isFreshWater(), pLoopPlot->isRiver());
 	}
 }
@@ -2178,9 +2178,9 @@ static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const
 		if (itLast == aLastLoggedState.end() || itLast->second.first != kCity.getGameTurnFounded() || itLast->second.second != bReject)
 		{
 			aLastLoggedState[key] = std::make_pair(kCity.getGameTurnFounded(), bReject);
-			logBBAI("    BARB_CITY_DISTANT_DISPOSABLE_EVAL turn=%d player=%d %S context=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) target=%S target=(%d,%d) targetPop=%d pathTurns=%d maxDisposablePathTurns=%d likelyToBenefitUsLongTerm=%d reject=%d wars=%d anyWarPlan=%d",
-				GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szContext, kUnit.getID(),
-				kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kCity.getName().GetCString(),
+			logBBAI("BARB_CITY_DISTANT_DISPOSABLE_EVAL turn=%d player=%d civ=%s context=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) target=%S targetPlot=(%d,%d) targetPop=%d pathTurns=%d maxDisposablePathTurns=%d likelyToBenefitUsLongTerm=%d reject=%d wars=%d anyWarPlan=%d",
+				GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szContext, kUnit.getID(),
+				kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 				kCity.getX(), kCity.getY(), kCity.getPopulation(), iPathTurns, iMaxDisposablePathTurns, bLikelyToBenefitUsLongTerm, bReject,
 				GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
 		}
@@ -2377,8 +2377,8 @@ static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int 
 	if (iReleasedUnits <= 0)
 		return false;
 	int const iAggregateAfter = SAS_countPlotAttackCityGroupUnits(kUnit.getPlot(), kUnit.getOwner());
-	if (gUnitLogLevel >= 2) logBBAI("    ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d aggregateBefore=%d retainedLimit=%d releaseNeeded=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d reassignedHead=%d aggregateAfter=%d unreleasedAggregateExcess=%d totalMilitary=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits,
+	if (gUnitLogLevel >= 2) logBBAI("ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d civ=%s originalGroupId=%d originalGroupUnits=%d aggregateBefore=%d retainedLimit=%d releaseNeeded=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d reassignedHead=%d aggregateAfter=%d unreleasedAggregateExcess=%d totalMilitary=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), iOriginalGroupId, iOriginalGroupUnits,
 		iAggregateBefore, iRetainedUnits, iReleaseNeeded, (int)aReleaseCandidates.size(), iDetachedExistingRoles, iReassignedAttackers,
 		bReassignedHead, iAggregateAfter, std::max(0, iAggregateAfter - iRetainedUnits), kOwner.getNumMilitaryUnits());
 	kUnit.getGroup()->pushMission(MISSION_SKIP);
@@ -2454,15 +2454,15 @@ static void SAS_logMissingWarCityExpeditionLeaderCandidate(CvUnitAI& kUnit, CvPl
 	WarPlanTypes const eTargetWarPlan = (eTargetTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eTargetTeam));
 	int const iAttackCityValue = kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
 	int const iWarStackNeeded = kOwner.AI_neededCityAttackers(kUnit.getArea(), kUnit.AI_getBirthmark());
-	logBBAI("    ATTACK_CITY_WAR_MISSING_LEADER_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S groupId=%d groupUnits=%d areaAttackUnits=%d areaAttackCityCaptureCapable=%d areaAttackCityUnits=%d totalAttackCityUnits=%d areaCityCaptureCapable=%d areaAttackGroups=%d largestAttackGroup=%d warStackNeeded=%d attackCityUnitValue=%d cityDefensePassed=1 currentDanger=0 wars=%d anyWarPlan=%d sneakAttackReady=%d turtle=%d areaAI=%d targetCandidates=%d pathableTargets=%d targetMaxPathTurns=%d areaTarget=%S areaTarget=(%d,%d) target=%S targetOwner=%d targetTeam=%d target=(%d,%d) targetPop=%d targetDefenders=%d targetValue=%d targetPathTurns=%d targetStepDistance=%d targetAtWar=%d targetWarPlan=%s",
-		iGameTurn, kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getArea().getID(), kUnit.getID(),
-		kUnit.getName().GetCString(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), iAreaAttackUnits,
+	logBBAI("ATTACK_CITY_WAR_MISSING_LEADER_CANDIDATE turn=%d player=%d civ=%s area=%d unitId=%d unit=%S groupId=%d groupUnits=%d areaAttackUnits=%d areaAttackCityCaptureCapable=%d areaAttackCityUnits=%d totalAttackCityUnits=%d areaCityCaptureCapable=%d areaAttackGroups=%d largestAttackGroup=%d warStackNeeded=%d attackCityUnitValue=%d cityDefensePassed=1 currentDanger=0 wars=%d anyWarPlan=%d sneakAttackReady=%d turtle=%d areaAI=%d targetCandidates=%d pathableTargets=%d targetMaxPathTurns=%d areaTarget=%S areaTargetPlot=(%d,%d) target=%S targetOwner=%d targetTeam=%d targetPlot=(%d,%d) targetPop=%d targetDefenders=%d targetValue=%d targetPathTurns=%d targetStepDistance=%d targetAtWar=%d targetWarPlan=%s",
+		iGameTurn, kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getArea().getID(), kUnit.getID(),
+		getSASDiagnosticQuoted(kUnit.getName().GetCString()).GetCString(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), iAreaAttackUnits,
 		iAreaAttackCityCaptureCapable, iAreaAttackCityUnits, kOwner.AI_totalUnitAIs(UNITAI_ATTACK_CITY), iAreaCityCaptureCapable,
 		iAreaAttackGroups, iLargestAttackGroup, iWarStackNeeded, iAttackCityValue, iNumWars, bAnyWarPlan, bSneakAttackReady, bTurtle,
 		kUnit.getArea().getAreaAIType(kUnit.getTeam()), iTargetCandidates, iPathableTargets, iMaxTargetPathTurns,
-		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()),
+		getSASDiagnosticQuoted((pAreaTargetCity == NULL ? NULL : pAreaTargetCity->getName().GetCString())).GetCString(), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()),
 		(pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
-		(pBestPathableTarget == NULL ? L"-" : pBestPathableTarget->getName().GetCString()),
+		getSASDiagnosticQuoted((pBestPathableTarget == NULL ? NULL : pBestPathableTarget->getName().GetCString())).GetCString(),
 		(pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getOwner()), eTargetTeam,
 		(pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getX()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getY()),
 		(pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getPopulation()), iTargetDefenders, iTargetValue,
@@ -2541,12 +2541,12 @@ static void SAS_logAttackDefenseReinforcementCandidate(CvUnitAI& kUnit, CvPlayer
 	int const iTargetPlotDanger = kOwner.AI_getPlotDanger(pBestCity->getPlot(), 2);
 	bool const bSplitOnePossible = (iGroupUnits > 1 && iGroupDefenders > 0);
 	bool const bAllGroupDefendersNeeded = (iBestRemainingShortfall >= iGroupDefenders);
-	logBBAI("    ATTACK_DEFENSE_REINFORCEMENT_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S unitAI=%d groupId=%d groupUnits=%d groupDefenders=%d groupHealthyDefenders=%d totalMilitary=%d groupMilitaryPercent=%d source=(%d,%d) sourceCity=%S sourceOwner=%d sourceDanger=%d existingDefenseLogicDidNotUseGroup=1 target=%S targetId=%d target=(%d,%d) targetPop=%d targetCapital=%d targetDanger=%d targetCityThreat=%d targetPlotDanger=%d targetEvacuating=%d defendersNeeded=%d defendersHave=%d incomingDefenders=%d rawShortfall=%d remainingShortfall=%d targetPathTurns=%d targetStepDistance=%d targetMaxPathTurns=%d splitOnePossible=%d allGroupDefendersNeeded=%d wars=%d anyWarPlan=%d areaAI=%d",
-		iGameTurn, eOwner, kOwner.getCivilizationDescription(0), kArea.getID(), kUnit.getID(), kUnit.getName().GetCString(),
-		kUnit.AI_getUnitAIType(), pGroup->getID(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iTotalMilitary,
+	logBBAI("ATTACK_DEFENSE_REINFORCEMENT_CANDIDATE turn=%d player=%d civ=%s area=%d unitId=%d unit=%S unitAI=%s groupId=%d groupUnits=%d groupDefenders=%d groupHealthyDefenders=%d totalMilitary=%d groupMilitaryPercent=%d source=(%d,%d) sourceCity=%S sourceOwner=%d sourceDanger=%d existingDefenseLogicDidNotUseGroup=1 target=%S targetId=%d targetPlot=(%d,%d) targetPop=%d targetCapital=%d targetDanger=%d targetCityThreat=%d targetPlotDanger=%d targetEvacuating=%d defendersNeeded=%d defendersHave=%d incomingDefenders=%d rawShortfall=%d remainingShortfall=%d targetPathTurns=%d targetStepDistance=%d targetMaxPathTurns=%d splitOnePossible=%d allGroupDefendersNeeded=%d wars=%d anyWarPlan=%d areaAI=%d",
+		iGameTurn, eOwner, GC.getInfo(kOwner.getCivilizationType()).getType(), kArea.getID(), kUnit.getID(), getSASDiagnosticQuoted(kUnit.getName().GetCString()).GetCString(),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), pGroup->getID(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iTotalMilitary,
 		100 * iGroupUnits / std::max(1, iTotalMilitary), kUnit.getX(), kUnit.getY(),
-		(pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), kUnit.getPlot().getOwner(),
-		kOwner.AI_getPlotDanger(kUnit.getPlot()), pBestCity->getName().GetCString(), pBestCity->getID(), pBestCity->getX(),
+		getSASDiagnosticQuoted((pSourceCity == NULL ? NULL : pSourceCity->getName().GetCString())).GetCString(), kUnit.getPlot().getOwner(),
+		kOwner.AI_getPlotDanger(kUnit.getPlot()), getSASDiagnosticQuoted(pBestCity->getName().GetCString()).GetCString(), pBestCity->getID(), pBestCity->getX(),
 		pBestCity->getY(), pBestCity->getPopulation(), pBestCity->isCapital(), pBestCity->AI_isDanger(), iTargetCityThreat,
 		iTargetPlotDanger, pBestCity->AI_isEvacuating(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestRawShortfall,
 		iBestRemainingShortfall, iBestPathTurns, iBestStepDistance, iMaxPathTurns, bSplitOnePossible, bAllGroupDefendersNeeded,
@@ -2588,9 +2588,9 @@ static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
 	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, true, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
 	if (pTargetCity == NULL)
 		return false;
-	if (gUnitLogLevel >= 2) logBBAI("    ATTACK_CITY_BARBARIAN_EXPEDITION_LEADER_CREATED turn=%d player=%d %S unitId=%d unit=%S oldUnitAI=UNITAI_ATTACK newUnitAI=UNITAI_ATTACK_CITY areaAttackUnits=%d attackersNeeded=%d target=%S target=(%d,%d) pathTurns=%d stepDistance=%d defenders=%d targetValue=%d value=%d attackCityUnitValue=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName().GetCString(), iAreaAttackUnits, iAttackersNeeded,
-		pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iPathTurns, iStepDistance, iDefenders, iTargetValue, iValue, iAttackCityValue);
+	if (gUnitLogLevel >= 2) logBBAI("ATTACK_CITY_BARBARIAN_EXPEDITION_LEADER_CREATED turn=%d player=%d civ=%s unitId=%d unit=%S oldUnitAI=UNITAI_ATTACK newUnitAI=UNITAI_ATTACK_CITY areaAttackUnits=%d attackersNeeded=%d target=%S targetPlot=(%d,%d) pathTurns=%d stepDistance=%d defenders=%d targetValue=%d value=%d attackCityUnitValue=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(), getSASDiagnosticQuoted(kUnit.getName().GetCString()).GetCString(), iAreaAttackUnits, iAttackersNeeded,
+		getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), iPathTurns, iStepDistance, iDefenders, iTargetValue, iValue, iAttackCityValue);
 	kUnit.AI_setUnitAIType(UNITAI_ATTACK_CITY);
 	return true;
 }
@@ -2624,16 +2624,16 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
 	int const iPickedTargetDefenders = (pTargetCity == NULL ? -1 : pTargetCity->getPlot().plotCount(PUF_canDefend));
 	if (pTargetCity != NULL)
 		kUnit.generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns, 20);
-	logBBAI("    BARB_CITY_OPPORTUNITY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d attackCityUnitAI=%d canAttack=%d cityCapture=%d at=(%d,%d) huntBarbs=%d ready=%d targetTooStrong=%d pickedTarget=%S pickedTarget=(%d,%d) pickedTargetOwner=%d pickedTargetPop=%d pickedTargetDefenders=%d pickedTargetValue=%d pickedBarb=%d pickedPathTurns=%d candidates=%d pathableCandidates=%d bestOverallBarb=%S bestOverallBarb=(%d,%d) bestOverallValue=%d bestOverallTargetValue=%d bestOverallStepDistance=%d bestPathableBarb=%S bestPathableBarb=(%d,%d) bestPathablePop=%d bestPathableDefenders=%d bestPathableValue=%d bestPathableTargetValue=%d bestPathablePathTurns=%d bestPathableStepDistance=%d areaAI=%d wars=%d anyWarPlan=%d financialTrouble=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), pGroup->getID(),
-		pGroup->getNumUnits(), iAttackCityUnitAI, iCanAttack, iCityCapture, kUnit.getX(), kUnit.getY(), bHuntBarbs, bReadyToAttack,
-		bTargetTooStrong, (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()),
+	logBBAI("BARB_CITY_OPPORTUNITY turn=%d player=%d civ=%s unitId=%d groupId=%d groupUnits=%d attackCityUnitAI=%s canAttack=%d cityCapture=%d at=(%d,%d) huntBarbs=%d ready=%d targetTooStrong=%d pickedTarget=%S pickedTargetPlot=(%d,%d) pickedTargetOwner=%d pickedTargetPop=%d pickedTargetDefenders=%d pickedTargetValue=%d pickedBarb=%d pickedPathTurns=%d candidates=%d pathableCandidates=%d bestOverallBarb=%S bestOverallBarbPlot=(%d,%d) bestOverallValue=%d bestOverallTargetValue=%d bestOverallStepDistance=%d bestPathableBarb=%S bestPathableBarbPlot=(%d,%d) bestPathablePop=%d bestPathableDefenders=%d bestPathableValue=%d bestPathableTargetValue=%d bestPathablePathTurns=%d bestPathableStepDistance=%d areaAI=%d wars=%d anyWarPlan=%d financialTrouble=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(), pGroup->getID(),
+		pGroup->getNumUnits(), getSASInfoTypeOrNone((UnitAITypes)(iAttackCityUnitAI)), iCanAttack, iCityCapture, kUnit.getX(), kUnit.getY(), bHuntBarbs, bReadyToAttack,
+		bTargetTooStrong, getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(),
 		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getOwner()), (pTargetCity == NULL ? -1 : pTargetCity->getPopulation()),
 		iPickedTargetDefenders, iPickedTargetValue, (pTargetCity != NULL && pTargetCity->isBarbarian()), iTargetPathTurns, iCandidateCount,
-		iPathableCandidateCount, pBestOverallBarbCity->getName().GetCString(), pBestOverallBarbCity->getX(), pBestOverallBarbCity->getY(),
+		iPathableCandidateCount, getSASDiagnosticQuoted(pBestOverallBarbCity->getName().GetCString()).GetCString(), pBestOverallBarbCity->getX(), pBestOverallBarbCity->getY(),
 		iBestOverallValue, iBestOverallTargetValue, iBestOverallStepDistance,
-		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()),
+		getSASDiagnosticQuoted((pBestPathableBarbCity == NULL ? NULL : pBestPathableBarbCity->getName().GetCString())).GetCString(),
 		(pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()),
 		(pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()),
 		(pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue,
@@ -2730,16 +2730,16 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
 	int iUpgradeUnits = 0;
 	int iUpgradeGroups = 0;
 	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
-	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d cityMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) areaTarget=%S areaTarget=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(),
+	logBBAI("ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d civ=%s action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d cityMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S targetPlot=(%d,%d) areaTarget=%S areaTargetPlot=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szAction, kUnit.getID(), pGroup->getID(),
 		pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iCityMilitary,
 		100 * iCityMilitary / std::max(1, iTotalMilitary), iCityGroups, iUpgradeUnits, iUpgradeGroups, iWounded, kUnit.getX(), kUnit.getY(),
-		(kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(),
+		getSASDiagnosticQuoted((kUnit.getPlot().getPlotCity() == NULL ? NULL : kUnit.getPlot().getPlotCity()->getName().GetCString())).GetCString(), pGroup->getActivityType(),
 		SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 		(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()),
 		(pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(), iIncomingJoiners, kUnit.movesLeft(),
-		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
-		(pTargetCity == NULL ? -1 : pTargetCity->getY()), (pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()),
+		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
+		(pTargetCity == NULL ? -1 : pTargetCity->getY()), getSASDiagnosticQuoted((pAreaTargetCity == NULL ? NULL : pAreaTargetCity->getName().GetCString())).GetCString(),
 		(pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
 		kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(),
 		kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
@@ -2794,15 +2794,15 @@ static void SAS_logCrowdedPeacefulCityAttackMove(CvUnitAI const& kUnit, char con
 	}
 	int const iCurrentDefenders = pCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, kUnit.getOwner());
 	int const iCurrentNeededDefenders = pCity->AI_neededDefenders(true, /*bConstCache*/ true);
-	logBBAI("    ATTACK_CROWDED_PEACEFUL_CITY_MOVE turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d incomingJoiners=%d city=%S city=(%d,%d) capital=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
+	logBBAI("ATTACK_CROWDED_PEACEFUL_CITY_MOVE turn=%d player=%d civ=%s action=%s unitId=%d unitType=%s unitAI=%s groupId=%d groupUnits=%d incomingJoiners=%d city=%S cityPlot=(%d,%d) capital=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
 		"currentDefenders=%d currentMinDefenders=%d currentNeededDefenders=%d currentExcessDefenders=%d currentThreat=%d currentDanger=%d currentSafe=%d alternativeCity=%S alternative=(%d,%d) alternativeDistance=%d alternativeDefenders=%d alternativeNeededDefenders=%d alternativeShortage=%d alternativeThreat=%d alternativeDanger=%d "
 		"missionAI=%d missionQueue=%d activity=%d movesLeft=%d areaAI=%d vassal=%d capitulated=%d masterTeam=%d wars=%d anyWarPlan=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(),
-		kUnit.AI_getUnitAIType(), pGroup->getID(), pGroup->getNumUnits(), kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP),
-		pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->isCapital(), iCityMilitary, kOwner.getNumMilitaryUnits(),
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szAction, kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), pGroup->getID(), pGroup->getNumUnits(), kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP),
+		getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getX(), pCity->getY(), pCity->isCapital(), iCityMilitary, kOwner.getNumMilitaryUnits(),
 		100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups, iCurrentDefenders,
 		pCity->AI_minDefenders(), iCurrentNeededDefenders, iCurrentDefenders - iCurrentNeededDefenders, pCity->AI_cityThreat(),
-		pCity->AI_isDanger(), pCity->AI_isSafe(), (pAlternativeCity == NULL ? L"-" : pAlternativeCity->getName().GetCString()),
+		pCity->AI_isDanger(), pCity->AI_isSafe(), getSASDiagnosticQuoted((pAlternativeCity == NULL ? NULL : pAlternativeCity->getName().GetCString())).GetCString(),
 		(pAlternativeCity == NULL ? -1 : pAlternativeCity->getX()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->getY()),
 		(pAlternativeCity == NULL ? -1 : plotDistance(kUnit.plot(), pAlternativeCity->plot())), iAlternativeHave, iAlternativeNeed,
 		(pAlternativeCity == NULL ? -1 : iAlternativeShortage), (pAlternativeCity == NULL ? -1 : pAlternativeCity->AI_cityThreat()),
@@ -2859,8 +2859,8 @@ static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags
 		iSafeMissionTargets++;
 		if (kUnit.at(pTransport->getPlot()) || kUnit.generatePath(pTransport->getPlot(), eFlags, true, NULL, iMaxPath)) iPathable++;
 	}
-	logBBAI("    ATTACK_CITY_ASSAULT_TRANSPORT_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d at=(%d,%d) area=%d areaAI=%d assaultTransports=%d cargoCapacity=%d cargoUsed=%d geographicallyEligible=%d geographicCapacity=%d geographicCargoUsed=%d canLoadOnto=%d withRawSpace=%d rawSpace=%d reservedSpace=%d withUsableSpace=%d usableSpace=%d safeMissionTargets=%d pathableWithin=%d maxPath=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getGroup()->getID(),
+	logBBAI("ATTACK_CITY_ASSAULT_TRANSPORT_FAIL turn=%d player=%d civ=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) area=%d areaAI=%d assaultTransports=%d cargoCapacity=%d cargoUsed=%d geographicallyEligible=%d geographicCapacity=%d geographicCargoUsed=%d canLoadOnto=%d withRawSpace=%d rawSpace=%d reservedSpace=%d withUsableSpace=%d usableSpace=%d safeMissionTargets=%d pathableWithin=%d maxPath=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(), kUnit.getGroup()->getID(),
 		kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kUnit.getArea().getID(), kUnit.getArea().getAreaAIType(kUnit.getTeam()),
 		iAssaultTransports, iCargoCapacity, iCargoUsed, iGeographicallyEligible, iGeographicCapacity, iGeographicCargoUsed, iCanLoadOnto,
 		iWithRawSpace, iRawSpace, iReservedSpace, iWithUsableSpace, iUsableSpace, iSafeMissionTargets, iPathable, iMaxPath);
@@ -2921,16 +2921,16 @@ static void SAS_logAttackCityParking(CvUnitAI& kUnit, CvCity const* pTargetCity,
 	// <!-- custom: Large stacks logged ready=0 despite many apparent city-capturing units.
 	// Record the mutually exclusive readiness reason and the exact strategy, size, and composition inputs so barbarian-size rejection can be distinguished from turtle strategy, insufficient war-stack size, and the mostly-defensive/combat-limit filters before changing grouping behavior.
 	// This work remains inside the UNIT logging gate. (GPT-5.6-Sol) -->
-	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d readinessReason=%s turtle=%d alert1=%d huntBarbs=%d huntOnlyBarbs=%d sneakAttackReady=%d anyWarPlan=%d warStackNeeded=%d minStack=%d barbarianGarrison=%d barbarianAttackersNeeded=%d qualifyingAttack=%d qualifyingCityCapture=%d noCombatLimit=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, kUnit.getID(),
+	logBBAI("ATTACK_CITY_PARKING turn=%d player=%d civ=%s reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S cityPlot=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S targetPlot=(%d,%d) targetArea=%d ready=%d readinessReason=%s turtle=%d alert1=%d huntBarbs=%d huntOnlyBarbs=%d sneakAttackReady=%d anyWarPlan=%d warStackNeeded=%d minStack=%d barbarianGarrison=%d barbarianAttackersNeeded=%d qualifyingAttack=%d qualifyingCityCapture=%d noCombatLimit=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), szReason, kUnit.getID(),
 		pGroup->getID(), pGroup->getNumUnits(), iTotalMilitaryUnits, iGroupMilitaryPercent, iWoundedUnits, iCanAttackUnits,
-		iCityCaptureUnits, pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(),
+		iCityCaptureUnits, getSASDiagnosticQuoted(pCurrentCity->getName().GetCString()).GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(),
 		pCurrentCity->getPreviousOwner() != NO_PLAYER,
 		pCurrentCity->getPreviousOwner() != NO_PLAYER && pCurrentCity->getOriginalOwner() != kUnit.getOwner(), bRemoteCapturedTrap,
 		pCurrentCity->isConnectedToCapital(kUnit.getOwner()), GC.getGame().getGameTurn() - pCurrentCity->getGameTurnAcquired(),
 		pCurrentCity->getPreviousOwner(), pCurrentCity->getOriginalOwner(), iOwnedCitiesSameArea, iOwnedCitiesWithin6,
 		iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea,
-		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
+		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getArea().getID()), bReadyToAttack,
 		szReadinessReason, bTurtle, kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1), bHuntBarbs, bHuntOnlyBarbs,
 		GET_TEAM(kUnit.getTeam()).AI_isSneakAttackReady(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), iWarStackNeeded, iMinStackSize,
@@ -2969,14 +2969,14 @@ static void SAS_logAttackCityParking(CvUnitAI& kUnit, CvCity const* pTargetCity,
 				}
 			}
 		}
-		logBBAI("    ATTACK_CITY_REMOTE_PARKING_DETAIL turn=%d player=%d %S reason=%s noTarget=%d cityThreat=%d defenders=%d neededDefenders=%d cityPop=%d areaTarget=%S areaTarget=(%d,%d) nearestEnemyAny=%S nearestEnemyAny=(%d,%d) nearestEnemySameArea=%S nearestEnemySameArea=(%d,%d) nearestEnemyDistAny=%d nearestEnemyDistSameArea=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d groupUnits=%d groupMilitaryPercent=%d canAttack=%d cityCapture=%d wounded=%d joiners=%d pathTurns=%d",
-			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason,
+		logBBAI("ATTACK_CITY_REMOTE_PARKING_DETAIL turn=%d player=%d civ=%s reason=%s noTarget=%d cityThreat=%d defenders=%d neededDefenders=%d cityPop=%d areaTarget=%S areaTargetPlot=(%d,%d) nearestEnemyAny=%S nearestEnemyAnyPlot=(%d,%d) nearestEnemySameArea=%S nearestEnemySameAreaPlot=(%d,%d) nearestEnemyDistAny=%d nearestEnemyDistSameArea=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d groupUnits=%d groupMilitaryPercent=%d canAttack=%d cityCapture=%d wounded=%d joiners=%d pathTurns=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), szReason,
 			pTargetCity == NULL, iCityThreat, iPresentDefenders, iNeededDefenders, pCurrentCity->getPopulation(),
-			(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()),
+			getSASDiagnosticQuoted((pAreaTargetCity == NULL ? NULL : pAreaTargetCity->getName().GetCString())).GetCString(),
 			(pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
-			(pNearestEnemyCity == NULL ? L"-" : pNearestEnemyCity->getName().GetCString()),
+			getSASDiagnosticQuoted((pNearestEnemyCity == NULL ? NULL : pNearestEnemyCity->getName().GetCString())).GetCString(),
 			(pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getX()), (pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getY()),
-			(pNearestEnemyCitySameArea == NULL ? L"-" : pNearestEnemyCitySameArea->getName().GetCString()),
+			getSASDiagnosticQuoted((pNearestEnemyCitySameArea == NULL ? NULL : pNearestEnemyCitySameArea->getName().GetCString())).GetCString(),
 			(pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getX()),
 			(pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getY()), iNearestEnemyDistanceAnyArea,
 			iNearestEnemyDistanceSameArea, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea, pGroup->getNumUnits(),
@@ -3530,8 +3530,8 @@ bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice, SASGameRecordAIUpgradeContext* p
 
 	if (eBestUnit != NO_UNIT)
 	{
-		if (gUnitLogLevel > 0) logBBAI("UNIT_UPGRADE_DECISION turn=%d player=%d civ=%S action=UPGRADE unitId=%d unit=%S unitAI=%s upgrade=%s value=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName().GetCString(),
+		if (gUnitLogLevel > 0) logBBAI("UNIT_UPGRADE_DECISION turn=%d player=%d civ=%s action=UPGRADE unitId=%d unit=%S unitAI=%s upgrade=%s value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(),
 			GC.getUnitAIInfo(AI_getUnitAIType()).getType(), GC.getInfo(eBestUnit).getType(), iBestValue); // advc.mnai
 		/*upgrade(eBestUnit);
 		doDelayedDeath(); */ // BtS
@@ -4718,15 +4718,15 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 	{
 		// <!-- custom: Zero legal candidates are already covered by the compact once-per-plot rejection diagnostic.
 		// Keep WORKER_YIELD_NO_BUILD for the strategically useful case where replacement hysteresis rejected otherwise legal Builds. See KI#33.4. (GPT-5.6-Sol + GPT-6.1-Sol) -->
-		if (bDetailedYieldLogging && iLegalCandidateCount > 0 && SAS_shouldLogWorkerYieldDecision(kUnit, kCity, kPlot, SAS_WORKER_YIELD_LOG_NO_BUILD, eBestMarginRejectedCandidate, kContext.kCurrentWeights, kBestMarginRejectedTransitionWeights)) logBBAI("    WORKER_YIELD_NO_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d current=%S weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) currentUtility=%d legal=%d marginRejected=%d bestRejected=%S bestRejectedGain=%d bestRejectedMargin=%d",
-			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
-			kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
-			(eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription()),
+		if (bDetailedYieldLogging && iLegalCandidateCount > 0 && SAS_shouldLogWorkerYieldDecision(kUnit, kCity, kPlot, SAS_WORKER_YIELD_LOG_NO_BUILD, eBestMarginRejectedCandidate, kContext.kCurrentWeights, kBestMarginRejectedTransitionWeights)) logBBAI("WORKER_YIELD_NO_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d current=%s weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) currentUtility=%d legal=%d marginRejected=%d bestRejected=%s bestRejectedGain=%d bestRejectedMargin=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
+			(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()),
 			kContext.kCurrentWeights.iFood, kContext.kCurrentWeights.iProduction, kContext.kCurrentWeights.iCommerce,
 			kBestMarginRejectedProspectiveWeights.iFood, kBestMarginRejectedProspectiveWeights.iProduction, kBestMarginRejectedProspectiveWeights.iCommerce,
 			kBestMarginRejectedTransitionWeights.iFood, kBestMarginRejectedTransitionWeights.iProduction, kBestMarginRejectedTransitionWeights.iCommerce,
 			aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE], iBestMarginRejectedCurrentUtility, iLegalCandidateCount, iMarginRejectedCount,
-			(eBestMarginRejectedCandidate == NO_BUILD ? L"-" : GC.getInfo(eBestMarginRejectedCandidate).getDescription()),
+			(eBestMarginRejectedCandidate == NO_BUILD ? "-" : GC.getInfo(eBestMarginRejectedCandidate).getType()),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedGain),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedReplacementMargin));
 		return false;
@@ -4743,25 +4743,25 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 			aiImmediateResultYields[eLoopYield] = SAS_getWorkerBuildResultYield(kPlot, eBestCandidate, eLoopYield, false, false);
 			aiResultYields[eLoopYield] = SAS_getWorkerBuildEffectiveYield(kPlot, eBestCandidate, eLoopYield);
 		}
-		logBBAI("    WORKER_YIELD_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d current=%S build=%S result=%S weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) immediateResultYields=(%d,%d,%d) resultYields=(%d,%d,%d) currentUtility=%d gain=%d replacementMargin=%d rawBuildValue=%d opportunityPenalty=%d buildValue=%d oneTechAway=%S oneTechAwayTech=%S oneTechAwayValue=%d runnerUp=%S runnerUpValue=%d third=%S thirdValue=%d legal=%d marginRejected=%d bestRejected=%S bestRejectedGain=%d bestRejectedMargin=%d",
-			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
-			kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
-			(eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription()), GC.getInfo(eBestCandidate).getDescription(),
-			GC.getInfo(eResultImprovement).getDescription(), kContext.kCurrentWeights.iFood, kContext.kCurrentWeights.iProduction, kContext.kCurrentWeights.iCommerce,
+		logBBAI("WORKER_YIELD_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d current=%s build=%s result=%s weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) immediateResultYields=(%d,%d,%d) resultYields=(%d,%d,%d) currentUtility=%d gain=%d replacementMargin=%d rawBuildValue=%d opportunityPenalty=%d buildValue=%d oneTechAway=%s oneTechAwayTech=%s oneTechAwayValue=%d runnerUp=%s runnerUpValue=%d third=%s thirdValue=%d legal=%d marginRejected=%d bestRejected=%s bestRejectedGain=%d bestRejectedMargin=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
+			(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()), GC.getInfo(eBestCandidate).getType(),
+			GC.getInfo(eResultImprovement).getType(), kContext.kCurrentWeights.iFood, kContext.kCurrentWeights.iProduction, kContext.kCurrentWeights.iCommerce,
 			kBestCandidateProspectiveWeights.iFood, kBestCandidateProspectiveWeights.iProduction, kBestCandidateProspectiveWeights.iCommerce,
 			kBestCandidateTransitionWeights.iFood, kBestCandidateTransitionWeights.iProduction, kBestCandidateTransitionWeights.iCommerce,
 			aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE],
 			aiImmediateResultYields[YIELD_FOOD], aiImmediateResultYields[YIELD_PRODUCTION], aiImmediateResultYields[YIELD_COMMERCE],
 			aiResultYields[YIELD_FOOD], aiResultYields[YIELD_PRODUCTION], aiResultYields[YIELD_COMMERCE], iBestCandidateCurrentUtility, iBestCandidateGain, iBestCandidateReplacementMargin,
 			iBestCandidateRawValue, iBestCandidateOpportunityPenalty, iBestCandidateValue,
-			(eBestOneTechAwayBuild == NO_BUILD ? L"-" : GC.getInfo(eBestOneTechAwayBuild).getDescription()),
-			(eBestOneTechAwayTech == NO_TECH ? L"-" : GC.getInfo(eBestOneTechAwayTech).getDescription()),
+			(eBestOneTechAwayBuild == NO_BUILD ? "-" : GC.getInfo(eBestOneTechAwayBuild).getType()),
+			(eBestOneTechAwayTech == NO_TECH ? "-" : GC.getInfo(eBestOneTechAwayTech).getType()),
 			(eBestOneTechAwayBuild == NO_BUILD ? 0 : iBestOneTechAwayValue),
-			(eSecondCandidate == NO_BUILD ? L"-" : GC.getInfo(eSecondCandidate).getDescription()),
+			(eSecondCandidate == NO_BUILD ? "-" : GC.getInfo(eSecondCandidate).getType()),
 			(eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue),
-			(eThirdCandidate == NO_BUILD ? L"-" : GC.getInfo(eThirdCandidate).getDescription()),
+			(eThirdCandidate == NO_BUILD ? "-" : GC.getInfo(eThirdCandidate).getType()),
 			(eThirdCandidate == NO_BUILD ? 0 : iThirdCandidateValue), iLegalCandidateCount, iMarginRejectedCount,
-			(eBestMarginRejectedCandidate == NO_BUILD ? L"-" : GC.getInfo(eBestMarginRejectedCandidate).getDescription()),
+			(eBestMarginRejectedCandidate == NO_BUILD ? "-" : GC.getInfo(eBestMarginRejectedCandidate).getType()),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedGain),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedReplacementMargin));
 		// <!-- custom: A dry XML irrigation carrier can still win the ordinary yield path; this is intentionally separate from the dedicated irrigation-chain planner above.
@@ -4776,12 +4776,12 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 			int const iCurrentFoodDeficit = std::max(0, GC.getFOOD_CONSUMPTION_PER_POPULATION() - aiCurrentYields[YIELD_FOOD]);
 			int const iResultFoodDeficit = std::max(0, GC.getFOOD_CONSUMPTION_PER_POPULATION() - aiResultYields[YIELD_FOOD]);
 			int const iIrrigatedFoodDeficit = std::max(0, GC.getFOOD_CONSUMPTION_PER_POPULATION() - aiIrrigatedResultYields[YIELD_FOOD]);
-			logBBAI("    WORKER_DRY_IRRIGATION_CARRIER_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d terrain=%s feature=%s current=%S build=%S result=%S ordinaryYieldPath=1 freshWater=%d potentialIrrigation=%d currentYields=(%d,%d,%d) resultYields=(%d,%d,%d) irrigatedResultYields=(%d,%d,%d) weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) foodDeficit=(%d,%d,%d) currentUtility=%d resultUtility=%d irrigatedUtility=%d gain=%d irrigatedGain=%d replacementMargin=%d gainOverMargin=%d buildValue=%d runnerUp=%S runnerUpValue=%d",
-				GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
-				kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
+			logBBAI("WORKER_DRY_IRRIGATION_CARRIER_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d terrain=%s feature=%s current=%s build=%s result=%s ordinaryYieldPath=1 freshWater=%d potentialIrrigation=%d currentYields=(%d,%d,%d) resultYields=(%d,%d,%d) irrigatedResultYields=(%d,%d,%d) weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) foodDeficit=(%d,%d,%d) currentUtility=%d resultUtility=%d irrigatedUtility=%d gain=%d irrigatedGain=%d replacementMargin=%d gainOverMargin=%d buildValue=%d runnerUp=%s runnerUpValue=%d",
+				GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+				getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
 				(kPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kPlot.getTerrainType()).getType()),
 				(kPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kPlot.getFeatureType()).getType()),
-				(eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription()), GC.getInfo(eBestCandidate).getDescription(), GC.getInfo(eResultImprovement).getDescription(),
+				(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()), GC.getInfo(eBestCandidate).getType(), GC.getInfo(eResultImprovement).getType(),
 				kPlot.isFreshWater(), kPlot.canHavePotentialIrrigation(), aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE],
 				aiResultYields[YIELD_FOOD], aiResultYields[YIELD_PRODUCTION], aiResultYields[YIELD_COMMERCE],
 				aiIrrigatedResultYields[YIELD_FOOD], aiIrrigatedResultYields[YIELD_PRODUCTION], aiIrrigatedResultYields[YIELD_COMMERCE],
@@ -4790,7 +4790,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 				kBestCandidateTransitionWeights.iFood, kBestCandidateTransitionWeights.iProduction, kBestCandidateTransitionWeights.iCommerce,
 				iCurrentFoodDeficit, iResultFoodDeficit, iIrrigatedFoodDeficit,
 				iBestCandidateCurrentUtility, iResultUtility, iIrrigatedResultUtility, iBestCandidateGain, iIrrigatedResultUtility - iBestCandidateCurrentUtility, iBestCandidateReplacementMargin, iBestCandidateGain - iBestCandidateReplacementMargin, iBestCandidateValue,
-				(eSecondCandidate == NO_BUILD ? L"-" : GC.getInfo(eSecondCandidate).getDescription()), (eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue));
+				(eSecondCandidate == NO_BUILD ? "-" : GC.getInfo(eSecondCandidate).getType()), (eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue));
 		}
 	}
 	return true;
@@ -4903,9 +4903,9 @@ static void SAS_logWorkerCityBuildRejectOnce(CvUnitAI const& kUnit, CvCityAI con
 
 	TerrainTypes const eTerrain = kPlot.getTerrainType();
 	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
-	logBBAI("    WORKER_CITY_BUILD_REJECT turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) reason=%s terrain=%s feature=%s bonus=%s hills=%d worked=%d yields=(%d,%d,%d) proposedBuild=%s legalImprovementBuilds=%d legalImprovementBuildTypes=%s legalFeatureRemovingImprovementBuilds=%d legalFeatureRemovingImprovementBuildTypes=%s",
-		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
-		kCity.getName().GetCString(), kCity.getID(), kPlot.getX(), kPlot.getY(), szReason,
+	logBBAI("WORKER_CITY_BUILD_REJECT turn=%d player=%d civ=%s workerId=%d city=%S cityId=%d plot=(%d,%d) reason=%s terrain=%s feature=%s bonus=%s hills=%d worked=%d yields=(%d,%d,%d) proposedBuild=%s legalImprovementBuilds=%d legalImprovementBuildTypes=%s legalFeatureRemovingImprovementBuilds=%d legalFeatureRemovingImprovementBuildTypes=%s",
+		iGameTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+		getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), kPlot.getX(), kPlot.getY(), szReason,
 		(eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType()),
 		(eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType()),
 		(eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType()), kPlot.isHills(), kCity.isWorkingPlot(kPlot),
@@ -5039,8 +5039,8 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 		akLastState[kKey] = kCurrent;
 		if (SAS_isWorkerIrrigationCarrierImprovement(kCurrent.eImprovement) && !kCurrent.bPotentialIrrigation)
 		{
-			logBBAI("    WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d %S city=%S plot=(%d,%d) reason=FIRST_OBSERVED_NO_POTENTIAL terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
-				kCurrent.iTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(),
+			logBBAI("WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=FIRST_OBSERVED_NO_POTENTIAL terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
+				kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 				kPlot.getX(), kPlot.getY(), (kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
 				(kCurrent.eFeature == NO_FEATURE ? "-" : GC.getInfo(kCurrent.eFeature).getType()),
 				(kCurrent.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kCurrent.eImprovement).getType()),
@@ -5055,8 +5055,8 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 	bool const bLostPotential = (kPrevious.bPotentialIrrigation && !kCurrent.bPotentialIrrigation);
 	if (bTerrainChanged || bFeatureChanged)
 	{
-		logBBAI("    WORKER_IRRIGATION_PLOT_STATE_CHANGE turn=%d player=%d %S city=%S plot=(%d,%d) terrainChanged=%d featureChanged=%d lostPotentialIrrigation=%d oldTerrain=%s newTerrain=%s oldFeature=%s newFeature=%s oldImprovement=%s newImprovement=%s oldPotentialIrrigation=%d newPotentialIrrigation=%d oldIrrigated=%d newIrrigated=%d oldIrrigationAvailable=%d newIrrigationAvailable=%d oldFreshWater=%d newFreshWater=%d lastObservedTurn=%d",
-			kCurrent.iTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(),
+		logBBAI("WORKER_IRRIGATION_PLOT_STATE_CHANGE turn=%d player=%d civ=%s city=%S plot=(%d,%d) terrainChanged=%d featureChanged=%d lostPotentialIrrigation=%d oldTerrain=%s newTerrain=%s oldFeature=%s newFeature=%s oldImprovement=%s newImprovement=%s oldPotentialIrrigation=%d newPotentialIrrigation=%d oldIrrigated=%d newIrrigated=%d oldIrrigationAvailable=%d newIrrigationAvailable=%d oldFreshWater=%d newFreshWater=%d lastObservedTurn=%d",
+			kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 			kPlot.getX(), kPlot.getY(), bTerrainChanged, bFeatureChanged, bLostPotential,
 			(kPrevious.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kPrevious.eTerrain).getType()),
 			(kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
@@ -5069,8 +5069,8 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 	}
 	if (bLostPotential && SAS_isWorkerIrrigationCarrierImprovement(kCurrent.eImprovement))
 	{
-		logBBAI("    WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d %S city=%S plot=(%d,%d) reason=LOST_POTENTIAL_IRRIGATION terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
-			kCurrent.iTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(),
+		logBBAI("WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=LOST_POTENTIAL_IRRIGATION terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
+			kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 			kPlot.getX(), kPlot.getY(), (kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
 			(kCurrent.eFeature == NO_FEATURE ? "-" : GC.getInfo(kCurrent.eFeature).getType()),
 			(kCurrent.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kCurrent.eImprovement).getType()),
@@ -5120,9 +5120,9 @@ static void SAS_logWorkerReplacementAssignment(CvUnitAI const& kUnit, CvPlot con
 	int const iTransitionCount = (pPrevious == NULL ? 1 : pPrevious->iTransitionCount + 1);
 	int const iReverseCount = (pPrevious == NULL ? 0 : pPrevious->iReverseCount + (bReverseOfPrevious ? 1 : 0));
 	CvCity const* pWorkingCity = kPlot.getWorkingCity();
-	logBBAI("    WORKER_IMPROVEMENT_REPLACEMENT_ASSIGNMENT turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d terrain=%s feature=%s decisionPath=%s from=%s to=%s build=%s followup=%s reverseOfPrevious=%d crossPathReverse=%d previousDecisionPath=%s previousFrom=%s previousTo=%s previousTurn=%d turnsSincePrevious=%d previousWorkerId=%d plotTransitions=%d plotReversals=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kUnit.getID(),
-		(pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), kPlot.getX(), kPlot.getY(),
+	logBBAI("WORKER_IMPROVEMENT_REPLACEMENT_ASSIGNMENT turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d terrain=%s feature=%s decisionPath=%s from=%s to=%s build=%s followup=%s reverseOfPrevious=%d crossPathReverse=%d previousDecisionPath=%s previousFrom=%s previousTo=%s previousTurn=%d turnsSincePrevious=%d previousWorkerId=%d plotTransitions=%d plotReversals=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+		getSASDiagnosticQuoted((pWorkingCity == NULL ? NULL : pWorkingCity->getName().GetCString())).GetCString(), kPlot.getX(), kPlot.getY(),
 		(pWorkingCity == NULL ? 0 : pWorkingCity->isWorkingPlot(kPlot)),
 		(kPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kPlot.getTerrainType()).getType()),
 		(kPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kPlot.getFeatureType()).getType()),
@@ -5628,8 +5628,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		int iYieldFrontierPlots = 0;
 		int aiCurrentYieldFrontier[NUM_YIELD_TYPES];
 		SAS_getWorkerYieldFrontierDiagnostic(*this, kCity, iYieldFrontierPlots, aiCurrentYieldFrontier);
-		logBBAI("    WORKER_YIELD_CONTEXT turn=%d player=%d %S city=%S cityId=%d pop=%d developmentLand=%d cityYields=(%d,%d,%d) baseYields=(%d,%d,%d) happySurplus=%d healthSurplus=%d foodStored=%d foodThreshold=%d rawFoodSurplus=%d angryFoodCompensation=%d committedBuildFoodDelta=%d nonFreeSpecialists=%d angryCitizens=%d adjustedFoodDifference=%d lowFoodScore=%d mineFoodPressure=%d structuralFoodPressure=%d strongProductionPlots=%d strongProductionPlotTarget=%d structuralProductionPressure=%d weights=(%d,%d,%d) kmodWeights=(%d,%d,%d) kmodDesiredFoodChange=%d productionTurns=%d yieldFrontierPlots=%d currentYieldFrontier=(%d,%d,%d) danger=%d financialTrouble=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), iCityPopulation,
+		logBBAI("WORKER_YIELD_CONTEXT turn=%d player=%d civ=%s city=%S cityId=%d pop=%d developmentLand=%d cityYields=(%d,%d,%d) baseYields=(%d,%d,%d) happySurplus=%d healthSurplus=%d foodStored=%d foodThreshold=%d rawFoodSurplus=%d angryFoodCompensation=%d committedBuildFoodDelta=%d nonFreeSpecialists=%d angryCitizens=%d adjustedFoodDifference=%d lowFoodScore=%d mineFoodPressure=%d structuralFoodPressure=%d strongProductionPlots=%d strongProductionPlotTarget=%d structuralProductionPressure=%d weights=(%d,%d,%d) kmodWeights=(%d,%d,%d) kmodDesiredFoodChange=%d productionTurns=%d yieldFrontierPlots=%d currentYieldFrontier=(%d,%d,%d) danger=%d financialTrouble=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), iCityPopulation,
 			kCityYieldAnalysis.iDevelopmentLandPlots, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE),
 			kCity.getBaseYieldRate(YIELD_FOOD), kCity.getBaseYieldRate(YIELD_PRODUCTION), kCity.getBaseYieldRate(YIELD_COMMERCE), iHappySurplus, iHealthSurplus,
 			kCity.getFood(), kCity.growthThreshold(), kCityYieldAnalysis.iFoodSurplus, kCityYieldAnalysis.iAngryFoodCompensation,
@@ -5753,11 +5753,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (peFollowupBuild != NULL)
 				*peFollowupBuild = eBestPhase0FollowupBuild;
 
-			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_CHOP turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%S build=%S followup=%S followupValue=%d production=%d pathTurns=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d pressureRelief=%d bonusRemoval=%d result=HARD_OVERRIDE",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
-				kCity.getName().GetCString(), kCity.getID(), pBestPhase0Plot->getX(), pBestPhase0Plot->getY(),
-				GC.getInfo(pBestPhase0Plot->getFeatureType()).getDescription(),
-				GC.getInfo(eBestPhase0Build).getDescription(), (eBestPhase0FollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestPhase0FollowupBuild).getDescription()), iBestPhase0FollowupValue, iBestPhase0Production, iBestPhase0PathTurns,
+			if (gWorkerLogLevel >= 2) logBBAI("WORKER_PHASE0_PRODUCTIVE_FEATURE_CHOP turn=%d player=%d civ=%s workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%s build=%s followup=%s followupValue=%d production=%d pathTurns=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d pressureRelief=%d bonusRemoval=%d result=HARD_OVERRIDE",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
+				getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), pBestPhase0Plot->getX(), pBestPhase0Plot->getY(),
+				GC.getInfo(pBestPhase0Plot->getFeatureType()).getType(),
+				GC.getInfo(eBestPhase0Build).getType(), (eBestPhase0FollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestPhase0FollowupBuild).getType()), iBestPhase0FollowupValue, iBestPhase0Production, iBestPhase0PathTurns,
 				iSASPhase0Eligible, iSASPhase0Targeted, iSASPhase0Uncommitted,
 				SAS_getWorkerPhase0MinEligiblePlots(kCity),
 				bBestPhase0PressureRelief, bBestPhase0BonusRemoval);
@@ -5840,18 +5840,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					int iTargetIrrigationCommerceGain = 0;
 					int iTargetIrrigationUtilityGain = 0;
 					SAS_getWorkerIrrigationTargetDiagnostic(kTargetPlot, eTargetCarrierBuild, kWorkerYieldWeights, eTargetIrrigationImprovement, iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain);
-					logBBAI("    IRRIGATION_CHAIN_STEP_SELECTED turn=%d player=%d %S workerId=%d city=%S step=(%d,%d) stepCurrent=%S build=%S carrier=%S stepFreshWater=%d stepIrrigated=%d stepIrrigationAvailable=%d sourceAdjacentIrrigated=%d target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%S targetCarrier=%S targetBonus=%S targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routePlots=%d maxRoutePlots=%d overwritePenalty=%d value=%d foodPressure=%d route=%s",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
-						kCity.getName().GetCString(), pChainStepPlot->getX(), pChainStepPlot->getY(),
-						(eStepCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eStepCurrentImprovement).getDescription()),
-						GC.getInfo(eChainStepBuild).getDescription(), GC.getInfo(GC.getInfo(eChainStepBuild).getImprovement()).getDescription(),
+					logBBAI("IRRIGATION_CHAIN_STEP_SELECTED turn=%d player=%d civ=%s workerId=%d city=%S step=(%d,%d) stepCurrent=%s build=%s carrier=%s stepFreshWater=%d stepIrrigated=%d stepIrrigationAvailable=%d sourceAdjacentIrrigated=%d target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%s targetCarrier=%s targetBonus=%s targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routePlots=%d maxRoutePlots=%d overwritePenalty=%d value=%d foodPressure=%d route=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
+						getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), pChainStepPlot->getX(), pChainStepPlot->getY(),
+						(eStepCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eStepCurrentImprovement).getType()),
+						GC.getInfo(eChainStepBuild).getType(), GC.getInfo(GC.getInfo(eChainStepBuild).getImprovement()).getType(),
 						kRouteDiagnostics.iSourceFreshWater, pChainStepPlot->isIrrigated(), pChainStepPlot->isIrrigationAvailable(true), kRouteDiagnostics.iSourceAdjacentIrrigated,
 						kTargetPlot.getX(), kTargetPlot.getY(),
 						(kTargetPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kTargetPlot.getTerrainType()).getType()),
 						(kTargetPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kTargetPlot.getFeatureType()).getType()),
-						(eTargetCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetCurrentImprovement).getDescription()),
-						(eTargetIrrigationImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetIrrigationImprovement).getDescription()),
-						(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), bTargetDryCarrier,
+						(eTargetCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetCurrentImprovement).getType()),
+						(eTargetIrrigationImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetIrrigationImprovement).getType()),
+						(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), bTargetDryCarrier,
 						iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 						kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), iRoutePlots,
 						iSAS_WORKER_IRRIG_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
@@ -5867,14 +5867,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				int iTargetIrrigationCommerceGain = 0;
 				int iTargetIrrigationUtilityGain = 0;
 				SAS_getWorkerIrrigationTargetDiagnostic(kTargetPlot, eTargetCarrierBuild, kWorkerYieldWeights, eTargetIrrigationImprovement, iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain);
-				logBBAI("    IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%S targetCarrier=%S targetBonus=%S targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visitedStates=%d deepestRoute=%d routeLimitStops=%d rejects(edgeOrIgnored=%d unowned=%d foreign=%d area=%d water=%d noPotential=%d bonuses=%d automationSafe=%d cannotBuildCarrier=%d) blockerSamples(noPotential=(%d,%d) bonus=(%d,%d) cannotBuildCarrier=(%d,%d)) cityCarrierTraversals=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
-					kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(),
+				logBBAI("IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d civ=%s workerId=%d city=%S target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%s targetCarrier=%s targetBonus=%s targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visitedStates=%d deepestRoute=%d routeLimitStops=%d rejectEdgeOrIgnored=%d rejectUnowned=%d rejectForeign=%d rejectArea=%d rejectWater=%d rejectNoPotential=%d rejectBonuses=%d rejectAutomationSafe=%d rejectCannotBuildCarrier=%d blockerNoPotentialPlot=(%d,%d) blockerBonusPlot=(%d,%d) blockerCannotBuildCarrierPlot=(%d,%d) cityCarrierTraversals=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
+					getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kTargetPlot.getX(), kTargetPlot.getY(),
 					(kTargetPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kTargetPlot.getTerrainType()).getType()),
 					(kTargetPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kTargetPlot.getFeatureType()).getType()),
-					(eTargetCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetCurrentImprovement).getDescription()),
-					(eTargetIrrigationImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetIrrigationImprovement).getDescription()),
-					(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), bTargetDryCarrier,
+					(eTargetCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetCurrentImprovement).getType()),
+					(eTargetIrrigationImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetIrrigationImprovement).getType()),
+					(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), bTargetDryCarrier,
 					iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 					kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), bFoundChainStep,
 					iRoutePlots, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
@@ -6008,11 +6008,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					{
 						eBestSupposedBuild = eTemporaryFoodBuild;
 						iValue += iSAS_WORKER_BONUS_FOOD_FALLBACK_VAL;
-						if (gWorkerLogLevel >= 3) logBBAI("    WORKER_BONUS_TEMPORARY_FOOD_BUILD turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) bonus=%S build=%S improvement=%S resultFood=%d realBuild=%S realBuildTech=%S",
-							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(),
-							kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eTemporaryFoodBuild).getDescription(),
-							GC.getInfo(GC.getInfo(eTemporaryFoodBuild).getImprovement()).getDescription(), iTemporaryResultFood,
-							GC.getInfo(eBonusSpecificBuild).getDescription(), GC.getInfo(eBonusSpecificBuildTech).getDescription());
+						if (gWorkerLogLevel >= 3) logBBAI("WORKER_BONUS_TEMPORARY_FOOD_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) bonus=%s build=%s improvement=%s resultFood=%d realBuild=%s realBuildTech=%s",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
+							kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getType(), GC.getInfo(eTemporaryFoodBuild).getType(),
+							GC.getInfo(GC.getInfo(eTemporaryFoodBuild).getImprovement()).getType(), iTemporaryResultFood,
+							GC.getInfo(eBonusSpecificBuild).getType(), GC.getInfo(eBonusSpecificBuildTech).getType());
 					}
 					else
 					{
@@ -6057,18 +6057,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD * aiPotentialResultYields[YIELD_FOOD] +
 					iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD * aiPotentialResultYields[YIELD_PRODUCTION] +
 					iSAS_WORKER_BONUS_YIELD_VAL_PER_COM * aiPotentialResultYields[YIELD_COMMERCE];
-				logBBAI("    WORKER_BONUS_CANDIDATE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) worked=%d bonus=%S specificBuild=%S canBuildNow=%d buildTech=%S buildTechKnown=%d buildTechTurnsIfCurrent=%d featureTech=%S featureTechKnown=%d currentResearch=%S rawBonusYields=(%d,%d,%d) potentialResultYields=(%d,%d,%d) weights=(%d,%d,%d) rawYieldValue=%d potentialResultYieldValue=%d dynamicBonusValue=%d selectedBuild=%S selectedValue=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), kCity.getName().GetCString(),
-					kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot), kBonusInfo.getDescription(),
-					(eBonusSpecificBuild == NO_BUILD ? L"-" : GC.getInfo(eBonusSpecificBuild).getDescription()), bCanBuildBonusSpecific,
-					(eBuildTech == NO_TECH ? L"-" : GC.getInfo(eBuildTech).getDescription()), (eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
-					(eFeatureTech == NO_TECH ? L"-" : GC.getInfo(eFeatureTech).getDescription()), (eFeatureTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eFeatureTech)),
-					(eCurrentResearch == NO_TECH ? L"-" : GC.getInfo(eCurrentResearch).getDescription()),
+				logBBAI("WORKER_BONUS_CANDIDATE turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d bonus=%s specificBuild=%s canBuildNow=%d buildTech=%s buildTechKnown=%d buildTechTurnsIfCurrent=%d featureTech=%s featureTechKnown=%d currentResearch=%s rawBonusYields=(%d,%d,%d) potentialResultYields=(%d,%d,%d) weights=(%d,%d,%d) rawYieldValue=%d potentialResultYieldValue=%d dynamicBonusValue=%d selectedBuild=%s selectedValue=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
+					kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot), kBonusInfo.getType(),
+					(eBonusSpecificBuild == NO_BUILD ? "-" : GC.getInfo(eBonusSpecificBuild).getType()), bCanBuildBonusSpecific,
+					(eBuildTech == NO_TECH ? "-" : GC.getInfo(eBuildTech).getType()), (eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
+					(eFeatureTech == NO_TECH ? "-" : GC.getInfo(eFeatureTech).getType()), (eFeatureTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eFeatureTech)),
+					(eCurrentResearch == NO_TECH ? "-" : GC.getInfo(eCurrentResearch).getType()),
 					kBonusInfo.getYieldChange(YIELD_FOOD), kBonusInfo.getYieldChange(YIELD_PRODUCTION), kBonusInfo.getYieldChange(YIELD_COMMERCE),
 					aiPotentialResultYields[YIELD_FOOD], aiPotentialResultYields[YIELD_PRODUCTION], aiPotentialResultYields[YIELD_COMMERCE],
 					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD, iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD, iSAS_WORKER_BONUS_YIELD_VAL_PER_COM,
 					iRawYieldValue, iPotentialResultYieldValue, iDynamicBonusValue,
-					(eBestSupposedBuild == NO_BUILD ? L"-" : GC.getInfo(eBestSupposedBuild).getDescription()), iValue);
+					(eBestSupposedBuild == NO_BUILD ? "-" : GC.getInfo(eBestSupposedBuild).getType()), iValue);
 			}
 		}
 
@@ -6145,12 +6145,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			{
 				if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerIrrigationCarrierProtection(kCity, kPlot))
 				{
-					wchar const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePlotCurrentImprovement).getDescription());
-					logBBAI("    WORKER_IRRIGATION_CARRIER_PROTECTED turn=%d player=%d %S city=%S plot=(%d,%d) reason=%s dependent=(%d,%d) dependencyComponentHasCityCarrier=%d build=%S improvement=%S currentImprovement=%S",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(),
+					char const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(ePlotCurrentImprovement).getType());
+					logBBAI("WORKER_IRRIGATION_CARRIER_PROTECTED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=%s dependent=(%d,%d) dependencyComponentHasCityCarrier=%d build=%s improvement=%s currentImprovement=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 						kPlot.getX(), kPlot.getY(), (bPendingChainProvider ? "PENDING_CHAIN_PROVIDER" : "ESTABLISHED_ROUTE_DEPENDENCY"),
 						(pDependentCarrier == NULL ? -1 : pDependentCarrier->getX()), (pDependentCarrier == NULL ? -1 : pDependentCarrier->getY()), bDependencyComponentHasCityCarrier,
-						GC.getInfo(eBestSupposedBuild).getDescription(), GC.getInfo(eSupposedImprovement).getDescription(), szCurrentImprovement);
+						GC.getInfo(eBestSupposedBuild).getType(), GC.getInfo(eSupposedImprovement).getType(), szCurrentImprovement);
 				}
 				continue;
 			}
@@ -6219,15 +6219,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			{
 				TerrainTypes const eCandidateTerrain = pCandidatePlot->getTerrainType();
 				FeatureTypes const eCandidateFeature = pCandidatePlot->getFeatureType();
-				wchar const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eCandidateTerrain).getDescription());
-				wchar const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? L"-" : GC.getInfo(eCandidateFeature).getDescription());
-				wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
-				logBBAI("    WORKER_CITY_BUILD_CANDIDATE player=%d %S city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%S feature=%S hills=%d yields=(%d,%d,%d) build=%S improvement=%S value=%d",
-					getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), iCityPopulation,
+				char const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? "-" : GC.getInfo(eCandidateTerrain).getType());
+				char const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? "-" : GC.getInfo(eCandidateFeature).getType());
+				char const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCandidateImprovement).getType());
+				logBBAI("WORKER_CITY_BUILD_CANDIDATE player=%d civ=%s city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%s feature=%s hills=%d yields=(%d,%d,%d) build=%s improvement=%s value=%d",
+					getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), iCityPopulation,
 					pCandidatePlot->getX(), pCandidatePlot->getY(), candidatePlots[i].ePlot, kCity.isWorkingPlot(*pCandidatePlot),
 					szCandidateTerrain, szCandidateFeature, pCandidatePlot->isHills(), pCandidatePlot->getYield(YIELD_FOOD),
 					pCandidatePlot->getYield(YIELD_PRODUCTION), pCandidatePlot->getYield(YIELD_COMMERCE),
-					GC.getInfo(eCandidateBuild).getDescription(), szCandidateImprovement, candidatePlots[i].iValue);
+					GC.getInfo(eCandidateBuild).getType(), szCandidateImprovement, candidatePlots[i].iValue);
 			}
 			if (pCandidatePlot->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
 				iBonusCandidates++;
@@ -6256,14 +6256,14 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 		}
 
-		wchar const* szTopUnimprovedBuild = (eTopUnimprovedBuild == NO_BUILD ? L"-" : GC.getInfo(eTopUnimprovedBuild).getDescription());
-		wchar const* szTopUnimprovedImprovement = (eTopUnimprovedImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopUnimprovedImprovement).getDescription());
-		wchar const* szTopReplacementBuild = (eTopReplacementBuild == NO_BUILD ? L"-" : GC.getInfo(eTopReplacementBuild).getDescription());
-		wchar const* szTopReplacementCurrentImprovement = (eTopReplacementCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopReplacementCurrentImprovement).getDescription());
-		wchar const* szTopReplacementImprovement = (eTopReplacementImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopReplacementImprovement).getDescription());
-		logBBAI("    WORKER_CITY_BUILD_SCAN turn=%d player=%d workerId=%d civ=%S city=%S pop=%d candidates=%d unimprovedBuilds=%d replacementBuilds=%d bonusCandidates=%d hasBlank=%d topBlank=(%d,%d) build=%S improvement=%S value=%d topReplacement=(%d,%d) build=%S current=%S improvement=%S value=%d",
-			GC.getGame().getGameTurn(), getOwner(), getID(), GET_PLAYER(getOwner()).getCivilizationDescription(0),
-			kCity.getName().GetCString(), iCityPopulation, (int)candidatePlots.size(),
+		char const* szTopUnimprovedBuild = (eTopUnimprovedBuild == NO_BUILD ? "-" : GC.getInfo(eTopUnimprovedBuild).getType());
+		char const* szTopUnimprovedImprovement = (eTopUnimprovedImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopUnimprovedImprovement).getType());
+		char const* szTopReplacementBuild = (eTopReplacementBuild == NO_BUILD ? "-" : GC.getInfo(eTopReplacementBuild).getType());
+		char const* szTopReplacementCurrentImprovement = (eTopReplacementCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopReplacementCurrentImprovement).getType());
+		char const* szTopReplacementImprovement = (eTopReplacementImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopReplacementImprovement).getType());
+		logBBAI("WORKER_CITY_BUILD_SCAN turn=%d player=%d workerId=%d civ=%s city=%S pop=%d candidates=%d unimprovedBuilds=%d replacementBuilds=%d bonusCandidates=%d hasBlank=%d topBlank=(%d,%d) topBlankBuild=%s topBlankImprovement=%s topBlankValue=%d topReplacement=(%d,%d) topReplacementBuild=%s topReplacementCurrent=%s topReplacementImprovement=%s topReplacementValue=%d",
+			GC.getGame().getGameTurn(), getOwner(), getID(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
+			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), iCityPopulation, (int)candidatePlots.size(),
 			iUnimprovedImprovementCandidates, iReplacementImprovementCandidates, iBonusCandidates, bHasUnimprovedBFCImprovementCandidate,
 			(pTopUnimprovedPlot == NULL ? -1 : pTopUnimprovedPlot->getX()), (pTopUnimprovedPlot == NULL ? -1 : pTopUnimprovedPlot->getY()),
 			szTopUnimprovedBuild, szTopUnimprovedImprovement, (pTopUnimprovedPlot == NULL ? 0 : iTopUnimprovedValue),
@@ -6358,8 +6358,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			if (bNormalReplacementWhileBlankBFCRemains)
 			{
 				iDiagnosticReplacementSkipRejects++;
-				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=REPLACEMENT_WHILE_UNIMPROVED_BFC_REMAINS plot=(%d,%d) build=%s currentImprovement=%s candidateImprovement=%s value=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=REJECT reason=REPLACEMENT_WHILE_UNIMPROVED_BFC_REMAINS plot=(%d,%d) build=%s currentImprovement=%s candidateImprovement=%s value=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
 					pB->getX(), pB->getY(), GC.getInfo(eB).getType(), GC.getInfo(eCurrentImprovement).getType(),
 					GC.getInfo(eCandidateImprovement).getType(), candidatePlots[i].iValue);
 				continue;
@@ -6425,10 +6425,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					int const iDiagnosticPathTurns = (bIgnorePath ? 0 : pathFinder.getPathTurns());
 					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
 					ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
-					wchar const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription());
-					wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
-					logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=ACCEPT plot=(%d,%d) build=%s currentImprovement=%S candidateImprovement=%S value=%d pathTurns=%d reserved=%d/%d irrigationChainStep=%d",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+					char const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType());
+					char const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCandidateImprovement).getType());
+					logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=ACCEPT plot=(%d,%d) build=%s currentImprovement=%s candidateImprovement=%s value=%d pathTurns=%d reserved=%d/%d irrigationChainStep=%d",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
 						pB->getX(), pB->getY(), GC.getInfo(eB).getType(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue,
 						iDiagnosticPathTurns, iReservedPlot, iMaxWorkers, candidatePlots[i].bIrrigationChainStep);
 				}
@@ -6465,15 +6465,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
 		ImprovementTypes const eTopCandidateCurrentImprovement = (pTopCandidatePlot == NULL ? NO_IMPROVEMENT : pTopCandidatePlot->getImprovementType());
 		ImprovementTypes const eTopCandidateImprovement = (eTopCandidateBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eTopCandidateBuild).getImprovement());
-		wchar const* szTopCandidateBuild = (eTopCandidateBuild == NO_BUILD ? L"-" : GC.getInfo(eTopCandidateBuild).getDescription());
-		wchar const* szTopCandidateCurrentImprovement = (eTopCandidateCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateCurrentImprovement).getDescription());
-		wchar const* szTopCandidateImprovement = (eTopCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateImprovement).getDescription());
+		char const* szTopCandidateBuild = (eTopCandidateBuild == NO_BUILD ? "-" : GC.getInfo(eTopCandidateBuild).getType());
+		char const* szTopCandidateCurrentImprovement = (eTopCandidateCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopCandidateCurrentImprovement).getType());
+		char const* szTopCandidateImprovement = (eTopCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopCandidateImprovement).getType());
 		// <!-- custom: The old worker no-path log spammed harmless cases with 0 raw candidates, hiding real failures.
 		// Log only raw-candidate failures, with worker/city/top-candidate context and rejection counters, so BBAI reviews can tell whether pathing, reservations, enemies, or replacement-skip policy blocked all work without changing behavior.
 		// Reservation-only failures are often normal worker coordination, so the tag says "no accepted" rather than implying no candidate was pathable. (ChatGPT-5.5 + GPT-5.5) -->
-		logBBAI("    WORKER_NO_ACCEPTED_CITY_BUILD turn=%d player=%d %S workerId=%d unit=%S worker=(%d,%d) workerArea=%d city=%S city=(%d,%d) cityArea=%d pop=%d rawCandidates=%d pathable=%d noPath=%d visibleEnemy=%d reserved=%d replacementSkip=%d hasBlank=%d pathableBlank=%d top=(%d,%d) topArea=%d topBuild=%S topCurrent=%S topImprovement=%S topValue=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
-			getX(), getY(), getPlot().getArea().getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(),
+		logBBAI("WORKER_NO_ACCEPTED_CITY_BUILD turn=%d player=%d civ=%s workerId=%d unit=%S worker=(%d,%d) workerArea=%d city=%S cityPlot=(%d,%d) cityArea=%d pop=%d rawCandidates=%d pathable=%d noPath=%d visibleEnemy=%d reserved=%d replacementSkip=%d hasBlank=%d pathableBlank=%d top=(%d,%d) topArea=%d topBuild=%s topCurrent=%s topImprovement=%s topValue=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+			getX(), getY(), getPlot().getArea().getID(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getX(), kCity.getY(),
 			kCity.getPlot().getArea().getID(), iCityPopulation, (int)candidatePlots.size(), iDiagnosticPathableCandidates,
 			iDiagnosticNoPathRejects, iDiagnosticVisibleEnemyRejects, iDiagnosticReservedRejects, iDiagnosticReplacementSkipRejects,
 			bHasUnimprovedBFCImprovementCandidate, bHasPathableUnimprovedBFCImprovementCandidate,
@@ -6861,9 +6861,9 @@ bool CvUnitAI::AI_considerDOW(CvPlot const& kPlot)
 					getMasterTeam() != ePlotTeam)*/
 			if (kOurTeam.canDeclareWar(ePlotTeam))
 			{
-				if (gUnitLogLevel > 0) logBBAI("UNIT_DOW_DECISION turn=%d player=%d civ=%S action=DECLARE_WAR team=%d targetTeam=%d unitId=%d unit=%S unitAI=%s plot=(%d,%d)",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getTeam(), ePlotTeam,
-					getID(), getName(0).GetCString(), GC.getInfo(AI_getUnitAIType()).getType(), kPlot.getX(), kPlot.getY());
+				if (gUnitLogLevel > 0) logBBAI("UNIT_DOW_DECISION turn=%d player=%d civ=%s action=DECLARE_WAR team=%d targetTeam=%d unitId=%d unit=%S unitAI=%s plot=(%d,%d)",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getTeam(), ePlotTeam,
+					getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(), GC.getInfo(AI_getUnitAIType()).getType(), kPlot.getX(), kPlot.getY());
 				kOurTeam.declareWar(ePlotTeam, true, NO_WARPLAN);
 				getPathFinder().reset();
 				return true;
@@ -6896,8 +6896,8 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags, cha
 		{
 			CvSelectionGroupAI const& kGroup = *AI_getGroup();
 			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-			logBBAI("PATH_DOW_PATH_FAILURE turn=%d caller=%s player=%d civ=%S unitId=%d unit=%s unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) stepDistance=%d sourceArea=%d targetArea=%d targetOwner=%d targetTeam=%d flags=%d declareWar=%d throughEnemy=%d attackStack=%d avoidDanger=%d ignoreDanger=%d startEqualsTarget=%d targetWater=%d targetPeak=%d targetImpassable=%d cachedBorderDanger=%d targetVisibleEnemy=%d targetEnemy=%d amphib=%d missionAI=%d groupDomain=%d groupCanFight=%d",
-				GC.getGame().getGameTurn(), szCaller, getOwner(), kOwner.getCivilizationDescription(0), getID(), SAS_getUnitTypeName(getUnitType()),
+			logBBAI("PATH_DOW_PATH_FAILURE turn=%d caller=%s player=%d civ=%s unitId=%d unit=%s unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) stepDistance=%d sourceArea=%d targetArea=%d targetOwner=%d targetTeam=%d flags=%d declareWar=%d throughEnemy=%d attackStack=%d avoidDanger=%d ignoreDanger=%d startEqualsTarget=%d targetWater=%d targetPeak=%d targetImpassable=%d cachedBorderDanger=%d targetVisibleEnemy=%d targetEnemy=%d amphib=%d missionAI=%d groupDomain=%d groupCanFight=%d",
+				GC.getGame().getGameTurn(), szCaller, getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), SAS_getUnitTypeName(getUnitType()),
 				SAS_getUnitAITypeName(AI_getUnitAIType()), kGroup.getID(), kGroup.getNumUnits(),
 				getX(), getY(), kPlot.getX(), kPlot.getY(), stepDistance(getX(), getY(), kPlot.getX(), kPlot.getY()), getArea().getID(), kPlot.getArea().getID(),
 				kPlot.getOwner(), kPlot.getTeam(), (int)eFlags, ((eFlags & MOVE_DECLARE_WAR) != 0), ((eFlags & MOVE_THROUGH_ENEMY) != 0), ((eFlags & MOVE_ATTACK_STACK) != 0),
@@ -7494,8 +7494,8 @@ bool CvUnitAI::AI_foundFirstCity()
 
 		if (bLogSettler1stLevel2)
 		{
-			logBBAI("FIRST_CITY_CANDIDATES civilization=%S player=%d from=%d,%d citySites=%d bestWeightedValue=%d currentPlotCitySite=%d",
-				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kOwner.AI_getNumCitySites(), iBestWeightedValue,
+			logBBAI("FIRST_CITY_CANDIDATES civilization=%s player=%d from=%d,%d citySites=%d bestWeightedValue=%d currentPlotCitySite=%d",
+				GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), kOwner.AI_getNumCitySites(), iBestWeightedValue,
 				kOwner.AI_isPlotCitySite(getPlot()));
 			for (int iTop = 0; iTop < 3; ++iTop)
 			{
@@ -7544,7 +7544,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					}
 				}
 			}
-			logBBAI("FIRST_CITY_NEARBY_RAW_SCAN civilization=%S player=%d range=%d", kOwner.getCivilizationDescription(0), getOwner(), iMaxTurnsToFound);
+			logBBAI("FIRST_CITY_NEARBY_RAW_SCAN civilization=%s player=%d range=%d", GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), iMaxTurnsToFound);
 			for (int iTop = 0; iTop < 3; ++iTop)
 			{
 				if (aiLocalValue[iTop] < 0)
@@ -7714,8 +7714,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals.
 				// But if the current plot is heuristic-good-enough, still re-run first-city found-value scoring on nearby visible candidates before founding.
 				// This keeps the gate situational and lets one-tile Karakorum/Beijing-style improvements win without hard-requiring food bonuses or fresh water. (GPT-5.5) -->
-				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_MOVE_BETTER_HEURISTIC_SITE civilization=%S player=%d from=%d,%d target=%d,%d purpose=%s currentValue=%d currentBest6=%d currentBest10=%d targetBest6=%d targetBest10=%d coreGrowthValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d",
-					kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(),
+				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_MOVE_BETTER_HEURISTIC_SITE civilization=%s player=%d from=%d,%d target=%d,%d purpose=%s currentValue=%d currentBest6=%d currentBest10=%d targetBest6=%d targetBest10=%d coreGrowthValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d",
+					GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(),
 					pBetterGoodEnoughFirstCityPlot->getY(), (bInvestigatingStrongerCore ? "EXPLORE_STRONGER_CORE" : "FOUND_STRONGER_SITE"), iCurrentFirstCityValue, iCurrentBest6PlotValue, iCurrentBest10PlotValue,
 					iBetterGoodEnoughBest6PlotValue, iBetterGoodEnoughBest10PlotValue, iBetterGoodEnoughCoreGrowthValue, iBetterGoodEnoughFirstCityValue,
 					iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
@@ -7842,8 +7842,8 @@ bool CvUnitAI::AI_foundFirstCity()
 					return true;
 				}
 			}
-			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_HEURISTIC_SITE civilization=%S player=%d site=%d,%d growthFoodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d best6PlotValue=%d best10PlotValue=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d",
-				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentGrowthFoodBonuses, iCurrentFoodEnvironmentScore,
+			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_HEURISTIC_SITE civilization=%s player=%d site=%d,%d growthFoodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d best6PlotValue=%d best10PlotValue=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d",
+				GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), iCurrentGrowthFoodBonuses, iCurrentFoodEnvironmentScore,
 				iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iCurrentBest6PlotValue, iCurrentBest10PlotValue, iSustainableProductivePlotValue, iGoodEnoughBest6ReferencePercent, iGoodEnoughBest6PlotValue, getPlot().isFreshWater(), iCurrentFirstCityValue,
 				kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			if (bLogSettler1stLevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-found-good-enough", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
@@ -7907,8 +7907,8 @@ bool CvUnitAI::AI_foundFirstCity()
 					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
 					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue.
 					// The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5 + GPT-5.5) -->
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_DELAY_FOR_SCOUT civilization=%S player=%d site=%d,%d value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity,
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_DELAY_FOR_SCOUT civilization=%s player=%d site=%d,%d value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity,
 						iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pGoodEnoughFirstCityPlot = NULL;
 				}
@@ -7917,8 +7917,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			{
 				if (at(*pGoodEnoughFirstCityPlot))
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_VISIBLE_SITE civilization=%S player=%d site=%d,%d value=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue,
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_VISIBLE_SITE civilization=%s player=%d site=%d,%d value=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue,
 						kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					if (bLogSettler1stLevel3)
 					{
@@ -7929,8 +7929,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				}
 				else
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_MOVE_VISIBLE_SITE civilization=%S player=%d from=%d,%d target=%d,%d value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(),
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_MOVE_VISIBLE_SITE civilization=%s player=%d from=%d,%d target=%d,%d value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(),
 						pGoodEnoughFirstCityPlot->getY(), iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(),
 						iMaxTurnsToFound);
 					if (bLogSettler1stLevel3)
@@ -7986,16 +7986,16 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_DEADLINE, at(*pBestEarlyReturnPlot), pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, -1, -1, -1, -1, -1, -1, iFirstCityReturnTravelValuePerTurn, -1, -1, -1, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				if (at(*pBestEarlyReturnPlot))
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_FOUND civilization=%S player=%d source=%s site=%d,%d rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), (bUsedGrowthCoreFallback ? "travel/core-adjusted" : (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value")),
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_FOUND civilization=%s player=%d source=%s site=%d,%d rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), (bUsedGrowthCoreFallback ? "travel/core-adjusted" : (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value")),
 						getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(),
 						iMaxTurnsToFound);
 					getGroup()->pushMission(MISSION_FOUND);
 				}
 				else
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_RETURN civilization=%S player=%d from=%d,%d source=%s target=%d,%d rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(),
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_RETURN civilization=%s player=%d from=%d,%d source=%s target=%d,%d rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(),
 						(bUsedGrowthCoreFallback ? "travel/core-adjusted" : (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value")), pBestEarlyReturnPlot->getX(),
 						pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns,
 						kGame.getElapsedGameTurns(), iMaxTurnsToFound);
@@ -8312,8 +8312,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				(pBestExploreStep == NULL ? -1 : pBestExploreStep->getX()), (pBestExploreStep == NULL ? -1 : pBestExploreStep->getY()), iBestExploreValue);
 			if (pBestExploreStep != NULL)
 			{
-				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_SCOUT_FOOD_POOR_SITE civilization=%S player=%d from=%d,%d target=%d,%d value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d currentBest6PlotValue=%d currentBest10PlotValue=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d bestKnownBest6PlotValue=%d bestKnownBest10PlotValue=%d bestSettleNowValue=%d bestSettleNowBest6=%d bestSettleNowBest10=%d settleNowCoreQualityPercent=%d settleNowGrowthCoreFallback=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d scoutExpectedGain=%d rawInformationValue=%d explorerOverlapFogPlots=%d explorerOverlapFogValue=%d informationValue=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutTimePressureDelayCost=%d applyPathRelativeFoundingDelay=%d settleNowFoundingTurns=%d returnPathTurns=%d returnPathKnownSafe=%d addedSettleDelayTurns=%d scoutFoundingDelayCostPerTurn=%d scoutDelayCost=%d badFoodEnvironmentThreshold=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d",
-					kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(),
+				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_SCOUT_FOOD_POOR_SITE civilization=%s player=%d from=%d,%d target=%d,%d value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d currentBest6PlotValue=%d currentBest10PlotValue=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d bestKnownBest6PlotValue=%d bestKnownBest10PlotValue=%d bestSettleNowValue=%d bestSettleNowBest6=%d bestSettleNowBest10=%d settleNowCoreQualityPercent=%d settleNowGrowthCoreFallback=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d scoutExpectedGain=%d rawInformationValue=%d explorerOverlapFogPlots=%d explorerOverlapFogValue=%d informationValue=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutTimePressureDelayCost=%d applyPathRelativeFoundingDelay=%d settleNowFoundingTurns=%d returnPathTurns=%d returnPathKnownSafe=%d addedSettleDelayTurns=%d scoutFoundingDelayCostPerTurn=%d scoutDelayCost=%d badFoodEnvironmentThreshold=%d sustainableProductivePlotValue=%d goodEnoughBest6ReferencePercent=%d goodEnoughBest6PlotValue=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d",
+					GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(),
 					iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()),
 					(bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()),
 					(bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kFirstCityEvaluator, getPlot())),
@@ -8339,15 +8339,15 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_LOW_UPSIDE, at(*pBestEarlyReturnPlot), pBestEarlyReturnPlot, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				if (at(*pBestEarlyReturnPlot))
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_FOUND civilization=%S player=%d site=%d,%d rawValue=%d best6=%d best10=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue,
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_FOUND civilization=%s player=%d site=%d,%d rawValue=%d best6=%d best10=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), iBestEarlyReturnRawValue, iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue,
 						iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent, iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					getGroup()->pushMission(MISSION_FOUND);
 				}
 				else
 				{
-					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_RETURN civilization=%S player=%d from=%d,%d target=%d,%d rawValue=%d best6=%d best10=%d pathTurns=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
-						kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue,
+					if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_END_SCOUT_LOW_UPSIDE_RETURN civilization=%s player=%d from=%d,%d target=%d,%d rawValue=%d best6=%d best10=%d pathTurns=%d settleNowCoreQualityPercent=%d scoutOpportunityLinearPercent=%d scoutOpportunityPercent=%d bestScoutExpectedGain=%d scoutDelayBaseCost=%d scoutWindowProgressPercent=%d scoutTimePressurePercent=%d scoutDelayCost=%d elapsed=%d maxFirstCityTurns=%d",
+						GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue,
 						iBestSettleNowBest6PlotValue, iBestSettleNowBest10PlotValue, iBestEarlyReturnPathTurns, iSettleNowCoreQualityPercent, iScoutOpportunityLinearPercent, iScoutRemainingOpportunityPercent,
 						iBestScoutExpectedGain, iFirstCityReturnTravelValuePerTurn, iScoutWindowProgressPercent, iScoutTimePressurePercent, iReportedScoutDelayCost, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
@@ -8356,8 +8356,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				return true;
 			}
 			if (bLogSASSettlerScout) logSASGameRecordAIFirstCityScoutEnd(*this, SAS_AI_SETTLER_SCOUT_END_NO_SAFE_STEP, false, NULL, iBestKnownFirstCityValue, -1, -1, -1, -1, -1, -1, -1, iFirstCityReturnTravelValuePerTurn, -1, -1, -1, -1, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_WAIT_FOOD_POOR_SITE civilization=%S player=%d site=%d,%d reason=NO_SAFE_ONE_TURN_SCOUT_ENDPOINT value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d",
-				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore,
+			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_WAIT_FOOD_POOR_SITE civilization=%s player=%d site=%d,%d reason=NO_SAFE_ONE_TURN_SCOUT_ENDPOINT value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d",
+				GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore,
 				iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots,
 				iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			getGroup()->pushMission(MISSION_SKIP);
@@ -8389,8 +8389,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				(bFoundCurrentOverCachedSite ? "FOUND_CURRENT_EQUAL_OR_BETTER" : "MOVE_TO_BETTER_CACHED_SITE"));
 			if (bFoundCurrentOverCachedSite)
 			{
-				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_COMPETITIVE_CURRENT_SITE civilization=%S player=%d site=%d,%d cachedTarget=%d,%d currentValue=%d bestValue=%d bestPathTurns=%d elapsed=%d maxFirstCityTurns=%d",
-					kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPlot->getX(), pBestPlot->getY(),
+				if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_COMPETITIVE_CURRENT_SITE civilization=%s player=%d site=%d,%d cachedTarget=%d,%d currentValue=%d bestValue=%d bestPathTurns=%d elapsed=%d maxFirstCityTurns=%d",
+					GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pBestPlot->getX(), pBestPlot->getY(),
 					iCurrentFirstCityValue, iBestValue, iBestPathTurnsFromNow, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				if (bLogSettler1stLevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-found-current-over-cached", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
 				getGroup()->pushMission(MISSION_FOUND);
@@ -8410,7 +8410,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					MISSIONAI_FOUND, pBestPlot);
 			return true;
 		}
-		else if (bLogSettler1stLevel2 && pBestPlot == plot()) logBBAI("FIRST_CITY_CURRENT_PLOT_BEST civilization=%S player=%d site=%d,%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY());
+		else if (bLogSettler1stLevel2 && pBestPlot == plot()) logBBAI("FIRST_CITY_CURRENT_PLOT_BEST civilization=%s player=%d site=%d,%d", GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY());
 	}
 	// Afforess & Fuyu: END
 	// <!-- custom: Safety fallback after the bounded scouting window: if an active first-city scout still has not founded, rescan revealed reachable sites and return to the best travel-adjusted one instead of founding blindly under the settler.
@@ -8427,8 +8427,8 @@ bool CvUnitAI::AI_foundFirstCity()
 		// Once scouting ends, reconsider all revealed reachable sites by complete found value with the tunable return-travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
 		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
 		{
-			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_RETURN_BEST_KNOWN_SITE civilization=%S player=%d from=%d,%d target=%d,%d rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d",
-				kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(),
+			if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_RETURN_BEST_KNOWN_SITE civilization=%s player=%d from=%d,%d target=%d,%d rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d",
+				GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(),
 				iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			if (bLogSettler1stLevel3) SAS_logFirstCityCandidateBFCDiagnostics(pFirstCityOmniscientEvaluator.get(), "chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
 			pushGroupMoveTo(*pBestPostScoutPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPostScoutPlot);
@@ -8438,8 +8438,8 @@ bool CvUnitAI::AI_foundFirstCity()
 	}
 	if (canFound(plot()))
 	{
-		if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_IN_PLACE civilization=%S player=%d site=%d,%d scenario=%d canMove=%d currentPlotCitySite=%d elapsed=%d maxFirstCityTurns=%d",
-			kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kGame.isScenario(), canMove(),
+		if (bLogSettler1stLevel2) logBBAI("FIRST_CITY_FOUND_IN_PLACE civilization=%s player=%d site=%d,%d scenario=%d canMove=%d currentPlotCitySite=%d elapsed=%d maxFirstCityTurns=%d",
+			GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), getX(), getY(), kGame.isScenario(), canMove(),
 			kOwner.AI_isPlotCitySite(getPlot()), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 		if (bLogSettler1stLevel3)
 		{
@@ -8521,8 +8521,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	{
 		CvSelectionGroupAI const* pGroup = AI_getGroup();
 		CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
-		logBBAI("    WORKER_MOVE_ENTRY turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d movesSpent=%d movesLeft=%d currentDanger=%d threatened=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
+		logBBAI("WORKER_MOVE_ENTRY turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) groupId=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d movesSpent=%d movesLeft=%d currentDanger=%d threatened=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
 			(pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()),
 			(pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), getMoves(),
@@ -8545,8 +8545,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	const bool bWorkerSleeping = (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT || getGroup()->getActivityType() == ACTIVITY_HOLD);
 	if (bWorkerSleeping && bWeOwnThisPlot && !kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
 	{
-		if (gWorkerLogLevel >= 3) logBBAI("    WORKER_PARKING_RECOVERY phase=entry turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-safe-owned-plot",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
+		if (gWorkerLogLevel >= 3) logBBAI("WORKER_PARKING_RECOVERY phase=entry turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-safe-owned-plot",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
 			getGroup()->getActivityType(), getGroup()->AI().AI_getMissionAIType());
 		getGroup()->setActivityType(ACTIVITY_AWAKE);
 		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
@@ -8633,8 +8633,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				// In the original Zulu case, AI_safety chose action=wait on (14,45) with targetDanger=1 on turns 59-61, then the Worker died there.
 				// Keep city retreat first for now; if retreat ends on a dangerous plot, that needs a narrower follow-up than calling generic AI_safety first. (GPT-5.5) -->
 				if (AI_safety()) return;
-				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_DANGER_NO_ESCAPE turn=%d player=%d %S workerId=%d worker=(%d,%d) currentDanger=%d threatened=%d action=skip-no-build",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iCurrentDanger,
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_DANGER_NO_ESCAPE turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) currentDanger=%d threatened=%d action=skip-no-build",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), iCurrentDanger,
 					kOwner.AI_isPlotThreatened(plot(), 1));
 				getGroup()->pushMission(MISSION_SKIP);
 				return;
@@ -8767,11 +8767,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
 			if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 
-			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
-				pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-				(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
-				GC.getInfo(ePhase0Build).getDescription(), (ePhase0Followup == NO_BUILD ? L"-" : GC.getInfo(ePhase0Followup).getDescription()), kVerify.iProduction,
+			if (bLogPhase0Action) logBBAI("WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%s build=%s followup=%s production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
+				getSASDiagnosticQuoted(pPhase0City->getName().GetCString()).GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
+				(ePhase0FeatureForLog == NO_FEATURE ? "-" : GC.getInfo(ePhase0FeatureForLog).getType()),
+				GC.getInfo(ePhase0Build).getType(), (ePhase0Followup == NO_BUILD ? "-" : GC.getInfo(ePhase0Followup).getType()), kVerify.iProduction,
 				iEligible, iTargeted, iPhase0MinEligibleForLog, bCoreFoodProduction);
 			return;
 		}
@@ -8887,11 +8887,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				getGroup()->pushMission(MISSION_BUILD, ePhase0Followup, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pPhase0Plot);
 			if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
 
-			if (bLogPhase0Action) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S followup=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
-				pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-				(ePhase0FeatureForLog == NO_FEATURE ? L"-" : GC.getInfo(ePhase0FeatureForLog).getDescription()),
-				GC.getInfo(ePhase0Build).getDescription(), (ePhase0Followup == NO_BUILD ? L"-" : GC.getInfo(ePhase0Followup).getDescription()), kVerify.iProduction,
+			if (bLogPhase0Action) logBBAI("WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%s build=%s followup=%s production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
+				getSASDiagnosticQuoted(pPhase0City->getName().GetCString()).GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
+				(ePhase0FeatureForLog == NO_FEATURE ? "-" : GC.getInfo(ePhase0FeatureForLog).getType()),
+				GC.getInfo(ePhase0Build).getType(), (ePhase0Followup == NO_BUILD ? "-" : GC.getInfo(ePhase0Followup).getType()), kVerify.iProduction,
 				iEligible, iTargeted, iPhase0MinEligibleForLog);
 			return;
 		}
@@ -8978,16 +8978,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (gWorkerLogLevel >= 2)
 				{
 					CvPlot const& kWorkerPlot = getPlot();
-					logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=STAY reason=USEFUL_CURRENT_BFC_JOB pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%s",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), pCity->getID(), iCityPopulation,
+					logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%s city=%S cityId=%d action=STAY reason=USEFUL_CURRENT_BFC_JOB pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), iCityPopulation,
 						countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities,
 						iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getType());
 				}
 			}
 			else
 			{
-				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%S city=%S cityId=%d action=LEAVE reason=IMPROVED_ENOUGH pop=%d improved=%d target=%d maxPop=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), pCity->getID(), iCityPopulation,
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_CITY_ASSIGNMENT_DECISION turn=%d player=%d civ=%s city=%S cityId=%d action=LEAVE reason=IMPROVED_ENOUGH pop=%d improved=%d target=%d maxPop=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), iCityPopulation,
 					countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POP);
 				if (AI_nextCityToImprove(pCity))   // go pick city B right now
 					return;
@@ -9121,9 +9121,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			SASUnitScrapEligibility eIdleScrapEligibility = SAS_UNIT_SCRAP_ELIGIBLE_GENERIC;
 			bool const bScrapIdleBarbarianWorker = (bScrapRoll && canScrap(gGameRecordLogLevel >= 2 ? &eIdleScrapEligibility : NULL));
 			if (gGameRecordLogLevel >= 2 && bScrapRoll && !bScrapIdleBarbarianWorker) logSASGameRecordAIScrapPreservationVeto(*this, SAS_UNIT_SCRAP_CONTEXT_IDLE_BARBARIAN_WORKER, eIdleScrapEligibility, -1, -1, -1);
-			if (gWorkerLogLevel >= 3 && bAlreadyInSafeOwnedCity) logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S reason=already-in-safe-owned-city action=%s",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
-				getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()),
+			if (gWorkerLogLevel >= 3 && bAlreadyInSafeOwnedCity) logBBAI("WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) groupId=%d workingCity=%S reason=already-in-safe-owned-city action=%s",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
+				getGroup()->getID(), getSASDiagnosticQuoted((pCity == NULL ? NULL : pCity->getName().GetCString())).GetCString(),
 				(bScrapIdleBarbarianWorker ? "scrap" : "skip-turn"));
 			if (bScrapIdleBarbarianWorker)
 				scrap(SAS_UNIT_SCRAP_CONTEXT_IDLE_BARBARIAN_WORKER); // Don't let it stand around indefinitely
@@ -9213,8 +9213,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					UNITAI_WORKER, // Fill up boats which already have workers
 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
 				{
-					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea,
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), iWorkerArea,
 						iAreaCities, iAreaWorkers, iNeededWorkersInArea,
 						isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
 					return;
@@ -9223,14 +9223,14 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
 				{
-					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea,
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), iWorkerArea,
 						iAreaCities, iAreaWorkers, iNeededWorkersInArea,
 						isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
 					return;
 				} // BETTER_BTS_AI_MOD: END
-				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea,
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), iWorkerArea,
 					iAreaCities, iAreaWorkers, iNeededWorkersInArea);
 				rLoadProb = 0; // advc.113: OK to scrap
 			}
@@ -9313,8 +9313,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					{
 						// <!-- custom: This caller has already proved that the old Worker exhausted productive actions and exceeds both area demand and conservative empire/area surplus thresholds.
 						// Use caller-vetted retirement because routine obsolete-only canScrap would otherwise make every Worker permanent; this retains scrapForced's fighting and absolute-disable guards and avoids produce -> scrap loops through the shared area demand/floor. See KI#53. (GPT-5.6-Sol) -->
-						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_SURPLUS_RETIREMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d protectedAreaWorkers=%d workersTotal=%d totalThreshold=%d age=%d unitCost=%d result=ATTEMPT_FORCED_RETIREMENT",
-							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+						if (gWorkerLogLevel >= 2) logBBAI("WORKER_SURPLUS_RETIREMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaWorkers=%d protectedAreaWorkers=%d workersTotal=%d totalThreshold=%d age=%d unitCost=%d result=ATTEMPT_FORCED_RETIREMENT",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getArea().getID(),
 							iAreaHave, iProtectedAreaWorkers, iTotalHave, iTotalThresh, GC.getGame().getGameTurn() - getGameTurnCreated(), kOwner.calculateUnitCost());
 						if (scrapForced(false, SAS_UNIT_SCRAP_CONTEXT_WORKER_SURPLUS_RETIREMENT)) return;
 					} // </advc.113>
@@ -9371,10 +9371,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	);
 	if (bWorkerSleeping2 && bWeOwnThisPlot)
 	{
-		if (gWorkerLogLevel >= 3) logBBAI("    WORKER_PARKING_RECOVERY phase=fallback turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-and-retry-city-work",
+		if (gWorkerLogLevel >= 3) logBBAI("WORKER_PARKING_RECOVERY phase=fallback turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-and-retry-city-work",
 			GC.getGame().getGameTurn(),
 			getOwner(),
-			kOwner.getCivilizationDescription(0),
+			GC.getInfo(kOwner.getCivilizationType()).getType(),
 			getID(), getX(), getY(),
 			getGroup()->getActivityType(),
 			getGroup()->AI().AI_getMissionAIType());
@@ -9403,9 +9403,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	if (gWorkerLogLevel >= 3)
 	{
 		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
-		logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S areaWorkersNeeded=%d areaWorkersMissing=%d canRoute=%d ownPlot=%d danger=%d threatened=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d action=skip-turn",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(),
-			(pCity == NULL ? L"-" : pCity->getName().GetCString()), iNeededWorkersInArea, iMissingWorkersInArea, bCanRoute, bWeOwnThisPlot,
+		logBBAI("WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) groupId=%d workingCity=%S areaWorkersNeeded=%d areaWorkersMissing=%d canRoute=%d ownPlot=%d danger=%d threatened=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d action=skip-turn",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getGroup()->getID(),
+			getSASDiagnosticQuoted((pCity == NULL ? NULL : pCity->getName().GetCString())).GetCString(), iNeededWorkersInArea, iMissingWorkersInArea, bCanRoute, bWeOwnThisPlot,
 			kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1), getGroup()->getActivityType(),
 			AI_getGroup()->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getGroup()->getLengthMissionQueue());
@@ -9724,8 +9724,8 @@ void CvUnitAI::AI_attackMove()
 		int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
 		if (!isBarbarian() && getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE && AI_defendTerritory(65, NO_MOVEMENT_FLAGS, 3, true))
 		{
-			if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(),
+			if (bLogDefensePriority) logBBAI("ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d civ=%s action=counter_invader_whole_group unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(),
 				getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, getArea().getAreaAIType(getTeam()));
 			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_counter_invader");
 			return;
@@ -10450,10 +10450,10 @@ void CvUnitAI::AI_attackCityMove()
 	}
 	int const iCityCaptureUnitsPerExpedition = (bOversizedBarbarianExpedition ? std::min(3, iBarbarianExpeditionMaxUnits / 2 + 1) : 0);
 	bool const bCanFormUsefulBarbarianExpedition = (bOversizedBarbarianExpedition && iBarbarianCanAttackUnits >= iBarbarianExpeditionGroupsAfter * iBarbarianAttackersNeeded && iBarbarianCityCaptureUnits >= iBarbarianExpeditionGroupsAfter * iCityCaptureUnitsPerExpedition);
-	if (gUnitLogLevel >= 2 && bOversizedBarbarianExpedition && !bCanFormUsefulBarbarianExpedition) logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT_SKIP turn=%d player=%d %S reason=insufficient_capability groupId=%d groupUnits=%d canAttack=%d cityCapture=%d groupsPlanned=%d expeditionMax=%d attackersRequired=%d cityCaptureRequired=%d barbarianGarrison=%d barbarianAttackersNeeded=%d",
+	if (gUnitLogLevel >= 2 && bOversizedBarbarianExpedition && !bCanFormUsefulBarbarianExpedition) logBBAI("ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT_SKIP turn=%d player=%d civ=%s reason=insufficient_capability groupId=%d groupUnits=%d canAttack=%d cityCapture=%d groupsPlanned=%d expeditionMax=%d attackersRequired=%d cityCaptureRequired=%d barbarianGarrison=%d barbarianAttackersNeeded=%d",
 		GC.getGame().getGameTurn(),
 		getOwner(),
-		kOwner.getCivilizationDescription(0),
+		GC.getInfo(kOwner.getCivilizationType()).getType(),
 		getGroup()->getID(), getGroup()->getNumUnits(),
 		iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits,
 		iBarbarianExpeditionGroupsAfter, iBarbarianExpeditionMaxUnits,
@@ -10482,8 +10482,8 @@ void CvUnitAI::AI_attackCityMove()
 			iSplitCount++;
 		}
 		if (pRemainderGroup != NULL) pRemainderGroup->pushMission(MISSION_SKIP);
-		if (gUnitLogLevel >= 2) logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d canAttack=%d cityCapture=%d groupsAfter=%d expeditionMax=%d remainderGroupId=%d remainderUnits=%d barbarianGarrison=%d barbarianAttackersNeeded=%d incomingJoiners=%d warStackNeeded=%d anyWarPlan=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits,
+		if (gUnitLogLevel >= 2) logBBAI("ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT turn=%d player=%d civ=%s originalGroupId=%d originalGroupUnits=%d canAttack=%d cityCapture=%d groupsAfter=%d expeditionMax=%d remainderGroupId=%d remainderUnits=%d barbarianGarrison=%d barbarianAttackersNeeded=%d incomingJoiners=%d warStackNeeded=%d anyWarPlan=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), iOriginalGroupId, iOriginalGroupUnits,
 			iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits, iSplitCount + 1, iBarbarianExpeditionMaxUnits,
 			(pRemainderGroup == NULL ? -1 : pRemainderGroup->getID()), (pRemainderGroup == NULL ? -1 : pRemainderGroup->getNumUnits()),
 			iBarbarianGarrison, iBarbarianAttackersNeeded, iIncomingJoiners, iWarStackNeeded, GET_TEAM(getTeam()).AI_isAnyWarPlan());
@@ -10520,8 +10520,8 @@ void CvUnitAI::AI_attackCityMove()
 	int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
 	if (!isBarbarian() && eAreaAI == AREAAI_DEFENSIVE && AI_defendTerritory(65, MOVE_AVOID_ENEMY_WEIGHT_2, 3, true))
 	{
-		if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(),
+		if (bLogDefensePriority) logBBAI("ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d civ=%s action=counter_invader_whole_group unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(),
 			getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, eAreaAI);
 		return;
 	}
@@ -10765,39 +10765,39 @@ void CvUnitAI::AI_attackCityMove()
 		int const iSourceX = getX();
 		int const iSourceY = getY();
 		bool const bSpaceCapitalImmediatelyReady = (iSpaceCapitalImmediateCompare >= iAttackRatio);
-		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_READINESS turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d stepDistance=%d immediateCompare=%d postBombardCompare=%d attackRatio=%d skipBombardRatio=%d targetTooStrong=%d bombardTurns=%d canBombard=%d defenseDamage=%d maxDefenseDamage=%d defenseModifier=%d",
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_READINESS turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capitalPlot=(%d,%d) countdown=%d pathTurns=%d stepDistance=%d immediateCompare=%d postBombardCompare=%d attackRatio=%d skipBombardRatio=%d targetTooStrong=%d bombardTurns=%d canBombard=%d defenseDamage=%d maxDefenseDamage=%d defenseModifier=%d",
 			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY,
-			pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
+			pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
 			iSpaceCapitalPathTurns, iStepDistToTarget, iSpaceCapitalImmediateCompare, iSpaceCapitalPostBombardCompare, iAttackRatio,
 			iSpaceCapitalAttackRatioSkipBombard, bTargetTooStrong, iSpaceCapitalBombardTurns, getGroup()->canBombard(getPlot()),
 			pTargetCity->getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), pTargetCity->getDefenseModifier(false));
 		if (iStepDistToTarget == 1 && bSpaceCapitalMustAttackNow)
 		{
-			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=force_final_assault",
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capitalPlot=(%d,%d) countdown=%d pathTurns=%d action=force_final_assault",
 				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY,
-				pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(),
+				pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(),
 				iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
 			if (AI_stackAttackCity(1))
 				return;
 		}
 		if (iSpaceCapitalPathTurns <= 1 && !bSpaceCapitalImmediatelyReady && !bSpaceCapitalMustAttackNow)
 		{
-			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=hold_within_one_turn_for_recovery_or_reinforcements",
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capitalPlot=(%d,%d) countdown=%d pathTurns=%d action=hold_within_one_turn_for_recovery_or_reinforcements",
 				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY,
-				pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(),
+				pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(),
 				iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
 			return;
 		}
-		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack",
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capitalPlot=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack",
 			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY,
-			pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
+			pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
 			iSpaceCapitalPathTurns);
 		if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
 			return;
-		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack_failed",
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capitalPlot=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack_failed",
 			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY,
-			pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
+			pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown,
 			iSpaceCapitalPathTurns);
 	}
 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
@@ -11138,10 +11138,10 @@ void CvUnitAI::AI_attackCityMove()
 						{
 							// <!-- custom: BBAI logs showed remote captured-city attack stacks with valid targets and enough strength parking for many turns because the upgrade-wait rule fired.
 							// If such a stack is already ready and the target is not too strong, keep the offensive moving instead of freezing most of the army far from the core. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
-							if (gUnitLogLevel >= 2) logBBAI("    ATTACK_CITY_REMOTE_UPGRADE_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d",
-								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0),
-								pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
-								pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
+							if (gUnitLogLevel >= 2) logBBAI("ATTACK_CITY_REMOTE_UPGRADE_BYPASS turn=%d player=%d civ=%s city=%S cityPlot=(%d,%d) target=%S targetPlot=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d",
+								GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(),
+								getSASDiagnosticQuoted(pCurrentCity->getName().GetCString()).GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
+								getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
 								kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount);
 							break;
 						}
@@ -11181,20 +11181,20 @@ void CvUnitAI::AI_attackCityMove()
 								iEstimatedUpgradeCost += iUpgradePrice;
 								iBestUpgradePriceMax = std::max(iBestUpgradePriceMax, iUpgradePrice);
 							}
-							logBBAI("    ATTACK_CITY_UPGRADE_WAIT_DETAIL turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d maxSingleUpgradeCost=%d gold=%d goldRate=%d upgradeBudgetTarget=%d goldTarget=%d financialTrouble=%d targetPathTurns=%d ready=%d targetTooStrong=%d remoteCapturedTrap=%d skipReadyAttack=%d",
-								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0),
-								pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
-								pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
+							logBBAI("ATTACK_CITY_UPGRADE_WAIT_DETAIL turn=%d player=%d civ=%s city=%S cityPlot=(%d,%d) target=%S targetPlot=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d maxSingleUpgradeCost=%d gold=%d goldRate=%d upgradeBudgetTarget=%d goldTarget=%d financialTrouble=%d targetPathTurns=%d ready=%d targetTooStrong=%d remoteCapturedTrap=%d skipReadyAttack=%d",
+								GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(),
+								getSASDiagnosticQuoted(pCurrentCity->getName().GetCString()).GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
+								getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
 								kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost,
 								iBestUpgradePriceMax, kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_goldTarget(true),
 								kOwner.AI_goldTarget(false), kOwner.AI_isFinancialTrouble(), iTargetPathTurns, bReadyToAttack,
 								bTargetTooStrong, bSkipUpgradeWaitForRemoteCapturedTrap, bSkipUpgradeWaitForReadyAttack);
 							if (bSkipUpgradeWaitForReadyAttack)
 							{
-								logBBAI("    ATTACK_CITY_UPGRADE_WAIT_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d gold=%d targetPathTurns=%d",
-									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0),
-									pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
-									pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
+								logBBAI("ATTACK_CITY_UPGRADE_WAIT_BYPASS turn=%d player=%d civ=%s city=%S cityPlot=(%d,%d) target=%S targetPlot=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d gold=%d targetPathTurns=%d",
+									GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(),
+									getSASDiagnosticQuoted(pCurrentCity->getName().GetCString()).GetCString(), pCurrentCity->getX(), pCurrentCity->getY(),
+									getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(),
 									kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits,
 									iEstimatedUpgradeCost, kOwner.getGold(), iTargetPathTurns);
 							}
@@ -11326,14 +11326,14 @@ void CvUnitAI::AI_attackCityMove()
 			bool const bLogBarbFallback = (gUnitLogLevel >= 2 || gPlayerLogLevel >= 2);
 			if (GET_TEAM(getTeam()).getNumWars() > 0)
 			{
-				if (bLogBarbFallback) logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=active_war unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(),
+				if (bLogBarbFallback) logBBAI("BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d civ=%s reason=active_war unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getGroup()->getID(),
 					getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
 			}
 			else if (iCityCapture < 2)
 			{
-				if (bLogBarbFallback) logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=too_few_city_capture unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(),
+				if (bLogBarbFallback) logBBAI("BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d civ=%s reason=too_few_city_capture unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getGroup()->getID(),
 					getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
 			}
 			else
@@ -11342,8 +11342,8 @@ void CvUnitAI::AI_attackCityMove()
 				// Do not override normal targets or active wars, but if there is no target at all, use the same pathable barbarian-city picker as the diagnostic log so idle attack stacks can clean up barb cities.
 				// Barbarian cities are usually weak, have little/no diplomatic or war cost, and can add population, land, resources, unit support, and future growth instead of letting nearby rivals claim them later; capturing a close/profitable barb city also avoids spending a settler and slowing city growth or other projects.
 				// K-Mod disabled AI_goToTargetBarbCity, so explicitly pass the picked barbarian city through AI_goToTargetCity. See KI#158. (GPT-5.5 + ChatGPT-5.5) -->
-				if (bLogBarbFallback) logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_TRY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(),
+				if (bLogBarbFallback) logBBAI("BARB_CITY_NO_TARGET_FALLBACK_TRY turn=%d player=%d civ=%s unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getGroup()->getID(),
 					getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
 				int iFallbackPickedPathTurns = -1;
 				int iFallbackPickedTargetValue = -1;
@@ -11356,18 +11356,18 @@ void CvUnitAI::AI_attackCityMove()
 				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, true, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
 				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
 				{
-					if (bLogBarbFallback) logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SUCCESS turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) target=%S target=(%d,%d) pathTurns=%d targetValue=%d value=%d stepDistance=%d defenders=%d",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(),
+					if (bLogBarbFallback) logBBAI("BARB_CITY_NO_TARGET_FALLBACK_SUCCESS turn=%d player=%d civ=%s unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) target=%S targetPlot=(%d,%d) pathTurns=%d targetValue=%d value=%d stepDistance=%d defenders=%d",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getGroup()->getID(),
 						getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
-						pBarbTargetCity->getName().GetCString(), pBarbTargetCity->getX(), pBarbTargetCity->getY(),
+						getSASDiagnosticQuoted(pBarbTargetCity->getName().GetCString()).GetCString(), pBarbTargetCity->getX(), pBarbTargetCity->getY(),
 						iFallbackPickedPathTurns, iFallbackPickedTargetValue, iFallbackPickedValue, iFallbackPickedStepDistance,
 						iFallbackPickedDefenders);
 					return;
 				}
-				if (bLogBarbFallback) logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) fallbackPickedTarget=%S fallbackPickedTarget=(%d,%d) fallbackPickedOwner=%d fallbackPickedBarb=%d fallbackPickedPathTurns=%d fallbackPickedValue=%d fallbackPickedTargetValue=%d fallbackPickedStepDistance=%d fallbackPickedDefenders=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(),
+				if (bLogBarbFallback) logBBAI("BARB_CITY_NO_TARGET_FALLBACK_FAIL turn=%d player=%d civ=%s unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) fallbackPickedTarget=%S fallbackPickedTargetPlot=(%d,%d) fallbackPickedOwner=%d fallbackPickedBarb=%d fallbackPickedPathTurns=%d fallbackPickedValue=%d fallbackPickedTargetValue=%d fallbackPickedStepDistance=%d fallbackPickedDefenders=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getGroup()->getID(),
 					getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
-					(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()),
+					getSASDiagnosticQuoted((pBarbTargetCity == NULL ? NULL : pBarbTargetCity->getName().GetCString())).GetCString(),
 					(pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()),
 					(pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()),
 					(pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue,
@@ -12722,8 +12722,8 @@ void CvUnitAI::AI_generalMove()
 	}
 	SASGreatGeneralChoiceContext kSASGreatGeneralChoice;
 	SASGreatGeneralChoiceContext* pSASGreatGeneralChoice = (bLogSASGreatGeneralDecision ? &kSASGreatGeneralChoice : NULL);
-	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+	if (gGreatGeneralLogLevel >= 2) logBBAI("GREAT_GENERAL_MOVE turn=%d player=%d civ=%s generalId=%d general=(%d,%d) area=%d areaAI=%d action=start",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getArea().getID(),
 		getArea().getAreaAIType(getTeam()));
 
 	static const int iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT = GC.getDefineINT("SAS_GG_INSTRUCTOR_MOVE_MAX_COUNT");
@@ -12741,9 +12741,9 @@ void CvUnitAI::AI_generalMove()
 	// The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
 	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_PREFERRED_INSTRUCTOR, iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
-			iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, kOwner.getCurrentEra(),
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=join maxCount=%d stage=preferred-first era=%s preferThroughEra=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(),
+			iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, getSASInfoTypeOrNone(kOwner.getCurrentEra()),
 			iSAS_GG_INSTRUCTOR_PREFER_1ST_THROUGH_ERA);
 		return;
 	}
@@ -12753,8 +12753,8 @@ void CvUnitAI::AI_generalMove()
 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
 	if (AI_construct(1, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_FIRST_ACADEMY, 1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=construct limit=1",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
@@ -12762,8 +12762,8 @@ void CvUnitAI::AI_generalMove()
 	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
 	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FIRST_INSTRUCTOR, iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT, -1, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=join maxCount=%d stage=first",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(),
 			iSAS_GG_INSTRUCTOR_MOVE_MAX_COUNT);
 		return;
 	}
@@ -12782,8 +12782,8 @@ void CvUnitAI::AI_generalMove()
 		// Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
 		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_DANGER_LEAD, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
-			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+			if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 			return;
 		}
 	}
@@ -12798,8 +12798,8 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
 		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK_CITY, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
-			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+			if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 			return;
 		}
 
@@ -12807,30 +12807,30 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
 		if (AI_lead(aeUnitAITypes, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_LEAD, SAS_AI_GREAT_GENERAL_OFFENSE_LEAD_ATTACK, -1, -1, iSAS_GG_ATTACH_MIN_STR_SCORE, iSAS_GG_ATTACH_MIN_HEALING, iRandomConstructRoll)))
 		{
-			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+			if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=lead reason=offenseWar roles=ATTACK",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 			return;
 		}
 	} // BETTER_BTS_AI_MOD: END
 
 	if (AI_join(2, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_JOIN_LIMIT_2, 2, -1, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=2 stage=legacy1",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=join maxCount=2 stage=legacy1",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
 	if (AI_construct(2, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_ACADEMY_LIMIT_2, 2, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=2",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=construct limit=2",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
 	if (AI_join(4, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_JOIN_LIMIT_4, 4, -1, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=4 stage=legacy2",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=join maxCount=4 stage=legacy2",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
@@ -12840,16 +12840,16 @@ void CvUnitAI::AI_generalMove()
 	{
 		if (AI_construct(MAX_INT, MAX_INT, iGreatGeneralConstructValueThreshold, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_CONSTRUCT, SAS_AI_GREAT_GENERAL_RANDOM_CONSTRUCT, -1, iGreatGeneralConstructValueThreshold, -1, -1, iRandomConstructRoll)))
 		{
-			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=unbounded random=1in3",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+			if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=construct limit=unbounded random=1in3",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 			return;
 		}
 	}
 
 	if (AI_join(MAX_INT, prepareSASGreatGeneralChoiceContext(pSASGreatGeneralChoice, SAS_AI_GREAT_GENERAL_ACTION_JOIN, SAS_AI_GREAT_GENERAL_FINAL_JOIN, -1, -1, -1, -1, iRandomConstructRoll)))
 	{
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=unbounded stage=legacy3",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=join maxCount=unbounded stage=legacy3",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
@@ -12864,8 +12864,8 @@ void CvUnitAI::AI_generalMove()
 			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
 			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
 		}
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=retreat",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=retreat",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
@@ -12880,8 +12880,8 @@ void CvUnitAI::AI_generalMove()
 			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
 			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
 		}
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=stranded",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=stranded",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 	// K-Mod end
@@ -12896,8 +12896,8 @@ void CvUnitAI::AI_generalMove()
 			kSASGreatGeneralChoice.bMove = (pSASGreatGeneralDecisionPlot != NULL && kSASGreatGeneralChoice.pWaypointPlot != pSASGreatGeneralDecisionPlot);
 			logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
 		}
-		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=safety",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=safety",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 		return;
 	}
 
@@ -12906,8 +12906,8 @@ void CvUnitAI::AI_generalMove()
 		kSASGreatGeneralChoice.prepare(SAS_AI_GREAT_GENERAL_ACTION_SKIP, SAS_AI_GREAT_GENERAL_SKIP, -1, -1, -1, -1, iRandomConstructRoll);
 		logSASGameRecordAIGreatGeneralDecision(*this, kSASGreatGeneralChoice);
 	}
-	if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=skip",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+	if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_DECISION turn=%d player=%d civ=%s generalId=%d action=skip",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID());
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -13206,7 +13206,7 @@ void CvUnitAI::AI_greatPersonMove()
 		kGame.getGameTurn(), getOwner(), getID(), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()),
 		(pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iPreviousSlowTargetValue, iPreviousSlowTargetPathTurns,
 		iBestValue, (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns), eBestSlowMissionAI,
-		(pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()),
+		getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), (pBestCity == NULL ? -1 : pBestCity->getID()),
 		(pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()),
 		(eBestSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eBestSpecialist).getType()),
 		(eBestBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBestBuilding).getType()));
@@ -13292,14 +13292,14 @@ void CvUnitAI::AI_greatPersonMove()
 				iSettleTurnsSaved = std::max(0, iCurrentVictoryCountdown - iSettleVictoryCountdown);
 		}
 		bool const bWouldPreferGreatWork = (bSettleCandidate && pVictoryCultureCity != NULL && iGreatWorkTurnsSaved > iSettleTurnsSaved);
-		logBBAI("CULTURE_GREAT_ARTIST_VICTORY_TIMING turn=%d player=%d %S unitId=%d stage=%d settleCandidate=%d currentVictoryCountdown=%d greatWorkCity=%S greatWorkCityId=%d greatWorkRank=%d greatWorkPathTurns=%d greatWorkCulture=%d greatWorkCityCountdown=%d greatWorkVictoryCountdown=%d greatWorkTurnsSaved=%d greatWorkRawValue=%d settleCity=%S settleCityId=%d settleRank=%d settlePathTurns=%d settledCulturePerTurn=%d settleCityCountdown=%d settleVictoryCountdown=%d settleTurnsSaved=%d timingMarginTurns=%d slowValue=%d greatWorkActionValue=%d wouldPreferGreatWork=%d",
-			kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iCultureStage, bSettleCandidate,
-			iCurrentVictoryCountdown, (pVictoryCultureCity == NULL ? L"-" : pVictoryCultureCity->getName().GetCString()),
+		logBBAI("CULTURE_GREAT_ARTIST_VICTORY_TIMING turn=%d player=%d civ=%s unitId=%d stage=%d settleCandidate=%d currentVictoryCountdown=%d greatWorkCity=%S greatWorkCityId=%d greatWorkRank=%d greatWorkPathTurns=%d greatWorkCulture=%d greatWorkCityCountdown=%d greatWorkVictoryCountdown=%d greatWorkTurnsSaved=%d greatWorkRawValue=%d settleCity=%S settleCityId=%d settleRank=%d settlePathTurns=%d settledCulturePerTurn=%d settleCityCountdown=%d settleVictoryCountdown=%d settleTurnsSaved=%d timingMarginTurns=%d slowValue=%d greatWorkActionValue=%d wouldPreferGreatWork=%d",
+			kGame.getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), iCultureStage, bSettleCandidate,
+			iCurrentVictoryCountdown, getSASDiagnosticQuoted((pVictoryCultureCity == NULL ? NULL : pVictoryCultureCity->getName().GetCString())).GetCString(),
 			(pVictoryCultureCity == NULL ? -1 : pVictoryCultureCity->getID()),
 			(pVictoryCultureCity == NULL ? 0 : pVictoryCultureCity->AI().AI_getCultureVictoryRank()),
 			(iVictoryCulturePathTurns == MAX_INT ? -1 : iVictoryCulturePathTurns), iGreatWorkCulture, iGreatWorkCityCountdown,
 			iGreatWorkVictoryCountdown, iGreatWorkTurnsSaved, iVictoryTimingCultureValue,
-			(pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()),
+			getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), (pBestCity == NULL ? -1 : pBestCity->getID()),
 			(pBestCity == NULL ? 0 : pBestCity->AI().AI_getCultureVictoryRank()), (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns),
 			iSettledCulturePerTurn, iSettleCityCountdown, iSettleVictoryCountdown, iSettleTurnsSaved,
 			iGreatWorkTurnsSaved - iSettleTurnsSaved, iSlowValue, iCultureValue, bWouldPreferGreatWork);
@@ -13328,8 +13328,8 @@ void CvUnitAI::AI_greatPersonMove()
 				getGroup()->pushMission(MISSION_DISCOVER);
 				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_DISCOVER_TECH, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
-				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=DISCOVER tech=%s value=%d choice=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=DISCOVER tech=%s value=%d choice=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 					GC.getInfo(eDiscoverTech).getType(), rDiscoverValue.round(), iChoice);
 				return;
 			}
@@ -13342,8 +13342,8 @@ void CvUnitAI::AI_greatPersonMove()
 				{
 					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtTradePlot ? SAS_AI_GREAT_PERSON_TRADE_MISSION : SAS_AI_GREAT_PERSON_MOVE_TO_TRADE_MISSION), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pBestTradePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
-					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=TRADE_MISSION mode=%s value=%d choice=%d target=(%d,%d)",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=TRADE_MISSION mode=%s value=%d choice=%d target=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE ? "CONTINUE" : "CHOOSE", iTradeValue, iChoice,
 						(pBestTradePlot == NULL ? -1 : pBestTradePlot->getX()), (pBestTradePlot == NULL ? -1 : pBestTradePlot->getY()));
 					return;
@@ -13359,8 +13359,8 @@ void CvUnitAI::AI_greatPersonMove()
 					if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, (bAtCulturePlot ? SAS_AI_GREAT_PERSON_GREAT_WORK : SAS_AI_GREAT_PERSON_MOVE_TO_GREAT_WORK), iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pBestCulturePlot, ePreviousMissionAI, pPreviousMissionPlot);
 					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
 					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
-					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=GREAT_WORK mode=%s value=%d choice=%d target=(%d,%d)",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+					if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=GREAT_WORK mode=%s value=%d choice=%d target=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 						AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK ? "CONTINUE" : "CHOOSE", iCultureValue, iChoice,
 						(pBestCulturePlot == NULL ? -1 : pBestCulturePlot->getX()), (pBestCulturePlot == NULL ? -1 : pBestCulturePlot->getY()));
 					return;
@@ -13373,8 +13373,8 @@ void CvUnitAI::AI_greatPersonMove()
 			{
 				if (bLogSASGreatPersonDecision) logSASGameRecordAIGreatPersonDecision(*this, pSASGreatPersonDecisionPlot, SAS_AI_GREAT_PERSON_GOLDEN_AGE, iChoice, it->first, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, eBestSlowMissionAI, pBestCity, eBestSpecialist, eBestBuilding, rDiscoverValue.round(), eDiscoverTech, iGoldenAgeValue, iTradeValue, iCultureValue, pSASTradeChoice, pSASGreatPersonDecisionPlot, ePreviousMissionAI, pPreviousMissionPlot);
 				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
-				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=GOLDEN_AGE value=%d choice=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=GOLDEN_AGE value=%d choice=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(), iGoldenAgeValue, iChoice);
 				return;
 			}
 			else if (kOwner.AI_totalUnitAIs(AI_getUnitAIType()) < 2)
@@ -13409,11 +13409,11 @@ void CvUnitAI::AI_greatPersonMove()
 						// lets say 1% per turn.
 						iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
 					}
-					else if (bLogUnitGreatPersonDecision) logBBAI("    GP_GOLDEN_WAIT_CAP turn=%d player=%d %S unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
+					else if (bLogUnitGreatPersonDecision) logBBAI("GP_GOLDEN_WAIT_CAP turn=%d player=%d civ=%s unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
 						kGame.getGameTurn(),
 						getOwner(),
-						GET_PLAYER(getOwner()).getCivilizationDescription(0),
-						getID(), getName(0).GetCString(),
+						GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
+						getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 						iGreatPersonAge, iGreatPersonAgeNormal,
 						iSAS_GP_MAX_GOLDEN_AGE_WAIT_T_NORM_GS,
 						it->first, iScoreThreshold);
@@ -13429,10 +13429,10 @@ void CvUnitAI::AI_greatPersonMove()
 			{
 				FAssert(eBestSlowMissionAI == MISSIONAI_JOIN_CITY);
 				FAssert(pBestCity != NULL);
-				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=JOIN mode=%s specialist=%s value=%d choice=%d targetCity=%S targetCityId=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=JOIN mode=%s specialist=%s value=%d choice=%d targetCity=%S targetCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 					AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY ? "CONTINUE" : "CHOOSE", GC.getInfo(eBestSpecialist).getType(), iSlowValue,
-					iChoice, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()));
+					iChoice, getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), (pBestCity == NULL ? -1 : pBestCity->getID()));
 				if (at(*pBestPlot))
 				{
 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
@@ -13458,10 +13458,10 @@ void CvUnitAI::AI_greatPersonMove()
 				// A direct corporation Construct therefore traveled as MISSIONAI_HURRY, and its persisted target could not be valued as the previous Construct target on the next turn.
 				// Retaining the candidate's actual action fixed the mission classification. See KI#170. (GPT-5.5) -->
 				MissionAITypes const eMissionAI = eBestSlowMissionAI;
-				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=%s mode=%s building=%s value=%d choice=%d targetCity=%S targetCityId=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+				if (bLogUnitGreatPersonDecision) logBBAI("GREAT_PERSON_ACTION_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=%s mode=%s building=%s value=%d choice=%d targetCity=%S targetCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 					(eMissionAI == MISSIONAI_CONSTRUCT ? "CONSTRUCT" : "HURRY"), AI_getGroup()->AI_getMissionAIType() == eMissionAI ? "CONTINUE" : "CHOOSE", GC.getInfo(eBestBuilding).getType(), iSlowValue,
-					iChoice, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()));
+					iChoice, getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), (pBestCity == NULL ? -1 : pBestCity->getID()));
 				if (at(*pBestPlot))
 				{
 					if (eMissionAI == MISSIONAI_CONSTRUCT)
@@ -13548,9 +13548,9 @@ void CvUnitAI::AI_greatPersonMove()
 	{
 		// <!-- custom: Great People sometimes logged repeated waits, but the old line lacked turn, unit id, plot, mission state, and the candidate values needed to tell whether the unit was truly stuck or waiting for a better action.
 		// Keep this diagnostic gated behind the existing unit log level for reviewing wait decisions. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
-		logBBAI("    GP_WAIT turn=%d player=%d %S unitId=%d unit=%S type=%S plot=(%d,%d) age=%d ageNormal=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d missionAI=%d",
-			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
-			GC.getInfo(getUnitType()).getDescription(), getX(), getY(), iGreatPersonAge, iGreatPersonAgeNormal, iScoreThreshold, iSlowValue,
+		logBBAI("GP_WAIT turn=%d player=%d civ=%s unitId=%d unit=%S type=%s plot=(%d,%d) age=%d ageNormal=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d missionAI=%d",
+			kGame.getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+			GC.getInfo(getUnitType()).getType(), getX(), getY(), iGreatPersonAge, iGreatPersonAgeNormal, iScoreThreshold, iSlowValue,
 			rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIType());
 	}
 	if (AI_retreatToCity())
@@ -14047,7 +14047,7 @@ void CvUnitAI::AI_workerSeaMove()
 		{
 			if (AI_retreatToCity())
 			{
-				if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+				if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("DANGER_RETREAT_TO_CITY", *this);
 				return;
 			}
 		}
@@ -14061,7 +14061,7 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_improveBonus())
 	{
-		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
+		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("IMPROVE_BONUS", *this);
 		return;
 	}
 
@@ -14073,7 +14073,7 @@ void CvUnitAI::AI_workerSeaMove()
 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
 			{
 				getGroup()->pushMission(MISSION_SKIP);
-				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("HUMAN_AUTOMATED_SKIP_ON_BONUS", *this);
 				return;
 			}
 		}
@@ -14085,7 +14085,7 @@ void CvUnitAI::AI_workerSeaMove()
 				if (isRevealedValidDomain(*pAdj)) // advc
 				{
 					getGroup()->pushMission(MISSION_SKIP);
-					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
+					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("HUMAN_AUTOMATED_SKIP_ADJACENT_BONUS", *this);
 					return;
 				}
 			}
@@ -14121,18 +14121,18 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_retreatToCity())
 	{
-		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("retreat to city", *this);
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("RETREAT_TO_CITY", *this);
 		return;
 	}
 
 	if (AI_safety())
 	{
-		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("safety", *this);
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("SAFETY", *this);
 		return;
 	}
 
 	getGroup()->pushMission(MISSION_SKIP);
-	if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
+	if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("SKIP_NO_ACTION", *this);
 }
 
 
@@ -15191,11 +15191,11 @@ void CvUnitAI::AI_assaultSeaMove()
 		int const iIncomingCargo1 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 1);
 		int const iIncomingCargo3 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 3);
 		int const iIncomingCargo7 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 7);
-		logBBAI("    ASSAULT_SEA_MOVE_STATE turn=%d player=%d %S unitId=%d unit=%S unitAge=%d groupId=%d groupUnits=%d transports=%d cargo=%d cargoSpace=%d empty=%d full=%d escorts=%d at=(%d,%d) city=%S landArea=%d waterArea=%d areaAI=%d inPort=%d landWar=%d noWarPlans=%d missionAI=%d missionTarget=(%d,%d) reinforcementThreshold=%d invasionThreshold=%d plotAttackCity=%d plotAttack=%d plotCounter=%d plotAvailableAttackCity=%d plotAvailableAttack=%d plotAvailableCounter=%d incomingCargo1=%d incomingCargo3=%d incomingCargo7=%d areaAttackCity=%d areaAttack=%d totalAssaultTransports=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(),
+		logBBAI("ASSAULT_SEA_MOVE_STATE turn=%d player=%d civ=%s unitId=%d unit=%S unitAge=%d groupId=%d groupUnits=%d transports=%d cargo=%d cargoSpace=%d empty=%d full=%d escorts=%d at=(%d,%d) city=%S landArea=%d waterArea=%d areaAI=%d inPort=%d landWar=%d noWarPlans=%d missionAI=%d missionTarget=(%d,%d) reinforcementThreshold=%d invasionThreshold=%d plotAttackCity=%d plotAttack=%d plotCounter=%d plotAvailableAttackCity=%d plotAvailableAttack=%d plotAvailableCounter=%d incomingCargo1=%d incomingCargo3=%d incomingCargo7=%d areaAttackCity=%d areaAttack=%d totalAssaultTransports=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 			GC.getGame().getGameTurn() - getGameTurnCreated(), getGroup()->getID(), getGroup()->getNumUnits(),
 			getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA), iCargo, getGroup()->getCargoSpace(), bEmpty, bFull, iEscorts, getX(), getY(),
-			(getPlot().getPlotCity() == NULL ? L"-" : getPlot().getPlotCity()->getName().GetCString()), getArea().getID(),
+			getSASDiagnosticQuoted((getPlot().getPlotCity() == NULL ? NULL : getPlot().getPlotCity()->getName().GetCString())).GetCString(), getArea().getID(),
 			(pUnitWaterArea == NULL ? -1 : pUnitWaterArea->getID()), eAreaAIType, bInPort, bLandWar, bNoWarPlans,
 			AI_getGroup()->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iTargetReinforcementSize, iTargetInvasionSize,
@@ -15651,11 +15651,11 @@ void CvUnitAI::AI_assaultSeaMove()
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaTransport(bNoWarPlans))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
 				return;
 			}
-			if (gOverseasTransportLogLevel >= 3) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d",
+			if (gOverseasTransportLogLevel >= 3) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
 		}
 		if (bNoWarPlans && iCargo >= iTargetReinforcementSize)
@@ -15670,7 +15670,7 @@ void CvUnitAI::AI_assaultSeaMove()
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaReinforce(true))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=reinforce_without_war_plan cargo=%d threshold=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=reinforce_without_war_plan cargo=%d threshold=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
 			}
@@ -15678,11 +15678,11 @@ void CvUnitAI::AI_assaultSeaMove()
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaTransport(true))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=attack_barbarian_without_war_plan cargo=%d threshold=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=attack_barbarian_without_war_plan cargo=%d threshold=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
 			}
-			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_reinforcement_or_barbarian_target cargo=%d threshold=%d",
+			if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_reinforcement_or_barbarian_target cargo=%d threshold=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 		}
 	}  // <advc.046>
@@ -15694,7 +15694,7 @@ void CvUnitAI::AI_assaultSeaMove()
 			GET_TEAM(getTeam()).AI_isPrimaryArea(getPlot().getArea()));
 	if ((bGoodCity || !bHasCargo) && !bAttack && AI_pickupStranded())
 	{
-		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded cargo=%d cargoSpace=%d",
+		if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded cargo=%d cargoSpace=%d",
 			GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 		return;
 	} // </advc.046>
@@ -15717,28 +15717,28 @@ void CvUnitAI::AI_assaultSeaMove()
 		bool bHasOneLoad = (getGroup()->getCargo() >= cargoSpace());
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo, bHasOneLoad ? 3 : 7))
 		{
-			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city cargo=%d cargoSpace=%d pathLimit=%d",
+			if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city cargo=%d cargoSpace=%d pathLimit=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(),
 				bHasOneLoad ? 3 : 7);
 			return;
 		}
 		if (AI_pickup(UNITAI_ATTACK, !bHasCargo, bHasOneLoad ? 3 : 7))
 		{
-			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack cargo=%d cargoSpace=%d pathLimit=%d",
+			if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack cargo=%d cargoSpace=%d pathLimit=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(),
 				bHasOneLoad ? 3 : 7);
 			return;
 		}
 		if (AI_pickup(UNITAI_COUNTER, !bHasCargo, bHasOneLoad ? 3 : 7))
 		{
-			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_counter cargo=%d cargoSpace=%d pathLimit=%d",
+			if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_counter cargo=%d cargoSpace=%d pathLimit=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(),
 				bHasOneLoad ? 3 : 7);
 			return;
 		}
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo))
 		{
-			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city_unlimited_path cargo=%d cargoSpace=%d",
+			if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city_unlimited_path cargo=%d cargoSpace=%d",
 				GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 			return;
 		}
@@ -15746,19 +15746,19 @@ void CvUnitAI::AI_assaultSeaMove()
 		{
 			if(AI_pickupStranded(UNITAI_ATTACK_CITY))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack_city cargo=%d cargoSpace=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack_city cargo=%d cargoSpace=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
 			}
 			if(AI_pickupStranded(UNITAI_ATTACK))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack cargo=%d cargoSpace=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack cargo=%d cargoSpace=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
 			}
 			if(AI_pickupStranded(UNITAI_COUNTER))
 			{
-				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_counter cargo=%d cargoSpace=%d",
+				if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_counter cargo=%d cargoSpace=%d",
 					GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
 			}
@@ -15767,13 +15767,13 @@ void CvUnitAI::AI_assaultSeaMove()
 				// Try picking up anything
 				if(AI_pickupStranded())
 				{
-					if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_any_stranded cargo=%d cargoSpace=%d",
+					if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_any_stranded cargo=%d cargoSpace=%d",
 						GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 					return;
 				}
 			}
 		}
-		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_pickup_found cargo=%d cargoSpace=%d attackCityArea=%d attackArea=%d",
+		if (bLogAssaultSea) logBBAI("ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_pickup_found cargo=%d cargoSpace=%d attackCityArea=%d attackArea=%d",
 			GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(),
 			kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK));
 	}
@@ -18385,10 +18385,10 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			// The Unit-BBAI gate also covers identity/name formatting and diagnostic-only queries, including the requested grouping role for caller context. See KI#49.3. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			if (kLoopPlot.isVisibleEnemyUnit(this))
 			{
-				if (gUnitLogLevel >= 2) logBBAI("OMNI_GROUP_VISIBLE_ENEMY_REJECT turn=%d player=%d civ=%S requestedAI=%s callerId=%d caller=%S callerAI=%s callerGroupId=%d callerGroupUnits=%d source=(%d,%d) targetHeadId=%d targetHead=%S targetAI=%s targetGroupId=%d targetGroupUnits=%d target=(%d,%d) targetOwner=%d targetTeam=%d targetMissionAI=%d safeOnly=%d plotEnemy=%d callerAlwaysHostile=%d mergeGroups=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), SAS_getUnitAITypeName(eUnitAI), getID(), getName(0).GetCString(),
+				if (gUnitLogLevel >= 2) logBBAI("OMNI_GROUP_VISIBLE_ENEMY_REJECT turn=%d player=%d civ=%s requestedAI=%s callerId=%d caller=%S callerAI=%s callerGroupId=%d callerGroupUnits=%d source=(%d,%d) targetHeadId=%d targetHead=%S targetAI=%s targetGroupId=%d targetGroupUnits=%d target=(%d,%d) targetOwner=%d targetTeam=%d targetMissionAI=%d safeOnly=%d plotEnemy=%d callerAlwaysHostile=%d mergeGroups=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), SAS_getUnitAITypeName(eUnitAI), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
 					SAS_getUnitAITypeName(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
-					pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()),
+					pLoopUnit->getID(), getSASDiagnosticQuoted(pLoopUnit->getName(0).GetCString()).GetCString(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()),
 					pLoopGroup->getID(), pLoopGroup->getNumUnits(), kLoopPlot.getX(), kLoopPlot.getY(), kLoopPlot.getOwner(), kLoopPlot.getTeam(),
 					pLoopGroup->AI_getMissionAIType(), bSafeOnly, isEnemy(kLoopPlot), isAlwaysHostile(kLoopPlot), bMergeGroups);
 				continue;
@@ -18851,9 +18851,9 @@ bool CvUnitAI::AI_guardCityOnlyDefender()
 				FAssertMsg(pGuardUnit->getGroup() != &kGroup && pGuardUnit->getGroup()->getNumUnits() == 1, "AI_guardCityOnlyDefender must detach a singleton guard.");
 				FAssertMsg(pGuardUnit->at(pPlotCity->getPlot()) && pGuardUnit->getOwner() == pPlotCity->getOwner(), "AI_guardCityOnlyDefender must retain an owned guard on the city plot.");
 				FAssertMsg(kGroup.getNumUnits() == iGroupUnits - 1, "AI_guardCityOnlyDefender must remove exactly one unit from the original group.");
-				if (bLogSplit) logBBAI("    RESERVE_ONLY_DEFENDER_SPLIT turn=%d player=%d %S city=%S city=(%d,%d) reserveUnitId=%d guardUnitId=%d guardUnitAI=%s guardWasHead=%d oldGroupId=%d oldGroupUnits=%d oldMissionAI=%d guardCityUnits=%d otherGuardCityUnits=%d action=EJECT_ONE_DEFENDER",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0),
-					pPlotCity->getName().GetCString(), pPlotCity->getX(), pPlotCity->getY(), getID(), pGuardUnit->getID(),
+				if (bLogSplit) logBBAI("RESERVE_ONLY_DEFENDER_SPLIT turn=%d player=%d civ=%s city=%S cityPlot=(%d,%d) reserveUnitId=%d guardUnitId=%d guardUnitAI=%s guardWasHead=%d oldGroupId=%d oldGroupUnits=%d oldMissionAI=%d guardCityUnits=%d otherGuardCityUnits=%d action=EJECT_ONE_DEFENDER",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
+					getSASDiagnosticQuoted(pPlotCity->getName().GetCString()).GetCString(), pPlotCity->getX(), pPlotCity->getY(), getID(), pGuardUnit->getID(),
 					SAS_getUnitAITypeName(pGuardUnit->AI_getUnitAIType()), (pGuardUnit == pOldHeadUnit), iOldGroupId, iGroupUnits, eGroupMissionAI,
 					iGuardCityUnits, iOtherGuardCityUnits);
 			}
@@ -19116,10 +19116,10 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			if (!bFillShortfall && pLoopCity->AI_isEvacuating())
 			{
 				bool const bRejectEvacuatingCity = (iDefendersWant > fixp(0.75) * getGroup()->getNumUnits());
-				if (gEvacuationLogLevel >= 3) logBBAI("    EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d",
+				if (gEvacuationLogLevel >= 3) logBBAI("EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d civ=%s unitId=%d unit=%S unitAI=%s source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d",
 					(bRejectEvacuatingCity ? "reject" : "allow"), GC.getGame().getGameTurn(), getOwner(),
-					kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(),
-					pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(),
+					GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(AI_getUnitAIType()), getX(), getY(),
+					getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(),
 					getGroup()->getNumUnits(), iDefendersNeeded, iDefendersHave, iDefendersWant, iExtraDefenders);
 				if (bRejectEvacuatingCity)
 					continue;
@@ -19149,9 +19149,9 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			int const iGroupUnits = getGroup()->getNumUnits();
 			if (bFillShortfall && pExistingGuardMissionPlot != pLoopCity->plot() && ((iGroupUnits == 1 && iDefendersWant > 1) || (iGroupUnits > 1 && iDefendersWant > fixp(0.75) * iGroupUnits)))
 			{
-				if (gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_REJECT turn=%d player=%d %S reason=shortage_too_large unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(),
-					getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(),
+				if (gUnitLogLevel >= 2) logBBAI("ATTACK_DEFENSE_PRIORITY_REJECT turn=%d player=%d civ=%s reason=shortage_too_large unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) target=%S targetPlot=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(),
+					getGroup()->getNumUnits(), getX(), getY(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getX(), pLoopCity->getY(),
 					iDefendersNeeded, iDefendersHave, iIncomingDefenders, iDefendersWant, iPathTurns, iMaxPath, pLoopCity->AI_isEvacuating());
 				continue;
 			}
@@ -19182,9 +19182,9 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 
 	CvCityAI const* pBestGuardCityForEvacuationLog = pBestGuardPlot->AI_getPlotCity();
 	bool const bContinuingGuardCity = (pExistingGuardMissionPlot == pBestGuardPlot);
-	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(),
-		getX(), getY(), pBestGuardCityForEvacuationLog->getName().GetCString(), pBestGuardCityForEvacuationLog->getID(),
+	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d civ=%s unitId=%d unit=%S unitAI=%s source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(AI_getUnitAIType()),
+		getX(), getY(), getSASDiagnosticQuoted(pBestGuardCityForEvacuationLog->getName().GetCString()).GetCString(), pBestGuardCityForEvacuationLog->getID(),
 		pBestGuardCityForEvacuationLog->getX(), pBestGuardCityForEvacuationLog->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(),
 		getGroup()->getID(), getGroup()->getNumUnits());
 	// <!-- custom: The old code stored CvSelectionGroup only for its final comparison.
@@ -19214,12 +19214,12 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		// Retain MISSIONAI_GUARD_CITY so they continue toward the city and other groups count them as incoming instead of duplicating the same assignment.
 		// Preserve the old behavior for ordinary guard calls. (GPT-5.6-Sol) -->
 		MissionAITypes const eMissionAI = (bDangerOnly || !pEjectedUnit->noDefensiveBonus() ? MISSIONAI_GUARD_CITY : NO_MISSIONAI);
-		if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("    ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d %S continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S target=(%d,%d)",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), bContinuingGuardCity, iOriginalGroupId,
-			pEjectedUnit->getID(), pEjectedUnit->getName(0).GetCString(), SAS_getUnitTypeName(pEjectedUnit->getUnitType()),
+		if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d civ=%s continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S targetPlot=(%d,%d)",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), bContinuingGuardCity, iOriginalGroupId,
+			pEjectedUnit->getID(), getSASDiagnosticQuoted(pEjectedUnit->getName(0).GetCString()).GetCString(), SAS_getUnitTypeName(pEjectedUnit->getUnitType()),
 			SAS_getUnitAITypeName(pEjectedUnit->AI_getUnitAIType()), pEjectedUnit->noDefensiveBonus(), eMissionAI,
 			(eMissionAI == MISSIONAI_GUARD_CITY), pSourcePlot->getX(), pSourcePlot->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(),
-			(pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()), pBestGuardPlot->getX(),
+			getSASDiagnosticQuoted((pBestGuardCityForEvacuationLog == NULL ? NULL : pBestGuardCityForEvacuationLog->getName().GetCString())).GetCString(), pBestGuardPlot->getX(),
 			pBestGuardPlot->getY());
 		if (pEjectedUnit->at(*pBestGuardPlot))
 		{
@@ -19234,11 +19234,11 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			pEjectedUnit->pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false, eMissionAI, pBestGuardPlot);
 		}
 	}
-	if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=%s unitAI=%d originalGroupId=%d originalGroupUnits=%d defendersDetached=%d remainingGroupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0),
+	if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d civ=%s action=%s unitAI=%s originalGroupId=%d originalGroupUnits=%d defendersDetached=%d remainingGroupUnits=%d source=(%d,%d) target=%S targetPlot=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(),
 		(bContinuingGuardCity ? "continue_guard_city" : (bThisUnitEjected ? "redirect_group_head" : "split_defenders_continue_expedition")),
-		AI_getUnitAIType(), iOriginalGroupId, iOriginalGroupUnits, iDefendersToSend, pOldGroup->getNumUnits(), pSourcePlot->getX(),
-		pSourcePlot->getY(), (pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()),
+		getSASInfoTypeOrNone(AI_getUnitAIType()), iOriginalGroupId, iOriginalGroupUnits, iDefendersToSend, pOldGroup->getNumUnits(), pSourcePlot->getX(),
+		pSourcePlot->getY(), getSASDiagnosticQuoted((pBestGuardCityForEvacuationLog == NULL ? NULL : pBestGuardCityForEvacuationLog->getName().GetCString())).GetCString(),
 		pBestGuardPlot->getX(), pBestGuardPlot->getY(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestDefendersWant,
 		iBestPathTurns, iMaxPath, (pBestGuardCityForEvacuationLog == NULL ? 0 : pBestGuardCityForEvacuationLog->AI_isEvacuating()));
 	return bCurrentUnitCommitted;
@@ -19289,10 +19289,10 @@ bool CvUnitAI::AI_guardCityAirlift()
 	if (pBestPlot != NULL)
 	{
 		CvCityAI const* pBestAirliftCityForEvacuationLog = pBestPlot->AI_getPlotCity();
-		if (gEvacuationLogLevel >= 3 && pBestAirliftCityForEvacuationLog != NULL && pBestAirliftCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_AIRLIFT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d sourceCity=%S sourceCityId=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) hp=%d/%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
-			AI_getUnitAIType(), pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(),
-			pBestAirliftCityForEvacuationLog->getName().GetCString(), pBestAirliftCityForEvacuationLog->getID(),
+		if (gEvacuationLogLevel >= 3 && pBestAirliftCityForEvacuationLog != NULL && pBestAirliftCityForEvacuationLog->AI_isEvacuating()) logBBAI("EVACUATION_REENTRY_GUARD_AIRLIFT turn=%d player=%d civ=%s unitId=%d unit=%S unitAI=%s sourceCity=%S sourceCityId=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) hp=%d/%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+			getSASInfoTypeOrNone(AI_getUnitAIType()), getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), pCity->getX(), pCity->getY(),
+			getSASDiagnosticQuoted(pBestAirliftCityForEvacuationLog->getName().GetCString()).GetCString(), pBestAirliftCityForEvacuationLog->getID(),
 			pBestAirliftCityForEvacuationLog->getX(), pBestAirliftCityForEvacuationLog->getY(), currHitPoints(), maxHitPoints());
 		getGroup()->pushMission(MISSION_AIRLIFT, pBestPlot->getX(), pBestPlot->getY());
 		return true;
@@ -21035,9 +21035,9 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 					if (gGreatGeneralLogLevel >= 3)
 					{
 						CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
-						logBBAI("      GREAT_GENERAL_LEAD_REJECTED turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d minStrengthScore=%d healing=%d minHealing=%d reason=below-great-general-unit-attachment-threshold",
-							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(),
-							pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(),
+						logBBAI("GREAT_GENERAL_LEAD_REJECTED turn=%d player=%d civ=%s generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d minStrengthScore=%d healing=%d minHealing=%d reason=below-great-general-unit-attachment-threshold",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pLoopUnit->getID(),
+							getSASDiagnosticQuoted(pLoopUnit->getName(0).GetCString()).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), getSASDiagnosticQuoted(szUnitAI.GetCString()).GetCString(),
 							pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(),
 							pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength,
 							iMinStrengthScore, iHealing, iMinHealing);
@@ -21054,9 +21054,9 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 				if (gGreatGeneralLogLevel >= 3)
 				{
 					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
-					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(),
-						pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(),
+					logBBAI("GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d civ=%s generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pLoopUnit->getID(),
+						getSASDiagnosticQuoted(pLoopUnit->getName(0).GetCString()).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), getSASDiagnosticQuoted(szUnitAI.GetCString()).GetCString(),
 						pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(),
 						pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing,
 						getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
@@ -21104,9 +21104,9 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 			if (gGreatGeneralLogLevel >= 1)
 			{
 				CvWString szString; getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
-				logBBAI("      GREAT_GENERAL_LEAD_CHOSEN turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d reason=%s",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(),
-					pBestUnit->getName(0).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), szString.GetCString(),
+				logBBAI("GREAT_GENERAL_LEAD_CHOSEN turn=%d player=%d civ=%s generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d reason=%s",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pBestUnit->getID(),
+					getSASDiagnosticQuoted(pBestUnit->getName(0).GetCString()).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), getSASDiagnosticQuoted(szString.GetCString()).GetCString(),
 					pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getLevel(), pBestUnit->getExperience(), pBestUnit->baseCombatStr(),
 					pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (bChooseHealing ? "healing" : "strength"));
 			}
@@ -21115,17 +21115,17 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 		}
 		else
 		{
-			if (gGreatGeneralLogLevel >= 2 && pBestUnit != NULL) logBBAI("      GREAT_GENERAL_LEAD_MOVE turn=%d player=%d %S generalId=%d targetUnitId=%d targetUnit=%S target=(%d,%d) pathEnd=(%d,%d)",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(),
-				pBestUnit->getName(0).GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+			if (gGreatGeneralLogLevel >= 2 && pBestUnit != NULL) logBBAI("GREAT_GENERAL_LEAD_MOVE turn=%d player=%d civ=%s generalId=%d targetUnitId=%d targetUnit=%S target=(%d,%d) pathEnd=(%d,%d)",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pBestUnit->getID(),
+				getSASDiagnosticQuoted(pBestUnit->getName(0).GetCString()).GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
 			pushGroupMoveTo(*pBestPlot, MOVE_AVOID_ENEMY_WEIGHT_3);
 			return true;
 		}
 	}
 	// BETTER_BTS_AI_MOD: END
 
-	if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_LEAD_NO_CANDIDATE turn=%d player=%d %S generalId=%d roles=%d",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), (int)aeUnitAITypes.size());
+	if (gGreatGeneralLogLevel >= 2) logBBAI("GREAT_GENERAL_LEAD_NO_CANDIDATE turn=%d player=%d civ=%s generalId=%d roles=%d",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), (int)aeUnitAITypes.size());
 	return false;
 }
 
@@ -21141,14 +21141,14 @@ static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityA
 	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
 	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
 	CvPlayerAI const& kOwner = GET_PLAYER(kGeneral.getOwner());
-	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d currentPlotDangerR2=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) pathEndDangerR2=%d",
-		GC.getGame().getGameTurn(), kGeneral.getOwner(), kOwner.getCivilizationDescription(0), kGeneral.getID(),
-		kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount,
+	logBBAI("GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d civ=%s generalId=%d city=%S cityId=%d cityPlot=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d currentPlotDangerR2=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) pathEndDangerR2=%d",
+		GC.getGame().getGameTurn(), kGeneral.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kGeneral.getID(),
+		getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount,
 		kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus,
 		kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders,
 		kCity.AI_neededDefenders(true), kOwner.AI_getPlotDanger(kGeneral.getPlot(), 2), kCity.AI_isSafe(),
 		kOwner.AI_getPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(),
-		kCity.getProductionName(), kCity.getProductionTurnsLeft(), pPathEnd == NULL ? -1 : pPathEnd->getX(),
+		getSASDiagnosticQuoted(kCity.getProductionName()).GetCString(), kCity.getProductionTurnsLeft(), pPathEnd == NULL ? -1 : pPathEnd->getX(),
 		pPathEnd == NULL ? -1 : pPathEnd->getY(), pPathEnd == NULL ? -1 : kOwner.AI_getPlotDanger(*pPathEnd, 2));
 }
 
@@ -21213,8 +21213,8 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 				iCount += pLoopCity->getSpecialistCount(eLoopSpecialist);
 				if (iCount >= iMaxCount)
 				{
-					if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MAXCOUNT_REACHED turn=%d player=%d %S generalId=%d specialist=%s maxCount=%d currentCount=%d",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+					if (gGreatGeneralLogLevel >= 2) logBBAI("GREAT_GENERAL_JOIN_MAXCOUNT_REACHED turn=%d player=%d civ=%s generalId=%d specialist=%s maxCount=%d currentCount=%d",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 						GC.getInfo(eLoopSpecialist).getType(), iMaxCount, iCount);
 					return false;
 				}
@@ -21234,14 +21234,14 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
 						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
 						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
-						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) currentPlotDangerR2=%d pathEndDangerR2=%d",
-							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
-							pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(),
+						logBBAI("GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d civ=%s generalId=%d city=%S cityId=%d cityPlot=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) currentPlotDangerR2=%d pathEndDangerR2=%d",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
+							getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(),
 							GC.getInfo(eLoopSpecialist).getType(), iValue, pLoopCity->findYieldRateRank(YIELD_PRODUCTION),
 							pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD),
 							pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders,
 							pLoopCity->AI_neededDefenders(true), pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(),
-							pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(),
+							pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, getSASDiagnosticQuoted(pLoopCity->getProductionName()).GetCString(),
 							pLoopCity->getProductionTurnsLeft(), getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY(),
 							iSASCurrentPlotDangerR2, kOwner.AI_getPlotDanger(getPathEndTurnPlot(), 2));
 					}
@@ -21273,8 +21273,8 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 		}
 		if (at(*pBestPlot))
 		{
-			if (gGreatGeneralLogLevel >= 1) logBBAI("      GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d %S generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+			if (gGreatGeneralLogLevel >= 1) logBBAI("GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d civ=%s generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 				GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
 			getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
 			return true;
@@ -21282,18 +21282,18 @@ bool CvUnitAI::AI_join(int iMaxCount, SASGreatGeneralChoiceContext* pSASChoiceCo
 		else
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
-			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+			if (gGreatGeneralLogLevel >= 2) logBBAI("GREAT_GENERAL_JOIN_MOVE turn=%d player=%d civ=%s generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 				GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
 			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags);
 			return true;
 		}
 	}
 
-	if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_NO_CANDIDATE turn=%d player=%d %S generalId=%d maxCount=%d currentCount=%d",
+	if (gGreatGeneralLogLevel >= 2) logBBAI("GREAT_GENERAL_JOIN_NO_CANDIDATE turn=%d player=%d civ=%s generalId=%d maxCount=%d currentCount=%d",
 		GC.getGame().getGameTurn(),
 		getOwner(),
-		GET_PLAYER(getOwner()).getCivilizationDescription(0),
+		GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
 		getID(), iMaxCount, iCount);
 	return false;
 }
@@ -22531,9 +22531,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 			if (!pLoopCity->isArea(getArea()))
 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
 			{
-				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capitalPlot=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(),
-					pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(),
+					getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getX(), pLoopCity->getY(),
 					getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()),
 					getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 				continue;
@@ -22597,9 +22597,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 
 				if (iPathTurns >= iMaxPathTurns)
 				{
-					if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+					if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capitalPlot=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(),
-						pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath,
+						getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath,
 						getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()),
 						getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 					continue;
@@ -22628,9 +22628,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
 						{
-							if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+							if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capitalPlot=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(),
-								pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns,
+								pLoopCity->getOwner(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns,
 								iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()),
 								getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()),
 								GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
@@ -22757,9 +22757,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 				// (already taken into account.)
 
 				iValue /= 8 + SQR(iPathTurns); // was 4+
-				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capitalPlot=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
-					pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(),
+					pLoopCity->getOwner(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getX(), pLoopCity->getY(),
 					getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()),
 					getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(),
 					iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence,
@@ -22792,7 +22792,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 					}
 					else if (bLogSpaceTargetChoice && !bCanArriveBeforeVictory) logBBAI("WAR_SPACE_CAPITAL_RUSH_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S countdown=%d pathTurns=%d reason=cannot_arrive_before_victory",
 						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(),
-						pLoopCity->getName().GetCString(), iSpaceCountdown, iPathTurns);
+						getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), iSpaceCountdown, iPathTurns);
 				}
 				if (iValue > iBestValue)
 				{
@@ -22824,8 +22824,8 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	{
 		if (bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_TARGET turn=%d player=%d groupId=%d groupUnits=%d ordinaryPlayer=%d ordinaryCity=%S ordinaryValue=%d capitalPlayer=%d capital=%S capitalValue=%d countdown=%d spaceshipPartsPercent=%d pathTurns=%d action=%s",
 			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(),
-			(pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), iBestValue,
-			pBestSpaceCapital->getOwner(), pBestSpaceCapital->getName().GetCString(), iBestSpaceCapitalValue, iBestSpaceCapitalCountdown,
+			(pBestCity == NULL ? -1 : pBestCity->getOwner()), getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), iBestValue,
+			pBestSpaceCapital->getOwner(), getSASDiagnosticQuoted(pBestSpaceCapital->getName().GetCString()).GetCString(), iBestSpaceCapitalValue, iBestSpaceCapitalCountdown,
 			iBestSpaceCapitalPartsPercent, iBestSpaceCapitalPathTurns,
 			(pBestCity == pBestSpaceCapital ? "already_selected" : "override_ordinary_target"));
 		pBestCity = pBestSpaceCapital;
@@ -22841,7 +22841,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	}
 	if (bLogSpaceTargetChosen) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
 		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
-		(pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()),
+		(pBestCity == NULL ? -1 : pBestCity->getOwner()), getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(),
 		(pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()),
 		(pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())),
 		(pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())),
@@ -22933,9 +22933,9 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity
 						}
 						GroupPathNode const* pPrevNode = (pPathNode == NULL ? NULL : pPathNode->m_pParent);
 						GroupPathNode const* pNextNode = (pPathNode == NULL ? NULL : pTowardDestNode);
-						logBBAI("TARGET_CITY_WATER_ENDTURN_PATH selection=BEST_SO_FAR turn=%d player=%d unitId=%d unit=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCity=%S targetCity=(%d,%d) selectedAdjacent=(%d,%d) selectedAdjacentWater=%d selectedAdjacentArea=%d endTurn=(%d,%d) endTurnArea=%d pathTurns=%d finalMoves=%d pathEnd=(%d,%d) endNodeFound=%d endNodeTurns=%d endNodeMoves=%d prev=(%d,%d) prevWater=%d prevTurns=%d prevMoves=%d next=(%d,%d) nextWater=%d nextTurns=%d nextMoves=%d flags=%d",
+						logBBAI("TARGET_CITY_WATER_ENDTURN_PATH selection=BEST_SO_FAR turn=%d player=%d unitId=%d unit=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCity=%S targetCityPlot=(%d,%d) selectedAdjacent=(%d,%d) selectedAdjacentWater=%d selectedAdjacentArea=%d endTurn=(%d,%d) endTurnArea=%d pathTurns=%d finalMoves=%d pathEnd=(%d,%d) endNodeFound=%d endNodeTurns=%d endNodeMoves=%d prev=(%d,%d) prevWater=%d prevTurns=%d prevMoves=%d next=(%d,%d) nextWater=%d nextTurns=%d nextMoves=%d flags=%d",
 							GC.getGame().getGameTurn(), getOwner(), getID(), SAS_getUnitTypeName(getUnitType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
-							pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), pAdj->getX(), pAdj->getY(), pAdj->isWater(), pAdj->getArea().getID(),
+							pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), pAdj->getX(), pAdj->getY(), pAdj->isWater(), pAdj->getArea().getID(),
 							pEndTurnPlot->getX(), pEndTurnPlot->getY(), pEndTurnPlot->getArea().getID(), iPathTurns, getPathFinder().getFinalMoves(),
 							(pFinalNode == NULL ? -1 : pFinalNode->getPlot().getX()), (pFinalNode == NULL ? -1 : pFinalNode->getPlot().getY()), pPathNode != NULL,
 							(pPathNode == NULL ? -1 : pPathNode->getPathTurns()), (pPathNode == NULL ? -1 : pPathNode->getMoves()),
@@ -23161,9 +23161,9 @@ bool CvUnitAI::AI_bombardCity()
 	int iComparison = AI_getGroup()->AI_compareStacks(pBombardCity->plot(), true);
 	if (iComparison > iThreshold)
 	{
-		if (gUnitLogLevel > 2) logBBAI("STACK_BOMBARD_DECISION turn=%d player=%d civ=%S groupId=%d action=SKIP city=%S cityId=%d target=(%d,%d) compare=%d attackOdds=%d bombardTurns=%d threshold=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(),
-			pBombardCity->getName().GetCString(), pBombardCity->getID(), pBombardCity->getX(), pBombardCity->getY(), iComparison, iAttackOdds, iBombardTurns, iThreshold);
+		if (gUnitLogLevel > 2) logBBAI("STACK_BOMBARD_DECISION turn=%d player=%d civ=%s groupId=%d action=SKIP city=%S cityId=%d target=(%d,%d) compare=%d attackOdds=%d bombardTurns=%d threshold=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), AI_getGroup()->getID(),
+			getSASDiagnosticQuoted(pBombardCity->getName().GetCString()).GetCString(), pBombardCity->getID(), pBombardCity->getX(), pBombardCity->getY(), iComparison, iAttackOdds, iBombardTurns, iThreshold);
 		return false;
 	}
 	// <advc.004c>
@@ -23861,8 +23861,8 @@ bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRisk
 
 	if (pBestPlot != NULL)
 	{
-		if (gUnitLogLevel >= 2) logBBAI("STACK_ATTACK_DECISION turn=%d player=%d civ=%S groupId=%d action=STACK_VS_STACK target=(%d,%d) value=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), iBestValue);
+		if (gUnitLogLevel >= 2) logBBAI("STACK_ATTACK_DECISION turn=%d player=%d civ=%s groupId=%d action=STACK_VS_STACK target=(%d,%d) value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), AI_getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), iBestValue);
 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
 				MISSIONAI_COUNTER_ATTACK, pBestPlot);
 		return true;
@@ -24783,8 +24783,8 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	{
 		if (bLogSettlerLevel2)
 		{
-			logBBAI("SETTLER_SCOUT_FOG_SITE civilization=%S player=%d selectedTarget=%d,%d scoutTarget=%d,%d selectedValue=%d scoutValue=%d selectedRevealedBFC=%d scoutRevealedBFC=%d selectedUnrevealedBFC=%d scoutUnrevealedBFC=%d averageBasis=KNOWN_WORKED_PLOTS selectedAvgX100=%d scoutAvgX100=%d selectedPathTurns=%d scoutPathTurns=%d",
-				kOwner.getCivilizationDescription(0), getOwner(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), pFogScoutSite->getX(),
+			logBBAI("SETTLER_SCOUT_FOG_SITE civilization=%s player=%d selectedTarget=%d,%d scoutTarget=%d,%d selectedValue=%d scoutValue=%d selectedRevealedBFC=%d scoutRevealedBFC=%d selectedUnrevealedBFC=%d scoutUnrevealedBFC=%d averageBasis=KNOWN_WORKED_PLOTS selectedAvgX100=%d scoutAvgX100=%d selectedPathTurns=%d scoutPathTurns=%d",
+				GC.getInfo(kOwner.getCivilizationType()).getType(), getOwner(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), pFogScoutSite->getX(),
 				pFogScoutSite->getY(), pBestFoundPlot->getFoundValue(getOwner()), iFogScoutFoundValue, iSelectedRevealedBFC,
 				iFogScoutRevealedBFC, iSelectedUnrevealedBFC, iFogScoutUnrevealedBFC,
 				iSelectedAverageValueX100, iFogScoutAverageValueX100,
@@ -25649,8 +25649,8 @@ bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTarge
 		}
 		char const* szReason = (canMoveImpassable() ? "TRANSPORT_CAN_MOVE_IMPASSABLE" :
 			(bImpassableAmphibiousTarget ? "AMPHIBIOUS_TARGET" : "UNEXPECTED"));
-		logBBAI("TRANSPORT_IMPASSABLE_ENDPOINT turn=%d player=%d civ=%S transportId=%d transport=%s transportAI=%s groupId=%d groupUnits=%d source=(%d,%d) endTurn=(%d,%d) target=(%d,%d) endIsTarget=%d targetAmphibious=%d endWater=%d endPeak=%d transportCanMoveImpassable=%d cargoUnits=%d cargoCanMoveImpassable=%d cargoGroupHeads=%d cargoGroupsCanEnterTarget=%d missionAI=%d flags=%d reason=%s",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0),
+		logBBAI("TRANSPORT_IMPASSABLE_ENDPOINT turn=%d player=%d civ=%s transportId=%d transport=%s transportAI=%s groupId=%d groupUnits=%d source=(%d,%d) endTurn=(%d,%d) target=(%d,%d) endIsTarget=%d targetAmphibious=%d endWater=%d endPeak=%d transportCanMoveImpassable=%d cargoUnits=%d cargoCanMoveImpassable=%d cargoGroupHeads=%d cargoGroupsCanEnterTarget=%d missionAI=%d flags=%d reason=%s",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
 			getID(), SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
 			getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
 			kEndTurnPlot.getX(), kEndTurnPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(),
@@ -26202,10 +26202,10 @@ bool CvUnitAI::AI_ferryWorkers()
 				// Not going to build forts on workable tiles
 				if (GC.getInfo(eBestImpr).isActsAsCity())
 					continue;
-				if (gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) logBBAI("    WORKER_CROSS_WATER_BFC_CANDIDATE turn=%d player=%d %S transportId=%d workerId=%d city=%S plot=(%d,%d) plotArea=%d directBuild=%S followup=%S improvement=%S buildValue=%d result=ELIGIBLE",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pWorker->getID(), pWorkingCity->getName().GetCString(),
-					kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBestBuild).getDescription(),
-					(eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription()), GC.getInfo(eBestImpr).getDescription(), iBuildValue);
+				if (gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) logBBAI("WORKER_CROSS_WATER_BFC_CANDIDATE turn=%d player=%d civ=%s transportId=%d workerId=%d city=%S plot=(%d,%d) plotArea=%d directBuild=%s followup=%s improvement=%s buildValue=%d result=ELIGIBLE",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pWorker->getID(), getSASDiagnosticQuoted(pWorkingCity->getName().GetCString()).GetCString(),
+					kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBestBuild).getType(),
+					(eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType()), GC.getInfo(eBestImpr).getType(), iBuildValue);
 			}
 			else
 			{
@@ -26260,9 +26260,9 @@ bool CvUnitAI::AI_ferryWorkers()
 		if ((gWorkerLogLevel >= 2 || gOverseasTransportLogLevel >= 2) && !pBestPlot->isCity())
 		{
 			CvCity const* pWorkingCity = pBestPlot->AI_getWorkingCity();
-			if (pWorkingCity != NULL) logBBAI("    WORKER_CROSS_WATER_BFC_DISPATCH turn=%d player=%d %S transportId=%d transport=(%d,%d) workersAboardBeforeTrim=%d city=%S target=(%d,%d) targetArea=%d result=ONE_WORKER_FERRY",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkers,
-				pWorkingCity->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->getArea().getID());
+			if (pWorkingCity != NULL) logBBAI("WORKER_CROSS_WATER_BFC_DISPATCH turn=%d player=%d civ=%s transportId=%d transport=(%d,%d) workersAboardBeforeTrim=%d city=%S target=(%d,%d) targetArea=%d result=ONE_WORKER_FERRY",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), iWorkers,
+				getSASDiagnosticQuoted(pWorkingCity->getName().GetCString()).GetCString(), pBestPlot->getX(), pBestPlot->getY(), pBestPlot->getArea().getID());
 		}
 		if (atPlot(pBestPlot))
 		{
@@ -26587,9 +26587,9 @@ bool CvUnitAI::AI_specialSeaTransportSpy()
 			{
 				if (gUnitLogLevel > 2 && pTargetPlot->getOwner() != NO_PLAYER && generatePath(*pTargetPlot, NO_MOVEMENT_FLAGS, true, NULL, 1))
 				{
-					logBBAI("ESPIONAGE_SEA_SPY_DECISION turn=%d player=%d civ=%S unitId=%d unit=%S action=LAND targetPlayer=%d targetCiv=%S target=(%d,%d) unspentPointsPercent=%d",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
-						pTargetPlot->getOwner(), GET_PLAYER(pTargetPlot->getOwner()).getCivilizationDescription(0), pTargetPlot->getX(), pTargetPlot->getY(),
+					logBBAI("ESPIONAGE_SEA_SPY_DECISION turn=%d player=%d civ=%s unitId=%d unit=%S action=LAND targetPlayer=%d targetCiv=%s target=(%d,%d) unspentPointsPercent=%d",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+						pTargetPlot->getOwner(), GC.getInfo(GET_PLAYER(pTargetPlot->getOwner()).getCivilizationType()).getType(), pTargetPlot->getX(), pTargetPlot->getY(),
 						kOurTeam.getEspionagePointsAgainstTeam(pTargetPlot->getTeam())*100/iTotalPoints);
 				}
 				pushGroupMoveTo(*pEndTurnPlot, NO_MOVEMENT_FLAGS,
@@ -26794,9 +26794,9 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 				getGroup()->pushMission(MISSION_ROUTE_TO, c->getX(), c->getY(),
 						MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
 				if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=BARBARIAN_TARGET_TO_WORKING_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
-					kPlot.getX(), kPlot.getY(), c->getX(), c->getY(), c->getName().GetCString(), c->getID());
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=%s plan=BARBARIAN_TARGET_TO_WORKING_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(), szContext,
+					kPlot.getX(), kPlot.getY(), c->getX(), c->getY(), getSASDiagnosticQuoted(c->getName().GetCString()).GetCString(), c->getID());
 				return true;
 			} // </advc.300>
 			FOR_EACH_CITY(pLoopCity, GET_PLAYER(getOwner()))
@@ -26819,9 +26819,9 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 						getGroup()->pushMission(MISSION_ROUTE_TO, kPlot.getX(), kPlot.getY(),
 								MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
 						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=CURRENT_NETWORK_TO_TARGET target=(%d,%d) disconnectedCity=%S disconnectedCityId=%d",
-							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
-							kPlot.getX(), kPlot.getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
+						if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=%s plan=CURRENT_NETWORK_TO_TARGET target=(%d,%d) disconnectedCity=%S disconnectedCityId=%d",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(), szContext,
+							kPlot.getX(), kPlot.getY(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID());
 						return true;
 					}
 				}
@@ -26857,9 +26857,9 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 						getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX(), pLoopCity->getY(),
 								MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, &kPlot);
 						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=TARGET_TO_REACHABLE_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
-							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
-							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
+						if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=%s plan=TARGET_TO_REACHABLE_CITY target=(%d,%d) routeEnd=(%d,%d) routeEndCity=%S routeEndCityId=%d",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(), szContext,
+							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID());
 					}
 					else
 					{
@@ -26880,9 +26880,9 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange, char const* szCon
 								kPlot.getX(), kPlot.getY(), MOVE_SAFE_TERRITORY,
 								true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
 						if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-						if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s plan=REACHABLE_CITY_THEN_TARGET target=(%d,%d) firstRouteEnd=(%d,%d) firstRouteEndCity=%S firstRouteEndCityId=%d",
-							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), szContext,
-							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getName().GetCString(), pLoopCity->getID());
+						if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=%s plan=REACHABLE_CITY_THEN_TARGET target=(%d,%d) firstRouteEnd=(%d,%d) firstRouteEndCity=%S firstRouteEndCityId=%d",
+							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(), szContext,
+							kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID());
 					}
 					return true;
 				}
@@ -27009,10 +27009,10 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	if (eFollowupBuild != NO_BUILD)
 		getGroup()->pushMission(MISSION_BUILD, eFollowupBuild, -1, eFlags, true, false, MISSIONAI_BUILD, pBestPlot);
 	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
-	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%S followup=%S",
-		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-		pBestPlot->getX(), pBestPlot->getY(), kCity.getName().GetCString(), kCity.getID(), szRouteReason, pBestPlot->isRoute(),
-		GC.getInfo(eBestBuild).getDescription(), (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription()));
+	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%s followup=%s",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+		pBestPlot->getX(), pBestPlot->getY(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), szRouteReason, pBestPlot->isRoute(),
+		GC.getInfo(eBestBuild).getType(), (eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType()));
 	return true;
 }
 
@@ -27183,12 +27183,12 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iM
 			eFlags, true, false,
 			MISSIONAI_BUILD, pBestPlot); // K-Mod
 	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
-	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s targetHasRoute=%d intendedBuild=%S standaloneChop=%d",
-		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-		pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), bChop);
-	if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s build=%S standaloneChop=%d",
-		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-		pBestPlot->getX(), pBestPlot->getY(), szBuildRouteReason, GC.getInfo(eBestBuild).getDescription(), bChop);
+	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s targetHasRoute=%d intendedBuild=%s standaloneChop=%d",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+		pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(), GC.getInfo(eBestBuild).getType(), bChop);
+	if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE) logBBAI("WORKER_ROUTE_BUILD_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_LOCAL_PLOT target=(%d,%d) reason=%s build=%s standaloneChop=%d",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+		pBestPlot->getX(), pBestPlot->getY(), szBuildRouteReason, GC.getInfo(eBestBuild).getType(), bChop);
 	return true;
 }
 
@@ -27297,8 +27297,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work; in the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
         if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this, &iBuildValue, &eFollowupBuild, NULL, false, &bIrrigationChainStep))
         {
-			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=NO_BUILD_CANDIDATE pop=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation());
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=REJECT reason=NO_BUILD_CANDIDATE pop=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(), pLoopCity->getPopulation());
             continue; // nothing useful to do in this city right now
         }
 		// <!-- custom: The assertion diagnoses invalid AI_bestCityBuild outputs; this runtime guard also skips them in assertion-free builds or after Ignore Once.
@@ -27307,8 +27307,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         FAssert(pPlot != NULL && eBuild != NO_BUILD);
 		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
-			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=INVALID_BUILD_OUTPUT pop=%d hasPlot=%d build=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(),
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=REJECT reason=INVALID_BUILD_OUTPUT pop=%d hasPlot=%d build=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(),
 				pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
@@ -27322,8 +27322,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
                 getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
         if (iReservedCityTargetPlot >= iMaxWorkers)
         {
-			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=RESERVED pop=%d plot=(%d,%d) build=%s reserved=%d/%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=REJECT reason=RESERVED pop=%d plot=(%d,%d) build=%s reserved=%d/%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
 				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getType(), iReservedCityTargetPlot, iMaxWorkers);
             continue;
         }
@@ -27331,8 +27331,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
         if (!pf.generatePath(*pPlot))
         {
-			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%S city=%S cityId=%d result=REJECT reason=NO_PATH pop=%d plot=(%d,%d) build=%s",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
+			if (bLogWorkerCityTarget) logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=REJECT reason=NO_PATH pop=%d plot=(%d,%d) build=%s",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getID(), pLoopCity->getPopulation(),
 				pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getType());
             continue;
 		}
@@ -27360,17 +27360,17 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         if (bLogWorkerCityTarget)
         {
 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
-			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
-			wchar const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription());
+			char const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? "-" : GC.getInfo(eDiagnosticBonus).getType());
+			char const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType());
 			// <!-- custom: Cross-city scheduling can hide a locally correct Mine/Farm/Cottage decision by sending the Worker to another city's numerically larger job.
 			// Repeat the city scarcity snapshot only inside level-3 logging so each competing city job carries the need signal that produced its buildValue; this is diagnostic and does not alter scheduling. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			SASWorkerCityYieldAnalysis const kDiagnosticYieldAnalysis = SAS_getWorkerCityYieldAnalysis(*this, *pLoopCity);
 			SASWorkerYieldContext const& kDiagnosticYieldContext = kDiagnosticYieldAnalysis.kContext;
-			logBBAI("    WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d workerId=%d civ=%S from=(%d,%d) city=%S pop=%d improved=%d assignedWorkers=%d effectiveImproved=%d readinessPercent=%d plot=(%d,%d) worked=%d decisionPath=%s build=%S followup=%S buildValue=%d bonus=%S pathTurns=%d score=%d bestBefore=%d yieldWeights=(%d,%d,%d) adjustedFoodDifference=%d structuralFoodPressure=%d strongProductionPlots=%d strongProductionPlotTarget=%d structuralProductionPressure=%d",
-				GC.getGame().getGameTurn(), getOwner(), getID(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(),
-				pLoopCity->getName().GetCString(), pLoopCity->getPopulation(),
+			logBBAI("WORKER_CITY_TARGET_CANDIDATE turn=%d player=%d workerId=%d civ=%s from=(%d,%d) city=%S pop=%d improved=%d assignedWorkers=%d effectiveImproved=%d readinessPercent=%d plot=(%d,%d) worked=%d decisionPath=%s build=%s followup=%s buildValue=%d bonus=%s pathTurns=%d score=%d bestBefore=%d yieldWeights=(%d,%d,%d) adjustedFoodDifference=%d structuralFoodPressure=%d strongProductionPlots=%d strongProductionPlotTarget=%d structuralProductionPressure=%d",
+				GC.getGame().getGameTurn(), getOwner(), getID(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getX(), getY(),
+				getSASDiagnosticQuoted(pLoopCity->getName().GetCString()).GetCString(), pLoopCity->getPopulation(),
 				iImprovedPlots, iAssignedWorkers, iEffectiveImprovedPlots, iReadinessPercent, pPlot->getX(), pPlot->getY(), bWorkedPlot,
-				(bIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"), GC.getInfo(eBuild).getDescription(), szDiagnosticFollowup, iBuildValue, szDiagnosticBonus, pf.getPathTurns(), score,
+				(bIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"), GC.getInfo(eBuild).getType(), szDiagnosticFollowup, iBuildValue, szDiagnosticBonus, pf.getPathTurns(), score,
 				bestScore, kDiagnosticYieldContext.kCurrentWeights.iFood, kDiagnosticYieldContext.kCurrentWeights.iProduction, kDiagnosticYieldContext.kCurrentWeights.iCommerce,
 				kDiagnosticYieldContext.iAdjustedFoodDifference, kDiagnosticYieldContext.iStructuralFoodPressure, kDiagnosticYieldContext.iStrongProductionPlots,
 				kDiagnosticYieldContext.iStrongProductionPlotTarget, kDiagnosticYieldAnalysis.iStructuralProductionPressure);
@@ -27408,11 +27408,11 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (gWorkerLogLevel >= 2)
 	{
 		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
-		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
-		logBBAI("    WORKER_CITY_JOB_CHOSEN turn=%d player=%d workerId=%d civ=%S from=(%d,%d) targetCity=%S plot=(%d,%d) decisionPath=%s build=%S followup=%S currentCity=%d bestScore=%d",
-			GC.getGame().getGameTurn(), getOwner(), getID(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(),
-			(pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(),
-			(bBestIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild, (pChosenWorkingCity == pCity), bestScore);
+		char const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestFollowupBuild).getType());
+		logBBAI("WORKER_CITY_JOB_CHOSEN turn=%d player=%d workerId=%d civ=%s from=(%d,%d) targetCity=%S plot=(%d,%d) decisionPath=%s build=%s followup=%s currentCity=%d bestScore=%d",
+			GC.getGame().getGameTurn(), getOwner(), getID(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getX(), getY(),
+			getSASDiagnosticQuoted((pChosenWorkingCity == NULL ? NULL : pChosenWorkingCity->getName().GetCString())).GetCString(), pBestPlot->getX(), pBestPlot->getY(),
+			(bBestIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"), GC.getInfo(eBestBuild).getType(), szFollowupBuild, (pChosenWorkingCity == pCity), bestScore);
 	}
 
 	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled -->
@@ -27452,11 +27452,11 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (gWorkerLogLevel >= 3)
 	{
 		SAS_logWorkerReplacementAssignment(*this, *pBestPlot, eBestBuild, eBestFollowupBuild, bBestIrrigationChainStep);
-		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
-		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) decisionPath=%s moveMission=MOVE_TO routePolicy=DIRECT_TO_CITY_YIELD targetHasRoute=%d build=%S followup=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
+		char const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestFollowupBuild).getType());
+		logBBAI("WORKER_CITY_ASSIGNMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) decisionPath=%s moveMission=MOVE_TO routePolicy=DIRECT_TO_CITY_YIELD targetHasRoute=%d build=%s followup=%s missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 			getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), (bBestIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"),
-			pBestPlot->isRoute(), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild,
+			pBestPlot->isRoute(), GC.getInfo(eBestBuild).getType(), szFollowupBuild,
 			AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
 	}
 	return true;
@@ -27637,8 +27637,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL(CvGlobals::SAS_WORKER_FORT_AIRBASE_ON);
 	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
 	{
-		if (gWorkerLogLevel >= 2) logBBAI("WORKER_FORT_DECISION turn=%d player=%d civ=%S unitId=%d action=SKIP reason=DISABLED canal=%d airbase=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), bCanal, bAirbase);
+		if (gWorkerLogLevel >= 2) logBBAI("WORKER_FORT_DECISION turn=%d player=%d civ=%s unitId=%d action=SKIP reason=DISABLED canal=%d airbase=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), bCanal, bAirbase);
 		return false;
 	}
 
@@ -27755,9 +27755,9 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
 				true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
 		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eSASWorkerTaskOwner, iSASWorkerTaskGroup);
-		if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=FORT_TERRITORY target=(%d,%d) reason=FORT_AIRBASE_PATH_ALWAYS_ROUTES intendedBuild=%S canalRequested=%d airbaseRequested=%d value=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), bCanal, bAirbase, iBestValue);
+		if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=FORT_TERRITORY target=(%d,%d) reason=FORT_AIRBASE_PATH_ALWAYS_ROUTES intendedBuild=%s canalRequested=%d airbaseRequested=%d value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getType(), bCanal, bAirbase, iBestValue);
 
 		return true;
 	}
@@ -27884,12 +27884,12 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 					TechTypes const eBuildTech = GC.getInfo(eBuild).getTechPrereq();
 					TechTypes const eCurrentResearch = kOwner.getCurrentResearch();
 					int const iBuildTechTurns = (eBuildTech != NO_TECH && eCurrentResearch == eBuildTech ? kOwner.getResearchTurnsLeft(eBuildTech, true) : -1);
-					logBBAI("    WORKER_IMPROVE_BONUS_UNAVAILABLE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) bonus=%S build=%S connectsBonus=%d canBuildNow=%d buildTech=%S buildTechKnown=%d buildTechTurnsIfCurrent=%d currentResearch=%S",
-						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pWorkingCity->getName().GetCString(),
-						kPlot.getX(), kPlot.getY(), GC.getInfo(eNonObsoleteBonus).getDescription(), GC.getInfo(eBuild).getDescription(),
-						bCandidateConnectsBonus, bCanBuildCandidate, (eBuildTech == NO_TECH ? L"-" : GC.getInfo(eBuildTech).getDescription()),
+					logBBAI("WORKER_IMPROVE_BONUS_UNAVAILABLE turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) bonus=%s build=%s connectsBonus=%d canBuildNow=%d buildTech=%s buildTechKnown=%d buildTechTurnsIfCurrent=%d currentResearch=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(pWorkingCity->getName().GetCString()).GetCString(),
+						kPlot.getX(), kPlot.getY(), GC.getInfo(eNonObsoleteBonus).getType(), GC.getInfo(eBuild).getType(),
+						bCandidateConnectsBonus, bCanBuildCandidate, (eBuildTech == NO_TECH ? "-" : GC.getInfo(eBuildTech).getType()),
 						(eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
-						(eCurrentResearch == NO_TECH ? L"-" : GC.getInfo(eCurrentResearch).getDescription()));
+						(eCurrentResearch == NO_TECH ? "-" : GC.getInfo(eCurrentResearch).getType()));
 				}
 				bDoImprove = false;
 			}
@@ -28025,10 +28025,10 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 				iValue /= (iPathTurns + 1);
 				if(kPlot.isCityRadius())
 					iValue *= 2;
-				if (bDetailedBonusLogging) logBBAI("    WORKER_IMPROVE_BONUS_CANDIDATE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) bonus=%S build=%S baseBonusValue=%d outsideBFCImprovementFoodValue=%d outsideBFCNatureFoodValue=%d economicCurrentYields=(%d,%d,%d) economicResultYields=(%d,%d,%d) economicWeights=(%d,%d,%d) economicBuildValue=%d economicYieldValue=%d economicGain=%d economicReplacementMargin=%d dynamicBonusPriorityValue=%d noTradeableBonus=%d valueBeforePath=%d pathTurns=%d cityRadius=%d finalValue=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
-					(kPlot.getWorkingCity() == NULL ? L"-" : kPlot.getWorkingCity()->getName().GetCString()),
-					kPlot.getX(), kPlot.getY(), GC.getInfo(eNonObsoleteBonus).getDescription(), GC.getInfo(eBestTempBuild).getDescription(),
+				if (bDetailedBonusLogging) logBBAI("WORKER_IMPROVE_BONUS_CANDIDATE turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) bonus=%s build=%s baseBonusValue=%d outsideBFCImprovementFoodValue=%d outsideBFCNatureFoodValue=%d economicCurrentYields=(%d,%d,%d) economicResultYields=(%d,%d,%d) economicWeights=(%d,%d,%d) economicBuildValue=%d economicYieldValue=%d economicGain=%d economicReplacementMargin=%d dynamicBonusPriorityValue=%d noTradeableBonus=%d valueBeforePath=%d pathTurns=%d cityRadius=%d finalValue=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(),
+					getSASDiagnosticQuoted((kPlot.getWorkingCity() == NULL ? NULL : kPlot.getWorkingCity()->getName().GetCString())).GetCString(),
+					kPlot.getX(), kPlot.getY(), GC.getInfo(eNonObsoleteBonus).getType(), GC.getInfo(eBestTempBuild).getType(),
 					iBaseBonusValue, iOutsideBFCImprovementFoodValue, iOutsideBFCNatureFoodValue,
 					aiEconomicCurrentYields[YIELD_FOOD], aiEconomicCurrentYields[YIELD_PRODUCTION], aiEconomicCurrentYields[YIELD_COMMERCE],
 					aiEconomicResultYields[YIELD_FOOD], aiEconomicResultYields[YIELD_PRODUCTION], aiEconomicResultYields[YIELD_COMMERCE],
@@ -28081,10 +28081,10 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 	if (gWorkerLogLevel >= 3)
 	{
 		BonusTypes const eSelectedBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
-		logBBAI("    WORKER_IMPROVE_BONUS_SELECTED turn=%d player=%d %S workerId=%d target=(%d,%d) bonus=%S build=%S routeOnly=%d value=%d",
-			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestPlot->getX(), pBestPlot->getY(),
-			(eSelectedBonus == NO_BONUS ? L"-" : GC.getInfo(eSelectedBonus).getDescription()),
-			(eBestBuild == NO_BUILD ? L"-" : GC.getInfo(eBestBuild).getDescription()), bBestBuildIsRoute, iBestValue);
+		logBBAI("WORKER_IMPROVE_BONUS_SELECTED turn=%d player=%d civ=%s workerId=%d target=(%d,%d) bonus=%s build=%s routeOnly=%d value=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pBestPlot->getX(), pBestPlot->getY(),
+			(eSelectedBonus == NO_BONUS ? "-" : GC.getInfo(eSelectedBonus).getType()),
+			(eBestBuild == NO_BUILD ? "-" : GC.getInfo(eBestBuild).getType()), bBestBuildIsRoute, iBestValue);
 	}
 
 	if (eBestBuild != NO_BUILD)
@@ -28154,18 +28154,18 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 		if (bLogRoute && eBestMission == MISSION_ROUTE_TO)
 		{
 			BonusTypes const eTargetBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
-			logBBAI("    WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s targetHasRoute=%d targetBonus=%S intendedBuild=%S value=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
+			logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s targetHasRoute=%d targetBonus=%s intendedBuild=%s value=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 				pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(),
-				(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), GC.getInfo(eBestBuild).getDescription(), iBestValue);
+				(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), GC.getInfo(eBestBuild).getType(), iBestValue);
 		}
 		if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE)
 		{
 			BonusTypes const eTargetBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
-			logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s bonus=%S build=%S value=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
+			logBBAI("WORKER_ROUTE_BUILD_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s bonus=%s build=%s value=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 				pBestPlot->getX(), pBestPlot->getY(), szBuildRouteReason,
-				(eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), GC.getInfo(eBestBuild).getDescription(), iBestValue);
+				(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), GC.getInfo(eBestBuild).getType(), iBestValue);
 		}
 		return true;
 	}
@@ -28215,9 +28215,9 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
 				true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
 		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-		if (bLogRoute && GC.getInfo(eBuild).getRoute() != NO_ROUTE) logBBAI("    WORKER_ROUTE_BUILD_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) source=IMPROVE_PLOT_EXPLICIT_BUILD target=(%d,%d) reason=%s build=%S",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-			kPlot.getX(), kPlot.getY(), szBuildRouteReason, GC.getInfo(eBuild).getDescription());
+		if (bLogRoute && GC.getInfo(eBuild).getRoute() != NO_ROUTE) logBBAI("WORKER_ROUTE_BUILD_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_PLOT_EXPLICIT_BUILD target=(%d,%d) reason=%s build=%s",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+			kPlot.getX(), kPlot.getY(), szBuildRouteReason, GC.getInfo(eBuild).getType());
 
 		return true;
 	}
@@ -28263,9 +28263,9 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
                     getGroup()->pushMission(MISSION_BUILD, eLoopBuild, -1, NO_MOVEMENT_FLAGS,
                             true, false, MISSIONAI_BUILD, &kPlot);
                     if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-					if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=IMPROVE_PLOT_DIRECT_BONUS_ROUTE_BUILD plan=MOVE_THEN_BUILD_ROUTE target=(%d,%d) bonus=%S build=%S",
-						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-						kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eLoopBuild).getDescription());
+					if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=IMPROVE_PLOT_DIRECT_BONUS_ROUTE_BUILD plan=MOVE_THEN_BUILD_ROUTE target=(%d,%d) bonus=%s build=%s",
+						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+						kPlot.getX(), kPlot.getY(), GC.getInfo(eBonus).getType(), GC.getInfo(eLoopBuild).getType());
                     return true;
                 }
             }
@@ -28578,9 +28578,9 @@ bool CvUnitAI::AI_routeCity()
 						MOVE_SAFE_TERRITORY, true,
 						false, MISSIONAI_BUILD, pRouteToCity->plot()); // K-Mod
 				if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=ROUTE_CITY_PAIR mandatory=0 from=(%d,%d) fromCity=%S fromCityId=%d target=(%d,%d) targetCity=%S targetCityId=%d",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-					kLoopCity.getX(), kLoopCity.getY(), kLoopCity.getName().GetCString(), kLoopCity.getID(), pRouteToCity->getX(), pRouteToCity->getY(), pRouteToCity->getName().GetCString(), pRouteToCity->getID());
+				if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=ROUTE_CITY_PAIR mandatory=0 from=(%d,%d) fromCity=%S fromCityId=%d target=(%d,%d) targetCity=%S targetCityId=%d",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+					kLoopCity.getX(), kLoopCity.getY(), getSASDiagnosticQuoted(kLoopCity.getName().GetCString()).GetCString(), kLoopCity.getID(), pRouteToCity->getX(), pRouteToCity->getY(), getSASDiagnosticQuoted(pRouteToCity->getName().GetCString()).GetCString(), pRouteToCity->getID());
 				return true;
 			}
 		}
@@ -28692,9 +28692,9 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1,
 				NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
 		if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-		if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=ROUTE_IMPROVEMENT_YIELD mandatory=0 target=(%d,%d) build=%S value=%d routeAlongPath=0",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), iBestValue);
+		if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=ROUTE_IMPROVEMENT_YIELD mandatory=0 target=(%d,%d) build=%s value=%d routeAlongPath=0",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+			pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getType(), iBestValue);
 		return true;
 	} // </advc.121>
 	bool const bLogSASWorkerTask = (gGameRecordLogLevel >= 2);
@@ -28711,9 +28711,9 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
 	getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX(), pBestPlot->getY(),
 			MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pBestPlot);
 	if (bLogSASWorkerTask) finishSASGameRecordAIWorkerTask(eWorkerTaskOwner, iWorkerTaskGroupId);
-	if (gWorkerLogLevel >= 2) logBBAI("    WORKER_ROUTE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) reason=%s mandatory=0 target=(%d,%d) build=%S value=%d routeAlongPath=1",
-		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(),
-		bImprovementOnly ? "ROUTE_IMPROVEMENT_YIELD" : "ROUTE_TERRITORY_FALLBACK", pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), iBestValue);
+	if (gWorkerLogLevel >= 2) logBBAI("WORKER_ROUTE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) reason=%s mandatory=0 target=(%d,%d) build=%s value=%d routeAlongPath=1",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
+		bImprovementOnly ? "ROUTE_IMPROVEMENT_YIELD" : "ROUTE_TERRITORY_FALLBACK", pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getType(), iBestValue);
 	return true;
 }
 
@@ -28758,19 +28758,19 @@ static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const&
 	bool const bPlotDanger = kOwner.AI_isAnyPlotDanger(kUnitPlot, 1, false);
 	bool const bTransportOrEscort = ((kUnit.cargoSpace() > 0 && kUnit.specialCargo() == NO_SPECIALUNIT) || kUnit.AI_getUnitAIType() == UNITAI_ESCORT_SEA);
 	bool const bNormalPassEnabled = (!kOwner.AI_isFinancialTrouble() || bFocusWar);
-	logBBAI("    UPGRADE_CITY_CONCENTRATION turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d groupMissionAI=%d groupActivity=%d from=(%d,%d) upgradeCity=%S upgradeCity=(%d,%d) pathTurns=%d unitCreatedTurn=%d unitAge=%d exp=%d level=%d damage=%d movesLeft=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(),
-		kUnit.AI_getUnitAIType(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getGroup()->AI().AI_getMissionAIType(),
-		kUnit.getGroup()->getActivityType(), kUnit.getX(), kUnit.getY(), kUpgradeCity.getName().GetCString(), kUpgradeCity.getX(),
+	logBBAI("UPGRADE_CITY_CONCENTRATION turn=%d player=%d civ=%s action=%s unitId=%d unitType=%s unitAI=%s groupId=%d groupUnits=%d groupMissionAI=%d groupActivity=%d from=(%d,%d) upgradeCity=%S upgradeCityPlot=(%d,%d) pathTurns=%d unitCreatedTurn=%d unitAge=%d exp=%d level=%d damage=%d movesLeft=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szAction, kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getGroup()->AI().AI_getMissionAIType(),
+		kUnit.getGroup()->getActivityType(), kUnit.getX(), kUnit.getY(), getSASDiagnosticQuoted(kUpgradeCity.getName().GetCString()).GetCString(), kUpgradeCity.getX(),
 		kUpgradeCity.getY(), iPathTurns, kUnit.getGameTurnCreated(), GC.getGame().getGameTurn() - kUnit.getGameTurnCreated(),
 		kUnit.getExperience(), kUnit.getLevel(), kUnit.getDamage(), kUnit.movesLeft());
-	logBBAI("    UPGRADE_CITY_CANDIDATE turn=%d player=%d unitId=%d fromType=%d upgradeType=%d currentValue=%d upgradeValue=%d upgradePrice=%d gold=%d hasEnoughGold=%d canUpgradeNow=%d upgradeTravelEligible=%d readyForUpgrade=%d goldRate=%d upgradeGoldTarget=%d totalGoldTarget=%d estimatedUpgradeBudget=%d fitsEstimatedBudget=%d goldToUpgradeAll=%d focusWar=%d financialTrouble=%d impassableUnit=%d bestCityDefender=%d plotDanger=%d transportOrEscort=%d normalPassEnabled=%d",
+	logBBAI("UPGRADE_CITY_CANDIDATE turn=%d player=%d unitId=%d fromType=%d upgradeType=%d currentValue=%d upgradeValue=%d upgradePrice=%d gold=%d hasEnoughGold=%d canUpgradeNow=%d upgradeTravelEligible=%d readyForUpgrade=%d goldRate=%d upgradeGoldTarget=%d totalGoldTarget=%d estimatedUpgradeBudget=%d fitsEstimatedBudget=%d goldToUpgradeAll=%d focusWar=%d financialTrouble=%d impassableUnit=%d bestCityDefender=%d plotDanger=%d transportOrEscort=%d normalPassEnabled=%d",
 		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), kUnit.getUnitType(), eBestUpgrade, iCurrentValue, iUpgradeValue,
 		iUpgradePrice, kOwner.getGold(), bHasUpgradeCandidate && kOwner.getGold() >= iUpgradePrice, bCanUpgradeNow, bUpgradeTravelEligible,
 		kUnit.isReadyForUpgrade(), kOwner.calculateGoldRate(), iUpgradeGoldTarget, kOwner.AI_goldTarget(false), iEstimatedUpgradeBudget,
 		bHasUpgradeCandidate && iUpgradePrice <= iEstimatedUpgradeBudget, kOwner.AI_getGoldToUpgradeAllUnits(), bFocusWar,
 		kOwner.AI_isFinancialTrouble(), bImpassableUnit, bBestCityDefender, bPlotDanger, bTransportOrEscort, bNormalPassEnabled);
-	logBBAI("    UPGRADE_CITY_CONTEXT turn=%d player=%d unitId=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
+	logBBAI("UPGRADE_CITY_CONTEXT turn=%d player=%d unitId=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
 		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), iCityMilitary, kOwner.getNumMilitaryUnits(),
 		100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups,
 		kUpgradeCity.getPlot().getNumDefenders(kUnit.getOwner()), kUpgradeCity.isCapital(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(),
@@ -29193,8 +29193,8 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 
 		if (pMissionPlot != NULL)
 		{
-			if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+			if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getArea().getID(),
 				kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
 					MISSIONAI_STRANDED, pMissionPlot);
@@ -29215,8 +29215,8 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 				(slow) official function to actually issue the load command. */
 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
 			{
-				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getArea().getID(),
 					kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 				return true;
 			}
@@ -29226,8 +29226,8 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 	}
 
 	// raise the 'stranded' flag, and wait to be rescued.
-	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP",
-		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(),
+	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP",
+		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(), getArea().getID(),
 		kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 			false, false, MISSIONAI_STRANDED, plot());
@@ -29521,8 +29521,8 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
 		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
 	{
-		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)",
-			GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0),
+		logBBAI("WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)",
+			GC.getGame().getGameTurn(), pBestUnit->getOwner(), GC.getInfo(GET_PLAYER(pBestUnit->getOwner()).getCivilizationType()).getType(),
 			pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(),
 			GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(),
 			pEndTurnPlot->getX(), pEndTurnPlot->getY());
@@ -31239,9 +31239,9 @@ bool CvUnitAI::AI_revoltCitySpy()
 			if (GET_PLAYER(getOwner()).canDoEspionageMission(eLoopEspionageMission,
 				pCity->getOwner(), pCity->plot(), -1, this))
 			{
-				if (gUnitLogLevel > 2) logBBAI("ESPIONAGE_MISSION_DECISION turn=%d player=%d civ=%S unitId=%d action=COMMIT source=TACTICAL_CITY_REVOLT targetPlayer=%d city=%S cityId=%d target=(%d,%d) mission=%s",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pCity->getOwner(),
-					pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), GC.getInfo(eLoopEspionageMission).getType());
+				if (gUnitLogLevel > 2) logBBAI("ESPIONAGE_MISSION_DECISION turn=%d player=%d civ=%s unitId=%d action=COMMIT source=TACTICAL_CITY_REVOLT targetPlayer=%d city=%S cityId=%d target=(%d,%d) mission=%s",
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), pCity->getOwner(),
+					getSASDiagnosticQuoted(pCity->getName().GetCString()).GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), GC.getInfo(eLoopEspionageMission).getType());
 				// <!-- custom: This tactical city-revolt path bypasses AI_bestPlotEspionage; record its real commit separately so all AI MISSION_ESPIONAGE commits remain observable without inventing chooser scores. (ChatGPT-5.6-Sol) -->
 				if (gGameRecordLogLevel >= 2) logSASGameRecordAITacticalEspionageDecision(this, pCity, eLoopEspionageMission);
 				getGroup()->pushMission(MISSION_ESPIONAGE, eLoopEspionageMission);
@@ -31713,8 +31713,8 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData, SASEspionageCho
 	if (gUnitLogLevel > 2 && eBestMission != NO_ESPIONAGEMISSION)
 	{
 		//FAssertMsg(!kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || GC.getInfo(eBestMission).getBuyTechCostFactor() > 0 || GC.getInfo(eBestMission).getDestroyProjectCostFactor() > 0, "Potentially wasteful AI use of espionage."); // Just for testing purposes
-		logBBAI("ESPIONAGE_MISSION_CHOICE turn=%d player=%d civ=%S unitId=%d targetPlayer=%d target=(%d,%d) mission=%s big=%d value=%d cost=%d data=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), eTargetPlayer, getX(), getY(),
+		logBBAI("ESPIONAGE_MISSION_CHOICE turn=%d player=%d civ=%s unitId=%d targetPlayer=%d target=(%d,%d) mission=%s big=%d value=%d cost=%d data=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), eTargetPlayer, getX(), getY(),
 			GC.getInfo(eBestMission).getType(), bBigEspionage, iBestValue, kOwner.getEspionageMissionCost(eBestMission, eTargetPlayer, plot(), iData, this), iData);
 	}
 
@@ -32366,9 +32366,9 @@ bool CvUnitAI::AI_stackAttackCity(int iPowerThreshold)
 		if (gUnitLogLevel >= 1 && pCityPlot->getPlotCity() != NULL)
 		{
 			CvCity const& kTargetCity = *pCityPlot->getPlotCity();
-			logBBAI("STACK_CITY_ATTACK_DECISION turn=%d player=%d civ=%S groupId=%d action=ATTACK city=%S cityId=%d target=(%d,%d) stackRatio=%d defenseModifier=%d defenseModifierIgnoreBuilding=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->getID(),
-				kTargetCity.getName(0).GetCString(), kTargetCity.getID(), pCityPlot->getX(), pCityPlot->getY(), AI_getGroup()->AI_compareStacks(pCityPlot, true),
+			logBBAI("STACK_CITY_ATTACK_DECISION turn=%d player=%d civ=%s groupId=%d action=ATTACK city=%S cityId=%d target=(%d,%d) stackRatio=%d defenseModifier=%d defenseModifierIgnoreBuilding=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), AI_getGroup()->getID(),
+				getSASDiagnosticQuoted(kTargetCity.getName(0).GetCString()).GetCString(), kTargetCity.getID(), pCityPlot->getX(), pCityPlot->getY(), AI_getGroup()->AI_compareStacks(pCityPlot, true),
 				kTargetCity.getDefenseModifier(false), kTargetCity.getDefenseModifier(true));
 		}
 
@@ -32427,9 +32427,9 @@ bool CvUnitAI::AI_moveIntoCity(int iRange)
 	if (pBestPlot != NULL)
 	{
 		CvCityAI const* pBestCityForEvacuationLog = pBestPlot->AI_getPlotCity();
-		if (gEvacuationLogLevel >= 3 && pBestCityForEvacuationLog != NULL && pBestCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_HEAL_CITY turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d hp=%d/%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
-			AI_getUnitAIType(), getX(), getY(), pBestCityForEvacuationLog->getName().GetCString(), pBestCityForEvacuationLog->getID(),
+		if (gEvacuationLogLevel >= 3 && pBestCityForEvacuationLog != NULL && pBestCityForEvacuationLog->AI_isEvacuating()) logBBAI("EVACUATION_REENTRY_HEAL_CITY turn=%d player=%d civ=%s unitId=%d unit=%S unitAI=%s source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d hp=%d/%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+			getSASInfoTypeOrNone(AI_getUnitAIType()), getX(), getY(), getSASDiagnosticQuoted(pBestCityForEvacuationLog->getName().GetCString()).GetCString(), pBestCityForEvacuationLog->getID(),
 			pBestCityForEvacuationLog->getX(), pBestCityForEvacuationLog->getY(), getGroup()->getID(), getGroup()->getNumUnits(),
 			currHitPoints(), maxHitPoints());
 		pushGroupMoveTo(*pBestPlot);
@@ -32696,8 +32696,8 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
 				pBestPlot = &getPathEndTurnPlot();
 			MovementFlags const eMoveFlags = (pBestPlot == &kStepPlot ? MOVE_DIRECT_ATTACK : NO_MOVEMENT_FLAGS);
 			// <!-- custom: Record the actual blocker, selected mission target and flags to distinguish direct attacks from staging approaches; gate diagnostic-only queries and formatting before the call. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-			if (gUnitLogLevel >= 2) logBBAI("BLOCKAGE_MOVE turn=%d player=%d unitId=%d unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) destination=(%d,%d) blocker=(%d,%d) pathTurns=%d missionTarget=(%d,%d) targetIsBlocker=%d targetVisibleEnemy=%d blockerStepDistance=%d targetStepDistance=%d declareWar=%d flags=%d",
-				GC.getGame().getGameTurn(), getOwner(), getID(), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+			if (gUnitLogLevel >= 2) logBBAI("BLOCKAGE_MOVE turn=%d player=%d unitId=%d unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) destination=(%d,%d) blocker=(%d,%d) pathTurns=%d missionTarget=(%d,%d) targetIsBlocker=%d targetVisibleEnemy=%d blockerStepDistance=%d targetStepDistance=%d declareWar=%d flags=%d",
+				GC.getGame().getGameTurn(), getOwner(), getID(), getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
 				pDestPlot->getX(), pDestPlot->getY(), kStepPlot.getX(), kStepPlot.getY(), iPathTurns, pBestPlot->getX(), pBestPlot->getY(),
 				(pBestPlot == &kStepPlot), pBestPlot->isVisibleEnemyUnit(this), stepDistance(getX(), getY(), kStepPlot.getX(), kStepPlot.getY()),
 				stepDistance(getX(), getY(), pBestPlot->getX(), pBestPlot->getY()), bDeclareWar, eMoveFlags);

@@ -220,8 +220,8 @@ void CvSelectionGroup::doTurn()
 	if (bLogSASWorkerTurn)
 	{
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
-		logBBAI("    WORKER_GROUP_TURN phase=begin turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
-			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pHeadUnit->getID(), getID(),
+		logBBAI("WORKER_GROUP_TURN phase=begin turn=%d player=%d civ=%s workerId=%d groupId=%d worker=(%d,%d) activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), pHeadUnit->getID(), getID(),
 			getX(), getY(), getActivityType(), AI().AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(),
 			pHeadUnit->movesLeft());
@@ -324,8 +324,8 @@ void CvSelectionGroup::doTurn()
 		if (pSASWorkerHead != NULL && (getActivityType() != eSASWorkerActivityBefore || AI().AI_getMissionAIType() != eSASWorkerMissionAIBefore || getLengthMissionQueue() != iSASWorkerQueueBefore))
 		{
 			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
-			logBBAI("    WORKER_GROUP_TURN phase=transition turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d->%d missionAI=%d->%d missionTarget=(%d,%d) missionQueue=%d->%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
-				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorkerHead->getID(),
+			logBBAI("WORKER_GROUP_TURN phase=transition turn=%d player=%d civ=%s workerId=%d groupId=%d worker=(%d,%d) activity=%d->%d missionAI=%d->%d missionTarget=(%d,%d) missionQueue=%d->%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), pSASWorkerHead->getID(),
 				getID(), getX(), getY(), eSASWorkerActivityBefore, getActivityType(), eSASWorkerMissionAIBefore, AI().AI_getMissionAIType(),
 				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()),
 				iSASWorkerQueueBefore, getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pSASWorkerHead->movesLeft());
@@ -1350,8 +1350,8 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 	{
 		szSASWorkerMissionOutcome = "pending";
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
-		logBBAI("    WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d %S workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
-			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+		logBBAI("WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d civ=%s workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), pSASWorker->getID(), getID(),
 			missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(),
 			getActivityType(), pSASWorker->movesLeft());
@@ -1415,9 +1415,9 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 		if (missionData.eMissionType == MISSION_MOVE_TO)
 			pMissionTarget = GC.getMap().plot(missionData.iData1, missionData.iData2);
 		CvUnit const* pHeadUnit = getHeadUnit();
-		logBBAI("DIRECT_ATTACK_NOT_DONE turn=%d player=%d groupId=%d groupUnits=%d headUnitId=%d headUnitAI=%d source=(%d,%d) mission=%d target=(%d,%d) targetStepDistance=%d targetVisibleEnemy=%d targetOwner=%d targetTeam=%d flags=%d pushTurn=%d simultaneous=%d",
+		logBBAI("DIRECT_ATTACK_NOT_DONE turn=%d player=%d groupId=%d groupUnits=%d headUnitId=%d headUnitAI=%s source=(%d,%d) mission=%d target=(%d,%d) targetStepDistance=%d targetVisibleEnemy=%d targetOwner=%d targetTeam=%d flags=%d pushTurn=%d simultaneous=%d",
 			kGame.getGameTurn(), getOwner(), getID(), getNumUnits(), (pHeadUnit == NULL ? -1 : pHeadUnit->getID()),
-			(pHeadUnit == NULL ? -1 : pHeadUnit->AI_getUnitAIType()), getX(), getY(), missionData.eMissionType,
+			getSASInfoTypeOrNone((UnitAITypes)((pHeadUnit == NULL ? -1 : pHeadUnit->AI_getUnitAIType()))), getX(), getY(), missionData.eMissionType,
 			(pMissionTarget == NULL ? -1 : pMissionTarget->getX()), (pMissionTarget == NULL ? -1 : pMissionTarget->getY()),
 			(pMissionTarget == NULL ? -1 : stepDistance(getX(), getY(), pMissionTarget->getX(), pMissionTarget->getY())),
 			(pMissionTarget != NULL && pHeadUnit != NULL && pMissionTarget->isVisibleEnemyUnit(pHeadUnit)),
@@ -1772,8 +1772,8 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 	if (bLogSASWorkerMission)
 	{
 		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
-		logBBAI("    WORKER_MISSION_EXECUTION phase=result turn=%d player=%d %S workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
-			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+		logBBAI("WORKER_MISSION_EXECUTION phase=result turn=%d player=%d civ=%s workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), pSASWorker->getID(), getID(),
 			szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction,
 			readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
@@ -1850,8 +1850,8 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 					activateHeadMission();
 				else
 				{
-					if (bLogSASWorkerMission) logBBAI("    WORKER_MISSION_QUEUE_WAIT turn=%d player=%d %S workerId=%d groupId=%d completedMission=%d nextMission=%d queue=%d plot=(%d,%d) movesLeft=%d reason=PRESERVE_AI_WORKER_BUILD_CHAIN",
-							kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(),
+					if (bLogSASWorkerMission) logBBAI("WORKER_MISSION_QUEUE_WAIT turn=%d player=%d civ=%s workerId=%d groupId=%d completedMission=%d nextMission=%d queue=%d plot=(%d,%d) movesLeft=%d reason=PRESERVE_AI_WORKER_BUILD_CHAIN",
+							kGame.getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), pSASWorker->getID(), getID(),
 							missionData.eMissionType, headMissionQueueNode()->m_data.eMissionType, getLengthMissionQueue(), getX(), getY(), pSASWorker->movesLeft());
 					setActivityType(ACTIVITY_MISSION);
 				}

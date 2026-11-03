@@ -409,7 +409,7 @@ static void logSASBBAIGameState(const char* szRowType)
 		kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
-		kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(),
+		getSASDiagnosticQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(),
 		kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(),
 		GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(),
 		GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
@@ -560,7 +560,7 @@ void logBBAICancel(CvDeal const& d, PlayerTypes eCancelPlayer, wchar const* szRe
 	CvWStringBuffer szTmpBuffer;
 	GAMETEXT.getDealString(szTmpBuffer, d, eCancelPlayer, false);
 	PlayerTypes const eOtherPlayer = (d.getFirstPlayer() == eCancelPlayer ? d.getSecondPlayer() : d.getFirstPlayer());
-	logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%S otherPlayer=%d otherCiv=%S reason=%S deal=%S",
-		GC.getGame().getGameTurn(), eCancelPlayer, GET_PLAYER(eCancelPlayer).getCivilizationDescription(0), eOtherPlayer,
-		GET_PLAYER(eOtherPlayer).getCivilizationDescription(0), szReason, szTmpBuffer.getCString());
+	logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%s otherPlayer=%d otherCiv=%s reason=%S deal=%S",
+		GC.getGame().getGameTurn(), eCancelPlayer, GC.getInfo(GET_PLAYER(eCancelPlayer).getCivilizationType()).getType(), eOtherPlayer,
+		GC.getInfo(GET_PLAYER(eOtherPlayer).getCivilizationType()).getType(), getSASDiagnosticQuoted(szReason).GetCString(), getSASDiagnosticQuoted(szTmpBuffer.getCString()).GetCString());
 }

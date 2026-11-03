@@ -601,7 +601,7 @@ void MilitaryAnalyst::logCities(PlayerTypes ePlayer, bool bConquests)
 	for (CitySetIter it = kCities.begin(); it != kCities.end(); ++it)
 		logBBAI("UWAI_MILITARY_ANALYSIS_CITY turn=%d agentPlayer=%d targetTeam=%d scenario=%s player=%d result=%s city=%S",
 				GC.getGame().getGameTurn(), m_eWe, m_eTarget, m_bPeaceScenario ? "PEACE" : "WAR", ePlayer,
-				bConquests ? "CONQUERED" : "LOST", (UWAICache::cvCityById(*it)).getName().GetCString());
+				bConquests ? "CONQUERED" : "LOST", getSASDiagnosticQuoted((UWAICache::cvCityById(*it)).getName().GetCString()).GetCString());
 }
 
 
@@ -634,7 +634,7 @@ void MilitaryAnalyst::logCapitulations(PlayerTypes ePlayer)
 		{
 			for (MemberIter itMember(*it); itMember.hasNext(); ++itMember)
 				logBBAI("UWAI_MILITARY_ANALYSIS_CAPITULATION_MEMBER turn=%d surrenderedTeam=%d player=%d name=%S",
-					GC.getGame().getGameTurn(), *it, itMember->getID(), GET_PLAYER(itMember->getID()).getName(0));
+					GC.getGame().getGameTurn(), *it, itMember->getID(), getSASDiagnosticQuoted(GET_PLAYER(itMember->getID()).getName(0)).GetCString());
 		}
 	}
 }
@@ -654,7 +654,7 @@ void MilitaryAnalyst::logDoW(PlayerTypes ePlayer)
 		if (gUWAIMilitaryAnalystLogLevel >= 2)
 		{
 			for (PlyrSetIter it = DoWBy.begin(); it != DoWBy.end(); ++it)
-				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_BY_TARGET turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, GET_PLAYER(*it).getName(0));
+				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_BY_TARGET turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
 		}
 	}
 	PlyrSet const& DoWOn = pResult->getDoWOn();
@@ -665,7 +665,7 @@ void MilitaryAnalyst::logDoW(PlayerTypes ePlayer)
 		if (gUWAIMilitaryAnalystLogLevel >= 2)
 		{
 			for (PlyrSetIter it = DoWOn.begin(); it != DoWOn.end(); ++it)
-				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_ON_SOURCE turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, GET_PLAYER(*it).getName(0));
+				logBBAI("UWAI_MILITARY_ANALYSIS_DOW_ON_SOURCE turn=%d player=%d otherPlayer=%d otherName=%S", GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
 		}
 	}
 	PlyrSet const& kWarsCont = pResult->getWarsContinued();
@@ -677,7 +677,7 @@ void MilitaryAnalyst::logDoW(PlayerTypes ePlayer)
 		{
 			for (PlyrSetIter it = kWarsCont.begin(); it != kWarsCont.end(); ++it)
 				logBBAI("UWAI_MILITARY_ANALYSIS_WAR_CONTINUED_OPPONENT turn=%d player=%d otherPlayer=%d otherName=%S",
-					GC.getGame().getGameTurn(), ePlayer, *it, GET_PLAYER(*it).getName(0));
+					GC.getGame().getGameTurn(), ePlayer, *it, getSASDiagnosticQuoted(GET_PLAYER(*it).getName(0)).GetCString());
 		}
 	}
 }

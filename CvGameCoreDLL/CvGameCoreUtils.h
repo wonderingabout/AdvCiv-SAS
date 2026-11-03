@@ -292,6 +292,12 @@ CvString getSASDiagnosticQuoted(char const* szValue);
 CvWString getSASDiagnosticQuoted(wchar const* szValue);
 // <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: XML type of an info enum for diagnostic rows, or "-" for its NO_ value, e.g. unitAI=UNITAI_SETTLE instead of unitAI=1; the same "-" convention as getSASDiagnosticQuoted.
+// BBAI rows logged such enums as numbers or as getUnitAIString labels like "no unitAI"; the XML type is stable across languages and mods. Templated so this header needs no info definitions. (Claude code Opus 5.5) -->
+template<typename E> char const* getSASInfoTypeOrNone(E eType)
+{
+	return (eType < 0 ? "-" : GC.getInfo(eType).getType());
+}
 // <!-- custom: Serialize one integer for shared diagnostic fields without recorder-specific wrappers. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticIntText(int iValue);
 // <!-- custom: Append one already-decoded diagnostic token with a caller-selected separator.

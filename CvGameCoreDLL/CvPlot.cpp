@@ -4904,10 +4904,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) /
 		{
 			CvCity const* pWorkingCity = getWorkingCity();
 			CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
-			logBBAI("    WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d %S plot=(%d,%d) area=%d bonus=%S oldImprovement=%S newImprovement=%S workingCity=%S workingCityId=%d visibleEnemy=%d",
-				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(),
-				GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(),
-				(eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(),
+			logBBAI("WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d ownerCiv=%s plot=(%d,%d) area=%d bonus=%s oldImprovement=%s newImprovement=%s workingCity=%S workingCityId=%d visibleEnemy=%d",
+				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getX(), getY(), getArea().getID(),
+				GC.getInfo(eBonus).getType(), GC.getInfo(eOldImprovement).getType(),
+				(eNewValue == NO_IMPROVEMENT ? "-" : GC.getInfo(eNewValue).getType()), getSASDiagnosticQuoted(szWorkingCity.GetCString()).GetCString(),
 				(pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
 		}
 	}
@@ -6805,8 +6805,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 		// <!-- custom: Log completed worker builds that replace one improvement with another.
 		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
-		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement) logBBAI("WORKER_IMPROVEMENT_OVERWRITE turn=%d elapsed=%d player=%d civ=%S plot=%d,%d oldImprovement=%s newImprovement=%s build=%s owner=%d bonus=%s route=%s",
-			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), ePlayer, GET_PLAYER(ePlayer).getCivilizationDescription(0), getX(), getY(),
+		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement) logBBAI("WORKER_IMPROVEMENT_OVERWRITE turn=%d elapsed=%d player=%d civ=%s plot=%d,%d oldImprovement=%s newImprovement=%s build=%s owner=%d bonus=%s route=%s",
+			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), getX(), getY(),
 			GC.getInfo(eOldImprovement).getType(), GC.getInfo(eNewImprovement).getType(), kBuild.getType(), getOwner(),
 			getBonusType(eTeam) == NO_BONUS ? "NONE" : GC.getInfo(getBonusType(eTeam)).getType(),
 			getRouteType() == NO_ROUTE ? "NONE" : GC.getInfo(getRouteType()).getType());

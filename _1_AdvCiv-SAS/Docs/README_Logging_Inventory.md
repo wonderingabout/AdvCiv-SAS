@@ -541,7 +541,11 @@ Ordinary non-UWAI BBAI rows are greppable records: a stable uppercase event ID f
 
 Examples include `CITY_PRODUCTION_BRANCH` / `CITY_PRODUCTION_CHOICE`, `WAR_PLAN_REVIEW`, `DEAL_ITEM_APPLIED`, `RAZE_VALUE_COMPONENTS`, `PLAYER_SCORE_SUMMARY`, `PLAYER_TEAM_RELATIONS`, `GREAT_PERSON_ACTION_DECISION`, `WORKER_CITY_BUILD_CANDIDATE`, `CITY_HURRY_DECISION`, `CITY_PRODUCTION_ORDER` and `MAP_NORMALIZATION_CHANGE`.
 
-Raw XML type names identify units, buildings, technologies, resources, features and similar identities where translated prose is unnecessary.
+Identities use XML type names, e.g. `civ=CIVILIZATION_AMERICA`, `build=BUILD_COTTAGE`, `unitAI=UNITAI_SETTLE`; names with no XML type, such as city and unit names or deal text, are quoted and escaped by the same `getSASDiagnosticQuoted` helper SGR uses, e.g. `city="Angkor Thom"`.
+
+This is the same convention as SASGameRecord (`civType=CIVILIZATION_OTTOMAN`, `playerName="PC"`), so splitting a row on spaces outside quotes yields its fields.
+
+Both logs share two helpers in `CvGameCoreUtils`. `getSASDiagnosticQuoted` quotes a name and escapes `\`, `"`, CR, LF and tab, writing `-` for a missing name; it was centralized on 2026-08-31 so BBAI and SGR initialization rows share one representation. `getSASInfoTypeOrNone` returns an info enum's XML type, or `-` for its `NO_...` value.
 
 Gameplay callers own the decisions and cached category gates; formatting helpers receive already-decided state only.
 
@@ -599,8 +603,8 @@ if (AI().AI_isFinancialTrouble())
 After:
 
 ```cpp
-logBBAI("PLAYER_STATUS turn=%d player=%d civ=%S team=%d cities=%d population=%d power=%d bestKnownTechScorePercent=%d financialTrouble=%d",
-	iGameTurn, getID(), getCivilizationDescription(0), getTeam(), getNumCities(), getTotalPopulation(), getPower(),
+logBBAI("PLAYER_STATUS turn=%d player=%d civ=%s team=%d cities=%d population=%d power=%d bestKnownTechScorePercent=%d financialTrouble=%d",
+	iGameTurn, getID(), GC.getInfo(getCivilizationType()).getType(), getTeam(), getNumCities(), getTotalPopulation(), getPower(),
 	GET_TEAM(getTeam()).getBestKnownTechScorePercent(), AI().AI_isFinancialTrouble());
 ```
 
@@ -616,7 +620,7 @@ if (bLogRazeDecision) logBBAI("      Reduction for corp headquarters");
 After (the first source line of the statement; its arguments follow on the next lines):
 
 ```cpp
-if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d civ=%S city=%S cityId=%d population=%d distanceAndLocalPower=%d maintenance=%d populationDelta=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d stateReligionDelta=%d holyCityDelta=%d corporationDelta=%d greatPeopleWondersBarbDelta=%d bonusDelta=%d culturalOwnerDelta=%d expansionDelta=%d enemyPowerDelta=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d barbCity=%d previousOwnerBarbarian=%d areaCities=%d stateReligion=%s stateReligionPresent=%d stateReligionShrine=%d holyCity=%d corporationHeadquarters=%d activeWorldWonders=%d greatPeople=%d culturalOwner=%d targetCities=%d ownCities=%d enemyPowerPercent=%d",
+if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d civ=%s city=%S cityId=%d population=%d distanceAndLocalPower=%d maintenance=%d populationDelta=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d stateReligionDelta=%d holyCityDelta=%d corporationDelta=%d greatPeopleWondersBarbDelta=%d bonusDelta=%d culturalOwnerDelta=%d expansionDelta=%d enemyPowerDelta=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d barbCity=%d previousOwnerBarbarian=%d areaCities=%d stateReligion=%s stateReligionPresent=%d stateReligionShrine=%d holyCity=%d corporationHeadquarters=%d activeWorldWonders=%d greatPeople=%d culturalOwner=%d targetCities=%d ownCities=%d enemyPowerPercent=%d",
 ```
 
 Deal cancellation: in `BBAILog.cpp`, the translated sentence became `DEAL_CANCEL_DECISION` with both participants as IDs; the human-readable deal text stays in the `deal` field. Before:
@@ -631,10 +635,36 @@ logBBAI("%S", szBuffer.GetCString());
 After:
 
 ```cpp
-logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%S otherPlayer=%d otherCiv=%S reason=%S deal=%S",
-	GC.getGame().getGameTurn(), eCancelPlayer, GET_PLAYER(eCancelPlayer).getCivilizationDescription(0), eOtherPlayer,
-	GET_PLAYER(eOtherPlayer).getCivilizationDescription(0), szReason, szTmpBuffer.getCString());
+logBBAI("DEAL_CANCEL_DECISION turn=%d player=%d civ=%s otherPlayer=%d otherCiv=%s reason=%S deal=%S",
+	GC.getGame().getGameTurn(), eCancelPlayer, GC.getInfo(GET_PLAYER(eCancelPlayer).getCivilizationType()).getType(), eOtherPlayer,
+	GC.getInfo(GET_PLAYER(eOtherPlayer).getCivilizationType()).getType(), getSASDiagnosticQuoted(szReason).GetCString(), getSASDiagnosticQuoted(szTmpBuffer.getCString()).GetCString());
 ```
+
+Older SAS rows were already record-shaped but kept three inherited habits: an indented record ID, an unnamed civilization after `player=`, and translated descriptions as identities. The rewrite also logs the civilization as its XML type. `RESEARCH_QUEUE_AFTER_ACQUIRE` in `CvTeam.cpp` shows all three rewrites. Before:
+
+```cpp
+if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d",
+	kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(),
+	(kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()),
+	kMember.getLengthResearchQueue());
+```
+
+After:
+
+```cpp
+if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d civ=%s acquired=%s next=%s queueLength=%d",
+	kGame.getGameTurn(), kMember.getID(), GC.getInfo(kMember.getCivilizationType()).getType(), kTech.getType(),
+	(kMember.getCurrentResearch() == NO_TECH ? "-" : GC.getInfo(kMember.getCurrentResearch()).getType()),
+	kMember.getLengthResearchQueue());
+```
+
+Descriptions are display text, not identifiers: they come from text keys, so they change with the language or a mod (the base game's French Build text reads `construire un ...`), can contain spaces, and Build descriptions also carry Civilopedia hyperlink markup.
+
+The game text defines `Build a [LINK=IMPROVEMENT_COTTAGE]Cottage[\LINK]`, which Civ4 turns into `<link=...>` markup for its clickable in-game links. A Worker row therefore logged `build=Build a <link='IMPROVEMENT_COTTAGE'>Cottage</link>` (about 107k times in a T201 Huge run); with the XML type it logs `build=BUILD_COTTAGE`.
+
+Display names also broke fields: in the same run, 95% of `civ=` values and 10% of `city=` values contained spaces (`civ=United States of America`, `city=Angkor Thom`), splitting one value into several apparent fields.
+
+Civilizations have an XML type, so they now log `civ=CIVILIZATION_AMERICA`; cities have none (their `cityId=` is the identity), so names stay readable but quoted: `city="Angkor Thom"`.
 
 #### Settler Before/After: selecting a movement target
 
@@ -653,7 +683,7 @@ if (bLogSettlerLevel2) SAS_logSettlerMissionDecision("PUSH_MOVE_TO_FOUND", *this
 ```
 
 ```cpp
-logBBAI("SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
+logBBAI("SETTLER_MISSION_DECISION turn=%d player=%d civ=%s action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
 ```
 
 The old line identifies only the destination. The SAS row also identifies the player/unit, turn, current and end-turn positions, selected-site value, path length, group/escort composition, danger and mission context, so it can explain how the Settler is reaching that target. Separate `SETTLER_PARKED` and `SETTLER_CITY_ESCORT_POOL` rows expose waiting and escort availability.

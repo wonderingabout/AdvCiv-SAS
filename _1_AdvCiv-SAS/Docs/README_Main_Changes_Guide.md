@@ -659,6 +659,15 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
 
 #### Logging (Common)
 
+- (Requires AdvCiv-SAS 6713+) **Diagnostic logs are modernized into greppable records:**
+  - BBAI (including UWAI) and SASGameRecord rows start with a stable uppercase record ID followed by named `key=value` fields, instead of inherited sentences. Agents, LLMs and scripts can grep one row family, read its fields and compare runs directly, rather than interpreting prose.
+    - For example, base AdvCiv's `Settler heading for site %d, %d` became `SETTLER_MISSION_DECISION`, which also names the player, unit, current and end-turn positions, path length, escort and danger context.
+  - Identities use XML type names rather than translated display text, e.g. `civ=CIVILIZATION_AMERICA` instead of `United States of America`, `build=BUILD_COTTAGE` instead of `Build a <link='IMPROVEMENT_COTTAGE'>Cottage</link>`, and `unitAI=UNITAI_SETTLE` instead of a number or a label such as `settle`.
+    - Names with no XML type, such as cities, are quoted (`city="Angkor Thom"`), so a row splits cleanly into fields.
+    - SASGameRecord was designed this way; BBAI rows were converted to it, and both logs share the same quoting and XML-type helpers, so a value reads the same in either log.
+    - One CI check covers BBAI and SASGameRecord rows, so new rows keep this format.
+    - Some Found-detail payloads still carry short prose after their `FOUND_SITE_<ID>` prefix, e.g. `Base city value: %d`; the `TrueStarts.cpp` debug output stays narrative.
+  - See the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#bbai) for exact Before/After examples.
 - (Requires AdvCiv-SAS 6641+) **Shared diagnostic-writer health:** SASGameRecord records one compact `GAME_RECORD_DIAGNOSTIC_WRITER` snapshot at completed-turn checkpoints and session finalization.
   - Reports current/peak pending text, the current blocked-file count, output failures/retries and dropped output, plus process-lifetime bytes successfully written for SASGameRecord and BBAI.
   - One health row per completed game turn helps locate when backlog, failures or loss first appear; there is no health row per BBAI message. A final snapshot is recorded at session finalization.
@@ -723,6 +732,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - Major families include `CITY_PRODUCTION_BRANCH` / `CITY_PRODUCTION_CHOICE`, `CITY_PRODUCTION_ORDER` / `CITY_PRODUCTION_FINISHED`, `WAR_PLAN_REVIEW`, `DEAL_ITEM_APPLIED`, `RAZE_VALUE_COMPONENTS`, `PLAYER_SCORE_SUMMARY`, `PLAYER_TEAM_RELATIONS`, `GREAT_PERSON_ACTION_DECISION`, `WORKER_CITY_BUILD_CANDIDATE`, `MAP_NORMALIZATION_CHANGE`, `TEAM_WAR_STATE_CHANGE` and `DIPLO_VOTE_RESULT`. Selected production records identify the actual chosen kind/type and UnitAI where applicable.
   - Translated multi-line score/debug prose and duplicate summary rows are removed where structured numeric records preserve the useful evidence more directly.
   - The `TrueStarts.cpp` development/debug output keeps its narrative rows; dynamic `FOUND_SITE_%s` evaluator IDs are structured families rather than narrative rows.
+  - The shared record format these rows follow is described under Logging (Common) above.
 - (Requires AdvCiv-SAS 6604+) **UWAI diagnostics now use the normal caller-pre-gated BBAI infrastructure:**
   - AdvCiv's separate `UWAIReport.cpp`/`.h` logger and `uwai<turn>.log`/Textile output are retired, consolidating AI diagnostics into one logging system. Agent, Military Analyst, Invasion Graph, Armament Forecast and War Utility diagnostics have independent cached `SAS_BBAI_UWAI_*_LOG` controls and write into the same timestamped BBAI log as other AI diagnostics.
   - Disabled categories are checked at their callers before logging-only arguments, string formatting or report-only setup are evaluated; this notably removes inherited muted-call overhead from the very hot War Utility diagnostic path.
