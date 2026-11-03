@@ -183,7 +183,7 @@ def convert(input_path: Path, output_path: Path) -> tuple[int, int]:
 
 def parse_args() -> argparse.Namespace:
     repo_root = Path(__file__).resolve().parent.parent
-    default_dir = repo_root / "_0_Common_Docs" / "AdvCiv_Base_Doc"
+    default_dir = repo_root / "_0_Legacy" / "Docs" / "AdvCiv"
     parser = argparse.ArgumentParser(
         description="Convert AdvCiv manual.odt to grep/LLM-friendly manual.txt without external dependencies."
     )

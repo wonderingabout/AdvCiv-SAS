@@ -31,7 +31,7 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons)\
 &emsp;[example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons)\
 &emsp;[example 0.95: Expanded leaderhead panel](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel)\
-[Sevopedia Pages individual reworks](#sevopedia-pages-individual-reworks)\
+[Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#sevopedia-pages-individual-reworks)\
 &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)\
 &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)\
 &emsp;[example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)\
@@ -85,8 +85,8 @@ See individual Sevopedia screenshots to see its general appearence. As for how t
 
 Update: since then, changes have been made that are not shown here such as a new CLEAR button, fixes or tweaks, or the support of special characters. See also the main changes guide or code.
 
-<img src="../Images/sevopedia/0.610_sevopedia_searchbar (1).JPG" alt="0.610_sevopedia_searchbar (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.610_sevopedia_searchbar (2).JPG" alt="0.610_sevopedia_searchbar (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.610_sevopedia_searchbar (1).JPG" alt="1.610_sevopedia_searchbar (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.610_sevopedia_searchbar (2).JPG" alt="1.610_sevopedia_searchbar (2).JPG" width="250"></img>
 
 ### example 0.2: added keyboard arrow (UP/DOWN and LEFT/RIGHT) navigation support. Used in several Sevopedia pages
 
@@ -124,9 +124,9 @@ Also, the index search bar was dead on first open until the table received focus
 
 Update: Sevopedia Index now uses the same search bar as the shared one the other sevopedia categories use (no longer duplicated Search bar logic in Sevopedia index).
 
-<img src="../Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.611_sevopedia_index_as_category (1).JPG" alt="1.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.611_sevopedia_index_as_category (2).JPG" alt="1.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.611_sevopedia_index_as_category (3).JPG" alt="1.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
 ## Other new categories
 
@@ -158,9 +158,9 @@ It features info in a beautified way, partly based on the Sevopedia Feature's ap
 
 Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
-<img src="../Images/sevopedia/0.721_sevopedia_builds (1).JPG" alt="0.721_sevopedia_builds (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.721_sevopedia_builds (2).JPG" alt="0.721_sevopedia_builds (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.721_sevopedia_builds (3).JPG" alt="0.721_sevopedia_builds (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.721_sevopedia_builds (1).JPG" alt="1.721_sevopedia_builds (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.721_sevopedia_builds (2).JPG" alt="1.721_sevopedia_builds (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.721_sevopedia_builds (3).JPG" alt="1.721_sevopedia_builds (3).JPG" width="250"></img>
 
 ### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
 
@@ -176,9 +176,9 @@ More recently, we have added using widget python trick as well a new Votes categ
 
 It features both VoteInfo and VoteSourceInfos. See [Main Changes Guide](/README.md#main-changes-guide).
 
-<img src="../Images/sevopedia/0.860_sevopedia_votes (1).JPG" alt="0.860_sevopedia_votes (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.860_sevopedia_votes (2).JPG" alt="0.860_sevopedia_votes (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.860_sevopedia_votes (3).JPG" alt="0.860_sevopedia_votes (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.860_sevopedia_votes (1).JPG" alt="1.860_sevopedia_votes (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.860_sevopedia_votes (2).JPG" alt="1.860_sevopedia_votes (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.860_sevopedia_votes (3).JPG" alt="1.860_sevopedia_votes (3).JPG" width="250"></img>
 
 #### example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)
 
@@ -186,9 +186,9 @@ We also added a new EventTriggers category showing Event triggers and their even
 
 See main implementation points at the [Main Changes Guide](/README.md#main-changes-guide).
 
-<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (1).JPG" alt="0.870_sevopedia_eventtriggers (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (2).JPG" alt="0.870_sevopedia_eventtriggers (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.870_sevopedia_eventtriggers (3).JPG" alt="0.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (1).JPG" alt="1.870_sevopedia_eventtriggers (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (2).JPG" alt="1.870_sevopedia_eventtriggers (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (3).JPG" alt="1.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
 
 #### example 0.5: Handicap Chart category
 
@@ -202,9 +202,9 @@ Then, chatgpt 5.2 (web) helped refactor it for perf opt, clarity, and such; than
 
 Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs anymore.
 
-<img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_getters.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.625_sevopedia_handicaps_chart (1).JPG" alt="1.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.625_sevopedia_handicaps_chart (2).JPG" alt="1.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.6252_sevopedia_handicaps_chart_getters.JPG" alt="1.6252_sevopedia_handicaps_chart_getters.JPG" width="250"></img>
 
 ### example 0.6: Game Speed Chart category
 
@@ -220,8 +220,8 @@ Since then, we notably also added in game speeds chart extra analysis rows like 
 
 Also added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning. See also [/LLM_Helpers/](/LLM_Helpers/).
 
-<img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG" alt="0.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.626_sevopedia_game_speeds_chart (1).JPG" alt="1.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.626_sevopedia_game_speeds_chart (2).JPG" alt="1.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
 
 ### example 0.7: World Sizes Chart category
 
@@ -231,7 +231,7 @@ Note: computed or manually added fields such as `Ratio to Standard*` (e.g. "3.64
 
 Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
 
-<img src="../Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.627_sevopedia_world_sizes_chart.JPG" alt="1.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
 
 ### example 0.8: Eras Chart category
 
@@ -241,8 +241,8 @@ Note 2: similarly to how the handicap chart does, in the game speed chart you al
 
 More recently, added optional era buttons. Idea i got from watching how the c2c mod does ingame. Done with the help of GPT-5.2-Codex, Claude code Opus 4.5, and Claude code Sonnet 4.5 thanks.
 
-<img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.628_sevopedia_eras_chart (1).JPG" alt="1.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.628_sevopedia_eras_chart (2).JPG" alt="1.628_sevopedia_eras_chart (2).JPG" width="250"></img>
 
 ### example 0.90: Media Player
 
@@ -258,12 +258,12 @@ Also supports Previous Track and Next track, Toggle Movies/Music button, Fast Up
 
 So the common media playing logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
 
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (1).JPG" alt="0.810_sevopedia_media_player (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (2).JPG" alt="0.810_sevopedia_media_player (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (3).JPG" alt="0.810_sevopedia_media_player (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (4).JPG" alt="0.810_sevopedia_media_player (4).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (5).JPG" alt="0.810_sevopedia_media_player (5).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.810_sevopedia_media_player (6).JPG" alt="0.810_sevopedia_media_player (6).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (1).JPG" alt="1.810_sevopedia_media_player (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (2).JPG" alt="1.810_sevopedia_media_player (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (3).JPG" alt="1.810_sevopedia_media_player (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (4).JPG" alt="1.810_sevopedia_media_player (4).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (5).JPG" alt="1.810_sevopedia_media_player (5).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.810_sevopedia_media_player (6).JPG" alt="1.810_sevopedia_media_player (6).JPG" width="250"></img>
 
 ### example 0.91: Movies category (with audio support)
 
@@ -273,8 +273,8 @@ Emoji-based Play button is added to corresponding Sevopedia page like Sevopedia 
 
 Note: Corporations show "None" because as of now no `MovieFile` nor `MovieSound` are set for them.
 
-<img src="../Images/sevopedia/0.820_sevopedia_movies (1).JPG" alt="0.820_sevopedia_movies (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.820_sevopedia_movies (2).JPG" alt="0.820_sevopedia_movies (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.820_sevopedia_movies (1).JPG" alt="1.820_sevopedia_movies (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.820_sevopedia_movies (2).JPG" alt="1.820_sevopedia_movies (2).JPG" width="250"></img>
 
 ### example 0.92: Music category (~1750 audio scripts playable in Sevopedia)
 
@@ -306,11 +306,11 @@ The implementation still needs some minor polish, but it is as of now entirely f
 - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
 - in header add music id / total (like total 1759)
 
-<img src="../Images/sevopedia/0.830_sevopedia_music (1).JPG" alt="0.830_sevopedia_music (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.830_sevopedia_music (2).JPG" alt="0.830_sevopedia_music (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.830_sevopedia_music (5).JPG" alt="0.830_sevopedia_music (5).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.830_sevopedia_music (1).JPG" alt="1.830_sevopedia_music (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.830_sevopedia_music (2).JPG" alt="1.830_sevopedia_music (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.830_sevopedia_music (3).JPG" alt="1.830_sevopedia_music (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.830_sevopedia_music (4).JPG" alt="1.830_sevopedia_music (4).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.830_sevopedia_music (5).JPG" alt="1.830_sevopedia_music (5).JPG" width="250"></img>
 
 ### example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)
 
@@ -322,9 +322,9 @@ Added with the very nice help of GPT-5.3-Codex and Claude code Sonnet 4.6 thanks
 
 Also added optional Playground to experiment with text color, background, and panel styles, with `+` and `-` button to change them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`, `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`. Helps choosing or testing optimal art style without having to tediously manually testing them one by one.
 
-<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.840_sevopedia_expanded_text (1).JPG" alt="1.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.840_sevopedia_expanded_text (2).JPG" alt="1.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.840_sevopedia_expanded_text (3).JPG" alt="1.840_sevopedia_expanded_text (3).JPG" width="250"></img>
 
 ### example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons)
 
@@ -332,9 +332,9 @@ Similarly also added expanded animation (as of now it's the only use case) panel
 
 We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view.
 
-<img src="../Images/sevopedia/0.841_sevopedia_expanded_content (1).JPG" alt="0.841_sevopedia_expanded_content (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.841_sevopedia_expanded_content (1).JPG" alt="1.841_sevopedia_expanded_content (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.841_sevopedia_expanded_content (2).JPG" alt="1.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.841_sevopedia_expanded_content (3).JPG" alt="1.841_sevopedia_expanded_content (3).JPG" width="250"></img>
 
 ### example 0.95: Expanded leaderhead panel
 
@@ -342,7 +342,7 @@ Similarly also added expanded leaderhead panel. It does not have a RELOAD button
 
 Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible).
 
-<img src="../Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG" alt="0.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.842_sevopedia_expanded_lh (1).JPG" alt="1.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
 
 ## Sevopedia Pages individual reworks
 
@@ -370,9 +370,9 @@ Since then, increased ai personality panel default font size from body (default 
 
 Since then, we also added era attitude buttons with the very nice help of Claude code Sonnet 4.6 thanks.
 
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (1).JPG" alt="1.620_sevopedia_leaders (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (2).JPG" alt="1.620_sevopedia_leaders (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (3).JPG" alt="1.620_sevopedia_leaders (3).JPG" width="250"></img>
 
 ### example 1.5: traits category (Traits Charts and other changes)
 
@@ -388,9 +388,9 @@ Also added caching at category click for the entire session similarly to how was
 
 The data doesn't change during the entire session, and in particular for the combinations panel is as of now always the same, may as well cache it.
 
-<img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.624_sevopedia_traits (3).JPG" alt="0.624_sevopedia_traits (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.624_sevopedia_traits (1).JPG" alt="1.624_sevopedia_traits (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.624_sevopedia_traits (2).JPG" alt="1.624_sevopedia_traits (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.624_sevopedia_traits (3).JPG" alt="1.624_sevopedia_traits (3).JPG" width="250"></img>
 
 ### example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)
 
@@ -416,8 +416,8 @@ Also added an Untradeable panel with an emoji to visually clearly and quickly in
 
 (Unit Combat Types expanded page when you click on a combat type). An earlier implementation used RFC Dawn of Civilization code, then AdvCiv styling, and was subsequently substantially rewritten in AdvCiv-SAS, including dynamic table sizes by unit combat type (for example, air units have 10 columns for air interception and air range while other unit combat types have 8).
 
-<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (1).JPG" alt="0.630_sevopedia_unit_chart (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.630_sevopedia_unit_chart (2).JPG" alt="0.630_sevopedia_unit_chart (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.630_sevopedia_unit_chart (1).JPG" alt="1.630_sevopedia_unit_chart (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.630_sevopedia_unit_chart (2).JPG" alt="1.630_sevopedia_unit_chart (2).JPG" width="250"></img>
 
 ### example 3: features category
 
@@ -437,9 +437,9 @@ Since then, also added a new Remove as well as a new Units (Remove) panel with t
 
 Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
 
-<img src="../Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.640_sevopedia_features (3).JPG" alt="0.640_sevopedia_features (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.640_sevopedia_features (1).JPG" alt="1.640_sevopedia_features (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.640_sevopedia_features (2).JPG" alt="1.640_sevopedia_features (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.640_sevopedia_features (3).JPG" alt="1.640_sevopedia_features (3).JPG" width="250"></img>
 
 ### example 3.5: improvements category (Improvement Weights (Leaders) Chart and other changes)
 
@@ -471,9 +471,9 @@ Done with the help of GPT-5.2-Codex thanks a lot!
 
 Since then, added Graphical Only (e.g., Land Worked, Water Worked) (similarly to how Hill and Peak are shown in Sevopedia Terrain) and Special Map (e.g., City Ruins, Tribal Village) so Sevopedia Improvements can redirect to them and for exhaustiveness, under these groupings.
 
-<img src="../Images/sevopedia/0.720_sevopedia_improvements (1).JPG" alt="0.720_sevopedia_improvements (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.720_sevopedia_improvements (2).JPG" alt="0.720_sevopedia_improvements (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.720_sevopedia_improvements (3).JPG" alt="0.720_sevopedia_improvements (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.720_sevopedia_improvements (1).JPG" alt="1.720_sevopedia_improvements (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.720_sevopedia_improvements (2).JPG" alt="1.720_sevopedia_improvements (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.720_sevopedia_improvements (3).JPG" alt="1.720_sevopedia_improvements (3).JPG" width="250"></img>
 
 ### example 4: bonuses category
 
@@ -487,19 +487,19 @@ Update: since then, added AI information about `iAIObjective` or such fields in 
 
 Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc.). The initial grouping approach was based in part on RFC Dawn of Civilization code and was further developed for AdvCiv-SAS with ChatGPT 5.2.
 
-<img src="../Images/sevopedia/0.650_sevopedia_bonuses (1).JPG" alt="0.650_sevopedia_bonuses (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.650_sevopedia_bonuses (2).JPG" alt="0.650_sevopedia_bonuses (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.650_sevopedia_bonuses (3).JPG" alt="0.650_sevopedia_bonuses (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.650_sevopedia_bonuses (1).JPG" alt="1.650_sevopedia_bonuses (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.650_sevopedia_bonuses (2).JPG" alt="1.650_sevopedia_bonuses (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.650_sevopedia_bonuses (3).JPG" alt="1.650_sevopedia_bonuses (3).JPG" width="250"></img>
 
 ### example 5: religion category
 
-new Favorites (Leaders) (based on History Rewritten's code) and Buildings (with an earlier implementation based in part on RFC Dawn of Civilization and later replaced/reworked using ROM 291 as a more complete base) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as civ4 BUG_Doc, see code comments in Sevopediareligion.py for details.
+new Favorites (Leaders) (based on History Rewritten's code) and Buildings (with an earlier implementation based in part on RFC Dawn of Civilization and later replaced/reworked using ROM 291 as a more complete base) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or adjustments or not, as well as the Civ4 BUG documentation, see code comments in Sevopediareligion.py for details.
 
 Also note that all Favorites (Leaders) now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it.
 
 Since then, we also added the Leader count pattern in Sevopedia Traits in the Favorites (Leaders)' panel's header (example "Leader 12/53 (22%)").
 
-<img src="../Images/sevopedia/0.660_sevopedia_religions.JPG" alt="0.660_sevopedia_religions.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.660_sevopedia_religions.JPG" alt="1.660_sevopedia_religions.JPG" width="250"></img>
 
 looks quite very great hehe (at least i think so)
 
@@ -509,9 +509,9 @@ new Cities (based on Middle-earth mod's (very amazing's Platypedia's code) panel
 
 More recently, added optional grouping by Artstyle (e.g. European, Asian) with the help of GPT-5.3-Codex thanks.
 
-<img src="../Images/sevopedia/0.670_sevopedia_civilizations (1).JPG" alt="0.670_sevopedia_civilizations (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.670_sevopedia_civilizations (2).JPG" alt="0.670_sevopedia_civilizations (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.670_sevopedia_civilizations (3).JPG" alt="0.670_sevopedia_civilizations (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.670_sevopedia_civilizations (1).JPG" alt="1.670_sevopedia_civilizations (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.670_sevopedia_civilizations (2).JPG" alt="1.670_sevopedia_civilizations (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.670_sevopedia_civilizations (3).JPG" alt="1.670_sevopedia_civilizations (3).JPG" width="250"></img>
 
 ### example 7: units category
 
@@ -537,9 +537,9 @@ Then added worker speed modifiers bullet with the help of GPT-5.3-Codex thanks.
 
 More recently, added unique names in the history (as of now "Background") panel in Sevopedia Unit (e.g., Great General, Great Scientist, Great Prophet) as prepended text before the rest of `placeHistory` pedia text based on the `placeCities`,  with the help of GPT-5.3-Codex thanks.
 
-<img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.680_sevopedia_units (3).JPG" alt="0.680_sevopedia_units (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.680_sevopedia_units (1).JPG" alt="1.680_sevopedia_units (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.680_sevopedia_units (2).JPG" alt="1.680_sevopedia_units (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.680_sevopedia_units (3).JPG" alt="1.680_sevopedia_units (3).JPG" width="250"></img>
 
 ### example 8: buildings category
 
@@ -553,10 +553,10 @@ In particular, added hoverable great person image links in as of now `placeStats
 					screen.setImageButtonAt(buttonWidget, panelName, greatPersonButton, buttonX, buttonY, buttonW, buttonH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iGreatPersonUnit, 1)
 ```
 
-<img src="../Images/sevopedia/0.690_sevopedia_buildings (1).JPG" alt="0.690_sevopedia_buildings (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.690_sevopedia_buildings (2).JPG" alt="0.690_sevopedia_buildings (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.690_sevopedia_buildings (3).JPG" alt="0.690_sevopedia_buildings (3).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG" alt="0.691_sevopedia_buildings_hover_click_GP.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.690_sevopedia_buildings (1).JPG" alt="1.690_sevopedia_buildings (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.690_sevopedia_buildings (2).JPG" alt="1.690_sevopedia_buildings (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.690_sevopedia_buildings (3).JPG" alt="1.690_sevopedia_buildings (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.691_sevopedia_buildings_hover_click_GP.JPG" alt="1.691_sevopedia_buildings_hover_click_GP.JPG" width="250"></img>
 
 ### example 9: terrains category
 
@@ -580,15 +580,15 @@ Since then, also added a new Units (Any Build) panel with the help of GPT-5.2-Co
 
 And then fixed the Hills Improvements formula in the earlier RFC Dawn of Civilization-derived implementation adopted for AdvCiv-SAS, with the help of GPT-5.2-Codex, so the page displays the applicable improvements accurately.
 
-<img src="../Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.700_sevopedia_terrains (2).JPG" alt="0.700_sevopedia_terrains (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.700_sevopedia_terrains (3).JPG" alt="0.700_sevopedia_terrains (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.700_sevopedia_terrains (1).JPG" alt="1.700_sevopedia_terrains (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.700_sevopedia_terrains (2).JPG" alt="1.700_sevopedia_terrains (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.700_sevopedia_terrains (3).JPG" alt="1.700_sevopedia_terrains (3).JPG" width="250"></img>
 
 See also the [features category rework](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)
 
-<img src="../Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.710_sevopedia_techs (3).JPG" alt="0.710_sevopedia_techs (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.710_sevopedia_techs (1).JPG" alt="1.710_sevopedia_techs (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.710_sevopedia_techs (2).JPG" alt="1.710_sevopedia_techs (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.710_sevopedia_techs (3).JPG" alt="1.710_sevopedia_techs (3).JPG" width="250"></img>
 
 ### example 10: specialists category
 
@@ -596,9 +596,9 @@ Beautified it (removed the ugly blue panel around the buttons as we did in previ
 
 Then, more recently, i added new Extra Slots and Extra Yields panel based on the Middle-earth mod's code and adjusted for AdvCiv-SAS with the help of GPT-5.2-Codex thanks a lot!
 
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.760_sevopedia_specialists (1).JPG" alt="1.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.760_sevopedia_specialists (2).JPG" alt="1.760_sevopedia_specialists (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.760_sevopedia_specialists (3).JPG" alt="1.760_sevopedia_specialists (3).JPG" width="250"></img>
 
 ### example 11: shortcuts category
 
@@ -606,8 +606,8 @@ No graphical change, only added info about some shortcuts, as of now only about 
 
 More recently, also added a Cheats Section (from the [CFC thread: All Keyboard Cheats for Civ 4](https://forums.civfanatics.com/threads/all-keyboard-cheats-for-civ-4.664273/)). Also equalized tabs that were misaligned (was seemingly aligned for font 2 instead of **label 3** after upscaling, and fixed a few misaligned rows); generalize shortcut spacing (e.g., `Alt+F4` -> `Alt + F4` as in Cheats item). Done with the very nice help of GPT-5.3-Codex thanks.
 
-<img src="../Images/sevopedia/0.850_sevopedia_shortcuts (1).JPG" alt="0.850_sevopedia_shortcuts (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.850_sevopedia_shortcuts (2).JPG" alt="0.850_sevopedia_shortcuts (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.850_sevopedia_shortcuts (1).JPG" alt="1.850_sevopedia_shortcuts (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.850_sevopedia_shortcuts (2).JPG" alt="1.850_sevopedia_shortcuts (2).JPG" width="250"></img>
 
 ### example 12: promotions category
 
@@ -617,9 +617,9 @@ The buttons are nicely displayed or an as of now "None" text as in other Sevoped
 
 Output is really nice and nicely informative too, examples below:
 
-<img src="../Images/sevopedia/0.730_sevopedia_promotions (1).JPG" alt="0.730_sevopedia_promotions (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.730_sevopedia_promotions (2).JPG" alt="0.730_sevopedia_promotions (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.730_sevopedia_promotions (3).JPG" alt="0.730_sevopedia_promotions (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.730_sevopedia_promotions (1).JPG" alt="1.730_sevopedia_promotions (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.730_sevopedia_promotions (2).JPG" alt="1.730_sevopedia_promotions (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.730_sevopedia_promotions (3).JPG" alt="1.730_sevopedia_promotions (3).JPG" width="250"></img>
 
 ### example 13: civics category
 
@@ -635,9 +635,9 @@ Since then, we also added the Leader count pattern in Sevopedia Traits in the Fa
 
 Examples of output below.:
 
-<img src="../Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.740_sevopedia_civics (2).JPG" alt="0.740_sevopedia_civics (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.740_sevopedia_civics (3).JPG" alt="0.740_sevopedia_civics (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.740_sevopedia_civics (1).JPG" alt="1.740_sevopedia_civics (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.740_sevopedia_civics (2).JPG" alt="1.740_sevopedia_civics (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.740_sevopedia_civics (3).JPG" alt="1.740_sevopedia_civics (3).JPG" width="250"></img>
 
 ### example 14: projects category
 
@@ -645,8 +645,8 @@ Minor beautified and polished it a bit and now it's quite good xd at least not t
 
 As for the grouping, since this is a nice functionnal change, i wanted to show it here as well.
 
-<img src="../Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.750_sevopedia_projects (2).JPG" alt="0.750_sevopedia_projects (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.750_sevopedia_projects (1).JPG" alt="1.750_sevopedia_projects (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.750_sevopedia_projects (2).JPG" alt="1.750_sevopedia_projects (2).JPG" width="250"></img>
 
 ### example 15: corporations category
 
@@ -654,5 +654,5 @@ As part of the Sevopedia upscaling pass, we also reworked and beautified the Sev
 
 For the Bonuses Generated panel in particular, we exposed to Python in the DLL `getBonusProduced` (files changed: [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)).
 
-<img src="../Images/sevopedia/0.770_sevopedia_corporations (1).JPG" alt="0.770_sevopedia_corporations (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.770_sevopedia_corporations (1).JPG" alt="1.770_sevopedia_corporations (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.770_sevopedia_corporations (2).JPG" alt="1.770_sevopedia_corporations (2).JPG" width="250"></img>

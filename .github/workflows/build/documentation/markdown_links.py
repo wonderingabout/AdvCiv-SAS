@@ -418,6 +418,19 @@ def root_link_error(destination: str) -> str | None:
     return None
 
 
+# <!-- custom: root_link_error allows both a same-page link such as [Mod name](#mod-name) and an absolute self link such as [Mod name](/README.md#mod-name), so a file could mix them freely; the README menu did, because refreshed menus gave new entries #anchor while existing entries kept /README.md#anchor.
+# Classify links to the file's own anchors and report a file that uses both styles, like mixed tabs and spaces, so each file keeps one style. (Claude Code Sonnet 5.5) -->
+def self_link_style(md_path: Path, destination: str) -> str | None:
+    parts = urlsplit(html.unescape(destination.strip()))
+    if parts.scheme or destination.startswith("//") or not parts.fragment:
+        return None
+    if not parts.path:
+        return "same-page"
+    if parts.path.startswith("/") and (ROOT / parts.path.lstrip("/")).resolve() == md_path.resolve():
+        return "absolute"
+    return None
+
+
 def main() -> int:
     errors: list[str] = []
     checked = 0
@@ -433,7 +446,11 @@ def main() -> int:
 
         references = list(markdown_links(scan_text)) + list(html_links(scan_text))
         references.sort(key=lambda item: item[0])
+        self_styles: dict[str, list[int]] = {"same-page": [], "absolute": []}
         for offset, destination in references:
+            self_style = self_link_style(md_path, destination)
+            if self_style:
+                self_styles[self_style].append(line_number(scan_text, offset))
             style_error = root_link_error(destination)
             if style_error:
                 errors.append(f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: {style_error}")
@@ -470,6 +487,13 @@ def main() -> int:
                         f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: "
                         f"missing Markdown anchor: {destination} -> {relative_target}#{fragment}"
                     )
+
+        if self_styles["same-page"] and self_styles["absolute"]:
+            errors.append(
+                f"{md_path.relative_to(ROOT)}: mixes {len(self_styles['same-page'])} same-page (#anchor) link(s), "
+                f"first at line {self_styles['same-page'][0]}, with {len(self_styles['absolute'])} absolute link(s) to "
+                f"its own anchors, first at line {self_styles['absolute'][0]}; use one style per file"
+            )
 
         if found_local:
             markdown_files += 1

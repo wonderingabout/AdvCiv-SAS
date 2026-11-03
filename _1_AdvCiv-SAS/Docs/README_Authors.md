@@ -189,7 +189,7 @@ Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_
 
 #### Other tasks: e.g. performance optimizations
 
-Just like [GPT-Codex (VS Code extension)](/_1_AdvCiv-SAS/Docs/README_Authors.md#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
+Just like [GPT-Codex (VS Code extension)](#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>

@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 188 - SAS practical 6710
 
 - **Date:** 2026-11-02
-- **Git commit:** pending
+- **Git commit:** `f744218a4a39b687cd27837a16583ef4036fc31b`
 - **Change:** The BBAI profile emitted in SGR now exposes independent 1ST and 2PL Settler/Found categories; shared paths follow the player's phase (no city yet: 1ST, otherwise 2PL). The Food audit requires FOUND_2PL. Gameplay rows and scoring are unchanged.
 
 ### Revision 187 - SAS practical 6708

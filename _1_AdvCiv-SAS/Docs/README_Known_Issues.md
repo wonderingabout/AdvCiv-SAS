@@ -107,7 +107,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#48.19 - (Improved inherited K-Mod/AdvC AI Wonder opportunity-cost weakness and fixed old-SAS planning defect) National Park military pressure was either ignored or hard-zeroed across current and prospective valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.19)\
 [KI#48.20 - (Improved inherited K-Mod/AdvC AI World-Wonder opportunity-cost weakness) Locally exposed AIs could over-invest in World Wonders after the old hard military-pressure policy was retired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.20)\
 [KI#49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49)\
-[KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip AI_guardCityOnlyDefender and over-hold the whole group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2)\
+[KI#49.2 - (Fixed inherited K-Mod singleton-group assumption) Multi-unit Reserve groups could trip `AI_guardCityOnlyDefender` and over-hold the whole group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2)\
 [KI#49.3 - (Hardened inherited K-Mod AI grouping) Restore runtime rejection of visible-enemy target plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.3)\
 [KI#49.4 - (Fixed inherited BtS blockage staging exposed by a K-Mod assertion; retired K-Mod fallback probe) A non-enemy waypoint was queued as a direct attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.4)\
 [KI#50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-50)\
@@ -1830,7 +1830,7 @@ Not solving it and at least not now didn't investigate it, but good to mention i
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wFSJ6huis6w_xg-OmrZGE2Scw8PRhI7e?usp=sharing)
 
-Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
+Similarly to fetching most fields of leader info now directly from XML and not strictly requiring leaders_data.py, at least in debug functions, we need/miss the (BBAI) victory weights in the Sevopedia leader gc's methods it seems (see [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) for details, now added the new methods as part of this fix as shown below, see also drive link above in this example issue too)
 
 To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example to hopefully add it in this case) (with VS Code 's global search too i noticed it i mean if i may say indeed(see screenshots for details/examples)), modified the (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already existing in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
 
@@ -8331,7 +8331,7 @@ The conclusion is therefore deliberately **not** to broaden KI#53.5.
 
 Its validated purpose remains preventing extreme peaceful land overproduction only after a primary landmass is already exceptionally saturated.
 
-Naval competitiveness is tracked separately in [KI#53.6](#ki-53.6): first determine why apparently credible overseas wars receive low strategic utility, then investigate transport execution only if the war plan itself is sound.
+Naval competitiveness is tracked separately in [KI#53.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.6): first determine why apparently credible overseas wars receive low strategic utility, then investigate transport execution only if the war plan itself is sound.
 
 ### Final status
 
@@ -8363,7 +8363,7 @@ Investigated/improved with the help of ChatGPT-5.6-Sol thanks.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1T0DiJtUhfW-kSWxkDgdbyEOMDtORXzKK?usp=sharing).
 
-This investigation follows the naval-extension cross-check in [KI#53.5](#ki-53.5).
+This investigation follows the naval-extension cross-check in [KI#53.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.5).
 
 The current evidence does **not** show KI#53.5 suppressing useful island warfare: across the familiar Archipelago and Equal Islands runs its saturation gate never reached a would-reject state.
 
@@ -10422,7 +10422,7 @@ And now fixed in AdvCiv-SAS! Thanks GPT-5.2-Codex :)
 
 ## KI#91 - (Adjusted) iBaseGrowthThresholdPercent scales with handicap but it's not clear what it does and how it should be said
 
-Below explanation by ChatGPT 5.2 when i gave it the relevant base advciv's [manual.txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) blurb.
+Below explanation by ChatGPT 5.2 when i gave it the relevant base advciv's [manual.txt](/_0_Legacy/Docs/AdvCiv/manual.txt) blurb.
 
 Based on it, i set all `iBaseGrowthThresholdPercent` to 100.
 
@@ -24219,7 +24219,7 @@ AdvCiv's refactor therefore preserved the BtS behavior, and an explicit `GET_TEA
 
 The source remains unchanged apart from a concise warning against repeating this false positive.
 
-This is the direct non-AI counterpart of [KI#311](#ki-311): that earlier historical-archaeology finding was rejected after tracing `CoreAI::getTeam(PlayerTypes)`, while KI#387 concerns the parallel `CvGamePlay::getTeam(PlayerTypes)` overload.
+This is the direct non-AI counterpart of [KI#311](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-311): that earlier historical-archaeology finding was rejected after tracing `CoreAI::getTeam(PlayerTypes)`, while KI#387 concerns the parallel `CvGamePlay::getTeam(PlayerTypes)` overload.
 
 Both convert through `TEAMID(ePlayer)`, illustrating why enum/type findings behind accessor macros must trace the active overload in the caller's include context before promotion.
 

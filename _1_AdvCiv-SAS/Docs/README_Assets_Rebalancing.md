@@ -4,22 +4,22 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 ## Menu
 
-[How to](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#how-to)\
-[Civs' starting techs rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework)\
+[How to](#how-to)\
+[Civs' starting techs rework](#civs-starting-techs-rework)\
 &emsp;[before most recent as of now rework](#before-most-recent-as-of-now-rework)\
 &emsp;&emsp;[main table (chatgpt 5 written) - before change](#main-table-chatgpt-5-written---before-change)\
 &emsp;[after most recent as of now rework](#after-most-recent-as-of-now-rework)\
 &emsp;&emsp;[main table (chatgpt 5 written with some tweaks from me)](#main-table-chatgpt-5-written-with-some-tweaks-from-me)\
 &emsp;&emsp;[Global tech totals](#global-tech-totals)\
 &emsp;&emsp;[Starting pair counts (canonicalized; order-insensitive)](#starting-pair-counts-canonicalized-order-insensitive)\
-[Tech quote swaps rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#tech-quote-swaps-rework)\
-[Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework)\
-[Unit terrain and feature combat modifiers](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#unit-terrain-and-feature-combat-modifiers)\
+[Tech quote swaps rework](#tech-quote-swaps-rework)\
+[Civ-specific buildings rework](#civ-specific-buildings-rework)\
+[Unit terrain and feature combat modifiers](#unit-terrain-and-feature-combat-modifiers)\
 &emsp;[Animals](#animals)\
 &emsp;[Generic units](#generic-units)\
 &emsp;[Civ-specific units](#civ-specific-units)\
-[Civ-specific units rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-units-rework)\
-[Leaders' traits rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework)\
+[Civ-specific units rework](#civ-specific-units-rework)\
+[Leaders' traits rework](#leaders-traits-rework)\
 &emsp;[previous state](#previous-state)\
 &emsp;&emsp;[main table before changes to traits](#main-table-before-changes-to-traits)\
 &emsp;&emsp;[raw traits assignment count](#raw-traits-assignment-count)\
@@ -28,12 +28,12 @@ Some of the asset rebalancing is shown here (not exhaustive)
 &emsp;&emsp;[main table after changes to traits](#main-table-after-changes-to-traits)\
 &emsp;&emsp;[new traits total count](#new-traits-total-count)\
 &emsp;&emsp;[new pairs total count](#new-pairs-total-count)\
-[Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)\
+[Leaders' favourite civics rework](#leaders-favourite-civics-rework)\
 &emsp;[before changes favourite civics per leader](#before-changes-favourite-civics-per-leader)\
 &emsp;[before changes favourite civics count per civic](#before-changes-favourite-civics-count-per-civic)\
 &emsp;[after changes favourite civics per leader](#after-changes-favourite-civics-per-leader)\
 &emsp;[after changes favourite civics count per civic](#after-changes-favourite-civics-count-per-civic)\
-[Leaders' Favourite religions rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-favourite-religions-rework)\
+[Leaders' Favourite religions rework](#leaders-favourite-religions-rework)\
 &emsp;[notes_about_religious_design](#notes_about_religious_design)\
 &emsp;&emsp;[Brennus](#brennus)\
 &emsp;&emsp;[Churchill](#churchill)\
@@ -50,7 +50,7 @@ Some of the asset rebalancing is shown here (not exhaustive)
 
 ## How to
 
-A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table.
+A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-how-to-browse-the-civ4-bug-docs-copy-included-in-the-mod)) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table.
 
 There may be easier ways to do it, but this one is quite effective and worked for me.
 
@@ -446,7 +446,7 @@ Legend: `str` = combat strength; `h` = hammer cost; `mv` = movement; `tech` = re
 
 Note: terrain/feature combat effects are a mostly new, currently optional cross-cutting AdvCiv-SAS system that also affects generic units.
 
-To keep this roster focused on each civ-specific unit's actual gameplay replacement and role, terrain/feature values and their shared reasoning are omitted here; see [Unit terrain and feature combat modifiers](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#unit-terrain-and-feature-combat-modifiers).
+To keep this roster focused on each civ-specific unit's actual gameplay replacement and role, terrain/feature values and their shared reasoning are omitted here; see [Unit terrain and feature combat modifiers](#unit-terrain-and-feature-combat-modifiers).
 
 Exact current values remain visible in XML and Sevopedia Unit.
 
@@ -946,11 +946,11 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate),
 
 | Leader | Base | New | Rationale |
 | --- | --- | --- | --- |
-| Alexander | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Alexander | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Asoka | Buddhism | Keep | |
-| Augustus | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Augustus | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Bismarck | Christianity | Keep | |
-| Boudica | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Boudica | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Brennus | None | Keep | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
 | Catherine | Christianity | Keep | |
 | Charlemagne | Christianity | Keep | |
@@ -963,15 +963,15 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate),
 | Frederick | Christianity | **None** | French and other sources often describe Frederick II as deist/agnostic; his favourite religion is changed from Christianity to None to reflect that more sceptical stance. |
 | Gandhi | Hinduism | Keep | |
 | Genghis Khan | None | **Daoism** | Historically tengrist but showed particular respect for the Quanzhen Daoist master Qiu Chuji; among your available religions, Daoism is the closest fit, and it usefully fills what was previously an empty favourite-religion slot for him. |
-| Gilgamesh | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Gilgamesh | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Grace O'Malley | | **None** | New leader in AdvCiv-SAS; no favourite religion in current XML. |
-| Hammurabi | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Hannibal | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Hatshepsut | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Huayna Capac | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Hammurabi | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
+| Hannibal | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
+| Hatshepsut | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
+| Huayna Capac | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Isabella | Christianity | Keep | |
 | Joao | Christianity | Keep | |
-| Julius Caesar | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Julius Caesar | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Justinian | Christianity | Keep | |
 | Kublai Khan | Buddhism | Keep | |
 | Lincoln | Christianity | **None** | Sources generally paint Lincoln as religiously complex / sceptical rather than a clear Christian partisan; treating him as effectively agnostic and removing his Christian favourite keeps him more neutral. |
@@ -980,18 +980,18 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate),
 | Mao Zedong | None | Keep | |
 | Mehmed | Islam | Keep | |
 | Michael Collins | | **Christianity** | New leader in AdvCiv-SAS; Christianity in current XML. |
-| Moctezuma | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Moctezuma | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Napoleon | Christianity | Keep | |
-| Pacal | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Pacal | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Pericles | None | **Paganism** | Pericles leans heavily on civic religion, festivals and public cult; giving him Paganism as a favourite ties him to the generic "classical city cults" bucket instead of leaving him without any religious preference. |
 | Peter | Christianity | Keep | |
 | Qin Shi Huang | Taoism | **Daoism** | Taoism was renamed Daoism in AdvCiv-SAS. |
-| Ragnar | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Ramesses | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Ragnar | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
+| Ramesses | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Roosevelt | Christianity | Keep | |
 | Saladin | Islam | Keep | |
-| Shaka | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
-| Sitting Bull | None | **Paganism** | Not documented in [notes_about_religious_design](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#notes_about_religious_design). |
+| Shaka | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
+| Sitting Bull | None | **Paganism** | Not documented in [notes_about_religious_design](#notes_about_religious_design). |
 | Stalin | None | Keep | |
 | Suleiman | Islam | Keep | |
 | Suryavarman | Hinduism | Keep | |

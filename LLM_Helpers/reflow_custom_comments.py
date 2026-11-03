@@ -18,7 +18,7 @@ import sys
 import tokenize
 
 DEFAULT_EXTENSIONS = {".cpp", ".h", ".inl", ".py", ".xml"}
-SKIP_DIR_NAMES = {".git", "__pycache__", "_0_Common_Docs", "_SNAPSHOT_CONTEXT", "outputs"}
+SKIP_DIR_NAMES = {".git", "__pycache__", "_0_Legacy", "_SNAPSHOT_CONTEXT", "outputs"}
 SKIP_PATH_PARTS = {
     ("LLM_Helpers", "context"),
     ("_1_AdvCiv-SAS", "Docs", "examples"),

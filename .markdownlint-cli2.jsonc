@@ -5,7 +5,7 @@
   "globs": ["**/*.md"],
   "gitignore": true,
   "ignores": [
-    "_0_Common_Docs/**",
+    "_0_Legacy/**",
     "LLM_Helpers/outputs/**",
     "_1_AdvCiv-SAS/Docs/examples/**",
     "LLM_Helpers/context/commit_diffs/**",

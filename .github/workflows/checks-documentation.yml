@@ -31,6 +31,9 @@ jobs:
       - name: Named example artifact locations
         run: python .github/workflows/build/documentation/example_file_locations.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
+      - name: Documentation image filename policy
+        run: python .github/workflows/build/documentation/image_filename_policy.py
+
       - name: Markdown links and anchors
         run: python .github/workflows/build/documentation/markdown_links.py
 

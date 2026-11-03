@@ -8,19 +8,19 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 [DLL compilation guide (command-line workflow primarily for AI/LLM helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md)\
 [Release preparation/checklist (for user + AI/LLM helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md)\
 [LLM-assisted source analysis](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#llm-assisted-source-analysis)\
-&emsp;[Light-source analysis](#light-source-analysis)\
-&emsp;[Historical source archaeology](#historical-source-archaeology)\
-&emsp;[C++ File Audit Album](#c-file-audit-album)\
+&emsp;[Light-source analysis](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#light-source-analysis)\
+&emsp;[Historical source archaeology](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#historical-source-archaeology)\
+&emsp;[C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#c-file-audit-album)\
 [A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)\
 &emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag)\
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)\
 &emsp;[add media assets](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#add-media-assets)\
-&emsp;[trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video](#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video)\
+&emsp;[trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video)\
 &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas)\
 &emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)\
-&emsp;&emsp;[simple version(s)](#simple-versions)\
-&emsp;&emsp;[More advanced version to also set the date of the tag to last commit and not time of tagging, plus using shell variables so less tedious](#more-advanced-version-to-also-set-the-date-of-the-tag-to-last-commit-and-not-time-of-tagging-plus-using-shell-variables-so-less-tedious)\
-&emsp;&emsp;&emsp;[example with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)](#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well)\
+&emsp;&emsp;[simple version(s)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#simple-versions)\
+&emsp;&emsp;[More advanced version to also set the date of the tag to last commit and not time of tagging, plus using shell variables so less tedious](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#more-advanced-version-to-also-set-the-date-of-the-tag-to-last-commit-and-not-time-of-tagging-plus-using-shell-variables-so-less-tedious)\
+&emsp;&emsp;&emsp;[example with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well)\
 &emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#git-log-with-anonymized-email-in-a-txt)\
 &emsp;[published web release changelogs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#published-web-release-changelogs-in-txt)\
 &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#manuals-and-docs-in-txt)\
@@ -29,14 +29,14 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 [A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)\
 [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)\
 [Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)\
-&emsp;[Locations](#locations)\
-&emsp;[Map types](#map-types)\
-&emsp;[old info](#old-info)\
+&emsp;[Locations](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#locations)\
+&emsp;[Map types](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#map-types)\
+&emsp;[old info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#old-info)\
 [Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)\
-[Python 2.4 compatibility for modding](#python-24-compatibility-for-modding)\
+[Python 2.4 compatibility for modding](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding)\
 [How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)\
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)\
-[Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG_Doc (copy included in our mod))](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)\
+[Another example of how to use VS Code global search (also shows how to browse the Civ4 BUG docs copy included in the mod)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-how-to-browse-the-civ4-bug-docs-copy-included-in-the-mod)\
 [Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-using-regexp-with-chatgpt-5s-help-and-vs-code)\
 [Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)\
 [Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#civ4-processinfos-xml-info)\
@@ -279,7 +279,7 @@ Note 2: since as of now git log text docs are updated incrementally unlike relea
 
 Note 3: it seems that due to this, some commits are not ordered chronologically, for example `24dbe0256ce974067b99f4d545fa8ca23596c344` (2026-04-25 00:18:51 +0200) is part of the AdvCiv-SAS 6020 release batch's changelog, so it is more recent in our git log than the newer `82f042a44f4cd4bbc2b687444356d220b83131c1` 2026-06-04 19:20:56 +0200, but as of now keep it as such for no tedium and clearer/more reliable version boundaries.
 
-For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/Docs/git_logs/](/_1_AdvCiv-SAS/Docs/git_logs/) folders.
+For example, i put thes git log files in the [/_0_Legacy/Docs/git_logs/](/_0_Legacy/Docs/git_logs/) and [/_1_AdvCiv-SAS/Docs/git_logs/](/_1_AdvCiv-SAS/Docs/git_logs/) folders.
 
 ### published web release changelogs in .txt
 
@@ -293,7 +293,7 @@ Routine working drafts/checkpoints do not need to be tracked because the reposit
 
 ### manual(s) and docs in .txt
 
-Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv_Base_Docs](/_0_Common_Docs/AdvCiv_Base_Doc/) in particular the [manual in .txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt)
+Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [base AdvCiv reference docs](/_0_Legacy/Docs/AdvCiv/) in particular the [manual in .txt](/_0_Legacy/Docs/AdvCiv/manual.txt)
 
 When doing a global search with VS Code for anything, as long as this manual.txt for example are in the mods folders (anywhere, this/her is an example, anyways), then i can and may often (not guaranteed but maybe) also find useful information as part of my global search results.
 
@@ -310,7 +310,7 @@ For example while trying to tweak difficulty settings after having added a scrip
 Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt):
 
 ```log
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\AdvCiv\manual.txt
   172,273: To balance out the remaining changes (especially to Free Speech), the threshold for Legendary city culture gets reduced on the low and medium difficulty levels. (On Monarch, the threshold begins to increase, matching the increasing tech costs relevant for Space victory.) 251
   252,229:     • No impact of global research on inflation; instead, adjusted tech costs based on difficulty and the years-per-turn progression for a more historically accurate tech pace, and Immortal and Deity games now start on turn 10. 251, 910
   297,419:     • On Emperor difficulty and above, some of the AI discounts have been reduced, but human civs face increased production costs, research costs, city growth thresholds and Great Person thresholds. The AI also starts with fewer freebies, in particular, without Agriculture on Immortal and Deity and without a second free Settler on Deity. Progres­sive AI bonuses are now based on the game turn instead of the AI era. 251/ 250e
@@ -351,12 +351,12 @@ You can read these docs if you want to know more about AI attributes:
 
 ## A few useful other links
 
-- [Local Python 2.4 compatibility checks and setup](#python-24-compatibility-for-modding), including the official Windows installer link and an example of syntax that modern Python accepts but Civ4 cannot parse.
+- [Local Python 2.4 compatibility checks and setup](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding), including the official Windows installer link and an example of syntax that modern Python accepts but Civ4 cannot parse.
 - many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
 - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
 - [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details.
-  - I have also made a copy of it (this website's content that is helpful) here in advciv-sas, in the file [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example).
-- inspecting an object, see for example, one way i found it to work is using `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!!
+  - I have also made a copy of it (this website's content that is helpful) here in advciv-sas, in the file [all_classes_web.txt](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt), may help us also for global search (with vs code for example).
+- inspecting an object, see for example, one way i found it to work is using `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!!
   - (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it, with the help of Claude AI thanks
 
 ## In case UnitAIs info from link above is deleted someday, here is a copy here in case
@@ -499,7 +499,7 @@ AttributeError: 'CvImprovementInfo' object has no attribute 'isTerrainMakesValid
 ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
 ```
 
-Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
+Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [all_classes_web.txt](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
 
 ## Python 2.4 compatibility for modding
 
@@ -675,14 +675,14 @@ I don't know too much about these but i thought i'd compile (no pun) this info q
 
 To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
 
-## Another example of how to use VS Code global search (also shows an example of how to also browse the CIV4 BUG_Doc (copy included in our mod))
+## Another example of how to use VS Code global search (also shows how to browse the Civ4 BUG docs copy included in the mod)
 
 I call it "global search" but i don't know how it is exactly called, it's the feature that allows you in VS Code to search in your entire opened folder (all files) rather than just the current file (not ctrl+f, but instead the "zoom object looking icon" on left panel as of now in vs code)
 
 result is for example this (you can right click -> "copy" too so no need to rewrite them)
 
 ```txt
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_pythonAPI_AllClasses_html.txt
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\Civ4BUG_Python_API\all_classes_web.txt
   4173,13: BOOL isBonusMakesValid ()
   4232,16: BOOL getFeatureMakesValid (INT i)
   4274,16: BOOL getTerrainMakesValid (INT i)
@@ -1182,8 +1182,8 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully 
 
 Small sample below /example too:
 
-<img src="/_1_AdvCiv-SAS/Images/advisors/0.5000_bTrade_bRepeat.JPG" alt="0.5000_bTrade_bRepeat.JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs%20(1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5000_bTrade_bRepeat.JPG" alt="1.5000_bTrade_bRepeat.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.710_sevopedia_techs%20(1).JPG" alt="1.710_sevopedia_techs (1).JPG" width="250"></img>
 
 This was done by adding a new `buildBTradeString` function in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
 
@@ -1191,7 +1191,7 @@ And with the big help or support for ideas i found myself too of chatgpt thanks
 
 Since i didn't know how to do it, what helped me, with past CvGameTextMgr.cpp modifying experiences i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in Sevopedia unit's experiences in mind, was to search for one message that is displayed seemingly specifically in Sevopedia tech's placeSpecial.
 
-But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in Sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/). While not directly useful, it still helps to know.
+But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in Sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/). While not directly useful, it still helps to know.
 
 The info is in `.isTrade()` method. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how.
 

@@ -29,6 +29,7 @@ MENU_EXEMPT_FILES = {
     ".github/workflows/build/README.md": "short check-folder index",
     ".github/workflows/tests/README.md": "short regression-test introduction",
     "_1_AdvCiv-SAS/Docs/Deprecated/README.md": "single-section migration-reference index",
+    "_1_AdvCiv-SAS/Docs/Sevopedia/README.md": "single-section static development-reference index",
     "_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md": "generated comparison artifact",
 }
 MENU_EXEMPT_PREFIXES = {
@@ -37,7 +38,7 @@ MENU_EXEMPT_PREFIXES = {
     "_1_AdvCiv-SAS/Docs/git_logs/": "historical commit records",
     "_1_AdvCiv-SAS/Docs/revisions/": "append-oriented subsystem revision histories",
 }
-UNMAINTAINED_PREFIXES = ("_0_Common_Docs/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/", ".git/")
+UNMAINTAINED_PREFIXES = ("_0_Legacy/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/", ".git/")
 
 
 def menu_required(document):
@@ -229,10 +230,14 @@ def render_menu(text, known_issues=False, document=None):
             external_after.setdefault(previous, []).append(line)
     prose = [line for line in text[start:end].splitlines() if line.strip() and not list(links.markdown_links(line))]
     rows = prose + ([""] if prose else []) + list(external_after.get("", []))
+    # <!-- custom: New menu entries used to default to #anchor even when the existing entries were /README.md#anchor, which mixed both styles inside README's menu.
+    # Follow the style already used by the menu's existing entries; a newly created menu keeps #anchor.
+    # markdown_links.py rejects a file that mixes the two. (Claude Code Sonnet 5.5) -->
+    absolute_menu = bool(document) and sum(d.startswith("/") for d in destinations.values()) * 2 > len(destinations)
     for _, _, level, title, anchor, _ in body:
         label = title
         prefix = "  " * (level - base_level) + "- " if bullet else "&emsp;" * (level - base_level)
-        destination = destinations.get(anchor, "#" + anchor)
+        destination = destinations.get(anchor, ("/" + document if absolute_menu else "") + "#" + anchor)
         rows.append(f"{prefix}[{label}]({destination})" + ("" if bullet else "\\"))
         rows.extend(external_after.get(anchor, []))
     # <!-- custom: A trailing backslash only forces a hard break before another line.

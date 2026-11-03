@@ -17,7 +17,7 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 &emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)\
 &emsp;[Settings if you want to develop/modify the mod or try some autoplay or such (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-skip-this-section-if-only-playing-without-wanting-extra-details)\
 [Mod Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#mod-version)\
-&emsp;[Version number](#version-number)\
+&emsp;[Version number](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#version-number)\
 &emsp;[Upgrading/Downgrading version of the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#upgradingdowngrading-version-of-the-mod)\
 &emsp;[If you have trouble downloading/installing/using/upgrading/downgrading the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-you-have-trouble-downloadinginstallingusingupgradingdowngrading-the-mod)\
 [Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version)\
@@ -50,7 +50,7 @@ To download the development version, go to the [mod's github main page](https://
 
 (example of how to do it in the screenshot below, click to view it full screen)
 
-<img src="../Images/tools/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
+<img src="../Images/tools/1.250_download-zip-github.png" alt="1.250_download-zip-github.png" width="250"></img>
 
 Note: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version) for details.
 
@@ -80,11 +80,11 @@ For convenience i have also provided a steam shortcut of this same link just abo
 
 Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
 
-<img src="/_1_AdvCiv-SAS/Images/tools/0.260_windows_shortcut.PNG" alt="0.260_windows_shortcut.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.260_windows_shortcut.PNG" alt="1.260_windows_shortcut.PNG" width="250"></img>
 
 If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
 
-<img src="../Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
+<img src="../Images/main_menu/1.300_main_menu_home (1).JPG" alt="1.300_main_menu_home (1).JPG" width="250"></img>
 
 Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
 
@@ -94,7 +94,7 @@ Disclaimer: try at your own risk.
 
 Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not start as usual). I don't know the cause, but empirically i have found that going to Windows Task Manager, right click on civ4 process, kill it, then launch the mod again fixes it.
 
-<img src="../Images/tools/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
+<img src="../Images/tools/1.270_kill_civ4_process.png" alt="1.270_kill_civ4_process.png" width="250"></img>
 
 ## Configure the mod
 

@@ -223,7 +223,7 @@ The root Program Files Civ4 folder is here:
 
 Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, but it is lengthy, grep if needed from there:
 
-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\AdvCiv\manual.txt"
 
 Our AdvCiv-SAS documentation is mostly located here:
 
@@ -231,8 +231,10 @@ Our AdvCiv-SAS documentation is mostly located here:
 - Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 - Screenshots can help development/review by showing what the mod UI/gameplay screens and rendered `SASGameRecord` map text actually look like, not only source/docs.
-  - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `0.291_SASGameRecord_map_text` screenshots are useful review context too.
-  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `0.291_SASGameRecord_map_text` screenshots, Sevopedia, common UI).
+  - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `1.291_SASGameRecord_map_text` screenshots are useful review context too.
+  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `1.291_SASGameRecord_map_text` screenshots, Sevopedia, common UI).
+- Legacy/base-AdvCiv UI references are under `_0_Legacy/Images/` (see its [README](/_0_Legacy/Images/README.md) for naming and provenance): e.g. screenshots of the advisors, Sevopedia, diplomacy and other screens, plus stitched BtS and vanilla Civ4 tech trees from the web.
+  - They can be useful for example to compare how the old layout looked with what AdvCiv-SAS changed or improved, or as a historical/reference comparison.
 
 For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
 
@@ -252,11 +254,11 @@ See also if needed [the corresponding readme section](/LLM_Helpers/README.md#com
 
 When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access without having to guess if a getter is exposed in Python or requires DLL changes; these debug logs are usually our first and preferred source of truth since they are real inspect logs, although they might be slightly outdated if DLL changes were made since then.
 
-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt)).
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner.txt](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt)).
 
 Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
 
-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_pythonAPI_AllClasses_html.txt"
+- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Legacy\Docs\Civ4BUG_Python_API\all_classes_web.txt"
 
 ### Information Fetching online
 
@@ -292,10 +294,11 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 - Give maintained Markdown documents a Menu/Contents section for navigation; the structure checker requires it unless the file/category has a documented exemption. Use `python .github/workflows/build/documentation/markdown_structure.py --refresh-menus` to create or refresh menus, then review the result.
 - Use repository-root links such as `/Assets/XML/GlobalDefines_advciv_sas.xml` for local Markdown destinations; avoid document-relative links such as `../README.md` or `revisions/SASRuntime.md`, which depend on the referring document's location. Moving the referring document then preserves the target; same-page anchors and external URLs are fine.
+  - Keep one style per file for links to its own anchors, either same-page `#anchor` or absolute `/file.md#anchor`, not both; the Markdown link check rejects a file that mixes them.
 - Prefer heading-generated Markdown anchors instead of explicit HTML `<a id="...">` / `<a name="...">` targets; a second naming scheme makes destinations harder to predict and maintain.
   - Numbered `ki-N[.N...]` anchors in `README_Known_Issues.md` are the exception: their short, direct and predictable targets keep issue links stable even when KI heading wording changes.
 
-- For local image embeds, use HTML with an explicit positive pixel width (usually `width="250"`) and alt text equal to the exact filename, including its extension; for example `<img src="/path/0.295_SASRuntime_crash_dump_dialog.PNG" alt="0.295_SASRuntime_crash_dump_dialog.PNG" width="250">`. This keeps image size deliberate and renamed screenshots greppable.
+- For local image embeds, use HTML with an explicit positive pixel width (usually `width="250"`) and alt text equal to the exact filename, including its extension; for example `<img src="/path/1.295_SASRuntime_crash_dump_dialog.PNG" alt="1.295_SASRuntime_crash_dump_dialog.PNG" width="250">`. This keeps image size deliberate and renamed screenshots greppable.
 - For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
 - For long Markdown prose, preserve the wording but prefer semantic structure that also reads clearly in rendered Markdown.
   - Use a blank line for a real new paragraph or thought chunk; a plain source newline normally renders as a space and should be used only when the text is intentionally still one paragraph.

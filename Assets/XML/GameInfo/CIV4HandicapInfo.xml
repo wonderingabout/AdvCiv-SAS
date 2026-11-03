@@ -2,6 +2,11 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- custom: GPT-5.2-Codex: comments about iAIPerEraModifier in Long_Comments_XML.txt #20 -->
 <!-- custom: note: a comparison and synthetic view vs Base AdvCiv 1.12 at each handicap is as of now provided at /_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md -->
 <!-- Handicap Infos -->
@@ -211,7 +216,7 @@
 			Possibly to keep in mind if AI is much smarter as a way to nerf it further perhaps. -->
 			<iAIGrowthPercent>115</iAIGrowthPercent>
 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)."
-			(from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
+			(from \_0_Legacy\Docs\AdvCiv\manual.txt -->
 			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs).
 			So it’s +8 on Warlord, -8 on Prince.
 			This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the "player penalty" side. (ChatGPT 5.2 Thinking) -->

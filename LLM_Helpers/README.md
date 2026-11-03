@@ -120,7 +120,7 @@ Logical-layout helper for AdvCiv-SAS `<!-- custom: ... -->` prose comments in ac
 - Keeps closing metadata such as `See KI#...`, model credits and `Long_Comments_*.txt` references on the final substantive line instead of stranding them.
 - Touches only explicitly marked custom comments. Ordinary inherited/BTS/K-Mod/AdvCiv comments are not candidates.
 - Skips structured lists/layout notes, code-like or assignment-like commented material, malformed/unclosed markers and genuinely ambiguous physical boundaries instead of guessing. Those skips are intended for LLM/manual review when desired.
-- C++ includes `.cpp`, `.h` and `.inl`; Python is `.py`; XML is `.xml`. Reference/history corpora such as `_0_Common_Docs`, `_SNAPSHOT_CONTEXT`, `LLM_Helpers/context`, and generated outputs are excluded.
+- C++ includes `.cpp`, `.h` and `.inl`; Python is `.py`; XML is `.xml`. Reference/history corpora such as `_0_Legacy`, `_SNAPSHOT_CONTEXT`, `LLM_Helpers/context`, and generated outputs are excluded.
 - Python rewrites must preserve the significant token stream; the helper refuses a Python change if its token-safety comparison changes executable code. Original text encoding and line-ending style are preserved.
 - The build workflow runs `--check` automatically and fails if an eligible custom comment needs logical reflow; it reports the affected paths without rewriting source. Structured/ambiguous comments are reported as skips, not failures. Preview with `--diff`, apply selected files locally with `--apply`, and review the diff before committing.
 
@@ -163,7 +163,7 @@ Conservative source-rewrite helper for Python files.
 - Preserves line endings and refuses to write if significant token sequence changes.
 - Safer than `collapse_multiline_brackets.py` for broad cleanup because it does not collapse arbitrary bracketed dictionaries/lists/tables.
 - Still review the diff before committing. The goal is searchability and reviewability, not general formatting.
-- For broad passes, prefer active mod/helper source. Avoid reference/comparison folders such as `_0_Common_Docs` unless the task explicitly needs them.
+- For broad passes, prefer active mod/helper source. Avoid reference/comparison folders such as `_0_Legacy` unless the task explicitly needs them.
 - If the diff starts touching large data tables, comments, fragile indentation, or hard-to-review inherited files, stop and narrow the target set.
 
 Single-file examples:
@@ -1207,7 +1207,7 @@ In short: this script is kept as a historical and practical discovery helper, wh
 
 ### `convert_advciv_manual_to_txt.py`
 
-- Converts the tracked base AdvCiv [`manual.odt`](/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt) into [`manual.txt`](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) for grep, VS Code/global search, LLM ingestion, and other plain-text review.
+- Converts the tracked base AdvCiv [`manual.odt`](/_0_Legacy/Docs/AdvCiv/manual.odt) into [`manual.txt`](/_0_Legacy/Docs/AdvCiv/manual.txt) for grep, VS Code/global search, LLM ingestion, and other plain-text review.
 - Uses only Python 3's standard library: ODT is a ZIP container and the helper reads its `content.xml` directly. Pandoc, LibreOffice, `odt2txt`, and other external converters are not required.
 - Visual fidelity is deliberately not the goal. The helper preserves normal paragraphs/headings, list headers and bullets/nesting, explicit spaces/tabs/line breaks, and simple/nested tables in a compact searchable representation.
 - Refuses to overwrite `manual.txt` if extraction is suspiciously tiny, to reduce the risk of committing a broken conversion.
@@ -1220,7 +1220,7 @@ python ./LLM_Helpers/convert_advciv_manual_to_txt.py
 - After running it, review the generated text and Git diff before committing:
 
 ```bash
-git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
+git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
 ```
 
 - When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
@@ -1360,7 +1360,7 @@ python ./LLM_Helpers/toggle_dev_diagnostics.py off
     - Known generated/log/binary or redundant historical payloads such as copied Git logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded.
       - The `.log` suffix is covered regardless of directory, including SASGameRecord and SASAssertions example captures; their historical payloads are summarized without removing the current example files from the source snapshot.
       - Generated `.build.json` reports are summarized too: volatile timestamps, local paths and captured source state need not be repeated in each historical patch. Changed paths/counts remain searchable; ordinary JSON configuration patches remain included, and the current DLL report is still supplied as snapshot context.
-    - Imported reference documents under `_0_Common_Docs/` and published changelog payloads under current/former `Docs/changelogs_web/` locations are also summarized: changed paths, counts and omission reasons remain in the commit record and path-history index, while the current files remain available under the usual snapshot selection rules.
+    - Imported reference documents under the current `_0_Legacy/Docs/` and former `_0_Common_Docs/` paths, plus published changelog payloads under current/former `Docs/changelogs_web/` locations, are also summarized: changed paths, counts and omission reasons remain in the commit record and path-history index, while the current files remain available under the usual snapshot selection rules.
     - Maintained `README.md`/`readme.txt` indexes and source files in these folders retain their patches; a rename crossing between maintained content and reference/archive content is retained too. Ordinary maintained guides, Known Issues, revision history and helper documentation stay inspectable.
     - Existing-file patches above 10,000 changed lines are also summarized because they are usually rewrites/import churn rather than useful line-by-line history; a genuinely new functional source/config file is exempt from that line threshold (while the byte cap still applies), so e.g. adding a large real XML source file can remain inspectable.
     - Exceptionally huge individual textual patches still use generous byte caps so one file cannot dominate the handoff.
@@ -1399,15 +1399,16 @@ python ./LLM_Helpers/toggle_dev_diagnostics.py off
   - Top-level [CvGameCoreDLL](/CvGameCoreDLL/) files and top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB.
   - The tracked `CvGameCoreDLL/Project/temp_files/.gitkeep` workflow marker; retained Debug-opt compiler intermediates/private symbols are excluded.
   - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS Git log.
+  - [_0_Legacy](/_0_Legacy/), including inherited reference docs and the curated base-AdvCiv UI screenshot set used for before/after or inherited-UI comparison.
   - Full [SASGameRecord examples](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/): the included sample is an unchanged full-game log rather than a selected excerpt, making it reusable for external LLM analysis/review and development reference. Although a level-3 record can occupy tens of megabytes raw, it compresses substantially in the ZIP.
 - Includes selected screenshot folders for LLM/UI/rendered-map-text review:
   - [Advisors](/_1_AdvCiv-SAS/Images/advisors/), [main menu](/_1_AdvCiv-SAS/Images/main_menu/), [Sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/) and [common UI](/_1_AdvCiv-SAS/Images/ui_other/) show the mod's interface for development and review.
   - [Diagnostics](/_1_AdvCiv-SAS/Images/diagnostics/) contains game-generated output, including SGR log/text-map screenshots and runtime failure dialogs.
-  - The `0.291_SASGameRecord_map_text` screenshots help reconstruct the visual/geographical layout that an LLM may miss when reading the raw characters alone.
+  - The `1.291_SASGameRecord_map_text` screenshots help reconstruct the visual/geographical layout that an LLM may miss when reading the raw characters alone.
   - Local agentic tools can inspect these folders directly; external/ZIP-only LLMs depend on the archive contents. Including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
 - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
 - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, `manual.pdf`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
-  - The exact base-AdvCiv `_0_Common_Docs/AdvCiv_Base_Doc/manual.odt` is a deliberate exception: it is the canonical input consumed by `convert_advciv_manual_to_txt.py`, so ZIP-only LLM/code-agent handoffs can regenerate/test the tracked `manual.txt`; other files named `manual.odt` remain skipped.
+  - The exact base-AdvCiv `_0_Legacy/Docs/AdvCiv/manual.odt` is a deliberate exception: it is the canonical input consumed by `convert_advciv_manual_to_txt.py`, so ZIP-only LLM/code-agent handoffs can regenerate/test the tracked `manual.txt`; other files named `manual.odt` remain skipped.
 - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
 - Our local Codex agents currently use Python 2.4 installed on our Windows machine, while external web ChatGPT currently runs in a Linux environment without that installation. A separately supplied Linux package lets it check Civ4 source too; other compatible external tools can use it as well.
   - The shared [`python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) repository builds and publishes it centrally, so each mod does not maintain another runtime copy.
@@ -1584,7 +1585,7 @@ Finished:  2026-10-27T15:02:35.841Z
 
 The example took about 5 minutes 20 seconds, mostly preparing historical context; the ZIP write itself took about 10 seconds. It completed successfully.
 
-The [later cached run](/LLM_Helpers/README.md#cached-run-example) took 18.355 seconds once the new-policy cache existed. These are observed examples, not a promise that every rebuild takes five minutes or every cached archive takes 15-20 seconds; source content, hardware and local conditions affect the timings.
+The [later cached run](#cached-run-example) took 18.355 seconds once the new-policy cache existed. These are observed examples, not a promise that every rebuild takes five minutes or every cached archive takes 15-20 seconds; source content, hardware and local conditions affect the timings.
 
 #### Notes (light_source ZIP)
 

@@ -23,12 +23,12 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
         return light.should_summarize_historical_patch(label, len(chunk.encode()), chunk)
 
     def test_reference_payloads_in_current_and_former_paths(self):
-        for path in ('_0_Common_Docs/BBAI_Doc/efficiency notes.txt', '_0_Common_Docs/BUG_Doc/Help.chm', '_1_AdvCiv-SAS/Docs/changelogs_web/5500.md', '_1_AdvCiv-SAS/Docs/Modding_Ressources/changelogs_web/5500.txt'):
+        for path in ('_0_Common_Docs/BBAI_Doc/efficiency notes.txt', '_0_Legacy/Docs/BBAI/efficiency notes.txt', '_0_Legacy/Docs/BUG/Help.chm', '_1_AdvCiv-SAS/Docs/changelogs_web/5500.md', '_1_AdvCiv-SAS/Docs/Modding_Ressources/changelogs_web/5500.txt'):
             with self.subTest(path=path):
                 self.assertEqual(self.summarize(path), (True, 'imported-reference/archive-document', 2))
 
     def test_indexes_source_and_maintained_docs_keep_patches(self):
-        for path in ('_0_Common_Docs/README.md', '_0_Common_Docs/BBAI_Doc/readme.txt', '_0_Common_Docs/BUG_Doc/CvAltRoot.py', '_1_AdvCiv-SAS/Docs/changelogs_web/README.md', '_1_AdvCiv-SAS/Docs/Modding_Ressources/changelogs_web/README.md', '_1_AdvCiv-SAS/Docs/README_Known_Issues.md', '_1_AdvCiv-SAS/Docs/README_SASGameRecord_Revisions.md', 'LLM_Helpers/README.md'):
+        for path in ('_0_Legacy/README.md', '_0_Legacy/Docs/BBAI/readme.txt', '_0_Legacy/Docs/BUG/CvAltRoot.py', '_1_AdvCiv-SAS/Docs/changelogs_web/README.md', '_1_AdvCiv-SAS/Docs/Modding_Ressources/changelogs_web/README.md', '_1_AdvCiv-SAS/Docs/README_Known_Issues.md', '_1_AdvCiv-SAS/Docs/README_SASGameRecord_Revisions.md', 'LLM_Helpers/README.md'):
             with self.subTest(path=path):
                 self.assertFalse(self.summarize(path)[0])
 
@@ -63,10 +63,10 @@ class ReferenceHistoryFilteringTests(unittest.TestCase):
             git('config', 'commit.gpgsign', 'false')
             git('config', 'core.autocrlf', 'false')
             files = {
-                '_0_Common_Docs/BBAI_Doc/efficiency notes.txt': 'IMPORTED_REFERENCE_PAYLOAD\n',
+                '_0_Legacy/Docs/BBAI/efficiency notes.txt': 'IMPORTED_REFERENCE_PAYLOAD\n',
                 '_1_AdvCiv-SAS/Docs/changelogs_web/5500.md': 'PUBLISHED_ARCHIVE_PAYLOAD\n',
                 '_1_AdvCiv-SAS/Docs/changelogs_web/README.md': '# Maintained index\n',
-                '_0_Common_Docs/BUG_Doc/CvAltRoot.py': 'value = 1\n',
+                '_0_Legacy/Docs/BUG/CvAltRoot.py': 'value = 1\n',
                 '_1_AdvCiv-SAS/Docs/guide.md': '# Maintained guide\n',
                 'Assets/CvGameCoreDLL.dll.build.json': '{"generated":"BUILD_REPORT_PAYLOAD"}\n',
                 'Assets/Config/settings.json': '{"enabled":true}\n',

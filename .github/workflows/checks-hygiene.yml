@@ -33,3 +33,6 @@ jobs:
 
       - name: Text line endings
         run: python .github/workflows/build/hygiene/line_endings.py
+
+      - name: Text control characters
+        run: python .github/workflows/build/hygiene/control_characters.py

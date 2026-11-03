@@ -895,7 +895,7 @@ Both were reproduced on **2026-10-26** by pressing **Ctrl+S in VS Code on `SevoP
 
 This screenshot shows the in-game dialog corresponding to `CIV4_CRASH_DUMP_PROMPT` in the JSON capture below.
 
-<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.295_SASRuntime_crash_dump_dialog.PNG" alt="0.295_SASRuntime_crash_dump_dialog.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/1.295_SASRuntime_crash_dump_dialog.PNG" alt="1.295_SASRuntime_crash_dump_dialog.PNG" width="250"></img>
 
 This dump-prompt capture used `[DEBUG] generatecrashdumps = 1` in the user's `CivilizationIV.ini`, matching the existing [dump-generation instructions](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md). SAS runtime observation does not enable that setting or request a dump.
 
@@ -935,7 +935,7 @@ Here, `WAITING` means the process has not exited, while `failureDialog.visible=t
 
 This screenshot shows the in-game dialog corresponding to `MSVC_RUNTIME_ERROR` in the JSON capture below.
 
-<img src="/_1_AdvCiv-SAS/Images/diagnostics/0.296_SASRuntime_cpp_runtime_error.PNG" alt="0.296_SASRuntime_cpp_runtime_error.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/diagnostics/1.296_SASRuntime_cpp_runtime_error.PNG" alt="1.296_SASRuntime_cpp_runtime_error.PNG" width="250"></img>
 
 In a fresh run using the same Ctrl+S reproduction, the Microsoft Visual C++ Runtime Library dialog appeared on the first attempt, and the external observer recorded it before OK was pressed. These observations do not identify the internal fault or imply that every unchanged-file save produces the same failure.
 
@@ -2182,7 +2182,7 @@ building:Art/Structures/Buildings/Levee/Levee.nif does not contain a node called
 - [Inherited-log row formatter](/CvGameCoreDLL/CvGameCoreUtils.cpp), [XML log producer](/CvGameCoreDLL/CvXMLLoadUtility.cpp) and [XML setup/cache producers](/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp).
 - [StatusDump event manager](/Assets/Python/Contrib/StatusDumpEventManager.py), [older StatusDump helper](/Assets/Python/Contrib/StatusDump.py), [StatusDump config](/Assets/Config/StatusDump.xml).
 - [Starting-position iteration](/CvGameCoreDLL/StartingPositionIteration.cpp), [internal profiler](/CvGameCoreDLL/FProfiler.cpp), [TSC profiler](/CvGameCoreDLL/TSCProfiler.cpp).
-- [Inherited AdvCiv manual](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt), especially message-control logging and multiplayer debugging.
+- [Inherited AdvCiv manual](/_0_Legacy/Docs/AdvCiv/manual.txt), especially message-control logging and multiplayer debugging.
 
 ### Historical / external provenance
 

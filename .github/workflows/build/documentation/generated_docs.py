@@ -23,7 +23,7 @@ import convert_advciv_manual_to_txt as manual
 BASELINE = Path("_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_baseline.xml")
 REPORT = Path("_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md")
 HANDICAP = Path("Assets/XML/GameInfo/CIV4HandicapInfo.xml")
-MANUAL = Path("_0_Common_Docs/AdvCiv_Base_Doc")
+MANUAL = Path("_0_Legacy/Docs/AdvCiv")
 
 @dataclass(frozen=True)
 class TextConversion:

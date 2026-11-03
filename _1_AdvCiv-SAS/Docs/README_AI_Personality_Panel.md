@@ -17,7 +17,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 [General Aim of the AI Attributes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#general-aim-of-the-ai-attributes)\
 &emsp;[how to enable/disable emoji buttons in Sevopedia leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)\
 [Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#where-and-how-to-find-the-abbreviations-in-label-in-the-ai-personality-panels-meaning)\
-&emsp;[how to show keys or suffixes instead of abbreviated custom labels](#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels)\
+&emsp;[how to show keys or suffixes instead of abbreviated custom labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels)\
 [Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#normalization-to-100-in-advciv-sas-anyways-and-leaders-scoreranking)\
 [As a player (i.e. only if you want to play), what you need to know and do](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#as-a-player-ie-only-if-you-want-to-play-what-you-need-to-know-and-do)\
 [Displaying the AI attributes in the AI Personality Panel and how to read the tables/panels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels)\
@@ -41,9 +41,9 @@ The ai attributes (simply) aim to and display:
 
 Here is an example below of how it looks ingame in the Sevopedia leader category:
 
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
-<img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (1).JPG" alt="1.620_sevopedia_leaders (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (2).JPG" alt="1.620_sevopedia_leaders (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.620_sevopedia_leaders (3).JPG" alt="1.620_sevopedia_leaders (3).JPG" width="250"></img>
 
 More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
 
@@ -53,7 +53,7 @@ You can enable/disable emojis in [GlobalDefines_advciv_sas.xml](/Assets/XML/Glob
 
 Here is how it would look like without emojis for example:
 
-<img src="../Images/sevopedia/0.621_sevopedia_leaders_no_emoji.JPG" alt="0.621_sevopedia_leaders_no_emoji.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.621_sevopedia_leaders_no_emoji.JPG" alt="1.621_sevopedia_leaders_no_emoji.JPG" width="250"></img>
 
 ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
 
@@ -65,7 +65,7 @@ Similarly to how was done for emoji images, there is also a tunable/knob in [Glo
 
 Here is an example below of it would look like with this set to `True`:
 
-<img src="../Images/sevopedia/0.622_sevopedia_leaders_labels_as_keys.JPG" alt="0.622_sevopedia_leaders_labels_as_keys.JPG" width="250"></img>
+<img src="../Images/sevopedia/1.622_sevopedia_leaders_labels_as_keys.JPG" alt="1.622_sevopedia_leaders_labels_as_keys.JPG" width="250"></img>
 
 ## Normalization (to 100 in AdvCiv-SAS anyways) and leader(s) score/ranking
 
@@ -90,7 +90,7 @@ If you want to know the code though, it is in Sevopedia Leader py file, [/Assets
 
 Finally, the last main point to know regarding this AI personality panel is the display. We separate ai attributes by categories such as "War Strategy", "Core Personality", etc for easier read and clarity or other things etc. There are currently 3 panels, containing each:
 
-<img src="../Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG" alt="0.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.806_sevopedia_mods_info_legend (2).JPG" alt="1.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
 
 - first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier.
   - This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes.

@@ -18,9 +18,9 @@ ROOT = Path(__file__).resolve().parents[4]
 LIMIT_ONE = {".ini", ".cfg", ".toml", ".yml", ".yaml", ".json", ".jsonc", ".txt"}
 LIMIT_TWO = {".inl", ".rc", ".ps1", ".sh", ".bat", ".cmd", ".mk", ".mak", ".def"}
 IGNORED_PREFIXES = (
-    "_0_Common_Docs/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/",
+    "_0_Legacy/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/",
     "_1_AdvCiv-SAS/Docs/examples/", "_1_AdvCiv-SAS/Docs/git_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/",
-    "Assets/Art/", "Assets/Python/Contrib/Sevopedia/Debug/", "CvGameCoreDLL/Project/temp_files/",
+    "Assets/Art/", "_1_AdvCiv-SAS/Docs/Sevopedia/Debug/", "CvGameCoreDLL/Project/temp_files/",
 )
 HISTORICAL_FILES = {
     "_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt",

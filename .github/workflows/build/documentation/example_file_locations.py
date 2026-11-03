@@ -26,7 +26,7 @@ def placement_errors(paths):
         if "_example" not in path.name.lower():
             continue
         # <!-- custom: Imported/generated context is not maintained capture output; executable test modules can name the examples they validate without themselves being example artifacts. (GPT-6.1-Sol) -->
-        if value.startswith(("_0_Common_Docs/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/")):
+        if value.startswith(("_0_Legacy/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/")):
             continue
         if value.startswith((".github/workflows/tests/", "tests/")) and path.name.startswith("test_"):
             continue

@@ -223,4 +223,4 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
 	# 		</DiplomacyMusicWar>
 	#
 	# and we have reached end of a leader info's xml, hopefully we parsed all we needed -->
-	# <!-- custom: see as of now _sevopedia_debuggers_Leader.txt for example of output. -->
+	# <!-- custom: see as of now `_1_AdvCiv-SAS/Docs/Sevopedia/Debug/_sevopedia_debuggers_Leader.txt` for example of output. (Claude Code Sonnet 5.5) -->

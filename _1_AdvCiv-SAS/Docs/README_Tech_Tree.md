@@ -17,7 +17,7 @@ If any images below in this readme mention a google drive link, you can access i
 
 ## Current Tech Tree ingame
 
-<img src="../Images/advisors/0.5160_tech_tree_merged.png" alt="0.5160_tech_tree_merged.png" width="250"></img>
+<img src="../Images/advisors/1.5160_tech_tree_merged.png" alt="1.5160_tech_tree_merged.png" width="250"></img>
 
 ## Additional info about the tech tree
 

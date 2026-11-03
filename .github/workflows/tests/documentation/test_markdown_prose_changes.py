@@ -76,7 +76,7 @@ class MarkdownProseChangesTests(unittest.TestCase):
         self.assertEqual(checker.findings("README.md", "", children), [])
 
     def test_reference_scope_and_new_markdown_locations(self):
-        for path in ("_0_Common_Docs/copied.md", "LLM_Helpers/context/copied.md", "_1_AdvCiv-SAS/Docs/changelogs_web/6600.md"):
+        for path in ("_0_Legacy/copied.md", "LLM_Helpers/context/copied.md", "_1_AdvCiv-SAS/Docs/changelogs_web/6600.md"):
             self.assertEqual(checker.findings(path, "", LONG), [])
         self.assertTrue(checker.findings("NewFolder/new.md", "", LONG))
 
@@ -101,14 +101,14 @@ class MarkdownProseChangesTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="sas-md-lists-") as folder:
             repo = Path(folder)
             subprocess.run(["git", "init", "-q", str(repo)], check=True)
-            path = repo / "_0_Common_Docs/example.md"
+            path = repo / "_0_Legacy/example.md"
             path.parent.mkdir()
             path.write_text("Example:\n\t- First.\n\t- Second.\n", encoding="utf-8")
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
             subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "Baseline"], check=True)
             errors, count = checker.check(repo, "HEAD", "local")
             self.assertEqual(count, 0)
-            self.assertTrue(any("_0_Common_Docs/example.md:2: indented list" in error for error in errors))
+            self.assertTrue(any("_0_Legacy/example.md:2: indented list" in error for error in errors))
             path.write_text("Example:\n\n- First.\n- Second.\n", encoding="utf-8")
             self.assertEqual(checker.check(repo, "HEAD", "local")[0], [])
 

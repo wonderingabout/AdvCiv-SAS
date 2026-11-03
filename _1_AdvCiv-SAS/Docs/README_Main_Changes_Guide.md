@@ -24,30 +24,30 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 
 [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)\
 [Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)\
-&emsp;[Deprecated references](#deprecated-references)\
+&emsp;[Deprecated references](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#deprecated-references)\
 &emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)\
 &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)\
 &emsp;[Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion)\
 &emsp;[Tooling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#tooling)\
-&emsp;&emsp;[Build](#build)\
-&emsp;&emsp;[Helpers](#helpers)\
-&emsp;&emsp;[Local tests](#local-tests)\
-&emsp;&emsp;[CI](#ci)\
-&emsp;&emsp;[Light-source ZIP](#light-source-zip)\
-&emsp;&emsp;[Repository](#repository)\
+&emsp;&emsp;[Build](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#build)\
+&emsp;&emsp;[Helpers](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#helpers)\
+&emsp;&emsp;[Local tests](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#local-tests)\
+&emsp;&emsp;[CI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci)\
+&emsp;&emsp;[Light-source ZIP](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#light-source-zip)\
+&emsp;&emsp;[Repository](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#repository)\
 &emsp;[System - Misc](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#system---misc)\
 &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)\
 &emsp;[Logging](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging)\
-&emsp;&emsp;[Logging inventory](#logging-inventory)\
-&emsp;&emsp;[Runtime status and history](#runtime-status-and-history)\
-&emsp;&emsp;[SAS assertion diagnostics](#sas-assertion-diagnostics)\
-&emsp;&emsp;[Python and engine diagnostic logs](#python-and-engine-diagnostic-logs)\
+&emsp;&emsp;[Logging inventory](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-inventory)\
+&emsp;&emsp;[Runtime status and history](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history)\
+&emsp;&emsp;[SAS assertion diagnostics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sas-assertion-diagnostics)\
+&emsp;&emsp;[Python and engine diagnostic logs](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#python-and-engine-diagnostic-logs)\
 &emsp;&emsp;[Logging (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-common)\
 &emsp;&emsp;[BBAI log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log)\
 &emsp;&emsp;[SASGameRecord log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log)\
 &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)\
 [AI](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ai)\
-&emsp;[AI — General behaviour](#ai--general-behaviour)\
+&emsp;[AI — General behaviour](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ai--general-behaviour)\
 &emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes-ai)\
 &emsp;&emsp;[Victories (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#victories-ai)\
 &emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bonuses-ai)\
@@ -200,7 +200,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - (Requires AdvCiv-SAS 6680+) `sourceProvenance` and `sourceProvenanceAfter` additionally capture the local default-branch/merge-base relation and separate staged/unstaged runtime-code/rules patches at build start/end, including per-file patch byte counts and SHA-256.
     - This is especially useful for PR/reproducer work that later rebases or squashes: the report retains both the exact build HEAD and how that HEAD related to the locally known default branch when the build ran. No fetch is performed.
   - (Requires AdvCiv-SAS 6690+) Reports/logs record selected compiler/linker executable versions and available caller/IDE ancestry separately, so a VS2010-launched build using VC2003 is distinguishable from its IDE version. Missing caller/tool evidence is explicit.
-  - Full compiler logs stay local and ordinary build outputs remain Git-ignored; see [DLL shipping checks](#ci) for committed Release DLL/JSON requirements.
+  - Full compiler logs stay local and ordinary build outputs remain Git-ignored; see [DLL shipping checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci) for committed Release DLL/JSON requirements.
   - Build reports are development tooling: Civ4 does not read them, so they add no gameplay changes or in-game cost. The separately embedded build provenance described under SASGameRecord remains available to enabled diagnostics.
   - See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports) and its [real build-output example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#example-build-output).
 - (Requires AdvCiv-SAS 6366+) **Lower-CPU Debug-opt compilation:**
@@ -295,7 +295,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - (Requires AdvCiv-SAS 6605+) Immediate pre-edit HEAD/index reference files support direct review of partially staged work, while cache-reuse and regeneration progress messages make source packaging easier to follow during long first-time runs.
   - (Requires AdvCiv-SAS 6605+) Omitted DLLs still have exact byte-identity and size-change context, letting source-only reviewers distinguish identical versus changed binaries without adding the binaries to the archive.
   - This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, broad art assets folder), when sharing compact mod context with local tools or LLMs. Some image folders are included too because advisors, Sevopedia, main menu, common UI, and rendered `SASGameRecord` map text are very useful for LLM development/review and help show what the mod actually looks like.
-  - The `0.291_SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily.
+  - The `1.291_SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily.
   - Local agentic tools like Codex can inspect these screenshots directly, while external/ZIP-only LLMs like ChatGPT can only use them if the archive includes them; adding every image folder would currently add 50+ MB and roughly double the archive.
 - (Requires AdvCiv-SAS 6596+) **More compact generated commit-history context:**
   - imported reference documents and archived published changelog copies now retain change summaries and path-history navigation without duplicating their full patches in generated `commit_diffs/`.
@@ -645,7 +645,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
       2026-10-20T08:16:29.114Z record=SCREEN_TURNED_ON screenId=99 screenType=CvScreenEnums.MAIN_INTERFACE
       ```
 
-  - `SCREEN_OFF` identifies the previous screen, while `WB_BRUSH_SELECTED` identifies the brush mode. Screen names come from `CvScreenEnums.py`, including Sevopedia IDs moved from `SevoScreenEnums.py`; the lookup distinguishes vanilla Civilopedia and Sevopedia pages where IDs overlap. See [Code/Performance optimizations](#codeperformance-optimizations) for the consolidation.
+  - `SCREEN_OFF` identifies the previous screen, while `WB_BRUSH_SELECTED` identifies the brush mode. Screen names come from `CvScreenEnums.py`, including Sevopedia IDs moved from `SevoScreenEnums.py`; the lookup distinguishes vanilla Civilopedia and Sevopedia pages where IDs overlap.
+    - See [Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations) for the consolidation.
   - Font initialization identifies religion/holy-city glyphs with XML types and character codes. Victory-screen `VICTORY_SCREEN_*` records replace bare vote numbers, `votesource` and `secgen` with vote definitions, required votes, predicted support and the candidate's own votes; these describe display diagnostics, not player election choices.
   - Diplomacy debug messages, mod-network/game-end callbacks and Sevopedia initialization notices use the same convention. Existing debug gates remain in place; labelling these messages adds no game-state lookups.
   - (Requires AdvCiv-SAS 6653+) Component initialization, player-alive changes, autoplay termination/control return and WorldBuilder save/read/apply stages also use structured records. For example, `WBSave done` becomes `record=WB_SAVE_END outcome=SUCCEEDED`, and `Reading teams desc` becomes `record=WB_READ_SECTION section=TEAMS`.
@@ -2246,7 +2247,7 @@ It gives each possible rival a UWAI war drive: an overall estimate of how advant
 
 Assuming the calculation is correct and reliable, the higher the drive, the more willing the AI is to prepare an attack against that rival.
 
-- Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-36)** and **[Civilian Units](#civilian-units)**.
+- Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-36)** and **[Civilian Units](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#civilian-units)**.
 - Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
 - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps.
   - Goal: fewer wandering/baited units; more decisive stacks.

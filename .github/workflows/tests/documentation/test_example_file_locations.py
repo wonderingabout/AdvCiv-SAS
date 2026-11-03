@@ -24,7 +24,7 @@ class ExampleFileLocationTests(unittest.TestCase):
         self.assertEqual(checker.placement_errors([
             "_1_AdvCiv-SAS/Docs/examples/light_source/packaging_refresh_example.txt",
             "_1_AdvCiv-SAS/Docs/examples/source_comparison/source_example.py",
-            "_1_AdvCiv-SAS/Images/diagnostics/0.290_SASGameRecord_log_vs_code.PNG",
+            "_1_AdvCiv-SAS/Images/diagnostics/1.290_SASGameRecord_log_vs_code.PNG",
         ]), [])
         self.assertTrue(checker.placement_errors(["_1_AdvCiv-SAS/Images/report_example.txt"]))
 
@@ -38,7 +38,7 @@ class ExampleFileLocationTests(unittest.TestCase):
 
     def test_imports_generated_outputs_and_test_modules_are_not_captures(self):
         self.assertEqual(checker.placement_errors([
-            "_0_Common_Docs/import_example.txt", "LLM_Helpers/context/import_example.py",
+            "_0_Legacy/import_example.txt", "LLM_Helpers/context/import_example.py",
             "LLM_Helpers/outputs/run_example.json", ".github/workflows/tests/repository/test_examples_archive_size.py",
             ".github/workflows/tests/documentation/test_example_file_locations.py",
         ]), [])

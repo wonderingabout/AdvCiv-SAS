@@ -43,7 +43,8 @@ ROOT_SUBDIRS = (
     "PrivateMaps",
     ".claude",
     ".github",
-    "_0_Common_Docs",
+    # <!-- custom: Keep inherited docs plus the curated base-AdvCiv UI reference screenshots in external review archives. (ChatGPT-5.6-Sol) -->
+    "_0_Legacy",
     "LLM_Helpers",
     # <!-- custom: Local platform-specific test sources moved out of LLM_Helpers; keep them in review archives so external agents can inspect the writer harness and its requirements. (GPT-6.1-Sol) -->
     "tests",
@@ -117,7 +118,9 @@ COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS = (
 # <!-- custom: Imported manuals/reference documents and published changelog copies remain available in the current snapshot; summarize their historical payloads while retaining changed paths/counts and maintained README indexes.
 # Keep code files in reference folders inspectable too. (GPT-6.1-Sol) -->
 COMMIT_DIFF_REFERENCE_DOCUMENT_DIRS = (
+    # <!-- custom: Keep the former path too so historical pre-rename imported-reference commits remain compact. (ChatGPT-5.6-Sol) -->
     "_0_common_docs/",
+    "_0_legacy/docs/",
     "_1_advciv-sas/docs/changelogs_web/",
     "_1_advciv-sas/docs/modding_ressources/changelogs_web/",
 )
@@ -161,8 +164,8 @@ GENERATED_PENDING_UPSTREAM_REFS_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/UPSTRE
 # Auto-detect ordinary release-style remote refs while deliberately ignoring topic/experimental
 # branches. Explicit --upstream-ref remains the escape hatch if upstream naming ever changes.
 UPSTREAM_RELEASE_REF_RE = re.compile(r"^upstream/(?:(?:v)|(?:release[-/]))?(\d+)\.(\d+)(?:\.(\d+))?$", re.IGNORECASE)
-TRACKED_KMOD_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt"
-TRACKED_BASE_ADVCIV_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt"
+TRACKED_KMOD_GIT_LOG = "_0_Legacy/Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt"
+TRACKED_BASE_ADVCIV_GIT_LOG = "_0_Legacy/Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt"
 TRACKED_ADVCIV_SAS_GIT_LOG = "_1_AdvCiv-SAS/Docs/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt"
 HISTORY_SEGMENTS = (
     ("KMod", "K-Mod history", TRACKED_KMOD_GIT_LOG),
@@ -203,7 +206,7 @@ SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
 
 # <!-- custom: Keep this one binary office document in the light ZIP because convert_advciv_manual_to_txt.py consumes it directly; do not broaden this into general ODT inclusion. (ChatGPT-5.6-Sol) -->
 LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS = (
-    "_0_Common_Docs/AdvCiv_Base_Doc/manual.odt",
+    "_0_Legacy/Docs/AdvCiv/manual.odt",
     # <!-- custom: Include the shipped DLL build evidence even though Assets root and local build-output folders are outside ordinary source selection; DLL binaries remain excluded. (GPT-6.1-Sol) -->
     "Assets/CvGameCoreDLL.dll.build.json",
     # <!-- custom: Runtime exit observation is a shipped PowerShell companion beside the DLL, outside the ordinary Assets source subfolders; external reviewers need its implementation too. (GPT-6.1-Sol) -->

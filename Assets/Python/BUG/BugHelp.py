@@ -86,7 +86,7 @@ def _SAS_findBugDocFile(name):
 
 		# <!-- custom: 3) AdvCiv/BtS already knows the actual loaded mod directory. Use BugPath's detected directory instead of hardcoding or reconstructing the folder name from the branded display name, so renamed installs keep working. (ChatGPT-5.6-Sol) -->
 		try:
-			addTry(os.path.join(BugPath.getModDir(), "_0_Common_Docs", "BUG_Doc", name))
+			addTry(os.path.join(BugPath.getModDir(), "_0_Legacy", "Docs", "BUG", name))
 		except:
 			pass
 		# Decide

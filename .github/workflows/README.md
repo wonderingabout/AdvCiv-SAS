@@ -35,9 +35,11 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Hygiene](#hygiene)
     - [`build/hygiene/line_endings.py`](#buildhygieneline_endingspy)
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
+    - [`build/hygiene/control_characters.py`](#buildhygienecontrol_characterspy)
     - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
   - [Documentation](#documentation)
     - [`build/documentation/example_file_locations.py`](#builddocumentationexample_file_locationspy)
+    - [`build/documentation/image_filename_policy.py`](#builddocumentationimage_filename_policypy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
     - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
@@ -419,6 +421,19 @@ python .github/workflows/build/hygiene/text_blank_lines.py --all
 python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 ```
 
+#### `build/hygiene/control_characters.py`
+
+Rejects stray control characters (NUL, BEL and other C0 control bytes except tab, line feed, carriage return and form feed, plus DEL) in tracked and untracked text-format files.
+
+- It reports the file, line and a readable escape of the surrounding text.
+- Binary formats such as `.lnk`, `.ani` and `.chm` legitimately contain such bytes and are not scanned.
+
+- While documenting new legacy image names, text written through a PowerShell double-quoted string had `` `0 `` become a NUL byte in `AGENTS.md` (`0.610_tech_tree_...`, `0.611_tech_tree_...`) and `` `a `` become a BEL byte in this README (`` `advisors` ``).
+  - Markdown structure, prose and line-ending checks passed; VS Code only showed red NUL markers.
+  - A repository-wide scan found no other text file affected; this check keeps it that way.
+- PowerShell double-quoted strings also silently drop a backtick before most other characters (`` `_web` `` became `_web`).
+  - Prefer single-quoted strings or here-strings when generating Markdown with backticks.
+
 #### `build/hygiene/repository_hygiene.py`
 
 Rejects UTF-8, UTF-16 and UTF-32 BOM signatures in Git-tracked files, including inherited references. Visual Studio `.sln` and `.vcxproj` files may retain UTF-8 BOMs for launcher compatibility; UTF-16/32 BOMs remain rejected everywhere.
@@ -446,6 +461,17 @@ For example, `LLM_Helpers/output_example.txt` fails while `Docs/examples/light_s
 Normal runs use added/changed/renamed paths from the push/PR comparison, including untracked local draft files. Missing comparison history, checker changes or `--all` select a full current-path audit. Only filenames/locations are checked; payloads are not opened.
 
 The initial inventory found three screenshots using `_example`; their names and image links were updated to keep the marker specific to textual examples. Existing textual captures already occupied the intended examples hierarchy.
+
+#### `build/documentation/image_filename_policy.py`
+
+Keeps maintained documentation/reference image filenames unambiguous across [`_0_Legacy/Images/`](/_0_Legacy/Images/) and [`_1_AdvCiv-SAS/Images/`](/_1_AdvCiv-SAS/Images/). The check is intentionally limited to these documentation trees rather than gameplay art, where inherited assets can legitimately reuse basenames.
+
+- Legacy/base-reference screenshots use the `0.x` namespace; numbered current AdvCiv-SAS images use `1.x`. Descriptive unnumbered SAS images remain valid when a numbered series is not useful.
+- Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
+- `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
+- The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
+
+The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
 
 #### `build/documentation/sas_source_guide.py`
 
@@ -509,7 +535,7 @@ Verifies every repository-local file or directory referenced by a Markdown link 
 
 It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`.
 
-Repository-root paths and paths relative to each Markdown file are both supported.
+Local links must use repository-root paths beginning with `/` (for example `/_1_AdvCiv-SAS/Docs/README_Known_Issues.md`); document-relative links such as `../README.md` are rejected so moving a Markdown file does not silently retarget them. Same-page anchors and external URLs remain valid.
 
 It also verifies the continuous Known Issues ledger and its standardized `KI#number` schema. Every integer through the highest body entry or stable `F### / provisional KI#number` assignment in the C++ File Audit Album must have an explicit Fixed, Pending, Merged, Rejected or Retired entry; the menu and body identifier sets must match without duplicates; and every entry uses a stable short `#ki-number` anchor.
 
