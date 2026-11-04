@@ -1091,7 +1091,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#933 - (Fixed inherited BtS invalidation defect) Oasis removal left fresh-water state stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-933)\
 [KI#934 - (Provisional Pending AdvCiv-SAS promotion-field mismatch) Air Bomber city bombard bonus uses the wrong mechanic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-934)\
 [KI#935 - (Provisional Pending inherited AdvC True Starts cardinality defect amplified by SAS) Civilization uniqueness exhausts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-935)\
-[KI#936 - (Provisional Pending AdvCiv-SAS True Starts data omission) Ireland and Benin cannot be selected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-936)\
+[KI#936 - (Fixed AdvCiv-SAS True Starts data omission) Ireland and Benin lacked companion data](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-936)\
 [KI#937 - (Provisional Pending inherited AdvC True Starts sign defect) Americas longitude cutoff is reversed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-937)\
 [KI#938 - (Provisional Pending inherited AdvC True Starts fallback defect) Candidate vectors retain duplicates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-938)\
 [KI#939 - (Provisional Pending inherited AdvC True Starts enum defect) Every snow plot can become northernmost taiga](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-939)\
@@ -34795,11 +34795,31 @@ Found as F613 during ChatGPT-5.6-Sol's C031-WIP439 audit; reconciled into Known 
 
 <a id="ki-936"></a>
 
-## KI#936 - (Provisional Pending AdvCiv-SAS True Starts data omission) Ireland and Benin cannot be selected
+## KI#936 - (Fixed AdvCiv-SAS True Starts data omission) Ireland and Benin lacked companion data
 
-Ireland and Kingdom of Benin are playable SAS civilizations but have no `CIV4TruCivInfos.xml` records. Random civilization selection with True Starts can therefore never choose either, and fixed selections also enter unsafe missing-data paths.
+Ireland and Kingdom of Benin were added to SAS without `CIV4TruCivInfos.xml` records, and their three SAS leaders (Ewuare, Grace O'Malley and Michael Collins) likewise had no `CIV4TruLeaderInfos.xml` records.
 
-Found as F614 during ChatGPT-5.6-Sol's C031-WIP440 audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`TrueStarts::changeCivs` builds the Random-civilization candidate pool from `TruCivInfo`, so Random + True Starts could never select Ireland or Kingdom of Benin.
+
+A fixed Ireland/Benin player combined with at least one Random player was more serious: `calcFitness` later dereferences the fixed civilization through the same map without a null check, making the missing row an unsafe startup path rather than merely incomplete tuning.
+
+A fixed selection with no Random players is normally left alone by True Starts, which is why the omission could remain unnoticed.
+
+Fixed by adding minimal `TRU_IRELAND` and `TRU_KINGDOM_OF_BENIN` civilization rows using the required capital coordinates while deliberately leaving optional climate/terrain targets at True Starts defaults, plus leader rows for `LEADER_EWUARE`, `LEADER_GRACE_OMALLEY` and `LEADER_MICHAEL_COLLINS`.
+
+Ewuare uses 1440 and Michael Collins 1922 from their SAS Civilopedia chronology; Grace O'Malley's optional start year is left unspecified because the current source text does not establish an exact year.
+
+A new `true_starts_coverage.py` CI check first reproduced all five omissions, then passes after the data fix.
+
+It requires one `TruCivInfo` for every playable/AI-playable civilization and one `TruLeaderInfo` for every leader belonging to a playable civilization, while validating rather than requiring `TruBonusInfo`: bonus rows are intentionally sparse and a missing row simply means no True Starts resource bias.
+
+In particular, the lack of `TRU_CAMEL` is not classified as this defect.
+
+A 2026-11-04 manual runtime test by wonderingabout enabled True Starts with fixed Ewuare/Kingdom of Benin and fixed Grace O'Malley/Ireland plus 14 Random players. SASGameRecord reached `GAME_START` and serialized the turn-0 start checkpoint without the former missing-civilization failure path.
+
+This directly exercises the mixed fixed-new-civilization + Random-player case; the CI separately proves that Ireland and Kingdom of Benin are present in the Random True Starts candidate data.
+
+Found as F614 during ChatGPT-5.6-Sol's C031-WIP440 audit; the asset-renaming companion audit independently resurfaced the omission on 2026-11-04 and led to the data/CI fix. Reconciled and fixed with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-937"></a>
 

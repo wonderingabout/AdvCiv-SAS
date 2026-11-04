@@ -26,4 +26,6 @@ Its findings and continuation cursor remain historical evidence, and it currentl
 
 [`global_define_name_length_review.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/global_define_name_length_review.md) documents the completed GlobalDefine cleanup and current naming policy/census, compares it with inherited/reference XML, and separates the 42-byte desired naming maximum from KI#1001's hard 255-byte loader boundary.
 
+[`xml_asset_naming_and_taxonomy.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md) documents AdvCiv-SAS asset naming and XML-taxonomy history against inherited AdvCiv/BtS: primary Types, companion art/audio/class/True Starts/UnitAI IDs, text-key identifiers and asset-related displayed-name changes, plus splits/reclassifications and replacements. It preserves compact before/after tables, practical commit/date, rationale and status as of 2026-11-04.
+
 Keep canonical filenames stable across checkpoints. Preserve each audit's completed results, false positives and exact continuation cursor; reconcile provisional KI numbers against current Known Issues before promotion.

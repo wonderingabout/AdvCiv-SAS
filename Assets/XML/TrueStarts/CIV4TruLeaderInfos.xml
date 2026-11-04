@@ -1,282 +1,303 @@
 <?xml version="1.0"?>
 <!-- advc.tsl: Per-leader data for the True Starts game option -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4TruLeaderInfos xmlns="x-schema:CIV4TrueStartsSchema.xml">
 	<TruLeaderInfos>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_ALEXANDER (useful for VS Code upper tree view while scrolling) -->
 			<Type>TRU_ALEXANDER</Type>
 			<LeaderType>LEADER_ALEXANDER</LeaderType>
 			<iStartOfReign>-336</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_ASOKA -->
 			<Type>TRU_ASOKA</Type>
 			<LeaderType>LEADER_ASOKA</LeaderType>
 			<iStartOfReign>-265</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_AUGUSTUS -->
 			<Type>TRU_AUGUSTUS</Type>
 			<LeaderType>LEADER_AUGUSTUS</LeaderType>
 			<!-- Second triumvirate -->
 			<iStartOfReign>-43</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_BISMARCK -->
 			<Type>TRU_BISMARCK</Type>
 			<LeaderType>LEADER_BISMARCK</LeaderType>
 			<iStartOfReign>1871</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_BOUDICA -->
 			<Type>TRU_BOUDICA</Type>
 			<LeaderType>LEADER_BOUDICA</LeaderType>
 			<!-- Begin of the uprising. Not clear how soon that happened
 				 after her husband's death. -->
 			<iStartOfReign>60</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_BRENNUS -->
 			<Type>TRU_BRENNUS</Type>
 			<LeaderType>LEADER_BRENNUS</LeaderType>
 			<!-- Battle of Allia. He may have been in command
 				 some years earlier. -->
 			<iStartOfReign>-390</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_CATHERINE -->
 			<Type>TRU_CATHERINE</Type>
 			<LeaderType>LEADER_CATHERINE</LeaderType>
 			<iStartOfReign>1762</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_CHARLEMAGNE -->
 			<Type>TRU_CHARLEMAGNE</Type>
 			<LeaderType>LEADER_CHARLEMAGNE</LeaderType>
 			<!-- King of the Franks -->
 			<iStartOfReign>768</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_CHURCHILL -->
 			<Type>TRU_CHURCHILL</Type>
 			<LeaderType>LEADER_CHURCHILL</LeaderType>
 			<iStartOfReign>1940</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_CYRUS -->
 			<Type>TRU_CYRUS</Type>
 			<LeaderType>LEADER_CYRUS</LeaderType>
 			<iStartOfReign>-559</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_DARIUS -->
 			<Type>TRU_DARIUS</Type>
 			<LeaderType>LEADER_DARIUS</LeaderType>
 			<iStartOfReign>-522</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_DE_GAULLE -->
 			<Type>TRU_DE_GAULLE</Type>
 			<LeaderType>LEADER_DE_GAULLE</LeaderType>
 			<iStartOfReign>1944</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_ELIZABETH -->
 			<Type>TRU_ELIZABETH</Type>
 			<LeaderType>LEADER_ELIZABETH</LeaderType>
 			<iStartOfReign>1558</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_EWUARE -->
+			<Type>TRU_EWUARE</Type>
+			<LeaderType>LEADER_EWUARE</LeaderType>
+			<!-- custom: Ewuare became Oba in 1440; see the SAS Civilopedia entry. See KI#936. (ChatGPT-5.6-Sol) -->
+			<iStartOfReign>1440</iStartOfReign>
+		</TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_FREDERICK -->
 			<Type>TRU_FREDERICK</Type>
 			<LeaderType>LEADER_FREDERICK</LeaderType>
 			<iStartOfReign>1740</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_GANDHI -->
 			<Type>TRU_GANDHI</Type>
 			<LeaderType>LEADER_GANDHI</LeaderType>
 			<!-- Leader of Indian National Congress -->
 			<iStartOfReign>1921</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_GENGHIS_KHAN -->
 			<Type>TRU_GENGHIS_KHAN</Type>
 			<LeaderType>LEADER_GENGHIS_KHAN</LeaderType>
 			<iStartOfReign>1206</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_GILGAMESH -->
 			<Type>TRU_GILGAMESH</Type>
 			<LeaderType>LEADER_GILGAMESH</LeaderType>
 			<!-- Assumed to have reigned sometime between 2800 and 2500 -->
 			<iStartOfReign>-2650</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_GRACE_OMALLEY -->
+			<Type>TRU_GRACE_OMALLEY</Type>
+			<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
+			<!-- custom: Her exact start of leadership is uncertain; omit optional iStartOfReign rather than invent a year. See KI#936. (ChatGPT-5.6-Sol) -->
+		</TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_HAMMURABI -->
 			<Type>TRU_HAMMURABI</Type>
 			<LeaderType>LEADER_HAMMURABI</LeaderType>
 			<iStartOfReign>-1792</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_HANNIBAL -->
 			<Type>TRU_HANNIBAL</Type>
 			<LeaderType>LEADER_HANNIBAL</LeaderType>
 			<!-- Commander-in-chief of the army -->
 			<iStartOfReign>-221</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_HATSHEPSUT -->
 			<Type>TRU_HATSHEPSUT</Type>
 			<LeaderType>LEADER_HATSHEPSUT</LeaderType>
 			<iStartOfReign>-1478</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_HUAYNA_CAPAC -->
 			<Type>TRU_HUAYNA_CAPAC</Type>
 			<LeaderType>LEADER_HUAYNA_CAPAC</LeaderType>
 			<iStartOfReign>1493</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_ISABELLA -->
 			<Type>TRU_ISABELLA</Type>
 			<LeaderType>LEADER_ISABELLA</LeaderType>
 			<iStartOfReign>1474</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_JOAO -->
 			<Type>TRU_JOAO</Type>
 			<LeaderType>LEADER_JOAO</LeaderType>
 			<iStartOfReign>1481</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_JULIUS_CAESAR -->
 			<Type>TRU_JULIUS_CAESAR</Type>
 			<LeaderType>LEADER_JULIUS_CAESAR</LeaderType>
 			<iStartOfReign>-49</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_JUSTINIAN -->
 			<Type>TRU_JUSTINIAN</Type>
 			<LeaderType>LEADER_JUSTINIAN</LeaderType>
 			<iStartOfReign>527</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_KUBLAI_KHAN -->
 			<Type>TRU_KUBLAI_KHAN</Type>
 			<LeaderType>LEADER_KUBLAI_KHAN</LeaderType>
 			<iStartOfReign>1260</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_LINCOLN -->
 			<Type>TRU_LINCOLN</Type>
 			<LeaderType>LEADER_LINCOLN</LeaderType>
 			<iStartOfReign>1861</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_LOUIS_XIV -->
 			<Type>TRU_LOUIS_XIV</Type>
 			<LeaderType>LEADER_LOUIS_XIV</LeaderType>
 			<!-- Coronation; came of age in 1651, took full control in 1661. -->
 			<iStartOfReign>1654</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_MANSA_MUSA -->
 			<Type>TRU_MANSA_MUSA</Type>
 			<LeaderType>LEADER_MANSA_MUSA</LeaderType>
 			<iStartOfReign>1312</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_MAO_ZEDONG -->
 			<Type>TRU_MAO_ZEDONG</Type>
 			<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
 			<!-- Proclamation of PRC -->
 			<iStartOfReign>1949</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_MEHMED -->
 			<Type>TRU_MEHMED</Type>
 			<LeaderType>LEADER_MEHMED</LeaderType>
 			<!-- Second reign; first time around he was 12 years old. -->
 			<iStartOfReign>1451</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_MICHAEL_COLLINS -->
+			<Type>TRU_MICHAEL_COLLINS</Type>
+			<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
+			<!-- custom: Chairman of the Provisional Government from January 1922; see the SAS Civilopedia entry. See KI#936. (ChatGPT-5.6-Sol) -->
+			<iStartOfReign>1922</iStartOfReign>
+		</TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_MOCTEZUMA -->
 			<Type>TRU_MOCTEZUMA</Type>
 			<LeaderType>LEADER_MOCTEZUMA</LeaderType>
 			<iStartOfReign>1502</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_NAPOLEON -->
 			<Type>TRU_NAPOLEON</Type>
 			<LeaderType>LEADER_NAPOLEON</LeaderType>
 			<!-- First Consul -->
 			<iStartOfReign>1799</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_PACAL -->
 			<Type>TRU_PACAL</Type>
 			<LeaderType>LEADER_PACAL</LeaderType>
 			<iStartOfReign>615</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_PERICLES -->
 			<Type>TRU_PERICLES</Type>
 			<LeaderType>LEADER_PERICLES</LeaderType>
 			<iStartOfReign>-461</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_PETER -->
 			<Type>TRU_PETER</Type>
 			<LeaderType>LEADER_PETER</LeaderType>
 			<iStartOfReign>1682</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_QIN_SHI_HUANG -->
 			<Type>TRU_QIN_SHI_HUANG</Type>
 			<LeaderType>LEADER_QIN_SHI_HUANG</LeaderType>
 			<!-- Emperor of China. Better to have a date close to the more
 				 important Han dynasty. -->
 			<iStartOfReign>-221</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_RAMESSES -->
 			<Type>TRU_RAMESSES</Type>
 			<LeaderType>LEADER_RAMESSES</LeaderType>
 			<iStartOfReign>-1279</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_RAGNAR -->
 			<Type>TRU_RAGNAR</Type>
 			<LeaderType>LEADER_RAGNAR</LeaderType>
 			<!-- Historical identity unknown, but supposed to have campaigned
 				 in the middle of the 9th century. -->
 			<iStartOfReign>830</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_FRANKLIN_ROOSEVELT -->
 			<Type>TRU_FRANKLIN_ROOSEVELT</Type>
 			<LeaderType>LEADER_FRANKLIN_ROOSEVELT</LeaderType>
 			<iStartOfReign>1933</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_SALADIN -->
 			<Type>TRU_SALADIN</Type>
 			<LeaderType>LEADER_SALADIN</LeaderType>
 			<iStartOfReign>1174</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_SHAKA -->
 			<Type>TRU_SHAKA</Type>
 			<LeaderType>LEADER_SHAKA</LeaderType>
 			<iStartOfReign>1816</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_SITTING_BULL -->
 			<Type>TRU_SITTING_BULL</Type>
 			<LeaderType>LEADER_SITTING_BULL</LeaderType>
 			<!-- When he did not agree to the settlement of Red Cloud's war -->
 			<iStartOfReign>1868</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_STALIN -->
 			<Type>TRU_STALIN</Type>
 			<LeaderType>LEADER_STALIN</LeaderType>
 			<iStartOfReign>1922</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_SULEIMAN -->
 			<Type>TRU_SULEIMAN</Type>
 			<LeaderType>LEADER_SULEIMAN</LeaderType>
 			<iStartOfReign>1520</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_SURYAVARMAN -->
 			<Type>TRU_SURYAVARMAN</Type>
 			<LeaderType>LEADER_SURYAVARMAN</LeaderType>
 			<iStartOfReign>1113</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_TOKUGAWA -->
 			<Type>TRU_TOKUGAWA</Type>
 			<LeaderType>LEADER_TOKUGAWA</LeaderType>
 			<iStartOfReign>1603</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_VICTORIA -->
 			<Type>TRU_VICTORIA</Type>
 			<LeaderType>LEADER_VICTORIA</LeaderType>
 			<iStartOfReign>1837</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_WANGKON -->
 			<Type>TRU_WANGKON</Type>
 			<LeaderType>LEADER_WANGKON</LeaderType>
 			<iStartOfReign>918</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_WASHINGTON -->
 			<Type>TRU_WASHINGTON</Type>
 			<LeaderType>LEADER_WASHINGTON</LeaderType>
 			<iStartOfReign>1789</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_WILLEM_VAN_ORANJE -->
 			<Type>TRU_WILLEM_VAN_ORANJE</Type>
 			<LeaderType>LEADER_WILLEM_VAN_ORANJE</LeaderType>
 			<!-- Declaration of independence; died 3 years later. -->
 			<iStartOfReign>1581</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_ZARA_YAQOB -->
 			<Type>TRU_ZARA_YAQOB</Type>
 			<LeaderType>LEADER_ZARA_YAQOB</LeaderType>
 			<iStartOfReign>1434</iStartOfReign>

@@ -3,9 +3,13 @@
 	 Could argue that much of this should be tied to leaders as the
 	 civilizations had different extents under different leaders,
 	 but each civ has just one city list, so ... -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4TruCivInfos xmlns="x-schema:CIV4TrueStartsSchema.xml">
 	<TruCivInfos>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_AMERICA (useful for VS Code upper tree view while scrolling) -->
 			<Type>TRU_AMERICA</Type>
 			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
 			<iLatitudeTimes10>389</iLatitudeTimes10>
@@ -28,7 +32,7 @@
 			<!-- Use this for both Americas; all the maize growers. -->
 			<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_ARABIA -->
 			<Type>TRU_ARABIA</Type>
 			<CivilizationType>CIVILIZATION_ARABIA</CivilizationType>
 			<!-- Actually 214, but that tends to be quite close to the
@@ -51,7 +55,7 @@
 			<iBias>16</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_AZTEC -->
 			<Type>TRU_AZTEC</Type>
 			<CivilizationType>CIVILIZATION_AZTEC</CivilizationType>
 			<iLatitudeTimes10>194</iLatitudeTimes10>
@@ -68,7 +72,7 @@
 			<iBias>-1</iBias>
 			<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_BABYLON -->
 			<Type>TRU_BABYLON</Type>
 			<CivilizationType>CIVILIZATION_BABYLON</CivilizationType>
 			<iLatitudeTimes10>325</iLatitudeTimes10>
@@ -88,7 +92,7 @@
 			<iBias>9</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_BYZANTIUM -->
 			<Type>TRU_BYZANTIUM</Type>
 			<CivilizationType>CIVILIZATION_BYZANTIUM</CivilizationType>
 			<iLatitudeTimes10>410</iLatitudeTimes10>
@@ -106,7 +110,7 @@
 			<iBias>4</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_CARTHAGE -->
 			<Type>TRU_CARTHAGE</Type>
 			<CivilizationType>CIVILIZATION_CARTHAGE</CivilizationType>
 			<iLatitudeTimes10>369</iLatitudeTimes10>
@@ -125,7 +129,7 @@
 			<iTotalArea>82</iTotalArea>
 			<iBias>-4</iBias>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_CELT -->
 			<Type>TRU_CELT</Type>
 			<CivilizationType>CIVILIZATION_CELT</CivilizationType>
 			<iLatitudeTimes10>469</iLatitudeTimes10>
@@ -147,7 +151,7 @@
 			<iBias>-12</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_CHINA -->
 			<Type>TRU_CHINA</Type>
 			<CivilizationType>CIVILIZATION_CHINA</CivilizationType>
 			<!-- Mean of Beijing (399) and Xi'an (343) b/c the high latitude
@@ -173,7 +177,7 @@
 			<iBias>-20</iBias>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_EGYPT -->
 			<Type>TRU_EGYPT</Type>
 			<CivilizationType>CIVILIZATION_EGYPT</CivilizationType>
 			<iLatitudeTimes10>298</iLatitudeTimes10>
@@ -194,7 +198,7 @@
 			<iBias>6</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_ENGLAND -->
 			<Type>TRU_ENGLAND</Type>
 			<CivilizationType>CIVILIZATION_ENGLAND</CivilizationType>
 			<!-- Moved south by 1 degree to account for the mild climate -->
@@ -212,7 +216,7 @@
 			<iBias>7</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_ETHIOPIA -->
 			<Type>TRU_ETHIOPIA</Type>
 			<CivilizationType>CIVILIZATION_ETHIOPIA</CivilizationType>
 			<!-- (Could use a somewhat lower value to account for Zara Yaqob's
@@ -232,7 +236,7 @@
 			<!-- Close enough -->
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_FRANCE -->
 			<Type>TRU_FRANCE</Type>
 			<CivilizationType>CIVILIZATION_FRANCE</CivilizationType>
 			<iLatitudeTimes10>489</iLatitudeTimes10>
@@ -245,7 +249,7 @@
 			<iTotalArea>641</iTotalArea>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_GERMANY -->
 			<Type>TRU_GERMANY</Type>
 			<CivilizationType>CIVILIZATION_GERMANY</CivilizationType>
 			<iLatitudeTimes10>525</iLatitudeTimes10>
@@ -261,7 +265,7 @@
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 			<iBias>-9</iBias>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_GREECE -->
 			<Type>TRU_GREECE</Type>
 			<CivilizationType>CIVILIZATION_GREECE</CivilizationType>
 			<iLatitudeTimes10>379</iLatitudeTimes10>
@@ -277,7 +281,7 @@
 			<iTotalArea>132</iTotalArea>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_HOLY_ROMAN -->
 			<Type>TRU_HOLY_ROMAN</Type>
 			<CivilizationType>CIVILIZATION_HOLY_ROMAN</CivilizationType>
 			<iLatitudeTimes10>508</iLatitudeTimes10>
@@ -292,7 +296,7 @@
 			<iBias>6</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_INCA -->
 			<Type>TRU_INCA</Type>
 			<CivilizationType>CIVILIZATION_INCA</CivilizationType>
 			<iLatitudeTimes10>-135</iLatitudeTimes10>
@@ -311,7 +315,7 @@
 			<iHStretch>33</iHStretch>
 			<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_INDIA -->
 			<Type>TRU_INDIA</Type>
 			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
 			<iLatitudeTimes10>286</iLatitudeTimes10>
@@ -329,7 +333,14 @@
 			<iBias>-15</iBias>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_IRELAND -->
+			<Type>TRU_IRELAND</Type>
+			<CivilizationType>CIVILIZATION_IRELAND</CivilizationType>
+			<!-- custom: Dublin; keep new-civilization integration minimal and let optional climate/terrain targets use True Starts defaults. See KI#936. (ChatGPT-5.6-Sol) -->
+			<iLatitudeTimes10>533</iLatitudeTimes10>
+			<iLongitudeTimes10>-63</iLongitudeTimes10>
+		</TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_JAPAN -->
 			<Type>TRU_JAPAN</Type>
 			<CivilizationType>CIVILIZATION_JAPAN</CivilizationType>
 			<iLatitudeTimes10>350</iLatitudeTimes10>
@@ -347,7 +358,7 @@
 			<iTotalArea>378</iTotalArea>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_KHMER -->
 			<Type>TRU_KHMER</Type>
 			<CivilizationType>CIVILIZATION_KHMER</CivilizationType>
 			<iLatitudeTimes10>134</iLatitudeTimes10>
@@ -363,7 +374,14 @@
 			<iBias>-14</iBias>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_KINGDOM_OF_BENIN -->
+			<Type>TRU_KINGDOM_OF_BENIN</Type>
+			<CivilizationType>CIVILIZATION_KINGDOM_OF_BENIN</CivilizationType>
+			<!-- custom: Benin City; keep new-civilization integration minimal and let optional climate/terrain targets use True Starts defaults. See KI#936. (ChatGPT-5.6-Sol) -->
+			<iLatitudeTimes10>63</iLatitudeTimes10>
+			<iLongitudeTimes10>56</iLongitudeTimes10>
+		</TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_KOREA -->
 			<Type>TRU_KOREA</Type>
 			<CivilizationType>CIVILIZATION_KOREA</CivilizationType>
 			<iLatitudeTimes10>376</iLatitudeTimes10>
@@ -378,7 +396,7 @@
 			<iBias>6</iBias>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_MALI -->
 			<Type>TRU_MALI</Type>
 			<CivilizationType>CIVILIZATION_MALI</CivilizationType>
 			<iLatitudeTimes10>168</iLatitudeTimes10>
@@ -396,7 +414,7 @@
 			<iMajorRiverWeight>50</iMajorRiverWeight>
 			<iBias>14</iBias>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_MAYA -->
 			<Type>TRU_MAYA</Type>
 			<CivilizationType>CIVILIZATION_MAYA</CivilizationType>
 			<iLatitudeTimes10>172</iLatitudeTimes10>
@@ -415,7 +433,7 @@
 			<iBias>-10</iBias>
 			<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_MONGOL -->
 			<Type>TRU_MONGOL</Type>
 			<CivilizationType>CIVILIZATION_MONGOL</CivilizationType>
 			<iLatitudeTimes10>472</iLatitudeTimes10>
@@ -434,7 +452,7 @@
 			<iBias>-5</iBias>
 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_NATIVE_AMERICA -->
 			<Type>TRU_NATIVE_AMERICA</Type>
 			<CivilizationType>CIVILIZATION_NATIVE_AMERICA</CivilizationType>
 			<iLatitudeTimes10>387</iLatitudeTimes10>
@@ -455,7 +473,7 @@
 			<!-- (No preference for space or shape) -->
 			<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_NETHERLANDS -->
 			<Type>TRU_NETHERLANDS</Type>
 			<CivilizationType>CIVILIZATION_NETHERLANDS</CivilizationType>
 			<iLatitudeTimes10>523</iLatitudeTimes10>
@@ -469,7 +487,7 @@
 			<iBias>20</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_OTTOMAN -->
 			<Type>TRU_OTTOMAN</Type>
 			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
 			<!-- Same data as for Byzantium -->
@@ -491,7 +509,7 @@
 				 Ottomans need to be handled separately. -->
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_PERSIA -->
 			<Type>TRU_PERSIA</Type>
 			<CivilizationType>CIVILIZATION_PERSIA</CivilizationType>
 			<iLatitudeTimes10>299</iLatitudeTimes10>
@@ -512,7 +530,7 @@
 			<iBias>-1</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_PORTUGAL -->
 			<Type>TRU_PORTUGAL</Type>
 			<CivilizationType>CIVILIZATION_PORTUGAL</CivilizationType>
 			<iLatitudeTimes10>387</iLatitudeTimes10>
@@ -526,7 +544,7 @@
 			<iBias>-5</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_ROME -->
 			<Type>TRU_ROME</Type>
 			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
 			<iLatitudeTimes10>419</iLatitudeTimes10>
@@ -541,7 +559,7 @@
 			<iBias>2</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_RUSSIA -->
 			<Type>TRU_RUSSIA</Type>
 			<CivilizationType>CIVILIZATION_RUSSIA</CivilizationType>
 			<iLatitudeTimes10>556</iLatitudeTimes10>
@@ -564,7 +582,7 @@
 			<iBias>-5</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_SPAIN -->
 			<Type>TRU_SPAIN</Type>
 			<CivilizationType>CIVILIZATION_SPAIN</CivilizationType>
 			<iLatitudeTimes10>403</iLatitudeTimes10>
@@ -579,7 +597,7 @@
 			<iBias>-9</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_SUMERIA -->
 			<Type>TRU_SUMERIA</Type>
 			<CivilizationType>CIVILIZATION_SUMERIA</CivilizationType>
 			<iLatitudeTimes10>313</iLatitudeTimes10>
@@ -596,7 +614,7 @@
 			<iBias>13</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_SCANDINAVIA -->
 			<Type>TRU_SCANDINAVIA</Type>
 			<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 			<!-- Moved south by 3 degrees to account for the Gulf stream -->
@@ -615,7 +633,7 @@
 			<iBias>2</iBias>
 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo>
+		<TruCivInfo> <!-- custom: type: TRU_ZULU -->
 			<Type>TRU_ZULU</Type>
 			<CivilizationType>CIVILIZATION_ZULU</CivilizationType>
 			<iLatitudeTimes10>-283</iLatitudeTimes10>

@@ -99,6 +99,9 @@ jobs:
       - name: Civilization asset references and timing
         run: python .github/workflows/build/xml/civ_specific_assets.py
 
+      - name: True Starts companion coverage
+        run: python .github/workflows/build/xml/true_starts_coverage.py
+
       - name: Civilization replacement baseline strengths
         run: python .github/workflows/build/xml/civ_specific_not_weaker.py
 

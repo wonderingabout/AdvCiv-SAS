@@ -9,6 +9,10 @@
 	 restriction really makes sense. Avoid encouraging resources required
 	 for early uniques; don't want players to be able to rely on those
 	 (too powerful that way). -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4TruBonusInfos xmlns="x-schema:CIV4TrueStartsSchema.xml">
 	<TruBonusInfos>
 		<!-- (Much of Europe doesn't mine any bauxite, but it's not clear that
@@ -18,7 +22,7 @@
 			<Type>TRU_ALUMINUM</Type>
 			<BonusType>BONUS_ALUMINUM</BonusType>
 		</TruBonusInfo-->
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_COAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>TRU_COAL</Type>
 			<BonusType>BONUS_COAL</BonusType>
 			<!-- (For coal-starved nations, only Italy and Japan come to mind.
@@ -35,7 +39,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_COPPER -->
 			<Type>TRU_COPPER</Type>
 			<BonusType>BONUS_COPPER</BonusType>
 			<DiscouragedCivs>
@@ -62,7 +66,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_HORSE -->
 			<Type>TRU_HORSE</Type>
 			<BonusType>BONUS_HORSE</BonusType>
 			<DiscouragedRegions>
@@ -103,7 +107,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_IRON -->
 			<Type>TRU_IRON</Type>
 			<BonusType>BONUS_IRON</BonusType>
 			<DiscouragedCivs>
@@ -151,7 +155,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_MARBLE -->
 			<Type>TRU_MARBLE</Type>
 			<BonusType>BONUS_MARBLE</BonusType>
 			<!-- Could imagine that Marble also covers other decorative stone,
@@ -210,7 +214,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_OIL -->
 			<Type>TRU_OIL</Type>
 			<BonusType>BONUS_OIL</BonusType>
 			<!-- Don't encourage or discourage sea Oil -->
@@ -289,7 +293,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_STONE -->
 			<Type>TRU_STONE</Type>
 			<BonusType>BONUS_STONE</BonusType>
 			<EncouragedCivs>
@@ -307,7 +311,7 @@
 			<Type>TRU_URANIUM</Type>
 			<BonusType>BONUS_URANIUM</BonusType>
 		</TruBonusInfo-->
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_BANANA -->
 			<Type>TRU_BANANA</Type>
 			<BonusType>BONUS_BANANA</BonusType>
 			<DiscouragedRegions>
@@ -339,7 +343,7 @@
 				</DiscouragedCiv>
 			</DiscouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_MOLLUSCS -->
 			<Type>TRU_MOLLUSCS</Type>
 			<BonusType>BONUS_MOLLUSCS</BonusType>
 			<EncouragedCivs>
@@ -349,7 +353,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_MAIZE -->
 			<Type>TRU_MAIZE</Type>
 			<BonusType>BONUS_MAIZE</BonusType>
 			<DiscouragedRegions>
@@ -398,7 +402,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_CATTLE -->
 			<Type>TRU_CATTLE</Type>
 			<BonusType>BONUS_CATTLE</BonusType>
 			<DiscouragedRegions>
@@ -426,7 +430,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_CRAB -->
 			<Type>TRU_CRAB</Type>
 			<BonusType>BONUS_CRAB</BonusType>
 			<EncouragedCivs>
@@ -446,7 +450,7 @@
 			<Type>TRU_DEER</Type>
 			<BonusType>BONUS_DEER</BonusType>
 		</TruBonusInfo-->
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_FISH -->
 			<Type>TRU_FISH</Type>
 			<BonusType>BONUS_FISH</BonusType>
 			<EncouragedCivs>
@@ -485,7 +489,7 @@
 				</DiscouragedCiv>
 			</DiscouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_PIG -->
 			<Type>TRU_PIG</Type>
 			<BonusType>BONUS_PIG</BonusType>
 			<DiscouragedRegions>
@@ -528,7 +532,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_RICE -->
 			<Type>TRU_RICE</Type>
 			<BonusType>BONUS_RICE</BonusType>
 			<DiscouragedRegions>
@@ -574,7 +578,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_SHEEP -->
 			<Type>TRU_SHEEP</Type>
 			<BonusType>BONUS_SHEEP</BonusType>
 			<DiscouragedCivs>
@@ -613,7 +617,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_WHEAT -->
 			<Type>TRU_WHEAT</Type>
 			<BonusType>BONUS_WHEAT</BonusType>
 			<DiscouragedRegions>
@@ -648,7 +652,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_DYE -->
 			<Type>TRU_DYE</Type>
 			<BonusType>BONUS_DYE</BonusType>
 			<!-- (Can be a lot of things; no need to discourage.) -->
@@ -659,7 +663,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_FUR -->
 			<Type>TRU_FUR</Type>
 			<BonusType>BONUS_FUR</BonusType>
 			<!-- (Can be a lot of things; no need to discourage.) -->
@@ -674,7 +678,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_GEMSTONES -->
 			<Type>TRU_GEMSTONES</Type>
 			<BonusType>BONUS_GEMSTONES</BonusType>
 			<!-- Don't bother with civs that most likely won't satisfy the
@@ -719,7 +723,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_GOLD -->
 			<Type>TRU_GOLD</Type>
 			<BonusType>BONUS_GOLD</BonusType>
 			<DiscouragedCivs>
@@ -775,7 +779,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_INCENSE -->
 			<Type>TRU_INCENSE</Type>
 			<BonusType>BONUS_INCENSE</BonusType>
 			<DiscouragedRegions>
@@ -812,7 +816,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_ELEPHANTS -->
 			<Type>TRU_ELEPHANTS</Type>
 			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<DiscouragedRegions>
@@ -863,7 +867,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_SILK -->
 			<Type>TRU_SILK</Type>
 			<BonusType>BONUS_SILK</BonusType>
 			<DiscouragedRegions>
@@ -926,7 +930,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_SILVER -->
 			<Type>TRU_SILVER</Type>
 			<BonusType>BONUS_SILVER</BonusType>
 			<DiscouragedCivs>
@@ -988,7 +992,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_SPICES -->
 			<Type>TRU_SPICES</Type>
 			<BonusType>BONUS_SPICES</BonusType>
 			<DiscouragedRegions>
@@ -1067,7 +1071,7 @@
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_SUGAR -->
 			<Type>TRU_SUGAR</Type>
 			<BonusType>BONUS_SUGAR</BonusType>
 			<DiscouragedRegions>
@@ -1097,7 +1101,7 @@
 				</DiscouragedCiv>
 			</DiscouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo>
+		<TruBonusInfo> <!-- custom: type: TRU_GRAPES -->
 			<Type>TRU_GRAPES</Type>
 			<BonusType>BONUS_GRAPES</BonusType>
 			<!-- Don't discourage the Americas. Suitable vines did grow there,

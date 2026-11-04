@@ -75,6 +75,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
     - [`build/xml/civ_specific_assets.py`](#buildxmlciv_specific_assetspy)
+    - [`build/xml/true_starts_coverage.py`](#buildxmltrue_starts_coveragepy)
     - [`build/xml/civ_specific_not_weaker.py`](#buildxmlciv_specific_not_weakerpy)
     - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
     - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
@@ -818,6 +819,16 @@ It also verifies civ-specific building and unit assets do not require a later st
 For example, this helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986) and fix `BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later tech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)`, but `BUILDING_JAPAN_DOUJOU` (JAIL) requiring `TECH_MEDITATION` parallel (`iGridY=9`) to `TECH_CONSTITUTION` required by the generic `BUILDING_JAIL` is fine so it does not need a fix.
 
 Similarly for `BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)` being obsolete sooner and so weaker than the generic monument so fixed it (obsolete is now same `GridY` or later).
+
+#### `build/xml/true_starts_coverage.py`
+
+Verifies the True Starts companion data that the runtime actually depends on.
+
+Every playable or AI-playable civilization must have exactly one `TruCivInfo`, because Random True Starts builds its civilization candidate pool from those rows and fixed civilizations can later be dereferenced through the same mapping while another player is Random.
+
+Every leader referenced by a playable civilization must also have one `TruLeaderInfo` as the maintained SAS completeness policy; the runtime tolerates a missing leader row, but it would silently lose the optional contemporaneity/bias data.
+
+`TruBonusInfo` is intentionally sparse: missing bonus rows mean no True Starts resource bias and are valid. The check therefore validates the uniqueness and resolution of supplied bonus rows without requiring one for every `BonusInfo`. Added with the KI#936 fix after the asset-companion audit exposed missing Ireland/Kingdom of Benin civilization rows and their three SAS leader rows.
 
 #### `build/xml/civ_specific_not_weaker.py`
 

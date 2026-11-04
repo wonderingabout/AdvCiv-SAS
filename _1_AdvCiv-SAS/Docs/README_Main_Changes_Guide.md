@@ -27,6 +27,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;[Deprecated references](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#deprecated-references)\
 &emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)\
 &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)\
+&emsp;[XML Asset Naming and Taxonomy](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#xml-asset-naming-and-taxonomy)\
 &emsp;[Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion)\
 &emsp;[Tooling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#tooling)\
 &emsp;&emsp;[Build](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#build)\
@@ -146,6 +147,21 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - "Demographics" → "Info Screen" (correct advisor name: does not only show the Demographics tab of the Info Screen) (Sevopedia Shortcuts)
 - "Victory Status" and "Victory Conditions" → "Victory Screen" (similar inconsistent naming in Sevopedia Shortcuts)
 - "Units" -> "Start Scroll at Units (Production Chooser Bar)" (City Screen) (clearer and so it is not confused with the new AdvCiv-SAS Building Filter buttons' behaviour (filter on click vs set default scroll position))
+
+### XML Asset Naming and Taxonomy
+
+- (Requires AdvCiv-SAS 6717+) [xml_asset_naming_and_taxonomy.md](/_1_AdvCiv-SAS/Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md) traces inherited asset names through SAS, from display text and companion IDs to asset replacements and combat-family splits.
+  - For example, **Monument and Obelisk** was an especially confusing case, introduced by Civ4 Warlords and carried unchanged through BtS and AdvCiv 1.14: the plain `OBELISK` name meant the generic Monument in some fields, Egypt's Obelisk in another, and both in the shared `TXT_KEY_BUILDING_OBELISK` text key.
+    - **Generic Monument.** Its `<Description>` pointed to `TXT_KEY_BUILDING_MONUMENT` and displayed "Monument". Its `<Type>` was `BUILDING_OBELISK` and its `<BuildingClass>` was `BUILDINGCLASS_OBELISK`.
+      - The Monument's class `BUILDINGCLASS_OBELISK` (which Egypt's Obelisk replaced) had `TXT_KEY_BUILDING_OBELISK` as its own `<Description>`, the same key as Egypt's building. So the Monument's class was named "Obelisk", while the Monument building itself was named "Monument".
+      - The class name made references such as Stonehenge's free building and Egypt's replacement mapping harder to read.
+    - **Egyptian Obelisk.** Its `<Type>` was `BUILDING_EGYPTIAN_OBELISK`, but its `<Description>` used `TXT_KEY_BUILDING_OBELISK` to display "Obelisk".
+      - Its `<Civilopedia>` and `<Strategy>` already used `TXT_KEY_BUILDING_EGYPTIAN_OBELISK_PEDIA` and `TXT_KEY_BUILDING_EGYPTIAN_OBELISK_STRATEGY`, so only the description key lacked the `EGYPTIAN` prefix, and it was the same key that the Monument's class `BUILDINGCLASS_OBELISK` used.
+    - **SAS cleanup.** The generic IDs became `BUILDING_MONUMENT` and `BUILDINGCLASS_MONUMENT`, and Egypt's replacement mapping followed the class rename. The Egyptian building kept its ID and displayed name **Obelisk**, and its description key became `TXT_KEY_BUILDING_EGYPTIAN_OBELISK`.
+    - **Art and audio.**
+      - BtS's generic building already used `ART_DEF_BUILDING_MONUMENT`, so renaming the unused vanilla `ART_DEF_BUILDING_OBELISK` made a second `ART_DEF_BUILDING_MONUMENT` that pointed to the obelisk model `Obelisk.nif`; SAS removed that duplicate on 2026-02-20.
+      - The same cleanup changed `AS2D_BUILD_OBELISK` to `AS2D_BUILD_MONUMENT`, and `SND_BUILD_OBELISK` to `SND_BUILD_MONUMENT`. Both buildings shared the same `<ConstructSound>`, so both references followed the audio rename.
+  - It also lists smaller slips in inherited names noticed during human and LLM systematic reviews, such as the misspelled `UNIT_VIKING_BESERKER` and `TXT_KEY_UNIT_PERIA_IMMORTAL`.
 
 ### Mod Name/Version
 

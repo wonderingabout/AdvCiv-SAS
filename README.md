@@ -155,7 +155,9 @@ For license, reuse, distribution and possibly other terms, including project-spe
 [Military Tree and changes](/README.md#military-tree-and-changes)\
 [Ingame gameplay samples](/README.md#ingame-gameplay-samples)\
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-or-combat-types)\
-[Assets Rebalancing](/README.md#assets-rebalancing)\
+[Notable Asset Changes](/README.md#notable-asset-changes)\
+&emsp;[Assets Rebalancing](/README.md#assets-rebalancing)\
+&emsp;[XML Asset Naming and Taxonomy](/README.md#xml-asset-naming-and-taxonomy)\
 [AI-generated images](/README.md#ai-generated-images)\
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)\
 &emsp;[World map with civs](/README.md#world-map-with-civs)\
@@ -842,11 +844,36 @@ See also the google drive link (see the [Artifacts and references section](/READ
 
 See the [README_Less_Generic_Unit_Names.md](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md).
 
-## Assets Rebalancing
+## Notable Asset Changes
 
-Heavy historical corrections and gameplay balance have been made, such as as of now removing the Expansive Trait, Changing Gandhi's favorite civics, or Frederick's favorite religion.
+These highlights cover selected balance changes, historical corrections, and XML renames. The linked guides give more detail.
 
-The changes before/after with rationale tables are synthethized in .md tables in [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md).
+### Assets Rebalancing
+
+AdvCiv-SAS revises asset stats and historical details. For example, India's Mausoleum replaces the Colosseum instead of the Jail, and Gandhi's favourite civic changes from Universal Suffrage to Pacifism. See [Assets Rebalancing](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md) for before-and-after tables and the reasons behind the changes.
+
+### XML Asset Naming and Taxonomy
+
+[xml_asset_naming_and_taxonomy.md](/_1_AdvCiv-SAS/Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md) traces how AdvCiv-SAS changed inherited asset names and the XML IDs behind them.
+
+One especially confusing example was **Monument and Obelisk**, inherited from Civ4: Warlords introduced the mix-up, and BtS and AdvCiv 1.14 carried it unchanged. The plain `OBELISK` name meant a different building depending on the field.
+
+- **In the IDs, plain `OBELISK` meant the generic Monument.**
+  - Its `<Type>` was `BUILDING_OBELISK` and its `<BuildingClass>` was `BUILDINGCLASS_OBELISK`.
+  - Yet its `<Description>` was `TXT_KEY_BUILDING_MONUMENT`, so players saw "Monument".
+- **In the text key, plain `OBELISK` meant both buildings.**
+  - Egypt's building: its `<Type>` `BUILDING_EGYPTIAN_OBELISK` had the `EGYPTIAN` prefix, but its `<Description>` key `TXT_KEY_BUILDING_OBELISK` (shown as "Obelisk") did not, so it looked like the generic building's key.
+  - The Monument's building class: `BUILDINGCLASS_OBELISK` (the class that the generic Monument belonged to and that Egypt's Obelisk replaced) used the same `TXT_KEY_BUILDING_OBELISK` for its own `<Description>`. So the Monument's class was named "Obelisk", while the Monument building itself was named "Monument".
+- **So searching for `OBELISK` found both buildings:** the Monument's Type and class, and Egypt's displayed name.
+
+SAS now follows one rule: `MONUMENT` means the generic building, and `EGYPTIAN_OBELISK` means Egypt's replacement.
+
+- **Generic Monument:** `BUILDING_MONUMENT` and `BUILDINGCLASS_MONUMENT`, still displayed as "Monument".
+- **Egyptian Obelisk:** `BUILDING_EGYPTIAN_OBELISK` (unchanged) and `TXT_KEY_BUILDING_EGYPTIAN_OBELISK`, still displayed as "Obelisk".
+
+The first SAS cleanup briefly added its own confusion: BtS's generic building already used `ART_DEF_BUILDING_MONUMENT`, so renaming the unused vanilla `ART_DEF_BUILDING_OBELISK` made a second `ART_DEF_BUILDING_MONUMENT` that pointed to the obelisk model `Obelisk.nif`. SAS removed that duplicate on 2026-02-20.
+
+The audit shows how those changes carried through related references. It also lists smaller slips in inherited names noticed during human and LLM systematic reviews, such as the misspelled `UNIT_VIKING_BESERKER` and `TXT_KEY_UNIT_PERIA_IMMORTAL`.
 
 ## AI-generated images
 
