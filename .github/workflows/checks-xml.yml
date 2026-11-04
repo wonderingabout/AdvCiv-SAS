@@ -72,6 +72,12 @@ jobs:
       - name: SAS English text policy
         run: python .github/workflows/build/xml/xml_sas_text_english.py
 
+      - name: SAS text differs from inherited text
+        run: python .github/workflows/build/xml/xml_sas_text_inherited.py
+
+      - name: XML display order
+        run: python .github/workflows/build/xml/xml_display_order.py
+
       - name: Redundant XML defaults
         run: python .github/workflows/build/xml/xml_redundant_defaults.py
 

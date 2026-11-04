@@ -12,6 +12,9 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
+# <!-- custom: The inherited-text hash manifest lists every GameText tag that BtS/vanilla/base AdvCiv define, which the GitHub mod-only checkout otherwise cannot see. (Claude code Opus 5.5) -->
+from xml_sas_text_inherited import MANIFEST, read_manifest
+
 
 TARGET_GLOB = "Assets/XML/Text/AdvCiv-SAS*.xml"
 ALL_TEXT_GLOB = "Assets/XML/Text/*.xml"
@@ -33,11 +36,7 @@ INHERITED_REFERENCE_KEYS = {
 	"TXT_KEY_MAIN_MENU_SELECT_DIFFICULTY_TITLE",
 	"TXT_KEY_MAIN_MENU_SELECT_GAME_SPEED_TITLE",
 	"TXT_KEY_MAIN_MENU_SELECT_SEALEVEL_TITLE",
-	"TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP",
-	"TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE",
 	"TXT_KEY_MENU_SEALEVEL",
-	"TXT_KEY_MENU_SIZE",
-	"TXT_KEY_PEDIA_SCREEN_TOP",
 }
 EXE_RUNTIME_REFERENCE_KEYS = {
 	# No static mod/base/vanilla reference, but changing the High label changed its Custom Game list text in-game; Low uses the matching EXE convention.
@@ -50,15 +49,16 @@ INHERITED_PEDIA_REFERENCE_KEYS = {
 	"TXT_KEY_BUILDING_EGYPTIAN_OBELISK_PEDIA",
 	"TXT_KEY_CIV_AMERICA_PEDIA",
 	"TXT_KEY_LEADER_ALEXANDER_PEDIA",
-	"TXT_KEY_LEADER_AUGUSTUS_CAESAR_PEDIA",
-	"TXT_KEY_LEADER_GENGHIS_KHAN_PEDIA",
 	"TXT_KEY_LEADER_ISABELLA_PEDIA",
 	"TXT_KEY_LEADER_JUSTINIAN_PEDIA",
 	"TXT_KEY_LEADER_PACAL_PEDIA",
 	"TXT_KEY_LEADER_SURYAVARMAN_PEDIA",
-	"TXT_KEY_LEADER_TOKUGAWA_PEDIA",
-	"TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA",
 }
+# <!-- custom: This check covered only TXT_KEY names, so a diplomacy response key that no loaded text defines would pass; the KI#149 _CORRECTED key, defined only in Warlords text, showed how easily such keys get lost.
+# Every key CIV4DiplomacyInfos uses must exist in mod GameText or in the inherited-text manifest (base AdvCiv, BtS, Warlords, vanilla), whatever its prefix. See KI#149. (Claude code Opus 5.5) -->
+DIPLOMACY_INFOS = "Assets/XML/GameInfo/CIV4DiplomacyInfos.xml"
+DIPLOMACY_TEXT_RE = re.compile(r"<Text>\s*([A-Z0-9_]+)\s*</Text>")
+ANY_TAG_DEF_RE = re.compile(r"<Tag>\s*([A-Za-z0-9_]+)\s*</Tag>")
 PEDIA_INFO_SPECS = (
 	("Assets/XML/Buildings/CIV4BuildingInfos.xml", "BuildingInfo"),
 	("Assets/XML/Units/CIV4UnitInfos.xml", "UnitInfo"),
@@ -128,6 +128,22 @@ def collect_missing_sas_pedia_references(repo_root: Path, sas_definitions: set[s
 	return sorted(missing), sorted(inherited)
 
 
+def collect_missing_diplomacy_text(repo_root: Path) -> list[str]:
+	defined = set(read_manifest(MANIFEST))
+	for path in repo_root.glob(ALL_TEXT_GLOB):
+		for block in TEXT_BLOCK_RE.findall(XML_COMMENT_RE.sub("", read_text(path))):
+			defined.update(ANY_TAG_DEF_RE.findall(block))
+	text = XML_COMMENT_RE.sub("", read_text(repo_root / DIPLOMACY_INFOS))
+	return sorted(set(DIPLOMACY_TEXT_RE.findall(text)) - defined)
+
+
+# <!-- custom: Accepted inherited keys go stale when SAS stops defining the key (for example after moving identical text back to base AdvCiv on 2026-11-04); fail so the lists stay a record of real exceptions. (Claude code Opus 5.5) -->
+def collect_stale_accepted_keys(definitions: set[str], inherited_pedia: list[str]) -> list[str]:
+	stale = sorted((INHERITED_REFERENCE_KEYS | EXE_RUNTIME_REFERENCE_KEYS) - definitions)
+	stale += sorted(INHERITED_PEDIA_REFERENCE_KEYS - set(inherited_pedia))
+	return stale
+
+
 def check_sas_text_references(repo_root: Path) -> tuple[list[str], list[str], list[str], list[str], list[str], list[str], int, int]:
 	targets = sorted(path for path in repo_root.glob(TARGET_GLOB) if path.is_file())
 	if not targets:
@@ -142,6 +158,8 @@ def check_sas_text_references(repo_root: Path) -> tuple[list[str], list[str], li
 	dynamic = sorted(key for key in definitions if key not in references and key.startswith(DYNAMIC_PREFIXES))
 	unused = sorted(key for key in definitions if key not in references and key not in INHERITED_REFERENCE_KEYS and key not in EXE_RUNTIME_REFERENCE_KEYS and not key.startswith(DYNAMIC_PREFIXES))
 	missing_pedia, inherited_pedia = collect_missing_sas_pedia_references(repo_root, definitions, all_mod_definitions)
+	missing_pedia += [f"{DIPLOMACY_INFOS} references {key}, but neither mod GameText nor the inherited base AdvCiv/BtS/Warlords/vanilla text defines it" for key in collect_missing_diplomacy_text(repo_root)]
+	missing_pedia += [f"{key}: listed as an accepted inherited reference, but no longer needed; remove it from the list" for key in collect_stale_accepted_keys(definitions, inherited_pedia)]
 	return unused, missing_pedia, inherited, inherited_pedia, exe_runtime, dynamic, len(definitions), len(targets)
 
 

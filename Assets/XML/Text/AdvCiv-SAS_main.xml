@@ -454,13 +454,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- Foreign Advisor -->
-	<!-- custom: "advc.004: Note about patch history added" + removed "Exotic" since Foreign Advisor is now a single unified file -->
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
-		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
-		by a BtS patch.)</English>
-	</TEXT>
 	<!-- Technology Advisor -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>
@@ -1047,10 +1040,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Units</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
-		<English>Specialists</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
 		<English>Bonuses</English>
 	</TEXT>
@@ -1229,12 +1218,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
 		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units (only? Not sure.))</English>
-	</TEXT>
-	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
-		 actually is cumulative with culture defense. -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
-		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
 	</TEXT>
 
 
@@ -1639,10 +1622,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_WIDGET_HELP</Tag>
 		<English>Sevopedia</English>
 	</TEXT>
-    <TEXT>
-		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
-		<English>Top</English>
-	</TEXT>
 	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia; note: removed the unused TXT_KEY_SEVOPEDIA_TITLE as per the CI test and after having checked as per GPT-5.6-Sol's review/change. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
@@ -1946,19 +1925,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
-	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
-		<English>[SPACE]World Wonder (%d1_Num Left)</English>
-	</TEXT>
-	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
-		<English>[ICON_BULLET]World Wonder</English>
-	</TEXT>
-
-
 	<!-- custom: rename "Difficulty" to "Handicap" -->
 	<TEXT>
 		<Tag>TXT_KEY_RF_RISE_BREAKDOWN</Tag>
@@ -2034,20 +2000,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
 		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
-	</TEXT>
-
-
-	<TEXT>
-		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP</Tag>
-		<English>WORLD SIZE</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE</Tag>
-		<English>WORLD SIZE</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_MENU_SIZE</Tag>
-		<English>Size:</English>
 	</TEXT>
 
 
@@ -3086,11 +3038,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_SEAFARING</Tag>
 		<English>Seafaring</English>
 	</TEXT>
-	<!-- custom: rename _OPTICS to _SAILING -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_SAILING</Tag>
-		<English>Sailing</English>
-	</TEXT>
 	<!-- custom: rename _COMPASS to _NAVIGATION -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
@@ -3191,11 +3138,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
 		<English>Environmentalism</English>
 	</TEXT>
-	<!-- custom: replace TECH_DRAMA with TECH_PAPER -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_PAPER</Tag>
-		<English>Paper</English>
-	</TEXT>
 	<!-- custom: replace TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY</Tag>
@@ -3222,11 +3164,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_TECH_SEAFARING_QUOTE</Tag>
 		<English>"One doesn't discover new lands without losing sight of the shore." - Andre Gide</English>
-	</TEXT>
-	<!-- custom: rename TECH_OPTICS to TECH_SAILING, use old tech_sailing's quote instead -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_SAILING_QUOTE</Tag>
-		<English>"You can't direct the wind, but you can adjust your sails." - Unknown</English>
 	</TEXT>
 	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION -->
 	<TEXT>
@@ -3278,11 +3215,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
 		<English>"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke</English>
-	</TEXT>
-	<!-- custom: quote remap v9.2: TECH_LITERATURE now uses the former TECH_PAPER quote (Bacon), swapped with PAPER. (GPT-5.3-Codex) -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_LITERATURE_QUOTE</Tag>
-		<English>"Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon</English>
 	</TEXT>
 	<!-- custom: quote remap v9: override base key so TECH_FUSION uses the former TECH_COMPOSITES quote (Aristotle). (GPT-5.3-Codex) -->
 	<TEXT>
@@ -3359,11 +3291,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
 		<English>"I am the state." - ascribed to Louis XIV</English>
 	</TEXT>
-	<!-- custom: return the former Monarchy quote to Monarchy. The attribution is corrected from Herodotus to Homer, The Iliad. (GPT-5.6-Sol) -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
-		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
-	</TEXT>
 	<!-- custom: now using the quote of tech_steel (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_METAL_CASTING_QUOTE</Tag>
@@ -3409,20 +3336,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_TECH_MYSTICISM_QUOTE</Tag>
 		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
 	</TEXT>
-	<!-- custom: quote remap v9.2: TECH_PAPER now uses the former TECH_AI quote (Jefferson), swapped with LITERATURE. (GPT-5.3-Codex) -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_PAPER_QUOTE</Tag>
-		<English>"I cannot live without books" - Thomas Jefferson</English>
-	</TEXT>
 	<!-- custom: Environmentalism uses the former Ecology quote. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
 		<English>"We do not inherit the earth from our ancestors, we borrow it from our children." - Unknown</English>
-	</TEXT>
-	<!-- custom: return the former Computers quote to Computers. (GPT-5.6-Sol) -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_COMPUTERS_QUOTE</Tag>
-		<English>"Never trust a computer you can't throw out a window." - Steve Wozniak</English>
 	</TEXT>
 	<!-- custom: quote remap v9: TECH_PROFESSIONAL_ARMY now uses the former TECH_STEAM_POWER quote. (GPT-5.3-Codex) -->
 	<TEXT>
@@ -3470,22 +3387,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Justinian I</English>
 	</TEXT>
 
-	<!-- advc.005: was Asoka -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
-		<English>Ashoka</English>
-	</TEXT>
-	<!-- 002b: Shortened leader names -->
-	<!-- custom: increased to "Augustus Caesar" (in Warlords Civ4GameTextObjects XML), then reduced again to "Augustus" (see Willem) -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
-		<English>Augustus</English>
-	</TEXT>
-	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
-	<TEXT>
-	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
-		<English>Willem</English>
-	</TEXT>
 	<!-- custom: was Suryavarman.
 	(in BtS Civ4GameTextObjects XML) -->
 	<TEXT>
@@ -3497,16 +3398,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
 		<English>Alexander III</English>
 	</TEXT>
-	<!-- custom: increased it to "Tokugawa Ieyasu", then reduced it back to "Tokugawa" (see Willem) -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
-		<English>Tokugawa</English>
-	</TEXT>
-	<!-- custom: was Genghis in some languages or some other version -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
-		<English>Genghis Khan</English>
-	</TEXT>
 	<!-- custom: was Isabella -->
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
@@ -3516,14 +3407,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Plural>0</Plural>
 		</English>
 	</TEXT>
-	<!-- custom: rename to more accurate naming from "Chinese_Leader" to "Mao Zedong" as he is accurately named in several parts of the code if i'm not mistaken, for clarity and consistency. -->
+	<!-- custom: keep the more accurate displayed name "Moctezuma II" while using the inherited MONTEZUMA text-key family. (ChatGPT-5.6-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
-		<English>Mao Zedong</English>
-	</TEXT>
-	<!-- custom: rename to more accurate naming from "Montezuma" to "Moctezuma II" -->
-	<TEXT>
-		<Tag>TXT_KEY_LEADER_MOCTEZUMA</Tag>
+		<Tag>TXT_KEY_LEADER_MONTEZUMA</Tag>
 		<English>Moctezuma II</English>
 	</TEXT>
 
@@ -3616,13 +3502,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Tag>
 		<English>Flying Column</English>
-	</TEXT>
-
-
-	<!-- custom: now renamed "montezuma" to "moctezuma (2/II)" -->
-	<TEXT>
-		<Tag>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</Tag>
-		<English>Moctezuma Castle</English>
 	</TEXT>
 
 
@@ -3928,43 +3807,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets -->
-	<TEXT>
-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
-		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
-		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
-		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
-		<Italian>Piacere di incontrarti, [CT_NAME]! Per festeggiare questo momento propizio, dovremmo massacrare cinquantamila schiavi ciascuno.</Italian>
-		<Spanish>Me alegro mucho de conoceros, [CT_NAME]. Sacrifiquemos cada uno a cincuenta mil esclavos para celebrar esta propicia ocasi&#243;n.</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Tag>
-		<English>Talk to the ceremonial blade, [CT_NAME].</English>
-		<French>Parlez plut&#244;t &#224; ma lame de c&#233;r&#233;monie, [CT_NAME].</French>
-		<German>Ihr k&#246;nnt gern Bekanntschaft mit meiner Klinge machen, [CT_NAME]!</German>
-		<Italian>Perch&#233; non ne discuti con la lama cerimoniale, [CT_NAME]?</Italian>
-		<Spanish>Dec&#237;dselo al cuchillo ceremonial, [CT_NAME].</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Tag>
-		<English>Tell me, [CT_NAME]: what has [CT_CIV_SHORT] done to anger the gods so that they give them you as leader?</English>
-		<French>Dites-moi, [CT_NAME]... Qu'ont bien pu faire les [CT_CIV_SHORT] pour que les dieux soient irrit&#233;s au point de vous nommer &#224; leur t&#234;te ?</French>
-		<German>Sagt mir, [CT_NAME]: Wie konnte [CT_CIV_SHORT] die G&#246;tter nur so erz&#252;rnen, dass sie ihm Euch als Staatsoberhaupt vorgesetzt haben?</German>
-		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
-		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
-	</TEXT>
-	<!-- advc.005f: This key was named "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED" in Warlords. I don't see how that will "correct" anything. Give it the same name as the Vanilla key instead (which says "think well or we'll re-evaluate our friendship"). There was also "AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1" later in this file; I've renamed that one to ..._2. -->
-	<!-- custom: Removed duplicate AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1 block.
-	CIV4DiplomacyInfos references AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED, so reverted the advc.005f change of removing the "_CORRECTED suffix", now present again.
-	This allows to fix the _1 duplicate-tag workflow fail and remove this seemingly unused duplicate. See KI#149. (GPT-5.5) -->
-	<TEXT>
-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
-		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
-		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
-		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
-		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
-		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
-	</TEXT>
 	<!-- advc.005f: Make this #2, i.e. preserve "admire my heroic profile". -->
 	<!-- custom: Moved these modified de Gaulle friendly greeting overrides from ActualQuotesText_BtS.xml.
 	Base BtS had two AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2 blocks; AdvCiv-SAS keeps the cheese-profile greeting as _2 and retags the "Greatness..." greeting as _1 that was previously unassigned, and to match CIV4DiplomacyInfos and fix the duplicate-tag workflow failure.
@@ -4287,10 +4129,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Tot</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_INFO_SCREEN</Tag>
-		<English>Info Screen</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_VICTORY_SCREEN_TITLE</Tag>
 		<English>Victory Screen</English>
 	</TEXT>
@@ -4325,10 +4163,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_SHORTCUTS_CHEATS</Tag>
 		<English>Cheats</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
-		<English>Sevopedia [F12]:</English>
 	</TEXT>
 	<!-- custom: Sevopedia Event Triggers category text keys. (Claude code Opus 4.7) -->
 	<TEXT>

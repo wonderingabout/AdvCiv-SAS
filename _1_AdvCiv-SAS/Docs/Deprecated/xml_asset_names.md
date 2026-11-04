@@ -5,6 +5,7 @@ Use this reference to translate machine-facing asset identifiers found in older 
 ## Menu
 
 - [Bonus identifier restoration](#bonus-identifier-restoration)
+- [Leader identifier restoration](#leader-identifier-restoration)
 - [Compatibility note](#compatibility-note)
 
 ## Bonus identifier restoration
@@ -22,9 +23,30 @@ AdvCiv-SAS renamed six inherited bonus machine families in May 2025 while also k
 
 `BONUS_CAMEL` is not a restored alias for `BONUS_MOVIES`: Camel is separate SAS content that replaced the removed Hit Movies resource slot historically.
 
+## Leader identifier restoration
+
+AdvCiv-SAS renamed two inherited leader machine families in May 2025. On 2026-11-04 the inherited AdvCiv/BtS machine identifiers were restored while the SAS player-facing names and gameplay/personality changes remain.
+
+The benefit is less direct than for bonuses. AdvCiv-SAS does not support scenarios, and its other changes can still make external content incompatible. But XML, WorldBuilder or True Starts data that names the inherited leader families becomes easier to adapt and compare, and the SAS display names never needed different machine IDs.
+
+| Retired SAS machine family | Current inherited machine family | Player-facing SAS name |
+| --- | --- | --- |
+| `LEADER_MAO_ZEDONG`, `ART_DEF_LEADER_MAO_ZEDONG`, `TRU_MAO_ZEDONG`, `TXT_KEY_LEADER_MAO_ZEDONG*`, `AI_DIPLO_*_LEADER_MAO_ZEDONG_*` | `LEADER_CHINESE_LEADER`, `ART_DEF_LEADER_CHINESE_LEADER`, `TRU_CHINESE_LEADER`, `TXT_KEY_LEADER_CHINESE_LEADER*`, `AI_DIPLO_*_LEADER_CHINESE_LEADER_*` | Mao Zedong |
+| `LEADER_MOCTEZUMA`, `ART_DEF_LEADER_MOCTEZUMA`, `TRU_MOCTEZUMA`, `TXT_KEY_LEADER_MOCTEZUMA*`, `AI_DIPLO_*_LEADER_MOCTEZUMA_*`, `AS2D_DIPLO_MOCTEZUMA_*` / `DIPLO_MOCTEZUMA_*` | `LEADER_MONTEZUMA`, `ART_DEF_LEADER_MONTEZUMA`, `TRU_MONTEZUMA`, `TXT_KEY_LEADER_MONTEZUMA*`, `AI_DIPLO_*_LEADER_MONTEZUMA_*`, `AS2D_DIPLO_MONTEZUMA_*` / `DIPLO_MONTEZUMA_*` | Moctezuma II |
+
+The temporary `TXT_KEY_LEADER_MAO_ZEDONG` description entry was removed because inherited `TXT_KEY_LEADER_CHINESE_LEADER` already displays **Mao Zedong**. SAS still overrides the inherited Mao pedia key with its expanded Civilopedia text.
+
+For Moctezuma, SAS continues to override the inherited `TXT_KEY_LEADER_MONTEZUMA` and `TXT_KEY_LEADER_MONTEZUMA_PEDIA` keys so the player-facing spelling remains **Moctezuma II**.
+
+The related machine key `TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE` likewise returned to `TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE`, and its SAS override was removed so the inherited BtS text **Montezuma Castle** applies again. That is the real site's name: later settlers named the Arizona cliff dwelling (Montezuma Castle National Monument) after Moctezuma, so "Moctezuma Castle" was not a spelling correction.
+
 ## Compatibility note
 
-The restored identifiers reduce needless incompatibility with inherited or external map scripts and scenario/WorldBuilder content that refer to the standard `BONUS_*` strings. They do not restore the inherited resource payloads: for example, `BONUS_WINE` still represents the SAS Grapes resource and its current improvement/building behavior.
+The restored identifiers reduce needless incompatibility with inherited or external content. For bonuses, this directly helps map scripts, which commonly place resources by their standard `BONUS_*` strings.
+
+For leaders, it mainly makes external data that names the inherited leader families easier to reuse. Neither makes pre-SAS scenarios supported; see the root README's [support scope](/README.md#not-supported-in-advciv-sas).
+
+These restorations do not restore the inherited gameplay payloads: for example, `BONUS_WINE` still represents the SAS Grapes resource and its current improvement/building behavior.
 
 The restored bonus selectors in `CIV4PlotLSystem.xml` can use inherited names again. The SAS override still supplies plot art rules for Grapes on Farms, so it remains in use. The inherited BtS file uses `IMPROVEMENT_WINERY` for those rules.
 

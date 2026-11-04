@@ -21,15 +21,6 @@ ALLOWED_LANGUAGE_TAGS = {
 	"English",
 }
 
-# <!-- custom: Rare inherited/renamed diplomacy text entries kept with old non-English language fields.
-# Keep this list narrow: new AdvCiv-SAS text should normally use <English> only. (ChatGPT-5.5) -->
-ALLOWED_NON_ENGLISH_TEXT_KEYS = {
-	"AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1",
-	"AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1",
-	"AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1",
-	"AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED",
-}
-
 NON_LANGUAGE_TEXT_CHILD_TAGS = {
 	"Tag",
 }
@@ -88,8 +79,7 @@ def check_text_xml_file(repo_root: Path, path: Path) -> list[str]:
 				continue
 
 			if child_name not in ALLOWED_LANGUAGE_TAGS:
-				if text_key not in ALLOWED_NON_ENGLISH_TEXT_KEYS:
-					failures.append(f"{relative_path}: line {element_start_line(data, child_name, text_start)}: TEXT entry {text_key} has unsupported language tag <{child_name}>")
+				failures.append(f"{relative_path}: line {element_start_line(data, child_name, text_start)}: TEXT entry {text_key} has unsupported language tag <{child_name}>")
 				continue
 
 			language_counts[child_name] = language_counts.get(child_name, 0) + 1

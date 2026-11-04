@@ -1706,6 +1706,8 @@ Also for info init log after successfully load is like this after fixing it and 
 --------------------------------------------------
 ```
 
+Update (2026-11-04): the `BONUS_GEMSTONES` / `ART_DEF_BONUS_GEMSTONES` names in the captures above were SAS renames; the inherited `BONUS_GEMS` family was restored for map-script compatibility, with Gemstones still the displayed name. See [xml_asset_names.md](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md).
+
 <a id="ki-10"></a>
 
 ## KI#10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example), while some like `&` cause an XML error and asset failing to load entirely
@@ -2035,6 +2037,8 @@ Update: now fixed: the issue/bug/error was seemingly caused by a new base advciv
 So removed previous workaround of using a fallback as well as debug lines as they are not needed anymore now that issue is identified and solved.
 
 Update 2: although we fixed the obsolete bonus button in tech advisor, i noticed much later that now the non-obsolete bonus buttons (e.g. cattle or camel bonuses at tech_animal_husbandry) trigger the same error now, which they didn't before, so i partially reverted this fix, so that it still applies to `case WIDGET_HELP_OBSOLETE_BONUS:` as we want to fix the issue, but not anymore to `case WIDGET_HELP_BONUS_REVEAL:` which now doesn't use same code anymore as the former, but instead the old base advciv's code if i'm not mistaken, which seemingly nicely fixes this issue as well.
+
+Update (2026-11-04): `BONUS_ELEPHANTS` is `BONUS_IVORY` again; the displayed name is still Elephants. See [xml_asset_names.md](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md).
 
 <a id="ki-22.5"></a>
 
@@ -13304,6 +13308,12 @@ After these changes, `python .github/workflows/build/xml/xml_text_duplicate_tags
 
 Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicated, but it seems some still had issues to some extent although i didn't check in detail because super tedious xd but seemed as such from quick look (more precisely iirc fighter thing was almost similar but not entirely so quite weird but minor maybe idk for sure would need to check to be sure).
 
+Update (2026-11-04): the inherited `MONTEZUMA` leader IDs were restored, so the `MOCTEZUMA` keys above are now `MONTEZUMA` keys.
+
+The SAS copy of `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` was removed because the Warlords text, which the game also loads, defines the same line.
+
+[`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) now fails when `CIV4DiplomacyInfos.xml` uses a key that no loaded text defines. See [xml_asset_names.md](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md).
+
 <a id="ki-150"></a>
 
 ## KI#150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
@@ -13441,6 +13451,8 @@ The bug was only in Sevopedia's Python reconstruction of those rules. The Hill p
 No DLL change was needed because the game rules were already correct; this was a UI/documentation display fix in `SevoPediaTerrain.py`.
 
 Fixed with the very nice help of GPT-5.5 on Codex thanks.
+
+Update (2026-11-04): `BONUS_GRAPES` is `BONUS_WINE` again; the displayed name and the Plantation rule are unchanged. See [xml_asset_names.md](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md).
 
 <a id="ki-154"></a>
 

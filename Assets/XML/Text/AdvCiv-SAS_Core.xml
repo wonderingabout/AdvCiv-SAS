@@ -68,10 +68,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<!-- custom: add the new added concept_fresh_water link in concept_irrigation -->
 	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_IRRIGATION</Tag>
-		<English>Irrigation</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_IRRIGATION_PEDIA</Tag>
 		<English>[H1]Irrigation[\H1][PARAGRAPH:2][LINK=IMPROVEMENT_FARM]Farms[\LINK] require irrigation in order to provide their full [LINK=CONCEPT_FOOD]food[\LINK] benefits. Irrigation can be achieved by building the farm adjacent to a source of [LINK=CONCEPT_FRESH_WATER]fresh water[\LINK], like a river, lake, or oasis.[PARAGRAPH:2][LINK=TECH_CIVIL_SERVICE]Civil Service[\LINK] enables irrigated farms to become a source of irrigation themselves. That allows you to bring irrigation to distant locations by building a chain of farms from the source of fresh water.[PARAGRAPH:2]With the advent of [LINK=TECH_BIOLOGY]Biology[\LINK], Farms no longer require irrigation.</English>
 	</TEXT>

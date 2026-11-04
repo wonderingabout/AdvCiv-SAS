@@ -341,7 +341,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			</InitialCivics>
 			<Leaders>
 				<Leader>
-					<LeaderName>LEADER_MOCTEZUMA</LeaderName>
+					<LeaderName>LEADER_MONTEZUMA</LeaderName>
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 			</Leaders>
@@ -893,7 +893,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 				<Leader>
-					<LeaderName>LEADER_MAO_ZEDONG</LeaderName>
+					<LeaderName>LEADER_CHINESE_LEADER</LeaderName>
 					<bLeaderAvailability>1</bLeaderAvailability>
 				</Leader>
 			</Leaders>
@@ -2849,7 +2849,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<City>TXT_KEY_CITY_NAME_FRIJOLES_CANYON</City>
 				<City>TXT_KEY_CITY_NAME_PUYE_CLIFF</City>
 				<City>TXT_KEY_CITY_NAME_KIET_SIEL</City>
-				<City>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</City>
+				<City>TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE</City>
 				<City>TXT_KEY_CITY_NAME_WICKLIFFE</City>
 				<City>TXT_KEY_CITY_NAME_AZTALAN</City>
 				<City>TXT_KEY_CITY_NAME_ANGEL_MOUNDS</City>

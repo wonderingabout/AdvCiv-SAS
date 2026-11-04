@@ -167,6 +167,13 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         self.assertTrue(self.errors("CvGameCoreDLL/Test.cpp", old, bad))
         self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, good), [])
 
+    def test_comment_restored_from_file_history_passes(self):
+        old = "int value = 1;\n"
+        new = "// advc.005: was Asoka\nint value = 1;\n"
+        history = {"// advc.005: was Asoka"}
+        self.assertEqual(checker.check_change("CvGameCoreDLL/Test.cpp", old, new, None, lambda raw: raw in history), [])
+        self.assertTrue(checker.check_change("CvGameCoreDLL/Test.cpp", old, "// advc.005: was Ashoka\nint value = 1;\n", None, lambda raw: raw in history))
+
     def test_uncredited_user_comment_warns_without_failing(self):
         old = "int value = 1;\n"
         new = "// <!-- custom: Explain the new rule. -->\nint value = 1;\n"

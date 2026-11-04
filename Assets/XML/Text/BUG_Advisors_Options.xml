@@ -5,6 +5,10 @@
 
 	Copyright (c) 2009 The BUG Mod.
 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 <!-- Finance Advisor -->
@@ -22,6 +26,16 @@
 		<German>Aktiviert den verbesserten Finanzberater der BUG Mod (erfordert Neustart)</German>
 		<Italian>Quando è selezionato, visualizza il Consigliere Economico del BUG mod (è richiesto un  perchè il cambiamento abbia effetto).</Italian>
 		<Spanish>Permite emplear el consejero financiero incluído en BUG (requiere reiniciar).</Spanish>
+	</TEXT>
+	<!-- advc.004: Note about patch history added; German rewritten. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
+		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
+		by a BtS patch.)</English>
+		<French>En activant, montre la page 'Coup d'Oeuil' sur la page de l'Adviseur Etranger Exotique.</French>
+		<German>Zeigt auf dem Auslandsberater-Bildschirm den Reiter "Einblick" an, der die internationalen Beziehungen in einer Matrix darstellt.</German>
+		<Italian>Quando è selezionato, visualizza la tabella "Occhiata" nella schermata del Consigliere Estero (utilizzando l'Exotic Foreign Advisor Mod).</Italian>
+		<Spanish>Activa la pestaña 'Mirar' en el consejero de asuntos exteriores.</Spanish>
 	</TEXT>
 
 <!-- Foreign Advisor -->

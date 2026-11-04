@@ -10,6 +10,8 @@ Use this inventory to locate diagnostic output, identify its writer or enabling 
 - Treat the **After/current SAS** side as canonical; replace superseded intermediate SAS stages instead of stacking them as implementation chronology.
 - Keep step-by-step development history in Git, KIs or subsystem revision histories.
 - Retain historical details here when they explain provenance, ownership or compatibility, or help identify an older file/output someone may encounter.
+- Samples come from real captures, but they may be edited or reconstructed to illustrate current behavior, instead of regenerating a capture that would show the same thing.
+  - For example, a retired ID such as `BONUS_ELEPHANTS` can be updated to the current `BONUS_IVORY`. Each such edit is stated beside its sample; samples without a note are as captured.
 
 Dated snapshots below identify when local presence, counts, settings and file dates were inspected; they are not live status or a claim that every installation produces these files.
 
@@ -453,7 +455,9 @@ GAME_RECORD_STATE_CHECKPOINT seq=7381 turn=10 reason=END_GAME_TURN coverage=CORE
 
 #### SASGameRecord gameplay example
 
-These are **35 selected, unchanged rows** from `SASGameRecord_20261025T180717Z_load1.log` (recorder revision 172). Gaps in `seq` omit repeated detail rows while preserving the selected rows' order.
+These are **35 selected rows** from `SASGameRecord_20261025T180717Z_load1.log` (recorder revision 172). Gaps in `seq` omit repeated detail rows while preserving the selected rows' order.
+
+Edited: `BONUS_ELEPHANTS` -> `BONUS_IVORY`, because the capture predates the 2026-11-04 bonus ID restore; the rest is as captured.
 
 They follow player 2 at turn 20 through resources, AI priorities, economy/production, diplomacy and unit composition, including typed parked-production fields; this is actual output, not a reconstructed Before/After comparison.
 
@@ -462,10 +466,10 @@ GAME_RECORD_PLAYER seq=10154 turn=20 player=2 team=2 civ=CIVILIZATION_MAYA leade
 GAME_RECORD_PLAYER_HISTORY seq=10155 turn=20 player=2 deltaValid=1 historyScore=64 historyScoreDelta=+22 historyEconomy=11 historyEconomyDelta=+0 historyIndustry=5 historyIndustryDelta=+3 historyAgriculture=7 historyAgricultureDelta=+3 historyPower=11 historyPowerDelta=+6 historyCulture=37 historyCultureDelta=+20 historyEspionage=73 historyEspionageDelta=+40
 GAME_RECORD_POLLUTION seq=10156 turn=20 player=2 total=20 buildings=0 bonuses=0 power=0 population=20
 GAME_RECORD_BONUSES seq=10157 turn=20 player=2 detailRows=1 deltaValid=1 bonusTypes=1 bonusTypesDelta=+1 bonusInstances=1 bonusInstancesDelta=+1 imports=0 importsDelta=+0 exports=0 exportsDelta=+0
-GAME_RECORD_BONUSES_AVAILABLE seq=10158 turn=20 player=2 available=BONUS_ELEPHANTS:1
-GAME_RECORD_BONUSES_TRADEABLE seq=10159 turn=20 player=2 tradeable=BONUS_ELEPHANTS:1
+GAME_RECORD_BONUSES_AVAILABLE seq=10158 turn=20 player=2 available=BONUS_IVORY:1
+GAME_RECORD_BONUSES_TRADEABLE seq=10159 turn=20 player=2 tradeable=BONUS_IVORY:1
 GAME_RECORD_BONUSES_IMPORT_EXPORT seq=10160 turn=20 player=2 imported=- exported=-
-GAME_RECORD_BONUS_DETAIL seq=10161 turn=20 player=2 bonusId=25 bonus=BONUS_ELEPHANTS available=1 tradeable=1 imported=0 exported=0
+GAME_RECORD_BONUS_DETAIL seq=10161 turn=20 player=2 bonusId=25 bonus=BONUS_IVORY available=1 tradeable=1 imported=0 exported=0
 GAME_RECORD_AI_STRATEGIES seq=10162 turn=20 player=2 team=2 strategies=AI_STRATEGY_GET_BETTER_UNITS
 GAME_RECORD_AI_TARGET_CITIES seq=10163 turn=20 player=2 team=2 timer=0 targetCount=0 targets=-
 GAME_RECORD_AI_VICTORY_STAGES seq=10164 turn=20 player=2 team=2 playerMaxStage=0 teamMaxStage=0 culture=0 space=0 conquest=0 domination=0 diplomacy=0
@@ -1578,7 +1582,7 @@ The **LOG** buttons on selected SAS screens append a read-only inspection copy t
 
 The UTC prefix is the time the export was written, not when an old battle or timeline event happened. In-game turns/years belong to the exported data. These are on-demand screen snapshots, separate from SGR's automatic game record and runtime-status observations.
 
-The samples below are unchanged captured rows, selected for variety with intervening rows omitted; their original order, timestamps and values are retained. Battles, Timeline and the four Sevopedia charts were exported on 2026-10-26; Changes uses the 2026-10-25 export containing both Advanced Start and WorldBuilder edits.
+The samples below are captured rows (any edit is noted beside its sample), selected for variety with intervening rows omitted; their original order, timestamps and values are retained. Battles, Timeline and the four Sevopedia charts were exported on 2026-10-26; Changes uses the 2026-10-25 export containing both Advanced Start and WorldBuilder edits.
 
 | Screen | Button control | Output search key |
 | --- | --- | --- |
@@ -1594,6 +1598,8 @@ The samples below are unchanged captured rows, selected for variety with interve
 
 The selected player's battle perspective, opponent identities and combat columns are exported as pipe-separated text. The captured context identifies the observer and inspected player; the screen's location/perspective filtering still applies. Writer: `dbgLogBattleHistory` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py).
 
+Edited: `LEADER_MAO_ZEDONG` -> `LEADER_CHINESE_LEADER`, because the capture predates the 2026-11-04 leader ID restore; the rest is as captured.
+
 ```log
 2026-10-26T04:38:18.856Z SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN
 2026-10-26T04:38:18.856Z BattleHistoryContext: DebugMode=0 | ObserverPID=0
@@ -1604,7 +1610,7 @@ The selected player's battle perspective, opponent identities and combat columns
 2026-10-26T04:38:18.857Z OpponentPlayer: 8 | Gilgamesh | LEADER_GILGAMESH | CIVILIZATION_SUMERIA
 2026-10-26T04:38:18.857Z OpponentPlayer: 10 | Alexander III | LEADER_ALEXANDER | CIVILIZATION_GREECE
 2026-10-26T04:38:18.857Z OpponentPlayer: 12 | Huayna Capac | LEADER_HUAYNA_CAPAC | CIVILIZATION_INCA
-2026-10-26T04:38:18.857Z OpponentPlayer: 13 | Mao Zedong | LEADER_MAO_ZEDONG | CIVILIZATION_CHINA
+2026-10-26T04:38:18.857Z OpponentPlayer: 13 | Mao Zedong | LEADER_CHINESE_LEADER | CIVILIZATION_CHINA
 2026-10-26T04:38:18.857Z OpponentPlayer: 15 | Mehmed II | LEADER_MEHMED | CIVILIZATION_OTTOMAN
 2026-10-26T04:38:18.857Z OpponentPlayer: 48 | Barbarian | LEADER_BARBARIAN | CIVILIZATION_BARBARIAN
 2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28

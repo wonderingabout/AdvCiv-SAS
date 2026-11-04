@@ -7703,11 +7703,13 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: LEADER_MAO_ZEDONG -->
-			<Type>LEADER_MAO_ZEDONG</Type>
-			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
-			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+		<!-- custom: Kept at the BtS/base AdvCiv position after LEADER_MANSA_MUSA, when SAS's 2025 LEADER_MAO_ZEDONG rename was reverted on 2026-11-04.
+		Leaders here are ordered by displayed name ("Mao"), not by Type, so CHINESE_LEADER sits under M. The Custom Game leader list follows this file order: a test with the entry moved showed moving the Mao Zedong's LeaderHeadInfo entire field upwards also moved him in the dropdown ingame between Lincoln and Louis XIV. (Claude code Opus 5.5) -->
+		<LeaderHeadInfo> <!-- custom: LEADER_CHINESE_LEADER -->
+			<Type>LEADER_CHINESE_LEADER</Type>
+			<Description>TXT_KEY_LEADER_CHINESE_LEADER</Description>
+			<Civilopedia>TXT_KEY_LEADER_CHINESE_LEADER_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_CHINESE_LEADER</ArtDefineTag>
 			<iWonderConstructRand>10</iWonderConstructRand>
 			<iBaseAttitude>0</iBaseAttitude>
 			<iBasePeaceWeight>1</iBasePeaceWeight>
@@ -8379,11 +8381,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo> <!-- custom: LEADER_MOCTEZUMA -->
-			<Type>LEADER_MOCTEZUMA</Type>
-			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
-			<Civilopedia>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_MOCTEZUMA</ArtDefineTag>
+		<LeaderHeadInfo> <!-- custom: LEADER_MONTEZUMA -->
+			<Type>LEADER_MONTEZUMA</Type>
+			<Description>TXT_KEY_LEADER_MONTEZUMA</Description>
+			<Civilopedia>TXT_KEY_LEADER_MONTEZUMA_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MONTEZUMA</ArtDefineTag>
 			<iWonderConstructRand>0</iWonderConstructRand>
 			<iBaseAttitude>-1</iBaseAttitude>
 			<iBasePeaceWeight>0</iBasePeaceWeight>
@@ -8547,61 +8549,61 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>

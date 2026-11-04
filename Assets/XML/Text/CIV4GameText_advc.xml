@@ -1670,6 +1670,55 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Italian>km&#178;</Italian>
 		<Spanish> km&#178;</Spanish>
 	</TEXT>
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
+		<English>Tokugawa</English>
+		<French>
+			<Text>Tokugawa</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Tokugawa</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Tokugawa</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Tokugawa</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- German spelling was long and unusual -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
+		<English>Genghis Khan</English>
+		<French>
+			<Text>Gengis</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Dschingis Khan</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Genghis Khan</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Gengis Kan</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 	<!-- From CIV4GameText_Misc1.xml. "ca." added b/c it's now
 		 an approximation. -->
 	<TEXT> <!-- redefine -->
@@ -2852,6 +2901,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Italian>"Mettiti al lavoro di buona lena." - Esopo</Italian>
 		<Spanish>"Arrima el hombro a la rueda." - Esopo</Spanish>
 	</TEXT>
+	<!-- Not originally by Herodotus -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+		<French>"Abondance de souverains nuit ! Il ne peut y en avoir qu'un, un seul Roi !" - H&#233;rodote</French>
+		<German>"Zu viele Herrscher sind nicht gut. M&#246;ge ein Herrscher als K&#246;nig regieren!" - Homer, die Ilias</German>
+		<Italian>"Non servono molti sovrani. Che il comando sia di un uomo solo, che sia proclamato un re." - Erodoto</Italian>
+		<Spanish>"No es bueno el caudillaje de muchos; sea uno solo el caudillo, uno solo el rey." - Herodoto</Spanish>
+	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_TECH_NATIONALISM_QUOTE</Tag>
 		<English>"A man does not have himself killed for a half-pence a day or for a petty distinction. You must speak to the soul in order to electrify him." - ascribed to Napoleon Bonaparte</English>
@@ -3291,6 +3349,81 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Italian>%s1_attitude (+/- 0) confronti di %s2_leader</Italian>
 		<Spanish>Actitud hacia %s3_leader: %s1_attitude (+/- 0)</Spanish>
 	</TEXT>	
+	<!-- advc.005: was Asoka -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
+		<English>Ashoka</English>
+		<French>
+			<Text>Ashoka</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Ashoka</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Ashoka</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Ashoka</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<!-- 002b: Shortened leader names -->
+	<!-- was Augustus Caesar (in Warlords Civ4GameTextObjects XML) -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
+		<English>Augustus</English>
+		<French>
+			<Text>Auguste</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Augustus</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Augusto</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Augusto</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
+	<TEXT> <!-- redefine -->
+	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
+		<English>Willem</English>
+		<French>
+			<Text>Guillaume</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</French>
+		<German>
+			<Text>Wilhelm</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</German>
+		<Italian>
+			<Text>Guglielmo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Guillermo</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</Spanish>
+	</TEXT>
 	<!-- advc.004r: Based on TXT_KEY_MISC_YOU_DISCOVERED_BONUSin
 		 Vanilla CIV4GameTextInfos.xml	-->
 	<TEXT>
@@ -3365,6 +3498,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Italian>[ALT] per dichiarare guerra</Italian>
 		<Spanish>[ALT] para declarar la guerra</Spanish>
 	</TEXT>
+	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
+		<English>[ICON_BULLET]World Wonder</English>
+		<French>[ICON_BULLET]Merveille mondiale</French>
+		<German>[ICON_BULLET]Weltwunder</German>
+		<Italian>[ICON_BULLET]Grande Meraviglia</Italian>
+		<Spanish>[ICON_BULLET]Maravilla del mundo</Spanish>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_TEAM_WONDER1</Tag>
 		<English>[ICON_BULLET]Team Wonder</English>
@@ -3396,6 +3538,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<German>[ICON_BULLET]Teamprojekt</German>
 		<Italian>[ICON_BULLET]Progetto di squadra</Italian>
 		<Spanish>[ICON_BULLET]Proyecto de equipo</Spanish>
+	</TEXT>
+	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
+		<English>[SPACE]World Wonder (%d1_Num Left)</English>
+		<French>[SPACE]Merveille mondiale (reste %d1_Num)</French>
+		<German>[SPACE]Weltwunder (%d1_Num &#252;brig)</German>
+		<Italian>[SPACE]Grande Meraviglia (%d1_Num [NUM1:rimasta:rimaste])</Italian>
+		<Spanish>[SPACE]Maravilla del mundo: (%d1_Num [NUM1:restante:restantes])</Spanish>
 	</TEXT>
 	<TEXT> <!-- redefine -->
 		<Tag>TXT_KEY_BUILDING_NATIONAL_WONDER_LEFT</Tag>
@@ -5252,6 +5403,16 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Gender>Male</Gender>
 			<Plural>1</Plural>
 		</Spanish>
+	</TEXT>
+	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
+		 actually is cumulative with culture defense. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
+		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
+		<French>[ICON_BULLET]%d1_Mod%% en d&#233;fense dans toutes les villes</French>
+		<German>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in allen St&#228;dten</German>
+		<Italian>[ICON_BULLET]%d1_Mod%% alla difesa in tutte le citt&#224;</Italian>
+		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa en todas las ciudades</Spanish>
 	</TEXT>
 
 	<!-- advc.004c: Replacing the generic TXT_KEY_MISSION_BOMBARD_HELP

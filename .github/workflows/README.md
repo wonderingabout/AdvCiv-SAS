@@ -65,6 +65,8 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_suspicious_text_chars.py`](#buildxmlxml_suspicious_text_charspy)
     - [`build/xml/xml_civ4_text_characters.py`](#buildxmlxml_civ4_text_characterspy)
     - [`build/xml/xml_sas_text_english.py`](#buildxmlxml_sas_text_englishpy)
+    - [`build/xml/xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy)
+    - [`build/xml/xml_display_order.py`](#buildxmlxml_display_orderpy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
     - [`build/xml/xml_parent_duplicate_keys.py`](#buildxmlxml_parent_duplicate_keyspy)
     - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
@@ -153,7 +155,7 @@ Validated behavior, tested in [PR #31](https://github.com/wonderingabout/AdvCiv-
 
 - current `main` predump already current -> no PR;
 - leader XML comment-only change (Test 0) -> no PR;
-- real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MOCTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
+- real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MONTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
 - shared AIP label/display change (e.g., Temporary test 2: "Build Unit %" -> "Build Unit Prob") -> predump refresh PR.
 
 The [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) body keeps the detailed temporary test commits, GitHub Actions logs, and temporary bot PR links. The important result is that the bot reacts to actual generated predump drift, not merely to touched dependency files.
@@ -617,6 +619,10 @@ It also verifies that buildings, units, civilizations, and leaders with SAS-owne
 
 Other explicit exceptions cover confirmed inherited base references, empirically confirmed EXE runtime references with no static reference, and BUG option-key families constructed dynamically at runtime. Every passing run prints the exact keys in each exception group so accepted uncertainty stays visible in CI.
 
+An exception that is no longer needed fails too, so the lists stay a record of real exceptions. Moving identical text back to base AdvCiv on 2026-11-04 left eight such stale keys, for example `TXT_KEY_LEADER_TOKUGAWA_PEDIA`.
+
+Every diplomacy response key used by `CIV4DiplomacyInfos.xml` must exist in mod GameText or in the inherited-text hash list of [`xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy), whatever its prefix (`AI_DIPLO_*`, `USER_DIPLO_*`). The `TXT_KEY`-only check could not catch a lost key such as the KI#149 `_CORRECTED` Montezuma demand, which only Warlords text defines.
+
 The two sea-level recommendation labels are runtime exceptions because changing the High label changed its Custom Game list text in-game, and Low uses the matching EXE convention.
 
 Inherited AdvCiv/BUG/BULL text remains outside the blocking unused-key check because a full static scan produces hundreds of uncertain legacy and dynamic candidates; the broader manual [`audit_unused_text_keys.py`](/LLM_Helpers/README.md#audit_unused_text_keyspy) remains available for optional review audits.
@@ -748,7 +754,33 @@ XML comments are ignored, while readable accented letters remain allowed.
 
 #### `build/xml/xml_sas_text_english.py`
 
-Verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+Verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries. The former whitelist for renamed Moctezuma diplomacy entries was removed on 2026-11-04, when the inherited `MONTEZUMA` text keys were restored.
+
+#### `build/xml/xml_sas_text_inherited.py`
+
+Verifies that every entry in `Assets/XML/Text/AdvCiv-SAS*.xml` still differs from the inherited English text: base AdvCiv 1.12 (`0d81edb64`), else BtS, else Warlords, else vanilla. SAS text files hold only what SAS changed, so SAS text stays clearly separate from inherited text.
+
+- An identical entry fails with what to do: restore base AdvCiv's original block in its inherited file, or delete the SAS entry so the BtS/Warlords/vanilla text applies.
+  - The 2026-11-04 cleanup found 25 such entries, for example `TXT_KEY_LEADER_TOKUGAWA` (lengthened, then shortened back to AdvCiv's "Tokugawa").
+- The comparison is strict: only CRLF/LF line endings are ignored, because Git checkouts can change them. A fixed hyphen, quote mark or space keeps an entry as an SAS change.
+- GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text.
+  - Why hashes instead of the text: we do not know whether copyright allows republishing complete unmodified game text files, and this check only needs to know whether two English texts are identical.
+    - A hash answers that without containing the text: `TXT_KEY_LEADER_LINCOLN bts 8d54efb91fed8018` cannot be read back as "Lincoln" or sorted by it.
+    - Only the English text is hashed, as SAS text files hold English only.
+  - Hashes cannot be read or sorted, so `--write` also stores [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv): readable English only for the about 120 leader and civilization name keys that CI checks use, such as `TXT_KEY_LEADER_LINCOLN` -> "Lincoln".
+  - Both are plain TSV with one header row and no comment lines, so table tools read them cleanly; Rainbow CSV's CSVLint in VS Code had flagged earlier `#` header lines as rows with the wrong column count.
+    - There is no separate CSV/TSV lint: the readers already fail on a missing header row or a row without exactly three fields, and these lists are almost the only tracked TSV files (the other is generated context under `LLM_Helpers/context/`).
+  - BtS, Warlords and vanilla do not change, and the base AdvCiv snapshot is a fixed commit, so the file should not need refreshing. If needed, regenerate it locally with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`.
+  - Warlords text is included: the game loads it too, since only Warlords defines keys such as `TXT_KEY_CIV_KOREA_DESC`. A first draft left Warlords out and wrongly kept `TXT_KEY_CONCEPT_IRRIGATION` as SAS text.
+
+#### `build/xml/xml_display_order.py`
+
+Verifies that XML lists whose file order players see follow the alphabetical order of their shown English names. It currently checks leaders: the Custom Game leader list follows `CIV4LeaderHeadInfos.xml` order, and a test with `LEADER_CHINESE_LEADER` moved showed Mao Zedong between Lincoln and Louis XIV.
+
+- The order follows the shown name, which can differ from the Type: Mao Zedong is `LEADER_CHINESE_LEADER`, Roosevelt is `LEADER_FRANKLIN_ROOSEVELT`. `LEADER_BARBARIAN` and `LEADER_DEFAULTS` are not in the list and are skipped.
+- Names come from mod GameText, else from the inherited names list of [`xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy).
+- Civilizations are not checked yet. Custom Game lists their short names in `CIV4CivilizationInfos.xml` order ("The USA" first, before "Arabia"), while Play Now sorts full names itself, and the current file is not in short-name order.
+- True Starts is not checked: `CIV4TruLeaderInfos.xml` is looked up by `<LeaderType>`, so its order is not shown in game. It keeps base AdvCiv's `TRU_RAMESSES` before `TRU_RAGNAR`, the reverse of the leader file.
 
 #### `build/xml/xml_text_duplicate_tags.py`
 
@@ -1118,6 +1150,10 @@ It enforces these review rules introduced after repeated provenance mistakes:
 The check is deliberately conservative rather than a full C++ parser. New functions/files have no previous interface contract to explain; new files still require dependency explanations. Distant moves and ambiguous many-function replacements are not guessed to be renames; review those manually.
 
 Standard repository header/directive comments are exempt from the new-comment rule, and source-file deletion is allowed without a tombstone comment.
+
+A non-custom comment also passes when the same file contained it word for word before the base commit (Git pickaxe search of that path's history). This allows restoring an inherited block, such as the AdvCiv `CIV4GameText_advc.xml` text entries moved back from `AdvCiv-SAS_main.xml` on 2026-11-04; changed wording still fails.
+
+The header of the generated AIP predump module is `aip_predump_values.py` output, so it is exempt too.
 
 Credit matching is deliberately conservative: free-form attribution, distant moves combined with rewrites and wholesale rewrites still need review.
 

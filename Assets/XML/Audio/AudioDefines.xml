@@ -1409,42 +1409,42 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_EARLY_INTRO</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_EARLY_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Early_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_EARLY_LP</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_EARLY_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Early_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_MIDDLE_INTRO</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_MIDDLE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_MIDDLE_LP</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_MIDDLE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_LATE_INTRO</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_LATE_INTRO</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Intro</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>DIPLO_MOCTEZUMA_LATE_LP</SoundID>
+			<SoundID>DIPLO_MONTEZUMA_LATE_LP</SoundID>
 			<Filename>Sounds/Diplomacy/Montezuma_Middle_Lp</Filename>
 			<LoadType>STREAMED</LoadType>
 			<bIsCompressed>1</bIsCompressed>

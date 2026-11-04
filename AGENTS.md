@@ -72,6 +72,8 @@ This is the general guidelines to follow for this repo of our mod AdvCiv-SAS tha
 
 You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
 
+Keep additions in this file as guidance, not a full spec. State the rule, why it exists and concrete example(s) (real names beat abstract prose) if it helps, and link to the detailed doc instead of repeating it unless part of the explanation or something otherwise helpful.
+
 ## git, GitHub, and git diff info
 
 Our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS).
@@ -87,6 +89,9 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
     - [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) can switch the usual development diagnostics on or back to shipped defaults.
     - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
+- Before a large or risky change to uncommitted work, save the diffs outside the repo (inside it, greps would find them):
+  - `ts=$(date +%Y%m%dT%H%M%S); d=/c/Users/PC/Downloads/AdvCiv-SAS_diff_backups; mkdir -p $d && git diff --staged --ignore-space-at-eol > $d/staged_$ts.diff && git diff --ignore-space-at-eol > $d/unstaged_$ts.diff`
+  - Restore with `git apply --ignore-whitespace`, staged diff first. Untracked files (unless marked with `git add -N`) and binaries such as DLLs are not included.
 
 Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed.
 
@@ -106,6 +111,10 @@ On your end you generally don't need to update them unless our infrastructure ch
 - So if considering a new check or maintained test, first assess whether it is necessary or practically useful for us and worth maintaining; use our existing sanity checks as examples of the intended scope.
   - For example, `test_sgr_military_trainability.py` verifies that the callback guard returns before diagnostic `canTrain` queries can execute arbitrary Python. That protects a side-effect boundary whose call order comments and successful compilation cannot verify.
   - By contrast, during pre-commit draft review of `logSASGameRecordPlotYieldRules`, we removed a test that only counted its two gated session calls. It duplicated simple visible code; contract comments and native/live checks were a better tradeoff here, unlike the callback-order check above.
+- Two generated lists give agents without a Civ4 install, such as ChatGPT with a light-source ZIP, facts about inherited game text. The game's text files are not in the repo, as we do not know whether republishing them is allowed.
+  - [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv) tells whether base AdvCiv, BtS, Warlords or vanilla defines a text key and whether an SAS English text is identical to it, without containing the text.
+  - [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv) holds the readable English leader and civilization names. Local agents can read the real files under the Civ4 install instead.
+  - Without them, inherited keys are not greppable in the repo, so their existence and source cannot be checked. For example, `TXT_KEY_CIV_KOREA_DESC` (Korea's name) and `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` are used by SAS XML but defined only in Warlords text; the hash list shows them as `warlords` entries.
 - Keep automated-helper folders and workflow categories aligned: every helper in a subject folder belongs to that category's workflow, with matching names so browsing the folder tells us what that workflow runs.
 - Specialized automation belongs to an explicitly named category too; shared helper reuse is fine, but do not mix unrelated checks into a catch-all workflow. Keep shared code in `lib/`, automated helper tests in matching `tests/<subject>/` folders, and manual-only tooling outside the blocking `build/`/`checks-*.yml` structure.
 - GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
@@ -378,6 +387,9 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - When work trips over a non-obvious mistake once, add a concise nearby comment explaining the pitfall and the correct rationale or invariant because if we tripped once we could trip again here or in another code path, or this useful information could be lost during a later refactor, or it could be useful when designing or reviewing this or other code paths.
   - Examples notably include compilation failures caused by an API, type or toolchain constraint; diagnostic bugs that could produce false conclusions; and logic flaws discovered after the initial implementation.
   - Preserve the concrete trace: "the old code did X; we expected Y, but Z happened, so we changed W." Add brief context when useful, such as "while adding evacuation decision links, the draft..." This lets future readers follow what failed and why the correction was made without needing the original conversation.
+  - Example (XML text cleanup, 2026-11-04): we assumed BtS does not load Warlords text, so a SAS entry matching only Warlords looked necessary and a deleted Montezuma diplomacy line looked missing; we restored it.
+    - Then we found `TXT_KEY_CIV_KOREA_DESC` exists only in Warlords text, yet Korea shows its name in game, so Warlords is loaded.
+    - We deleted the entry again and recorded the trace at the Warlords layer in `xml_sas_text_inherited.py`; without it, the next reader could repeat the same assumption.
   - Optionally explain why if you know, but the focus is on preserving evidence, accuracy of reasoning, and its progression the most.
     - Less useful (our earlier evacuation-link explanation): "The bound queue entry already validates the planned waypoint; groupMove observes one intermediate tile, not necessarily the end-of-turn destination."
     - Clearer before/failure: the old `iExpectedStepX/Y` actually held the planned destination `(32,40)`, but the unit's correct first step was `(30,39)`. Comparing them produced `EXPECTED_STEP_MISMATCH` and wrongly omitted its decision link.
@@ -672,7 +684,13 @@ Clear, accurate explanations help users and developers understand the code and i
 - In `Assets/XML/GlobalDefines_advciv_sas.xml`, keep related blocks adjacent or separate thematic groups with exactly three blank lines: users read and edit this configuration file directly, so the wider separators make its sections easier to scan. Preserve blank lines inside comments and text values. Other XML files retain their existing spacing conventions.
 - Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
-- Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
+- `AdvCiv-SAS_*.xml` text files hold only text SAS currently changes (new key, renamed key or different English), so SAS text stays separate from inherited text and could be lifted out as one set.
+  - Changed: move the entry into our SAS files, English only.
+  - Changed back, or its renamed key restored: move base AdvCiv's original block back into its inherited file (e.g. `CIV4GameText_advc.xml`), or delete the SAS entry if only BtS/Warlords/vanilla defines it identically or otherwise more correctly than we did.
+  - Examples:
+    - Changed back: SAS lengthened `TXT_KEY_LEADER_TOKUGAWA` to "Tokugawa Ieyasu" (2025-04-11), then shortened it back to "Tokugawa" (2026-05-04) because long names widened the scoreboard. The English matched AdvCiv again, so AdvCiv's block went back to `CIV4GameText_advc.xml`.
+    - Key restored: SAS had renamed the Montezuma keys to `MOCTEZUMA`. Once the inherited IDs returned (2026-11-04), the SAS copy of `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` matched the Warlords text and was deleted, while `TXT_KEY_LEADER_MONTEZUMA` stays because its English "Moctezuma II" still differs.
+  - The [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) CI check flags identical entries strictly (a fixed hyphen counts as a change). It includes Warlords text, which the game loads too: `TXT_KEY_CIV_KOREA_DESC` exists only there.
 - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 - Never put a double-hyphen `--` (or `---`, etc.) inside an XML comment `<!-- ... -->`: it is illegal per the XML spec and breaks parsing of the whole file (empirically broke `GlobalDefines_advciv_sas.xml` when a comment described scoreboard/commerce buttons as `"++"/"--"`).

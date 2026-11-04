@@ -172,9 +172,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<LeaderType>LEADER_MANSA_MUSA</LeaderType>
 			<iStartOfReign>1312</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo> <!-- custom: type: TRU_MAO_ZEDONG -->
-			<Type>TRU_MAO_ZEDONG</Type>
-			<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+		<TruLeaderInfo> <!-- custom: type: TRU_CHINESE_LEADER -->
+			<Type>TRU_CHINESE_LEADER</Type>
+			<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
 			<!-- Proclamation of PRC -->
 			<iStartOfReign>1949</iStartOfReign>
 		</TruLeaderInfo>
@@ -190,9 +190,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<!-- custom: Chairman of the Provisional Government from January 1922; see the SAS Civilopedia entry. See KI#936. (ChatGPT-5.6-Sol) -->
 			<iStartOfReign>1922</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo> <!-- custom: type: TRU_MOCTEZUMA -->
-			<Type>TRU_MOCTEZUMA</Type>
-			<LeaderType>LEADER_MOCTEZUMA</LeaderType>
+		<TruLeaderInfo> <!-- custom: type: TRU_MONTEZUMA -->
+			<Type>TRU_MONTEZUMA</Type>
+			<LeaderType>LEADER_MONTEZUMA</LeaderType>
 			<iStartOfReign>1502</iStartOfReign>
 		</TruLeaderInfo>
 		<TruLeaderInfo> <!-- custom: type: TRU_NAPOLEON -->

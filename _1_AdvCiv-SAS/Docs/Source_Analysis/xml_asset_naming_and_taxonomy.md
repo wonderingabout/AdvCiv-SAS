@@ -68,7 +68,7 @@ The table below is intentionally about **changes**, not a description of the cur
 | Family | Documented inherited -> SAS naming changes | Main practical commit(s) / date(s) | Later state by 2026-11-04 |
 | --- | --- | --- | --- |
 | Bonuses | `GEMS -> GEMSTONES`; `IVORY -> ELEPHANTS`; `WINE -> GRAPES`; `CORN -> MAIZE`; `CLAM -> MOLLUSCS`; `COW -> CATTLE` | 4767-4770, 4776; 2025-05-21 to 2025-05-24 | The six inherited machine-ID families were restored on 2026-11-04 while SAS display/gameplay terminology stayed; `MOVIES -> CAMEL` is **not** a rename |
-| Leaders | `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`; `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA` | 4749, 2025-05-11; 4743, 2025-05-08 | Both SAS names still present |
+| Leaders | `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`; `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA` | 4749, 2025-05-11; 4743, 2025-05-08 | Both inherited machine-ID families were restored on 2026-11-04; displayed names remain Mao Zedong and Moctezuma II |
 | Civilizations | `CIVILIZATION_VIKING -> CIVILIZATION_SCANDINAVIA`; same-Type display changes also include American Empire -> United States of America and Amerindian Empire -> Native American Empire | 4878, 2025-07-15; display changes 4883, 2025-07-21 | Scandinavia machine name and both display changes still present |
 | Religion family | Taoism -> Daoism across religion, buildings, missionary, art and text-key namespaces | 4740-4741, 2025-05-07 | Daoism family still present; Confucianism removal/Paganism addition was separate |
 | Great-Person units/classes | `UNIT_PROPHET/ARTIST/SCIENTIST/MERCHANT/ENGINEER -> UNIT_GREAT_*`; same for `UNITCLASS_*`; corresponding `UNITAI_* -> UNITAI_GREAT_*`; `UNITAI_GENERAL -> UNITAI_GREAT_GENERAL` | 4750, `701e2e3127`, 2025-05-11 | Still present |
@@ -308,12 +308,14 @@ The same distinction applies to companion IDs: there is no meaningful `ART_DEF_B
 
 ## Leaders
 
-Compared with inherited AdvCiv/BtS naming, SAS had two direct leader-ID renames by 2026-11-04, plus three genuinely new SAS leaders.
+SAS made two direct inherited leader-family renames in May 2025, then restored both inherited machine families on 2026-11-04. The restoration follows the same compatibility principle as the bonus restoration: these remain the same inherited leader slots despite SAS personality, trait and Civilopedia changes, and the player-facing names never needed different machine IDs.
 
-| Base AdvCiv/BtS name | SAS name | Main renamed companions | Practical commit/date | Why / nature of change | Status on 2026-11-04 |
+The benefit is less direct than for bonuses, which map scripts use directly. AdvCiv-SAS does not support scenarios, and its other changes can still make external content incompatible. But XML, WorldBuilder or True Starts data that names the inherited leader families becomes easier to adapt and compare.
+
+| Base AdvCiv/BtS name | SAS name introduced in 2025 | Main renamed companions | Practical commit/date | Why / nature of original change | Later state on 2026-11-04 |
 | --- | --- | --- | --- | --- | --- |
-| `LEADER_CHINESE_LEADER` | `LEADER_MAO_ZEDONG` | Leader art, `TRU_*`, description/pedia text keys, diplomacy response keys | 4749, `a230337b9f`, 2025-05-11 | Replaced a placeholder-like machine name with the actual leader name | **Active** |
-| `LEADER_MONTEZUMA` | `LEADER_MOCTEZUMA` | Leader art, `TRU_*`, description/pedia text keys, diplomacy response keys | 4743, `72338fcc2b`, 2025-05-08 | Spelling/name normalization | **Active** |
+| `LEADER_CHINESE_LEADER` | `LEADER_MAO_ZEDONG` | Leader art, `TRU_*`, description/pedia text keys, diplomacy response keys | 4749, `a230337b9f`, 2025-05-11 | Replaced a placeholder-like machine name with the actual leader name | **Restored to `LEADER_CHINESE_LEADER`**; inherited `TXT_KEY_LEADER_CHINESE_LEADER` again supplies the displayed **Mao Zedong** name, while the SAS pedia/personality data remain |
+| `LEADER_MONTEZUMA` | `LEADER_MOCTEZUMA` | Leader art, `TRU_*`, description/pedia text keys, diplomacy response keys, diplomacy audio IDs; related Montezuma Castle text key | 4743, `72338fcc2b`, 2025-05-08 | Spelling/name normalization | **Restored to `LEADER_MONTEZUMA`**; SAS overrides under the inherited text keys keep the displayed **Moctezuma II** spelling and updated pedia; the city name uses the inherited **Montezuma Castle** text again |
 
 ### `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`
 
@@ -331,6 +333,10 @@ Companions include:
 
 This was a clear naming-led change: the inherited placeholder-like machine identifier was replaced with the actual leader name. By 2026-11-04, Mao data also differed materially from AdvCiv in AI/personality and trait data, so the rename was not the only SAS-side difference.
 
+On 2026-11-04 the machine family returned to `LEADER_CHINESE_LEADER`, including `ART_DEF_LEADER_CHINESE_LEADER`, `TRU_CHINESE_LEADER`, the inherited description/pedia key family and `AI_DIPLO_*_LEADER_CHINESE_LEADER_*` response keys.
+
+The temporary SAS `TXT_KEY_LEADER_MAO_ZEDONG` description override was removed entirely because the inherited `TXT_KEY_LEADER_CHINESE_LEADER` already displays **Mao Zedong**; the expanded SAS Civilopedia remains under `TXT_KEY_LEADER_CHINESE_LEADER_PEDIA`. This makes external data that names the inherited leader easier to reuse, without reverting Mao's SAS gameplay or displayed identity.
+
 ### `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA`
 
 Practical commit **4743**, `72338fcc2b`, 2025-05-08.
@@ -345,6 +351,14 @@ Companions include:
 - `AI_DIPLO_*_LEADER_MONTEZUMA_* -> AI_DIPLO_*_LEADER_MOCTEZUMA_*` key families.
 
 This was a spelling/name normalization. By 2026-11-04, the Moctezuma payload also differed materially from inherited AdvCiv data, including `iBuildUnitProb`, favorite civic and favorite religion.
+
+On 2026-11-04 the machine family returned to `LEADER_MONTEZUMA`, including leader art, `TRU_MONTEZUMA`, `AI_DIPLO_*_LEADER_MONTEZUMA_*`, and the inherited `AS2D_DIPLO_MONTEZUMA_*` / `DIPLO_MONTEZUMA_*` audio IDs.
+
+The description and pedia keys also returned to `TXT_KEY_LEADER_MONTEZUMA*`, but SAS keeps its English overrides so the player-facing leader remains **Moctezuma II** and the updated pedia is preserved.
+
+`TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE` was likewise restored, and its SAS override was removed so the inherited BtS text **Montezuma Castle** applies again. That is the real site's name: later settlers named the Arizona cliff dwelling (Montezuma Castle National Monument) after Moctezuma, so "Moctezuma Castle" was not a spelling correction.
+
+The rename-only diplomacy text copies that had been needed for the temporary `MOCTEZUMA` key family were removed so the inherited text family can be used again.
 
 As of 2026-11-04, `LEADER_EWUARE`, `LEADER_GRACE_OMALLEY` and `LEADER_MICHAEL_COLLINS` were new SAS content rather than inherited leader renames.
 

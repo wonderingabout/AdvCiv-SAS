@@ -3,6 +3,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Michael Curran (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- 2D Sound Scripts
 	 advc (note): In-line comments will crash the parser -->
@@ -4250,8 +4254,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_EARLY_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_EARLY_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4273,8 +4277,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_EARLY_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_EARLY_LP</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_EARLY_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4296,8 +4300,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_MIDDLE_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_MIDDLE_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4319,8 +4323,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_MIDDLE_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_MIDDLE_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4342,8 +4346,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_LATE_INTRO</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_LATE_INTRO</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>
@@ -4365,8 +4369,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_DIPLO_MOCTEZUMA_LATE_LP</ScriptID>
-		<SoundID>DIPLO_MOCTEZUMA_LATE_LP</SoundID>
+		<ScriptID>AS2D_DIPLO_MONTEZUMA_LATE_LP</ScriptID>
+		<SoundID>DIPLO_MONTEZUMA_LATE_LP</SoundID>
 		<SoundType>GAME_MUSIC</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>75</iMaxVolume>

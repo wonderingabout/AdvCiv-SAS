@@ -157,7 +157,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
 		<LeaderheadArtInfo>
-			<Type>ART_DEF_LEADER_MAO_ZEDONG</Type>
+			<Type>ART_DEF_LEADER_CHINESE_LEADER</Type>
 			<Button>,Art/interface/LeaderHeads/Btn_LH_China_MaoZedong.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,11</Button>
 			<NIF>art/LeaderHeads/Mao/Mao_tse_tung.nif</NIF>
 			<KFM>art/LeaderHeads/Mao/Mao_tse_tung.kfm</KFM>
@@ -165,7 +165,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<BackgroundKFM>art/LeaderHeads/Mao/Mao_tse_tung_BG.kfm</BackgroundKFM>
 		</LeaderheadArtInfo>
 		<LeaderheadArtInfo>
-			<Type>ART_DEF_LEADER_MOCTEZUMA</Type>
+			<Type>ART_DEF_LEADER_MONTEZUMA</Type>
 			<Button>,Art/interface/LeaderHeads/Btn_LH_Aztec_Montezuma.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,10</Button>
 			<NIF>art/LeaderHeads/Montezuma/montezuma.nif</NIF>
 			<KFM>art/LeaderHeads/Montezuma/montezuma.kfm</KFM>

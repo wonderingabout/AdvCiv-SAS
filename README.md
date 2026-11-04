@@ -990,7 +990,7 @@ Example of usage:
 				</EraArtDefineTag>
 				<EraArtDefineTag>
 					<EraType>ERA_FUTURE</EraType>
-					<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+					<ArtDefineTag>ART_DEF_LEADER_CHINESE_LEADER</ArtDefineTag>
 				</EraArtDefineTag>
 			</EraArtDefineTags>
 			<iWonderConstructRand>40</iWonderConstructRand>
