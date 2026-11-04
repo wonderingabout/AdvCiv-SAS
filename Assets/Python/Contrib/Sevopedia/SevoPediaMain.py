@@ -1724,6 +1724,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if self.SAS_cacheReligionsTuple is None:
 			if self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA:
 				# <!-- custom: keep XML order within each era group (e.g. Paganism before Hinduism), so grouped religions follow CIV4ReligionInfo.xml instead of alphabetic sorting. (GPT-5.3-Codex) -->
+				# <!-- custom: This file order is therefore what players see, so CI (xml_display_order.py) keeps religions in founding-tech column order. See KI#1073. (Claude code Opus 5.5) -->
 				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo, noSort=True)
 				self.SAS_cacheReligionsTuple = tuple(self.SAS_getReligionsGroupedByEra_fromBaseList(baseList))
 			else:

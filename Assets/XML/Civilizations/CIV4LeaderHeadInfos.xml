@@ -10,6 +10,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- Leader Infos and AI Settings -->
 <!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+	<!-- custom: The Custom Game leader list shows this file order, so keep leaders in alphabetical order of their shown names, not their Types; xml_display_order.py checks it. See KI#1073. (Claude code Opus 5.5) -->
 	<LeaderHeadInfos>
 		<LeaderHeadInfo> <!-- custom: LEADER_BARBARIAN (useful for VS Code upper tree view while scrolling) -->
 			<Type>LEADER_BARBARIAN</Type>

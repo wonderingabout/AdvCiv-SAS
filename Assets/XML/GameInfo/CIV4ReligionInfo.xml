@@ -10,6 +10,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- Religion -->
 <!-- custom: Long_Comments_XML.txt #139 -->
 <Civ4ReligionInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+	<!-- custom: The Sevopedia groups religions by era and shows this file order within each era, so keep religions in the tech-tree column order of their founding techs; xml_display_order.py checks it. See KI#1073. (Claude code Opus 5.5) -->
 	<ReligionInfos>
 		<ReligionInfo>
 			<Type>RELIGION_PAGANISM</Type>

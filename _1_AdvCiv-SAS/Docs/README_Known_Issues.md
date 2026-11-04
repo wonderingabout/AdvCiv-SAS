@@ -1229,7 +1229,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1070 - (Retired audit cursor; no confirmed defect) Mechanical denominator and modulo scan](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1070)\
 [KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1071)\
 [KI#1072 - (Fixed SAS migration gap, recorded retrospectively) Nine resources kept BtS trade techs after SAS moved their connecting Builds or reveals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072)\
-[KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)
+[KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)\
+[KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)
 
 <a id="ki-1"></a>
 
@@ -37014,3 +37015,35 @@ Found by the user from a tech popup screenshot; fixed with the help of Claude co
 - Buildings, units and resources that go obsolete at or before the tech that makes them available: only `BONUS_DRAMA` and `BONUS_MUSIC`, which SAS deliberately disabled with `BONUSCLASS_DISABLED` and `TECH_DEPOPULATION` for all three of their techs.
 - Game text naming a religion together with its BtS founding tech in a founding context: none.
 - Prerequisite timing for units, buildings and resource trade is already checked by `asset_primary_tech.py`, and the tech tree itself by `tech_prereqs.py`.
+
+<a id="ki-1073"></a>
+
+## KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Rqfx03XLjZTbV8lHwgVg2voV1yktprz_?usp=sharing).
+
+Some in-game lists show XML entries in the order of the file, not sorted by name. While the leader identifiers were restored (2026-11-04), a test with Mao Zedong's `LEADER_CHINESE_LEADER` entry moved showed him between Lincoln and Louis XIV in the Custom Game leader list.
+
+- **Custom Game** lists leaders by shown name and civilizations by short name, both in file order.
+- **Play Now** sorts civilizations by full name itself, so its list was already alphabetical ("United States of America" near the end).
+- **The Policy Advisor** and **the Sevopedia** show each civic category in `CIV4CivicInfos.xml` order (the Sevopedia groups civics by category in `_sevopedia_main_groupings.py` and keeps their file order).
+
+Leaders were in order. Three civilizations and two civics were not:
+
+- `CIVILIZATION_AMERICA` came first, under its old Type order, although its short name "The USA" (SAS rename of 2025-07-21) belongs under T.
+- `CIVILIZATION_IRELAND` (added 2026-02-16) and `CIVILIZATION_KINGDOM_OF_BENIN` (added 2025-04-01) sat right after Ethiopia instead of at their alphabetical places.
+- SAS had sorted civics by unlock order ("Civics order aligned to tech pace" in the Main Changes Guide), but later tech reworks moved their required techs:
+  - Vassalage moved from Feudalism to Philosophy (2025-12-14, see `Long_Comments_XML.txt` #6), so it unlocked before Bureaucracy (Civil Service) while still listed after it.
+  - Theocracy (Monotheism, column 6) was listed after Pacifism (Medicine, column 9).
+
+Fix (2026-11-04):
+
+- Civilizations reordered by short name, with Minor and Barbarian last. The short name "The USA" became "United States": no other short name has an article or is an abbreviation, and short names appear mid-sentence in diplomacy text. "Kingdom Of Benin" became "Kingdom of Benin", matching "United States of America".
+- Vassalage now comes before Bureaucracy and Theocracy before Pacifism.
+- Religions were checked as well: the Sevopedia groups them by era in `CIV4ReligionInfo.xml` order (`SevoPediaMain.getReligionList`), and they were already in founding-tech order.
+- The [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) CI check keeps leaders and civilizations in alphabetical order of their shown names and civics in the tech column order of their required techs.
+  - On the previous XML it reports exactly the three civilization and two civic misplacements.
+  - GitHub lacks the game's text, so the shown names come from mod text or the small names list of [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy).
+- True Starts order is not checked: it is looked up by `<LeaderType>`, not shown in game.
+
+Found by the user from Custom Game and Play Now screenshots; fixed with the help of Claude code Opus 5.5, thanks.

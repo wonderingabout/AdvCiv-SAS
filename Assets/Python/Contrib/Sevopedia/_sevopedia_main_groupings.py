@@ -1244,6 +1244,7 @@ def SAS_getCivicsGroupedByCivicOption(bSortLists):
 			continue
 
 		# <!-- custom: do not alphabetize civics inside each civic-option group; keep their CIV4CivicInfos.xml order so it is more intuitive and logical to read (for civics). (GPT-5.3-Codex) -->
+		# <!-- custom: This file order is therefore what players see, so CI (xml_display_order.py) keeps each category in unlock order. See KI#1073. (Claude code Opus 5.5) -->
 		# # If BUG "Sort Lists" is ON, alphabetize within each option group
 		# if bSortLists:
 		# 	tmp.sort()

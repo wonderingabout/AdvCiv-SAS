@@ -3357,9 +3357,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Plural>0</Plural>
 		</English>
 	</TEXT>
+	<!-- custom: Was "The USA".
+	No other short name has an article or is an abbreviation (compare "Kingdom of Benin", "Holy Rome"), and short names are inserted mid-sentence through [CT_CIV_SHORT], so "United States" is consistent. See KI#1073. (Claude code Opus 5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
-		<English>The USA</English>
+		<English>United States</English>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #219 -->
 	<TEXT>
@@ -3420,14 +3422,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Ewuare</English>
 	</TEXT>
 	<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
+	<!-- custom: "Of" lowercased to match "United States of America" and the usual spelling of the name. (Claude code Opus 5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
-		<English>Kingdom Of Benin</English>
+		<English>Kingdom of Benin</English>
 	</TEXT>
 	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
 	<TEXT>
 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
-		<English>Kingdom Of Benin</English>
+		<English>Kingdom of Benin</English>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #230 -->
 	<TEXT>

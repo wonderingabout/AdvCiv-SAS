@@ -185,6 +185,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[DLL build reports](/README.md#dll-build-reports)\
 &emsp;[Helpers](/README.md#helpers)\
 &emsp;[Local tests](/README.md#local-tests)\
+&emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
 &emsp;[CI](/README.md#ci)\
 &emsp;[Light-source ZIP](/README.md#light-source-zip)\
 &emsp;[Repository](/README.md#repository)\
@@ -1218,12 +1219,55 @@ Alongside the automated GitHub CI checks, [`tests/`](/tests/README.md) contains 
 
 The first is a Windows/VC2003 diagnostic writer test: it compiles the actual logging code into a temporary program and checks file sharing, Unicode paths and recovery from simulated write failures. Run it when changing the writer or investigating missing/corrupted output; full DLL compilation and in-game validation remain separate.
 
+### Inherited game text lists
+
+The game's own text files (BtS, Warlords and vanilla Civ4) are not in the repo, because we do not know whether republishing them is allowed. Base AdvCiv's text is only in old Git history. So nothing in the repo shows whether a key such as `TXT_KEY_CIV_KOREA_DESC` (Korea's name, defined only in Warlords text) exists, where it comes from, or what it says.
+
+Two small generated lists answer that, in English only, since SAS text files hold English only:
+
+- [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv) has one row per inherited text key: its source (base AdvCiv, else BtS, else Warlords, else vanilla) and a short fingerprint (SHA-256) of its English text. The fingerprint tells whether two texts are identical without containing the text.
+- [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv) has the readable English names of leaders and civilizations, about 120 rows.
+
+Hash list sample:
+
+| tag | source | sha256 |
+| --- | --- | --- |
+| `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` | `warlords` | `f74404b3b9ed2a49` |
+| `TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES` | `advciv` | `381dcff65ec1bf4c` |
+| `TXT_KEY_CIV_KOREA_DESC` | `warlords` | `4d923eaeab13b7a2` |
+| `TXT_KEY_LEADER_LINCOLN` | `bts` | `8d54efb91fed8018` |
+| `TXT_KEY_LEADER_TOKUGAWA` | `advciv` | `9fb1187627b9ba5a` |
+| `TXT_KEY_TECH_SAILING_QUOTE` | `vanilla` | `6d8560be803cb5c7` |
+
+Names list sample:
+
+| tag | source | name |
+| --- | --- | --- |
+| `TXT_KEY_CIV_AMERICA_DESC` | `vanilla` | American Empire |
+| `TXT_KEY_CIV_AMERICA_SHORT_DESC` | `vanilla` | America |
+| `TXT_KEY_CIV_NETHERLANDS_SHORT_DESC` | `bts` | Netherlands |
+| `TXT_KEY_LEADER_CHINESE_LEADER` | `vanilla` | Mao Zedong |
+| `TXT_KEY_LEADER_LINCOLN` | `bts` | Lincoln |
+| `TXT_KEY_LEADER_MANSA_MUSA` | `vanilla` | Mansa Musa |
+
+These are the inherited values. SAS overrides some of them in its own text files, for example America's names (United States of America, United States).
+
+Uses:
+
+- **Searching:** grep a key to see whether the game defines it and in which layer, for example while checking a Civ4 reference in an XML file.
+- **External agents** such as ChatGPT, which get the lists in the light-source ZIP but have no Civ4 install.
+- **CI:** [`xml_sas_text_inherited.py`](/.github/workflows/README.md#buildxmlxml_sas_text_inheritedpy) fails when SAS text is identical to the inherited text, [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) keeps the Custom Game lists in name order (see [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)), and [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy) checks that diplomacy keys exist.
+
+Both are plain TSV with one header row. They are generated from a local Civ4 install with `python .github/workflows/build/xml/xml_sas_text_inherited.py --write --civ4-root "<Civ4 install root>"`; the game files do not change, so they should not need refreshing.
+
 ### CI
 
 - DLL shipping checks require a changed Release DLL/JSON pair, matching successful build evidence and the `Update DLL` commit-message marker; a marker without a changed pair also fails.
 - C++-used XML define name additions/removals/renames require updated Release build evidence at default-branch integration; value/comment edits and Python-only names are excluded. See [DLL shipping and rebuild checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci).
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions.
+
+Some XML checks compare SAS text with Civ4 game text that is not in the repo. Their reference data, generated TSV lists of inherited text, was made for CI but also serves external agents such as ChatGPT and quick greps, so it has its own section: [Inherited game text lists](/README.md#inherited-game-text-lists).
 
 They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
 

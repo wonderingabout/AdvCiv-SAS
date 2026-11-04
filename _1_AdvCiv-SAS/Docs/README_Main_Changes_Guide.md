@@ -3409,7 +3409,10 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - Some civics are available earlier/later than in base AdvCiv or in strategically more distinct or versatile paths: notably, **Slavery** moves from overpowered, strong military Tech Bronze Working to **Masonry**, keeping the effect early without placing it at the beginning; **Organized Religion** moves to **Polytheism** so monastery-free missionaries can affect early religious spread; and **Pacifism** moves later to **Medicine**, which is more distinct than the religious path (plus its Great Person scaling is too strong for the early religious/culture branch).
   - This improves pacing and balance/strategy variety while reducing the "everything funnels through Bronze Working" effect.
   - See Tech Tree/Sevopedia/XML for current placements.
-- **Civics order aligned to tech pace:** Reordered civics in XML so the **Policy Advisor** displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
+- **Civics order aligned to tech pace:** the **Policy Advisor** and the Sevopedia list each civic category in XML order. AdvCiv-SAS moved several civics to other techs, so it orders them by their SAS unlock order instead of base AdvCiv's order (UI only; no rules change).
+  - Compared with base AdvCiv, for example: **Universal Suffrage** before **Police State**, **Free Speech** before **Nationhood**, **Caste System** before **Serfdom**.
+  - (Requires AdvCiv-SAS 6720+) Later SAS tech reworks had left **Vassalage** listed after **Bureaucracy** and **Theocracy** after **Pacifism**, although they unlock earlier. Both are back in unlock order, which here is also base AdvCiv's order.
+    - The [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) CI check now keeps each category in unlock order. See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073).
 
 ## Technologies
 
@@ -3506,6 +3509,16 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 ## Civilizations
 
 - New civs: **Kingdom of Benin**; **Ireland**. See also [World map with civs](/README.md#world-map-with-civs).
+- (Requires AdvCiv-SAS 6720+) Note: **Custom Game civilization list remains in alphabetical order:** as in Base AdvCiv, entries of lists that follow the XML file order are ordered by their shown game text (the `TXT_KEY` content), not by their XML Type; this applies beyond civilizations (see below).
+  - For example, "United States" is near the bottom even though `CIVILIZATION_AMERICA` starts with "A" (to match BtS style when convenient (sometimes for compatibility even though we have or had changes that break it, sometimes for other reasons if any)).
+  - In previous SAS changes we had forgotten to order **Ireland**, **Kingdom of Benin** and America's renamed short name this way, so the Custom Game dropdown mistakenly showed "The USA" before "Arabia", and Ireland and Kingdom of Benin right after Ethiopia.
+  - Note 2: the same applies not just to civilizations, but also other fields like leaders, such as Mao Zedong (`LEADER_CHINESE_LEADER`) in the leader list, to the Policy Advisor's and the Sevopedia's civics and to the Sevopedia's religions, and possibly to other places.
+  - The [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) CI check keeps all of them in order. See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073).
+- **Civilization names beyond the "X Empire" template:** base Civ4 names most civilizations "X Empire", which does not fit every one.
+  - **United States of America** (was American Empire): the actual country name; "United States Empire" would be long and awkward.
+  - **Kingdom of Benin** (new civilization): Benin was a kingdom, and the full name keeps it distinct from the modern Republic of Benin, to which it is unrelated.
+  - (Requires AdvCiv-SAS 6720+) Short name **United States** (base AdvCiv: America), written out like the other short names, which appear mid-sentence in diplomacy text.
+    - Note: an earlier SAS version used "The USA". The article (i.e. "The") was removed when we noticed that every civilization would be equally eligible for one and the name was long enough already; the abbreviation became the written-out name, like the other short names.
 - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**.
   - Even distribution across civs (**~14 per tech**).
   - A **"pair"** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working).

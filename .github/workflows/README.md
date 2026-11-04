@@ -763,7 +763,7 @@ Verifies that every entry in `Assets/XML/Text/AdvCiv-SAS*.xml` still differs fro
 - An identical entry fails with what to do: restore base AdvCiv's original block in its inherited file, or delete the SAS entry so the BtS/Warlords/vanilla text applies.
   - The 2026-11-04 cleanup found 25 such entries, for example `TXT_KEY_LEADER_TOKUGAWA` (lengthened, then shortened back to AdvCiv's "Tokugawa").
 - The comparison is strict: only CRLF/LF line endings are ignored, because Git checkouts can change them. A fixed hyphen, quote mark or space keeps an entry as an SAS change.
-- GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text.
+- GitHub has no BtS/Warlords/vanilla text files, so the check reads [`xml_sas_text_inherited_hashes.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv): one tag, source and truncated SHA-256 per inherited entry, without copying Firaxis text. Overview and samples: [Inherited game text lists](/README.md#inherited-game-text-lists).
   - Why hashes instead of the text: we do not know whether copyright allows republishing complete unmodified game text files, and this check only needs to know whether two English texts are identical.
     - A hash answers that without containing the text: `TXT_KEY_LEADER_LINCOLN bts 8d54efb91fed8018` cannot be read back as "Lincoln" or sorted by it.
     - Only the English text is hashed, as SAS text files hold English only.
@@ -775,12 +775,17 @@ Verifies that every entry in `Assets/XML/Text/AdvCiv-SAS*.xml` still differs fro
 
 #### `build/xml/xml_display_order.py`
 
-Verifies that XML lists whose file order players see follow the alphabetical order of their shown English names. It currently checks leaders: the Custom Game leader list follows `CIV4LeaderHeadInfos.xml` order, and a test with `LEADER_CHINESE_LEADER` moved showed Mao Zedong between Lincoln and Louis XIV.
+Verifies that XML lists whose file order players see follow the order players expect. Custom Game and the Policy Advisor show these lists in file order, so a misplaced entry is visible in game but nothing else reports it.
 
-- The order follows the shown name, which can differ from the Type: Mao Zedong is `LEADER_CHINESE_LEADER`, Roosevelt is `LEADER_FRANKLIN_ROOSEVELT`. `LEADER_BARBARIAN` and `LEADER_DEFAULTS` are not in the list and are skipped.
+- **Leaders** follow the alphabetical order of their shown names. A test with `LEADER_CHINESE_LEADER` moved showed Mao Zedong between Lincoln and Louis XIV in the Custom Game list.
+  - The shown name can differ from the Type: Mao Zedong is `LEADER_CHINESE_LEADER`, Roosevelt is `LEADER_FRANKLIN_ROOSEVELT`. `LEADER_BARBARIAN` and `LEADER_DEFAULTS` are not in the list and are skipped.
+- **Civilizations** follow their short names: Custom Game lists short names in `CIV4CivilizationInfos.xml` order, while Play Now sorts full names itself. So `CIVILIZATION_AMERICA` ("United States") sits under U; Minor and Barbarian stay last.
+- **Civics** follow, within each category, the tech-tree column (`iGridX`) of their required tech, as the Policy Advisor and the Sevopedia show them in file order. Civics without a required tech count as column 0.
+  - The first run found Vassalage (Philosophy) after Bureaucracy (Civil Service) and Theocracy (Monotheism) after Pacifism (Medicine), both left behind by later tech moves.
+- **Religions** follow the tech-tree column of their founding tech, as the Sevopedia groups them by era and keeps their file order. They were already in order when the check was added.
 - Names come from mod GameText, else from the inherited names list of [`xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy).
-- Civilizations are not checked yet. Custom Game lists their short names in `CIV4CivilizationInfos.xml` order ("The USA" first, before "Arabia"), while Play Now sorts full names itself, and the current file is not in short-name order.
 - True Starts is not checked: `CIV4TruLeaderInfos.xml` is looked up by `<LeaderType>`, so its order is not shown in game. It keeps base AdvCiv's `TRU_RAMESSES` before `TRU_RAGNAR`, the reverse of the leader file.
+- See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073) for the screenshots and the misplacements this check found.
 
 #### `build/xml/xml_text_duplicate_tags.py`
 
