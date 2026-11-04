@@ -223,17 +223,17 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				 important Han dynasty. -->
 			<iStartOfReign>-221</iStartOfReign>
 		</TruLeaderInfo>
-		<TruLeaderInfo> <!-- custom: type: TRU_RAMESSES -->
-			<Type>TRU_RAMESSES</Type>
-			<LeaderType>LEADER_RAMESSES</LeaderType>
-			<iStartOfReign>-1279</iStartOfReign>
-		</TruLeaderInfo>
 		<TruLeaderInfo> <!-- custom: type: TRU_RAGNAR -->
 			<Type>TRU_RAGNAR</Type>
 			<LeaderType>LEADER_RAGNAR</LeaderType>
 			<!-- Historical identity unknown, but supposed to have campaigned
 				 in the middle of the 9th century. -->
 			<iStartOfReign>830</iStartOfReign>
+		</TruLeaderInfo>
+		<TruLeaderInfo> <!-- custom: type: TRU_RAMESSES -->
+			<Type>TRU_RAMESSES</Type>
+			<LeaderType>LEADER_RAMESSES</LeaderType>
+			<iStartOfReign>-1279</iStartOfReign>
 		</TruLeaderInfo>
 		<TruLeaderInfo> <!-- custom: type: TRU_FRANKLIN_ROOSEVELT -->
 			<Type>TRU_FRANKLIN_ROOSEVELT</Type>

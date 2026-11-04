@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- *ActualQuotes* by Willowmound, ver. 4.20 (Beyond the Sword) -->
 <!--
 AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 -->
-<!-- *ActualQuotes* by Willowmound, ver. 4.20 (Beyond the Sword) -->
 <!-- Leader-specific diplomacy text based on actual quotes, complete or paraphrased. Some other minor changes. -->
 <!-- advc.005h: Renamed from "Civ4GameText_Diplomacy.xml".
 	 Texts for leaders introduced by the expansions are in separate files.

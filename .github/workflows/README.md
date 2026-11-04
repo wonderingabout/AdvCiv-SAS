@@ -55,6 +55,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/global_define_lengths.py`](#buildxmlglobal_define_lengthspy)
     - [`build/xml/global_define_name_style.py`](#buildxmlglobal_define_name_stylepy)
     - [`build/xml/retired_global_define_names.py`](#buildxmlretired_global_define_namespy)
+    - [`build/xml/retired_xml_asset_names.py`](#buildxmlretired_xml_asset_namespy)
     - [`build/xml/launch_guard.py`](#buildxmllaunch_guardpy)
     - [`build/xml/define_int_bounds.py`](#buildxmldefine_int_boundspy)
     - [`build/xml/turn_define_gamespeed.py`](#buildxmlturn_define_gamespeedpy)
@@ -686,6 +687,13 @@ The checker also verifies every mapped current name is still declared in `Global
 
 Regression tests cover active runtime lookups, copied cache identifiers with lowercase/uppercase prefixes, XML comments, historical-document exclusion, missing current declarations, malformed marker order and longer unrelated keys.
 
+#### `build/xml/retired_xml_asset_names.py`
+
+Verifies that active XML, Python and C++ code does not use an XML asset identifier that SAS retired, such as `BONUS_GRAPES` (now `BONUS_WINE` again) or `LEADER_MAO_ZEDONG` (now `LEADER_CHINESE_LEADER`). A retired spelling would point at an asset that no longer exists.
+
+- The retired names come from the first column of the tables in [`xml_asset_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md), so that doc stays the single list; `*` there stands for any identifier characters (`TXT_KEY_BONUS_GRAPES*` covers the pedia key too).
+- Comments and documentation are not checked: they keep the old names as history, for example in KIs and log captures.
+
 #### `build/xml/launch_guard.py`
 
 Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
@@ -784,7 +792,7 @@ Verifies that XML lists whose file order players see follow the order players ex
   - The first run found Vassalage (Philosophy) after Bureaucracy (Civil Service) and Theocracy (Monotheism) after Pacifism (Medicine), both left behind by later tech moves.
 - **Religions** follow the tech-tree column of their founding tech, as the Sevopedia groups them by era and keeps their file order. They were already in order when the check was added.
 - Names come from mod GameText, else from the inherited names list of [`xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy).
-- True Starts is not checked: `CIV4TruLeaderInfos.xml` is looked up by `<LeaderType>`, so its order is not shown in game. It keeps base AdvCiv's `TRU_RAMESSES` before `TRU_RAGNAR`, the reverse of the leader file.
+- True Starts is not checked: `CIV4TruLeaderInfos.xml` is looked up by `<LeaderType>`, so its order is not shown in game. Its base AdvCiv `TRU_RAMESSES` before `TRU_RAGNAR`, the reverse of the leader file, was swapped by hand on 2026-11-04 for tidiness (see [KI#1073.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)).
 - See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073) for the screenshots and the misplacements this check found.
 
 #### `build/xml/xml_text_duplicate_tags.py`
@@ -1130,7 +1138,8 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
-- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits. In XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;
+- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits, which include mod-component credits written as "by <Name>, ver." (e.g. `*ActualQuotes* by Willowmound, ver. 4.20`);
+  - in XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;
 - newly added/changed direct C++ JSON `Format`/`format` literals keep one object field per adjacent string literal, matching the Runtime formatters without changing emitted JSON bytes; unchanged inherited groups and commented-out examples are excluded;
 - new/rewritten Python compound-statement suites reject the E701 pattern `if enabled: log(...)`; keep the body on its own indented line, including diagnostic guards. Unchanged inherited inline suites are outside this diff-aware check;
 - rewritten commented-out code is not inherited prose: a changed `//`, `#` or XML comment block passes when every added or removed line is code-like (statements, calls, braces, conditions; XML elements) and a new custom note sits within three lines. Changed prose lines in the same block still fail, and provenance markers such as `advc.131` must survive in the rewritten code or the note;

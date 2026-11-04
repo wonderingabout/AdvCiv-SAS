@@ -37,7 +37,7 @@ TECH_INFOS = "Assets/XML/Technologies/CIV4TechInfos.xml"
 # They were already in order when this was added; the check keeps them so. See KI#1073. (Claude code Opus 5.5) -->
 RELIGION_INFOS = "Assets/XML/GameInfo/CIV4ReligionInfo.xml"
 # <!-- custom: True Starts is not checked: CIV4TruLeaderInfos.xml is looked up by <LeaderType> and its order is not shown in game.
-# It keeps base AdvCiv's TRU_RAMESSES before TRU_RAGNAR, the reverse of the leader file. (Claude code Opus 5.5) -->
+# Its base AdvCiv TRU_RAMESSES before TRU_RAGNAR, the reverse of the leader file, was swapped by hand on 2026-11-04 for tidiness. See KI#1073.2. (Claude code Opus 5.5) -->
 
 
 def mod_names(repo_root: Path) -> dict[str, str]:

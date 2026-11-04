@@ -36,6 +36,9 @@ jobs:
       - name: Retired SAS define names
         run: python .github/workflows/build/xml/retired_global_define_names.py
 
+      - name: Retired XML asset names
+        run: python .github/workflows/build/xml/retired_xml_asset_names.py
+
       - name: Launch-guard sentinels
         run: python .github/workflows/build/xml/launch_guard.py
 

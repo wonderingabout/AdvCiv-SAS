@@ -3514,6 +3514,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - In previous SAS changes we had forgotten to order **Ireland**, **Kingdom of Benin** and America's renamed short name this way, so the Custom Game dropdown mistakenly showed "The USA" before "Arabia", and Ireland and Kingdom of Benin right after Ethiopia.
   - Note 2: the same applies not just to civilizations, but also other fields like leaders, such as Mao Zedong (`LEADER_CHINESE_LEADER`) in the leader list, to the Policy Advisor's and the Sevopedia's civics and to the Sevopedia's religions, and possibly to other places.
   - The [`xml_display_order.py`](/.github/workflows/README.md#buildxmlxml_display_orderpy) CI check keeps all of them in order. See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073).
+  - The same sweep also found an inherited misordering in base AdvCiv's True Starts file, Ramesses before Ragnar, now swapped; it likely has no functional impact but is tidier. See [KI#1073.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2).
 - **Civilization names beyond the "X Empire" template:** base Civ4 names most civilizations "X Empire", which does not fit every one.
   - **United States of America** (was American Empire): the actual country name; "United States Empire" would be long and awkward.
   - **Kingdom of Benin** (new civilization): Benin was a kingdom, and the full name keeps it distinct from the modern Republic of Benin, to which it is unrelated.

@@ -59,6 +59,8 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         self.assertEqual(checker.modification_header_order_errors(path, note, sas + note), [])
         self.assertEqual(checker.modification_header_order_errors(path, owner + note, owner + "<!-- -->\n" + sas + note), [])
         self.assertEqual(checker.modification_header_order_errors(path, owner + note + sas, owner + note + sas + "<Root/>"), [])
+        credit = "<!-- *ActualQuotes* by Willowmound, ver. 4.20 (Beyond the Sword) -->\n"
+        self.assertEqual(checker.modification_header_order_errors(path, owner + credit + note, owner + credit + sas + note), [])
 
     # <!-- custom: Exercise the actual Git-backed CLI as well as parser fixtures: CI must fail on provenance violations but keep missing model credits advisory for user-authored comments. (GPT-6.1-Sol) -->
     def test_cli_failure_and_warning_exit_codes(self):

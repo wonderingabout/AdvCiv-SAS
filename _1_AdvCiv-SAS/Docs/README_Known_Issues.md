@@ -1230,7 +1230,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1071)\
 [KI#1072 - (Fixed SAS migration gap, recorded retrospectively) Nine resources kept BtS trade techs after SAS moved their connecting Builds or reveals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072)\
 [KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)\
-[KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)
+[KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)\
+[KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)
 
 <a id="ki-1"></a>
 
@@ -37047,3 +37048,12 @@ Fix (2026-11-04):
 - True Starts order is not checked: it is looked up by `<LeaderType>`, not shown in game.
 
 Found by the user from Custom Game and Play Now screenshots; fixed with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1073.2"></a>
+
+## KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file
+
+Found by the same sweep as KI#1073 (2026-11-04). Base AdvCiv's `CIV4TruLeaderInfos.xml` lists `TRU_RAMESSES` before `TRU_RAGNAR`, while `CIV4LeaderHeadInfos.xml` lists Ragnar first, as alphabetical order by shown name requires.
+
+- Likely no functional impact: True Starts looks leaders up by `<LeaderType>`, and its order is not shown in game, so `xml_display_order.py` does not check it.
+- Swapped for tidiness, so True Starts now follows the leader file order exactly.

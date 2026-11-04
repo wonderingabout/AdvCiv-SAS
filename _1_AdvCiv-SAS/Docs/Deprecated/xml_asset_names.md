@@ -40,6 +40,8 @@ For Moctezuma, SAS continues to override the inherited `TXT_KEY_LEADER_MONTEZUMA
 
 The related machine key `TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE` likewise returned to `TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE`, and its SAS override was removed so the inherited BtS text **Montezuma Castle** applies again. That is the real site's name: later settlers named the Arizona cliff dwelling (Montezuma Castle National Monument) after Moctezuma, so "Moctezuma Castle" was not a spelling correction.
 
+The [`retired_xml_asset_names.py`](/.github/workflows/README.md#buildxmlretired_xml_asset_namespy) CI check reads the first column of these tables and fails if active code uses one of the retired names again.
+
 ## Compatibility note
 
 The restored identifiers reduce needless incompatibility with inherited or external content. For bonuses, this directly helps map scripts, which commonly place resources by their standard `BONUS_*` strings.
