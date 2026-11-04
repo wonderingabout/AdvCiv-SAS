@@ -555,7 +555,7 @@ def canTriggerBrothersInNeed(argsList):
 	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER'))
 	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON'))
 	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE'))
-	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_ELEPHANTS'))
+	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IVORY'))
 	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL'))
 	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM'))
 
@@ -1344,7 +1344,7 @@ def canTriggerWiningMonks(argsList):
 	kTriggeredData = argsList[0]
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 
-	if player.getNumAvailableBonuses(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_GRAPES')) > 0:
+	if player.getNumAvailableBonuses(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_WINE')) > 0:
 		return false
 
 	return true

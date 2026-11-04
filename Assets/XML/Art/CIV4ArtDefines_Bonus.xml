@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- Bonus/Resource art path information -->
 <!-- custom: the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml" and then modified or not for AdvCiv-SAS -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
@@ -110,7 +114,7 @@
 		</BonusArtInfo>
 		<!-- custom: import gemstones button from HR mod -->
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_GEMSTONES</Type>
+			<Type>ART_DEF_BONUS_GEMS</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Gems/Gems.nif</NIF>
@@ -137,7 +141,7 @@
 			<FontButtonIndex>24</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_ELEPHANTS</Type>
+			<Type>ART_DEF_BONUS_IVORY</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Elephant/Elephant.nif</NIF>
@@ -184,9 +188,9 @@
 			<Button>Art/AdvCiv_SAS/Bonuses/Sugar/Sugar.dds</Button>
 			<FontButtonIndex>29</FontButtonIndex>
 		</BonusArtInfo>
-		<!-- custom: wine now replaced with grapes -->
+		<!-- custom: player-facing Wine resource was redesigned as Grapes; inherited ART_DEF_BONUS_WINE ID restored 2026-11-04 (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_GRAPES</Type>
+			<Type>ART_DEF_BONUS_WINE</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Wine/Wine.nif</NIF>
@@ -213,7 +217,7 @@
 			<FontButtonIndex>9</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_MOLLUSCS</Type>
+			<Type>ART_DEF_BONUS_CLAM</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>1.0</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Clam/Clam.nif</NIF>
@@ -222,7 +226,7 @@
 			<FontButtonIndex>10</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_MAIZE</Type>
+			<Type>ART_DEF_BONUS_CORN</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>0.8</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Corn/Corn.nif</NIF>
@@ -231,7 +235,7 @@
 			<FontButtonIndex>11</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CATTLE</Type>
+			<Type>ART_DEF_BONUS_COW</Type>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>0.9</fInterfaceScale>
 			<NIF>Art/Terrain/Resources/Cow/Cow.nif</NIF>

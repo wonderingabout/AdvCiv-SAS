@@ -1093,7 +1093,7 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
-- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits. Unchanged files and pure renames are excluded;
+- added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits. In XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;
 - newly added/changed direct C++ JSON `Format`/`format` literals keep one object field per adjacent string literal, matching the Runtime formatters without changing emitted JSON bytes; unchanged inherited groups and commented-out examples are excluded;
 - new/rewritten Python compound-statement suites reject the E701 pattern `if enabled: log(...)`; keep the body on its own indented line, including diagnostic guards. Unchanged inherited inline suites are outside this diff-aware check;
 - rewritten commented-out code is not inherited prose: a changed `//`, `#` or XML comment block passes when every added or removed line is code-like (statements, calls, braces, conditions; XML elements) and a new custom note sits within three lines. Changed prose lines in the same block still fail, and provenance markers such as `advc.131` must survive in the rewritten code or the note;

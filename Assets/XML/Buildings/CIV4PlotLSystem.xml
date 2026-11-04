@@ -1,5 +1,9 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Plot L System -->
 <!-- -->
@@ -1314,7 +1318,7 @@
 		<!-- corn -->
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x1_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -1324,7 +1328,7 @@
 		</ArtRef>
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::1x2_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -1335,7 +1339,7 @@
 		<!-- grapes -->
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x1_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
@@ -1344,7 +1348,7 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::1x2_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
@@ -1353,7 +1357,7 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x1_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
@@ -1363,7 +1367,7 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::1x2_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
@@ -1381,7 +1385,7 @@
 		<!-- CORN -->
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x2_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -1390,7 +1394,7 @@
 		</ArtRef>
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x2_02</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -1891,22 +1895,22 @@
 		<!-- Wine -->
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x2_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
 			<Attribute Class="Scalar">bIsPartOfBonus:1</Attribute>
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x2_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
 			<Attribute Class="Scalar">bIsPartOfBonus:1</Attribute>
 		</ArtRef>
-		<ArtRef Name="art:BONUS_GRAPES_NORMAL">
+		<ArtRef Name="art:BONUS_WINE_NORMAL">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::4x4_01_Normal</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:0</Attribute>
 			<Attribute Class="Scalar">bIsPartOfBonus:1</Attribute>
 		</ArtRef>
@@ -1920,7 +1924,7 @@
 		<!-- CORN -->
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::3x2_02</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -1930,7 +1934,7 @@
 		</ArtRef>
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x3_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -2631,14 +2635,14 @@
 		<!-- Wine -->
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::3x2_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::3x2_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
@@ -2646,7 +2650,7 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x3_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
@@ -2654,7 +2658,7 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x3_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
@@ -2670,7 +2674,7 @@
 		<!-- CORN -->
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::4x2_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -2679,7 +2683,7 @@
 		</ArtRef>
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::4x2_02</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -2689,7 +2693,7 @@
 		</ArtRef>
 		<ArtRef Name="art:corn_crop">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x4_01</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
@@ -2700,14 +2704,14 @@
 		<!-- Wine -->
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::4x2_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::4x2_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
 			<Attribute Class="Rotation">0,180</Attribute>
@@ -2715,14 +2719,14 @@
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x4_01_Worked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:1</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
 			<Attribute Class="Scalar">szBatchGroup:wine_crop</Attribute>
 		</ArtRef>
 		<ArtRef Name="art:grapes">
 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Wine/Wine_L_System.nif::2x4_01_NotWorked</Attribute>
-			<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+			<Attribute Class="Bonus">BONUS_WINE</Attribute>
 			<Attribute Class="Scalar">bBonusWorkedOnly:0</Attribute>
 			<Attribute Class="Scalar">bBonusImprovedOnly:1</Attribute>
 			<Attribute Class="Rotation">90,270</Attribute>
@@ -2842,7 +2846,7 @@
 		<!-- ancient and classical farms -->
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL</Attribute>
-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/an_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/an_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2855,7 +2859,7 @@
 		</ArtRef>
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/an_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/an_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2881,7 +2885,7 @@
 		<!-- medieval farms -->
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/med_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/med_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2896,7 +2900,7 @@
 		</ArtRef>
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/med_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/med_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2926,7 +2930,7 @@
 		<!-- industrial/modern/future farms -->
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/mod_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/mod_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2941,7 +2945,7 @@
 		</ArtRef>
 		<ArtRef Name="goal:IMPROVEMENT_FARM">
 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/mod_eu_farm01.nif</Attribute>
 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/mod_eu_farm01.kfm</Attribute>
 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
@@ -2970,8 +2974,8 @@
 
 
 		<!--- corn crop -->
-		<ArtRef Name="goal:BONUS_MAIZE">
-			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+		<ArtRef Name="goal:BONUS_CORN">
+			<Attribute Class="Bonus">BONUS_CORN</Attribute>
 			<Attribute Class="Scalar">iCropAreaMultiplier:10</Attribute>
 			<Attribute Class="Scalar">bPlace:0</Attribute>
 			<Attribute Class="Scalar">fTwist:-0.7853981633</Attribute>
@@ -3293,9 +3297,11 @@
 			<Translate>3,-3</Translate>
 		</To>
 	</LProduction>
+	<!-- custom: BONUS_WINE is the inherited ID for SAS Grapes.
+	Keep the Farm plot-art rules here because the BtS file ties this resource to IMPROVEMENT_WINERY, which SAS removed. (GPT-6.1-Sol) -->
 	<LProduction From="Node_6x6">
 		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
-		<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="Scalar">bGoalOnly:1</Attribute>
 		<To Name="BLeaf_4x3"/>
 		<To Name="Node_6x2">
@@ -3304,7 +3310,7 @@
 	</LProduction>
 	<LProduction From="Node_6x6">
 		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
-		<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="Scalar">bGoalOnly:1</Attribute>
 		<To Name="BLeaf_4x3">
 			<Translate>0,2</Translate>
@@ -3435,7 +3441,7 @@
 	</LProduction>
 	<LProduction From="Node_4x2" Name="P4x2_C">
 		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
-		<Attribute Class="Bonus">BONUS_GRAPES</Attribute>
+		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="RegionTest">0</Attribute>
 		<To Name="BLeaf_4x2"/>
 		<To Name="GLeaf_4x2"/>
@@ -3523,7 +3529,7 @@
 	</LProduction>
 	<LProduction From="Node_2x2">
 		<Attribute Class="Improvement">NO_IMPROVEMENT</Attribute>
-		<Attribute Class="Bonus">BONUS_SILK,BONUS_DYE,BONUS_SPICES,BONUS_SUGAR,BONUS_MAIZE,BONUS_COTTON</Attribute>
+		<Attribute Class="Bonus">BONUS_SILK,BONUS_DYE,BONUS_SPICES,BONUS_SUGAR,BONUS_CORN,BONUS_COTTON</Attribute>
 		<To Name="BLeaf_2x2"/>
 	</LProduction>
 	<LProduction From="Node_2x2">

@@ -45,6 +45,21 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 self.assertEqual(checker.modification_header_order_errors(path, owner, owner + sas), [])
                 self.assertEqual(checker.modification_header_order_errors(path, sas + owner, sas + owner), [])
 
+    # <!-- custom: Keep the XML credit adjacent to inherited owners while allowing the inherited empty separator and untouched legacy layouts. (GPT-6.1-Sol) -->
+    def test_xml_sas_notice_precedes_prose(self):
+        path = "Assets/XML/Test.xml"
+        owner = "<!-- Copyright Firaxis Games 2005 -->\n"
+        note = "<!-- Building Infos -->\n"
+        sas = "<!-- modifications first developed in AdvCiv-SAS\n(c) 2026 wonderingabout & AI/LLM helpers -->\n"
+        self.assertTrue(checker.modification_header_order_errors(path, owner + note, owner + note + sas))
+        bug = "<!-- Copyright 2007 BUG Mod -->\n"
+        self.assertTrue(checker.modification_header_order_errors(path, owner + bug + note, owner + bug + note + sas))
+        self.assertEqual(checker.modification_header_order_errors(path, owner + bug + note, owner + bug + sas + note), [])
+        self.assertTrue(checker.modification_header_order_errors(path, note, note + sas))
+        self.assertEqual(checker.modification_header_order_errors(path, note, sas + note), [])
+        self.assertEqual(checker.modification_header_order_errors(path, owner + note, owner + "<!-- -->\n" + sas + note), [])
+        self.assertEqual(checker.modification_header_order_errors(path, owner + note + sas, owner + note + sas + "<Root/>"), [])
+
     # <!-- custom: Exercise the actual Git-backed CLI as well as parser fixtures: CI must fail on provenance violations but keep missing model credits advisory for user-authored comments. (GPT-6.1-Sol) -->
     def test_cli_failure_and_warning_exit_codes(self):
         with tempfile.TemporaryDirectory(prefix="sas-provenance-check-") as folder:

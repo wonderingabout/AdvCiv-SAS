@@ -771,9 +771,9 @@ def normalizeAddExtras():
 		balancer.normalizeAddExtras()
 	if (CyMap().getCustomMapOption(1) == 2):
 		# these are randomly dropped within the city limits on 1st pass:
-		resourcesInCity = (getInfoTypeOrFail("BONUS_GOLD"), getInfoTypeOrFail("BONUS_GEMSTONES"), getInfoTypeOrFail("BONUS_MAIZE"), getInfoTypeOrFail("BONUS_PIG"), getInfoTypeOrFail("BONUS_RICE"), getInfoTypeOrFail("BONUS_SHEEP"), getInfoTypeOrFail("BONUS_WHEAT"), getInfoTypeOrFail("BONUS_DEER"), getInfoTypeOrFail("BONUS_BANANA"), getInfoTypeOrFail("BONUS_FISH"), getInfoTypeOrFail("BONUS_MOLLUSCS"), getInfoTypeOrFail("BONUS_CRAB"))
+		resourcesInCity = (getInfoTypeOrFail("BONUS_GOLD"), getInfoTypeOrFail("BONUS_GEMS"), getInfoTypeOrFail("BONUS_CORN"), getInfoTypeOrFail("BONUS_PIG"), getInfoTypeOrFail("BONUS_RICE"), getInfoTypeOrFail("BONUS_SHEEP"), getInfoTypeOrFail("BONUS_WHEAT"), getInfoTypeOrFail("BONUS_DEER"), getInfoTypeOrFail("BONUS_BANANA"), getInfoTypeOrFail("BONUS_FISH"), getInfoTypeOrFail("BONUS_CLAM"), getInfoTypeOrFail("BONUS_CRAB"))
 		# these are randomly dropped within 2 culture expansions around the city on 2nd pass:
-		resourcesNearCity = (getInfoTypeOrFail("BONUS_COPPER"), getInfoTypeOrFail("BONUS_IRON"), getInfoTypeOrFail("BONUS_HORSE"), getInfoTypeOrFail("BONUS_STONE"), getInfoTypeOrFail("BONUS_MARBLE"), getInfoTypeOrFail("BONUS_ELEPHANTS"), getInfoTypeOrFail("BONUS_OIL"), getInfoTypeOrFail("BONUS_ALUMINUM"), getInfoTypeOrFail("BONUS_COAL"), getInfoTypeOrFail("BONUS_URANIUM"))
+		resourcesNearCity = (getInfoTypeOrFail("BONUS_COPPER"), getInfoTypeOrFail("BONUS_IRON"), getInfoTypeOrFail("BONUS_HORSE"), getInfoTypeOrFail("BONUS_STONE"), getInfoTypeOrFail("BONUS_MARBLE"), getInfoTypeOrFail("BONUS_IVORY"), getInfoTypeOrFail("BONUS_OIL"), getInfoTypeOrFail("BONUS_ALUMINUM"), getInfoTypeOrFail("BONUS_COAL"), getInfoTypeOrFail("BONUS_URANIUM"))
 		# these are forcibly added on 3rd pass. only supports land-based resources
 		resourcesMustHave = (getInfoTypeOrFail("BONUS_IRON"), getInfoTypeOrFail("BONUS_OIL"), getInfoTypeOrFail("BONUS_ALUMINUM"))
 

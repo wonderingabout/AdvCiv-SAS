@@ -343,9 +343,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</DiscouragedCiv>
 			</DiscouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_MOLLUSCS -->
-			<Type>TRU_MOLLUSCS</Type>
-			<BonusType>BONUS_MOLLUSCS</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_CLAM (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_CLAM</Type>
+			<BonusType>BONUS_CLAM</BonusType>
 			<EncouragedCivs>
 				<EncouragedCiv>
 					<CivilizationType>CIVILIZATION_KOREA</CivilizationType>
@@ -353,9 +353,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_MAIZE -->
-			<Type>TRU_MAIZE</Type>
-			<BonusType>BONUS_MAIZE</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_CORN (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_CORN</Type>
+			<BonusType>BONUS_CORN</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
@@ -402,9 +402,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_CATTLE -->
-			<Type>TRU_CATTLE</Type>
-			<BonusType>BONUS_CATTLE</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_COW (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_COW</Type>
+			<BonusType>BONUS_COW</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
@@ -678,9 +678,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_GEMSTONES -->
-			<Type>TRU_GEMSTONES</Type>
-			<BonusType>BONUS_GEMSTONES</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_GEMS (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_GEMS</Type>
+			<BonusType>BONUS_GEMS</BonusType>
 			<!-- Don't bother with civs that most likely won't satisfy the
 				 placement reqs for Gems -->
 			<DiscouragedCivs>
@@ -816,9 +816,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</EncouragedCiv>
 			</EncouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_ELEPHANTS -->
-			<Type>TRU_ELEPHANTS</Type>
-			<BonusType>BONUS_ELEPHANTS</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_IVORY (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_IVORY</Type>
+			<BonusType>BONUS_IVORY</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
@@ -1101,9 +1101,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</DiscouragedCiv>
 			</DiscouragedCivs>
 		</TruBonusInfo>
-		<TruBonusInfo> <!-- custom: type: TRU_GRAPES -->
-			<Type>TRU_GRAPES</Type>
-			<BonusType>BONUS_GRAPES</BonusType>
+		<TruBonusInfo> <!-- custom: type: TRU_WINE (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>TRU_WINE</Type>
+			<BonusType>BONUS_WINE</BonusType>
 			<!-- Don't discourage the Americas. Suitable vines did grow there,
 				 and it's not proven that they weren't fermented. -->
 			<DiscouragedCivs>

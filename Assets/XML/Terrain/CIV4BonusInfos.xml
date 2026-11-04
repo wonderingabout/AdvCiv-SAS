@@ -3,6 +3,10 @@
 <!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Soren Johnson (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Bonus Infos -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #25 -->
@@ -681,12 +685,12 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MOLLUSCS -->
-			<Type>BONUS_MOLLUSCS</Type>
-			<Description>TXT_KEY_BONUS_MOLLUSCS</Description>
-			<Civilopedia>TXT_KEY_BONUS_MOLLUSCS_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_CLAM (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_CLAM</Type>
+			<Description>TXT_KEY_BONUS_CLAM</Description>
+			<Civilopedia>TXT_KEY_BONUS_CLAM_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_MOLLUSCS</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_CLAM</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>NONE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -732,12 +736,12 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_MAIZE -->
-			<Type>BONUS_MAIZE</Type>
-			<Description>TXT_KEY_BONUS_MAIZE</Description>
-			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_CORN (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_CORN</Type>
+			<Description>TXT_KEY_BONUS_CORN</Description>
+			<Civilopedia>TXT_KEY_BONUS_CORN_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GRAIN</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_MAIZE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_CORN</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -783,12 +787,12 @@
 			<FeatureTerrainBooleans/>
 			<bUseLSystem>1</bUseLSystem>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_CATTLE -->
-			<Type>BONUS_CATTLE</Type>
-			<Description>TXT_KEY_BONUS_CATTLE</Description>
-			<Civilopedia>TXT_KEY_BONUS_CATTLE_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_COW (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_COW</Type>
+			<Description>TXT_KEY_BONUS_COW</Description>
+			<Civilopedia>TXT_KEY_BONUS_COW_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_LIVESTOCK</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_CATTLE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_COW</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -1372,12 +1376,12 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GEMSTONES -->
-			<Type>BONUS_GEMSTONES</Type>
-			<Description>TXT_KEY_BONUS_GEMSTONES</Description>
-			<Civilopedia>TXT_KEY_BONUS_GEMSTONES_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_GEMS (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_GEMS</Type>
+			<Description>TXT_KEY_BONUS_GEMS</Description>
+			<Civilopedia>TXT_KEY_BONUS_GEMS_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_PRECIOUS</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_GEMSTONES</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_GEMS</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_MINING</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
@@ -1568,12 +1572,12 @@
 			<FeatureBooleans/>
 			<FeatureTerrainBooleans/>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_ELEPHANTS -->
-			<Type>BONUS_ELEPHANTS</Type>
-			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
-			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_IVORY (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_IVORY</Type>
+			<Description>TXT_KEY_BONUS_IVORY</Description>
+			<Civilopedia>TXT_KEY_BONUS_IVORY_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_IVORY</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
 			<!-- custom: was TECH_INDUSTRIALISM -->
@@ -1897,12 +1901,12 @@
 				</FeatureTerrainBoolean>
 			</FeatureTerrainBooleans>
 		</BonusInfo>
-		<BonusInfo> <!-- custom: type: BONUS_GRAPES -->
-			<Type>BONUS_GRAPES</Type>
-			<Description>TXT_KEY_BONUS_GRAPES</Description>
-			<Civilopedia>TXT_KEY_BONUS_GRAPES_PEDIA</Civilopedia>
+		<BonusInfo> <!-- custom: type: BONUS_WINE (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			<Type>BONUS_WINE</Type>
+			<Description>TXT_KEY_BONUS_WINE</Description>
+			<Civilopedia>TXT_KEY_BONUS_WINE_PEDIA</Civilopedia>
 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
-			<ArtDefineTag>ART_DEF_BONUS_GRAPES</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BONUS_WINE</ArtDefineTag>
 			<TechReveal>NONE</TechReveal>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>

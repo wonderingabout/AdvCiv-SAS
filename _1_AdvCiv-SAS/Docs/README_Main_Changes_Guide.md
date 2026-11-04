@@ -3333,7 +3333,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - See [KI#1072](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072).
 - **Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
 - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
-- **Animal livestock Bonuses** (as of now `BONUS_CATTLE`, `BONUS_SHEEP`, `BONUS_PIG`): increase the number of assets that are strengthened or rebalanced with these Bonuses, which are otherwise weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale for example with ubiquitous Granaries, or for example to Mount Animal Bonuses that have a strong military purpose.
+- **Animal livestock Bonuses** (as of now `BONUS_COW`, `BONUS_SHEEP`, `BONUS_PIG`): increase the number of assets that are strengthened or rebalanced with these Bonuses, which are otherwise weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale for example with ubiquitous Granaries, or for example to Mount Animal Bonuses that have a strong military purpose.
   - As of now they now notably are in early assets like **Temple of Artemis** (happiness from each bonus), Summeria's **Ziggurat** (health from Sheep), Rome's **Forum** (happiness from Pig), and Mongolia's **Ger** (happiness from Cattle (Pastoral Economy Theme)).
   - This also increases the strategic importance of these bonuses.
 - **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).

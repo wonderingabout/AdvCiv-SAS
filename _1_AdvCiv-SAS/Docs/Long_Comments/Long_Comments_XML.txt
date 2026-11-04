@@ -3795,6 +3795,9 @@ code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as w
 ----- Comment #279 -----
 
 <!-- custom: +1 for the extra wine correlation indirectly (enhanced by other buildings so no need to boost it too much and is historically concordant to when wine commerce became more widespread from my memories of my research; also i wanted to put it on farms and did so originally, but grapes spawn on hills too so the plantation is a better fit to allow to improve grapes on hills as well, chatgpt also says to me from what i understand of its explanation that it is more accurate to use plantations rather than farms, still is needed for our mod but maybe fits well as well, perhaps better as it said even maybe. -->
+<!-- custom: Plantation also fits viticulture: vines are deep-rooted, fairly drought-tolerant perennials planted once and harvested for decades, like the other Plantation crops (Banana, Sugar, Dye, Spices, Silk), whereas Farm represents annually replanted field crops (Wheat, Rice, Maize).
+Many historic wine regions grew vines without irrigation on well-drained hillsides, where excess water tends to dilute grapes; large-scale vineyard irrigation is mostly modern (e.g. California, Australia, Argentina).
+A Farm-on-flat / Plantation-on-hills split was considered for an irrigated-lowland versus dry-hillside choice; worker irrigation logic already handles Farm bonuses such as Rice and Maize, so complexity was not the deciding factor, but the dry-tolerant perennial model fits Grapes better. (Claude code Opus 5.5) -->
 
 ===== \Assets/XML/TrueStarts/CIV4TrueStartsSchema.xml =====
 ----- Comment #280 -----

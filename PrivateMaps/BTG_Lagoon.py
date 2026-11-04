@@ -185,13 +185,13 @@ def doUUCenter():
 	BTPresourceFromCenter(2,7+iExtraTile,getInfoTypeOrFail("BONUS_WHALE"),getInfoTypeOrFail("TERRAIN_COAST"))
 
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SILVER"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
-	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
+	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMS"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
 
 	#2.23 Elephants every two players rather than 3
-	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
+	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_IVORY"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 
-	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_GRAPES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_WINE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SILK"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
 	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SUGAR"),getInfoTypeOrFail("TERRAIN_PLAINS"))

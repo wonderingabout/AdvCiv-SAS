@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Religion -->
 <Civ4CorporationInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
@@ -18,7 +22,7 @@
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
 				<BonusType>BONUS_WHEAT</BonusType>
-				<BonusType>BONUS_MAIZE</BonusType>
+				<BonusType>BONUS_CORN</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
 			<HeadquarterCommerces>
@@ -50,7 +54,7 @@
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
 				<BonusType>BONUS_CRAB</BonusType>
-				<BonusType>BONUS_MOLLUSCS</BonusType>
+				<BonusType>BONUS_CLAM</BonusType>
 				<BonusType>BONUS_FISH</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
@@ -87,7 +91,7 @@
 			<!-- advc.200: K-Mod had decreased this to 80 -->
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
-				<BonusType>BONUS_MAIZE</BonusType>
+				<BonusType>BONUS_CORN</BonusType>
 				<BonusType>BONUS_SUGAR</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
@@ -233,7 +237,7 @@
 			<PrereqBonuses>
 				<BonusType>BONUS_GOLD</BonusType>
 				<BonusType>BONUS_SILVER</BonusType>
-				<BonusType>BONUS_GEMSTONES</BonusType>
+				<BonusType>BONUS_GEMS</BonusType>
 			</PrereqBonuses>
 			<HeadquarterCommerces>
 				<iHeadquarterCommerce>4</iHeadquarterCommerce>

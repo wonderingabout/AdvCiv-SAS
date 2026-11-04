@@ -4,6 +4,10 @@
 <!-- edited with UEStudio '05 Development Environment Version 05.004b+4 (http://www.ultraedit.com) by Robert Thomas (Consultant) -->
 <!-- Sid Meier's Civilization 4: Beyond the Sword -->
 <!-- Copyright Firaxis Games 2006 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Event Trigger Infos -->
 <Civ4EventTriggerInfos xmlns="x-schema:CIV4EventSchema.xml">
@@ -1514,7 +1518,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_MAIZE</BonusType>
+				<BonusType>BONUS_CORN</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -1609,7 +1613,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_MAIZE</BonusType>
+				<BonusType>BONUS_CORN</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -4249,7 +4253,7 @@
 				<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_MOLLUSCS</BonusType>
+				<BonusType>BONUS_CLAM</BonusType>
 			</BonusesRequired>
 			<RoutesRequired/>
 			<ReligionsRequired/>
@@ -5365,7 +5369,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_CATTLE</BonusType>
+				<BonusType>BONUS_COW</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -10671,7 +10675,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_CATTLE</BonusType>
+				<BonusType>BONUS_COW</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -11027,7 +11031,7 @@
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_GEMSTONES</BonusType>
+				<BonusType>BONUS_GEMS</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -16956,7 +16960,7 @@
 				<ImprovementType>NONE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_CATTLE</BonusType>
+				<BonusType>BONUS_COW</BonusType>
 				<BonusType>BONUS_PIG</BonusType>
 				<BonusType>BONUS_HORSE</BonusType>
 				<BonusType>BONUS_SHEEP</BonusType>

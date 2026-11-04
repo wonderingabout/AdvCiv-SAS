@@ -2247,32 +2247,32 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
+	<!-- custom: The inherited bonus/text-key machine identifiers below were restored on 2026-11-04 for map/scenario/script compatibility; the SAS player-facing names remain Elephants, Cattle, Molluscs, Gemstones, Grapes and Maize.
+	See Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<!-- custom: Long_Comments_XML.txt #149 -->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
+		<Tag>TXT_KEY_BONUS_IVORY</Tag>
 		<English>Elephants</English>
 	</TEXT>
 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #77 -->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
+		<Tag>TXT_KEY_BONUS_COW</Tag>
 		<English>Cattle</English>
 	</TEXT>
-	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or such for details -->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_MOLLUSCS</Tag>
+		<Tag>TXT_KEY_BONUS_CLAM</Tag>
 		<English>Molluscs</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_GEMSTONES</Tag>
+		<Tag>TXT_KEY_BONUS_GEMS</Tag>
 		<English>Gemstones</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
+		<Tag>TXT_KEY_BONUS_WINE</Tag>
 		<English>Grapes</English>
 	</TEXT>
-	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or such for details -->
 	<TEXT>
-		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
+		<Tag>TXT_KEY_BONUS_CORN</Tag>
 		<English>Maize</English>
 	</TEXT>
 	<TEXT>

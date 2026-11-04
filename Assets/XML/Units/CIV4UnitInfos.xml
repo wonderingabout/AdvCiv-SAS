@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by EXTREME (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Unit Infos -->
 <!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units; Long_Comments_XML.txt #90 -->
@@ -16459,7 +16463,7 @@ See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values 
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
-			<BonusType>BONUS_ELEPHANTS</BonusType>
+			<BonusType>BONUS_IVORY</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>
@@ -16678,7 +16682,7 @@ See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values 
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
-			<BonusType>BONUS_ELEPHANTS</BonusType>
+			<BonusType>BONUS_IVORY</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
 			<Flavors/>

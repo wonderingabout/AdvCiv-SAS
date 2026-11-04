@@ -28,6 +28,7 @@ Detailed balance values remain in [`README_Assets_Rebalancing.md`](/_1_AdvCiv-SA
 - [Inherited naming slips found during review](#inherited-naming-slips-found-during-review)
 - [Companion completeness finding: True Starts](#companion-completeness-finding-true-starts)
 - [Bonuses](#bonuses)
+  - [2026-11-04 machine-ID restoration](#2026-11-04-machine-id-restoration)
   - [Gems to gemstones](#gems-to-gemstones)
   - [Ivory to elephants](#ivory-to-elephants)
   - [Wine to grapes](#wine-to-grapes)
@@ -66,7 +67,7 @@ The table below is intentionally about **changes**, not a description of the cur
 
 | Family | Documented inherited -> SAS naming changes | Main practical commit(s) / date(s) | Later state by 2026-11-04 |
 | --- | --- | --- | --- |
-| Bonuses | `GEMS -> GEMSTONES`; `IVORY -> ELEPHANTS`; `WINE -> GRAPES`; `CORN -> MAIZE`; `CLAM -> MOLLUSCS`; `COW -> CATTLE` | 4767-4770, 4776; 2025-05-21 to 2025-05-24 | All six SAS names still present; `MOVIES -> CAMEL` is **not** a rename |
+| Bonuses | `GEMS -> GEMSTONES`; `IVORY -> ELEPHANTS`; `WINE -> GRAPES`; `CORN -> MAIZE`; `CLAM -> MOLLUSCS`; `COW -> CATTLE` | 4767-4770, 4776; 2025-05-21 to 2025-05-24 | The six inherited machine-ID families were restored on 2026-11-04 while SAS display/gameplay terminology stayed; `MOVIES -> CAMEL` is **not** a rename |
 | Leaders | `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`; `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA` | 4749, 2025-05-11; 4743, 2025-05-08 | Both SAS names still present |
 | Civilizations | `CIVILIZATION_VIKING -> CIVILIZATION_SCANDINAVIA`; same-Type display changes also include American Empire -> United States of America and Amerindian Empire -> Native American Empire | 4878, 2025-07-15; display changes 4883, 2025-07-21 | Scandinavia machine name and both display changes still present |
 | Religion family | Taoism -> Daoism across religion, buildings, missionary, art and text-key namespaces | 4740-4741, 2025-05-07 | Daoism family still present; Confucianism removal/Paganism addition was separate |
@@ -175,17 +176,35 @@ The CI separately verifies that the two civilizations are also present in the Ra
 
 The six resource rows below are historically evidenced rename lineages. The final Movies/Camel row is included because the raw Type-set difference can look like a rename even though history shows that it was a replacement with different content.
 
-| Base AdvCiv/BtS name | SAS name | Main renamed companions | Practical commit/date | Why / nature of change | Status on 2026-11-04 |
+| Base AdvCiv/BtS machine ID | SAS 2025 machine ID | Main renamed companions | Practical commit/date | Why / nature of change | Later state |
 | --- | --- | --- | --- | --- | --- |
-| `BONUS_GEMS` | `BONUS_GEMSTONES` | `ART_DEF_BONUS_GEMS -> ...GEMSTONES`; `TRU_GEMS -> TRU_GEMSTONES`; description/pedia text keys | 4767, `f551d27b34`, 2025-05-21 | "Gemstones" was considered more accurate and understandable than "Gems" | **Active** |
-| `BONUS_IVORY` | `BONUS_ELEPHANTS` | `ART_DEF_BONUS_IVORY -> ...ELEPHANTS`; `TRU_IVORY -> TRU_ELEPHANTS`; description/pedia text keys | 4768, `ea75187aa4`, 2025-05-21 | Generalized the displayed Elephants naming to the XML asset family; names the animal rather than processed ivory | **Active** |
-| `BONUS_WINE` | `BONUS_GRAPES` | `ART_DEF_BONUS_WINE -> ...GRAPES`; `TRU_WINE -> TRU_GRAPES`; description/pedia text keys | 4769, `10b06b59d6`, 2025-05-21 | Names the raw map resource rather than one product; same change also removed Winery and redesigned improvement behavior | **Active; rename + redesign** |
-| `BONUS_CORN` | `BONUS_MAIZE` | `ART_DEF_BONUS_CORN -> ...MAIZE`; `TRU_CORN -> TRU_MAIZE`; description/pedia text keys | 4770, `86d9c24298`, 2025-05-22 | Terminology rename; no more specific rationale is preserved in the commit than the recorded naming choice | **Active** |
-| `BONUS_CLAM` | `BONUS_MOLLUSCS` | `ART_DEF_BONUS_CLAM -> ...MOLLUSCS`; `TRU_CLAM -> TRU_MOLLUSCS`; description/pedia text keys | 4776, `b841968682`, 2025-05-24 | Broadens the resource from one shellfish to a wider mollusc category, alongside distribution changes | **Active; rename + rebalance** |
-| `BONUS_COW` | `BONUS_CATTLE` | `ART_DEF_BONUS_COW -> ...CATTLE`; `TRU_COW -> TRU_CATTLE`; description/pedia text keys | 4776, `b841968682`, 2025-05-24 | Naming choice made during the broader resource rework; no separate detailed rationale is preserved | **Active; rename + rebalance** |
+| `BONUS_GEMS` | `BONUS_GEMSTONES` | `ART_DEF_BONUS_GEMS -> ...GEMSTONES`; `TRU_GEMS -> TRU_GEMSTONES`; description/pedia text keys | 4767, `f551d27b34`, 2025-05-21 | "Gemstones" was considered more accurate and understandable than "Gems" | **Machine family restored to `GEMS` on 2026-11-04; display remains Gemstones** |
+| `BONUS_IVORY` | `BONUS_ELEPHANTS` | `ART_DEF_BONUS_IVORY -> ...ELEPHANTS`; `TRU_IVORY -> TRU_ELEPHANTS`; description/pedia text keys | 4768, `ea75187aa4`, 2025-05-21 | Generalized the displayed Elephants naming to the XML asset family; names the animal rather than processed ivory | **Machine family restored to `IVORY` on 2026-11-04; display remains Elephants** |
+| `BONUS_WINE` | `BONUS_GRAPES` | `ART_DEF_BONUS_WINE -> ...GRAPES`; `TRU_WINE -> TRU_GRAPES`; description/pedia text keys | 4769, `10b06b59d6`, 2025-05-21 | Names the raw map resource rather than one product; same change also removed Winery and redesigned improvement behavior | **Machine family restored to `WINE` on 2026-11-04; Grapes/Plantation gameplay remains** |
+| `BONUS_CORN` | `BONUS_MAIZE` | `ART_DEF_BONUS_CORN -> ...MAIZE`; `TRU_CORN -> TRU_MAIZE`; description/pedia text keys | 4770, `86d9c24298`, 2025-05-22 | Terminology rename; no more specific rationale is preserved in the commit than the recorded naming choice | **Machine family restored to `CORN` on 2026-11-04; display remains Maize** |
+| `BONUS_CLAM` | `BONUS_MOLLUSCS` | `ART_DEF_BONUS_CLAM -> ...MOLLUSCS`; `TRU_CLAM -> TRU_MOLLUSCS`; description/pedia text keys | 4776, `b841968682`, 2025-05-24 | Broadens the resource from one shellfish to a wider mollusc category, alongside distribution changes | **Machine family restored to `CLAM` on 2026-11-04; display remains Molluscs** |
+| `BONUS_COW` | `BONUS_CATTLE` | `ART_DEF_BONUS_COW -> ...CATTLE`; `TRU_COW -> TRU_CATTLE`; description/pedia text keys; `COWS` audio IDs became `CATTLE` | 4776, `b841968682`, 2025-05-24 | Naming choice made during the broader resource rework; no separate detailed rationale is preserved | **Machine family and inherited `COWS` audio IDs restored on 2026-11-04; display remains Cattle** |
 | `BONUS_MOVIES` | `BONUS_CAMEL` | **No rename companion relationship** | 4832, `44cb420869`, 2025-06-14 | Movies was removed; Camel was added as a different resource with camel unit lines | **Replacement/new content, not a rename** |
 
-In the 2026-11-04 tree these names appeared across [`CIV4BonusInfos.xml`](/Assets/XML/Terrain/CIV4BonusInfos.xml), True Starts, art definitions, improvements/buildings/events/corporations and multiple `PrivateMaps` scripts. The detailed notes below preserve the fuller companion history and rationale.
+### 2026-11-04 machine-ID restoration
+
+The six inherited bonus machine families above were restored in place on 2026-11-04 while retaining the SAS player-facing names and gameplay payloads. This was an intentional reversal of the **machine-identifier** part of the 2025 naming cleanup, not a reversal of the resource redesigns themselves.
+
+Bonuses are unusually compatibility-sensitive because map generation, imported `PrivateMaps` scripts, WorldBuilder/scenario data and other mod content commonly refer to `BONUS_*` identifiers directly. These six resources remain direct descendants of inherited AdvCiv/BtS resource slots even where SAS changed their distribution, yields, Civilopedia text or improvement/building interactions.
+
+Keeping different machine names therefore imposed a broad compatibility cost for comparatively little benefit: the clearer SAS terminology can live in `TXT_KEY_*` English text without forcing external map content to learn a new identifier.
+
+This differs from many SAS buildings, units and technologies whose identity or gameplay role changed substantially enough that inherited machine names can be misleading or offer little interoperability value.
+
+The restoration covers the applicable companion namespaces and consumers, including `BONUS_*`, `ART_DEF_BONUS_*`, `TRU_*`, `TXT_KEY_BONUS_*`, CustomDomAdv `HAS_BONUS_*`/`BONUS_*` entries, XML/Python references, PlotLSystem bonus selectors, map-script literals, and the inherited `COWS` audio IDs that had been renamed with Cattle.
+
+Historical Git/changelog/source-analysis evidence retains the old SAS machine names because those names were correct for those historical states. See [`Deprecated/xml_asset_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md) for the concise retired-SAS-to-current translation.
+
+This improves map-script/scenario/mod interoperability but does **not** promise general old-save or pre-SAS scenario compatibility: AdvCiv-SAS has many other structural additions/removals and does not support save compatibility across arbitrary revisions.
+
+In particular, `BONUS_WINE` still displays and plays as SAS Grapes, `BONUS_CORN` as Maize, `BONUS_CLAM` as Molluscs, `BONUS_COW` as Cattle, `BONUS_IVORY` as Elephants and `BONUS_GEMS` as Gemstones.
+
+The detailed notes below preserve the original rename history and rationale.
 
 ### Gems to gemstones
 
@@ -202,7 +221,7 @@ Companion rename family:
 
 The commit explicitly describes "Gemstones" as more accurate and understandable than "Gems" and also changed the resource button. Its historical note records that an initially missed `ART_DEF_BONUS_GEMS` companion caused a silent startup crash until the art-def Type was renamed too. This is a concrete example of why the companion family matters, not just the primary BonusInfo `<Type>`.
 
-By 2026-11-04, SAS had also materially changed Gemstones distribution/terrain data after the inherited AdvCiv version. The rename history therefore does not imply that the SAS BonusInfo payload still matched AdvCiv.
+By 2026-11-04, SAS had also materially changed Gemstones distribution/terrain data after the inherited AdvCiv version. The rename history therefore does not imply that the SAS BonusInfo payload still matched AdvCiv. On 2026-11-04 only the machine family was restored to `BONUS_GEMS` / `ART_DEF_BONUS_GEMS` / `TRU_GEMS` / inherited text-key IDs; the Gemstones display and SAS payload remained.
 
 ### Ivory to elephants
 
@@ -217,7 +236,9 @@ Companion rename family:
 - `TXT_KEY_BONUS_IVORY_PEDIA -> TXT_KEY_BONUS_ELEPHANTS_PEDIA`
 - Python random-event lookups, unit/building/improvement references and other XML `BonusType`/`BonusGift` references were updated with the main Type.
 
-The commit says this generalized an earlier text-key-only "Elephants" rename to the XML asset family. Conceptually, SAS names the map resource after the animal rather than the processed material "Ivory." This is naming-led, but later resource balance and unit requirements mean the SAS object payload is not simply the inherited block.
+The commit says this generalized an earlier text-key-only "Elephants" rename to the XML asset family. Conceptually, SAS names the map resource after the animal rather than the processed material "Ivory."
+
+This is naming-led, but later resource balance and unit requirements mean the SAS object payload is not simply the inherited block. On 2026-11-04 the machine family returned to `BONUS_IVORY` and inherited companions while the displayed resource remained Elephants.
 
 ### Wine to grapes
 
@@ -235,7 +256,7 @@ This is **rename + redesign**, not merely an identifier cleanup. The same commit
 
 The rationale distinguishes the raw map resource (grapes, which can be eaten or processed) from wine as a product and notes that not all wine is grape wine.
 
-The identifier rename and the gameplay redesign are separate historical facts: changing only the machine identifier would not recreate the inherited Wine/Winery gameplay object.
+The identifier rename and the gameplay redesign are separate historical facts: changing only the machine identifier does not recreate the inherited Wine/Winery gameplay object. On 2026-11-04 the machine family returned to `BONUS_WINE`, but the player-facing resource remains Grapes and the SAS improvement/building redesign remains in force.
 
 ### Corn to maize
 
@@ -249,7 +270,7 @@ Companion rename family:
 - `TXT_KEY_BONUS_CORN -> TXT_KEY_BONUS_MAIZE`
 - `TXT_KEY_BONUS_CORN_PEDIA -> TXT_KEY_BONUS_MAIZE_PEDIA`
 
-The historical commit explicitly records the rename but does not preserve a separate detailed rationale comparable with Grapes or Molluscs. This document therefore records the terminology change without inventing an unstated reason.
+The historical commit explicitly records the rename but does not preserve a separate detailed rationale comparable with Grapes or Molluscs. This document therefore records the terminology change without inventing an unstated reason. On 2026-11-04 the machine family returned to `BONUS_CORN`; the displayed resource remains Maize.
 
 ### Clam to molluscs and cow to cattle
 
@@ -275,7 +296,7 @@ The Molluscs rationale is preserved in the XML/history: it intentionally broaden
 
 The same commit also renamed Cow to Cattle, but no equally specific standalone rationale is preserved; it should simply be recorded as the naming choice made during that resource rework rather than reverse-engineering an explanation.
 
-By 2026-11-04, both resources also had SAS-specific distribution/balance data, so the rename lineage should not be read as evidence that their payloads still matched inherited AdvCiv.
+By 2026-11-04, both resources also had SAS-specific distribution/balance data, so the rename lineage should not be read as evidence that their payloads still matched inherited AdvCiv. On 2026-11-04 the machine families returned to `BONUS_CLAM` and `BONUS_COW` (including the inherited `COWS` audio IDs), while the displayed resources remain Molluscs and Cattle.
 
 ### Movies to camel is not a rename
 

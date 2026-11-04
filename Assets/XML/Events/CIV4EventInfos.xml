@@ -3,6 +3,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4: Beyond the Sword -->
 <!-- Copyright Firaxis Games 2006 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Event Infos -->
 <!-- BUG (event signs): Adding Callbacks to all events which change plot yields
@@ -6184,7 +6188,7 @@
 			<RouteType>NONE</RouteType>
 			<iRouteChange>0</iRouteChange>
 			<BonusRevealed>NONE</BonusRevealed>
-			<BonusGift>BONUS_ELEPHANTS</BonusGift>
+			<BonusGift>BONUS_IVORY</BonusGift>
 			<PlotExtraYields/>
 			<iConvertOwnCities>0</iConvertOwnCities>
 			<iConvertOtherCities>0</iConvertOtherCities>
@@ -11583,7 +11587,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>0</iImprovementChange>
-			<BonusType>BONUS_GRAPES</BonusType>
+			<BonusType>BONUS_WINE</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>NONE</RouteType>
 			<iRouteChange>0</iRouteChange>
@@ -11664,7 +11668,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>1</iImprovementChange>
-			<BonusType>BONUS_GRAPES</BonusType>
+			<BonusType>BONUS_WINE</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>ROUTE_ROAD</RouteType>
 			<iRouteChange>1</iRouteChange>

@@ -331,7 +331,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 ### Comment markers and attribution
 
-- When adding or modifying Python/XML source, retain inherited copyright/author notices in their original order, then append our standard AdvCiv-SAS modification header (e.g. as of now `(c) 2026 wonderingabout & AI/LLM helpers`, with the root README Authors reference). The source-provenance check enforces it on changed files; untouched inherited files do not need a bulk update.
+- When adding or modifying Python/XML source, retain inherited copyright/author notices in their original order, then append our standard AdvCiv-SAS modification header (e.g. as of now `(c) 2026 wonderingabout & AI/LLM helpers`, with the root README Authors reference).
+  - In XML, put a new SAS header after the inherited owner notices and before explanatory comments. The source-provenance check enforces it on changed files; untouched inherited files do not need a bulk update.
 - When adding new comments, use the format `<!-- custom: ... (model credit) -->` (with `//` or `#` prefix as appropriate), and put the model credit in the suffix before `-->` (e.g., `(GPT-5.3-Codex) -->`, `GPT-5.5`, `(ChatGPT-5.6-Sol) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`).
   - For multiline custom C/C++ prose, use `//` on each line instead of enclosing it in `/* ... */`, so an isolated grep result identifies itself as a comment without surrounding context. Single-line inline annotations may use block syntax where needed between code tokens.
   - Do not use other tags like `advc.` as the authorship marker (they do not belong to us: e.g., base AdvCiv uses `advc.sas` to reference our AdvCiv-SAS changes).

@@ -631,9 +631,9 @@ up to the end of development.
 '''
 
 # Init all bonuses. This is your master key.
-resourcesInOasis = ("BONUS_ALUMINUM", "BONUS_IRON", "BONUS_OIL", "BONUS_STONE", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_ELEPHANTS")
-resourcesInNorth = ("BONUS_HORSE", "BONUS_MARBLE", "BONUS_FUR", "BONUS_SILVER", "BONUS_SPICES", "BONUS_GRAPES", "BONUS_WHALE", "BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_SHEEP", "BONUS_WHEAT")
-resourcesInSouth = ("BONUS_DYE", "BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILK", "BONUS_SUGAR", "BONUS_BANANA", "BONUS_DEER", "BONUS_PIG", "BONUS_RICE")
+resourcesInOasis = ("BONUS_ALUMINUM", "BONUS_IRON", "BONUS_OIL", "BONUS_STONE", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_IVORY")
+resourcesInNorth = ("BONUS_HORSE", "BONUS_MARBLE", "BONUS_FUR", "BONUS_SILVER", "BONUS_SPICES", "BONUS_WINE", "BONUS_WHALE", "BONUS_CLAM", "BONUS_CRAB", "BONUS_FISH", "BONUS_SHEEP", "BONUS_WHEAT")
+resourcesInSouth = ("BONUS_DYE", "BONUS_FUR", "BONUS_GEMS", "BONUS_SILK", "BONUS_SUGAR", "BONUS_BANANA", "BONUS_DEER", "BONUS_PIG", "BONUS_RICE")
 resourcesToEliminate = ()
 
 resourcesToForce = ("BONUS_FUR", "BONUS_SILVER", "BONUS_DEER")
@@ -641,8 +641,8 @@ forcePlacementInForest = ("BONUS_FUR")
 forcePlacementOnGrass = ("BONUS_DEER")
 forcePlacementOnHills = ("BONUS_SILVER")
 forceRarity = ("BONUS_SILK", "BONUS_WHALE")
-forceAbundance = ("BONUS_FUR", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_HORSE", "BONUS_OIL")
-oasisCorn = ("BONUS_MAIZE")
+forceAbundance = ("BONUS_FUR", "BONUS_IRON", "BONUS_IVORY", "BONUS_HORSE", "BONUS_OIL")
+oasisCorn = ("BONUS_CORN")
 
 def addBonusType(argsList):
 	[iBonusType] = argsList

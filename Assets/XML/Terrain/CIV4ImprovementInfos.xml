@@ -3,6 +3,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Improvement -->
 <Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
@@ -240,7 +244,7 @@
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #28 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
@@ -322,7 +326,7 @@
 			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other bonuses have other assets/qualities too -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<BonusType>BONUS_CLAM</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
@@ -483,7 +487,7 @@
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
@@ -939,7 +943,7 @@
 				</BonusTypeStruct>
 				<!-- custom: Long_Comments_XML.txt #279 -->
 				<BonusTypeStruct>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
@@ -1070,7 +1074,7 @@
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #29 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_CATTLE</BonusType>
+					<BonusType>BONUS_COW</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
@@ -1201,7 +1205,7 @@
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>

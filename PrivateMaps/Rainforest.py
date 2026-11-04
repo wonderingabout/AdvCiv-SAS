@@ -570,7 +570,7 @@ def normalizeAddExtras():
 # Sirian's "Sahara Regional Bonus Placement" system.
 
 # Init all bonuses. This is your master key.
-resourcesToEliminate = ("BONUS_WHALE", "BONUS_MOLLUSCS", "BONUS_FISH", "BONUS_CRAB")
+resourcesToEliminate = ("BONUS_WHALE", "BONUS_CLAM", "BONUS_FISH", "BONUS_CRAB")
 
 jungleFood = ("BONUS_BANANA", "BONUS_PIG", "BONUS_RICE")
 banana = ("BONUS_BANANA")

@@ -863,9 +863,15 @@ def python_inline_suite_errors(path: str, old: str, new: str) -> list[str]:
 
 
 # <!-- custom: A newly inserted SAS modification notice must follow pre-existing owners' header notices rather than precede them.
-# Limit this ordering check to new/moved SAS notices so unrelated edits do not force a legacy header sweep; inspect leading comments only, never strings in implementation examples. (GPT-6.1-Sol) -->
+# Put new XML SAS notices next to inherited owner credits, above explanatory comments; ignore empty XML separator blocks.
+# Preserve existing header layouts during unrelated edits. (GPT-6.1-Sol) -->
 def modification_header_order_errors(path: str, old: str, new: str) -> list[str]:
+    def owner_notices(text):
+        return [m.start() for m in re.finditer(r"(?im)^[ \t]*(?:#[ \t]*)?(?:copyright\b|\(c\)|author\s*:|©).*$", text)
+                if "wonderingabout" not in m.group(0).lower() and "AI/LLM helpers" not in m.group(0)]
+
     def positions(text):
+        prose_gap = False
         if Path(path).suffix.lower() in XML_SUFFIXES:
             remaining = text.lstrip("\ufeff \t\r\n")
             if remaining.startswith("<?xml"):
@@ -878,6 +884,12 @@ def modification_header_order_errors(path: str, old: str, new: str) -> list[str]
                 blocks.append(block[4:])
                 remaining = remaining.lstrip()
             header = "\n".join(blocks)
+            sas_block = next((i for i, block in enumerate(blocks)
+                              if "modifications first developed in AdvCiv-SAS" in block), None)
+            if sas_block is not None:
+                last_owner = max((i for i, block in enumerate(blocks[:sas_block])
+                                  if owner_notices(block)), default=-1)
+                prose_gap = any(block.strip() for block in blocks[last_owner + 1:sas_block])
         else:
             lines = []
             for line in text.lstrip("\ufeff").splitlines():
@@ -887,15 +899,16 @@ def modification_header_order_errors(path: str, old: str, new: str) -> list[str]
                     break
             header = "\n".join(lines)
         sas = header.find("modifications first developed in AdvCiv-SAS")
-        owners = [m.start() for m in re.finditer(r"(?im)^.*(?:copyright|\(c\)|author\s*:|©).*$", header)
-                  if "wonderingabout" not in m.group(0).lower() and "AI/LLM helpers" not in m.group(0)]
-        return sas, owners
+        owners = owner_notices(header)
+        return sas, owners, prose_gap
     if Path(path).suffix.lower() not in PY_SUFFIXES | XML_SUFFIXES:
         return []
-    sas, owners = positions(new)
-    old_sas, old_owners = positions(old)
+    sas, owners, prose_gap = positions(new)
+    old_sas, old_owners, old_prose_gap = positions(old)
     if sas >= 0 and any(owner > sas for owner in owners) and not (old_sas >= 0 and any(owner > old_sas for owner in old_owners)):
         return [f"{path}:1: place the SAS modification credit after existing owners' header notices"]
+    if prose_gap and not old_prose_gap:
+        return [f"{path}:1: place the SAS modification credit after inherited owner notices and before explanatory comments"]
     return []
 
 

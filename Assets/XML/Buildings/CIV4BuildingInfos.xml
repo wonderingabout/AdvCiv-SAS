@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- custom: Long_Comments_XML.txt #137, #157 -->
 <!-- Building Infos -->
 <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
@@ -2540,7 +2544,7 @@
 			<!-- custom: add a pastoral economic benefit alongside the Ger's mounted military role; Cattle is a natural fit for Mongolian livestock economies and gives this livestock bonus another strategic use. (ChatGPT-5.6-Sol); (helps buffs otherwise very weak livestock bonuses) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_CATTLE</BonusType>
+					<BonusType>BONUS_COW</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 			</BonusHappinessChanges>
@@ -3458,7 +3462,7 @@
 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -3646,7 +3650,7 @@
 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -3837,7 +3841,7 @@
 			<!-- custom: Banana Health gives the Garden gradual bonus-based scaling while preserving the Granary's cereal Health. (GPT-5.6-Sol) -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -3856,7 +3860,7 @@
 			<!-- custom: Grapes and Sugar Happiness make the Garden improve as cultivated bonuses are connected instead of adding excessive early flat Food. (GPT-5.6-Sol) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -4041,7 +4045,7 @@
 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -5317,7 +5321,7 @@
 			<!-- custom: also add whale to buff it, should be historically (quite if not lot) accurate -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<BonusType>BONUS_CLAM</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -5515,7 +5519,7 @@
 			<!-- custom: also add whale to buff it, should be historically (quite if not lot) accurate -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<BonusType>BONUS_CLAM</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -6827,7 +6831,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -7027,7 +7031,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -7231,7 +7235,7 @@
 			<!-- custom: La Tene Smithy extends metal happiness to Copper and Iron over base Forge. (GPT-5.3-Codex) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -7439,7 +7443,7 @@
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -8901,7 +8905,7 @@
 			The Granary already grants Health with Maize, while its retained Food accelerates population regrowth after whipping; this makes Maize especially coherent with the Aztec Slavery economy, while remaining conditional rather than restoring flat Happiness. (GPT-5.6-Sol) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_MAIZE</BonusType>
+					<BonusType>BONUS_CORN</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 			</BonusHappinessChanges>
@@ -11219,7 +11223,7 @@
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 			</BonusHappinessChanges>
@@ -11616,7 +11620,7 @@
 			<!-- custom: Gemstones, including jade abstractly, fit Maya ritual prestige better than Maize and give the resource a distinct Maya priority. (GPT-5.6-Sol) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GEMSTONES</BonusType>
+					<BonusType>BONUS_GEMS</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 			</BonusHappinessChanges>
@@ -12204,7 +12208,7 @@
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -12399,7 +12403,7 @@
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -12598,7 +12602,7 @@
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -12792,7 +12796,7 @@
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
-					<BonusType>BONUS_ELEPHANTS</BonusType>
+					<BonusType>BONUS_IVORY</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -12998,7 +13002,7 @@
 			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -13203,7 +13207,7 @@
 			<!-- custom: see code comment at as of now the generic grocer. -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -13412,7 +13416,7 @@
 			<!-- custom: similarly, sugar is not too good for health (but is also not too bad either quite good even necessary depending on dosage maybe), but sure makes happy i'd say so making it give happiness instead, buffing sugar at the same time which i think is fine especially as sugar is a bit weak otherwise, not matching its quite strong influence on population -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -13615,7 +13619,7 @@
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
-					<BonusType>BONUS_MOLLUSCS</BonusType>
+					<BonusType>BONUS_CLAM</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
@@ -13624,7 +13628,7 @@
 			<!-- custom: Retain normal Grocer Happiness from Grapes and Sugar; Crab and Whale complete the marine-bonus distribution identity without adding an automatic economic modifier. (GPT-5.6-Sol) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_GRAPES</BonusType>
+					<BonusType>BONUS_WINE</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -14311,7 +14315,7 @@
 			<ConstructSound>AS2D_BUILD_SUPERMARKET</ConstructSound>
 			<BonusHealthChanges>
 				<BonusHealthChange>
-					<BonusType>BONUS_CATTLE</BonusType>
+					<BonusType>BONUS_COW</BonusType>
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 				<BonusHealthChange>
@@ -28413,7 +28417,7 @@
 			These normally health-only livestock bonuses gain more strategic value (because otherwise Animal Livestock Bonuses like Cattle, Sheep, and Pig, are very weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale with ubiquitous Granaries, or Mount Animal Bonuses that have a strong military purpose) while keeping the Hanging Gardens' growth identity distinct. (GPT-5.6-Sol) -->
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
-					<BonusType>BONUS_CATTLE</BonusType>
+					<BonusType>BONUS_COW</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
 				<BonusHappinessChange>
@@ -29037,7 +29041,7 @@
 			<ConstructSound/>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
-			<!-- custom: BONUS_ELEPHANTS is a military ressource/bonus already so has its own / enough use, use gold then instead as per the lore https://en.wikipedia.org/wiki/Statue_of_Zeus_at_Olympia too -->
+			<!-- custom: BONUS_IVORY is a military ressource/bonus already so has its own / enough use, use gold then instead as per the lore https://en.wikipedia.org/wiki/Statue_of_Zeus_at_Olympia too (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_GOLD</BonusType>
