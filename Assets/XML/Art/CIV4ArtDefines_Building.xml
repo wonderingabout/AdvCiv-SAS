@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Building art path information -->
 <!-- custom: BTS version of the file imported cleanly from: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Building.xml", and then modified for AdvCiv-SAS
@@ -89,12 +93,14 @@
 			<Button>Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds</Button>
 		</BuildingArtInfo>
 		<!-- custom: art from ri mod's HOF (ART_DEF_BUILDING_VIKING_TEMPLE) thanks. -->
+		<!-- custom: RI's LSYSTEM_VIKING_TEMPLE exists only in RI's CIV4CityLSystem.xml, which SAS does not ship, so use BtS's LSYSTEM_2x2, the same 2x2 slot.
+		fScale 1.0 keeps RI's city size (5.0 x its 0.2); the Sevopedia size is fScale x fInterfaceScale, so 8.0 keeps the old 5.0 x 1.6. See KI#1074. (Claude code Opus 5.5) -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Type>
-			<LSystem>LSYSTEM_VIKING_TEMPLE</LSystem>
+			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
-			<fScale>5.0</fScale>
-			<fInterfaceScale>1.6</fInterfaceScale>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>8.0</fInterfaceScale>
 			<NIF>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/nif/norse_temple.nif</NIF>
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/Pagan_temple_viking.dds</Button>

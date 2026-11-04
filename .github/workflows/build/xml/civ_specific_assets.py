@@ -14,6 +14,8 @@
 
 from pathlib import Path
 import argparse
+# <!-- custom: re finds the BLDGCIV_ column keys in the CustomDomAdv layout files. (Claude code Opus 5.5) -->
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -26,6 +28,8 @@ from xml_defines import get_default_repo_root, local_name, child_text_by_local_n
 TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
 CIVILIZATION_INFOS_REL_PATH = Path("Assets/XML/Civilizations/CIV4CivilizationInfos.xml")
 LEADER_INFOS_REL_PATH = Path("Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml")
+CUSTOM_DOM_ADV_DIR_REL_PATH = Path("Settings/CustomDomAdv")
+CUSTOM_DOM_ADV_CIV_BUILDING_RE = re.compile(rb"\bBLDGCIV_(BUILDING_[A-Z0-9_]+)\b")
 
 REFERENCE_GROUPS = (
 	{
@@ -428,6 +432,32 @@ def check_asset_group(repo_root: Path, group: dict[str, object], tech_grid_by_ty
 	return failures
 
 
+def check_custom_dom_adv_civ_specific_building_refs(repo_root: Path) -> list[str]:
+	building_group = ASSET_GROUPS[0]
+	default_by_class = read_class_defaults(repo_root, building_group)
+	buildings = read_assets(repo_root, building_group)
+	civ_specific_buildings = {
+		building_type
+		for building_type, building in buildings.items()
+		if default_by_class.get(building["class"], "NONE") != building_type
+	}
+	failures: list[str] = []
+	directory = repo_root / CUSTOM_DOM_ADV_DIR_REL_PATH
+	if not directory.exists():
+		raise RuntimeError(f"missing directory: {directory}")
+
+	for path in sorted(directory.glob("*.txt")):
+		data = path.read_bytes()
+		for match in CUSTOM_DOM_ADV_CIV_BUILDING_RE.finditer(data):
+			building_type = match.group(1).decode("ascii")
+			if building_type not in buildings:
+				failures.append(f"{path.relative_to(repo_root)}: BLDGCIV references missing building {building_type}")
+			elif building_type not in civ_specific_buildings:
+				failures.append(f"{path.relative_to(repo_root)}: BLDGCIV references non-civ-specific building {building_type}")
+
+	return failures
+
+
 def check_civilization_assets(repo_root: Path) -> list[str]:
 	tech_grid_by_type = read_tech_grid_positions(repo_root)
 	failures = check_civilization_and_leader_references(repo_root)
@@ -435,11 +465,15 @@ def check_civilization_assets(repo_root: Path) -> list[str]:
 	for group in ASSET_GROUPS:
 		failures.extend(check_asset_group(repo_root, group, tech_grid_by_type))
 
+	# <!-- custom: CustomDomAdv serializes civ-specific building columns as BLDGCIV_<BuildingInfo Type>.
+	# Validate those derived keys too so a UB rename/replacement cannot silently drop a saved layout column, as happened with Scandinavian Trading Post -> Chieftain's Hall. (ChatGPT-5.6-Sol) -->
+	failures.extend(check_custom_dom_adv_civ_specific_building_refs(repo_root))
+
 	return failures
 
 
 def main() -> int:
-	parser = argparse.ArgumentParser(description="Check civilization/leader references, civilization-specific building/unit mappings, and asset tech timing.")
+	parser = argparse.ArgumentParser(description="Check civilization/leader references, civilization-specific building/unit mappings and CustomDomAdv keys, and asset tech timing.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 

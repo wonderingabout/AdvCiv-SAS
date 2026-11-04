@@ -322,6 +322,10 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 #### Repository
 
 - Make **paths absolute** in **.gitignore** when relevant to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+- (Requires AdvCiv-SAS 6722+) **Inherited BtS XML files shipped by SAS:** base AdvCiv ships only the XML files it changes and lets the game load the rest from BtS. SAS changes more assets, so like other content-heavy mods it also ships edited copies of about 20 more BtS files, for example `CIV4PlotLSystem.xml`, `CIV4ArtDefines_Building.xml`, `CIV4ReligionInfo.xml` and `CIV4UnitCombatInfos.xml`.
+  - Having these copies in the repository lets a search over the mod find every place that still names a renamed or removed asset; a file the game reads from BtS is invisible to such a search.
+    - For example, the SAS `CIV4PlotLSystem.xml` still placed Grapes art for Farms after Grapes moved to Plantation (KI#1074).
+  - A BtS file stays unshipped while SAS changes nothing it refers to. The city layout file `CIV4CityLSystem.xml` selects art only by era and art style, which SAS keeps, so the game still reads it from BtS; building art must therefore use its layout names, which [`building_art_lsystem_names.py`](/.github/workflows/build/xml/building_art_lsystem_names.py) checks.
 
 ### System - Misc
 

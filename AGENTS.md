@@ -89,9 +89,15 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
     - [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) can switch the usual development diagnostics on or back to shipped defaults.
     - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
-- Before a large or risky change to uncommitted work, save the diffs outside the repo (inside it, greps would find them):
-  - `ts=$(date +%Y%m%dT%H%M%S); d=/c/Users/PC/Downloads/AdvCiv-SAS_diff_backups; mkdir -p $d && git diff --staged --ignore-space-at-eol > $d/staged_$ts.diff && git diff --ignore-space-at-eol > $d/unstaged_$ts.diff`
-  - Restore with `git apply --ignore-whitespace`, staged diff first. Untracked files (unless marked with `git add -N`) and binaries such as DLLs are not included.
+- In long, technical or iterative uncommitted work (most jobs finish without much complication and usually do not need this), feel free to save a backup outside the repo at key steps, where greps will not find it. Then you can go back to the last good step instead of rewriting or reanalyzing it, or getting lost among iterations; without one, that work can be lost.
+  - Timestamped names also line up with the logs of AI runs made at each step. Delete old backups once they clutter or are no longer useful (commit done and finalized some time later) or remind the user of it.
+  - Staged and unstaged diffs: `ts=$(date +%Y%m%dT%H%M%S); d=/c/Users/PC/Downloads/AdvCiv-SAS_diff_backups; mkdir -p $d && git diff --staged --ignore-space-at-eol > $d/staged_$ts.diff && git diff --ignore-space-at-eol > $d/unstaged_$ts.diff`.
+  - Or copies of the files involved in a descriptively named folder, or a [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) ZIP before a major change.
+  - Example (2026-11-04): Claude code Opus 5.5 dropped the civilization part of `leader_display_order.py` (now `xml_display_order.py`) from a leaders-only commit, copying it to `Downloads/AdvCiv-SAS_diff_backups/civ_order_prep_20261104T151545`.
+    - It later rewrote that part from scratch without opening the copies, and after a context summary said it could not find the code, although the folder appeared in its own listing.
+    - Searching the chat, converted with [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy), found it.
+    - Conclusion: the longer or more ambitious the change, the easier it is to lose our tracks, and some steps are slow or impossible to reproduce or reconstruct even with the chat/txt context.
+      - Consider if deemed useful adding a few markers along the way, as one may be marking trees along a forest path, like a backup at key steps and the chat converted to text for context; it may let us find our way back instead of doing it all over again.
 
 Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed.
 
@@ -303,6 +309,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
     - New findings and replay results go after the entry's existing reasoning and credits; inserting them between earlier paragraphs blurs the investigation's chronology. The KI chronology check catches clear paragraph insertions, while intent still needs review.
     - Start decimal follow-ups at `.2`, not `.1`, because `.1` is ambiguous with the original issue (also confusing about if the first one was `.0` or unwritten `.1`).
   - Audit/archaeology records change only when their own documented investigation resumes; ordinary source changes do not refresh their findings or continuation cursors.
+    - Finished or discontinued records such as as of now `historical_source_archaeology.txt` and the C++ File Audit Album stay as audited. For example, the archaeology record says practical 4769 left no live `BONUS_WINE`; that was true then, so the 2026-11-04 `BONUS_WINE` restoration is not added there.
+    - An ongoing audit is a working document instead, so it is updated in place as its work proceeds; for example, as of 2026-11-04 is still ongoing `xml_asset_naming_and_taxonomy.md` records each identifier restoration and its follow-ups as they are made.
   - Prefer dates for later follow-ups; practical commit-count versions can change across branches/rebases. Reserve those versions for documents that need them, such as the Main Changes Guide and SASGameRecord revision history; omit them from commit messages.
 
 ### Markdown structure and readability

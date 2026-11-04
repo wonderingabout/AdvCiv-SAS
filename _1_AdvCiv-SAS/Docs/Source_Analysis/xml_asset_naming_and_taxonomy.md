@@ -21,6 +21,7 @@ Detailed balance values remain in [`README_Assets_Rebalancing.md`](/_1_AdvCiv-SA
 ## Menu
 
 - [At-a-glance change ledger](#at-a-glance-change-ledger)
+- [Restoration decisions](#restoration-decisions)
 - [Clearest inherited example: Monument / Obelisk](#clearest-inherited-example-monument--obelisk)
   - [How the confusion arose](#how-the-confusion-arose)
   - [What plain `OBELISK` meant in each field](#what-plain-obelisk-meant-in-each-field)
@@ -82,6 +83,24 @@ The table below is intentionally about **changes**, not a description of the cur
 | Unit combat taxonomy | `ARCHER -> ARCHER_BOW_SHORT / ARCHER_BOW_LONG / ARCHER_CROSSBOW`; `AIR -> AIR_BOMBER / AIR_FIGHTER` (Airship later moved to `RECON`); `MOUNTED -> MOUNTED_MELEE / MOUNTED_RANGED`; `MELEE -> MELEE_POLEARM / MELEE_SHOCK` | 4602/4605/4606, 4616/4618, 4866, 5019; 2025-04-08 to 2025-09-28 | All four broad inherited families were deliberately refined; this is taxonomy history, not four one-to-one aliases |
 
 When a renamed identifier is later restored, removed or superseded, preserve the historical row here and update the **later state** rather than rewriting the original change. Old-to-current translation entries can additionally be recorded in [`Docs/Deprecated`](/_1_AdvCiv-SAS/Docs/Deprecated/README.md).
+
+## Restoration decisions
+
+Decisions and their reasons as of 2026-11-04, from the user, ChatGPT-5.6-Sol and Claude code Opus 5.5. An inherited machine ID is worth restoring where SAS kept the inherited asset and changed little more than its name; the player-facing SAS names stay either way.
+
+- **Bonuses and the two leader families:** restored, because SAS kept these assets and map scripts place bonuses by their `BONUS_*` names.
+- **Scandinavia civilization:** its inherited `CIVILIZATION_VIKING` IDs are to be restored as one whole family:
+  - every companion, including the unique unit and building, for example `UNIT_VIKING_VIKING` and `BUILDING_VIKING_CHIEFTAINS_HALL`, because a half-restored namespace would recreate the confusion of the old Monument/Obelisk mix;
+  - art folders and file names too, not only XML IDs;
+  - its listing stays under S, because Custom Game order follows the shown short name (KI#1073).
+- **Daoism:** undecided. It is the same religion with the same building and missionary slots, but SAS also removed Confucianism and added Paganism. Reordering religions would also need matching GameFont glyphs, because religion icons are assigned in XML order.
+- **Kept as SAS names**, because they changed too much for inherited names to give real compatibility. Many mods also change these families heavily, as SAS did, unlike leaders and civilizations, which SAS has barely changed. Their inherited names therefore matter less for compatibility, and map scripts rarely name them, unlike bonuses:
+  - technologies, whose tree SAS largely replaced;
+  - buildings and ordinary units, many of them replaced or redesigned;
+  - unit combat types, which SAS split;
+  - promotions, whose SAS names describe their mechanics; many players know the inherited names, but the SAS ones are clearer;
+  - Great People `GREAT_*` IDs, which are clearer and consistent with Great General and Great Spy;
+  - civics.
 
 ## Clearest inherited example: Monument / Obelisk
 
@@ -252,11 +271,15 @@ Companion rename family:
 - `TXT_KEY_BONUS_WINE -> TXT_KEY_BONUS_GRAPES`
 - `TXT_KEY_BONUS_WINE_PEDIA -> TXT_KEY_BONUS_GRAPES_PEDIA`
 
-This is **rename + redesign**, not merely an identifier cleanup. The same commit removed `IMPROVEMENT_WINERY`, `ART_DEF_IMPROVEMENT_WINERY` and `BUILD_WINERY`, moved Grapes to Farm-based improvement logic, and reworked associated Grocer happiness/health behavior.
+This is **rename + redesign**, not merely an identifier cleanup. The same commit removed `IMPROVEMENT_WINERY`, `ART_DEF_IMPROVEMENT_WINERY` and `BUILD_WINERY`, moved Grapes to Farm-based improvement logic at that time, and reworked associated Grocer happiness/health behavior.
+
+Grapes were later moved to `IMPROVEMENT_PLANTATION`; by the 2026-11-04 identifier restoration, Plantation was the current gameplay relationship.
 
 The rationale distinguishes the raw map resource (grapes, which can be eaten or processed) from wine as a product and notes that not all wine is grape wine.
 
 The identifier rename and the gameplay redesign are separate historical facts: changing only the machine identifier does not recreate the inherited Wine/Winery gameplay object. On 2026-11-04 the machine family returned to `BONUS_WINE`, but the player-facing resource remains Grapes and the SAS improvement/building redesign remains in force.
+
+The same-day follow-up review also corrected stale Farm + `BONUS_WINE` PlotLSystem rules to the current Plantation relationship and added a relationship check so graphical rules follow the gameplay XML; KI#1074 records it with the remaining Farm-era leftovers in that file.
 
 ### Corn to maize
 
@@ -742,7 +765,7 @@ A second pass compared every surviving inherited `UNIT_*` Type's `Class`, `Comba
 | Promotion | 32 inherited promotion Types absent | The direct mechanics-descriptive rename series is documented above; added higher tiers and later reorganizations are not treated as one-to-one aliases |
 | UnitAI | `ARTIST`, `ENGINEER`, `GENERAL`, `MERCHANT`, `PROPHET`, `SCIENTIST` | Great-Person `UNITAI_GREAT_*` rename family in practical 4750 |
 | Trait | `TRAIT_EXPANSIVE` | Removed; no rename successor asserted |
-| Improvement / Build | `IMPROVEMENT_WINERY`, `BUILD_WINERY` | Removed as part of the Wine -> Grapes gameplay redesign; Farm became the improvement mechanism, not an identifier rename |
+| Improvement / Build | `IMPROVEMENT_WINERY`, `BUILD_WINERY` | Removed as part of the Wine -> Grapes gameplay redesign; Farm first replaced Winery, and Grapes later moved to Plantation; this is gameplay lineage, not an identifier rename |
 | UI Control | Corporation / Financial / Religion screen controls absent; World/Foreign Diplomacy controls added | Advisor/UI restructuring, not asset rename lineage |
 | Game speed / Handicap / World size | New SAS entries | Additions, not inherited-name changes |
 

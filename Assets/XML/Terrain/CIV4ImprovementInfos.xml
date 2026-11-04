@@ -240,7 +240,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</TerrainMakesValid>
 			</TerrainMakesValids>
 			<FeatureMakesValids/>
-			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now) are upgraded/improved by improvement_farm, see docs for details -->
+			<!-- custom: IMPROVEMENT_WINERY was removed during the Grapes redesign; Grapes later moved to IMPROVEMENT_PLANTATION, so Farm keeps only its cereal bonus relationships. (ChatGPT-5.6-Sol) -->
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #28 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
@@ -941,6 +941,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
+				<!-- custom: BONUS_WINE is the inherited machine ID for SAS Grapes; Plantation is the current improvement relationship. (ChatGPT-5.6-Sol) -->
 				<!-- custom: Long_Comments_XML.txt #279 -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_WINE</BonusType>

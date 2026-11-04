@@ -2,6 +2,8 @@
 
 Use this reference to translate machine-facing asset identifiers found in older AdvCiv-SAS source, logs, screenshots, discussions and historical documentation into the current identifiers. The full chronology and rationale are in [`xml_asset_naming_and_taxonomy.md`](/_1_AdvCiv-SAS/Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md).
 
+It lists only names that were retired while the asset itself kept working under another name, for example `BONUS_GRAPES` becoming `BONUS_WINE` again. Fixes found along the way belong in the [Known Issues](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md): the stale Farm rules for Grapes plot art, found after the bonus restoration, are KI#1074, not a name change.
+
 ## Menu
 
 - [Bonus identifier restoration](#bonus-identifier-restoration)
@@ -49,8 +51,6 @@ The restored identifiers reduce needless incompatibility with inherited or exter
 For leaders, it mainly makes external data that names the inherited leader families easier to reuse. Neither makes pre-SAS scenarios supported; see the root README's [support scope](/README.md#not-supported-in-advciv-sas).
 
 These restorations do not restore the inherited gameplay payloads: for example, `BONUS_WINE` still represents the SAS Grapes resource and its current improvement/building behavior.
-
-The restored bonus selectors in `CIV4PlotLSystem.xml` can use inherited names again. The SAS override still supplies plot art rules for Grapes on Farms, so it remains in use. The inherited BtS file uses `IMPROVEMENT_WINERY` for those rules.
 
 Historical Git logs, published changelogs, old Known Issues evidence, source-analysis records and saved log examples intentionally retain the identifier that was current when that evidence was produced.
 

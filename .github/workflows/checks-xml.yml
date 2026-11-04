@@ -105,6 +105,12 @@ jobs:
       - name: Redundant asset technology prerequisites
         run: python .github/workflows/build/xml/asset_tech_prereq_redundancy.py
 
+      - name: Plot L-system asset relationships
+        run: python .github/workflows/build/xml/plot_lsystem_asset_relationships.py
+
+      - name: Building art L-system names
+        run: python .github/workflows/build/xml/building_art_lsystem_names.py
+
       - name: Civilization asset references and timing
         run: python .github/workflows/build/xml/civ_specific_assets.py
 

@@ -77,6 +77,8 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
+    - [`build/xml/plot_lsystem_asset_relationships.py`](#buildxmlplot_lsystem_asset_relationshipspy)
+    - [`build/xml/building_art_lsystem_names.py`](#buildxmlbuilding_art_lsystem_namespy)
     - [`build/xml/civ_specific_assets.py`](#buildxmlciv_specific_assetspy)
     - [`build/xml/true_starts_coverage.py`](#buildxmltrue_starts_coveragepy)
     - [`build/xml/civ_specific_not_weaker.py`](#buildxmlciv_specific_not_weakerpy)
@@ -855,9 +857,29 @@ Flags stale additional unit/building tech requirements when the primary tech alr
 
 Era starts and tech-graph guarantees are derived from current XML, so moving or collapsing tech-tree columns updates the check automatically.
 
+#### `build/xml/plot_lsystem_asset_relationships.py`
+
+Verifies active `CIV4PlotLSystem.xml` rules that constrain both a Bonus and an Improvement against the current `CIV4ImprovementInfos.xml` bonus relationship. This catches stale graphical pairings when gameplay data moves a resource to another improvement.
+
+Unused inherited graphical definitions are allowed: selectors for BonusInfo/ImprovementInfo Types absent from the current SAS XML are ignored. For example, the check caught the stale `IMPROVEMENT_FARM + BONUS_WINE` Grapes rules after current SAS had moved Grapes to Plantation.
+
+It also reports an ArtRef that requires an Improvement no incoming production allows: after that fix, `BLeaf_4x3` was reached only by Plantation productions but kept its goal art on Farm (KI#1074).
+
+#### `build/xml/building_art_lsystem_names.py`
+
+Verifies that every `<LSystem>` in `CIV4ArtDefines_Building.xml` names a `building:LSYSTEM_*` placement rule of the city L-system.
+
+- SAS uses the BtS `CIV4CityLSystem.xml`, which is not in the repository, so the check reads its 24 names from [`building_art_lsystem_names_bts.tsv`](/.github/workflows/build/xml/building_art_lsystem_names_bts.tsv), regenerated locally with `--write --civ4-root <Civ4 install root>`.
+- The names are plain identifiers rather than hashes, so failures can list the valid choices.
+- If SAS ships its own city L-system, the check reads that file instead.
+
+It catches art imported from another mod with that mod's layout name: the Chieftain's Hall art from Realism Invictus used `LSYSTEM_VIKING_TEMPLE`, which only RI defines (KI#1074).
+
 #### `build/xml/civ_specific_assets.py`
 
 Verifies that civilization and leader references resolve to existing leader, art, trait, civic, and religion entries, and that each civilization's building and unit replacement class matches the class declared by the referenced asset.
+
+It also checks shipped Customizable Domestic Advisor `BLDGCIV_<BuildingInfo Type>` columns so a renamed or replaced civ-specific building cannot silently disappear from a saved layout.
 
 It also verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor.
 

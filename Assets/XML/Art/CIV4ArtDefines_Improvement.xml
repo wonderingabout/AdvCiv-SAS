@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Improvement art path information -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
@@ -43,7 +47,7 @@
 			<KFM>Art/Structures/Improvements/TribalVillage/TribalVillage.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildTribalVillage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,10</Button>
 		</ImprovementArtInfo>
-		<!-- custom: removed improvement_winery, now grapes (renamed from wine) is improved by improvement_farm, see docs or other code comments for details -->
+		<!-- custom: IMPROVEMENT_WINERY was removed during the Grapes redesign; Grapes were later moved from Farm to IMPROVEMENT_PLANTATION. (ChatGPT-5.6-Sol) -->
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_FARM</Type>
 			<bExtraAnimations>1</bExtraAnimations>

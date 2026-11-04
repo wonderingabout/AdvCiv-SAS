@@ -1231,7 +1231,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1072 - (Fixed SAS migration gap, recorded retrospectively) Nine resources kept BtS trade techs after SAS moved their connecting Builds or reveals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072)\
 [KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)\
 [KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)\
-[KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)
+[KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)\
+[KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)
 
 <a id="ki-1"></a>
 
@@ -37057,3 +37058,30 @@ Found by the same sweep as KI#1073 (2026-11-04). Base AdvCiv's `CIV4TruLeaderInf
 
 - Likely no functional impact: True Starts looks leaders up by `<LeaderType>`, and its order is not shown in game, so `xml_display_order.py` does not check it.
 - Swapped for tidiness, so True Starts now follows the leader file order exactly.
+
+<a id="ki-1074"></a>
+
+## KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1rvId4EOVO7dJZUShDGD629PzNk54DHe9?usp=sharing).
+
+Found on 2026-11-04 while reviewing the restored `BONUS_WINE` identifier. All four gaps are SAS changes; none is inherited. Base AdvCiv ships neither L-system file and keeps the Winery, so it uses the BtS files unchanged.
+
+Plot L-system (`CIV4PlotLSystem.xml`):
+
+- SAS removed `IMPROVEMENT_WINERY` and moved Grapes to Farm (2025-05-21), then to Plantation (2025-07-26). The SAS copy of the BtS file was imported later (2025-12-21) and replaced its Winery selectors with Farm.
+- Three Grapes productions therefore required Farm + `BONUS_WINE`, a pair the game never forms. ChatGPT-5.6-Sol found them while reviewing the Grapes commit wording, changed them to Plantation, and added `plot_lsystem_asset_relationships.py`, which checks every such pair against `CIV4ImprovementInfos.xml`.
+- That check could not see two more import swaps, found by diffing the SAS file against BtS:
+  - `BLeaf_4x3`, reached only by two of those productions, kept its goal art on Farm, so it still could not be placed. The checker now also reports art that no incoming production can reach, so this pattern is checked in general, not only this node: it flags the version with only the three productions fixed, and the BtS file has no such case.
+  - A rotated `Node_2x2` variant excluded Farm where BtS excluded Winery, so no Farm used it. Dropping the exclusion restores the BtS Farm layout. A valid rule that merely changes the layout is not something CI can tell apart from intent, so this one is not checked.
+
+City L-system (`CIV4CityLSystem.xml`, which SAS does not ship):
+
+- SAS does not need its own copy: the BtS rules select art only by Era and ArtStyle types, which SAS keeps unchanged. The reason is noted at the top of the SAS `CIV4PlotLSystem.xml`.
+- Checking that reason, building art `<LSystem>` names were compared with the BtS file. The Chieftain's Hall art, imported from Realism Invictus on 2026-08-14 with RI's art define, kept `LSYSTEM_VIKING_TEMPLE`, which only RI's own city L-system defines, so SAS city layouts had no rule for it.
+- It now uses BtS's `LSYSTEM_2x2`: RI lists it in its 2x2 node, where BtS's rule of that name sits too, but RI's rule also scales it by 0.2.
+  - The first fix therefore set `fScale` to 5.0 x 0.2 = 1.0, assuming `fScale` sized only the city model. The Sevopedia hall then became barely visible (screenshot 0965): `fScale` sizes the Sevopedia model too, multiplied by `fInterfaceScale`, as the Spanish Lonja's 25 and 0.45 show.
+  - `fInterfaceScale` therefore went from 1.6 to 8.0, keeping the old Sevopedia size of 5.0 x 1.6; screenshot 0967 shows it restored.
+- `building_art_lsystem_names.py` now checks every building art name against the BtS names, stored in a list generated from a local Civ4 install (or a SAS city L-system, if one is ever added).
+
+All changes affect graphics only. After them, Grapes Plantations show the plantation house among the vines (screenshot 0971) and the Chieftain's Hall Sevopedia model has its old size; the earlier Grapes look and the hall's city size were not checked.

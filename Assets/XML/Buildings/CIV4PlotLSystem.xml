@@ -9,6 +9,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- -->
 <!-- When debugging LSystems, refer to Civ4/Logs/LSystem.log for help -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #15 -->
+<!-- custom: BtS also has CIV4CityLSystem.xml, which SAS does not override: its rules select art only by Era and ArtStyle types, which SAS keeps unchanged, so the inherited file stays valid.
+Building art defines must therefore use its LSYSTEM_* names; the Chieftain's Hall used an RI-only one. See KI#1074. (Claude code Opus 5.5) -->
 <!-- custom: imported from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas -->
 <!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) -->
 <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">
@@ -2768,11 +2770,12 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<!-- ******************************************************************************************** -->
 	<!-- BLeaf 4x3                                                  Tests against roads,rivers,cities -->
 	<!-- ******************************************************************************************** -->
+	<!-- custom: Only the two Grapes productions below reach this node, and they now require Plantation, so its Farm goal art (BtS: IMPROVEMENT_WINERY) could never be placed. See KI#1074. (Claude code Opus 5.5) -->
 	<LNode Name="BLeaf_4x3">
 		<Width>6</Width>
 		<Height>6</Height>
-		<ArtRef Name="goal:IMPROVEMENT_FARM">
-			<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
+		<ArtRef Name="goal:IMPROVEMENT_PLANTATION">
+			<Attribute Class="Improvement">IMPROVEMENT_PLANTATION</Attribute>
 			<Attribute Class="Scalar">iCropArea:50</Attribute>
 			<Attribute Class="Scalar">fTwist:-0.7853981633</Attribute>
 			<Attribute Class="Scalar">bIsPartOfImprovement:1</Attribute>
@@ -3298,9 +3301,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		</To>
 	</LProduction>
 	<!-- custom: BONUS_WINE is the inherited ID for SAS Grapes.
-	Keep the Farm plot-art rules here because the BtS file ties this resource to IMPROVEMENT_WINERY, which SAS removed. (GPT-6.1-Sol) -->
+	BtS ties these rules to IMPROVEMENT_WINERY, which SAS removed; the 2025-12-21 import mapped it to Farm, although Grapes had moved to Plantation on 2025-07-26, so these now use Plantation. See KI#1074. (GPT-6.1-Sol + ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 	<LProduction From="Node_6x6">
-		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
+		<Attribute Class="Improvement">IMPROVEMENT_PLANTATION</Attribute>
 		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="Scalar">bGoalOnly:1</Attribute>
 		<To Name="BLeaf_4x3"/>
@@ -3309,7 +3312,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		</To>
 	</LProduction>
 	<LProduction From="Node_6x6">
-		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
+		<Attribute Class="Improvement">IMPROVEMENT_PLANTATION</Attribute>
 		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="Scalar">bGoalOnly:1</Attribute>
 		<To Name="BLeaf_4x3">
@@ -3440,7 +3443,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<To Name="GLeaf_4x2"/>
 	</LProduction>
 	<LProduction From="Node_4x2" Name="P4x2_C">
-		<Attribute Class="Improvement">IMPROVEMENT_FARM</Attribute>
+		<Attribute Class="Improvement">IMPROVEMENT_PLANTATION</Attribute>
 		<Attribute Class="Bonus">BONUS_WINE</Attribute>
 		<Attribute Class="RegionTest">0</Attribute>
 		<To Name="BLeaf_4x2"/>
@@ -3532,8 +3535,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Attribute Class="Bonus">BONUS_SILK,BONUS_DYE,BONUS_SPICES,BONUS_SUGAR,BONUS_CORN,BONUS_COTTON</Attribute>
 		<To Name="BLeaf_2x2"/>
 	</LProduction>
+	<!-- custom: BtS excluded IMPROVEMENT_WINERY from this rotated variant; the import replaced it with Farm, which kept every Farm out of it.
+	Dropped to restore the BtS Farm layout.
+	CI cannot tell such a valid but unintended rule from a deliberate one, so this was found only by comparing with BtS. See KI#1074. (Claude code Opus 5.5) -->
 	<LProduction From="Node_2x2">
-		<Attribute Class="Improvement">IMPROVEMENT_ALL,!IMPROVEMENT_COTTAGE,!IMPROVEMENT_HAMLET,!IMPROVEMENT_VILLAGE,!IMPROVEMENT_TOWN,!IMPROVEMENT_FARM</Attribute>
+		<Attribute Class="Improvement">IMPROVEMENT_ALL,!IMPROVEMENT_COTTAGE,!IMPROVEMENT_HAMLET,!IMPROVEMENT_VILLAGE,!IMPROVEMENT_TOWN</Attribute>
 		<To Name="GLeaf_2x2">
 			<Translate>0,0</Translate>
 			<Rotate>90</Rotate>
