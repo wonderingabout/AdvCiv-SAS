@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Effect Infos -->
 <!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Misc\CIV4EffectInfos.xml and modified or not for AdvCiv-SAS -->
@@ -1786,7 +1790,7 @@
 			<bIsProjectile>0</bIsProjectile>
 		</EffectInfo>
 		<EffectInfo>
-			<Type>EFFECT_MISSIONARY_ACTIVE_DAOISM</Type>
+			<Type>EFFECT_MISSIONARY_ACTIVE_TAOISM</Type>
 			<Description>Activation effect for Dao missionary</Description>
 			<fScale>1.2</fScale>
 			<fUpdateRate>1.0</fUpdateRate>

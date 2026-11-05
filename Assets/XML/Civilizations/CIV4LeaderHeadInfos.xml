@@ -4448,7 +4448,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
 			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or mod's google drive if there as well for details -->
-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
+			<FavoriteReligion>RELIGION_TAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -9555,7 +9555,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
 			<!-- custom: Long_Comments_XML.txt #352 -->
-			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
+			<FavoriteReligion>RELIGION_TAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>

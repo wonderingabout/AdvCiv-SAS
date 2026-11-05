@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Building Class Infos -->
 <!-- custom: BTS version of the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4BuildingClassInfos.xml" and then modified for AdvCiv-SAS. -->
@@ -812,51 +816,51 @@
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_DAOIST_TEMPLE</Type>
-			<Description>TXT_KEY_BUILDING_DAOIST_TEMPLE</Description>
+			<Type>BUILDINGCLASS_TAOIST_TEMPLE</Type>
+			<Description>TXT_KEY_BUILDING_TAOIST_TEMPLE</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>1</bMonument>
-			<DefaultBuilding>BUILDING_DAOIST_TEMPLE</DefaultBuilding>
+			<DefaultBuilding>BUILDING_TAOIST_TEMPLE</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_DAOIST_CATHEDRAL</Type>
-			<Description>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Description>
+			<Type>BUILDINGCLASS_TAOIST_CATHEDRAL</Type>
+			<Description>TXT_KEY_BUILDING_TAOIST_CATHEDRAL</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>1</bMonument>
-			<DefaultBuilding>BUILDING_DAOIST_CATHEDRAL</DefaultBuilding>
+			<DefaultBuilding>BUILDING_TAOIST_CATHEDRAL</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_DAOIST_MONASTERY</Type>
-			<Description>TXT_KEY_BUILDING_DAOIST_MONASTERY</Description>
+			<Type>BUILDINGCLASS_TAOIST_MONASTERY</Type>
+			<Description>TXT_KEY_BUILDING_TAOIST_MONASTERY</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>
-			<DefaultBuilding>BUILDING_DAOIST_MONASTERY</DefaultBuilding>
+			<DefaultBuilding>BUILDING_TAOIST_MONASTERY</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>
-			<Type>BUILDINGCLASS_DAOIST_SHRINE</Type>
-			<Description>TXT_KEY_BUILDING_DAOIST_SHRINE</Description>
+			<Type>BUILDINGCLASS_TAOIST_SHRINE</Type>
+			<Description>TXT_KEY_BUILDING_TAOIST_SHRINE</Description>
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
 			<bNoLimit>0</bNoLimit>
 			<bMonument>0</bMonument>
-			<DefaultBuilding>BUILDING_DAOIST_SHRINE</DefaultBuilding>
+			<DefaultBuilding>BUILDING_TAOIST_SHRINE</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
 		<BuildingClassInfo>

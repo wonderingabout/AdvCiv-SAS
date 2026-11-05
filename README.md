@@ -240,6 +240,7 @@ Beyond the quick install guide above, AdvCiv-SAS comes with more than documentat
 
 - the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), a compact but broad and index-like and as of now mostly exhaustive overview of the changes from base AdvCiv
 - [Assets Rebalancing](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md): notably has before/after tables with rationale for civs' starting techs, civ-specific buildings and units, unit terrain and feature combat modifiers, tech quotes, and leaders' traits, favourite civics and favourite religions
+- [XML asset naming and taxonomy](/_1_AdvCiv-SAS/Docs/Source_Analysis/xml_asset_naming_and_taxonomy.md): how SAS renamed inherited assets and why, such as the Monument/Obelisk cleanup (the generic Monument's `BUILDING_OBELISK` became `BUILDING_MONUMENT`, while Egypt keeps `BUILDING_EGYPTIAN_OBELISK` and related issues), and which inherited IDs it later restored for compatibility while keeping its own names in game: bonuses, two leaders, Scandinavia's `CIVILIZATION_VIKING` and Daoism's `RELIGION_TAOISM` (see [below](/README.md#xml-asset-naming-and-taxonomy))
 - [UI screenshots](/_1_AdvCiv-SAS/Images/) of the advisors, Sevopedia and other screens
 - [examples](/_1_AdvCiv-SAS/Docs/examples/) of generated output, such as SASGameRecord logs, runtime status and build reports
 - analysis and comparisons, such as the [handicap comparison](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) against base AdvCiv 1.12, [SASGameRecord RNG comparisons](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) and the LLM-assisted [source analysis](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md)
@@ -1775,6 +1776,7 @@ The [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md) helps
 
 - [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) locates the retired GlobalDefine name conversion table.
 - [`commit_rewrites.md`](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md) locates the old-to-canonical SHA table from the one-time `commit_diffs` history cleanup.
+- [`xml_asset_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md) translates retired SAS asset IDs to the restored inherited ones, for example `BONUS_GRAPES` to `BONUS_WINE`.
 
 ## Mod name and Version number
 

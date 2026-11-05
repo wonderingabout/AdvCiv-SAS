@@ -2,7 +2,7 @@
 
 **History reviewed through the 2026-11-05 AdvCiv-SAS tree.**
 
-Written on 2026-11-04 by ChatGPT-5.6-Sol and GPT-6.1-Sol (Codex); the Monument / Obelisk explanation was reviewed by Claude code Opus 5.5. Updated through the 2026-11-05 Viking-namespace restoration by ChatGPT-5.6-Sol.
+Written on 2026-11-04 by ChatGPT-5.6-Sol and GPT-6.1-Sol (Codex); the Monument / Obelisk explanation was reviewed by Claude code Opus 5.5. Updated through the 2026-11-05 Viking-namespace restoration by ChatGPT-5.6-Sol, and the Taoism restoration by Claude code Opus 5.5.
 
 This document records **what AdvCiv-SAS renamed, split, reclassified or otherwise changed in inherited AdvCiv/Beyond the Sword asset naming and taxonomy; when it changed; why it changed; which companion identifiers or consumers changed with it; and what happened to that form later**.
 
@@ -71,7 +71,7 @@ The table below is intentionally about **changes**, not a description of the cur
 | Bonuses | `GEMS -> GEMSTONES`; `IVORY -> ELEPHANTS`; `WINE -> GRAPES`; `CORN -> MAIZE`; `CLAM -> MOLLUSCS`; `COW -> CATTLE` | 4767-4770, 4776; 2025-05-21 to 2025-05-24 | The six inherited machine-ID families were restored on 2026-11-04 while SAS display/gameplay terminology stayed; `MOVIES -> CAMEL` is **not** a rename |
 | Leaders | `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`; `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA` | 4749, 2025-05-11; 4743, 2025-05-08 | Both inherited machine-ID families were restored on 2026-11-04; displayed names remain Mao Zedong and Moctezuma II |
 | Civilizations | `CIVILIZATION_VIKING -> CIVILIZATION_SCANDINAVIA`; same-Type display changes also include American Empire -> United States of America and Amerindian Empire -> Native American Empire | 4878, 2025-07-15; display changes 4883, 2025-07-21 | Inherited `VIKING` machine namespace restored on 2026-11-05 while the displayed Scandinavia identity remains; both same-Type display changes remain |
-| Religion family | Taoism -> Daoism across religion, buildings, missionary, art and text-key namespaces | 4740-4741, 2025-05-07 | Daoism family still present; Confucianism removal/Paganism addition was separate |
+| Religion family | Taoism -> Daoism across religion, buildings, missionary, art and text-key namespaces | 4740-4741, 2025-05-07 | Inherited `TAOISM`/`TAOIST` machine names restored on 2026-11-05; players still see Daoism. Confucianism removal/Paganism addition was separate |
 | Great-Person units/classes | `UNIT_PROPHET/ARTIST/SCIENTIST/MERCHANT/ENGINEER -> UNIT_GREAT_*`; same for `UNITCLASS_*`; corresponding `UNITAI_* -> UNITAI_GREAT_*`; `UNITAI_GENERAL -> UNITAI_GREAT_GENERAL` | 4750, `701e2e3127`, 2025-05-11 | Still present |
 | Great-Person specialist display | Inherited machine ID already `SPECIALIST_GREAT_PRIEST`; SAS changed its displayed text from **Great Prophet** to **Great Priest** while the mobile unit remained Great Prophet | 4750, `701e2e3127`, 2025-05-11 | Still present; this is a text change, not a SpecialistInfo Type rename |
 | Same-Type display/text changes | `TERRAIN_SNOW`: Ice -> Ice Sheet; `FEATURE_ICE`: Ice -> Ice Cap; `LEADER_PACAL`: Pacal -> Pacal II; `LEADER_JUSTINIAN`: Justinian -> Justinian I; `LEADER_SURYAVARMAN`: Suryavarman -> Suryavarman II; `CIVILIZATION_AMERICA`: American Empire -> United States of America; `CIVILIZATION_NATIVE_AMERICA`: Amerindian Empire -> Native American Empire; Persia Immortal text-key typo `PERIA -> PERSIA` | 4461-4462, 4648, 4841, 4883 | Machine Types stayed the same; display/text-key history is nevertheless part of the naming audit |
@@ -93,7 +93,10 @@ Decisions and their reasons as of 2026-11-05, from the user, ChatGPT-5.6-Sol and
   - Companions use the same machine namespace, including `UNIT_VIKING_VIKING` and `BUILDING_VIKING_CHIEFTAINS_HALL`; the deliberate repeated `VIKING` distinguishes the civilization namespace from the unit name instead of recreating a mixed Monument/Obelisk-style family.
   - SAS-created art folders follow the restored machine namespace too.
   - The civilization remains listed under S because Custom Game order follows the shown short name, not `<Type>` (KI#1073).
-- **Daoism:** undecided. It is the same religion with the same building and missionary slots, but SAS also removed Confucianism and added Paganism. Reordering religions would also need matching GameFont glyphs, because religion icons are assigned in XML order.
+- **Daoism:** its inherited `TAOISM`/`TAOIST` machine names were restored on 2026-11-05, while players still see Daoism.
+  - It is the same religion with the same building and missionary slots, so external content naming `RELIGION_TAOISM` or `BUILDING_TAOIST_*` finds them again.
+  - SAS also removed Confucianism and added Paganism, so BtS religion content still does not fit fully; that was accepted, as compatibility gains need not be complete.
+  - The rename kept the religion order, so no GameFont glyphs moved.
 - **Religion order:** kept as SAS's historical founding order (2025-05-22) rather than BtS's, which starts with Judaism. Religions are referenced by their Types, not their position, so the BtS order would give little compatibility; the GameFont glyphs follow the SAS order, and `xml_display_order.py` keeps them in step (KI#1073).
 - **Kept as SAS names**, because they changed too much for inherited names to give real compatibility. Many mods also change these families heavily, as SAS did, unlike leaders and civilizations, which SAS has barely changed. Their inherited names therefore matter less for compatibility, and map scripts rarely name them, unlike bonuses:
   - technologies, whose tree SAS largely replaced;
@@ -448,7 +451,7 @@ Similar temporary fullname experiments for some leaders were later shortened for
 
 | Base AdvCiv/BtS naming family | SAS naming family | Main renamed companions | Practical commit/date | Why / nature of change | Status on 2026-11-04 |
 | --- | --- | --- | --- | --- | --- |
-| Taoism / `RELIGION_TAOISM` | Daoism / `RELIGION_DAOISM` | Religion Type; Taoist/Daoist temple, cathedral, monastery and shrine classes/Types; missionary class/Type/art; religion/building/unit text keys | 4740, `50e7c8749e`, 2025-05-07; art follow-up 4741, `d5ad78bc04` | Pinyin/modern naming change; the follow-up kept Daoism XML names while reverting to default Civ4 art files | **Active** |
+| Taoism / `RELIGION_TAOISM` | Daoism / `RELIGION_DAOISM` | Religion Type; Taoist/Daoist temple, cathedral, monastery and shrine classes/Types; missionary class/Type/art; religion/building/unit text keys | 4740, `50e7c8749e`, 2025-05-07; art follow-up 4741, `d5ad78bc04` | Pinyin/modern naming change; the follow-up kept Daoism XML names while reverting to default Civ4 art files | **Machine names restored 2026-11-05**; Daoism display names kept |
 | Confucianism | Removed; Paganism added separately | Separate religion/building/unit families | 4743, 2025-05-08 | Removal plus unrelated new religion, **not** a rename lineage | **Not a rename** |
 
 Practical commit **4740**, `50e7c8749e`, 2025-05-07, renamed the inherited Taoism naming family to Daoism. Practical commit **4741**, `d5ad78bc04`, then reverted to default Civ4 art assets while intentionally retaining the renamed XML tags. That second step is useful evidence that machine IDs and actual art-file paths do not need to share the same wording.
@@ -472,6 +475,10 @@ The known companion family includes:
 - `TXT_KEY_UNIT_TAOIST_MISSIONARY* -> TXT_KEY_UNIT_DAOIST_MISSIONARY*`
 
 This was a broad naming-family change rather than a one-Type rename. The machine identifiers, building/unit companions and player-facing text are therefore best understood as one historical naming family.
+
+On 2026-11-05 the inherited `TAOISM`/`TAOIST` machine names returned for the whole family, including the CustomDomAdv `BLDGCLASS_` keys, the BUG unit-naming keys and the missionary and shrine sounds, while the player-facing Daoism/Daoist text stayed.
+
+SAS had no own art for this family, so no files moved; see the Deprecated [religion table](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md#religion-identifier-restoration).
 
 The later removal of Confucianism and addition of Paganism in practical commit 4743 were **not** a `CONFUCIANISM -> PAGANISM` rename. They were separate removal/addition decisions.
 

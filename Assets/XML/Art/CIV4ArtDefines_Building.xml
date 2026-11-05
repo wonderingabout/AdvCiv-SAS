@@ -1070,7 +1070,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Button>Art/AdvCiv_SAS/Buildings/Pagan_Shrine/adurfarnbag_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_DAOIST_TEMPLE</Type>
+			<Type>ART_DEF_BUILDING_TAOIST_TEMPLE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>2.75</fScale>
@@ -1080,7 +1080,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Button>,Art/Interface/Buttons/Buildings/Temple_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_DAOIST_CATHEDRAL</Type>
+			<Type>ART_DEF_BUILDING_TAOIST_CATHEDRAL</Type>
 			<LSystem>LSYSTEM_4x2</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.71</fScale>
@@ -1090,7 +1090,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_DAOIST_MONASTERY</Type>
+			<Type>ART_DEF_BUILDING_TAOIST_MONASTERY</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>2.63</fScale>
@@ -1100,7 +1100,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Button>,Art/Interface/Buttons/Buildings/Monastery_Taoist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,15</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_DAOIST_SHRINE</Type>
+			<Type>ART_DEF_BUILDING_TAOIST_SHRINE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>0</bAnimated>
 			<fScale>1.26</fScale>

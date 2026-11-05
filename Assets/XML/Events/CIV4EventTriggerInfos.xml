@@ -793,7 +793,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>10</iNumBuildingsGlobal>
@@ -1256,7 +1256,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<ReligionsRequired>
 				<ReligionType>RELIGION_PAGANISM</ReligionType>
 				<ReligionType>RELIGION_BUDDHISM</ReligionType>
-				<ReligionType>RELIGION_DAOISM</ReligionType>
+				<ReligionType>RELIGION_TAOISM</ReligionType>
 			</ReligionsRequired>
 			<iNumReligions>1</iNumReligions>
 			<CorporationsRequired/>
@@ -7253,7 +7253,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -9783,7 +9783,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			</BuildingsRequired>
@@ -10154,7 +10154,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -12681,7 +12681,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>

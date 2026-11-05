@@ -9,6 +9,7 @@ It lists only names that were retired while the asset itself kept working under 
 - [Bonus identifier restoration](#bonus-identifier-restoration)
 - [Leader identifier restoration](#leader-identifier-restoration)
 - [Civilization identifier restoration](#civilization-identifier-restoration)
+- [Religion identifier restoration](#religion-identifier-restoration)
 - [Compatibility note](#compatibility-note)
 
 ## Bonus identifier restoration
@@ -56,6 +57,19 @@ On 2026-11-05 the Scandinavia civilization returned to the inherited `VIKING` ma
 The repeated `VIKING` in `UNIT_VIKING_VIKING` is intentional: the first component is the restored civilization namespace and the second is the unit's displayed identity. The physical SAS art directories likewise moved from `Scandinavia_Viking` / `Scandinavia_Chieftains_Hall` to `Viking_Viking` / `Viking_Chieftains_Hall`.
 
 The civilization XML block remains under **S**, not V, because Custom Game follows the shown short name **Scandinavia** rather than the machine `<Type>` (KI#1073).
+
+## Religion identifier restoration
+
+On 2026-11-05 Daoism returned to the inherited `TAOISM`/`TAOIST` machine names, which map scripts, WorldBuilder files and other mods use. Its player-facing name stays **Daoism / Daoist**, and its SAS gameplay changes remain. SAS added no art of its own for this family, so no art files moved.
+
+| Retired SAS machine family | Current inherited machine family | Player-facing SAS name |
+| --- | --- | --- |
+| `RELIGION_DAOISM`, `TXT_KEY_RELIGION_DAOISM*`, `EFFECT_MISSIONARY_ACTIVE_DAOISM` | `RELIGION_TAOISM`, `TXT_KEY_RELIGION_TAOISM*`, `EFFECT_MISSIONARY_ACTIVE_TAOISM` | Daoism |
+| `BUILDINGCLASS_DAOIST_*`, `BUILDING_DAOIST_*`, `ART_DEF_BUILDING_DAOIST_*`, `TXT_KEY_BUILDING_DAOIST_*`, `ART_DEF_MOVIE_SHRINE_DAOIST`, `BLDGCLASS_BUILDINGCLASS_DAOIST_*` | `BUILDINGCLASS_TAOIST_*`, `BUILDING_TAOIST_*`, `ART_DEF_BUILDING_TAOIST_*`, `TXT_KEY_BUILDING_TAOIST_*`, `ART_DEF_MOVIE_SHRINE_TAOIST`, `BLDGCLASS_BUILDINGCLASS_TAOIST_*` | Daoist Temple, Cathedral, Monastery and Shrine |
+| `UNITCLASS_DAOIST_MISSIONARY`, `UNIT_DAOIST_MISSIONARY`, `ART_DEF_UNIT_DAOIST_MISSIONARY`, `TXT_KEY_UNIT_DAOIST_MISSIONARY*`, `*_DAOIST_MISSIONARY` (BUG unit-naming keys) | `UNITCLASS_TAOIST_MISSIONARY`, `UNIT_TAOIST_MISSIONARY`, `ART_DEF_UNIT_TAOIST_MISSIONARY`, `TXT_KEY_UNIT_TAOIST_MISSIONARY*`, `*_TAOIST_MISSIONARY` | Daoist Missionary |
+| `AS2D_*DAOIST*`, `AS3D_*DAOIST*`, `SND_*DAOIST*` | inherited `AS2D_*TAOIST*`, `AS3D_*TAOIST*`, `SND_*TAOIST*` | (sounds) |
+
+Restoring the names did not change the religion order, so the GameFont glyphs stay where they are; `xml_display_order.py` lists the restored `RELIGION_TAOISM` in its glyph order.
 
 The [`retired_xml_asset_names.py`](/.github/workflows/README.md#buildxmlretired_xml_asset_namespy) CI check reads the first column of these tables and fails if active code uses one of the retired names again.
 

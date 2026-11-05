@@ -119,13 +119,13 @@ The order is not tied to founding techs, so a tech move needs no reorder; xml_di
 			<Sound>AS2D_BUILD_JEWISH</Sound>
 		</ReligionInfo>
 		<ReligionInfo>
-			<Type>RELIGION_DAOISM</Type>
-			<Description>TXT_KEY_RELIGION_DAOISM</Description>
-			<Adjective>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_RELIGION_DAOISM_PEDIA</Civilopedia>
+			<Type>RELIGION_TAOISM</Type>
+			<Description>TXT_KEY_RELIGION_TAOISM</Description>
+			<Adjective>TXT_KEY_RELIGION_TAOISM_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_RELIGION_TAOISM_PEDIA</Civilopedia>
 			<!-- custom: was TECH_PHILOSOPHY -->
 			<TechPrereq>TECH_PAPER</TechPrereq>
-			<FreeUnitClass>UNITCLASS_DAOIST_MISSIONARY</FreeUnitClass>
+			<FreeUnitClass>UNITCLASS_TAOIST_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>1</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>
 			<GlobalReligionCommerces>
@@ -144,13 +144,13 @@ The order is not tied to founding techs, so a tech move needs no reorder; xml_di
 				<iStateReligionCommerce>1</iStateReligionCommerce>
 			</StateReligionCommerces>
 			<Button>Art/Interface/Buttons/Religions/Taoism.dds</Button>
-			<!-- custom: TechButton/GenericTechButton were the BtS Taoism.dds button, drawn for Philosophy; RELIGION_DAOISM is founded by Paper in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
+			<!-- custom: TechButton/GenericTechButton were the BtS Taoism.dds button, drawn for Philosophy; RELIGION_TAOISM is founded by Paper in AdvCiv-SAS, so the choose-tech popup and tech bar showed the wrong picture.
 			Use the founding tech's own button. See KI#1072.2. (Claude code Opus 5.5) -->
 			<TechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</TechButton>
 			<GenericTechButton>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</GenericTechButton>
 			<MovieFile>Art/Movies/Religion/Taoism/Tao_Found.nif</MovieFile>
-			<MovieSound>AS2D_BUILD_DAOIST_MOVIE</MovieSound>
-			<Sound>AS2D_BUILD_DAOIST</Sound>
+			<MovieSound>AS2D_BUILD_TAOIST_MOVIE</MovieSound>
+			<Sound>AS2D_BUILD_TAOIST</Sound>
 		</ReligionInfo>
 		<ReligionInfo>
 			<Type>RELIGION_BUDDHISM</Type>

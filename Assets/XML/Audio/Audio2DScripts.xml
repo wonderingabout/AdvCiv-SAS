@@ -9268,8 +9268,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_BUILD_DAOIST</ScriptID>
-		<SoundID>SND_BUILD_DAOIST</SoundID>
+		<ScriptID>AS2D_BUILD_TAOIST</ScriptID>
+		<SoundID>SND_BUILD_TAOIST</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>90</iMinVolume>
 		<iMaxVolume>90</iMaxVolume>
@@ -9291,8 +9291,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_BUILD_DAOIST_MOVIE</ScriptID>
-		<SoundID>SND_BUILD_DAOIST_MOVIE</SoundID>
+		<ScriptID>AS2D_BUILD_TAOIST_MOVIE</ScriptID>
+		<SoundID>SND_BUILD_TAOIST_MOVIE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>80</iMinVolume>
 		<iMaxVolume>80</iMaxVolume>
@@ -17548,8 +17548,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_UNIT_BUILD_DAOIST_MISSIONARY</ScriptID>
-		<SoundID>SND_BUILD_DAOIST_MISSIONARY</SoundID>
+		<ScriptID>AS2D_UNIT_BUILD_TAOIST_MISSIONARY</ScriptID>
+		<SoundID>SND_BUILD_TAOIST_MISSIONARY</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

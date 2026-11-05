@@ -28284,7 +28284,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>
 				<BuildingExtraCommerce>
-					<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
+					<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
 					<CommerceType>COMMERCE_GOLD</CommerceType>
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>

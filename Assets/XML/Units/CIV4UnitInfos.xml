@@ -5053,9 +5053,9 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_DAOIST_MISSIONARY, type: UNIT_DAOIST_MISSIONARY -->
-			<Class>UNITCLASS_DAOIST_MISSIONARY</Class>
-			<Type>UNIT_DAOIST_MISSIONARY</Type>
+		<UnitInfo> <!-- custom: class: UNITCLASS_TAOIST_MISSIONARY, type: UNIT_TAOIST_MISSIONARY -->
+			<Class>UNITCLASS_TAOIST_MISSIONARY</Class>
+			<Type>UNIT_TAOIST_MISSIONARY</Type>
 			<UniqueNames/>
 			<Special>SPECIALUNIT_PEOPLE</Special>
 			<Capture>NONE</Capture>
@@ -5064,7 +5064,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<DefaultUnitAI>UNITAI_MISSIONARY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_DAOIST_MISSIONARY</Description>
+			<Description>TXT_KEY_UNIT_TAOIST_MISSIONARY</Description>
 			<Civilopedia>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
@@ -5113,7 +5113,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<Builds/>
 			<ReligionSpreads>
 				<ReligionSpread>
-					<ReligionType>RELIGION_DAOISM</ReligionType>
+					<ReligionType>RELIGION_TAOISM</ReligionType>
 					<!-- K-Mod: was 40 -->
 					<iReligionSpread>20</iReligionSpread>
 				</ReligionSpread>
@@ -5124,9 +5124,9 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>
 			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>BUILDING_DAOIST_MONASTERY</PrereqBuilding>
+			<PrereqBuilding>BUILDING_TAOIST_MONASTERY</PrereqBuilding>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>NONE</PrereqTech>
 			<TechTypes/>
@@ -5209,7 +5209,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_DAOIST_MISSIONARY</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_TAOIST_MISSIONARY</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
@@ -25777,7 +25777,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 					<bBuilding>1</bBuilding>
 				</Building>
 				<Building>
-					<BuildingType>BUILDING_DAOIST_SHRINE</BuildingType>
+					<BuildingType>BUILDING_TAOIST_SHRINE</BuildingType>
 					<bBuilding>1</bBuilding>
 				</Building>
 			</Buildings>

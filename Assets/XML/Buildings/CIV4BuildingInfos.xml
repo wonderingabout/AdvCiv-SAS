@@ -18318,21 +18318,21 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_TEMPLE, type: BUILDING_DAOIST_TEMPLE -->
-			<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
-			<Type>BUILDING_DAOIST_TEMPLE</Type>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAOIST_TEMPLE, type: BUILDING_TAOIST_TEMPLE -->
+			<BuildingClass>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClass>
+			<Type>BUILDING_TAOIST_TEMPLE</Type>
 			<SpecialBuildingType>SPECIALBUILDING_TEMPLE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_DAOIST_TEMPLE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DAOIST_TEMPLE_PEDIA</Civilopedia>
+			<Description>TXT_KEY_BUILDING_TAOIST_TEMPLE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TAOIST_TEMPLE_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_TEMPLE</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_TEMPLE</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_DAOISM</ReligionType>
+			<ReligionType>RELIGION_TAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18475,7 +18475,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -18505,21 +18505,21 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_CATHEDRAL, type: BUILDING_DAOIST_CATHEDRAL -->
-			<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
-			<Type>BUILDING_DAOIST_CATHEDRAL</Type>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAOIST_CATHEDRAL, type: BUILDING_TAOIST_CATHEDRAL -->
+			<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+			<Type>BUILDING_TAOIST_CATHEDRAL</Type>
 			<SpecialBuildingType>SPECIALBUILDING_CATHEDRAL</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DAOIST_CATHEDRAL_PEDIA</Civilopedia>
+			<Description>TXT_KEY_BUILDING_TAOIST_CATHEDRAL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TAOIST_CATHEDRAL_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_CATHEDRAL</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_CATHEDRAL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_DAOISM</ReligionType>
+			<ReligionType>RELIGION_TAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18654,7 +18654,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges>
 				<BonusHappinessChange>
@@ -18674,7 +18674,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<BuildingHappinessChanges/>
 			<PrereqBuildingClasses>
 				<PrereqBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClassType>
 					<iNumBuildingNeeded>2</iNumBuildingNeeded>
 				</PrereqBuildingClass>
 			</PrereqBuildingClasses>
@@ -18699,21 +18699,21 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_MONASTERY, type: BUILDING_DAOIST_MONASTERY -->
-			<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
-			<Type>BUILDING_DAOIST_MONASTERY</Type>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAOIST_MONASTERY, type: BUILDING_TAOIST_MONASTERY -->
+			<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
+			<Type>BUILDING_TAOIST_MONASTERY</Type>
 			<SpecialBuildingType>SPECIALBUILDING_MONASTERY</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_DAOIST_MONASTERY</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DAOIST_MONASTERY_PEDIA</Civilopedia>
+			<Description>TXT_KEY_BUILDING_TAOIST_MONASTERY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TAOIST_MONASTERY_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_MONASTERY</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_MONASTERY</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
-			<ReligionType>RELIGION_DAOISM</ReligionType>
+			<ReligionType>RELIGION_TAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
@@ -18850,7 +18850,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
-			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>
@@ -18888,24 +18888,24 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_DAOIST_SHRINE, type: BUILDING_DAOIST_SHRINE -->
-			<BuildingClass>BUILDINGCLASS_DAOIST_SHRINE</BuildingClass>
-			<Type>BUILDING_DAOIST_SHRINE</Type>
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_TAOIST_SHRINE, type: BUILDING_TAOIST_SHRINE -->
+			<BuildingClass>BUILDINGCLASS_TAOIST_SHRINE</BuildingClass>
+			<Type>BUILDING_TAOIST_SHRINE</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_DAOIST_SHRINE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DAOIST_SHRINE_PEDIA</Civilopedia>
+			<Description>TXT_KEY_BUILDING_TAOIST_SHRINE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TAOIST_SHRINE_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_DAOIST_SHRINE</ArtDefineTag>
-			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_DAOIST</MovieDefineTag>
-			<HolyCity>RELIGION_DAOISM</HolyCity>
-			<ReligionType>RELIGION_DAOISM</ReligionType>
+			<ArtDefineTag>ART_DEF_BUILDING_TAOIST_SHRINE</ArtDefineTag>
+			<MovieDefineTag>ART_DEF_MOVIE_SHRINE_TAOIST</MovieDefineTag>
+			<HolyCity>RELIGION_TAOISM</HolyCity>
+			<ReligionType>RELIGION_TAOISM</ReligionType>
 			<StateReligion>NONE</StateReligion>
 			<bStateReligion>0</bStateReligion>
-			<PrereqReligion>RELIGION_DAOISM</PrereqReligion>
+			<PrereqReligion>RELIGION_TAOISM</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<FoundsCorporation>NONE</FoundsCorporation>
-			<GlobalReligionCommerce>RELIGION_DAOISM</GlobalReligionCommerce>
+			<GlobalReligionCommerce>RELIGION_TAOISM</GlobalReligionCommerce>
 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
@@ -19032,7 +19032,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<CommerceHappinesses/>
 			<ReligionChanges>
 				<ReligionChange>
-					<ReligionType>RELIGION_DAOISM</ReligionType>
+					<ReligionType>RELIGION_TAOISM</ReligionType>
 					<iReligionChange>1</iReligionChange>
 				</ReligionChange>
 			</ReligionChanges>
@@ -19050,7 +19050,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
 				<bCommerceChangeOriginalOwner>1</bCommerceChangeOriginalOwner>
 			</CommerceChangeOriginalOwners>
-			<ConstructSound>AS2D_BUILD_DAOIST</ConstructSound>
+			<ConstructSound>AS2D_BUILD_TAOIST</ConstructSound>
 			<BonusHealthChanges/>
 			<BonusHappinessChanges/>
 			<BonusProductionModifiers/>

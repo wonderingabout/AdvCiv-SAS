@@ -4468,7 +4468,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_DAOIST_MISSIONARY</UnitClassType>
+					<UnitClassType>UNITCLASS_TAOIST_MISSIONARY</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
 				<Unit>

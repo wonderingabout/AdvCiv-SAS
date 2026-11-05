@@ -7754,8 +7754,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_DAOIST_MISSIONARY_ACTIVATE</ScriptID>
-		<SoundID>SND_DAOIST_MISSIONARY_ACTIVATE</SoundID>
+		<ScriptID>AS3D_UN_TAOIST_MISSIONARY_ACTIVATE</ScriptID>
+		<SoundID>SND_TAOIST_MISSIONARY_ACTIVATE</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -7783,8 +7783,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_DAOIST_MISS_DIE_VOX</ScriptID>
-		<SoundID>SND_DAOIST_MISS_DIE_VOX</SoundID>
+		<ScriptID>AS3D_UN_TAOIST_MISS_DIE_VOX</ScriptID>
+		<SoundID>SND_TAOIST_MISS_DIE_VOX</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -7812,8 +7812,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_DAOIST_MISS_FIDGT_VOX</ScriptID>
-		<SoundID>SND_DAOIST_MISS_FIDGT_VOX</SoundID>
+		<ScriptID>AS3D_UN_TAOIST_MISS_FIDGT_VOX</ScriptID>
+		<SoundID>SND_TAOIST_MISS_FIDGT_VOX</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -7841,8 +7841,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script3DSound>
 	<Script3DSound>
-		<ScriptID>AS3D_UN_DAOIST_MISS_FORT_VOX</ScriptID>
-		<SoundID>SND_DAOIST_MISS_FORT_VOX</SoundID>
+		<ScriptID>AS3D_UN_TAOIST_MISS_FORT_VOX</ScriptID>
+		<SoundID>SND_TAOIST_MISS_FORT_VOX</SoundID>
 		<SoundType>GAME_SFX</SoundType>
 		<iMinVolume>75</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

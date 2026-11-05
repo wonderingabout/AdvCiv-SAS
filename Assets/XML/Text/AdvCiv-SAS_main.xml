@@ -2332,11 +2332,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 	<TEXT>
-		<Tag>TXT_KEY_RELIGION_DAOISM</Tag>
+		<Tag>TXT_KEY_RELIGION_TAOISM</Tag>
 		<English>Daoism</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Tag>
+		<Tag>TXT_KEY_RELIGION_TAOISM_ADJECTIVE</Tag>
 		<English>
 			<Text>Daoist</Text>
 			<Gender>Male</Gender>
@@ -2344,23 +2344,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE</Tag>
+		<Tag>TXT_KEY_BUILDING_TAOIST_TEMPLE</Tag>
 		<English>Daoist Temple</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY</Tag>
+		<Tag>TXT_KEY_BUILDING_TAOIST_MONASTERY</Tag>
 		<English>Daoist Monastery</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Tag>
+		<Tag>TXT_KEY_BUILDING_TAOIST_CATHEDRAL</Tag>
 		<English>Daoist Pagoda</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE</Tag>
+		<Tag>TXT_KEY_BUILDING_TAOIST_SHRINE</Tag>
 		<English>The Dai Miao</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY</Tag>
+		<Tag>TXT_KEY_UNIT_TAOIST_MISSIONARY</Tag>
 		<English>Daoist Missionary</English>
 	</TEXT>
 
