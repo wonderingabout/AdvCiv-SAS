@@ -355,6 +355,7 @@ The full game capture also illustrates how a repeatedly failing check can genera
 - [KI#49.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-49.2) addresses the `AI_guardCityOnlyDefender` singleton assumption illustrated here: a multi-unit Reserve group can leave one defender instead of parking the whole group. Enabled Unit BBAI diagnostics report the split as `RESERVE_ONLY_DEFENDER_SPLIT`.
 - [KI#537.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2) retires the paired `InvasionGraph::Node::step` city-count assertions shown here. KI#537 made a live player with no currently trainable representative a valid `MilitaryBranch` state; the existing Warrior-power fallback remains, while high-detail InvasionGraph BBAI now records `unit=NONE` explicitly.
 - The `CvReplayInfo::checkBounds` rows illustrate replay identity checks encountered when opening the Hall of Fame; [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2) and [KI#166.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.3) document the related replay-identity and date-bound fixes.
+- The 45 `CvPlayer::isBuildingClassMaxedOut` rows came from the former Barbarian Palace: it sat in `BUILDINGCLASS_PALACE`, which allows one building per player, yet every Barbarian city had one. On 2026-11-05 it became the Barbarian City Center in its own unlimited `BUILDINGCLASS_CITY_CENTER`, and a Debug-opt assertion autoplay to turn 201 then recorded none of these rows.
 
 ### Historical comparison
 

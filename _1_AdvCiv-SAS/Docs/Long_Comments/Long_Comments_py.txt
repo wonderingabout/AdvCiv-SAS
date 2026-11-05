@@ -639,33 +639,13 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 
 
 
-	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation):
-	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
+	# <!-- custom: placeFreeWith follows building-class semantics rather than assuming the provider and recipient share one civilization. A generic provider can grant the civilization-specific replacement for its target class.
 	#
-	# if currently selected building is:
-	# 	* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
-	# 	* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
-	# 	* other civ-specific granary (for example incan qullqa): we show in free with that the qullqa is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
+	# Example: BUILDING_BARBARIAN_CITY_CENTER grants BUILDINGCLASS_GRANARY. The target class resolves to BUILDING_BARBARIAN_GRANARY for Barbarians, while the unique provider itself must not be presented as available to civilizations that cannot use it.
 	#
-	# -
+	# For civ-specific providers, only show them when the selected civ can actually use that provider. For a generic recipient class that has unique replacements, show generic providers but do not imply that another civilization's unique provider is universally available.
 	#
-	# Which Claude AI rephrased as such if helps too:
-	# Now the logic correctly handles your examples:
-	# For your barbarian granary → barbarian palace example:
-	#
-	# 	1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
-	# 	2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
-	# 	3. Incan qullqa page: Shows "None" (because qullqa is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
-	#
-	# The key logic changes:
-	#
-	# hasUniqueVersions: Checks if the current building class has any civ-specific versions
-	# For unique buildings: Only shows providers that the same civ can actually use
-	# For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
-	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
-	#
-	# This should now match your intended behavior exactly!
-	# It seems to work as intended so adding this since is quite/very technical, in case it is helpful. -->
+	# Helpers getBuildingCiv() and buildingClassHasUniqueVersions() support these checks. (Claude AI + ChatGPT-5.6-Sol) -->
 
 ===== \Assets\Python\Contrib\Sevopedia\SevoPediaBuilding.py =====
 ----- Comment #5 -----

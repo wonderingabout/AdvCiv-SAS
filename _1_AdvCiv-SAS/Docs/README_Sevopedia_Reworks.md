@@ -537,6 +537,11 @@ Then added worker speed modifiers bullet with the help of GPT-5.3-Codex thanks.
 
 More recently, added unique names in the history (as of now "Background") panel in Sevopedia Unit (e.g., Great General, Great Scientist, Great Prophet) as prepended text before the rest of `placeHistory` pedia text based on the `placeCities`,  with the help of GPT-5.3-Codex thanks.
 
+Much later, while adding the generic/Barbarian City Center split, the missing explicit Building `bGovernmentCenter` presentation prompted a broader Sevopedia effects-coverage audit.
+
+- The Unit page audit likewise added previously omitted player-facing XML booleans to the shared unit help used by `placeSpecial`: Animal movement restrictions (`bAnimal`), food-based production (`bFoodProduction`), military-garrison happiness eligibility (`bMilitaryHappiness`), military-production modifiers (`bMilitaryProduction`), pillaging (`bPillage`), Spy mission capability (`bSpy`), all-terrain movement (`bCanMoveAllTerrain`), nuclear immunity (`bNukeImmune`), suicide behavior (`bSuicide`), and the special area-resource prerequisite used by Work Boats (`bPrereqBonuses`).
+- Internal/rendering or AI-only flags are intentionally not dumped into player-facing help. (ChatGPT-5.6-Sol + Claude code Opus 5.5)
+
 <img src="../Images/sevopedia/1.680_sevopedia_units (1).JPG" alt="1.680_sevopedia_units (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.680_sevopedia_units (2).JPG" alt="1.680_sevopedia_units (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.680_sevopedia_units (3).JPG" alt="1.680_sevopedia_units (3).JPG" width="250"></img>
@@ -546,6 +551,11 @@ More recently, added unique names in the history (as of now "Background") panel 
 Based on the Sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main README.md](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-web-chat) for details) refactored, beautified, and enhanced Sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only i.e. +2 only)), and % modifier as well (for example +25% culture, +25% espionage rate, as well as using a grid for beautification)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
 
 Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the Sevopedia of ri mod (didn't watch that part of code as tedious) with chatgpt +/- claude ai i forgot who xd maybe both.
+
+Much later, the City Center work exposed that `bGovernmentCenter` was only rendered through the inherited vague "Reduces Maintenance in Nearby Cities" line. We made the underlying Government Center role explicit and audited the other BuildingInfo booleans used by current assets.
+
+- Sevopedia building help now also shows previously omitted player-facing behavior: team-shared effects (`bTeamShare`), destruction on conquest (`bNeverCapture`), nuclear immunity (`bNukeImmune`), and coastal/river construction requirements (`bWater`, `bRiver`).
+- Purely graphical/internal flags such as `bCenterInCity` remain intentionally undisplayed. (ChatGPT-5.6-Sol + Claude code Opus 5.5)
 
 In particular, added hoverable great person image links in as of now `placeStats` using `setImageButtonAt`, for example:
 

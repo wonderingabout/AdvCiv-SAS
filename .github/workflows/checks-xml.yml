@@ -63,6 +63,9 @@ jobs:
       - name: Duplicate XML text tags
         run: python .github/workflows/build/xml/xml_text_duplicate_tags.py
 
+      - name: SAS text file placement
+        run: python .github/workflows/build/xml/sas_text_file_placement.py
+
       - name: Duplicate XML parent keys
         run: python .github/workflows/build/xml/xml_parent_duplicate_keys.py
 

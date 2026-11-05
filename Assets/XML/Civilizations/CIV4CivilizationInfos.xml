@@ -4263,10 +4263,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<City>TXT_KEY_CITY_NAME_TARTAR</City>
 			</Cities>
 			<Buildings>
-				<!-- custom: (for barbarians) see code comment at FreeBuildingClasses for details -->
+				<!-- custom: Like base AdvCiv, Barbarians have no Palace/capital.
+				Their stronger per-city administration is instead the civ-specific replacement for the concurrent City Center class. (ChatGPT-5.6-Sol) -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_PALACE</BuildingType>
+					<BuildingType>NONE</BuildingType>
+				</Building>
+				<Building>
+					<BuildingClassType>BUILDINGCLASS_CITY_CENTER</BuildingClassType>
+					<BuildingType>BUILDING_BARBARIAN_CITY_CENTER</BuildingType>
 				</Building>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
@@ -4528,10 +4533,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<FreeUnitClasses/>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #17 -->
 			<FreeBuildingClasses>
-				<FreeBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-					<bFreeBuildingClass>1</bFreeBuildingClass>
-				</FreeBuildingClass>
 				<FreeBuildingClass>
 					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 					<bFreeBuildingClass>1</bFreeBuildingClass>

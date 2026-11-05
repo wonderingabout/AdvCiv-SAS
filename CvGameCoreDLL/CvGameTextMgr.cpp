@@ -9282,7 +9282,18 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CAN_MOVE_IMPASSABLE"));
 	}
-
+	// <!-- custom: Sevopedia effects-coverage audit: bCanMoveAllTerrain is distinct from bCanMoveImpassable and was previously invisible in unit help. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: These lines show in hover help and the Sevopedia alike, like the inherited isNuke and isCanMoveImpassable lines, and carry [ICON_BULLET] in their text as those keys do. (Claude code Opus 5.5) -->
+	if (u.isCanMoveAllTerrain())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CAN_MOVE_ALL_TERRAIN"));
+	}
+	if (u.isAnimal())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_ANIMAL"));
+	}
 
 	if (u.isNoBadGoodies())
 	{
@@ -9345,6 +9356,38 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_EXPLORE_RIVAL"));
 	}
 
+	// <!-- custom: Sevopedia effects-coverage audit prompted by the City Center building audit; expose material XML booleans that affect training, garrisoning, production modifiers, and available actions. (ChatGPT-5.6-Sol) -->
+	if (u.isFoodProduction())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_FOOD_PRODUCTION"));
+	}
+	if (u.isMilitaryHappiness())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MILITARY_HAPPINESS"));
+	}
+	if (u.isMilitaryProduction())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_MILITARY_PRODUCTION"));
+	}
+	if (u.isPillage() && !(u.isAlwaysHostile() && u.getDomainType() == DOMAIN_SEA))
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_PILLAGE"));
+	}
+	if (u.isSpy())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_IS_SPY"));
+	}
+	if (u.isPrereqBonuses())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText(u.getDomainType() == DOMAIN_SEA ? "TXT_KEY_UNIT_PREREQ_BONUSES_SEA" : "TXT_KEY_UNIT_PREREQ_BONUSES"));
+	}
+
 	if (u.isFound())
 	{
 		szBuffer.append(NEWLINE);
@@ -9398,6 +9441,16 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_CAN_NUKE"));
+	}
+	if (u.isNukeImmune())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_NUKE_IMMUNE"));
+	}
+	if (u.isSuicide())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_SUICIDE"));
 	}
 
 	if (u.isCounterSpy())
@@ -11038,7 +11091,29 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 	if (kBuilding.isGovernmentCenter())
 	{
 		szBuffer.append(NEWLINE);
-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_REDUCES_MAINTENANCE"));
+		// <!-- custom: Make the underlying bGovernmentCenter semantic explicit; the inherited maintenance-only wording hid the actual building role in Sevopedia. (ChatGPT-5.6-Sol) -->
+		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_GOVERNMENT_CENTER"));
+	}
+	// <!-- custom: Sevopedia effects-coverage audit prompted by City Center: expose material BuildingInfo booleans that the inherited help omitted, while leaving graphical/internal flags out. (ChatGPT-5.6-Sol) -->
+	if (kBuilding.isTeamShare())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_TEAM_SHARE"));
+	}
+	if (kBuilding.isNeverCapture())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NEVER_CAPTURE"));
+	}
+	if (kBuilding.isNukeImmune())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUKE_IMMUNE"));
+	}
+	if (kBuilding.isWater() || kBuilding.isRiver())
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(gDLL->getText(kBuilding.isWater() && kBuilding.isRiver() ? "TXT_KEY_BUILDING_WATER_OR_RIVER" : (kBuilding.isWater() ? "TXT_KEY_BUILDING_WATER" : "TXT_KEY_BUILDING_RIVER")));
 	}
 
 	if (kBuilding.isGoldenAge() /* advc.004w: */ && !bInBuildingList)

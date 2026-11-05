@@ -1026,7 +1026,7 @@ class SevoPediaBuilding:
 		if bIsUnique:
 			# Find which civ has this unique (i.e.civ-specific) building
 			for iCiv in range(gc.getNumCivilizationInfos()):
-				# <!-- custom: include barbarians and perhaps other non playable civs in the display for example for to display the barbarian palace, barbarian granary (so comment out the isPlayable check as Claude AI explained indeed and that i implemented in a simpler manner thanks to its explanation, but also unindent the below below too) -->
+				# <!-- custom: Include non-playable civilizations so civ-specific buildings such as Barbarian Granary still show their civilization in Sevopedia. (Claude AI + ChatGPT-5.6-Sol) -->
 				#if gc.getCivilizationInfo(iCiv).isPlayable():
 				iCivBuilding = gc.getCivilizationInfo(iCiv).getCivilizationBuildings(iBuildingClass)
 				if iCivBuilding == self.iBuilding:

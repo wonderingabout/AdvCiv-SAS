@@ -68,6 +68,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_sas_text_english.py`](#buildxmlxml_sas_text_englishpy)
     - [`build/xml/xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy)
     - [`build/xml/xml_display_order.py`](#buildxmlxml_display_orderpy)
+    - [`build/xml/sas_text_file_placement.py`](#buildxmlsas_text_file_placementpy)
     - [`build/xml/xml_text_duplicate_tags.py`](#buildxmlxml_text_duplicate_tagspy)
     - [`build/xml/xml_parent_duplicate_keys.py`](#buildxmlxml_parent_duplicate_keyspy)
     - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
@@ -800,6 +801,12 @@ Verifies that XML lists whose file order players see follow the order players ex
 - Names come from mod GameText, else from the inherited names list of [`xml_sas_text_inherited.py`](#buildxmlxml_sas_text_inheritedpy).
 - True Starts is not checked: `CIV4TruLeaderInfos.xml` is looked up by `<LeaderType>`, so its order is not shown in game. Its base AdvCiv `TRU_RAMESSES` before `TRU_RAGNAR`, the reverse of the leader file, was swapped by hand on 2026-11-04 for tidiness (see [KI#1073.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)).
 - See [KI#1073](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073) for the screenshots and the misplacements this check found.
+
+#### `build/xml/sas_text_file_placement.py`
+
+Verifies that SAS pedia texts sit in their dedicated file: asset `*_PEDIA` entries belong in `AdvCiv-SAS_Sevopedia_Lengthy.xml`, even short stubs, and concept pages (`TXT_KEY_CONCEPT_*_PEDIA`) in `AdvCiv-SAS_Core.xml`. The 2026-11-05 City Center texts, the Warrior pedia and a shared Barbarian stub had landed in `AdvCiv-SAS_main.xml` and were moved.
+
+It also keeps SAS pedia names consistent: a SAS text used as an XML `<Civilopedia>` value must end in `_PEDIA` (or `_PEDIA_SR`, after BtS's own rules-changes concept page), and a SAS `_PEDIA` text must be used as one. Inherited texts are not checked; all 263 SAS `_PEDIA` texts already followed both rules.
 
 #### `build/xml/xml_text_duplicate_tags.py`
 

@@ -1498,19 +1498,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: from Age of Empires wiki, did not find much info online so using this (see copyright at root of project if needed): https://ageofempires.fandom.com/wiki/Clubman
-	Slightly edited too to fit AdvCiv-SAS -->
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
-		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
-	</TEXT>
-
-
-	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not -->
-	<TEXT>
-		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
-		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>
-	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKER</Tag>
 		<English>Worker (Barbarian)</English>
@@ -1896,6 +1883,82 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_WORK_RATE</Tag>
 		<English>Work Rate: %d1%%</English>
+	</TEXT>
+	<!-- custom: Sevopedia help lines for XML fields the inherited help did not show; each key is named after its field so a search for the field finds it.
+	Buildings: bGovernmentCenter, bTeamShare, bNeverCapture, bNukeImmune, bWater, bRiver.
+	Units: bAnimal, bFoodProduction, bMilitaryHappiness, bMilitaryProduction, bPillage, bCanMoveAllTerrain, bNukeImmune, bSuicide, bSpy, bPrereqBonuses.
+	TXT_KEY_UNIT_SPY is already the BtS Spy unit's name, so bSpy uses TXT_KEY_UNIT_IS_SPY after its isSpy() getter. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_GOVERNMENT_CENTER</Tag>
+		<English>[ICON_BULLET]Acts as a Government Center (reduces distance maintenance)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_TEAM_SHARE</Tag>
+		<English>[ICON_BULLET]Building effects are shared with teammates</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NEVER_CAPTURE</Tag>
+		<English>[ICON_BULLET]Destroyed when its city is conquered</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NUKE_IMMUNE</Tag>
+		<English>[ICON_BULLET]Immune to destruction by nuclear explosions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WATER</Tag>
+		<English>[ICON_BULLET]Requires a coastal city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_RIVER</Tag>
+		<English>[ICON_BULLET]Requires a river</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WATER_OR_RIVER</Tag>
+		<English>[ICON_BULLET]Requires a coastal city or river</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ANIMAL</Tag>
+		<English>[ICON_BULLET]Animal unit (cannot enter owned territory)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_FOOD_PRODUCTION</Tag>
+		<English>[ICON_BULLET]Food contributes to production while training this unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MILITARY_HAPPINESS</Tag>
+		<English>[ICON_BULLET]Counts as a military garrison for happiness and revolt suppression</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MILITARY_PRODUCTION</Tag>
+		<English>[ICON_BULLET]Receives military-unit production modifiers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PILLAGE</Tag>
+		<English>[ICON_BULLET]Can pillage</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAN_MOVE_ALL_TERRAIN</Tag>
+		<English>[ICON_BULLET]Can move across all terrain types</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_NUKE_IMMUNE</Tag>
+		<English>[ICON_BULLET]Immune to nuclear damage</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_SUICIDE</Tag>
+		<English>[ICON_BULLET]Destroyed after attacking</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_IS_SPY</Tag>
+		<English>[ICON_BULLET]Can perform espionage missions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PREREQ_BONUSES_SEA</Tag>
+		<English>[ICON_BULLET]Requires an adjacent water area containing a resource</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PREREQ_BONUSES</Tag>
+		<English>[ICON_BULLET]Requires at least one resource in the local land area</English>
 	</TEXT>
 
 
@@ -2430,8 +2493,12 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 
 
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_BARBARIAN_PALACE</Tag>
-		<English>Palace (Barbarian)</English>
+		<Tag>TXT_KEY_BUILDING_CITY_CENTER</Tag>
+		<English>City Center</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_CITY_CENTER</Tag>
+		<English>City Center (Barbarian)</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Tag>

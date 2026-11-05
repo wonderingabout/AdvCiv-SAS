@@ -6100,7 +6100,7 @@ The dynamic-demand candidate produced a smooth Heroic-Epic component in Snaky: m
 
 Before the decisive A/B, Pangaea attribution across **5,177** generic military-production evaluations (4,943 Heroic-Epic rows) already showed the same direction: ranks 1/2/3 averaged about **34.6 / 30.9 / 25.5** under throughput versus legacy **45 / 37 / 32**; below the top three, throughput remained around **+21** while the inherited limited-Wonder rank formula averaged roughly **-49**.
 
-Mount Rushmore and Pentagon stayed near their former positive scale, while the Barbarian Palace's **-25%** generic military-production modifier finally received a real negative value (median about **-4**) instead of inherited **0**.
+Mount Rushmore and Pentagon stayed near their former positive scale, while the then-Barbarian Palace's **-25%** generic military-production modifier (now carried by Barbarian City Center) finally received a real negative value (median about **-4**) instead of inherited **0**.
 
 ### Clean Pangaea A/B validates the generic correction
 

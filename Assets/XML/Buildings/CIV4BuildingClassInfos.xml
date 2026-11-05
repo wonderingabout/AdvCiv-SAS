@@ -23,6 +23,20 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<DefaultBuilding>BUILDING_PALACE</DefaultBuilding>
 			<VictoryThresholds/>
 		</BuildingClassInfo>
+		<!-- custom: Generic concurrent class independent of Palace.
+		BUILDING_CITY_CENTER is the tame default for scenarios/modmods; civilizations can replace it normally (Barbarians do), and bCapital remains separate from bGovernmentCenter. (ChatGPT-5.6-Sol) -->
+		<BuildingClassInfo>
+			<Type>BUILDINGCLASS_CITY_CENTER</Type>
+			<Description>TXT_KEY_BUILDING_CITY_CENTER</Description>
+			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<iMaxTeamInstances>-1</iMaxTeamInstances>
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+			<bNoLimit>0</bNoLimit>
+			<bMonument>0</bMonument>
+			<DefaultBuilding>BUILDING_CITY_CENTER</DefaultBuilding>
+			<VictoryThresholds/>
+		</BuildingClassInfo>
 		<BuildingClassInfo>
 			<Type>BUILDINGCLASS_FORBIDDEN_PALACE</Type>
 			<Description>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Description>

@@ -22,6 +22,28 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Palace.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,5</Button>
 		</BuildingArtInfo>
+		<!-- custom: Art import from RFCEurope Enhanced Edition (RFC3E) or/and RFCEurope 1.5 (with Unofficial patch) (not sure which)'s Manor House, thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_CITY_CENTER</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.74</fScale>
+			<fInterfaceScale>0.62</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/City_Center/nif/Manor.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/City_Center/manor.dds</Button>
+		</BuildingArtInfo>
+		<!-- custom: Art import from FFH2's Hunting Lodge thanks; distinct Barbarian button for WorldBuilder/Sevopedia clarity. (ChatGPT-5.6-Sol) -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_BARBARIAN_CITY_CENTER</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>1</bAnimated>
+			<fScale>1.5</fScale>
+			<fInterfaceScale>0.7</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Barbarian_City_Center/nif/huntinglodge.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Barbarian_City_Center/Huntinglodge.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FORBIDDEN_PALACE</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>

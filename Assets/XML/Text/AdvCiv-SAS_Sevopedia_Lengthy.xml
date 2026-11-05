@@ -134,6 +134,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
+	<!-- custom: from Age of Empires wiki, did not find much info online so using this (see copyright at root of project if needed): https://ageofempires.fandom.com/wiki/Clubman
+	Slightly edited too to fit AdvCiv-SAS -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
+		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
+	</TEXT>
+
+
 	<!-- custom: more accurate and detailed entry, less western-centric -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Tag>
@@ -453,6 +461,19 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_CIV_BARBARIAN_PEDIA</Tag>
 		<English>[TAB]The term "barbarian" was created by the Greeks; it was originally used to denote any foreigner. Since then it has gained a more negative connotation, and it is commonly applied to civilizations deemed "inferior" to one's own. The Chinese, for instance, thought of all foreign cultures - everybody from the Manchus to the Turks to the Europeans - as barbarians. Rome applied it to the Huns and the Germanic tribes, as well as to the more advanced Gauls.[PARAGRAPH:2]In Civilization IV, the term denotes people that are not part of any organized civilization appearing in the game, but are instead old-style hunter-gatherers who prey on the "weak" civilized world. Though some barbarians may have acquired fairly advanced weaponry - swords and axes, for example - and though they may occasionally capture or even build their own cities, they remain at heart brigandic nomads, destroying everything that comes in their path. Barbarians cannot be bargained with or appeased: they must be destroyed - before they destroy you![PARAGRAPH:2]In AdvCiv-SAS, due to their (originally) later start (in turn number since/until they have their first city), and some other restrictions they originally have as part of Civilization IV or base AdvCiv or other preexisting mods, they are given some boosts to help them catch up a bit faster this delay and compensate even if a bit the penalties they have. Please see the CIVILIZATION_BARBARIAN in the XML of CIV4CivilizationInfos.xml for details. These include (may not be accurate or updated with latest XML): a few free buildings, and all military units being allowed now (think of it as mercenaries, bandits, pirates, terrorists, etc.)</English>
+	</TEXT>
+	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
+		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CITY_CENTER_PEDIA</Tag>
+		<English>[TAB]A city center is a seat of local government, such as a council hall and its administration, that lets a city govern its surroundings as an alternative to a single centralized palace.[PARAGRAPH:1]In AdvCiv-SAS this building cannot be built in a normal game. To generalize the as of now Barbarian City Center approach to real players, this generic City Center may as of now be used for scenarios, WorldBuilder and modmods, where it gives a city government-center effects and possibly other effects if set (as shown in Sevopedia/XML) without making it a capital.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_CITY_CENTER_PEDIA</Tag>
+		<English>[TAB]City centers operate as an alternative to a centralized palace. Barbarian cities are often far apart, more like independent city-states than provinces of an empire, and, as in base AdvCiv, the Barbarian player has no Palace.[PARAGRAPH:1]In AdvCiv-SAS each Barbarian city therefore receives this City Center, which gives it government-center effects of its own. This also helps the Barbarian player catch up to compensate its later city start, and helps with broad balancing of various desired effects it also carries (as shown in Sevopedia/XML).</English>
 	</TEXT>
 
 
