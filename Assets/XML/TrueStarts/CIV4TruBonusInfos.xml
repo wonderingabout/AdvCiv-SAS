@@ -146,7 +146,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
 					<UntilEra>ERA_FUTURE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -471,7 +471,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -756,7 +756,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>
-					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>

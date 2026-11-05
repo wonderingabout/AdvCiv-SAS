@@ -8336,9 +8336,10 @@ See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values 
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_SCANDINAVIA_VIKING -->
+		<!-- custom: The repeated VIKING is intentional: the inherited civilization namespace, then the unit's own name. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_MACEMAN, type: UNIT_VIKING_VIKING -->
 			<Class>UNITCLASS_MACEMAN</Class>
-			<Type>UNIT_SCANDINAVIA_VIKING</Type>
+			<Type>UNIT_VIKING_VIKING</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>NONE</Capture>
@@ -8348,8 +8349,8 @@ See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values 
 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Description>
-			<Civilopedia>TXT_KEY_UNIT_SCANDINAVIA_VIKING_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_VIKING_VIKING</Description>
+			<Civilopedia>TXT_KEY_UNIT_VIKING_VIKING_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -8550,7 +8551,7 @@ See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values 
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>3</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_SCANDINAVIA_VIKING</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_VIKING_VIKING</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>

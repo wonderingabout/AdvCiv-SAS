@@ -8,6 +8,7 @@ It lists only names that were retired while the asset itself kept working under 
 
 - [Bonus identifier restoration](#bonus-identifier-restoration)
 - [Leader identifier restoration](#leader-identifier-restoration)
+- [Civilization identifier restoration](#civilization-identifier-restoration)
 - [Compatibility note](#compatibility-note)
 
 ## Bonus identifier restoration
@@ -42,16 +43,30 @@ For Moctezuma, SAS continues to override the inherited `TXT_KEY_LEADER_MONTEZUMA
 
 The related machine key `TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE` likewise returned to `TXT_KEY_CITY_NAME_MONTEZUMA_CASTLE`, and its SAS override was removed so the inherited BtS text **Montezuma Castle** applies again. That is the real site's name: later settlers named the Arizona cliff dwelling (Montezuma Castle National Monument) after Moctezuma, so "Moctezuma Castle" was not a spelling correction.
 
+## Civilization identifier restoration
+
+On 2026-11-05 the Scandinavia civilization returned to the inherited `VIKING` machine namespace for easier reuse of inherited/external XML and WorldBuilder data. Its player-facing identity stays **Scandinavian Empire / Scandinavia / Scandinavian**, and its SAS gameplay redesigns remain.
+
+| Retired SAS machine family | Current inherited machine family | Player-facing SAS name |
+| --- | --- | --- |
+| `CIVILIZATION_SCANDINAVIA`, `ART_DEF_CIVILIZATION_SCANDINAVIA`, `TRU_SCANDINAVIA`, `TXT_KEY_CIV_SCANDINAVIA_*`, `AS3D_SCANDINAVIA_*`, `SND_SCANDINAVIA_*`, `AS2D_SONG_SCANDINAVIA`, `SONG_SCANDINAVIA*` | `CIVILIZATION_VIKING`, `ART_DEF_CIVILIZATION_VIKINGS`, `TRU_VIKING`, `TXT_KEY_CIV_VIKING_*`, inherited `AS3D_VIKING_*` / `SND_VIKING_*`, `AS2D_SONG_VIKING`, `SONG_VIKING` / `SONG_VIKINGS_SCENARIO*` | Scandinavia |
+| `UNIT_SCANDINAVIA_VIKING`, `ART_DEF_UNIT_SCANDINAVIA_VIKING`, `TXT_KEY_UNIT_SCANDINAVIA_VIKING*` | `UNIT_VIKING_VIKING`, `ART_DEF_UNIT_VIKING_VIKING`, `TXT_KEY_UNIT_VIKING_VIKING*` | Viking |
+| `BUILDING_SCANDINAVIA_CHIEFTAINS_HALL`, `ART_DEF_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL`, `TXT_KEY_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL*`, `BLDGCIV_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL` | `BUILDING_VIKING_CHIEFTAINS_HALL`, `ART_DEF_BUILDING_VIKING_CHIEFTAINS_HALL`, `TXT_KEY_BUILDING_VIKING_CHIEFTAINS_HALL*`, `BLDGCIV_BUILDING_VIKING_CHIEFTAINS_HALL` | Chieftain's Hall |
+
+The repeated `VIKING` in `UNIT_VIKING_VIKING` is intentional: the first component is the restored civilization namespace and the second is the unit's displayed identity. The physical SAS art directories likewise moved from `Scandinavia_Viking` / `Scandinavia_Chieftains_Hall` to `Viking_Viking` / `Viking_Chieftains_Hall`.
+
+The civilization XML block remains under **S**, not V, because Custom Game follows the shown short name **Scandinavia** rather than the machine `<Type>` (KI#1073).
+
 The [`retired_xml_asset_names.py`](/.github/workflows/README.md#buildxmlretired_xml_asset_namespy) CI check reads the first column of these tables and fails if active code uses one of the retired names again.
 
 ## Compatibility note
 
 The restored identifiers reduce needless incompatibility with inherited or external content. For bonuses, this directly helps map scripts, which commonly place resources by their standard `BONUS_*` strings.
 
-For leaders, it mainly makes external data that names the inherited leader families easier to reuse. Neither makes pre-SAS scenarios supported; see the root README's [support scope](/README.md#not-supported-in-advciv-sas).
+For leaders and the restored Viking civilization family, it mainly makes external data that names the inherited families easier to reuse. None of these restorations makes pre-SAS scenarios supported; see the root README's [support scope](/README.md#not-supported-in-advciv-sas).
 
 These restorations do not restore the inherited gameplay payloads: for example, `BONUS_WINE` still represents the SAS Grapes resource and its current improvement/building behavior.
 
 Historical Git logs, published changelogs, old Known Issues evidence, source-analysis records and saved log examples intentionally retain the identifier that was current when that evidence was produced.
 
-Prepared by ChatGPT-5.6-Sol, 2026-11-04.
+Prepared by ChatGPT-5.6-Sol, 2026-11-04; updated through the Viking civilization restoration by ChatGPT-5.6-Sol, 2026-11-05.

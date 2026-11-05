@@ -96,14 +96,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<!-- custom: RI's LSYSTEM_VIKING_TEMPLE exists only in RI's CIV4CityLSystem.xml, which SAS does not ship, so use BtS's LSYSTEM_2x2, the same 2x2 slot.
 		fScale 1.0 keeps RI's city size (5.0 x its 0.2); the Sevopedia size is fScale x fInterfaceScale, so 8.0 keeps the old 5.0 x 1.6. See KI#1074. (Claude code Opus 5.5) -->
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Type>
+			<Type>ART_DEF_BUILDING_VIKING_CHIEFTAINS_HALL</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>1</bAnimated>
 			<fScale>1.0</fScale>
 			<fInterfaceScale>8.0</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/nif/norse_temple.nif</NIF>
+			<NIF>Art/AdvCiv_SAS/Buildings/Viking_Chieftains_Hall/nif/norse_temple.nif</NIF>
 			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/Pagan_temple_viking.dds</Button>
+			<Button>Art/AdvCiv_SAS/Buildings/Viking_Chieftains_Hall/Pagan_temple_viking.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_STABLE</Type>

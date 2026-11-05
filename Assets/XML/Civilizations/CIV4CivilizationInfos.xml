@@ -3493,15 +3493,16 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<CivilizationSelectionSound>AS3D_RUSSIA_SELECT</CivilizationSelectionSound>
 			<CivilizationActionSound>AS3D_RUSSIA_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
-		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA"; also also remove "_CHANGED" in txt key / asset name of these units; move above for alphabetical ordering -->
-		<CivilizationInfo> <!-- custom: type: CIVILIZATION_SCANDINAVIA -->
-			<Type>CIVILIZATION_SCANDINAVIA</Type>
-			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
-			<ShortDescription>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</ShortDescription>
-			<Adjective>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Adjective>
-			<Civilopedia>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Civilopedia>
+		<!-- custom: The machine-facing civilization family uses the inherited VIKING namespace for external XML/WorldBuilder compatibility, while the player-facing short name remains Scandinavia.
+		Keep this block in the S position: Custom Game follows the shown short name, not the <Type>; xml_display_order.py checks that order. (ChatGPT-5.6-Sol) -->
+		<CivilizationInfo> <!-- custom: type: CIVILIZATION_VIKING -->
+			<Type>CIVILIZATION_VIKING</Type>
+			<Description>TXT_KEY_CIV_VIKING_DESC</Description>
+			<ShortDescription>TXT_KEY_CIV_VIKING_SHORT_DESC</ShortDescription>
+			<Adjective>TXT_KEY_CIV_VIKING_ADJECTIVE</Adjective>
+			<Civilopedia>TXT_KEY_CIV_VIKING_PEDIA</Civilopedia>
 			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_SCANDINAVIA</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_VIKINGS</ArtDefineTag>
 			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
 			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
 			<bPlayable>1</bPlayable>
@@ -3550,13 +3551,13 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<Buildings>
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
-					<BuildingType>BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</BuildingType>
+					<BuildingType>BUILDING_VIKING_CHIEFTAINS_HALL</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
 				<Unit>
 					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
-					<UnitType>UNIT_SCANDINAVIA_VIKING</UnitType>
+					<UnitType>UNIT_VIKING_VIKING</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3596,8 +3597,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				</Leader>
 			</Leaders>
 			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
-			<CivilizationSelectionSound>AS3D_SCANDINAVIA_SELECT</CivilizationSelectionSound>
-			<CivilizationActionSound>AS3D_SCANDINAVIA_ORDER</CivilizationActionSound>
+			<CivilizationSelectionSound>AS3D_VIKING_SELECT</CivilizationSelectionSound>
+			<CivilizationActionSound>AS3D_VIKING_ORDER</CivilizationActionSound>
 		</CivilizationInfo>
 		<CivilizationInfo> <!-- custom: type: CIVILIZATION_SPAIN -->
 			<Type>CIVILIZATION_SPAIN</Type>

@@ -8,7 +8,8 @@
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
+# <!-- custom: Counter tracks how many removed inherited blocks each header-free added block may still match. (Claude code Opus 5.5) -->
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 import difflib
 from pathlib import Path
@@ -343,6 +344,14 @@ def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
             line = block.start + block.raw.count("\n", 0, credit.start())
             errors.append("%s:%d: misspelled model credit '%s'; use ChatGPT" % (path, line, typo.group(0)))
     return errors
+
+
+SAS_HEADER_LINE_RE = re.compile(r"^(?:AI, UI, logging, or other modifications first developed in AdvCiv-SAS|\(c\)\s+2026\s+wonderingabout\b)", re.IGNORECASE)
+
+
+def without_sas_header(block: CommentBlock) -> str:
+    kept = [line for line in block.text.splitlines() if not SAS_HEADER_LINE_RE.match(normalize_comment_text(line))]
+    return normalize_comment_text("\n".join(kept))
 
 
 def exempt_new_comment(block: CommentBlock) -> bool:
@@ -997,10 +1006,17 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     code_exempt = disabled_code_exemptions(added_legacy, removed_legacy, added_custom, opcodes, suffix)
     # <!-- custom: Regenerating the AIP predump after the leader ID restoration changed its "Leader index:type pairs" header and failed as rewritten prose; that header is aip_predump_values.py output, not hand-written comment. (Claude code Opus 5.5) -->
     generated_header = PREDUMP_GENERATOR_MARKER in new_text
+    # <!-- custom: Adding the SAS header to RandomNameUtils.py right under its inherited "Random Name Generator / By: The Lopez" lines failed here: touching comment lines form one block, so the unchanged inherited block looked rewritten.
+    # Only a blank line between them passed, which the user found needless, since inherited files such as AIAutoPlay.py already place the header that way.
+    # So an added block counts as unchanged when it matches a removed one after dropping just the two SAS header lines; other wording changes still fail. (Claude code Opus 5.5) -->
+    removed_without_header = Counter(without_sas_header(block) for block in removed_legacy)
     for index, block in enumerate(added_legacy):
         if generated_header:
             continue
         if exempt_new_comment(block) or index in code_exempt or (restored_comment is not None and restored_comment(block.raw)):
+            continue
+        if removed_without_header[without_sas_header(block)] > 0:
+            removed_without_header[without_sas_header(block)] -= 1
             continue
         errors.append(
             "%s:%d: new/rewritten non-custom comment; preserve inherited wording (reflow-only is allowed) "

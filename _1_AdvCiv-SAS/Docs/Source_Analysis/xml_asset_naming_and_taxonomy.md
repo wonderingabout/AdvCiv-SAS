@@ -1,8 +1,8 @@
 # XML Asset Naming and Taxonomy
 
-**History reviewed against the 2026-11-04 AdvCiv-SAS tree.**
+**History reviewed through the 2026-11-05 AdvCiv-SAS tree.**
 
-Written on 2026-11-04 by ChatGPT-5.6-Sol and GPT-6.1-Sol (Codex); the Monument / Obelisk explanation was reviewed by Claude code Opus 5.5.
+Written on 2026-11-04 by ChatGPT-5.6-Sol and GPT-6.1-Sol (Codex); the Monument / Obelisk explanation was reviewed by Claude code Opus 5.5. Updated through the 2026-11-05 Viking-namespace restoration by ChatGPT-5.6-Sol.
 
 This document records **what AdvCiv-SAS renamed, split, reclassified or otherwise changed in inherited AdvCiv/Beyond the Sword asset naming and taxonomy; when it changed; why it changed; which companion identifiers or consumers changed with it; and what happened to that form later**.
 
@@ -70,7 +70,7 @@ The table below is intentionally about **changes**, not a description of the cur
 | --- | --- | --- | --- |
 | Bonuses | `GEMS -> GEMSTONES`; `IVORY -> ELEPHANTS`; `WINE -> GRAPES`; `CORN -> MAIZE`; `CLAM -> MOLLUSCS`; `COW -> CATTLE` | 4767-4770, 4776; 2025-05-21 to 2025-05-24 | The six inherited machine-ID families were restored on 2026-11-04 while SAS display/gameplay terminology stayed; `MOVIES -> CAMEL` is **not** a rename |
 | Leaders | `LEADER_CHINESE_LEADER -> LEADER_MAO_ZEDONG`; `LEADER_MONTEZUMA -> LEADER_MOCTEZUMA` | 4749, 2025-05-11; 4743, 2025-05-08 | Both inherited machine-ID families were restored on 2026-11-04; displayed names remain Mao Zedong and Moctezuma II |
-| Civilizations | `CIVILIZATION_VIKING -> CIVILIZATION_SCANDINAVIA`; same-Type display changes also include American Empire -> United States of America and Amerindian Empire -> Native American Empire | 4878, 2025-07-15; display changes 4883, 2025-07-21 | Scandinavia machine name and both display changes still present |
+| Civilizations | `CIVILIZATION_VIKING -> CIVILIZATION_SCANDINAVIA`; same-Type display changes also include American Empire -> United States of America and Amerindian Empire -> Native American Empire | 4878, 2025-07-15; display changes 4883, 2025-07-21 | Inherited `VIKING` machine namespace restored on 2026-11-05 while the displayed Scandinavia identity remains; both same-Type display changes remain |
 | Religion family | Taoism -> Daoism across religion, buildings, missionary, art and text-key namespaces | 4740-4741, 2025-05-07 | Daoism family still present; Confucianism removal/Paganism addition was separate |
 | Great-Person units/classes | `UNIT_PROPHET/ARTIST/SCIENTIST/MERCHANT/ENGINEER -> UNIT_GREAT_*`; same for `UNITCLASS_*`; corresponding `UNITAI_* -> UNITAI_GREAT_*`; `UNITAI_GENERAL -> UNITAI_GREAT_GENERAL` | 4750, `701e2e3127`, 2025-05-11 | Still present |
 | Great-Person specialist display | Inherited machine ID already `SPECIALIST_GREAT_PRIEST`; SAS changed its displayed text from **Great Prophet** to **Great Priest** while the mobile unit remained Great Prophet | 4750, `701e2e3127`, 2025-05-11 | Still present; this is a text change, not a SpecialistInfo Type rename |
@@ -86,13 +86,13 @@ When a renamed identifier is later restored, removed or superseded, preserve the
 
 ## Restoration decisions
 
-Decisions and their reasons as of 2026-11-04, from the user, ChatGPT-5.6-Sol and Claude code Opus 5.5. An inherited machine ID is worth restoring where SAS kept the inherited asset and changed little more than its name; the player-facing SAS names stay either way.
+Decisions and their reasons as of 2026-11-05, from the user, ChatGPT-5.6-Sol and Claude code Opus 5.5. An inherited machine ID is worth restoring where SAS kept the inherited asset and changed little more than its name; the player-facing SAS names stay either way.
 
 - **Bonuses and the two leader families:** restored, because SAS kept these assets and map scripts place bonuses by their `BONUS_*` names.
-- **Scandinavia civilization:** its inherited `CIVILIZATION_VIKING` IDs are to be restored as one whole family:
-  - every companion, including the unique unit and building, for example `UNIT_VIKING_VIKING` and `BUILDING_VIKING_CHIEFTAINS_HALL`, because a half-restored namespace would recreate the confusion of the old Monument/Obelisk mix;
-  - art folders and file names too, not only XML IDs;
-  - its listing stays under S, because Custom Game order follows the shown short name (KI#1073).
+- **Scandinavia civilization:** the inherited `VIKING` machine namespace was restored as one whole family on 2026-11-05 while the player-facing identity stays Scandinavia.
+  - Companions use the same machine namespace, including `UNIT_VIKING_VIKING` and `BUILDING_VIKING_CHIEFTAINS_HALL`; the deliberate repeated `VIKING` distinguishes the civilization namespace from the unit name instead of recreating a mixed Monument/Obelisk-style family.
+  - SAS-created art folders follow the restored machine namespace too.
+  - The civilization remains listed under S because Custom Game order follows the shown short name, not `<Type>` (KI#1073).
 - **Daoism:** undecided. It is the same religion with the same building and missionary slots, but SAS also removed Confucianism and added Paganism. Reordering religions would also need matching GameFont glyphs, because religion icons are assigned in XML order.
 - **Kept as SAS names**, because they changed too much for inherited names to give real compatibility. Many mods also change these families heavily, as SAS did, unlike leaders and civilizations, which SAS has barely changed. Their inherited names therefore matter less for compatibility, and map scripts rarely name them, unlike bonuses:
   - technologies, whose tree SAS largely replaced;
@@ -389,7 +389,7 @@ As of 2026-11-04, `LEADER_EWUARE`, `LEADER_GRACE_OMALLEY` and `LEADER_MICHAEL_CO
 
 | Base AdvCiv/BtS name | SAS name | Main renamed companions | Practical commit/date | Why / nature of change | Status on 2026-11-04 |
 | --- | --- | --- | --- | --- | --- |
-| `CIVILIZATION_VIKING` | `CIVILIZATION_SCANDINAVIA` | Civilization art; `TRU_VIKING -> TRU_SCANDINAVIA`; civ description/short/adjective/pedia keys; then-current Viking UU/UB naming | 4878, `632293eb54`, 2025-07-15 | Broadened the civilization identity from "Viking" to "Scandinavia" and renamed the associated civ-specific family | **Active** |
+| `CIVILIZATION_VIKING` | `CIVILIZATION_SCANDINAVIA` | Civilization art; `TRU_VIKING -> TRU_SCANDINAVIA`; civ description/short/adjective/pedia keys; then-current Viking UU/UB naming | 4878, `632293eb54`, 2025-07-15 | Broadened the civilization identity from "Viking" to "Scandinavia" and renamed the associated civ-specific family | **Machine family restored to `VIKING` on 2026-11-05; display remains Scandinavia** |
 
 Companions changed in the same naming family include:
 
@@ -402,9 +402,16 @@ Companions changed in the same naming family include:
 - The then-current civ-specific building changed from `BUILDING_VIKING_TRADING_POST` to `BUILDING_SCANDINAVIA_TRADING_POST` with matching art/text companions.
 - The unit changed from `UNIT_VIKING_BESERKER` to `UNIT_SCANDINAVIA_VIKING` with matching art/text companions.
 
-Later SAS changes replaced the Scandinavian Trading Post with `BUILDING_SCANDINAVIA_CHIEFTAINS_HALL`. As of 2026-11-04, `UNIT_SCANDINAVIA_VIKING` remained in use. The civilization rename therefore propagated beyond the civilization Type into a wider civ-specific naming family.
+Later SAS changes replaced the Scandinavian Trading Post with `BUILDING_SCANDINAVIA_CHIEFTAINS_HALL`. By 2026-11-04, `UNIT_SCANDINAVIA_VIKING` and the Chieftain's Hall were therefore current descendants of the renamed civilization namespace rather than the inherited Berserker/Trading Post payloads.
 
-By 2026-11-04, the Scandinavia civilization block also differed materially from inherited AdvCiv data beyond its Type: its UB, UU, initial civic and pedia/art references had changed. As of the same date, `CIVILIZATION_IRELAND` and `CIVILIZATION_KINGDOM_OF_BENIN` were new SAS civilizations rather than inherited civilization renames.
+On 2026-11-05 the **machine-facing namespace** was restored consistently without undoing those SAS redesigns: `CIVILIZATION_VIKING`, `ART_DEF_CIVILIZATION_VIKINGS`, `TRU_VIKING`, the inherited civ text-key family, Viking audio/music IDs, `UNIT_VIKING_VIKING`, and `BUILDING_VIKING_CHIEFTAINS_HALL` now identify the current SAS civilization family.
+
+- Player-facing names and gameplay remain **Scandinavia**, **Viking**, and **Chieftain's Hall**.
+- The two SAS-created art directories likewise use `Viking_Viking` and `Viking_Chieftains_Hall`.
+
+The civilization block intentionally remains in the S position. Custom Game follows the shown short name rather than the machine `<Type>` (KI#1073), so moving it to V would make the player-visible list less alphabetical.
+
+By the restoration date, the Scandinavia civilization block also differed materially from inherited AdvCiv data beyond its Type: its UB, UU, initial civic and pedia/art references had changed. `CIVILIZATION_IRELAND` and `CIVILIZATION_KINGDOM_OF_BENIN` are new SAS civilizations rather than inherited civilization renames.
 
 ## Same-Type display and text-key renames
 
@@ -537,7 +544,7 @@ The following have a clear historical rename lineage. "Naming-led" here does not
 | `UNIT_MARINE` | `UNIT_MODERN_INFANTRY` | 4871, `378e9fd759`, 2025-07-11 | Explicit unit/class rename while refactoring the modern infantry line | `UNITCLASS_MARINE -> UNITCLASS_MODERN_INFANTRY`; art/text companions changed; gameplay role also changed |
 | `UNIT_GREEK_PHALANX` | `UNIT_GREEK_HOPLITE` | 4878, `632293eb54`, 2025-07-15 | Direct asset rename; the commit cites a Hoplite historical reference. No more specific separate rationale is preserved | `ART_DEF_UNIT_GREEK_PHALANX -> ART_DEF_UNIT_GREEK_HOPLITE`; unit description/pedia keys moved likewise; SAS later changed balance/class data separately |
 | `UNIT_ROME_PRAETORIAN` | `UNIT_ROMAN_LEGIONARY` | 4878, `632293eb54`, 2025-07-15 | Direct asset rename to Legionary; commit does not preserve a more detailed standalone rationale | Art + unit description/pedia keys renamed with it |
-| `UNIT_VIKING_BESERKER` | `UNIT_SCANDINAVIA_VIKING` | 4878, `632293eb54`, 2025-07-15 | Coupled to `VIKING -> SCANDINAVIA`; historical note explicitly distinguishes "Viking" as an activity/profession from Norse/Scandinavian identity, so the civilization became Scandinavia while this UU became the Viking | Art + text keys renamed; still present as of review |
+| `UNIT_VIKING_BESERKER` | `UNIT_SCANDINAVIA_VIKING` | 4878, `632293eb54`, 2025-07-15 | Coupled to `VIKING -> SCANDINAVIA`; historical note explicitly distinguishes "Viking" as an activity/profession from Norse/Scandinavian identity, so the civilization became Scandinavia while this UU became the Viking | The redesigned SAS Viking remains, but its 2026-11-05 machine namespace is `UNIT_VIKING_VIKING` with matching art/text companions |
 | `UNIT_MODERN_ARMOR` | `UNIT_MODERN_TANK` | 4909, `b2560ac6b6`, 2025-07-27 | Naming cleanup to Tank terminology; no more specific rationale preserved here | `UNITCLASS_MODERN_ARMOR -> UNITCLASS_MODERN_TANK`; art + text keys renamed |
 | `UNIT_MOBILE_ARTILLERY` | `UNIT_SELF_PROPELLED_ARTILLERY` | 4910, `eba1162c66`, 2025-07-27 | More specific artillery terminology; no more detailed standalone rationale preserved here | Unit class, art and text keys renamed |
 | `UNIT_ARTILLERY` | `UNIT_MODERN_ARTILLERY`, later `UNIT_FIELD_GUN` | 4910; then 5117, `44aca208a6`, 2025-11-16 | The later Field Gun change explicitly says "modern" was a poor fit because the unit represented roughly WWI / slightly earlier timing, unlike SAS units labeled Modern | Class/art/text followed the intermediate and later names; `MODERN_ARTILLERY` became superseded |
@@ -605,7 +612,7 @@ The following inherited building disappearances are **not** interpreted as simpl
 | `BUILDING_NETHERLANDS_DIKE` | `BUILDING_NETHERLANDS_BEURS` | 6113, 2026-08-14 | Geography-dependent Levee replacement became a Bank/trade-focused identity |
 | `BUILDING_PORTUGAL_FEITORIA` | `BUILDING_PORTUGAL_PEIXARIA` | 6113, 2026-08-14 | Custom House/Feitoria lineage replaced by a Grocer-based marine-resource identity |
 | `BUILDING_RUSSIAN_RESEARCH_INSTITUTE` | `BUILDING_RUSSIAN_PRIKAZ` | 6113, 2026-08-14 | University/science identity replaced by Courthouse/administration/espionage identity |
-| `BUILDING_VIKING_TRADING_POST` | `BUILDING_SCANDINAVIA_TRADING_POST -> BUILDING_SCANDINAVIA_CHIEFTAINS_HALL` | 4878, 2025-07-15 -> 6113, 2026-08-14 | First followed the civilization `VIKING -> SCANDINAVIA` naming change; later replaced the Port-based Trading Post with a Barracks-based Chieftains' Hall |
+| `BUILDING_VIKING_TRADING_POST` | `BUILDING_SCANDINAVIA_TRADING_POST -> BUILDING_SCANDINAVIA_CHIEFTAINS_HALL` | 4878, 2025-07-15 -> 6113, 2026-08-14 | First followed the civilization `VIKING -> SCANDINAVIA` naming change; later replaced the Port-based Trading Post with a Barracks-based Chieftains' Hall; the current 2026-11-05 machine namespace is `BUILDING_VIKING_CHIEFTAINS_HALL` |
 
 Additional non-rename cases remain important:
 

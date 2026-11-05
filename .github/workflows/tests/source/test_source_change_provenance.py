@@ -122,6 +122,15 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 self.assertTrue(checker.modification_header_errors(path, source))
         self.assertEqual(checker.modification_header_errors("CvGameCoreDLL/Test.cpp", "int value;\n"), [])
 
+    # <!-- custom: The RandomNameUtils.py case: a SAS header touching an inherited comment block is not a rewrite of that block, but changed inherited wording still is. (Claude code Opus 5.5) -->
+    def test_sas_header_touching_inherited_comment(self):
+        path = "Assets/Python/Test.py"
+        old = "#\n# Random Name Generator\n# By: The Lopez\n# \n\nvalue = 1\n"
+        header = "# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)\n# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)\n"
+        rewrite = "new/rewritten non-custom comment"
+        self.assertFalse(any(rewrite in error for error in self.errors(path, old, old.replace("# \n", "# \n" + header))))
+        self.assertTrue(any(rewrite in error for error in self.errors(path, old, old.replace("# \n", "# \n" + header).replace("By: The Lopez", "By: Someone else"))))
+
     # <!-- custom: Exercise the appended-comment failures in Python/C++/XML alongside legal separate blocks, inline C++ annotations, literal examples and unchanged inherited comments; CI must distinguish comment structure from code strings. (GPT-6.1-Sol) -->
     def test_cascading_comments_fail_only_when_introduced(self):
         bad_cases = (

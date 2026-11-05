@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Civilization art path information -->
 <!-- custom: file taken cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art and modified or not for AdvCiv-SAS. -->
@@ -212,7 +216,7 @@
 			<bWhiteFlag>0</bWhiteFlag>
 		</CivilizationArtInfo>
 		<CivilizationArtInfo>
-			<Type>ART_DEF_CIVILIZATION_SCANDINAVIA</Type>
+			<Type>ART_DEF_CIVILIZATION_VIKINGS</Type>
 			<Button>,Art/Interface/Buttons/Civilizations/Spain.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,1,1</Button>
 			<Path>Art/Interface/TeamColor/FlagDECAL_Viking.dds</Path>
 			<bWhiteFlag>0</bWhiteFlag>

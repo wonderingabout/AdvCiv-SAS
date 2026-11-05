@@ -3449,26 +3449,26 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
-	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" -->
+	<!-- custom: Retain the SAS player-facing Scandinavia terminology under the inherited VIKING machine namespace. (ChatGPT-5.6-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>
+		<Tag>TXT_KEY_CIV_VIKING_DESC</Tag>
 		<English>Scandinavian Empire</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</Tag>
+		<Tag>TXT_KEY_CIV_VIKING_SHORT_DESC</Tag>
 		<English>Scandinavia</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Tag>
+		<Tag>TXT_KEY_CIV_VIKING_ADJECTIVE</Tag>
 		<English>Scandinavian</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Tag>
+		<Tag>TXT_KEY_BUILDING_VIKING_CHIEFTAINS_HALL</Tag>
 		<English>Chieftain's Hall</English>
 	</TEXT>
 	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
+		<Tag>TXT_KEY_UNIT_VIKING_VIKING</Tag>
 		<English>Viking</English>
 	</TEXT>
 

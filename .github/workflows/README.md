@@ -1189,6 +1189,8 @@ Standard repository header/directive comments are exempt from the new-comment ru
 
 A non-custom comment also passes when the same file contained it word for word before the base commit (Git pickaxe search of that path's history). This allows restoring an inherited block, such as the AdvCiv `CIV4GameText_advc.xml` text entries moved back from `AdvCiv-SAS_main.xml` on 2026-11-04; changed wording still fails.
 
+The SAS header may also touch an inherited comment block, as in `RandomNameUtils.py` under its original author lines: the block still counts as unchanged when only those two header lines were added.
+
 The header of the generated AIP predump module is `aip_predump_values.py` output, so it is exempt too.
 
 Credit matching is deliberately conservative: free-form attribution, distant moves combined with rewrites and wholesale rewrites still need review.

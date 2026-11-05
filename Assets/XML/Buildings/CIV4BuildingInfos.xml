@@ -2042,15 +2042,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
 		</BuildingInfo>
-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_SCANDINAVIA_CHIEFTAINS_HALL -->
+		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_BARRACKS, type: BUILDING_VIKING_CHIEFTAINS_HALL -->
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
-			<Type>BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Type>
+			<Type>BUILDING_VIKING_CHIEFTAINS_HALL</Type>
 			<SpecialBuildingType>NONE</SpecialBuildingType>
-			<Description>TXT_KEY_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL_PEDIA</Civilopedia>
+			<Description>TXT_KEY_BUILDING_VIKING_CHIEFTAINS_HALL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_VIKING_CHIEFTAINS_HALL_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_MILITARY</Advisor>
-			<ArtDefineTag>ART_DEF_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</ArtDefineTag>
+			<ArtDefineTag>ART_DEF_BUILDING_VIKING_CHIEFTAINS_HALL</ArtDefineTag>
 			<MovieDefineTag>NONE</MovieDefineTag>
 			<HolyCity>NONE</HolyCity>
 			<ReligionType>NONE</ReligionType>

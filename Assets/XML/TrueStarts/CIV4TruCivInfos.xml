@@ -614,9 +614,9 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iBias>13</iBias>
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
-		<TruCivInfo> <!-- custom: type: TRU_SCANDINAVIA -->
-			<Type>TRU_SCANDINAVIA</Type>
-			<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
+		<TruCivInfo> <!-- custom: type: TRU_VIKING -->
+			<Type>TRU_VIKING</Type>
+			<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
 			<!-- Moved south by 3 degrees to account for the Gulf stream -->
 			<iLatitudeTimes10>604</iLatitudeTimes10>
 			<iLongitudeTimes10>104</iLongitudeTimes10>
