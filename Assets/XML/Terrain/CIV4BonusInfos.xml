@@ -14,6 +14,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
 <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
 	 to new class "Precious". -->
+<!-- custom: File order: SAS keeps base AdvCiv's order, grouped by bonus class, with BONUS_CAMEL in the slot of the removed Hit Movies.
+Unlike religions, a bonus's GameFont icon does not depend on this order: it comes from <FontButtonIndex> in CIV4ArtDefines_Bonus.xml, so bonuses can be reordered without touching the .tga files. (Claude code Opus 5.5) -->
 <Civ4BonusInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<BonusInfos>
 		<BonusInfo> <!-- custom: type: BONUS_ALUMINUM (useful for VS Code upper tree view while scrolling) -->

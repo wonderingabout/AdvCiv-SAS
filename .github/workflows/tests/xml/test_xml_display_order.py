@@ -17,8 +17,10 @@ TECHS = (("TECH_PHILOSOPHY", 6), ("TECH_CIVIL_SERVICE", 7))
 
 
 class XmlDisplayOrderTests(unittest.TestCase):
-    # <!-- custom: run_check takes leaders, civilizations, civics and religions separately, since the check covers all four lists; omitted lists are written empty. (Claude code Opus 5.5) -->
-    def run_check(self, leaders=(), civs=(), civics=(), religions=()):
+    # <!-- custom: run_check takes leaders, civilizations, civics, religions, units and buildings separately, since the check covers all of them; omitted lists are written empty, except religions, which default to the GameFont order. (Claude code Opus 5.5) -->
+    def run_check(self, leaders=(), civs=(), civics=(), religions=None, units="", buildings=""):
+        if religions is None:
+            religions = [(religion, "NONE") for religion in order.GAMEFONT_RELIGION_ORDER]
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             files = {
@@ -26,6 +28,8 @@ class XmlDisplayOrderTests(unittest.TestCase):
                 order.CIV_INFOS: "".join(f"<CivilizationInfo><Type>{t}</Type><Description>TXT_KEY_X</Description><ShortDescription>{k}</ShortDescription></CivilizationInfo>\n" for t, k in civs),
                 order.CIVIC_INFOS: "".join(f"<CivicInfo><Type>{t}</Type><CivicOptionType>{o}</CivicOptionType><TechPrereq>{p}</TechPrereq></CivicInfo>\n" for t, o, p in civics),
                 order.RELIGION_INFOS: "".join(f"<ReligionInfo><Type>{t}</Type><TechPrereq>{p}</TechPrereq></ReligionInfo>\n" for t, p in religions),
+                order.UNIT_INFOS: "<Root>" + units + "</Root>",
+                order.BUILDING_INFOS: "<Root>" + buildings + "</Root>",
                 order.TECH_INFOS: "".join(f"<TechInfo><Type>{t}</Type><iGridX>{x}</iGridX></TechInfo>\n" for t, x in TECHS),
                 order.TEXT_DIR + "/AdvCiv-SAS_main.xml": "<Civ4GameText>" + "".join(f"<TEXT><Tag>{k}</Tag><English>{n}</English></TEXT>" for k, n in TEXTS) + "</Civ4GameText>",
             }
@@ -49,9 +53,29 @@ class XmlDisplayOrderTests(unittest.TestCase):
         self.assertEqual(self.run_check(civics=[("CIVIC_BARBARISM", legal, "NONE"), ("CIVIC_VASSALAGE", legal, "TECH_PHILOSOPHY"), ("CIVIC_BUREAUCRACY", legal, "TECH_CIVIL_SERVICE"), ("CIVIC_TRIBALISM", "CIVICOPTION_LABOR", "NONE")]), [])
         self.assertEqual(len(self.run_check(civics=[("CIVIC_BUREAUCRACY", legal, "TECH_CIVIL_SERVICE"), ("CIVIC_VASSALAGE", legal, "TECH_PHILOSOPHY")])), 1)
 
-    def test_religions_follow_tech_column(self):
-        self.assertEqual(self.run_check(religions=[("RELIGION_PAGANISM", "TECH_PHILOSOPHY"), ("RELIGION_ISLAM", "TECH_CIVIL_SERVICE")]), [])
-        self.assertEqual(len(self.run_check(religions=[("RELIGION_ISLAM", "TECH_CIVIL_SERVICE"), ("RELIGION_PAGANISM", "TECH_PHILOSOPHY")])), 1)
+    # <!-- custom: Religions keep their historical GameFont order, so a later founding tech must not force a reorder. (Claude code Opus 5.5) -->
+    def test_religion_tech_columns_are_not_enforced(self):
+        religions = [(religion, "TECH_CIVIL_SERVICE" if index == 0 else "TECH_PHILOSOPHY") for index, religion in enumerate(order.GAMEFONT_RELIGION_ORDER)]
+        self.assertEqual(self.run_check(religions=religions), [])
+
+    # <!-- custom: Religion icons come from GameFont.tga slots in XML order, so a reordered religion file must fail until the glyphs are moved too. (Claude code Opus 5.5) -->
+    def test_religions_follow_gamefont_order(self):
+        religions = [(religion, "NONE") for religion in order.GAMEFONT_RELIGION_ORDER]
+        self.assertEqual(self.run_check(religions=religions), [])
+        swapped = [religions[1], religions[0]] + religions[2:]
+        self.assertTrue(any("GameFont glyph order" in failure for failure in self.run_check(religions=swapped)))
+
+    # <!-- custom: Missionaries, religion buildings, executives and headquarters follow their religion or corporation order. (Claude code Opus 5.5) -->
+    def test_linked_assets_follow_religion_and_corporation_order(self):
+        religions = [(religion, "NONE") for religion in order.GAMEFONT_RELIGION_ORDER]
+        def unit(info_type, tag, link):
+            return f"<UnitInfo><Type>{info_type}</Type><{tag}>{link}</{tag}></UnitInfo>"
+        units = unit("UNIT_PAGAN_MISSIONARY", "PrereqReligion", "RELIGION_PAGANISM") + unit("UNIT_HINDU_MISSIONARY", "PrereqReligion", "RELIGION_HINDUISM") + unit("UNIT_EXECUTIVE_1", "PrereqCorporation", "CORPORATION_1") + unit("UNIT_EXECUTIVE_2", "PrereqCorporation", "CORPORATION_2")
+        buildings = "<BuildingInfo><Type>BUILDING_CORPORATION_2</Type><FoundsCorporation>CORPORATION_2</FoundsCorporation></BuildingInfo><BuildingInfo><Type>BUILDING_CORPORATION_1</Type><FoundsCorporation>CORPORATION_1</FoundsCorporation></BuildingInfo>"
+        self.assertEqual(self.run_check(religions=religions, units=units), [])
+        swapped_units = unit("UNIT_HINDU_MISSIONARY", "PrereqReligion", "RELIGION_HINDUISM") + unit("UNIT_PAGAN_MISSIONARY", "PrereqReligion", "RELIGION_PAGANISM")
+        self.assertEqual(len(self.run_check(religions=religions, units=swapped_units)), 1)
+        self.assertEqual(len(self.run_check(religions=religions, buildings=buildings)), 1)
 
 
 if __name__ == "__main__":

@@ -94,6 +94,7 @@ Decisions and their reasons as of 2026-11-05, from the user, ChatGPT-5.6-Sol and
   - SAS-created art folders follow the restored machine namespace too.
   - The civilization remains listed under S because Custom Game order follows the shown short name, not `<Type>` (KI#1073).
 - **Daoism:** undecided. It is the same religion with the same building and missionary slots, but SAS also removed Confucianism and added Paganism. Reordering religions would also need matching GameFont glyphs, because religion icons are assigned in XML order.
+- **Religion order:** kept as SAS's historical founding order (2025-05-22) rather than BtS's, which starts with Judaism. Religions are referenced by their Types, not their position, so the BtS order would give little compatibility; the GameFont glyphs follow the SAS order, and `xml_display_order.py` keeps them in step (KI#1073).
 - **Kept as SAS names**, because they changed too much for inherited names to give real compatibility. Many mods also change these families heavily, as SAS did, unlike leaders and civilizations, which SAS has barely changed. Their inherited names therefore matter less for compatibility, and map scripts rarely name them, unlike bonuses:
   - technologies, whose tree SAS largely replaced;
   - buildings and ordinary units, many of them replaced or redesigned;
@@ -163,6 +164,13 @@ Human and LLM systematic reviews of the inherited XML also noticed smaller, plai
 | `CONTROL_SELECT_HEALTHY` | `<Description>` `TXT_KEY_MAIN_MENU_HALL_OF_FAME` copied from an unrelated control | Kept |
 | `MEMORY_CANCELLED_DEFENSIVE_PACT`, `MEMORY_CANCELLED_VASSAL_AGREEMENT`, `MEMORY_DECLARED_WAR_RECENT` | All use `TXT_KEY_MEMORY_CANCELLED_OPEN_BORDERS` as `<Description>` | Kept |
 | `BUILDING_IRON_WORKS` / `TXT_KEY_BUILDING_IRONWORKS`, `LEADER_LOUIS_XIV` / `TXT_KEY_LEADER_LOUISXIV`, `UNITCLASS_WORKBOAT` / `TXT_KEY_UNIT_WORK_BOAT`, `PROMOTION_CITY_RAIDER1` / `TXT_KEY_PROMOTION_CITYRAIDER1` | Type and text key split words differently, so searching one spelling misses the other | Kept |
+| `PROMOTION_LEADER` / `TXT_KEY_PROMOTION_GREAT_GENERAL`, `TERRAIN_SNOW` / `TXT_KEY_TERRAIN_ICE` (beside a separate `FEATURE_ICE`), `MISSION_AIRPATROL` / `TXT_KEY_MISSION_INTERCEPT`, `COMMERCE_ESPIONAGE` / `TXT_KEY_ESPIONAGE_CULTURE` | Type and text key name different concepts, so one can be mistaken for another asset | Kept; the displayed names are right |
+| `GAMEOPTION_NO_FLIPPING_AFTER_CONQUEST` / `TXT_KEY_GAME_OPTION_FLIPPING_AFTER_CONQUEST` | The key drops the `NO` of its Type; its English reads "No City Flipping after Conquest" | Kept |
+| `CONTROL_NEXTUNIT` and `CONTROL_PREVUNIT` both use `TXT_KEY_ACTION_PREVIOUS_PLOT_UNIT_HELP`; `EVENT_CYCLONE_*` and `EVENT_MONSOON_*` use `TXT_KEY_EVENT_HURRICANE_*` | One key shared by different entries, like the memory rows above | Kept |
+
+A 2026-11-05 count found 143 XML entries whose `<Description>` key does not match their `<Type>`, out of 1,764 such pairs; 134 already exist in AdvCiv 1.14 and the rest come from BtS files SAS now ships or follow normal patterns such as the `_DESC` civilization keys. New SAS assets match their keys.
+
+A CI check enforcing matching names was considered but not added: it would fail on those inherited pairs, and fixing them would mean renaming inherited IDs or text keys, which the restoration decisions above avoid for compatibility. The table lists the pairs most likely to mislead instead.
 
 ## Companion completeness finding: True Starts
 

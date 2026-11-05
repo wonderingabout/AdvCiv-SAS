@@ -16,6 +16,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 Historical fit decides where a unit specializes, while gameplay decides the magnitude.
 Combat-capable civ-specific units normally keep a focused terrain/feature identity: usually one strong 20% terrain or at most two weak 10% terrains, while relevant generic-unit affinities/weaknesses can carry through or be strengthened and feature specialization is budgeted separately.
 See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values and rationales. (ChatGPT-5.6-Sol) -->
+<!-- custom: File order for missionaries and executives: base AdvCiv listed missionaries in the BtS religion order; SAS lists them in the historical religion order of CIV4ReligionInfo.xml, and executives in the BtS CORPORATION_1 to 7 order.
+Units take no GameFont glyph by position, so this order is for a predictable layout (religion N's missionary in position N); xml_display_order.py checks it. (Claude code Opus 5.5) -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for VS Code upper tree view while scrolling) -->

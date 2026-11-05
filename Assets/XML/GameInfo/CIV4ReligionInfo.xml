@@ -9,8 +9,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- -->
 <!-- Religion -->
 <!-- custom: Long_Comments_XML.txt #139 -->
+<!-- custom: File order: SAS reordered religions on 2025-05-22 into historical founding order (Paganism, Hinduism, Judaism, Daoism, Buddhism, Christianity, Islam); BtS and base AdvCiv start with Judaism, Christianity, Islam.
+The Sevopedia groups religions by era and shows this order within each era; missionaries in CIV4UnitInfos.xml and religion buildings in CIV4BuildingInfos.xml follow it too.
+The game gives each religion its GameFont icon and holy-city icon in this order, so reordering needs the glyphs in Assets/Res/Fonts/GameFont.tga and GameFont_75.tga moved too; both match this order (checked on their editor previews, 2026-11-05).
+The order is not tied to founding techs, so a tech move needs no reorder; xml_display_order.py checks the glyph and asset order. See KI#1073. (Claude code Opus 5.5) -->
 <Civ4ReligionInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
-	<!-- custom: The Sevopedia groups religions by era and shows this file order within each era, so keep religions in the tech-tree column order of their founding techs; xml_display_order.py checks it. See KI#1073. (Claude code Opus 5.5) -->
 	<ReligionInfos>
 		<ReligionInfo>
 			<Type>RELIGION_PAGANISM</Type>

@@ -37050,6 +37050,12 @@ Fix (2026-11-04):
 
 Found by the user from Custom Game and Play Now screenshots; fixed with the help of Claude code Opus 5.5, thanks.
 
+Follow-up (2026-11-05): the religion rule above followed founding-tech columns, but the religion order is historical founding order, chosen by SAS on 2025-05-22; both GameFont files match it, as their editor previews show.
+
+- Religions only matched the tech order because their founding techs happened to fall in that order. A later tech move could have made the check demand reordering religions and moving their glyphs, so the tech rule was dropped.
+- The check now compares religions with the GameFont glyph order instead, and keeps missionaries, religion buildings, executives and corporation headquarters in the order of their religion or corporation.
+- The order was not reverted to BtS: religions are referenced by their Types, not their position, so the order gives little compatibility, and the SAS order is clearer and matches the current glyphs.
+
 <a id="ki-1073.2"></a>
 
 ## KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file
