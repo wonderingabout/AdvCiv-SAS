@@ -3481,7 +3481,13 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 					<iHealthChange>1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
-			<BonusHappinessChanges/>
+			<!-- custom: Camel represents the culturally and economically important South American camelids, especially llamas/alpacas, in the Incan context; keep the bonus simple and conditional rather than adding another flat yield modifier. (ChatGPT-5.6-Sol) -->
+			<BonusHappinessChanges>
+				<BonusHappinessChange>
+					<BonusType>BONUS_CAMEL</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
 			<DomainFreeExperiences/>

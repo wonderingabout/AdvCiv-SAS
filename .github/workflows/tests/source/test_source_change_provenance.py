@@ -209,6 +209,22 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         new = "// <!-- custom: Existing rationale. -->\nint value = 1;\n"
         self.assertTrue(any("dropped existing credit" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, new)))
 
+    # <!-- custom: Refining a generic family credit is more precise provenance, not a dropped contributor; the reverse remains a lossy rewrite. (ChatGPT-5.6-Sol) -->
+    def test_generic_model_credit_can_be_refined_but_not_generalized(self):
+        old = "# <!-- custom: Existing rationale. (ChatGPT) -->\nvalue = 1\n"
+        precise = old.replace("(ChatGPT)", "(ChatGPT-5.6-Sol)")
+        self.assertEqual(self.errors("LLM_Helpers/test.py", old, precise), [])
+        self.assertTrue(any("dropped existing credit" in error for error in self.errors("LLM_Helpers/test.py", precise, old)))
+
+    # <!-- custom: Cloning a data block can legitimately clone its existing user comment too; only newly authored or rewritten uncredited prose should produce the advisory warning. (ChatGPT-5.6-Sol) -->
+    def test_copied_existing_uncredited_custom_comment_does_not_warn(self):
+        comment = "<!-- custom: see code comment at UNIT_HAJJAN -->"
+        old = "<root>\n\t" + comment + "\n</root>\n"
+        new = "<root>\n\t" + comment + "\n\t<copy/>\n\t" + comment + "\n</root>\n"
+        warnings = []
+        self.assertEqual(checker.check_change("Assets/XML/Test.xml", old, new, warnings), [])
+        self.assertEqual(warnings, [])
+
     def test_chatgpt_credit_does_not_replace_gpt_credit(self):
         old = "// <!-- custom: Existing rationale. (GPT-5.6-Sol) -->\nint value = 1;\n"
         new = old.replace("(GPT-5.6-Sol)", "(ChatGPT-5.6-Sol)")

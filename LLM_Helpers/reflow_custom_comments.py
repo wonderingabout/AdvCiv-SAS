@@ -362,7 +362,7 @@ def transform_text(text: str, suffix: str):
         lines = lines[:-1]
 
     out = []
-    stats = {"seen": 0, "changed": 0, "unchanged": 0, "skipped": 0}
+    stats = {"seen": 0, "changed": 0, "unchanged": 0, "skipped": 0, "changed_ranges": []}
     skip_reasons = {}
     i = 0
     while i < len(lines):
@@ -388,6 +388,7 @@ def transform_text(text: str, suffix: str):
         elif rendered != block["raw"]:
             out.extend(rendered)
             stats["changed"] += 1
+            stats["changed_ranges"].append((i + 1, end + 1))
         else:
             out.extend(block["raw"])
             stats["unchanged"] += 1
@@ -466,10 +467,13 @@ def main():
 
         totals["files_changed"] += 1
         rel = display_path(path, root)
-        # <!-- custom: CI check mode previously reported only totals, leaving no source path to repair.
-        # Name each eligible file while keeping check mode read-only. (GPT-6.1-Sol) -->
+        # <!-- custom: CI check mode originally reported only totals, then filenames; include each changed block's 1-based source range so failures point directly at the repair site while remaining read-only. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
         if args.check:
-            print("needs logical reflow: %s" % rel)
+            for start, end in stats["changed_ranges"]:
+                location = "%s:%d" % (rel, start)
+                if end != start:
+                    location += "-%d" % end
+                print("needs logical reflow: %s" % location)
         if args.diff:
             sys.stdout.write("".join(difflib.unified_diff(
                 normalized.splitlines(True), new.splitlines(True),

@@ -23,12 +23,12 @@ class ReflowCustomCommentsTests(unittest.TestCase):
     def test_cli_check_is_read_only_and_reports_paths(self):
         with tempfile.TemporaryDirectory(prefix="sas-reflow-check-") as folder:
             source = Path(folder) / "sample.py"
-            original = b'# <!-- custom: First sentence. Second sentence. (GPT-6.1-Sol) -->\nvalue = 1\n'
+            original = b'value = 1\n# <!-- custom: First sentence. Second\n# sentence. (GPT-6.1-Sol) -->\n'
             source.write_bytes(original)
             result = subprocess.run([sys.executable, str(HELPER), str(source), "--check"], capture_output=True, text=True)
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
             self.assertIn("needs logical reflow:", result.stdout)
-            self.assertIn(str(source), result.stdout)
+            self.assertIn(str(source) + ":2-3", result.stdout)
             self.assertEqual(source.read_bytes(), original)
             subprocess.run([sys.executable, str(HELPER), str(source), "--apply"], capture_output=True, check=True)
             result = subprocess.run([sys.executable, str(HELPER), str(source), "--check"], capture_output=True, text=True)

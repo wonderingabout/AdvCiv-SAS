@@ -449,6 +449,18 @@ def comment_credit_parts(block: CommentBlock) -> tuple[dict[str, str], list[str]
     return credits, words
 
 
+# <!-- custom: A generic model-family credit may later be refined to the exact model without losing authorship (for example ChatGPT -> ChatGPT-5.6-Sol); keep this one-way so replacing a specific credit with a generic family name still counts as lost precision. (ChatGPT-5.6-Sol) -->
+GENERIC_MODEL_CREDITS = frozenset(("chatgpt", "gpt", "codex", "claude", "gemini", "deepseek", "grok"))
+
+
+def credit_preserved(old_key: str, new_credits: dict[str, str]) -> bool:
+    if old_key in new_credits:
+        return True
+    if old_key not in GENERIC_MODEL_CREDITS:
+        return False
+    return any(key.startswith(old_key + "-") or key.startswith(old_key + " ") for key in new_credits)
+
+
 # <!-- custom: Require identical prose or a mostly retained explanation with a substantial unchanged phrase; proximity alone would wrongly attribute an unrelated replacement to the deleted comment.
 # This is a conservative guard for clear credit loss, not a semantic authorship detector for complete rewrites. (GPT-6.1-Sol) -->
 def retained_comment_prose(old_words: list[str], new_words: list[str]) -> bool:
@@ -1022,9 +1034,11 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
             "%s:%d: new/rewritten non-custom comment; preserve inherited wording (reflow-only is allowed) "
             "or use '<!-- custom: ... (model credit) -->'" % (path, block.start)
         )
+    # <!-- custom: Copying an existing custom explanation to another matching data block does not create new prose, so an extra identical occurrence should not ask for a fresh model credit; genuinely new or rewritten uncredited text remains advisory. (ChatGPT-5.6-Sol) -->
+    old_custom_text = {block.normalized for block in old_comments if block.custom}
     for block in added_custom:
         errors.extend(credit_spelling_errors(path, block))
-        if not block.credited and warnings is not None:
+        if not block.credited and block.normalized not in old_custom_text and warnings is not None:
             warnings.append(
                 "%s:%d: new/rewritten custom comment has no recognized model credit near its closing '-->'"
                 % (path, block.start)
@@ -1039,7 +1053,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
             new_credits, new_words = comment_credit_parts(replacement)
             if not retained_comment_prose(old_words, new_words):
                 continue
-            missing = [label for key, label in old_credits.items() if key not in new_credits]
+            missing = [label for key, label in old_credits.items() if not credit_preserved(key, new_credits)]
             if missing:
                 errors.append(
                     "%s:%d: partially retained custom comment dropped existing credit(s): %s"

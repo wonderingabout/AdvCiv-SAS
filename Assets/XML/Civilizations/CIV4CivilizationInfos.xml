@@ -1631,8 +1631,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
-					<UnitType>UNIT_INCAN_QUECHUA</UnitType>
+					<UnitClassType>UNITCLASS_CAMEL_ARCHER</UnitClassType>
+					<UnitType>UNIT_INCAN_LLAMA_KAMAYUQ</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

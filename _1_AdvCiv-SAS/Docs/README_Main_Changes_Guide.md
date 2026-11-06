@@ -3308,7 +3308,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - Overall: **snow**, **desert**, and **water** tiles strengthened mainly via bonus/building changes (see Bonus/Buildings sections).
 - **Floodplains persist after raze**: destroying a city does not remove Flood Plains, so previously-developed land can still stay profitable.
 - **Ground explore/recon units**: can move through **all land terrains** from game start (including **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance Explorer). See **Sevopedia Terrain: Peak** or XML for details.
-- **Other units** (example: Quechua Warrior): some specific units also have `bCanMoveImpassable` for **all land terrains**; see **Sevopedia Terrain Peak/Hill** entries or XML/docs for per-unit details.
+- **Other units** (example: Llama Kamayuq): some specific units also have `bCanMoveImpassable` for **all land terrains**; see **Sevopedia Terrain Peak/Hill** entries or XML/docs for per-unit details.
 - **Air explore/recon and land-air units**: the **Airship** (see its Sevopedia entry or this guide's military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` and `bCanMoveAllTerrain`.
 - **Movement restrictions (outside cultural borders)**: some units (e.g. chariots, some siege) **cannot enter forest/jungle** feature tiles outside borders.
   - This restriction still applies even if the tile is roaded (base Civ4/AdvCiv logic reused).
@@ -3567,7 +3567,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 
 ## Buildings
 
-- **Granary:** unlocked at **Pottery**; cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries keep their relative advantages. Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
+- **Granary:** unlocked at **Pottery**; cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries keep their relative advantages. Note: the Incan granary (Qullqa) was reworked toward a growth/logistics role rather than a culture role; it keeps more food after growth and gains +1 happiness with Camel.
 - **Water building line reworked/buffed** *(Goal: make **water tiles more viable** while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
   - **Harbor** (first water building): health/food oriented.
   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
@@ -3650,7 +3650,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
 - **Bonus requirements relaxed (selective):**
   - Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts).
-  - Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery).
+  - Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery).
   - The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure.
   - Thematically consistent.
   - See Sevopedia/XML.

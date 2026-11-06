@@ -1431,32 +1431,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		</Spanish>
 	</TEXT>
 
-	<!-- advc.907b: Original in CIV4GameTextInfos_Objects.xml -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_UNIT_INCAN_QUECHUA</Tag>
-		<English>Quechua Warrior</English>
-		<French>
-			<Text>Quechua guerrier</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Quechua-Krieger</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Quechua guerriero:Quechua guerrieri</Text>
-			<Gender>Male</Gender>
-			<Plural>0:1</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Quechua guerrero:Quechua guerrero</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
-	</TEXT>
-
 	<!-- advc.004g: Original in CIV4GameTextInfos_Objects.xml. Was
 		 "Barbarian State". No change to other languages. -->
 	<TEXT> <!-- redefine -->

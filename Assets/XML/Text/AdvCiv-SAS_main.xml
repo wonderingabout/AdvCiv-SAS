@@ -2636,6 +2636,11 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
 		<English>Camel Archer</English>
 	</TEXT>
+	<!-- custom: Incan Camel Archer replacement; "llama kamayuq" is an attested Quechua term for a specialist responsible for llamas/herds, repurposed here for an explicitly counterfactual military development. (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_INCAN_LLAMA_KAMAYUQ</Tag>
+		<English>Llama Kamayuq</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CAMEL_KNIGHT</Tag>
 		<English>Camel Knight</English>

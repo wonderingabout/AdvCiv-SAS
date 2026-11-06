@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Keep maintained documentation/reference image names globally identifiable, and reserve 0.x/1.x for legacy/SAS numbered image series respectively. (ChatGPT) -->
+# <!-- custom: Keep maintained documentation/reference image names globally identifiable, and reserve 0.x/1.x for legacy/SAS numbered image series respectively. (ChatGPT-5.6-Sol) -->
 from collections import defaultdict
 import argparse
 from pathlib import Path, PurePosixPath
