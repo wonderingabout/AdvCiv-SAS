@@ -1681,7 +1681,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
 
 #### Barbarians (AI)
 
-- **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3).
+- **Barbarians** no longer attempt **world wonders** (prevents hammer sinks); (Requires AdvCiv-SAS 6728+) tunable with `SAS_BARB_WORLD_WONDER_ON` in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-3).
 - Barbarians also tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4
 - **New World barbarian aggression toggle:** preserve both the old (as of now removed in Base AdvCiv) and the new Base AdvCiv behaviors via the `SAS_BARB_NEW_WORLD_EARLY_ATK_ON` SAS define: The default `1` as of now uses the newer city/population presence rule that can end the local peace period earlier; the old as of now disabled `0` restores the older peaceable population rule.
 - **Barbarian Workers no longer retreat to the city they are already inside:**
@@ -3508,15 +3508,21 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization).
   - This pairs with the AI’s improved **hammer efficiency and availability** (e.g. and notably, far fewer scrapping issues): by engaging and "burning off" surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing.
   - For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry or XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml).
-- Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
 - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).
 - (Requires AdvCiv-SAS 6727+) **SAS's Barbarian civilian-unit optional/tunable catch-up around ordinary assets and per-era cost tuning:**
-  - Ancient, Classical, Medieval, Renaissance, Industrial, Modern and Future each have an independent XML percentage (as of now defaults: **10/100/100/100/100/100/100%**; 100% means ordinary cost), so the shipped catch-up is Ancient-only while every era remains independently tunable for balance changes, scenarios and modmods.
+  - Ancient, Classical, Medieval, Renaissance, Industrial, Modern and Future each have an independent XML percentage (as of now defaults: **10/40/70/100/100/100/100%**; 100% means ordinary cost), so the shipped catch-up fades out by the Renaissance while every era remains independently tunable for balance changes, scenarios and modmods.
+    - The percentage follows the Barbarian player's current era, not the era of the unit's required tech, as for regular buildings, as shown in the regular building example.
   - The Barbarian **Worker** as of now remains civ-specific because its faster work rate, no-capture behavior, AI weight and separate art are genuine gameplay differences rather than cost-only duplication; its base XML cost now matches the regular Worker and receives the same civilian catch-up rule.
+- (Requires AdvCiv-SAS 6728+) **Barbarian buildings: City Center in every city, ordinary buildings chosen by their AI, and a per-era regular-building cost catch-up:**
+  - Every Barbarian city, founded or captured, receives the Barbarian **City Center** from the Barbarian `FreeBuildingClasses`, which now apply to every Barbarian city rather than only the first one (`SAS_BARB_FREE_BLDG_ALL_CITIES_ON`, default `1`; [CvCity.cpp](/CvGameCoreDLL/CvCity.cpp)).
+  - Other buildings are the ordinary ones, chosen by the Barbarian AI when it has the technology, so a city is not forced into buildings it does not need.
+  - Regular buildings, not wonders, get an optional/tunable per-era cost percentage like civilian units: `SAS_BARB_REG_BLDG_COST_CATCH_ON` and `SAS_BARB_REG_BLDG_COST_<ERA>_PCT` (as of now defaults: **10/40/70/100/100/100/100%**) in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml), applied in [CvPlayer.cpp](/CvGameCoreDLL/CvPlayer.cpp).
+    - The percentage follows the Barbarian player's current era, not the era of the building's required tech, as for civilian units: for example the Colosseum, unlocked in the Ancient era as of now, uses the Ancient percentage while the Barbarians are in the Ancient era, but once they reach the Renaissance the same Colosseum uses the Renaissance percentage.
 
 ## Civilizations
 
 - New civs: **Kingdom of Benin**; **Ireland**. See also [World map with civs](/README.md#world-map-with-civs).
+- (Requires AdvCiv-SAS 6728+) The Sevopedia **Minor Nation** page now explains this inherited, unplayable template civilization, which normal games do not use, instead of "No description provided."; empty civilization panels such as Starting Technologies now show "None" ([SevoPediaCivilization.py](/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py)).
 - (Requires AdvCiv-SAS 6720+) Note: **Custom Game civilization list remains in alphabetical order:** as in Base AdvCiv, entries of lists that follow the XML file order are ordered by their shown game text (the `TXT_KEY` content), not by their XML Type; this applies beyond civilizations (see below).
   - For example, "United States" is near the bottom even though `CIVILIZATION_AMERICA` starts with "A" (to match BtS style when convenient (sometimes for compatibility even though we have or had changes that break it, sometimes for other reasons if any)).
   - In previous SAS changes we had forgotten to order **Ireland**, **Kingdom of Benin** and America's renamed short name this way, so the Custom Game dropdown mistakenly showed "The USA" before "Arabia", and Ireland and Kingdom of Benin right after Ethiopia.
@@ -3572,7 +3578,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - This may make strategic considerations more specialized and help slightly curb military beelines in particular.
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don't build them too early.
-- (Requires AdvCiv-SAS 6726+) Barbarians have no Palace/capital (as in base AdvCiv); their existing per-city balance effects live on a stronger Barbarian replacement of the separate **City Center** class, propagated through the Barbarian free-building chain.
+- (Requires AdvCiv-SAS 6726+) Barbarians have no Palace/capital (as in base AdvCiv); their existing per-city balance effects live on a stronger Barbarian replacement of the separate **City Center** class, which every Barbarian city receives (see [Barbarians](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#barbarians)).
   - The generic City Center is a tame non-capital government center kept for scenario/modmod use. It can coexist with a normal Palace and gives more moderate effects beyond its government-center role, such as +1 happiness and +1 culture, with none of the Barbarian version's penalties, which serve its stronger balancing role (see XML/Sevopedia).
 - Many world-wonder effects and timings simplified/retuned; overall costs adjusted (often slightly lower).
   - Flat culture and Great Person points now progress consistently with tech timing; late wonders receive culture only when it fits their role, and a culture percentage modifier no longer stacks with flat wonder culture.

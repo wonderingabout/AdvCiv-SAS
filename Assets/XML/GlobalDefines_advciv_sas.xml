@@ -4516,19 +4516,19 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: If enabled, to set it up, each standard era has its own independent base-cost percentage so balance changes, scenarios and modmods can tune any era directly.
 	100 means normal XML cost for that era; values below 100 discount it, values above 100 intentionally surcharge it, and 0 falls through the ordinary getProductionNeeded one-hammer minimum.
 	The selected percentage is applied to the base XML-equivalent cost before ordinary game-speed/start-era/handicap scaling.
-	Defaults make the catch-up deliberately Ancient-only: 10% in Ancient and 100% from Classical onward (they should as of now have mostly caught up by then or no longer warrant such a boost).
-	The DLL checks that this table still matches the loaded era count and otherwise falls back to 100% rather than misapplying an era value. (ChatGPT-5.6-Sol) -->
+	Note that as of now as for regular buildings, the percentage for civilian units follows the Barbarian player's current era, which is the era of its most advanced tech, not the era of the unit's required tech, see the Barbarian building's corresponding defines for details.
+	Each define is named after its era type (ERA_ANCIENT -> SAS_BARB_CIVILIAN_COST_ANCIENT_PCT), so a modmod era needs its own define; a missing one asserts in assertion builds and uses 100%. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_BARB_CIVILIAN_COST_ANCIENT_PCT</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BARB_CIVILIAN_COST_CLASSICAL_PCT</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BARB_CIVILIAN_COST_MEDIEVAL_PCT</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>70</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_BARB_CIVILIAN_COST_RENAISSANCE_PCT</DefineName>
@@ -4545,5 +4545,54 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_BARB_CIVILIAN_COST_FUTURE_PCT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Barbarian catch-up discount for regular buildings, mirroring the civilian-unit one above; world, team and national wonders keep their ordinary cost.
+	It replaced cost-only Barbarian Walls, Castle, Lighthouse and Granary copies (iCost 5), so every ordinary or modmod building receives it without new copies.
+	1 to enable, 0 to disable. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_CATCH_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Per-era base-cost percentages, with the same meaning, scaling, current-era selection and era-type naming as SAS_BARB_CIVILIAN_COST_*_PCT above.
+	The percentage follows the Barbarian player's current era, not the era of the building's required tech: for example the Colosseum, unlocked in the Ancient era as of now, uses the Ancient percentage while the Barbarians are in the Ancient era, but once they reach a later era the same building uses that era's percentage. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_ANCIENT_PCT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_CLASSICAL_PCT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_MEDIEVAL_PCT</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_RENAISSANCE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_INDUSTRIAL_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_MODERN_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_REG_BLDG_COST_FUTURE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Barbarians completed world wonders before other players, although their role is military pressure; 0 makes a Barbarian city skip world wonders when choosing a building and take its next-best building, 1 lets their AI consider them like other buildings.
+	It is an AI choice rather than a construction ban, so WorldBuilder and scenarios can still give Barbarians world wonders; national wonders are unaffected. See KI#3. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_BARB_WORLD_WONDER_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Barbarians have no capital and found or capture cities throughout the game; 1 gives every new Barbarian city the Barbarian FreeBuildingClasses (as of now the City Center), 0 restores the inherited first-city-only grant.
+	This replaced a player-wide FreeBuilding chain through Barbarian Walls, Castle, Lighthouse and Granary; see Long_Comments_XML.txt #17. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_BARB_FREE_BLDG_ALL_CITIES_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 </Civ4Defines>

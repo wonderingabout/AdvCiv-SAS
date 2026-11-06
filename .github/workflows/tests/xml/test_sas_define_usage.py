@@ -99,6 +99,26 @@ class DefineUsageTests(unittest.TestCase):
                 self.write(usage.BBAI_REGISTRY_PATH, registry + fake_consumer + '\n')
                 self.assertTrue(any('SAS_BBAI_TEST_LOG has no runtime' in e for e in self.errors()))
 
+    def era_family_source(self, call):
+        self.write(usage.ERAS_PATH, '<Civ4EraInfos xmlns="fixture"><EraInfos><EraInfo><Type>ERA_ANCIENT</Type></EraInfo><EraInfo><Type>ERA_MODERN</Type></EraInfo></EraInfos></Civ4EraInfos>')
+        self.write('CvGameCoreDLL/CvPlayer.cpp', 'static void SAS_readBarbarianEraCostPercents(char const* szDefinePrefix, std::vector<int>& ai) {}\n'
+                'int f() { std::vector<int> ai; ' + call + ' return 0; }\n')
+
+    def test_era_family_helper_counts_every_loaded_era(self):
+        self.declarations("SAS_BARB_TEST_COST_ANCIENT_PCT", "SAS_BARB_TEST_COST_MODERN_PCT")
+        self.era_family_source('SAS_readBarbarianEraCostPercents("SAS_BARB_TEST_COST_", ai);')
+        self.assertEqual(self.errors(), [])
+
+    def test_era_family_helper_requires_each_era_declaration(self):
+        self.declarations("SAS_BARB_TEST_COST_ANCIENT_PCT")
+        self.era_family_source('SAS_readBarbarianEraCostPercents("SAS_BARB_TEST_COST_", ai);')
+        self.assertTrue(any('SAS_BARB_TEST_COST_MODERN_PCT has no declaration' in e for e in self.errors()))
+
+    def test_era_family_helper_comment_is_not_usage(self):
+        self.declarations("SAS_BARB_TEST_COST_ANCIENT_PCT", "SAS_BARB_TEST_COST_MODERN_PCT")
+        self.era_family_source('// SAS_readBarbarianEraCostPercents("SAS_BARB_TEST_COST_", ai);')
+        self.assertTrue(any('SAS_BARB_TEST_COST_ANCIENT_PCT has no runtime' in e for e in self.errors()))
+
     def test_python_forwarding_and_chained_aliases(self):
         self.declarations("SAS_ACTIVE")
         self.write('Assets/Python/helper.py', 'def lookup(key):\n    return gc.getDefineSTRING(key)\n')

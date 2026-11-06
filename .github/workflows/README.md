@@ -83,6 +83,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/civ_specific_assets.py`](#buildxmlciv_specific_assetspy)
     - [`build/xml/true_starts_coverage.py`](#buildxmltrue_starts_coveragepy)
     - [`build/xml/civ_specific_not_weaker.py`](#buildxmlciv_specific_not_weakerpy)
+    - [`build/xml/barbarian_balance.py`](#buildxmlbarbarian_balancepy)
     - [`build/xml/define_tag_refs.py`](#buildxmldefine_tag_refspy)
     - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
     - [`build/xml/religion_tech_buttons.py`](#buildxmlreligion_tech_buttonspy)
@@ -725,6 +726,8 @@ Comments, documentation, tests, compiled DLLs and generated `temp_files` are not
 
 The scanner follows string aliases and discovers functions forwarding a name parameter to a define getter, including font and BBAI helpers. Integer `%d` name families are expanded from explicit lower/upper guards with an immediate return, so all four current billboard font settings are checked, including missing family members.
 
+Per-era families read through `SAS_readBarbarianEraCostPercents("<prefix>", ...)` in C++ are expanded from the era types in `Assets/XML/GameInfo/CIV4EraInfos.xml` (`ERA_ANCIENT` -> `<prefix>ANCIENT_PCT`), so each loaded era's define is required and counted as used, for example `SAS_BARB_REG_BLDG_COST_ANCIENT_PCT`.
+
 Unsupported SAS name expressions fail and require extending the scanner rather than silently accepting a prefix. This is a static reference check: it does not prove a function executes, evaluate arbitrary Python/C++ expressions, resolve every possible cross-file alias, or preprocess C++ conditional compilation.
 
 One existing declaration is intentionally coverage-only metadata: `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is consumed by `build/runtime/mapscripts.py`, not by game code. Its explicit exception is reported separately and its documented consumer is verified.
@@ -911,6 +914,15 @@ Every leader referenced by a playable civilization must also have one `TruLeader
 #### `build/xml/civ_specific_not_weaker.py`
 
 Verifies civ-specific unit/building replacements are not weaker than their generic class defaults. Unit replacements fail if their `iCombat` or `iPower` is lower than the default unit for the same `UnitClass`; building replacements fail if their `iPower` is lower than the default building for the same `BuildingClass`.
+
+#### `build/xml/barbarian_balance.py`
+
+Verifies two Barbarian values stay strictly above every other player's, since a retune could otherwise reach another player's value unnoticed:
+
+- the Barbarian Worker's `iWorkRate` against every other land Worker (`DefaultUnitAI` `UNITAI_WORKER`), including civ-specific ones: its work rate is its main reason to stay civ-specific;
+- the Barbarian leader's `iBuildUnitProb` against every other leader's, keeping Barbarians focused on military pressure.
+
+Barbarian assets are found through the `CIVILIZATION_BARBARIAN` civilization's `Units` and `Leaders` lists.
 
 #### `build/xml/define_tag_refs.py`
 

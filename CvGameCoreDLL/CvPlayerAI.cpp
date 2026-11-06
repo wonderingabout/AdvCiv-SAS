@@ -24216,7 +24216,7 @@ void CvPlayerAI::AI_doDiplo()
 					// SAS techTradePowerBias: be more cautious about feeding much stronger civs
 					static const bool bSAS_TECH_CONTACT_PWR_ON = GC.getDefineBOOL("SAS_TECH_CONTACT_PWR_ON");
 					// <!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them -->
-					if (!bVassalsOrMaster && bSAS_TECH_CONTACT_PWR_ON)
+					if (bSAS_TECH_CONTACT_PWR_ON && !bVassalsOrMaster)
 					{
 						const int iOurPower   = kOurTeam.getPower(true);
 						const int iTheirPower = GET_TEAM(eTheirTeam).getPower(true);

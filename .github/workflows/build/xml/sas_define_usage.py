@@ -33,6 +33,11 @@ METADATA = {"SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED": ".github/workflows/bui
 # Recognize only that exact field-pair shape when the same source also contains a dynamic helper lookup of descriptor names; arbitrary strings still do not satisfy runtime usage. (ChatGPT-5.6-Sol) -->
 BBAI_REGISTRY_PATH = "CvGameCoreDLL/BBAILog.cpp"
 BBAI_REGISTRY_CONSUMER_RE = re.compile(r"getClampedSASBBAILogLevel\s*\(\s*[A-Za-z_]\w*\s*\.\s*szDefineName\s*\)")
+# <!-- custom: Barbarian catch-up cost percentages are read per loaded era through SAS_readBarbarianEraCostPercents("<prefix>", ...), which builds <prefix><era type without ERA_>_PCT, so no literal lookup names each define.
+# Count a C++ call with a string-literal prefix (comments are already stripped) as using that define for every era in CIV4EraInfos.xml, and require each declaration, so a missing era define is still reported. (Claude code Opus 5.5) -->
+ERA_FAMILY_HELPER = "SAS_readBarbarianEraCostPercents"
+ERAS_PATH = "Assets/XML/GameInfo/CIV4EraInfos.xml"
+ERA_PREFIX_RE = re.compile(r"SAS_[A-Z0-9_]+_")
 
 
 def lex(text, python):
@@ -189,6 +194,12 @@ def bbai_registry_names(tokens):
     return result
 
 
+def era_family_names(repo, prefix):
+    root = ET.parse(repo / ERAS_PATH).getroot()
+    eras = [child_text_by_local_name(node, "Type") or "" for node in root.iter() if local_name(node.tag) == "EraInfo"]
+    return {prefix + era[len("ERA_"):] + "_PCT" for era in eras if era.startswith("ERA_")}
+
+
 def check(repo):
     root = ET.parse(repo / DEFINES_PATH).getroot()
     declared = set()
@@ -228,6 +239,18 @@ def check(repo):
             for define in sorted(names - declared):
                 errors.append(f"{path.relative_to(repo)}:{tokens[index][1]}: {define} has no declaration in {DEFINES_PATH}")
             referenced.update(names)
+        if path.suffix != ".py":
+            for index, name, args, _ in calls(tokens):
+                if name != ERA_FAMILY_HELPER or not args or len(args[0]) != 1 or not args[0][0][3]:
+                    continue
+                prefix = string_value(args[0][0])
+                if not isinstance(prefix, str) or not ERA_PREFIX_RE.fullmatch(prefix):
+                    errors.append(f"{path.relative_to(repo)}:{tokens[index][1]}: {ERA_FAMILY_HELPER} prefix {prefix!r} is not a SAS define prefix")
+                    continue
+                names = era_family_names(repo, prefix)
+                for define in sorted(names - declared):
+                    errors.append(f"{path.relative_to(repo)}:{tokens[index][1]}: {define} has no declaration in {DEFINES_PATH}")
+                referenced.update(names)
         if path.relative_to(repo).as_posix() == BBAI_REGISTRY_PATH:
             names = bbai_registry_names(tokens)
             for define in sorted(names - declared):

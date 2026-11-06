@@ -4,6 +4,10 @@
 
 	Copyright (c) 2007 The BUG Mod.
  -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- General -->
@@ -78,14 +82,6 @@
 
 	<!-- Missing Civ4 Entries -->
 
-	<TEXT>
-		<Tag>TXT_KEY_CIV_MINOR_PEDIA</Tag>
-		<English>No description provided.</English>
-		<French>Description non fournie.</French>
-		<German>Keine Informationen verfügbar.</German>
-		<Italian>Nessuna descrizione fornita.</Italian>
-		<Spanish>Sin descripción.</Spanish>
-	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_LEADER_BARBARIAN_PEDIA</Tag>
 		<English>No description provided.</English>

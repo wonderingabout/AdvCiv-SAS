@@ -4273,30 +4273,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<BuildingClassType>BUILDINGCLASS_CITY_CENTER</BuildingClassType>
 					<BuildingType>BUILDING_BARBARIAN_CITY_CENTER</BuildingType>
 				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_BARRACKS</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_GRANARY</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_HARBOR</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_LIGHTHOUSE</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_WALLS</BuildingType>
-				</Building>
-				<Building>
-					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
-					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
-				</Building>
 				<!-- custom: Long_Comments_XML.txt #346 -->
 				<Building>
 					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
@@ -4530,37 +4506,13 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #17 -->
 			<FreeBuildingClasses>
 				<FreeBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
-					<bFreeBuildingClass>1</bFreeBuildingClass>
-				</FreeBuildingClass>
-				<FreeBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-					<bFreeBuildingClass>1</bFreeBuildingClass>
-				</FreeBuildingClass>
-				<FreeBuildingClass>
-					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_CITY_CENTER</BuildingClassType>
 					<bFreeBuildingClass>1</bFreeBuildingClass>
 				</FreeBuildingClass>
 			</FreeBuildingClasses>
-			<FreeTechs>
-				<FreeTech>
-					<TechType>TECH_POTTERY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_FISHING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<FreeTech>
-					<TechType>TECH_SEAFARING</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-				<!-- custom: not putting mysticism here to reduce the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism -->
-				<FreeTech>
-					<TechType>TECH_MASONRY</TechType>
-					<bFreeTech>1</bFreeTech>
-				</FreeTech>
-			</FreeTechs>
+			<!-- custom: was TECH_POTTERY, TECH_FISHING, TECH_SEAFARING and TECH_MASONRY; base AdvCiv gives Barbarians none, and their catch-up now comes from the City Center in every city and the per-era cost rules, so the AI builds its own Granary, Walls and Harbor once it has the techs. (Claude code Opus 5.5) -->
+			<!-- custom: especially not putting mysticism here to reduce the likeliness of barbarians having a holy city for religions such as paganism, judaism, hinduism -->
+			<FreeTechs/>
 			<DisableTechs/>
 			<InitialCivics>
 				<CivicType>CIVIC_DESPOTISM</CivicType>

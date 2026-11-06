@@ -123,6 +123,9 @@ jobs:
       - name: Civilization replacement baseline strengths
         run: python .github/workflows/build/xml/civ_specific_not_weaker.py
 
+      - name: Barbarian Worker and unit-probability lead
+        run: python .github/workflows/build/xml/barbarian_balance.py
+
       # <!-- custom: Keep the KI#1001.2 name-length check after the other XML checks so a naming failure does not hide unrelated XML diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
       - name: Global define desired name lengths
         run: python .github/workflows/build/xml/global_define_name_style.py

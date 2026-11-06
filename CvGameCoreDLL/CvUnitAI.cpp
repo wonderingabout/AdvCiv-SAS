@@ -5771,7 +5771,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	std::set<PlotNumTypes> aePendingIrrigationProviderPlots;
 
 	// <!-- custom: An exact-plot transport query asks whether its destination itself has worthwhile work; an irrigation step elsewhere cannot justify unloading a Worker there. (GPT-5.6-Sol) -->
-	if (pOnlyPlot == NULL && bSAS_WORKER_IRRIG_ON && GET_TEAM(getTeam()).isIrrigation())
+	if (bSAS_WORKER_IRRIG_ON && pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation())
 	{
 		static const int iSAS_WORKER_IRRIG_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_IRRIG_MAX_PLOTS");
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)

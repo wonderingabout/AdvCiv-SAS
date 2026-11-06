@@ -147,9 +147,10 @@ i don't know why there is production, even from reading the 020 manual in the ni
 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #17 -----
-<!-- custom: Barbarians start later and therefore receive a small first-city infrastructure/technology boost. FreeBuildingClasses gives the first city Barracks, Granary and Walls; Barbarian Walls then propagate BUILDINGCLASS_CITY_CENTER player-wide. Because CIVILIZATION_BARBARIAN maps that class to BUILDING_BARBARIAN_CITY_CENTER, Barbarians automatically receive their stronger unique replacement, which propagates Granary; Barbarian Granary then propagates Barracks. Later Barbarian cities therefore inherit the intended core infrastructure without using Palace, and Barbarians remain capital-less as in base AdvCiv.
-			The generic BUILDING_CITY_CENTER remains a tame, non-capital government center for scenarios/modmods and can coexist with an ordinary Palace; standard normal civilizations are not automatically granted it.
-			Lighthouse is not a first-city free building because the city may be inland, Castle is not granted before its normal tech timing, and Monument is omitted because the Barbarian City Center already supplies the intended culture. The cheap Barbarian Worker/civilian-unit balance remains separate from this building chain. (ChatGPT-5.6-Sol) -->
+<!-- custom: Barbarians start later and have no Palace/capital (as in base AdvCiv), so with SAS_BARB_FREE_BLDG_ALL_CITIES_ON (default 1) CvCity::init gives these FreeBuildingClasses to every Barbarian city, founded or captured, rather than only the first; CIVILIZATION_BARBARIAN maps BUILDINGCLASS_CITY_CENTER to its stronger BUILDING_BARBARIAN_CITY_CENTER.
+			Free buildings skip the normal construction checks (PrereqTech, coastal and other requirements), so list only buildings valid in every city at any time: a naval building such as the Lighthouse would appear inland, and a tech-gated one before its tech, for example after a rebalance or in a modmod.
+			This replaced a first-city Barracks/Granary/Walls grant plus a player-wide FreeBuilding chain (Barbarian Walls, Castle and Lighthouse gave the City Center, which gave the Granary, which gave the Barracks). Other buildings are the ordinary ones, chosen by the Barbarian AI; the per-era SAS_BARB_REG_BLDG_COST_* and SAS_BARB_CIVILIAN_COST_* defines give their catch-up discount.
+			The generic BUILDING_CITY_CENTER remains a tame, non-capital government center for scenarios/modmods and can coexist with an ordinary Palace; standard normal civilizations are not automatically granted it. Monument is not granted because the Barbarian City Center already supplies the intended culture. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 
 ===== \Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml =====
 ----- Comment #18 -----
@@ -4307,7 +4308,7 @@ and gold or religion or culture or such or growth or science or other would not 
 ===== \Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
 ----- Comment #348 -----
 
-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such) if they can last long enough in this case until then-->
+			<!-- custom: Barbarians can use the ordinary military roster when allowed by the remaining explicit NONE mappings. Their civilian catch-up is separate: a generic current-era production-cost rule applies only to non-military-production units, the ordinary Work Boat is reused, and the Barbarian Worker remains civ-specific for its faster work rate, no-capture behavior and AI weight. (ChatGPT-5.6-Sol) -->
 			<!-- advc.303: Not sure where comments are allowed in this file;
 			demonstrably not everywhere. Added NONE entries to the Barbarians
 			starting at Monument (still called "Obelisk" internally) until

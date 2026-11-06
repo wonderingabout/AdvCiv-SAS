@@ -5889,6 +5889,62 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
 }
 
 
+// <!-- custom: Read one Barbarian catch-up percentage per loaded era, from the define named after its era type (ERA_ANCIENT -> <prefix>ANCIENT_PCT).
+// The earlier civilian-unit rule hardcoded a seven-entry table and used 100% for every era once a modmod changed the era count; deriving the names from the loaded eras means an added era only needs its own define.
+// A missing define reports through getDefineINT's assertion and uses the ordinary 100% cost. (Claude code Opus 5.5) -->
+static void SAS_readBarbarianEraCostPercents(char const* szDefinePrefix, std::vector<int>& aiEraCostPercent)
+{
+	FOR_EACH_ENUM(Era)
+	{
+		char const* const szEraType = GC.getInfo(eLoopEra).getType();
+		FAssertMsg(strncmp(szEraType, "ERA_", 4) == 0, szEraType);
+		aiEraCostPercent.push_back(GC.getDefineINT(CvString::format("%s%s_PCT", szDefinePrefix, szEraType + 4).c_str(), 100));
+	}
+}
+
+// <!-- custom: Cached on first use because getProductionNeeded runs often for AI production choices; eras and defines are loaded by then, and SAS define edits currently require restarting Civ4. (Claude code Opus 5.5) -->
+static int SAS_getBarbarianCivilianUnitCostPercent(EraTypes eEra)
+{
+	static std::vector<int> aiEraCostPercent;
+	if (aiEraCostPercent.empty())
+		SAS_readBarbarianEraCostPercents("SAS_BARB_CIVILIAN_COST_", aiEraCostPercent);
+	FAssertBounds(0, (int)aiEraCostPercent.size(), eEra);
+	return aiEraCostPercent[eEra];
+}
+
+static int SAS_getBarbarianRegularBuildingCostPercent(EraTypes eEra)
+{
+	static std::vector<int> aiEraCostPercent;
+	if (aiEraCostPercent.empty())
+		SAS_readBarbarianEraCostPercents("SAS_BARB_REG_BLDG_COST_", aiEraCostPercent);
+	FAssertBounds(0, (int)aiEraCostPercent.size(), eEra);
+	return aiEraCostPercent[eEra];
+}
+
+// <!-- custom: Replace cost-only Barbarian civilian-unit clones with one generic, current-era catch-up rule.
+// Apply this to the base XML-equivalent cost before the ordinary game-speed/start-era/handicap modifiers.
+// Military-production units are deliberately excluded: Barbarians still have to pay their ordinary military costs and generate pressure through production rather than this civilian catch-up aid. (ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
+static int SAS_getBarbarianCivilianUnitCost(CvPlayer const& kPlayer, CvUnitInfo const& kUnit)
+{
+	static const bool bSAS_BARB_CIVILIAN_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_CIVILIAN_COST_CATCH_ON");
+	int const iBaseCost = kUnit.getProductionCost();
+	if (!bSAS_BARB_CIVILIAN_COST_CATCH_ON || !kPlayer.isBarbarian() || iBaseCost <= 0 || kUnit.isMilitaryProduction())
+		return iBaseCost;
+	return (iBaseCost * SAS_getBarbarianCivilianUnitCostPercent(kPlayer.getCurrentEra()) + 50) / 100;
+}
+
+// <!-- custom: Barbarian catch-up for regular buildings, mirroring the civilian-unit rule; it replaces cost-only Barbarian Walls/Castle/Lighthouse/Granary copies (iCost 5), so modmod buildings receive it without new copies.
+// Applied to the base XML cost before the ordinary modifiers.
+// World, team and national wonders (isLimited) keep their ordinary cost: Barbarians once completed world wonders before other players, so a discount would work against SAS_BARB_WORLD_WONDER_ON. See KI#3. (Claude code Opus 5.5) -->
+static int SAS_getBarbarianRegularBuildingCost(CvPlayer const& kPlayer, CvBuildingInfo const& kBuilding)
+{
+	static const bool bSAS_BARB_REG_BLDG_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_REG_BLDG_COST_CATCH_ON");
+	int const iBaseCost = kBuilding.getProductionCost();
+	if (!bSAS_BARB_REG_BLDG_COST_CATCH_ON || !kPlayer.isBarbarian() || iBaseCost <= 0 || kBuilding.isLimited())
+		return iBaseCost;
+	return (iBaseCost * SAS_getBarbarianRegularBuildingCostPercent(kPlayer.getCurrentEra()) + 50) / 100;
+}
+
 int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const // advc.104
 {
 	// <!-- custom: performance optimization: cache repetitive calls -->
@@ -5897,38 +5953,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
 	FAssert(NO_UNITCLASS != eUnitClass);
 
-	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
-	int iProductionNeeded = kUnit.getProductionCost();
-
-	// <!-- custom: Replace cost-only Barbarian civilian-unit clones with one generic, current-era catch-up rule. -->
-	static const bool bSAS_BARB_CIVILIAN_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_CIVILIAN_COST_CATCH_ON");
-	if (bSAS_BARB_CIVILIAN_COST_CATCH_ON && isBarbarian() && iProductionNeeded > 0 && !kUnit.isMilitaryProduction())
-	{
-		// <!-- custom: Apply this to the base XML-equivalent cost before the ordinary game-speed/start-era/handicap modifiers.
-		// Military-production units are deliberately excluded: Barbarians still have to pay their ordinary military costs and generate pressure through production rather than this civilian catch-up aid.
-		// EraTypes follow the loaded era-info order, so index the percentage array directly instead of resolving ERA_* strings.
-		// Keep one independently tunable define per era; if a custom era set no longer matches this table, assert in diagnostic builds and safely use ordinary 100% cost.
-		// Missing defines likewise fall back to 100%. (ChatGPT-5.6-Sol) -->
-		static int const aiBarbarianCivilianCostPercent[] =
-		{
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_ANCIENT_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_CLASSICAL_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_MEDIEVAL_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_RENAISSANCE_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_INDUSTRIAL_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_MODERN_PCT", 100),
-			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_FUTURE_PCT", 100)
-		};
-		FAssert(GC.getNumEraInfos() == ARRAYSIZE(aiBarbarianCivilianCostPercent));
-		EraTypes const eCurrentEra = getCurrentEra();
-		int iCostPercent = 100;
-		if (GC.getNumEraInfos() == ARRAYSIZE(aiBarbarianCivilianCostPercent) &&
-				eCurrentEra >= 0 && eCurrentEra < ARRAYSIZE(aiBarbarianCivilianCostPercent))
-		{
-			iCostPercent = aiBarbarianCivilianCostPercent[eCurrentEra];
-		}
-		iProductionNeeded = (iProductionNeeded * std::max(0, iCostPercent) + 50) / 100;
-	}
+	// <!-- custom: Was GC.getInfo(eUnit).getProductionCost(); Barbarians get the civilian-unit catch-up described at SAS_getBarbarianCivilianUnitCost. (Claude code Opus 5.5) -->
+	int iProductionNeeded = SAS_getBarbarianCivilianUnitCost(*this, GC.getInfo(eUnit));
 
 	iProductionNeeded *= 100 + (GC.getInfo(eUnitClass).getInstanceCostModifier() *
 			(getUnitClassCount(eUnitClass) + /* advc.104: */ iExtraInstances));
@@ -5974,7 +6000,8 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 {
 	CvGame const& kGame = GC.getGame(); // advc
-	int iProductionNeeded = GC.getInfo(eBuilding).getProductionCost();
+	// <!-- custom: Was GC.getInfo(eBuilding).getProductionCost(); Barbarians get the regular-building catch-up described at SAS_getBarbarianRegularBuildingCost. (Claude code Opus 5.5) -->
+	int iProductionNeeded = SAS_getBarbarianRegularBuildingCost(*this, GC.getInfo(eBuilding));
 
 	static int const iBUILDING_PRODUCTION_PERCENT = GC.getDefineINT("BUILDING_PRODUCTION_PERCENT"); // advc.opt
 	iProductionNeeded *= iBUILDING_PRODUCTION_PERCENT;

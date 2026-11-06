@@ -641,11 +641,11 @@ A reasonably elegant implementation - a basic reader in 160 lines of code.
 
 	# <!-- custom: placeFreeWith follows building-class semantics rather than assuming the provider and recipient share one civilization. A generic provider can grant the civilization-specific replacement for its target class.
 	#
-	# Example: BUILDING_BARBARIAN_CITY_CENTER grants BUILDINGCLASS_GRANARY. The target class resolves to BUILDING_BARBARIAN_GRANARY for Barbarians, while the unique provider itself must not be presented as available to civilizations that cannot use it.
+	# Example: when a Barbarian-specific building grants a building class that Barbarians replace, the target class resolves to the Barbarian replacement for Barbarians, while the unique provider itself must not be presented as available to civilizations that cannot use it. The original example, BUILDING_BARBARIAN_CITY_CENTER granting BUILDINGCLASS_GRANARY (BUILDING_BARBARIAN_GRANARY), no longer exists since that free-building chain was retired.
 	#
 	# For civ-specific providers, only show them when the selected civ can actually use that provider. For a generic recipient class that has unique replacements, show generic providers but do not imply that another civilization's unique provider is universally available.
 	#
-	# Helpers getBuildingCiv() and buildingClassHasUniqueVersions() support these checks. (Claude AI + ChatGPT-5.6-Sol) -->
+	# Helpers getBuildingCiv() and buildingClassHasUniqueVersions() support these checks. (Claude AI + ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
 
 ===== \Assets\Python\Contrib\Sevopedia\SevoPediaBuilding.py =====
 ----- Comment #5 -----

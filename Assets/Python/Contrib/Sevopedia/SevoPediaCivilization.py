@@ -144,34 +144,49 @@ class SevoPediaCivilization:
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_FREE_TECHS", ()), "", False, True, self.X_TECH, self.Y_TECH, self.W_TECH, self.H_TECH, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
+		# <!-- custom: An empty panel looked like missing content, e.g. the Barbarians' Starting Technologies after their free techs were removed; show "None" as other pedia panels do. (Claude code Opus 5.5) -->
+		bAnyFound = False
 		for iTech in range(gc.getNumTechInfos()):
 			if (gc.getCivilizationInfo(self.iCivilization).isCivilizationFreeTechs(iTech)):
+				bAnyFound = True
 				screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+		if not bAnyFound:
+			draw_none_text(screen, self.top, self.X_TECH, self.Y_TECH, self.W_TECH, self.H_TECH)
 
 	def placeBuilding(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_UNIQUE_BUILDINGS", ()), "", False, True, self.X_BUILDING, self.Y_BUILDING, self.W_BUILDING, self.H_BUILDING, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
+		# <!-- custom: Show "None" in an empty panel, as in placeTech, e.g. for the Minor Nation. (Claude code Opus 5.5) -->
+		bAnyFound = False
 		for iBuilding in range(gc.getNumBuildingClassInfos()):
 			iUniqueBuilding = gc.getCivilizationInfo(self.iCivilization).getCivilizationBuildings(iBuilding)
 			iDefaultBuilding = gc.getBuildingClassInfo(iBuilding).getDefaultBuildingIndex()
 			# advc.003l: Allow uniques w/o a default unit. Based on a change by Toffer90 in Inthegrave's mod.
 			#iDefaultBuilding > -1 and
 			if (iUniqueBuilding > -1 and iDefaultBuilding != iUniqueBuilding):
+				bAnyFound = True
 				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iUniqueBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iUniqueBuilding, 1, False)
+		if not bAnyFound:
+			draw_none_text(screen, self.top, self.X_BUILDING, self.Y_BUILDING, self.W_BUILDING, self.H_BUILDING)
 
 	def placeUnit(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_FREE_UNITS", ()), "", False, True, self.X_UNIT, self.Y_UNIT, self.W_UNIT, self.H_UNIT, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.attachLabel(panelName, "", "  ")
+		# <!-- custom: Show "None" in an empty panel, as in placeTech, e.g. for the Minor Nation. (Claude code Opus 5.5) -->
+		bAnyFound = False
 		for iUnit in range(gc.getNumUnitClassInfos()):
 			iUniqueUnit = gc.getCivilizationInfo(self.iCivilization).getCivilizationUnits(iUnit)
 			iDefaultUnit = gc.getUnitClassInfo(iUnit).getDefaultUnitIndex()
 			if (#iDefaultUnit > -1 and # advc.003l: See comment in placeBuilding
 			iUniqueUnit > -1 and iDefaultUnit != iUniqueUnit):
+				bAnyFound = True
 				screen.attachImageButton(panelName, "", gc.getUnitInfo(iUniqueUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUniqueUnit, 1, False)
+		if not bAnyFound:
+			draw_none_text(screen, self.top, self.X_UNIT, self.Y_UNIT, self.W_UNIT, self.H_UNIT)
 
 	def placeLeader(self):
 		screen = self.top.getScreen()

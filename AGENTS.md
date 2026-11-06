@@ -393,6 +393,9 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 
 - Preserve rationales (e.g., "it is distracting") when they explain why a change was made.
 - Preserve rationale clauses about why something is unnecessary (e.g., "we don't need to show beyond BFC").
+- Do not restate current gameplay or default values in comments, such as "culture toned down to 4" or "defaults make the catch-up Ancient-only": the XML or code beside the comment already shows them, and the statement goes stale on the next rebalance.
+  - Instead say how it was and why it changed, usually relative to base AdvCiv because we inherit from it, e.g. `<!-- custom: was 3, from the old SAS Barbarian Palace -->`.
+  - Mention earlier SAS values only when that change was significant; long term, each intermediate SAS retune does not matter. Omit the old value when it adds nothing to the rationale.
 - Be more verbose when explaining rationales - it's important to capture the intent behind the change while summarizing. The "why" is critical, so preserve problem descriptions, observed behavior, and intended fixes more fully than other commentary.
 - Do not soften observed or unknown or unclear behavior into hypothetical wording. For example, if a bug was empirically reproduced, say what happened rather than "could/may/might".
 - When a change empirically fixes an issue, include in the comment that this change fixed the issue.
@@ -458,6 +461,11 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
 - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
 - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- In conditions, test the decisive gate first, usually a cached on/off define: when it is off the rest cannot matter, so evaluating it is wasted work, and leading with the switch shows what the condition is for. This applies to `&&` chains, and likewise to nested `if` blocks and early returns, where the switch belongs in the outer test.
+  - Example bad: `if (pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation() && bSAS_WORKER_IRRIG_ON)`
+  - Example good: `if (bSAS_WORKER_IRRIG_ON && pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation())` stops at the switch: when Worker irrigation is off, the other tests are skipped.
+  - Logging gates and their pre-gating in particular are a very common case too.
+  - Keep the original order where it matters, for example for side effects, null-safety or a prerequisite check.
 
 #### Iterative/recursive development and review
 
@@ -508,6 +516,23 @@ These are general guidelines, not irrevocable requirements; adjust based on task
     - Are the other screen LOG buttons illustrated too, and at the appropriate level of detail?
     - Move detailed captures from the root README into the inventory; add useful missing examples there too. Keep brief inline examples or small previews beside the relevant features in the root README and Main Changes Guide, with links to the inventory for detail.
     - Adding a direct link to the new Changes LOG subsection should then prompt checking whether the Battles, Timeline and Sevopedia chart features also link to their corresponding inventory subsections. Follow useful connections as the work develops; each improvement may reveal another related gap.
+  - Barbarian buildings example (2026-11-05 to 2026-11-06): each step came from what the previous one exposed, rather than from a plan made up front.
+    - Assertions on the Barbarian Palace (added because they are faraway from each other in a decentralized way usually, akin to independent city-states) showed it was a poor fit for a national wonder, so the first idea was a Barbarian City Center as (the way `BUILDINGCLASS_JEWISH_TEMPLE` is its own class) a regular building with its own class.
+      - That then raised whether a City Center could be useful to other players too, so `BUILDINGCLASS_CITY_CENTER` got a generic (i.e. non-civ-specific) default building, a clean, optional government center for scenarios/WB/miscellanous and modmods, which the previous Barbarian Palace implementation didn't have, and the Barbarian City Center became a civ-specific, Barbarian replacement.
+    - That exposed cost-only Barbarian copies, whose cheap cost was the real catch-up aid but was fixed, not flexible to balance changes or modmods. The civilian units came first, being the simpler case:
+      - the cost-only Barbarian Work Boat was retired for the ordinary one, as it had no significant effect otherwise, but the Barbarian Worker was kept because it had other genuine differences than just the ordinary base cost;
+      - so a per-era cost rule now gives the catch-up, excluding military production, because military pressure is the Barbarians' role and should cost the ordinary price.
+    - That rule then showed the same idea fits the cheap building copies (Walls, Castle, Lighthouse, Granary), that were delayed as more complex and since we were unsure as what to exactly do just yet for them before that.
+      - so they were retired for a mirrored per-era rule for regular buildings, excluding wonders, because a wonder discount could interfere with modmods or balance changes, for example by letting Barbarians race for world wonders as KI#3 recorded;
+      - while auditing that, we found that the Barbarian world-wonder check rejected a world wonder only after it had won the building choice, so the city lost that turn's building pick; so we also fixed that and as of now the check then moved into candidate selection, where the city takes its next-best building instead.
+    - Retiring the copies also prompted an audit of their old effects: we noticed some effects like the Barbarian Granary's extra food kept (40%->50%) were directly useful catch-up aid, so they could have been hosted directly by the Barbarian City Center (0%->+10%) and the Granary for example was otherwise no longer needed cleanly.
+      - We then also considered that some other effects should not be in the Barbarian City center: for example granting a later-game effect would be OP or unbalanced, or land cities having naval-only effects like water food (as of now from the harbor) would be awkward. So we accounted for that instead of moving every effect; production issues if any should be handled where relevant elsewhere.
+      - Further review of the Barbarian City Center's effects carried over from the old Barbarian Palace then found culture as too high (5 is as high a holy city's, so reduced it, and there was espionage for a player that never uses it), so removed it.
+      - Reviewing the other old fake barbarian buildings showed a likely stale remnant of the former Barbarian Castle having +3 culture instead of the usual +2 culture of the generic building, which was likely a mistake; removing this old fake building also served as a fix without having to port the effect to the Barbarian City Center.
+    - After deleting the old fake free-building chain, we moved to the DLL to grant the City Center to every Barbarian city more cleanly instead; but the new every-city grant had no knob to turn this Barbarian gifting behaviour off, which was brittle against balance/modmod changes or tedious, so we added the `SAS_BARB_FREE_BLDG_ALL_CITIES_ON` SAS define.
+    - But then, we also wondered about why not also adding one knob for real players, so barbarians-only, real-players-only, and all players, could be freely chosen (e.g. in rule changes or modmods or such): but the data showed that every civilization's only free building is the Palace, so a per-civilization XML field fits better and is also much cleaner than a DLL per-player-type switch hack.
+    - Back to other existing Barbarian behaviours/rules, we then noticed Barbarians not being allowed world wonders (KI#3) also had no knob, so we added the `SAS_BARB_WORLD_WONDER_ON` SAS define so it is now tunable as well.
+    - In conclusion, we did not just fix/patch/silence the issue just to fit or satisfy a request, but also wondered about what was done why, how it all fit together and how it could be better done, or if it had issues or such, so try to audit things broadly and iteratively/deeply in a similar manner when reworking stuff.
 
 #### Clarity and accuracy
 

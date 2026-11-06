@@ -599,7 +599,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 			iInheritedBestSacrificeOdds = pBestSacrifice->AI_attackOdds(pPlot, bPotentialEnemy);
 			TechTypes const eInheritedObsoleteTech = pBestSacrifice->getUnitInfo().getObsoleteTech();
 			bool const bInheritedObsolete = (eInheritedObsoleteTech != NO_TECH && GET_TEAM(pBestSacrifice->getTeam()).isHasTech(eInheritedObsoleteTech));
-			if (bUseLowPower && bSAS_GROUP_ATK_SAC_OBSOLETE_ON && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT)
+			if (bSAS_GROUP_ATK_SAC_OBSOLETE_ON && bUseLowPower && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_GROUP_ATK_SAC_CURRENT_SAFE_ODDS_PCT)
 			{
 				int const iInheritedSacrificeValue = pBestSacrifice->AI_sacrificeValue(pPlot);
 				bool const bInheritedTacticalSacrifice = (pBestSacrifice->bombardRate() > 0 || pBestSacrifice->collateralDamage() > 0);

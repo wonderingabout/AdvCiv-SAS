@@ -1399,6 +1399,12 @@ Were totally ineffective, so i have removed them as well for as of now for wonde
 
 Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues.md#ki-24](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-24), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp) in `CvCityAI::AI_chooseBuilding`, as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc)
 
+Update (2026-11-06): the patch rejected a world wonder only after it had won `AI_bestBuildingThreshold`'s selection, so `AI_chooseBuilding` returned false and the Barbarian city lost that building pick instead of choosing its next-best building.
+
+- `AI_bestBuildingThreshold` now skips world wonders as Barbarian candidates, so the city takes its next-best building; it remains an AI choice rather than a `canConstruct` ban, so WorldBuilder and scenarios still allow them. National wonders stay allowed, as before.
+- The rule is now the XML define `SAS_BARB_WORLD_WONDER_ON` (default `0`, the same behavior as the patch), beside the other Barbarian balance defines, so a rebalance or modmod can allow Barbarian world wonders without changing C++.
+- The new Barbarian regular-building cost catch-up (`SAS_BARB_REG_BLDG_COST_*`) excludes all wonders, so it does not make world wonders cheaper for Barbarians. (Claude code Opus 5.5)
+
 <a id="ki-3.2"></a>
 
 ## KI#3.2 - (Fixed/Strengthened inherited Firaxis readers) SAS Barbarian mapping comments expose missing XML comment skipping
@@ -5225,6 +5231,8 @@ rather than another large ordered table of named building categories and fixed `
 This is also more robust for future AdvCiv-SAS balance changes, unique buildings and modmods because each real effect competes on its own value rather than inheriting the policy label of the building that happens to contain it.
 
 The September 2026 audit/rework was carried out iteratively with level-3 BBAI forensic attribution, SASGameRecord comparison and deterministic-state checking, repeated compile/autoplay validation, and review/collaboration between wonderingabout, ChatGPT-5.6-Sol, GPT-5.6-Sol/Codex and other review assistants where noted in the source/commit history, thanks.
+
+Update (2026-11-06): the Barbarian Barracks mentioned in the training-infrastructure conclusion above was retired with the other cost-only Barbarian buildings; Barbarians now use the ordinary Barracks, and their building discount comes from the per-era `SAS_BARB_REG_BLDG_COST_*` rule instead. (Claude code Opus 5.5)
 
 <a id="ki-48.6"></a>
 

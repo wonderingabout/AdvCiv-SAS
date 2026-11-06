@@ -2136,7 +2136,8 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iDropRange>0</iDropRange>
 			<iNukeRange>-1</iNukeRange>
 			<!-- custom: due to war state, they may often die in cities, and they also need to compensate their later start, so make them work extra fast to partially try to avoid or compensate that, but do not overdo it else they develop stronger than the other players, or skew too much gameplay depending on barbarian city captures (whoever captures a fully developped town barbarian city gains too much of an advantage or too soon for example) -->
-			<iWorkRate>200</iWorkRate>
+			<!-- custom: was 200, still a bit too fast in play (Claude code Opus 5.5) -->
+			<iWorkRate>175</iWorkRate>
 			<iBaseDiscover>0</iBaseDiscover>
 			<iDiscoverMultiplier>0</iDiscoverMultiplier>
 			<iBaseHurry>0</iBaseHurry>

@@ -263,26 +263,37 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if (kOwner.isBuildingFree(kCiv.buildingAt(i)))
 			setNumFreeBuilding(kCiv.buildingAt(i), 1);
 	}
-	if (kGame.isFinalInitialized() && kOwner.getNumCities() == 1)
+	// <!-- custom: Barbarians have no capital and found or capture cities throughout the game, so with SAS_BARB_FREE_BLDG_ALL_CITIES_ON their FreeBuildingClasses go to every new Barbarian city rather than only the first; this gives each one the Barbarian City Center.
+	// It replaced a player-wide FreeBuilding chain (Barbarian Walls, Castle and Lighthouse granted the City Center, which granted the Granary, which granted the Barracks) that was hard to follow and depended on those buildings existing.
+	// 0 restores the inherited first-city-only grant, for example to restore such an XML chain.
+	// setNumRealBuilding skips canConstruct, so PrereqTech, coastal and other requirements are not checked: list only buildings valid in every city at any time; a naval or tech-gated entry would appear inland or before its tech. (Claude code Opus 5.5) -->
+	static const bool bSAS_BARB_FREE_BLDG_ALL_CITIES_ON = GC.getDefineBOOL("SAS_BARB_FREE_BLDG_ALL_CITIES_ON");
+	if (kGame.isFinalInitialized())
 	{
-		for (int i = 0; i < kCiv.getNumBuildings(); i++)
+		bool const bFirstCity = (kOwner.getNumCities() == 1);
+		if (bFirstCity || (bSAS_BARB_FREE_BLDG_ALL_CITIES_ON && kOwner.isBarbarian()))
 		{
-			BuildingTypes eBuilding = kCiv.buildingAt(i);
-			if (kCiv.isFreeBuilding(eBuilding))
-				setNumRealBuilding(eBuilding, 1);
+			for (int i = 0; i < kCiv.getNumBuildings(); i++)
+			{
+				BuildingTypes eBuilding = kCiv.buildingAt(i);
+				if (kCiv.isFreeBuilding(eBuilding))
+					setNumRealBuilding(eBuilding, 1);
+			}
 		}
-
-		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-		static const int iInitialAICityProduction = GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION");
-
-		if (!isHuman() /* advc.250b: */ && !kGame.isOption(GAMEOPTION_SPAH))
-			changeOverflowProduction(iInitialAICityProduction, 0);
-		// <advc.124g>
-		if (isHuman() && isActiveOwned() &&
-			kOwner.getCurrentResearch() == NO_TECH)
+		if (bFirstCity)
 		{
-			kOwner.chooseTech();
-		} // </advc.124g>
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iInitialAICityProduction = GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION");
+
+			if (!isHuman() /* advc.250b: */ && !kGame.isOption(GAMEOPTION_SPAH))
+				changeOverflowProduction(iInitialAICityProduction, 0);
+			// <advc.124g>
+			if (isHuman() && isActiveOwned() &&
+				kOwner.getCurrentResearch() == NO_TECH)
+			{
+				kOwner.chooseTech();
+			} // </advc.124g>
+		}
 	}
 
 	updateEspionageVisibility(false);
@@ -661,7 +672,7 @@ void CvCity::doTurn()
 				}
 				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these) easier as such -->
 			}
-			else if (bHuman && bSAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON)
+			else if (bSAS_HUMAN_FORCE_ARTIST_NO_BFC_LOW_CULT_ON && bHuman)
 			{
 				// <!-- custom: The old cleanup guessed that any forced Artist in a narrow post-BFC culture window belonged to this helper.
 				// Record ownership when we add one, and let any manual Artist adjustment permanently transfer control to the human instead. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->

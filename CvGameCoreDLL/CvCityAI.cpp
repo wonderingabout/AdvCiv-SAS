@@ -7547,6 +7547,11 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 	// Some changes are marked, but most are not.
 	// (At least 6 huge nested 'if' blocks have been replaced with 'continue' conditions.)
 	CvCivilization const& kCiv = getCivilization(); // advc.003w
+	// <!-- custom: Barbarians completed world wonders before other players (KI#3); iWonderConstructRand -9999, iBuildUnitProb 100 and NONE civilization mappings did not stop it reliably.
+	// The earlier fix rejected a world wonder after it won this selection, so AI_chooseBuilding returned false and the city lost that building pick.
+	// Skipping world wonders as candidates lets the city take its next-best building instead; it is an AI choice, not a canConstruct ban, so WorldBuilder and scenarios still allow them. (Claude code Opus 5.5) -->
+	static const bool bSAS_BARB_WORLD_WONDER_ON = GC.getDefineBOOL("SAS_BARB_WORLD_WONDER_ON");
+	bool const bSkipWorldWonders = (!bSAS_BARB_WORLD_WONDER_ON && kOwner.isBarbarian());
 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
 	{
 		BuildingClassTypes eLoopClass = kCiv.buildingClassAt(i);
@@ -7568,6 +7573,9 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			if (iFocusFlags != 0 && !(iFocusFlags & BUILDINGFOCUS_WONDEROK))
 				continue;
 		}
+		// <!-- custom: See the bSkipWorldWonders note above; KI#3. (Claude code Opus 5.5) -->
+		if (bSkipWorldWonders && GC.getInfo(eLoopClass).isWorldWonder())
+			continue;
 
 		CvBuildingInfo const& kBuilding = GC.getInfo(eLoopBuilding);
 
@@ -17648,16 +17656,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold, false, NO_ADVISOR, true, bLogSASBuildingChoice ? &iBestBuildingSelectionScore : NULL);
 	if (eBestBuilding != NO_BUILDING)
 	{
-		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help thanks. -->
-		// Check if Barbarian is trying to build a world wonder and skip it
-		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-		if (kOwner.isBarbarian())
-		{
-			CvBuildingInfo const& kBuilding = GC.getInfo(eBestBuilding);
-			if (kBuilding.isWorldWonder())
-				return false;
-		}
-
+		// <!-- custom: The Barbarian world-wonder rejection that stood here, after selection, wasted the building pick; AI_bestBuildingThreshold now skips world wonders as Barbarian candidates (SAS_BARB_WORLD_WONDER_ON). See KI#3. (Claude code Opus 5.5) -->
 		/*if (iOdds < 0 ||
 			getBuildingProduction(eBestBuilding) > 0 ||
 			SyncRandNum(100) < iOdds)*/ // BBAI
