@@ -415,7 +415,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: Not constructible directly; Barbarian free-building effects grant it by BUILDINGCLASS_CITY_CENTER. (ChatGPT-5.6-Sol) -->
 			<iCost>-1</iCost>
-			<iHurryCostModifier>50</iHurryCostModifier>
+			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<iMinAreaSize>-1</iMinAreaSize>
@@ -456,8 +456,8 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<iGlobalHappiness>0</iGlobalHappiness>
 			<iStateReligionHappiness>0</iStateReligionHappiness>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #8; Long_Comments_XML.txt #127 -->
-			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
+			<!-- custom: since barbarians spawn naturally, no need for barbarian cities to spawn too much more, but having a reliable production may help counter fog-busting or make them bit more competitive as they seem low on units during mid-game; GPT-5.2-Codex: Long_Comments_XML.txt #8; Long_Comments_XML.txt #127 -->
+			<iMilitaryProductionModifier>-10</iMilitaryProductionModifier>
 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
 			<iTradeRoutes>0</iTradeRoutes>

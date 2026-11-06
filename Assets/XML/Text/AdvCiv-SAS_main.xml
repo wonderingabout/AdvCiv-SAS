@@ -1502,10 +1502,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKER</Tag>
 		<English>Worker (Barbarian)</English>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKBOAT</Tag>
-		<English>Work Boat (Barbarian)</English>
-	</TEXT>
 
 
 	<TEXT>

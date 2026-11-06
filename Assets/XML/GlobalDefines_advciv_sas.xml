@@ -4507,4 +4507,43 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_BARB_NEW_WORLD_EARLY_ATK_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Barbarian catch-up discount for civilian units only (units with bMilitaryProduction=0).
+	Barbarians start their settled development later and often have sparse cities, so Workers, Work Boats, and any other enabled civilian units can be much cheaper early without discounting the military units that remain their core pressure role; 1 to enable, 0 to disable. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_CATCH_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: If enabled, to set it up, each standard era has its own independent base-cost percentage so balance changes, scenarios and modmods can tune any era directly.
+	100 means normal XML cost for that era; values below 100 discount it, values above 100 intentionally surcharge it, and 0 falls through the ordinary getProductionNeeded one-hammer minimum.
+	The selected percentage is applied to the base XML-equivalent cost before ordinary game-speed/start-era/handicap scaling.
+	Defaults make the catch-up deliberately Ancient-only: 10% in Ancient and 100% from Classical onward (they should as of now have mostly caught up by then or no longer warrant such a boost).
+	The DLL checks that this table still matches the loaded era count and otherwise falls back to 100% rather than misapplying an era value. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_ANCIENT_PCT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_CLASSICAL_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_MEDIEVAL_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_RENAISSANCE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_INDUSTRIAL_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_MODERN_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BARB_CIVILIAN_COST_FUTURE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
 </Civ4Defines>

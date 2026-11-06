@@ -5897,7 +5897,38 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
 	FAssert(NO_UNITCLASS != eUnitClass);
 
-	int iProductionNeeded = GC.getInfo(eUnit).getProductionCost();
+	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+	int iProductionNeeded = kUnit.getProductionCost();
+
+	// <!-- custom: Replace cost-only Barbarian civilian-unit clones with one generic, current-era catch-up rule. -->
+	static const bool bSAS_BARB_CIVILIAN_COST_CATCH_ON = GC.getDefineBOOL("SAS_BARB_CIVILIAN_COST_CATCH_ON");
+	if (bSAS_BARB_CIVILIAN_COST_CATCH_ON && isBarbarian() && iProductionNeeded > 0 && !kUnit.isMilitaryProduction())
+	{
+		// <!-- custom: Apply this to the base XML-equivalent cost before the ordinary game-speed/start-era/handicap modifiers.
+		// Military-production units are deliberately excluded: Barbarians still have to pay their ordinary military costs and generate pressure through production rather than this civilian catch-up aid.
+		// EraTypes follow the loaded era-info order, so index the percentage array directly instead of resolving ERA_* strings.
+		// Keep one independently tunable define per era; if a custom era set no longer matches this table, assert in diagnostic builds and safely use ordinary 100% cost.
+		// Missing defines likewise fall back to 100%. (ChatGPT-5.6-Sol) -->
+		static int const aiBarbarianCivilianCostPercent[] =
+		{
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_ANCIENT_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_CLASSICAL_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_MEDIEVAL_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_RENAISSANCE_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_INDUSTRIAL_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_MODERN_PCT", 100),
+			GC.getDefineINT("SAS_BARB_CIVILIAN_COST_FUTURE_PCT", 100)
+		};
+		FAssert(GC.getNumEraInfos() == ARRAYSIZE(aiBarbarianCivilianCostPercent));
+		EraTypes const eCurrentEra = getCurrentEra();
+		int iCostPercent = 100;
+		if (GC.getNumEraInfos() == ARRAYSIZE(aiBarbarianCivilianCostPercent) &&
+				eCurrentEra >= 0 && eCurrentEra < ARRAYSIZE(aiBarbarianCivilianCostPercent))
+		{
+			iCostPercent = aiBarbarianCivilianCostPercent[eCurrentEra];
+		}
+		iProductionNeeded = (iProductionNeeded * std::max(0, iCostPercent) + 50) / 100;
+	}
 
 	iProductionNeeded *= 100 + (GC.getInfo(eUnitClass).getInstanceCostModifier() *
 			(getUnitClassCount(eUnitClass) + /* advc.104: */ iExtraInstances));

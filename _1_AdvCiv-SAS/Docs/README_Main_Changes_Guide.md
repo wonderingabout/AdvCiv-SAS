@@ -3510,7 +3510,9 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry or XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml).
 - Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
 - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).
-- Barbarian **workboat** is civ-specific mainly for cost/balance.
+- (Requires AdvCiv-SAS 6727+) **SAS's Barbarian civilian-unit optional/tunable catch-up around ordinary assets and per-era cost tuning:**
+  - Ancient, Classical, Medieval, Renaissance, Industrial, Modern and Future each have an independent XML percentage (as of now defaults: **10/100/100/100/100/100/100%**; 100% means ordinary cost), so the shipped catch-up is Ancient-only while every era remains independently tunable for balance changes, scenarios and modmods.
+  - The Barbarian **Worker** as of now remains civ-specific because its faster work rate, no-capture behavior, AI weight and separate art are genuine gameplay differences rather than cost-only duplication; its base XML cost now matches the regular Worker and receives the same civilian catch-up rule.
 
 ## Civilizations
 

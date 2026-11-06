@@ -2121,10 +2121,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</ProductionTrait>
 			</ProductionTraits>
 			<Flavors/>
-			<!-- custom: trying to make sure barbarians can build it fast enough and in high quantity, see CIV4BuildingInfos.xml -->
+			<!-- custom: Bias Barbarian production toward enough Workers; their early production-cost catch-up is handled separately and generically in CvPlayer::getProductionNeeded. -->
 			<iAIWeight>75</iAIWeight>
-			<!-- custom: be careful to not transform surplus food into hammer production, so make this a bit higher than 1 but low enough it builds fast -->
-			<iCost>5</iCost>
+			<!-- custom: Keep the ordinary Worker base cost here; Barbarian civilian-unit catch-up is applied generically in CvPlayer::getProductionNeeded so the special Worker remains unique for its work rate, capture behavior, AI weight, and art rather than a duplicated cost. (ChatGPT-5.6-Sol) -->
+			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2199,7 +2199,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>2</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_WORKER</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_BARBARIAN_WORKER</EarlyArtDefineTag>
 					<LateArtDefineTag>ART_DEF_UNIT_WORKERMODERN</LateArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
@@ -21590,206 +21590,6 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<iCost>30</iCost>
-			<iHurryCostModifier>0</iHurryCostModifier>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iMinAreaSize>-1</iMinAreaSize>
-			<iMoves>2</iMoves>
-			<bNoRevealMap>0</bNoRevealMap>
-			<iAirRange>0</iAirRange>
-			<iAirUnitCap>0</iAirUnitCap>
-			<iDropRange>0</iDropRange>
-			<iNukeRange>-1</iNukeRange>
-			<iWorkRate>100</iWorkRate>
-			<iBaseDiscover>0</iBaseDiscover>
-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
-			<iBaseHurry>0</iBaseHurry>
-			<iHurryMultiplier>0</iHurryMultiplier>
-			<iBaseTrade>0</iBaseTrade>
-			<iTradeMultiplier>0</iTradeMultiplier>
-			<iGreatWorkCulture>0</iGreatWorkCulture>
-			<iEspionagePoints>0</iEspionagePoints>
-			<TerrainImpassables>
-				<TerrainImpassable>
-					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<bTerrainImpassable>1</bTerrainImpassable>
-				</TerrainImpassable>
-			</TerrainImpassables>
-			<FeatureImpassables/>
-			<TerrainPassableTechs>
-				<TerrainPassableTech>
-					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<PassableTech>TECH_ASTRONOMY</PassableTech>
-				</TerrainPassableTech>
-			</TerrainPassableTechs>
-			<FeaturePassableTechs/>
-			<iCombat>0</iCombat>
-			<iCombatLimit>0</iCombatLimit>
-			<iAirCombat>0</iAirCombat>
-			<iAirCombatLimit>0</iAirCombatLimit>
-			<iXPValueAttack>0</iXPValueAttack>
-			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>0</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
-			<iInterceptionProbability>0</iInterceptionProbability>
-			<iEvasionProbability>0</iEvasionProbability>
-			<iWithdrawalProb>0</iWithdrawalProb>
-			<iCollateralDamage>0</iCollateralDamage>
-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
-			<iCityDefense>0</iCityDefense>
-			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
-			<TerrainNatives/>
-			<FeatureNatives/>
-			<TerrainAttacks/>
-			<TerrainDefenses/>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
-			<UnitClassAttackMods/>
-			<UnitClassDefenseMods/>
-			<UnitCombatMods/>
-			<UnitCombatCollateralImmunes/>
-			<DomainMods/>
-			<BonusProductionModifiers/>
-			<iBombRate>0</iBombRate>
-			<iBombardRate>0</iBombardRate>
-			<SpecialCargo>NONE</SpecialCargo>
-			<DomainCargo>NONE</DomainCargo>
-			<iCargo>0</iCargo>
-			<iConscription>0</iConscription>
-			<iCultureGarrison>0</iCultureGarrison>
-			<iExtraCost>0</iExtraCost>
-			<iAsset>2</iAsset>
-			<iPower>0</iPower>
-			<UnitMeshGroups>
-				<iGroupSize>1</iGroupSize>
-				<fMaxSpeed>2.25</fMaxSpeed>
-				<fPadTime>1</fPadTime>
-				<iMeleeWaveSize>1</iMeleeWaveSize>
-				<iRangedWaveSize>1</iRangedWaveSize>
-				<UnitMeshGroup>
-					<iRequired>1</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_WORKBOAT</EarlyArtDefineTag>
-					<LateArtDefineTag>ART_DEF_UNIT_WORKBOAT_MODERN</LateArtDefineTag>
-				</UnitMeshGroup>
-			</UnitMeshGroups>
-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
-			<HotKey/>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<FreePromotions/>
-			<LeaderPromotion>NONE</LeaderPromotion>
-			<iLeaderExperience>0</iLeaderExperience>
-		</UnitInfo>
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKBOAT, type: UNIT_BARBARIAN_WORKBOAT -->
-			<Class>UNITCLASS_WORKBOAT</Class>
-			<Type>UNIT_BARBARIAN_WORKBOAT</Type>
-			<UniqueNames/>
-			<Special>NONE</Special>
-			<Capture>NONE</Capture>
-			<Combat>NONE</Combat>
-			<Domain>DOMAIN_SEA</Domain>
-			<DefaultUnitAI>UNITAI_WORKER_SEA</DefaultUnitAI>
-			<Invisible>NONE</Invisible>
-			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_BARBARIAN_WORKBOAT</Description>
-			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_ECONOMY</Advisor>
-			<bAnimal>0</bAnimal>
-			<bFood>0</bFood>
-			<bNoBadGoodies>0</bNoBadGoodies>
-			<bOnlyDefensive>0</bOnlyDefensive>
-			<bNoCapture>0</bNoCapture>
-			<bQuickCombat>0</bQuickCombat>
-			<bRivalTerritory>0</bRivalTerritory>
-			<bMilitaryHappiness>0</bMilitaryHappiness>
-			<!-- K-Mod: was 1 -->
-			<bMilitarySupport>0</bMilitarySupport>
-			<!-- K-Mod: was 1 -->
-			<bMilitaryProduction>0</bMilitaryProduction>
-			<bPillage>0</bPillage>
-			<bSpy>0</bSpy>
-			<bSabotage>0</bSabotage>
-			<bDestroy>0</bDestroy>
-			<bStealPlans>0</bStealPlans>
-			<bInvestigate>0</bInvestigate>
-			<bCounterSpy>0</bCounterSpy>
-			<bFound>0</bFound>
-			<bGoldenAge>0</bGoldenAge>
-			<bInvisible>0</bInvisible>
-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
-			<bCanMoveImpassable>0</bCanMoveImpassable>
-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
-			<bFlatMovementCost>0</bFlatMovementCost>
-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
-			<bNukeImmune>0</bNukeImmune>
-			<bPrereqBonuses>1</bPrereqBonuses>
-			<bPrereqReligion>0</bPrereqReligion>
-			<bMechanized>1</bMechanized>
-			<bRenderBelowWater>1</bRenderBelowWater>
-			<bSuicide>0</bSuicide>
-			<bHiddenNationality>0</bHiddenNationality>
-			<bAlwaysHostile>0</bAlwaysHostile>
-			<UnitClassUpgrades/>
-			<UnitClassTargets/>
-			<UnitCombatTargets/>
-			<UnitClassDefenders/>
-			<UnitCombatDefenders/>
-			<FlankingStrikes/>
-			<UnitAIs>
-				<UnitAI>
-					<UnitAIType>UNITAI_WORKER_SEA</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-			</UnitAIs>
-			<NotUnitAIs/>
-			<Builds>
-				<Build>
-					<BuildType>BUILD_FISHING_BOATS</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-				<Build>
-					<BuildType>BUILD_WHALING_BOATS</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-				<Build>
-					<BuildType>BUILD_OFFSHORE_PLATFORM</BuildType>
-					<bBuild>1</bBuild>
-				</Build>
-			</Builds>
-			<ReligionSpreads/>
-			<CorporationSpreads/>
-			<GreatPeoples/>
-			<Buildings/>
-			<HolyCity>NONE</HolyCity>
-			<ReligionType>NONE</ReligionType>
-			<StateReligion>NONE</StateReligion>
-			<PrereqReligion>NONE</PrereqReligion>
-			<PrereqCorporation>NONE</PrereqCorporation>
-			<PrereqBuilding>NONE</PrereqBuilding>
-			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_FISHING</PrereqTech>
-			<TechTypes/>
-			<BonusType>NONE</BonusType>
-			<PrereqBonuses/>
-			<!-- custom: removed the wonder effect from industrious as was too op and unreliable, also give the worker production trait effect to supporting industrious type of units, was empty -->
-			<ProductionTraits>
-				<ProductionTrait>
-					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
-					<iProductionTrait>50</iProductionTrait>
-				</ProductionTrait>
-			</ProductionTraits>
-			<Flavors/>
-			<iAIWeight>0</iAIWeight>
-			<iCost>5</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

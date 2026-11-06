@@ -4432,10 +4432,6 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 					<UnitType>UNIT_BARBARIAN_WORKER</UnitType>
 				</Unit>
 				<Unit>
-					<UnitClassType>UNITCLASS_WORKBOAT</UnitClassType>
-					<UnitType>UNIT_BARBARIAN_WORKBOAT</UnitType>
-				</Unit>
-				<Unit>
 					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
 					<UnitType>NONE</UnitType>
 				</Unit>
