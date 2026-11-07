@@ -3448,6 +3448,13 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** Traits with **no anarchy** (e.g., Spiritual).
 - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`).
   - Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
+- (Requires AdvCiv-SAS 6731+) **Advanced Start points** raised for late start eras to keep base AdvCiv's buying power: Renaissance/Industrial/Modern/Future **3600/5500/7500/9500 → 4000/6900/10700/15800**. See [KI#1075](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075).
+  - Flattening those costs removed the discount the points relied on, so a Modern start bought about 30% fewer units, buildings and population than in base AdvCiv.
+  - AI starts grow by the same proportion, because the handicap's `iAIAdvancedStartPercent` is a share of these same era points, so the change does not favour the human player.
+  - [`advanced_start_era_points.py`](/.github/workflows/README.md#buildxmladvanced_start_era_pointspy) fails CI if an era drifts more than 10% from that equivalent.
+- **Advanced Start automation:** the arrows button on the second row of the Cities tab, inherited from BtS, spends the remaining points the way the AI does.
+  - It works at any time before **Begin**, including after placing some cities and items yourself, and can be clicked again to spend what is left.
+  - It is also useful for testing late-game content without autoplaying a full game, for example starting in a late era to try **Augmented Infantry**.
 - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**.
   - The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
 - **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**.

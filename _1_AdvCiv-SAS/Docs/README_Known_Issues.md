@@ -1232,7 +1232,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1072.2 - (Fixed SAS migration gap) Six religions kept BtS tech buttons drawn for their old founding techs, so the choose-tech popup and tech bar showed e.g. Polytheism's marble heads on Calendar](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072.2)\
 [KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)\
 [KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)\
-[KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)
+[KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)\
+[KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)
 
 <a id="ki-1"></a>
 
@@ -37103,3 +37104,13 @@ City L-system (`CIV4CityLSystem.xml`, which SAS does not ship):
 - `building_art_lsystem_names.py` now checks every building art name against the BtS names, stored in a list generated from a local Civ4 install (or a SAS city L-system, if one is ever added).
 
 All changes affect graphics only. After them, Grapes Plantations show the plantation house among the vines (screenshot 0971) and the Chieftain's Hall Sevopedia model has its old size; the earlier Grapes look and the hall's city size were not checked.
+
+<a id="ki-1075"></a>
+
+## KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points
+
+SAS set the era modifiers for unit, building and population costs to 100% in `e2dbc313c` while retaining AdvCiv's Advanced Start budgets. For example, a Modern start still received 7,500 points, but the relevant cost modifiers rose from 70% to 100%.
+
+The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) cites the 7,500-point Modern budget in F472 to establish that its Railroad purchase scenario was reachable. See [KI#795](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-795) for that separate purchase legality defect.
+
+SAS now gives Renaissance, Industrial, Modern and Future starts 4,000, 6,900, 10,700 and 15,800 points respectively. The budgets approximate AdvCiv's buying power for the affected purchases at SAS's 100% cost modifiers. The XML CI check allows up to 10% deviation from the scaled baseline.

@@ -70,6 +70,7 @@ Always review diffs before committing generated source changes.
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
+- [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper)
 - [Claude Code session transcript helper](#claude-code-session-transcript-helper)
   - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
 - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
@@ -1258,21 +1259,50 @@ git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
   - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
 - Added with help of ChatGPT-5.6-Sol.
 
+## Codex and ChatGPT transcript helper
+
+[openai_chat_export_to_txt.py](/LLM_Helpers/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex progress updates, and omits raw tool logs and attachments. Use Python 3.
+
+Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message boundaries. Run `rg -n "^=== " chat.txt` to find them with line numbers. The Claude helper uses the same format with `=== CLAUDE ===`.
+
+- **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory.
+- **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
+  - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a missing oldest page.
+  - Verified on the development machine: Codex exported all three sources to TXT (ChatGPT through the desktop chat tools, Codex and Claude Code from local session files).
+  - Claude Code confirmed its current setup has neither desktop chat tool, so it cannot fetch the latest private ChatGPT chat directly. It can convert pages already saved as JSON or read the TXT Codex writes.
+  - For a handoff, ask Codex to export the chat and give Claude the resulting file path.
+  - The TXT starts with the first speaker marker. Report the title, message count, or export limits separately.
+
+```bash
+python ./LLM_Helpers/openai_chat_export_to_txt.py codex rollout.jsonl --output codex-chat.txt
+python ./LLM_Helpers/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
+```
+
+The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/llm_chat_exports/`.
+
+Both helpers read the folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py). Set `LLM_CHAT_EXPORT_DIR` to change the shared default or pass `--output` for one export. Use a dated filename to keep another snapshot of the same chat. Both helpers refuse to overwrite an existing file.
+
 ## Claude Code session transcript helper
 
 ### `claude_session_export_to_txt.py`
 
-- Converts a Claude Code desktop session export (`session-export-<id>.zip`, written to Downloads when Claude is asked to export the session) into a readable `.txt` chat transcript, for example to hand a review discussion to Codex or ChatGPT.
-  - The export holds a raw `transcript.jsonl` log, not a readable chat; `/export` was unavailable in the desktop session, and copying from the chat view captured only a small slice of a long session.
+- Converts a Claude Code session into a readable `.txt` chat transcript, for example to hand a review discussion to Codex or ChatGPT.
+- Accepts either input, both raw JSONL logs rather than a readable chat:
+  - The local session log `<session-id>.jsonl`, which any agent can read. With no argument, the helper exports this repository's most recently modified log, usually the current session; [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py) holds where Claude Code keeps it, honoring `CLAUDE_CONFIG_DIR`.
+  - A desktop session export `session-export-<id>.zip`, written to Downloads when Claude is asked to export the session.
+  - Codex could not produce an export ZIP, which only the desktop app writes; the local log holds the same records, so pass it directly instead.
+  - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
 - Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
   - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
-- Uses only Python 3's standard library and writes beside the ZIP by default:
+- Marks each message with a `=== USER ===` or `=== CLAUDE ===` separator, the same format as the [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper). Run `rg -n "^=== " chat.txt` to list message boundaries with line numbers.
+- Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
 
 ```bash
+python ./LLM_Helpers/claude_session_export_to_txt.py
 python ./LLM_Helpers/claude_session_export_to_txt.py "C:/Users/PC/Downloads/session-export-1793625034771.zip"
 ```
 
-- The transcript ends where the export was taken; export again for later messages.
+- The transcript ends where the log was read; convert again for later messages.
 
 ## Local development diagnostics toggle
 

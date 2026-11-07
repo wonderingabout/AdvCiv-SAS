@@ -75,6 +75,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/xml_redundant_defaults.py`](#buildxmlxml_redundant_defaultspy)
     - [`build/xml/tech_columns.py`](#buildxmltech_columnspy)
     - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
+    - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
@@ -851,6 +852,14 @@ Verifies all techs in the same tech-tree column (`iGridX`) share the same core c
 Verifies that every `OrPreReqs`/`AndPreReqs` entry in `CIV4TechInfos.xml` names an existing tech in an earlier `iGridX` column, and that the prerequisite graph has no cycle.
 
 - Added after [KI#29](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-29): clicking Transhumanism's box in the tech advisor crashed while placeholder prerequisites were in use, recalled as an impossible or circular dependency. The tree passed this check when it was added.
+
+#### `build/xml/advanced_start_era_points.py`
+
+Verifies each era's `iAdvancedStartPoints` stays within 10% of base AdvCiv's buying power at the current SAS cost percentages.
+
+The expected value is AdvCiv's points scaled by the ratio of the SAS and AdvCiv `iTrainPercent`, `iConstructPercent` and `iGrowthPercent`, because SAS flattened those percentages without changing the points.
+
+AdvCiv's values are pinned in the checker, as CI has no AdvCiv install; a new era needs a baseline row.
 
 #### `build/xml/wonder_cost_columns.py`
 

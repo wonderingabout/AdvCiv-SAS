@@ -184,6 +184,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Build](/README.md#build)\
 &emsp;&emsp;[DLL build reports](/README.md#dll-build-reports)\
 &emsp;[Helpers](/README.md#helpers)\
+&emsp;&emsp;[LLM chat transcripts](/README.md#llm-chat-transcripts)\
 &emsp;[Local tests](/README.md#local-tests)\
 &emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
 &emsp;[CI](/README.md#ci)\
@@ -1213,6 +1214,10 @@ Building through the Visual C++ 2010 Express project keeps the usual `AdvCiv.log
 External development tools for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/), mostly Python scripts. Local test programs have their own [tests folder](/tests/README.md).
 
 For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+
+#### LLM chat transcripts
+
+For handing a discussion to another agent, convert Codex, ChatGPT, or Claude Code conversations to readable TXT. Speaker separators such as `=== USER ===` make it easy to find message boundaries in long exports. See the [Codex and ChatGPT helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) and [Claude Code helper](/LLM_Helpers/README.md#claude-code-session-transcript-helper).
 
 ### Local tests
 

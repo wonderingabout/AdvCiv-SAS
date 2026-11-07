@@ -93,6 +93,9 @@ jobs:
       - name: Technology prerequisites
         run: python .github/workflows/build/xml/tech_prereqs.py
 
+      - name: Advanced Start points by era
+        run: python .github/workflows/build/xml/advanced_start_era_points.py
+
       - name: Wonder costs by technology tier
         run: python .github/workflows/build/xml/wonder_cost_columns.py
 

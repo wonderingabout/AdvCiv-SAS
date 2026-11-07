@@ -59,6 +59,7 @@
   - [Runtime status and history](#runtime-status-and-history)
 - [DLL compilation](#dll-compilation)
 - [Runtime safety and diagnostics](#runtime-safety-and-diagnostics)
+- [File management](#file-management)
 
 ## Credit
 
@@ -610,7 +611,12 @@ Clear, accurate explanations help users and developers understand the code and i
     - Example: moving the draft's scrap-name getters into SGR as private helpers (`getSASGameRecordScrapContextName` and its companion) is a small pre-commit post-review cleanup. But moving the scrap enum API as well, or auditing all similar catalogs, would add scope and diff noise, so consider that in a separate pass if relevant.
 - For new structured Python log rows, use `CvUtil.pyPrintRecord(...)` when `CvUtil` is already a safe dependency, or `SASPythonLogging.writeRecord(...)` at leaf/early-startup boundaries where importing `CvUtil` would create a cycle.
   - Pass a stable record name plus explicit `key=value` fields instead of hand-building `record=` text at each call site; keep inherited `CvUtil.pyPrint(...)` for intentional human prose/debug dumps.
-- Avoid fluff like `================`, keep it nice and simple and clean.
+- Generally avoid decorative separators such as `================`, `////`, or `####` where they add noise. However they can be useful sometimes as greppable markers or such though, and if so feel free to use short, consistent markers when readers or agents need to search for record boundaries or where it can be otherwise helpful or convenient.
+  - For example, the [LLM transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) uses `=== USER ===` and similar speaker markers so agents can grep long transcripts, which would be much harder to follow otherwise (who said what or to navigate or count easily).
+    - Note: this helper drops raw tool logs and keeps the chat text, including code pasted into messages, so the TXT is useful directly as handoff context.
+    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), which defaults to `Downloads/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
+    - Prefix filenames with `codex-`, `chatgpt-`, or `claude-` and include the thread ID when known. Use a timestamp when saving another snapshot of the same thread. Start the TXT with the first speaker marker and keep any title, counts, or export notes in your reply.
+    - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
 - Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch.
@@ -917,3 +923,23 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
       - For example, the user observed `SASGameRecord_20261031T134838Z_load3.log` listed as zero bytes despite readable contents; a later fresh-handle check returned 249,018 bytes.
     - Other inherited logs do not share this guarantee.
 - Note: these boundaries describe the current Civ4 runtime and can be revised if later testing proves different behavior.
+
+## File management
+
+- Delete files and folders the way a user would on this Windows machine: send them to the Recycle Bin instead of permanently deleting them with `rm`, `rmdir` or `Remove-Item`.
+  - Mistakes happen, and sometimes we simply want a deleted file back later; the Recycle Bin keeps that possible, while a permanent delete cannot be undone.
+  - Example (2026-11-07): a Claude Code Opus 5.5 agent confirmed that the transcript helpers' new shared `Downloads/llm_chat_exports/` default worked, then permanently deleted the exported transcript and the folder itself.
+    - The export was still useful, and the user could no longer find or open it; sending both to the Recycle Bin would have avoided that.
+    - Here only a test export was lost, but the same habit applied to an important or old file would have lost it for good.
+  - Do not remove a folder just because your own test file was its only content; the folder may be expected to exist.
+- PowerShell recipe, tested with a delete and restore round trip:
+
+```powershell
+Add-Type -AssemblyName Microsoft.VisualBasic
+[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($path, 'OnlyErrorDialogs', 'SendToRecycleBin')
+[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($folder, 'OnlyErrorDialogs', 'SendToRecycleBin')
+```
+
+- The Recycle Bin lists each item with its original folder, and Windows' Restore puts it back intact.
+- If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
+- A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
