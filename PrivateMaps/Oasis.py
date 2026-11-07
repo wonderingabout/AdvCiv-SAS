@@ -554,6 +554,10 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			elif lat > 0.32 and lat < 0.65 and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS")):
 				pPlot.setFeatureType(self.featureJungle, -1)
 
+		# <!-- custom: Added with Marsh: this script replaces the shared FeatureGenerator.addFeaturesAtPlot, so it never reached the Marsh step there and generated no Marsh. See KI#284.4. (Claude code Opus 5.5) -->
+		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+			self.addMarshesAtPlot(pPlot, iX, iY)
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			# No forests in the Oasis!
 			if lat > 0.71 or lat < 0.3:

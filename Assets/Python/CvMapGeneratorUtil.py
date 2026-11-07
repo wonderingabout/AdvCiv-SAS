@@ -1515,6 +1515,10 @@ class FeatureGenerator:
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addJunglesAtPlot(pPlot, iX, iY, lat)
 
+		# <!-- custom: Marsh follows Jungle, so tropical Grassland keeps its Jungle, and precedes Forest, so Forest does not take the wetlands. (Claude code Opus 5.5) -->
+		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+			self.addMarshesAtPlot(pPlot, iX, iY)
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addForestsAtPlot(pPlot, iX, iY, lat)
 
@@ -1536,6 +1540,27 @@ class FeatureGenerator:
 			iJungleHeight = self.jungles.getHeight(iX, iY)
 			if self.iJungleTop >= iJungleHeight >= self.iJungleBottom + (self.iJungleTop - self.iJungleBottom)*self.gc.getClimateInfo(self.map.getClimate()).getJungleLatitude()*lat:
 				pPlot.setFeatureType(self.featureJungle, -1)
+
+	def addMarshesAtPlot(self, pPlot, iX, iY):
+		# <!-- custom: Marsh has its own fractal so it forms wetland patches; per-plot appearance chances would scatter single tiles.
+		# Set up on first use, from the map and defines rather than __init__ state, because several map scripts replace __init__ (see KI#284.2) and would otherwise crash here.
+		# Map scripts that override addFeaturesAtPlot without calling this method get no Marsh. (Claude code Opus 5.5) -->
+		if getattr(self, "marshes", None) is None:
+			gc = CyGlobalContext()
+			cyMap = CyMap()
+			iFlags = 0
+			if cyMap.isWrapX():
+				iFlags += CyFractal.FracVals.FRAC_WRAP_X
+			if cyMap.isWrapY():
+				iFlags += CyFractal.FracVals.FRAC_WRAP_Y
+			iGrain = gc.getDefineINT("SAS_MAPGEN_STANDARD_MARSH_GRAIN") + gc.getWorldInfo(cyMap.getWorldSize()).getFeatureGrainChange()
+			self.marshes = CyFractal()
+			self.marshes.fracInit(cyMap.getGridWidth(), cyMap.getGridHeight(), iGrain, gc.getGame().getMapRand(), iFlags, gc.getDefineINT("SAS_MAPGEN_FRACTAL_DEFAULT_X_EXP"), gc.getDefineINT("SAS_MAPGEN_FRACTAL_DEFAULT_Y_EXP"))
+			self.iMarshLevel = self.marshes.getHeightFromPercent(100 - gc.getDefineINT("SAS_MAPGEN_STANDARD_MARSH_PCT"))
+			self.featureMarsh = getInfoTypeOrFail("FEATURE_MARSH")
+		if pPlot.canHaveFeature(self.featureMarsh):
+			if self.marshes.getHeight(iX, iY) >= self.iMarshLevel:
+				pPlot.setFeatureType(self.featureMarsh, -1)
 
 	def addForestsAtPlot(self, pPlot, iX, iY, lat):
 		if pPlot.canHaveFeature(self.featureForest):

@@ -2596,8 +2596,11 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
 			{
 				// sea units can enter impassable in own cultural borders
 				// advc.057: Make this exception for units of all domains
-				if (//DOMAIN_SEA != getDomainType() ||
-					ePlotTeam != kOurTeam.getID())
+				// <!-- custom: SAS restores BtS for land units: impassability stands for a physical limit, such as wheels in Jungle, Forest or Marsh, and nature is the same inside and outside one's borders.
+				// A route lifts the limit instead, since a road through a Forest is passable; Marsh never has one because routes drain it.
+				// Sea units keep their own-border exception, as in BtS and advc.057. See KI#1076. (Claude code Opus 5.5) -->
+				if ((getDomainType() != DOMAIN_SEA || ePlotTeam != kOurTeam.getID()) &&
+					!(getDomainType() == DOMAIN_LAND && kPlot.isRoute()))
 				{
 					return false;
 				}
@@ -2608,8 +2611,9 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
 			TechTypes eTech = m_pUnitInfo->getTerrainPassableTech(kPlot.getTerrainType());
 			if (eTech == NO_TECH || !kOurTeam.isHasTech(eTech))
 			{
-				if (/*DOMAIN_SEA != getDomainType() ||*/ // advc.057
-					kPlot.getTeam() != kOurTeam.getID())
+				// <!-- custom: Same rule as for features above, replacing advc.057's all-domain exception; only sea units have terrain impassables in SAS XML, so this changes nothing there today. See KI#1076. (Claude code Opus 5.5) -->
+				if ((getDomainType() != DOMAIN_SEA || kPlot.getTeam() != kOurTeam.getID()) &&
+					!(getDomainType() == DOMAIN_LAND && kPlot.isRoute()))
 				{
 					if (bIgnoreLoad || !canLoadOntoAnyUnit(kPlot))
 						return false;

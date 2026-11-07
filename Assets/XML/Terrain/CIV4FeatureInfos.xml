@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- Feature -->
 <Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<FeatureInfos>
@@ -709,6 +713,63 @@
 					<FootstepAudioType>ENDSTEP_WHEELS_3</FootstepAudioType>
 					<FootstepAudioScript/>
 				</FootstepSound>
+			</FootstepSounds>
+			<EffectType>NONE</EffectType>
+			<iEffectProbability>0</iEffectProbability>
+			<iAdvancedStartRemoveCost>0</iAdvancedStartRemoveCost>
+		</FeatureInfo>
+		<!-- custom: Marsh holds fertile flat Grassland hostage rather than making it poor: it keeps the land's yield but blocks city founding, slows movement, exposes defenders and adds mild unhealthiness.
+		Improvements and routes drain it as part of their own build through FEATURE_MARSH FeatureStructs, so nothing is developed on it while it remains; BUILD_DRAIN_MARSH clears it alone.
+		A -1 Food version was rejected because SAS already removed that penalty from Jungle for making tiles dead weight.
+		No AI code was added: draining inside the improvement and route builds uses the AI's existing feature-removal handling, so it never needs a separate drain-then-build plan.
+		Tech valuation already counts Marsh through its unhealthiness, raising The Wheel's value when cities have Marsh nearby. (Claude code Opus 5.5) -->
+		<FeatureInfo>
+			<Type>FEATURE_MARSH</Type>
+			<Description>TXT_KEY_FEATURE_MARSH</Description>
+			<Civilopedia>TXT_KEY_FEATURE_MARSH_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_FEATURE_MARSH</ArtDefineTag>
+			<YieldChanges>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
+				<iYieldChange>0</iYieldChange>
+			</YieldChanges>
+			<RiverYieldChange/>
+			<HillsYieldChange/>
+			<iMovement>2</iMovement>
+			<iSeeThrough>0</iSeeThrough>
+			<!-- custom: Milder than Jungle so a single Marsh barely matters while a cluster makes draining worthwhile. (Claude code Opus 5.5) -->
+			<iHealthPercent>-25</iHealthPercent>
+			<!-- custom: Unlike Forest cover, a unit slowed in a marsh is exposed.
+			iRivalDefense stays 0 so the penalty applies to everyone, unlike Jungle's advc.012 rival exemption. (Claude code Opus 5.5) -->
+			<iDefense>-25</iDefense>
+			<iRivalDefense>0</iRivalDefense>
+			<!-- custom: 0 because FeatureGenerator places Marsh with its own fractal; an appearance chance would scatter single tiles instead of wetlands. (Claude code Opus 5.5) -->
+			<iAppearance>0</iAppearance>
+			<iDisappearance>0</iDisappearance>
+			<iGrowth>0</iGrowth>
+			<iTurnDamage>0</iTurnDamage>
+			<iWarmingDefense>0</iWarmingDefense>
+			<bNoCoast>0</bNoCoast>
+			<bNoRiver>0</bNoRiver>
+			<bNoAdjacent>0</bNoAdjacent>
+			<bRequiresFlatlands>1</bRequiresFlatlands>
+			<bRequiresRiver>0</bRequiresRiver>
+			<bRequiresRiverSide>0</bRequiresRiverSide>
+			<bAddsFreshWater>0</bAddsFreshWater>
+			<bImpassable>0</bImpassable>
+			<bNoCity>1</bNoCity>
+			<!-- custom: 0 on purpose: bNoImprovement would forbid improvements even when their build removes the feature, forcing a separate drain step the Worker AI does not plan for. (Claude code Opus 5.5) -->
+			<bNoImprovement>0</bNoImprovement>
+			<bVisibleAlways>0</bVisibleAlways>
+			<bNukeImmune>0</bNukeImmune>
+			<OnUnitChangeTo/>
+			<TerrainBooleans>
+				<TerrainBoolean>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<bTerrain>1</bTerrain>
+				</TerrainBoolean>
+			</TerrainBooleans>
+			<FootstepSounds>
 			</FootstepSounds>
 			<EffectType>NONE</EffectType>
 			<iEffectProbability>0</iEffectProbability>

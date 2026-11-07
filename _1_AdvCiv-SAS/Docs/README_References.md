@@ -88,7 +88,7 @@ If you want to listen to the real audio, link is in the main readme.md 's copyri
 - RFCEurope Enhanced Edition (RFC3E) or/and RFCEurope 1.5 (with Unofficial patch) (not sure which), for assets like the City Center's art (nif and button), thanks
 - RFC Dawn of Civilization (also referred to as RFC DoC in some older AdvCiv-SAS comments): source of certain Sevopedia implementations and art assets that were imported into earlier AdvCiv-SAS versions and subsequently modified, extended, or replaced to varying degrees.
   - Relevant source comments retain concise provenance where needed.
-- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame); also their fpks and asset naming are very clean as far as i can tell from what i looked at (only a few fpks not tons like other mods, and easy to find files from asset names, even filenames are generally clean and direct, thanks a lot), it was also inspiring, for example i was hesitating to rename "_WARRIOR" to "_ANCIENT_MACEMAN" as tedious but would be much cleaner doing so, thanks a lot!
+- Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame), or also for example, the Marsh feature's art and button come from C2C's Peat Bog feature (`ART_DEF_FEATURE_PEAT_BOG`), thanks.
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
 - Master of mana, for assets like the Sacred Architecture tech's button (SPELLRESEARCH_ANGELS3 (Divine Wrath Spell)), thanks,

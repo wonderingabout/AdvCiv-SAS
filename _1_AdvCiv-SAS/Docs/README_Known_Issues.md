@@ -408,6 +408,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#283 - (Fixed inherited Firaxis bug) Wrapped Donut shifting misaligned its center plots and terrain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-283)\
 [KI#284 - (Fixed inherited Firaxis bug) Y seam guards compared strip size with width instead of height](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284)\
 [KI#284.2 - (Fixed AdvCiv-SAS bug) Map-generator define checks required `self.gc` instead of using `CyGlobalContext()`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.2)\
+[KI#284.3 - (Made tunable: inherited BtS normalization kept by AdvCiv) Jungle and Marsh were cleared around starting positions with no switch](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.3)\
+[KI#284.4 - (Extended new SAS Marsh feature) Ten map scripts with their own feature placement generated no Marsh](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.4)\
 [KI#285 - (Fixed inherited pre-SAS AdvCiv bug) Negative map-script starting-distance modifiers were discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-285)\
 [KI#286 - (Fixed AdvCiv-SAS bug) Wheel constrained 18 players during its over-18 fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-286)\
 [KI#287 - (Fixed inherited Firaxis visual bug) Hub, Ring and Wheel lost east and north Evergreen transition bands](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-287)\
@@ -1233,7 +1235,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1073 - (Fixed SAS ordering gaps) Custom Game and the Policy Advisor list civilizations and civics in XML file order, so SAS additions, a renamed short name and later tech moves left three civilizations and two civics out of order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073)\
 [KI#1073.2 - (Fixed inherited base AdvCiv misordering, silent and likely inconsequential) True Starts listed Ramesses before Ragnar, the reverse of the leader file](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1073.2)\
 [KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)\
-[KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)
+[KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)\
+[KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)\
+[KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)
 
 <a id="ki-1"></a>
 
@@ -21549,6 +21553,46 @@ Boreal subsequently generated successfully on Tiny and Small with Toroidal wrapp
 
 This is an AdvCiv-SAS regression introduced by the map-generation XML-tunability change. Found through KI#284 runtime validation with the help of wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
 
+<a id="ki-284.3"></a>
+
+## KI#284.3 - (Made tunable: inherited BtS normalization kept by AdvCiv) Jungle and Marsh were cleared around starting positions with no switch
+
+The first Pangaea generated with the new Marsh feature (2026-11-07) had Marsh on 0.99% of its land, roughly 4 to 5% of the flat Grassland it can occur on, against a 15% placement target. Starting-position normalization explained part of the gap.
+
+`CvGame::normalizeRemoveBadFeatures` treats any feature with no Food or Production change as bad, which includes Jungle and Marsh. It always cleared such features from the 3x3 around each start.
+
+A second loop gave each such land feature up to one tile past the city radius a further removal chance of about 1 in 3, or 1 in 2 under stronger normalization. That loop covers the whole city radius, not only the ring outside it.
+
+SAS had already set `REMOVAL_CHANCE_PEAK` and `REMOVAL_CHANCE_BAD_TERRAIN` to 0 and `THRESH-BAD-FEAT-PER-CITY` to 12, so that maps are not made better on purpose. The threshold only governs the outer city ring, though, and the two removals above had no switch.
+
+`SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON` and `SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON` now control them. Both default to 1, which keeps the inherited behavior.
+
+- The starting plot itself is always cleared, and water features such as Ice next to land are still cleared, so coastal starts are not blocked.
+- The "Balanced" map option keeps BtS clearing regardless, as advc.108 documents for it.
+- The inner-ring clearing comes from BtS and was kept by AdvCiv's advc.108, which toned down only the outer ring; the second loop is BtS, with AdvCiv lowering its default chance from 1 in 2 to 1 in 3.
+- The switches need a rebuilt DLL. Neither setting has been tested in game yet, and whether to default them to 0 is a balance decision, since it affects Jungle as well as Marsh.
+
+Found while reviewing Marsh frequency with wonderingabout; traced and made tunable with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-284.4"></a>
+
+## KI#284.4 - (Extended new SAS Marsh feature) Ten map scripts with their own feature placement generated no Marsh
+
+Marsh (2026-11-07) is placed by a new step in the shared `FeatureGenerator.addFeaturesAtPlot` in [CvMapGeneratorUtil.py](/Assets/Python/CvMapGeneratorUtil.py), with its own fractal so it forms patches. Ten map scripts subclass `FeatureGenerator` but replace that method, so they never reached the step: Arboria, Boreal, Fantasy Realm, Great Plains, Highlands, Hub, Oasis, Rainforest, Ring and Wheel.
+
+Each now calls the inherited `addMarshesAtPlot` itself, in the same order as the shared generator: after Jungle, so tropical Grassland keeps its Jungle, and before Forest, so Forest does not take the wetlands.
+
+- Boreal's Forest step has no "no feature yet" check and would overwrite Marsh, so there Marsh comes after Forest and only fills plots Forest left free; Boreal's forests are unchanged.
+- Rainforest places Forest before Jungle, so Marsh comes last there.
+- Elsewhere, as in the shared generator, Marsh takes some flat Grassland that would otherwise have become Forest. No other feature changes.
+- Marsh only grows on flat Grassland, so desert-heavy or northern scripts such as Oasis and Boreal get little of it.
+
+Three scripts still have no Marsh. PerfectMongoose and Planet Generator use self-contained feature systems that never call `FeatureGenerator`; PerfectMongoose even has a commented-out `self.MARSH` entry. SAS_Simple_Flat_Grass is a featureless sandbox. A possible extension would be Marsh rules inside the two self-contained generators.
+
+The ten scripts passed the Python 2.4 compile check; none has yet been generated in game with Marsh.
+
+Found while reviewing Marsh placement with wonderingabout; extended with the help of Claude code Opus 5.5, thanks.
+
 <a id="ki-285"></a>
 
 ## KI#285 - (Fixed inherited pre-SAS AdvCiv bug) Negative map-script starting-distance modifiers were discarded
@@ -37114,3 +37158,46 @@ SAS set the era modifiers for unit, building and population costs to 100% in `e2
 The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) cites the 7,500-point Modern budget in F472 to establish that its Railroad purchase scenario was reachable. See [KI#795](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-795) for that separate purchase legality defect.
 
 SAS now gives Renaissance, Industrial, Modern and Future starts 4,000, 6,900, 10,700 and 15,800 points respectively. The budgets approximate AdvCiv's buying power for the affected purchases at SAS's 100% cost modifiers. The XML CI check allows up to 10% deviation from the scaled baseline.
+
+<a id="ki-1076"></a>
+
+## KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders
+
+In BtS, a unit that cannot enter a terrain or feature could still do so inside its own borders only if it was a sea unit, so a Work Boat could reach owned Ocean. AdvCiv's advc.057 extended that exception to every domain, reasoning that native units should be able to cross their own countryside.
+
+In SAS, these restrictions represent physical limits: Chariots, Catapults, Trebuchets and the Cannon line cannot drag their wheels through Jungle, Forest or Marsh. That does not change at a border, so a Chariot crossing an unroaded Forest it happens to own was effectively flying. The question came up while Marsh was added to the wheeled units' restrictions on 2026-11-07.
+
+`CvUnit::canMoveInto` now restores BtS for land units, with one SAS addition: a route lifts the restriction, because a road through a Forest is passable. Marsh never has a route, since building one drains it. Sea units keep the own-border exception, and only sea units have terrain restrictions in SAS XML, so the terrain branch changes nothing today.
+
+- advc.057's AI changes only count and order units by their impassables and do not assume ownership makes tiles passable, so they remain valid; AI pathfinding goes through `canMoveInto`.
+- advc.057's hover help ("requires ownership to enter") is shown only for terrain restrictions, which in SAS only sea units have, so it stays accurate.
+- The Sevopedia panels and unit help now say "except on a route for land units, or inside own cultural borders for naval units".
+- This needs a rebuilt DLL and has not been tested in game; AI movement around Forest and Jungle with siege stacks is the main thing to watch.
+
+Raised by wonderingabout; investigated and implemented with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1077"></a>
+
+## KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LefFNDfkJy2o8NGvID6XmrlDuHPr7os9?usp=sharing).
+
+While testing Marsh (2026-11-07), Gondar had one Marsh in its radius, yet its health help listed no unhealthiness from it. Lalibela showed `+2 [unhealthy] from Features` beside `+1 [healthy] from Forest`, so Forest was named while Jungle and Marsh were lumped together, and neither line said how many tiles or how much each contributed.
+
+The totals were correct; the display was misleading. `CvCity::calculateSurroundingHealth` adds up the health percentages of every feature and improvement in the city radius, then truncates the good and bad sums separately to whole points. A single Marsh (-0.25) therefore rounds to 0, and its line disappeared entirely.
+
+AdvCiv's advc.901 names the feature only when all of one sign comes from a single feature type; otherwise it says "Features" or "Surroundings". The C++ File Audit Album's review of this help text confirmed that the separate rounding matches how the game stores health, which is correct for gameplay; neither the album nor an earlier KI covered what it hid on screen.
+
+`CvGameTextMgr::setBadHealthHelp` and `setGoodHealthHelp` now keep that total line, add the exact value when rounding hides a fraction, and list each feature and improvement with its count and value. The line also appears when the sources round to 0. The sums follow the city's own access rules, so they always match the real total.
+
+- Before, in game: Gondar listed nothing for its Marsh, and Lalibela showed `+2 from Features` alone.
+- After, in game: Gondar shows `+0 from Marsh (0.25 before rounding)` with `Marsh: 1 x 0.25`, and `+1 from Forest (1.50 before rounding)` with `Forest: 3 x 0.50`. Lalibela shows `+2 from Features (2.25 before rounding)` with `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`.
+
+`SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` in `GlobalDefines_advciv_sas.xml` sets how much of this is shown: 0 keeps base AdvCiv's rounded total, 1 adds the exact total before rounding, and 2 also lists each source. A player who prefers the shorter help can go back to it without a recompile.
+
+Happiness was checked for the same problem and does not have it. It comes from an improvement's `iHappiness` or a civic's `FeatureHappinessChanges`, both in whole points rather than percentages, so nothing is truncated and no source can vanish.
+
+- In SAS XML only the Forest Preserve improvement gives any (+1), and every civic's `FeatureHappinessChanges` is empty, so its "Surroundings" line has a single source.
+- That line (advc.059) is still lumped like the old health line was; if modmods add several happiness features, a similar breakdown would fit there.
+
+Raised by wonderingabout while testing Marsh; implemented with the help of Claude code Opus 5.5, thanks.

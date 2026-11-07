@@ -13109,6 +13109,85 @@ namespace
 			return NO_FEATURE;
 		return eHealthFeature;
 	}
+
+	// <!-- custom: Read once for both health help functions.
+	// 0 = inherited rounded total only, 1 = adds the exact total, 2 = also lists each source. See KI#1077. (Claude code Opus 5.5) -->
+	int getSASHealthHelpDetail()
+	{
+		static const int iSAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL = GC.getDefineINT("SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL");
+		return iSAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL;
+	}
+
+	// <!-- custom: Formats a health percentage such as -25 as "0.25" (sign dropped; callers show it with the icon). (Claude code Opus 5.5) -->
+	CvWString formatSASHealthPercent(int iPercent)
+	{
+		int const iAbs = abs(iPercent);
+		return CvWString::format(L"%d.%02d", iAbs / 100, iAbs % 100);
+	}
+
+	// <!-- custom: The surroundings line showed only the rounded total, lumped as "Features" when several types contributed, so a city with Jungle and Marsh could not tell how much each cost, and a single Marsh (-0.25) disappeared because the city truncates the sum to whole points.
+	// Sums each feature and improvement type of iSign the way CvCity::calculateSurroundingHealth does (same team access rule), returns the exact percentage, and appends one indented line per source when szBuffer is given. See KI#1077. (Claude code Opus 5.5) -->
+	int appendSASSurroundingHealthSources(CvWStringBuffer* pszBuffer, CvCity const& kCity, int iSign)
+	{
+		CvTeam const& kTeam = GET_TEAM(kCity.getTeam());
+		std::vector<int> aiFeatureCount(GC.getNumFeatureInfos(), 0);
+		std::vector<int> aiImprovCount(GC.getNumImprovementInfos(), 0);
+		for (CityPlotIter it(kCity); it.hasNext(); ++it)
+		{
+			CvPlot const& kPlot = *it;
+			FeatureTypes const eFeature = kPlot.getFeatureType();
+			if (eFeature != NO_FEATURE)
+			{
+				int const iPercent = GC.getInfo(eFeature).getHealthPercent();
+				if (iPercent * iSign > 0 && kTeam.canAccessHappyHealth(kPlot, iPercent))
+					aiFeatureCount[eFeature]++;
+			}
+			ImprovementTypes const eImprov = kPlot.getImprovementType();
+			if (eImprov != NO_IMPROVEMENT)
+			{
+				int const iPercent = GC.getInfo(eImprov).get(CvImprovementInfo::HealthPercent);
+				if (iPercent * iSign > 0 && kTeam.canAccessHappyHealth(kPlot, iPercent))
+					aiImprovCount[eImprov]++;
+			}
+		}
+		int iTotalPercent = 0;
+		for (int i = 0; i < GC.getNumFeatureInfos(); i++)
+		{
+			if (aiFeatureCount[i] <= 0)
+				continue;
+			CvFeatureInfo const& kFeature = GC.getInfo((FeatureTypes)i);
+			iTotalPercent += aiFeatureCount[i] * kFeature.getHealthPercent();
+			if (pszBuffer != NULL)
+			{
+				pszBuffer->append(CvWString::format(L"  %s: %d x %s", kFeature.getDescription(), aiFeatureCount[i], formatSASHealthPercent(kFeature.getHealthPercent()).GetCString()));
+				pszBuffer->append(NEWLINE);
+			}
+		}
+		for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+		{
+			if (aiImprovCount[i] <= 0)
+				continue;
+			CvImprovementInfo const& kImprov = GC.getInfo((ImprovementTypes)i);
+			int const iPercent = kImprov.get(CvImprovementInfo::HealthPercent);
+			iTotalPercent += aiImprovCount[i] * iPercent;
+			if (pszBuffer != NULL)
+			{
+				pszBuffer->append(CvWString::format(L"  %s: %d x %s", kImprov.getDescription(), aiImprovCount[i], formatSASHealthPercent(iPercent).GetCString()));
+				pszBuffer->append(NEWLINE);
+			}
+		}
+		return iTotalPercent;
+	}
+
+	// <!-- custom: Appends " (2.25 before rounding)" when the city's whole-point total hides a fraction. (Claude code Opus 5.5) -->
+	void appendSASSurroundingHealthExact(CvWStringBuffer& szBuffer, int iRounded, int iExactPercent)
+	{
+		if (iRounded * 100 != iExactPercent)
+		{
+			szBuffer.append(L" ");
+			szBuffer.append(gDLL->getText("TXT_KEY_SAS_HEALTH_BEFORE_ROUNDING", formatSASHealthPercent(iExactPercent).GetCString()));
+		}
+	}
 }
 
 
@@ -13126,17 +13205,25 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 	}
 	{
 		int iHealth = kCity.getSurroundingBadHealth();
-		if (iHealth < 0)
+		// <!-- custom: Also show the line when the sources round to 0, such as a single Marsh, then list each source below it.
+		// getSurroundingHealthFeature now gets the sign -1 instead of iHealth, which is 0 in that case; only its sign was used. (Claude code Opus 5.5) -->
+		int const iHealthHelpDetail = getSASHealthHelpDetail();
+		// <!-- custom: At detail 0 the exact sum is the rounded one, so the line and its condition stay as inherited. (Claude code Opus 5.5) -->
+		int const iExactPercent = (iHealthHelpDetail > 0 ? appendSASSurroundingHealthSources(NULL, kCity, -1) : iHealth * 100);
+		if (iHealth < 0 || iExactPercent < 0)
 		{	// <advc.901>
 			bool bOnlyFeatures;
-			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, iHealth,
+			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, -1,
 					bOnlyFeatures); // </advc.901>
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_HEALTH", -iHealth,
 					/* <advc.901> */ (eFeature == NO_FEATURE ?
 					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
 					L"TXT_KEY_MISC_SURROUNDINGS") : // </advc.901>
 					GC.getInfo(eFeature).getTextKeyWide())));
+			appendSASSurroundingHealthExact(szBuffer, iHealth, iExactPercent);
 			szBuffer.append(NEWLINE);
+			if (iHealthHelpDetail >= 2)
+				appendSASSurroundingHealthSources(&szBuffer, kCity, -1);
 		}
 	}
 	{
@@ -13235,17 +13322,24 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 	}
 	{
 		int iHealth = kCity.getSurroundingGoodHealth();
-		if (iHealth > 0)
+		// <!-- custom: Same per-source breakdown as setBadHealthHelp, including sources that round to 0; the sign 1 replaces iHealth for the same reason. (Claude code Opus 5.5) -->
+		int const iHealthHelpDetail = getSASHealthHelpDetail();
+		// <!-- custom: At detail 0 the exact sum is the rounded one, so the line and its condition stay as inherited. (Claude code Opus 5.5) -->
+		int const iExactPercent = (iHealthHelpDetail > 0 ? appendSASSurroundingHealthSources(NULL, kCity, 1) : iHealth * 100);
+		if (iHealth > 0 || iExactPercent > 0)
 		{	// <advc.901>
 			bool bOnlyFeatures;
-			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, iHealth,
+			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, 1,
 					bOnlyFeatures); // </advc.901>
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_GOOD_HEALTH", iHealth,
 					/* <advc.901> */ (eFeature == NO_FEATURE ?
 					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
 					L"TXT_KEY_MISC_SURROUNDINGS") : // </advc.901>
 					GC.getInfo(eFeature).getTextKeyWide())));
+			appendSASSurroundingHealthExact(szBuffer, iHealth, iExactPercent);
 			szBuffer.append(NEWLINE);
+			if (iHealthHelpDetail >= 2)
+				appendSASSurroundingHealthSources(&szBuffer, kCity, 1);
 		}
 	}
 	{

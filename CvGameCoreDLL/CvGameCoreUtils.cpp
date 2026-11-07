@@ -2083,6 +2083,19 @@ char const* getSASTradeItemType(TradeableItems eItem)
 	}
 }
 
+char const* getSASPlotType(PlotTypes ePlotType)
+{
+	switch (ePlotType)
+	{
+	case NO_PLOT: return "NO_PLOT";
+	case PLOT_PEAK: return "PLOT_PEAK";
+	case PLOT_HILLS: return "PLOT_HILLS";
+	case PLOT_LAND: return "PLOT_LAND";
+	case PLOT_OCEAN: return "PLOT_OCEAN";
+	default: FErrorMsg("Unknown PlotTypes"); return "UNKNOWN_PLOT";
+	}
+}
+
 char const* getSASWarPlanType(WarPlanTypes eWarPlan)
 {
 	switch (eWarPlan)

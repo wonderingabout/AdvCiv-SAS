@@ -277,6 +277,10 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 				self.addJunglesAtPlot(pPlot, iX, iY)
 
+			# <!-- custom: Added with Marsh: this script replaces the shared FeatureGenerator.addFeaturesAtPlot, so it never reached the Marsh step there and generated no Marsh. See KI#284.4. (Claude code Opus 5.5) -->
+			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+				self.addMarshesAtPlot(pPlot, iX, iY)
+
 	def addFloodAtPlot(self, pPlot, iX, iY):
 		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
 			pPlot.setFeatureType(self.featureFlood, -1)

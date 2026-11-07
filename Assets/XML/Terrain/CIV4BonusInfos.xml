@@ -843,8 +843,19 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
 			</TerrainBooleans>
-			<FeatureBooleans/>
-			<FeatureTerrainBooleans/>
+			<!-- custom: Also on Marsh over Grassland as a wetland bonus; after draining it remains on ordinary Grassland, where it already belongs. (Claude code Opus 5.5) -->
+			<FeatureBooleans>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
+			</FeatureBooleans>
+			<FeatureTerrainBooleans>
+				<FeatureTerrainBoolean>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<bFeatureTerrain>1</bFeatureTerrain>
+				</FeatureTerrainBoolean>
+			</FeatureTerrainBooleans>
 		</BonusInfo>
 		<BonusInfo> <!-- custom: type: BONUS_CRAB -->
 			<Type>BONUS_CRAB</Type>
@@ -1070,9 +1081,14 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			</TerrainBooleans>
 			<!-- custom: in real world map forest-like areas seem much more prevalent, also fine to change to as of now forest according to chatgpt 5.2.
 			Also, since we as of now removed sheep from grass, maybe this is fine to allow pig on forest that has a grass only, and since jungle is as of now stronger (no inherent food penalty) in advciv-sas, fine to weaken it a bit on that end as well i think, was FEATURE_JUNGLE -->
+			<!-- custom: Also on Marsh as a wetland bonus; improving it drains the Marsh. (Claude code Opus 5.5) -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>
@@ -1131,9 +1147,16 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 					<bTerrain>1</bTerrain>
 				</TerrainBoolean>
 			</TerrainBooleans>
+			<!-- custom: Rice, Sugar, Pig and Cow can appear on Marsh as wetland bonuses; improving them drains the Marsh.
+			Each already belongs on Grassland, so it still fits the reclaimed land once the Marsh is drained.
+			Corn was left off although ChatGPT-5.6-Sol listed it as a likely fit: maize is a dryland crop needing well-drained soil, as wonderingabout pointed out. (Claude code Opus 5.5) -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>
@@ -1885,9 +1908,14 @@ Unlike religions, a bonus's GameFont icon does not depend on this order: it come
 			<bNoRiverSide>0</bNoRiverSide>
 			<bNormalize>1</bNormalize>
 			<TerrainBooleans/>
+			<!-- custom: Also on Marsh as a wetland bonus; improving it drains the Marsh. (Claude code Opus 5.5) -->
 			<FeatureBooleans>
 				<FeatureBoolean>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeature>1</bFeature>
+				</FeatureBoolean>
+				<FeatureBoolean>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeature>1</bFeature>
 				</FeatureBoolean>
 			</FeatureBooleans>

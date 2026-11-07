@@ -4,6 +4,8 @@
 
 # <!-- custom: Use standard-library readers for local Codex JSONL and ChatGPT app pages so this converter needs no credentials or packages. (GPT-6.1-Sol) -->
 import argparse
+# <!-- custom: Timestamp share snapshots in UTC so repeat exports of the same link get separate filenames. (GPT-6.1-Sol) -->
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
@@ -72,17 +74,78 @@ def chatgpt_messages(source):
                     yield "CHATGPT", item["text"]
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Convert a Codex session or ChatGPT app chat pages to readable TXT.")
-    parser.add_argument("source", choices=("codex", "chatgpt"))
-    parser.add_argument("input", type=Path, help="Codex rollout JSONL or ChatGPT read_thread JSON pages in fetch order.")
-    parser.add_argument("--output", type=Path, help=f"TXT destination. Defaults to {DEFAULT_EXPORT_DIR / '<source>-<input-stem>.txt'}.")
-    args = parser.parse_args()
-    output = args.output or DEFAULT_EXPORT_DIR / f"{args.source}-{args.input.stem}.txt"
-    reader = codex_messages if args.source == "codex" else chatgpt_messages
+def shared_chat_messages(url):
+    # <!-- custom: A shared page can list all turn containers while rendering only nearby messages.
+    # Scroll to each container and require its message before writing any TXT. (GPT-6.1-Sol) -->
     try:
+        from playwright.sync_api import Error as PlaywrightError, sync_playwright
+    except ImportError as exc:
+        raise ValueError("Share export requires Playwright. Run: python -m pip install playwright") from exc
+
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(channel="chrome")
+            page = browser.new_page()
+            page.goto(url, wait_until="domcontentloaded")
+            # <!-- custom: ChatGPT also serves a fully rendered layout with different role markers.
+            # Both layouts keep message text separate from the surrounding controls. (GPT-6.1-Sol) -->
+            desktop = page.locator("main div[data-turn-id-container]:not([data-turn-id-container='client-created-root'])")
+            rendered = page.locator("main [data-conversation-transcript] [data-message-role]")
+            desktop.or_(rendered).first.wait_for(state="attached")
+            if rendered.count():
+                turns = rendered.all()
+            else:
+                turn_ids = desktop.evaluate_all("(nodes) => nodes.map(node => node.dataset.turnIdContainer)")
+                if len(set(turn_ids)) != len(turn_ids) or any(not re.fullmatch(r"[A-Za-z0-9_-]+", id_) for id_ in turn_ids):
+                    raise ValueError("The shared page returned invalid or duplicate turn IDs.")
+                turns = [desktop.and_(page.locator(f'[data-turn-id-container="{id_}"]')) for id_ in turn_ids]
+
+            for number, turn in enumerate(turns, 1):
+                try:
+                    role = turn.get_attribute("data-message-role", timeout=10000)
+                    if role is None:
+                        message = turn.locator("section [data-message-author-role]")
+                        if not message.is_visible():
+                            turn.evaluate("(node) => node.scrollIntoView({block: 'start', behavior: 'instant'})", timeout=10000)
+                        message.wait_for(timeout=10000)
+                        role = message.get_attribute("data-message-author-role")
+                    else:
+                        message = turn.locator("[data-user-message-bubble], [data-assistant-markdown-root]")
+                    body = message.inner_text(timeout=10000).strip()
+                except PlaywrightError as exc:
+                    raise ValueError(f"Could not read shared turn {number} of {len(turns)}: {exc}") from exc
+                if role not in ("user", "assistant") or not body:
+                    raise ValueError(f"Shared turn {number} of {len(turns)} has no exportable message text.")
+                yield ("USER" if role == "user" else "CHATGPT"), body
+            # <!-- custom: Refuse a partial export if navigating through the snapshot exposed more turns than the initial list. (GPT-6.1-Sol) -->
+            if desktop.or_(rendered).count() != len(turns):
+                raise ValueError("The shared page changed its turn list during export. Retry the share link.")
+    except PlaywrightError as exc:
+        raise ValueError(f"Could not load the shared chat in Chrome: {exc}") from exc
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Export a Codex session, ChatGPT app pages or a shared ChatGPT conversation to TXT.")
+    parser.add_argument("source", choices=("codex", "chatgpt", "share"))
+    parser.add_argument("input", help="Codex rollout JSONL, ChatGPT read_thread JSON pages, or a ChatGPT share URL.")
+    parser.add_argument("--output", type=Path, help=f"TXT destination. Defaults to an input-based filename in {DEFAULT_EXPORT_DIR}.")
+    args = parser.parse_args()
+    try:
+        if args.source == "share":
+            share = re.fullmatch(r"https://chatgpt\.com/share/([0-9a-fA-F-]{36})/?", args.input)
+            if not share:
+                raise ValueError("Expected a ChatGPT share URL (https://chatgpt.com/share/...).")
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+            filename = f"chatgpt-share-{share[1]}-{stamp}.txt"
+            messages = shared_chat_messages(args.input)
+        else:
+            source = Path(args.input)
+            filename = f"{args.source}-{source.stem}.txt"
+            reader = codex_messages if args.source == "codex" else chatgpt_messages
+            messages = reader(source)
+        output = args.output or DEFAULT_EXPORT_DIR / filename
         # <!-- custom: Stable speaker separators make it easy to grep message boundaries in long handoff transcripts. (GPT-6.1-Sol) -->
-        entries = [f"=== {role} ===\n{message}" for role, message in reader(args.input) if message.strip()]
+        entries = [f"=== {role} ===\n{message}" for role, message in messages if message.strip()]
         if not entries:
             raise ValueError("No conversation text found.")
         if args.output is None:

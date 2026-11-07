@@ -1070,6 +1070,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
+					<BuildType>BUILD_DRAIN_MARSH</BuildType>
+					<bBuild>1</bBuild>
+				</Build>
+				<Build>
 					<BuildType>BUILD_REMOVE_FOREST</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
@@ -1321,6 +1325,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</Build>
 				<Build>
 					<BuildType>BUILD_REMOVE_JUNGLE</BuildType>
+					<bBuild>1</bBuild>
+				</Build>
+				<Build>
+					<BuildType>BUILD_DRAIN_MARSH</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
@@ -1578,6 +1586,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
+					<BuildType>BUILD_DRAIN_MARSH</BuildType>
+					<bBuild>1</bBuild>
+				</Build>
+				<Build>
 					<BuildType>BUILD_REMOVE_FOREST</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
@@ -1832,6 +1844,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
+					<BuildType>BUILD_DRAIN_MARSH</BuildType>
+					<bBuild>1</bBuild>
+				</Build>
+				<Build>
 					<BuildType>BUILD_REMOVE_FOREST</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
@@ -2083,6 +2099,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</Build>
 				<Build>
 					<BuildType>BUILD_REMOVE_JUNGLE</BuildType>
+					<bBuild>1</bBuild>
+				</Build>
+				<Build>
+					<BuildType>BUILD_DRAIN_MARSH</BuildType>
 					<bBuild>1</bBuild>
 				</Build>
 				<Build>
@@ -15396,6 +15416,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar; changed based on https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables; note: only applies to tiles outside of cultural bordersand as base civ4 or and base advciv dotoo -->
+			<!-- custom: Wheeled and heavy siege units cannot cross Marsh, as with Jungle and Forest, except on a route. See KI#1076. (Claude code Opus 5.5) -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -15403,6 +15424,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</FeatureImpassable>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeatureImpassable>1</bFeatureImpassable>
 				</FeatureImpassable>
 			</FeatureImpassables>
@@ -15624,6 +15649,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<!-- custom: see code comment at UNIT_CHARIOT -->
+			<!-- custom: Wheeled and heavy siege units cannot cross Marsh, as with Jungle and Forest, except on a route. See KI#1076. (Claude code Opus 5.5) -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -15631,6 +15657,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</FeatureImpassable>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeatureImpassable>1</bFeatureImpassable>
 				</FeatureImpassable>
 			</FeatureImpassables>
@@ -20145,6 +20175,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<!-- custom: see code comment at UNIT_CHARIOT -->
+			<!-- custom: Wheeled and heavy siege units cannot cross Marsh, as with Jungle and Forest, except on a route. See KI#1076. (Claude code Opus 5.5) -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -20152,6 +20183,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</FeatureImpassable>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeatureImpassable>1</bFeatureImpassable>
 				</FeatureImpassable>
 			</FeatureImpassables>
@@ -20384,6 +20419,7 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
 			<!-- custom: see code comment at UNIT_CHARIOT -->
+			<!-- custom: Wheeled and heavy siege units cannot cross Marsh, as with Jungle and Forest, except on a route. See KI#1076. (Claude code Opus 5.5) -->
 			<FeatureImpassables>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -20391,6 +20427,10 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 				</FeatureImpassable>
 				<FeatureImpassable>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
 					<bFeatureImpassable>1</bFeatureImpassable>
 				</FeatureImpassable>
 			</FeatureImpassables>
@@ -20605,7 +20645,22 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: Wheeled, non-motorized guns cannot cross Jungle, Forest or Marsh, like the Chariot, Catapult and Trebuchet; was passable.
+			Self-propelled and levitation artillery stay free. (Claude code Opus 5.5) -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 12 -->
@@ -20800,7 +20855,22 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: Wheeled, non-motorized guns cannot cross Jungle, Forest or Marsh, like the Chariot, Catapult and Trebuchet; was passable.
+			Self-propelled and levitation artillery stay free. (Claude code Opus 5.5) -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 12 -->
@@ -21021,7 +21091,22 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: Wheeled, non-motorized guns cannot cross Jungle, Forest or Marsh, like the Chariot, Catapult and Trebuchet; was passable.
+			Self-propelled and levitation artillery stay free. (Claude code Opus 5.5) -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 12 -->
@@ -21225,7 +21310,22 @@ Units take no GameFont glyph by position, so this order is for a predictable lay
 			<iGreatWorkCulture>0</iGreatWorkCulture>
 			<iEspionagePoints>0</iEspionagePoints>
 			<TerrainImpassables/>
-			<FeatureImpassables/>
+			<!-- custom: Wheeled, non-motorized guns cannot cross Jungle, Forest or Marsh, like the Chariot, Catapult and Trebuchet; was passable.
+			Self-propelled and levitation artillery stay free. (Claude code Opus 5.5) -->
+			<FeatureImpassables>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+				<FeatureImpassable>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<bFeatureImpassable>1</bFeatureImpassable>
+				</FeatureImpassable>
+			</FeatureImpassables>
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 18 -->

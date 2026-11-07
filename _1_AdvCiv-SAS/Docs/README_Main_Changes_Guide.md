@@ -1161,6 +1161,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - initial geography notably records global and per-civilization starting density, inhabited and uninhabited land reserves, habitable land per starting civilization, same-landmass occupancy, pairwise start spacing, and nearest-start distances.
   - Periodic expansion history additionally distinguishes true other-team territory from teammate-inclusive foreign land and records met versus actually located rivals, nearest revealed other-team/enemy territory, and nearest known foreign/enemy cities from the capital, including same-landmass context.
   - The new fields reuse the existing geography and map-visibility scans where possible and avoid expensive own-city-by-foreign-city comparisons, making recurring questions such as "map too crowded, isolated, or simply poor AI expansion?" much easier to answer compactly.
+- (Requires AdvCiv-SAS 6732+) **Land cover per terrain and plot type:** each landmass now reports how its terrain and plot types are covered by features, so a feature's share of the land it can occur on, such as Marsh on flat Grassland, can be read directly instead of guessed from whole-landmass totals.
 - **Level-3 text-map previews:** `SASGameRecord` includes separate geography, terrain, bonus, feature, and political pictures so humans and LLMs can immediately see landmass shapes, islands, ice barriers, narrow passages, resource distribution, environmental cover, and player positions instead of reconstructing them from coordinates.
 - (Requires AdvCiv-SAS 6436+) Initial context also includes independently tunable 25%- and 50%-per-dimension geography overviews, sampled directly from the original plots, for quick small and medium impressions before inspecting the authoritative full pictures.
   - Either overview can be disabled, and malformed percentages are bounded safely.
@@ -2934,6 +2935,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 
 ### UI (In-game)
 
+- (Requires AdvCiv-SAS 6732+) **City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
+  - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
+  - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.
 - **Beautified** and **expanded**, and add **support for text upscaling** for miscellaneous **screens**:
   - [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**
   - [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered) is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered)
@@ -3206,6 +3210,8 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - The second pass now reconsiders those landmasses when needed.
   - This does not change XML frequencies or calculated targets: mapscripts where the first pass already succeeds are directly unchanged, while mapscripts that previously undershot can gain the missing copies up to their existing targets; exact locations and later resource placement can consequently differ.
   - See [KI#202](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202).
+- (Requires AdvCiv-SAS 6732+) **Feature clearing around starts is now tunable:** normalization always cleared Jungle-like features from the tiles next to each start and thinned them across the city radius, with no switch, unlike Peaks and bad terrain, which SAS already leaves alone.
+  - `SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON` and `SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON` can turn this off; they default to the inherited behavior. See [KI#284.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.3).
 
 ## Mapscripts
 
@@ -3310,7 +3316,9 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - **Ground explore/recon units**: can move through **all land terrains** from game start (including **peaks**) via `bCanMoveImpassable` (no water tiles). They also **ignore terrain movement costs** (not just the Renaissance Explorer). See **Sevopedia Terrain: Peak** or XML for details.
 - **Other units** (example: Llama Kamayuq): some specific units also have `bCanMoveImpassable` for **all land terrains**; see **Sevopedia Terrain Peak/Hill** entries or XML/docs for per-unit details.
 - **Air explore/recon and land-air units**: the **Airship** (see its Sevopedia entry or this guide's military section) and **Gunship** can move through **all terrains, including peaks and water tiles** using `bCanMoveImpassable` and `bCanMoveAllTerrain`.
-- **Movement restrictions (outside cultural borders)**: some units (e.g. chariots, some siege) **cannot enter forest/jungle** feature tiles outside borders.
+- **Movement restrictions**: some units (e.g. chariots, catapults and the cannon line) **cannot enter forest/jungle/marsh** feature tiles except on a route.
+  - (Requires AdvCiv-SAS 6732+) This now applies inside their own borders too. AdvCiv let every unit enter such tiles at home; SAS restores the BtS rule for land units, since wheels do not cross a Forest more easily inside one's borders. Naval units keep their own-border exception. See [KI#1076](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076).
+  - (Requires AdvCiv-SAS 6732+) Marsh and the cannon line joined the restriction; a CI check keeps every such unit on the same set of features, so a new one cannot be forgotten on some units.
   - This restriction still applies even if the tile is roaded (base Civ4/AdvCiv logic reused).
   - See Sevopedia Feature entries and the feature-category rework ([example-3](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)) or unit pages for the exact list.
 - **Forest/jungle combat penalties**: some units (notably UNITCOMBAT_MOUNTED_MELEE) now get forest/jungle penalties; UNITCOMBAT_MOUNTED_RANGED penalties are milder/limited (defense-only).
@@ -3325,6 +3333,16 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - See unit pages, Sevopedia Terrain/Feature pages ([example-9](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-9-terrains-category), [example-3](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category)), and [Assets Rebalancing: Unit terrain and feature combat modifiers](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#unit-terrain-and-feature-combat-modifiers) for the current values and detailed rationale.
 - **Build: Remove Jungle** now yields **+20 hammers** on removal (see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml)).
 - **Feature: Jungle rework**: remove the food penalty (no food malus), increase unhealth to `iHealthPercent` **-50**, set feature defense `iDefense` **-25** (still +25% rival defense in features, so net 0 in jungle if you consider that baseline).
+- (Requires AdvCiv-SAS 6732+) **Feature: Marsh** (`FEATURE_MARSH`, new): holds good land hostage rather than making it poor.
+  - Why: flat Grassland is the strongest land in Civ4, and buffing Plains and Tundra had not stopped it being the obvious pick, so starts played alike. Civilization III's marsh suggested a way to temper it.
+  - A Marsh keeps the yield of the Grassland under it, but cannot be settled, slows movement, weakens units standing in it and adds mild unhealthiness: livable, but awkward.
+  - Nothing can be built on it while it remains. Improvements and roads drain it as part of their own build, and draining needs a technology (for example The Wheel) and gives no production, so the question is when a particular piece of land is worth the Worker time.
+  - A -1 Food Marsh, like Civ3's, was rejected: SAS had already removed that penalty from Jungle because tiles that are pure dead weight are dull to play around.
+  - Some bonuses that suit wetland and still make sense on the reclaimed Grassland afterwards, such as Rice and Pig, can appear on it.
+  - No AI code was needed: the Worker AI already plans builds that clear a feature, and tech valuation already counts Marsh through its unhealthiness.
+  - Map scripts place it in patches rather than single tiles through the shared feature generator.
+    - Arboria, Boreal, Fantasy Realm, Great Plains, Highlands, Hub, Oasis, Rainforest, Ring and Wheel replace that generator's per-plot placement, so they now call the Marsh step themselves. See [KI#284.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.4).
+    - PerfectMongoose and Planet Generator have their own feature systems, and SAS_Simple_Flat_Grass is a featureless sandbox, so they have no Marsh.
 - **Feature: Fallout** `iHealthPercent` **-50 -> -75**.
 - **Feature: Flood Plains** `iHealthPercent` **-40 -> -50**.
 - **Terrain: Tundra** base yield adds **+1 commerce**.

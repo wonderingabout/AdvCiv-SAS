@@ -232,6 +232,8 @@ class SevoPediaTerrain:
 			screen.addMultilineText(text, SASTextScale.labelText(szText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def placeFeatures(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_FEATURES
 		yPanel = self.Y_FEATURES
 		wPanel = self.W_FEATURES
@@ -246,6 +248,7 @@ class SevoPediaTerrain:
 		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
 		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
+			isButtonFound = True
 
 		else:
 			for iFeature in xrange(gc.getNumFeatureInfos()):
@@ -255,6 +258,9 @@ class SevoPediaTerrain:
 					continue
 				elif FeatureInfo.isTerrain(self.iTerrain):
 					screen.attachImageButton(panel, "", FeatureInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+					isButtonFound = True
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	# <!-- custom: TERRAIN_HILL is a pedia stand-in for a plot shape layered over a real terrain; the DLL rules are correct, but Sevopedia had to reconstruct them for display.
 	# In-game plains hill Grapes needs a Plantation, but the Hill page did not show Plantation; see KI#153 for this and other Hill improvement edge cases. (GPT-5.5) -->
@@ -301,6 +307,8 @@ class SevoPediaTerrain:
 		return False
 
 	def placeImprovements(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_IMPROVEMENTS
 		yPanel = self.Y_IMPROVEMENTS
 		wPanel = self.W_IMPROVEMENTS
@@ -315,14 +323,20 @@ class SevoPediaTerrain:
 		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). (GPT-5.2-Codex + GPT-5.5) -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
+			isButtonFound = True
 
 		else:
 			for iImprovement in xrange(gc.getNumImprovementInfos()):
 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
 				if self.isImprovementValidForTerrain(iImprovement):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+					isButtonFound = True
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	def placeBonusesWithNoFeature(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_BONUSES_WITH_NO_FEATURE
 		yPanel = self.Y_BONUSES_WITH_NO_FEATURE
 		wPanel = self.W_BONUSES_WITH_NO_FEATURE
@@ -344,6 +358,7 @@ class SevoPediaTerrain:
 		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
 		if self.iTerrain == self.I_TERRAIN_PEAK:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
+			isButtonFound = True
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -353,9 +368,14 @@ class SevoPediaTerrain:
 				# <!-- custom: refactor the earlier adopted condition without changing output: check the general all-terrains case before the hill-specific case. (ChatGPT-5.6-Sol) -->
 				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == self.I_TERRAIN_HILL and bonusInfo.isHills()):
 					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+					isButtonFound = True
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too -->
 	def placeBonusesOnlyWithFeature(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_BONUSES_ONLY_WITH_FEATURE
 		yPanel = self.Y_BONUSES_ONLY_WITH_FEATURE
 		wPanel = self.W_BONUSES_ONLY_WITH_FEATURE
@@ -373,6 +393,7 @@ class SevoPediaTerrain:
 
 		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
+			isButtonFound = True
 
 		else:
 			for iBonus in xrange(gc.getNumBonusInfos()):
@@ -382,9 +403,14 @@ class SevoPediaTerrain:
 
 				if BonusInfo.isFeatureTerrain(self.iTerrain):
 					screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+					isButtonFound = True
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	# <!-- custom: code provided with the help of chatgpt thanks -->
 	def placeRelevantUnits(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_RELEVANT_UNITS
 		yPanel = self.Y_RELEVANT_UNITS
 		wPanel = self.W_RELEVANT_UNITS
@@ -408,7 +434,6 @@ class SevoPediaTerrain:
 		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
-		#isButtonFound = False
 		iButtonIndex = 0
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 
@@ -434,6 +459,7 @@ class SevoPediaTerrain:
 
 				if can_walk_on_peak:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
 
 					iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
 					iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
@@ -442,7 +468,6 @@ class SevoPediaTerrain:
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-					#isButtonFound = True
 					iButtonIndex += 1
 
 		elif self.iTerrain == self.I_TERRAIN_HILL:
@@ -462,6 +487,7 @@ class SevoPediaTerrain:
 
 				if ((iHillsAttack != 0) or (iHillsDefense != 0) or isHasHM1 or isHasHM2 or isHasHM3):
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
 
 					if (iHillsAttack != 0 or iHillsDefense != 0):
 						numTxt = get_numTxt_attack_defense_modifiers(iHillsAttack, iHillsDefense)
@@ -471,7 +497,6 @@ class SevoPediaTerrain:
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-					#isButtonFound = True
 					iButtonIndex += 1
 
 		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
@@ -489,6 +514,7 @@ class SevoPediaTerrain:
 
 				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN):
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
 
 					if iTerrainAttack != 0 or iTerrainDefense != 0:
 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
@@ -500,7 +526,6 @@ class SevoPediaTerrain:
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-					#isButtonFound = True
 					iButtonIndex += 1
 
 		else:
@@ -515,16 +540,20 @@ class SevoPediaTerrain:
 
 				if iTerrainAttack != 0 or iTerrainDefense != 0:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
 
 					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
 					extraCorrectionX = get_extra_correction_x(numTxt)
 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
-					#isButtonFound = True
 					iButtonIndex += 1
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	# <!-- custom: code provided with the help of chatgpt thanks -->
 	def placeUnitsImpassable(self):
+		# <!-- custom: Track whether anything was listed so an empty panel shows "None", as the Remove and production panels already did; existing explanation notes count as content. (Claude code Opus 5.5) -->
+		isButtonFound = False
 		xPanel = self.X_UNITS_IMPASSABLE
 		yPanel = self.Y_UNITS_IMPASSABLE
 		wPanel = self.W_UNITS_IMPASSABLE
@@ -572,6 +601,7 @@ class SevoPediaTerrain:
 
 				if blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
 
 		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
 			for iUnit in xrange(gc.getNumUnitInfos()):
@@ -584,6 +614,7 @@ class SevoPediaTerrain:
 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
 					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+						isButtonFound = True
 
 		else:
 			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure -->
@@ -599,6 +630,9 @@ class SevoPediaTerrain:
 				blocked = ((info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and not unitInfo.isCanMoveImpassable() and unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and not unitInfo.isCanMoveAllTerrain())
 				if blocked:
 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+					isButtonFound = True
+		if not isButtonFound:
+			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
 
 	def setHistoryExpanded(self, bExpanded):
 		self.bHistoryExpanded = bExpanded

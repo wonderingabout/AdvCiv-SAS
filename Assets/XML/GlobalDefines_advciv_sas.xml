@@ -718,6 +718,12 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_CITY_BONUS_ICON_MODE</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
+	<!-- custom: City health help detail for health from surroundings (features and improvements): 0 = base AdvCiv rounded total only, 1 = also the exact total before rounding, 2 = also each feature and improvement with its count and value.
+	The city truncates that health to whole points, so at 0 a single Marsh shows nothing and several feature types are lumped as "Features". See KI#1077. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta).
 	With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
 	<Define>
@@ -945,6 +951,32 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_MAPGEN_STANDARD_FOREST_PCT</DefineName>
 		<iDefineIntVal>57</iDefineIntVal>
+	</Define>
+	<!-- custom: Share of the FeatureGenerator's Marsh fractal that receives Marsh, as a percentage; unlike SAS_MAPGEN_STANDARD_FOREST_PCT, higher values mean more Marsh.
+	Only flat Grassland without Jungle is eligible, so this is roughly the share of such plots that become Marsh. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAPGEN_STANDARD_MARSH_PCT</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<!-- custom: Base Marsh grain; higher values produce smaller Marsh patches.
+	WorldInfo FeatureGrainChange is added afterward, as for Jungle and Forest. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAPGEN_STANDARD_MARSH_GRAIN</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 keeps AdvCiv's starting-position normalization, which always clears features without Food or Production (such as Jungle and Marsh) from the 3x3 around each start; 0 keeps them, except on the starting plot itself.
+	The Balanced map option keeps BtS clearing regardless.
+	THRESH-BAD-FEAT-PER-CITY separately governs the rest of the city radius. See KI#284.3. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 keeps AdvCiv's extra removal chance, about 1 in 3, for each such land feature up to one tile past the city radius of each start; 0 disables it.
+	The Balanced map option keeps BtS clearing regardless.
+	Water features such as Ice next to land are cleared either way. See KI#284.3. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 uses AdvCiv's randomized river-source traversal and symmetrical river-direction scoring with slightly stronger attraction to water, which made rivers somewhat shorter.
 	0 restores the retained BTS traversal and direction-scoring paths. (GPT-5.6-Sol) -->
@@ -2356,7 +2388,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	The same named-token and validation rules as the geography palette apply. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS</DefineName>
-		<DefineTextVal>SPACE,.,#,j,o,f,F,X</DefineTextVal>
+		<DefineTextVal>SPACE,.,#,j,o,f,F,X,m</DefineTextVal>
 	</Define>
 	<!-- custom: Bonus-map symbols in this order: bonus-free water, bonus-free land, every BonusInfo loaded by the mod, then multiple different bonus types within one resampled cell. Defaults use unique, case-sensitive mnemonics where possible (e.g. I=Iron, H=Horse, S=Silver, s=Silk); the generated legend remains authoritative and records every runtime ID/type. Bonuses are sparse, so one type overrides surrounding empty plots; + marks a collision rather than hiding one type arbitrarily. Exact setup coordinates and later bonus-change rows preserve every identity/location. The number of symbols must exactly match the runtime bonus count plus three. (GPT-5.6-Sol) -->
 	<Define>
@@ -2457,7 +2489,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>190</iDefineIntVal>
+		<iDefineIntVal>191</iDefineIntVal>
 	</Define>
 
 

@@ -113,6 +113,15 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 191 - SAS practical 6732
+
+- **Date:** 2026-11-07
+- **Git commit:** pending
+- **Change:** `SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS` gains `m` for the new `FEATURE_MARSH`, appended after Fallout's `X` because the palette follows FeatureInfo order.
+- **Why:** the feature map needs one symbol per loaded FeatureInfo, and the palette count check fails loudly when one is missing; the legend and the existing composition rows enumerate features dynamically.
+- **Change:** new `GAME_RECORD_LANDMASS_COVER` rows, one per landmass, terrain, plot type and feature present, featureless plots included, with `plots`, `percentOfLandmassX100`, `terrainPlotTypePlots` and `percentOfTerrainPlotTypeX100`. The composition legend names their denominators.
+- **Why:** `GAME_RECORD_LANDMASS_COMPOSITION` gives terrain and feature shares of the whole landmass separately, so a feature's share of the land it can occur on could not be derived. On the first Pangaea with Marsh, the composition row gave Marsh 0.99% of land, but not its share of flat Grassland, which is what its placement rate targets.
+
 ### Revision 190 - SAS practical 6715
 
 - **Date:** 2026-11-03

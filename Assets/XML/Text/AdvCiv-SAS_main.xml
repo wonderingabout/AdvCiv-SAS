@@ -1510,7 +1510,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move (outside of cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+		<English>Cannot move (*): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
@@ -1518,7 +1518,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
-		<English>Cannot move (outside of cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+		<English>Cannot move (*): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
@@ -1576,7 +1576,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<!-- custom: add info that it applies only outside of cultural borders -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
-		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. This effect applies to these tiles even if they are roaded):</English>
+		<English>[ICON_BULLET]Cannot Enter (*, see the Sevopedia legend):</English>
 	</TEXT>
 	<!-- custom: short version ingame in map view -->
 	<TEXT>
@@ -2256,6 +2256,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_FEATURE_ICE</Tag>
 		<English>Ice Cap</English>
 	</TEXT>
+	<!-- custom: City health help: exact surroundings health before the city rounds it to whole points. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_HEALTH_BEFORE_ROUNDING</Tag>
+		<English>(%s1 before rounding)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEATURE_MARSH</Tag>
+		<English>Marsh</English>
+	</TEXT>
 
 
 	<!-- custom: The inherited bonus/text-key machine identifiers below were restored on 2026-11-04 for map/scenario/script compatibility; the SAS player-facing names remain Elephants, Cattle, Molluscs, Gemstones, Grapes and Maize.
@@ -2368,6 +2377,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Tag>
 		<English>[TAB]Order a worker-type unit to clear jungle from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_DRAIN_MARSH</Tag>
+		<English>Drain [LINK=FEATURE_MARSH]Marsh[\LINK]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_DRAIN_MARSH_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to drain marsh from the selected tile.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Tag>

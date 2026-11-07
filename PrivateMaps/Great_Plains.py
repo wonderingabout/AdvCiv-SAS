@@ -523,6 +523,10 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 			if long > 0.65 and lat < 0.45:
 				self.addJunglesAtPlot(pPlot, iX, iY, lat)
 
+		# <!-- custom: Added with Marsh: this script replaces the shared FeatureGenerator.addFeaturesAtPlot, so it never reached the Marsh step there and generated no Marsh. See KI#284.4. (Claude code Opus 5.5) -->
+		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+			self.addMarshesAtPlot(pPlot, iX, iY)
+
 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
 			self.addForestsAtPlot(pPlot, iX, iY, lat, long)
 

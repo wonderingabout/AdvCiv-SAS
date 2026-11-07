@@ -96,6 +96,9 @@ jobs:
       - name: Advanced Start points by era
         run: python .github/workflows/build/xml/advanced_start_era_points.py
 
+      - name: Consistent feature impassables
+        run: python .github/workflows/build/xml/feature_impassables.py
+
       - name: Wonder costs by technology tier
         run: python .github/workflows/build/xml/wonder_cost_columns.py
 

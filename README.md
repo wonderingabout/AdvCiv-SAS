@@ -32,7 +32,7 @@ New mechanics as well, including but not only:
 - new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art)
 - new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage until drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
 Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
 
@@ -157,6 +157,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 [Less Generic unit names or combat types](/README.md#less-generic-unit-names-or-combat-types)\
 [Notable Asset Changes](/README.md#notable-asset-changes)\
 &emsp;[Assets Rebalancing](/README.md#assets-rebalancing)\
+&emsp;[Marsh feature](/README.md#marsh-feature)\
 &emsp;[XML Asset Naming and Taxonomy](/README.md#xml-asset-naming-and-taxonomy)\
 [AI-generated images](/README.md#ai-generated-images)\
 [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)\
@@ -854,6 +855,14 @@ These highlights cover selected balance changes, historical corrections, and XML
 ### Assets Rebalancing
 
 AdvCiv-SAS revises asset stats and historical details. For example, India's Mausoleum replaces the Colosseum instead of the Jail, and Gandhi's favourite civic changes from Universal Suffrage to Pacifism. See [Assets Rebalancing](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md) for before-and-after tables and the reasons behind the changes.
+
+### Marsh feature
+
+AdvCiv-SAS adds a Marsh feature (`FEATURE_MARSH`) on flat Grassland, which holds good land hostage rather than making it poor.
+
+Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but the tile cannot be settled, slows and exposes units, adds mild unhealthiness, and allows nothing to be built until it is drained. The question becomes when a particular piece of land is worth the Worker time.
+
+See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features) for the reasoning, the units and bonuses involved, and its settings.
 
 ### XML Asset Naming and Taxonomy
 

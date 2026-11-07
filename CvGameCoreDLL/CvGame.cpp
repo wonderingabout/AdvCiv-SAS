@@ -2118,6 +2118,12 @@ void CvGame::normalizeRemoveBadFeatures()
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// advc.108:
 	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+	// <!-- custom: THRESH-BAD-FEAT-PER-CITY only governs the outer city ring; the inner ring was always cleared and the ring loop below gave every land plot up to one tile past the city radius another removal chance.
+	// SAS sets peak and bad-terrain removal to 0 so maps are not made better on purpose, but these two feature removals had no switch, so a new Pangaea lost much of its Marsh around starts.
+	// The "Balanced" map option (NORMALIZE_HIGH) keeps clearing as in BtS, as advc.108 documents.
+	// One-shot per map generation, so read directly. See KI#284.3. (Claude code Opus 5.5) -->
+	bool const bSASClearInnerBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
+	bool const bSASClearRingBadFeatures = (GC.getDefineBOOL("SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON") || m_eNormalizationLevel >= NORMALIZE_HIGH);
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
@@ -2155,11 +2161,16 @@ void CvGame::normalizeRemoveBadFeatures()
 				if (GC.getInfo(p.getFeatureType()).getYieldChange(YIELD_FOOD) <= 0 &&
 					GC.getInfo(p.getFeatureType()).getYieldChange(YIELD_PRODUCTION) <= 0)
 				{
+					// <!-- custom: Inner-ring plots were always cleared; with SAS_MAPGEN_NORM_BAD_FEATURE_INNER_ON off they keep their feature, except the starting plot itself. See KI#284.3. (Claude code Opus 5.5) -->
+					if (itPlot.currID() < NUM_INNER_PLOTS)
+					{
+						if (bSASClearInnerBadFeatures || itPlot.currID() == CITY_HOME_PLOT)
+							p.setFeatureType(NO_FEATURE);
+					}
 					// <advc.108>
-					if (itPlot.currID() < NUM_INNER_PLOTS ||
-						(!isPowerfulStartingBonus(p, itPlayer->getID()) &&
+					else if (!isPowerfulStartingBonus(p, itPlayer->getID()) &&
 						(MapRandSuccess(rRemovalProb) ||
-						isWeakStartingFoodBonus(p, itPlayer->getID()))))
+						isWeakStartingFoodBonus(p, itPlayer->getID())))
 					{	// </advc.108>
 						p.setFeatureType(NO_FEATURE);
 					}
@@ -2185,7 +2196,9 @@ void CvGame::normalizeRemoveBadFeatures()
 						p.setFeatureType(NO_FEATURE);
 					}
 				}
-				else if (iDistance <= iCityRange + 1)
+				// <!-- custom: Was unconditional; SAS_MAPGEN_NORM_BAD_FEATURE_RING_ON gates this land removal.
+				// Water features such as Ice next to land are still cleared. See KI#284.3. (Claude code Opus 5.5) -->
+				else if (bSASClearRingBadFeatures && iDistance <= iCityRange + 1)
 				{
 					scaled rRemovalProb(1, 2);
 					if (m_eNormalizationLevel > NORMALIZE_MEDIUM) // advc.108

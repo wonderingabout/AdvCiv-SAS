@@ -6070,6 +6070,9 @@ struct SASGameRecordLandmassGeography
 	std::vector<int> aiAdjacentLakeAreas;
 	std::vector<int> aiTerrainCounts;
 	std::vector<int> aiFeatureCounts;
+	// <!-- custom: Plots per terrain, plot type and feature (index 0 = no feature), filled by getSASGameRecordLandmassCoverIndex.
+	// The separate terrain and feature totals could not show a feature's share of the land it can occur on, such as Marsh on flat Grassland. (Claude code Opus 5.5) -->
+	std::vector<int> aiCoverCounts;
 	std::vector<int> aiBonusCounts;
 	std::vector<CvString> aszBonusCoordinates;
 	std::vector<int> aiEraRevealedRawFood;
@@ -6124,6 +6127,12 @@ static CvString getSASGameRecordLandmassList(std::vector<SASGameRecordLandmassGe
 		}
 	}
 	return getSASDiagnosticOrDash(szList);
+}
+
+// <!-- custom: Flat index into SASGameRecordLandmassGeography::aiCoverCounts; feature slot 0 is NO_FEATURE. (Claude code Opus 5.5) -->
+static int getSASGameRecordLandmassCoverIndex(int iTerrain, int iPlotType, int iFeature)
+{
+	return (iTerrain * NUM_PLOT_TYPES + iPlotType) * (GC.getNumFeatureInfos() + 1) + iFeature + 1;
 }
 
 static CvString getSASGameRecordLandmassTerrainPercentages(SASGameRecordLandmassGeography const& kLandmass)
@@ -6434,6 +6443,7 @@ static void logSASGameRecordGeography()
 		kLandmass.iAreaId = pLoopArea->getID();
 		kLandmass.aiTerrainCounts.assign(GC.getNumTerrainInfos(), 0);
 		kLandmass.aiFeatureCounts.assign(GC.getNumFeatureInfos(), 0);
+		kLandmass.aiCoverCounts.assign(GC.getNumTerrainInfos() * NUM_PLOT_TYPES * (GC.getNumFeatureInfos() + 1), 0);
 		kLandmass.aiBonusCounts.assign(GC.getNumBonusInfos(), 0);
 		kLandmass.aiEraRevealedRawFood.assign(GC.getNumEraInfos(), 0);
 		kLandmass.aiEraRevealedRawProduction.assign(GC.getNumEraInfos(), 0);
@@ -6503,6 +6513,8 @@ static void logSASGameRecordGeography()
 			pLandmass->aiTerrainCounts[kPlot.getTerrainType()]++;
 		if (kPlot.getFeatureType() != NO_FEATURE)
 			pLandmass->aiFeatureCounts[kPlot.getFeatureType()]++;
+		if (kPlot.getTerrainType() != NO_TERRAIN && kPlot.getPlotType() != NO_PLOT)
+			pLandmass->aiCoverCounts[getSASGameRecordLandmassCoverIndex(kPlot.getTerrainType(), kPlot.getPlotType(), kPlot.getFeatureType())]++;
 		if (kPlot.isHills())
 			pLandmass->iHillsPlots++;
 		if (kPlot.isPeak())
@@ -6790,7 +6802,7 @@ static void logSASGameRecordGeography()
 	// <!-- custom: Name the actual engine query; listing selected contributors omitted others such as per-plot extra yields.
 	// Remaining legend fields describe this recorder's estimate and encoding, not the full gameplay algorithm. (GPT-6.1-Sol) -->
 	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=ENGINE_CALCULATE_NATURE_YIELD_NO_TEAM revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
-	logSASGameRecord("GAME_RECORD_GEOGRAPHY_COMPOSITION_LEGEND percentScale=100 terrainPercentDenominator=landmassPlots featurePercentDenominator=landmassPlots featurelessPercent=plots_without_feature waterBorderLand=land_plots_adjacent_to_any_water seaBorderLand=land_plots_adjacent_to_nonlake_water lakeBorderLand=land_plots_adjacent_to_lake_water borderEdgesPerLandX100=adjacent_land_water_edges_per_land_plot_times_100 iceBorderLand=land_plots_adjacent_to_FEATURE_ICE adjacentLakePlots=unique_lake_area_tiles_touching_landmass adjacentLakePerLandPercentDenominator=landmassPlots noOceanConnected=non_ocean_water_topology_ignoring_impassable_features noOceanNavigable=non_ocean_water_excluding_impassable_plots sea=water_excluding_lakes coastSea=nonlake_TERRAIN_COAST oceanSea=nonlake_TERRAIN_OCEAN");
+	logSASGameRecord("GAME_RECORD_GEOGRAPHY_COMPOSITION_LEGEND percentScale=100 terrainPercentDenominator=landmassPlots featurePercentDenominator=landmassPlots featurelessPercent=plots_without_feature waterBorderLand=land_plots_adjacent_to_any_water seaBorderLand=land_plots_adjacent_to_nonlake_water lakeBorderLand=land_plots_adjacent_to_lake_water borderEdgesPerLandX100=adjacent_land_water_edges_per_land_plot_times_100 iceBorderLand=land_plots_adjacent_to_FEATURE_ICE adjacentLakePlots=unique_lake_area_tiles_touching_landmass adjacentLakePerLandPercentDenominator=landmassPlots coverPercentOfLandmassDenominator=landmassPlots coverPercentOfTerrainPlotTypeDenominator=landmass_plots_of_that_terrain_and_plotType coverFeatureNone=featureless_plots noOceanConnected=non_ocean_water_topology_ignoring_impassable_features noOceanNavigable=non_ocean_water_excluding_impassable_plots sea=water_excluding_lakes coastSea=nonlake_TERRAIN_COAST oceanSea=nonlake_TERRAIN_OCEAN");
 	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
 	{
 		SASGameRecordLandmassGeography const& kLandmass = aLandmasses[iI];
@@ -6846,6 +6858,30 @@ static void logSASGameRecordGeography()
 			getSASGameRecordPercentX100(iAdjacentLakePlots, kLandmass.iPlots),
 			getSASGameRecordLandmassTerrainPercentages(kLandmass).GetCString(),
 			getSASGameRecordLandmassFeaturePercentages(kLandmass).GetCString());
+		// <!-- custom: One row per terrain, plot type and feature present on this landmass, including featureless plots.
+		// percentOfTerrainPlotTypeX100 gives a feature's share of the land it can occur on; for Marsh that is flat Grassland, so its placement rate can be read directly. (Claude code Opus 5.5) -->
+		for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			for (int iPlotType = 0; iPlotType < NUM_PLOT_TYPES; iPlotType++)
+			{
+				int iTerrainPlotTypePlots = 0;
+				for (int iFeature = NO_FEATURE; iFeature < GC.getNumFeatureInfos(); iFeature++)
+					iTerrainPlotTypePlots += kLandmass.aiCoverCounts[getSASGameRecordLandmassCoverIndex(iTerrain, iPlotType, iFeature)];
+				if (iTerrainPlotTypePlots <= 0)
+					continue;
+				for (int iFeature = NO_FEATURE; iFeature < GC.getNumFeatureInfos(); iFeature++)
+				{
+					int const iCoverPlots = kLandmass.aiCoverCounts[getSASGameRecordLandmassCoverIndex(iTerrain, iPlotType, iFeature)];
+					if (iCoverPlots <= 0)
+						continue;
+					logSASGameRecord("GAME_RECORD_LANDMASS_COVER turn=%d landmass=%s terrain=%s plotType=%s feature=%s plots=%d percentOfLandmassX100=%d terrainPlotTypePlots=%d percentOfTerrainPlotTypeX100=%d",
+						GC.getGame().getGameTurn(), szName.GetCString(), GC.getInfo((TerrainTypes)iTerrain).getType(),
+						getSASPlotType((PlotTypes)iPlotType), getSASInfoTypeOrNone((FeatureTypes)iFeature), iCoverPlots,
+						getSASGameRecordPercentX100(iCoverPlots, kLandmass.iPlots), iTerrainPlotTypePlots,
+						getSASGameRecordPercentX100(iCoverPlots, iTerrainPlotTypePlots));
+				}
+			}
+		}
 		int const iFinalEra = GC.getNumEraInfos() - 1;
 		int const iNature321 = 3 * kLandmass.iNatureFood + 2 * kLandmass.iNatureProduction + kLandmass.iNatureCommerce;
 		logSASGameRecord("GAME_RECORD_LANDMASS_YIELDS turn=%d landmass=%s natureAvgF100=%d natureAvgH100=%d natureAvgC100=%d natureAvg321X100=%d revealedRawFinalAvgF100=%d revealedRawFinalAvgH100=%d revealedRawFinalAvgC100=%d revealedRawFinalAvg321X100=%d bonusImprovedPotentialFinalAvgF100=%d bonusImprovedPotentialFinalAvgH100=%d bonusImprovedPotentialFinalAvgC100=%d bonusImprovedPotentialFinalAvg321X100=%d eraRevealedRawAvgFHC321X100=%s eraBonusImprovedPotentialAvgFHC321X100=%s",

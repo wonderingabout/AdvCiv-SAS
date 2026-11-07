@@ -985,6 +985,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_FEATURE_JUNGLE_PEDIA</Tag>
 		<English>[TAB]Jungle or Tropical forest refers to the dense, more or less impenetrable tropical rainforest biome with an abundance of animal and plant life. The term jungle is technically a synonym to Tropical Rainforest. The word jungle originates from the Sanskrit word jangala which referred to uncultivated land. Although the Sanskrit word refers to "dry land", it has been suggested that an Anglo-Indian interpretation led to its connotation as a dense "tangled thicket", while others have argued that a cognate word in Urdu did refer to forests. The term is prevalent in many languages of South Asia, and Iranian plateau, particularly in Bangla, Hindi, Marathi, Urdu, Punjabi and Persian.</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEATURE_MARSH_PEDIA</Tag>
+		<English>[TAB]A marsh is a wetland dominated by grasses, reeds and rushes rather than trees, often found on low-lying ground beside rivers, lakes and coasts. Its waterlogged soil is rich in nutrients and supports abundant plant and animal life.[PARAGRAPH:1]For early societies, marshes were fertile but difficult land: they were hard to cross, unsuitable for building, and bred disease. Throughout history many civilizations reclaimed them by draining, turning them into some of their most productive farmland, while other marshes were preserved for fishing, fowling and reed harvesting.</English>
+	</TEXT>
     <TEXT>
 		<Tag>TXT_KEY_FEATURE_OASIS_PEDIA</Tag>
 		<English>[TAB]In geography, an oasis is an isolated area of vegetation in a desert, typically surrounding a spring or similar water source. Oases also provide habitat for animals and even humans if the area is big enough. The location of oases has been of critical importance for trade and transportation routes in desert areas. Caravans must travel via oases so that supplies of water and food can be replenished. Thus, political or military control of an oasis has in many cases meant control of trade on a particular route. For example, the oases of Awjila, Ghadames and Kufra, situated in modern-day Libya, have at various times been vital to both North-South and East-West trade in the Sahara. The word oasis came into English via Greek oasis, borrowed directly from Egyptian or Demotic. It was not borrowed from Coptic, as is sometimes suggested; the Greek word is attested several centuries before Coptic existed as a written language.</English>
@@ -1385,6 +1389,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Tag>
 		<English>[TAB]Clearing jungle removes dense vegetation that can hinder movement, settlement, and development.[PARAGRAPH:1]This action is often used to open land for agriculture and infrastructure and to make the tile easier to improve.[PARAGRAPH:1]Removing jungle changes the underlying terrain feature; it is distinct from constructing a permanent improvement.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_DRAIN_MARSH_PEDIA</Tag>
+		<English>[TAB]Draining a marsh cuts channels and ditches that lower the water table until the waterlogged ground dries into workable land.[PARAGRAPH:1]Unlike clearing a forest, draining yields no timber; the reward is the fertile land underneath, which can then be farmed, settled, crossed by roads and otherwise developed.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Tag>

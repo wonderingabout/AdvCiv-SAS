@@ -71,6 +71,7 @@ Always review diffs before committing generated source changes.
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
 - [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper)
+  - [Export from a ChatGPT share link](#export-from-a-chatgpt-share-link)
 - [Claude Code session transcript helper](#claude-code-session-transcript-helper)
   - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
 - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
@@ -1267,7 +1268,8 @@ Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message bou
 
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory.
 - **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
-  - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a missing oldest page.
+  - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a reported missing oldest page.
+  - The desktop tool can return a partial chat even when it reports no older page. In the Marsh example it returned 10 messages while the share snapshot contained 34.
   - Verified on the development machine: Codex exported all three sources to TXT (ChatGPT through the desktop chat tools, Codex and Claude Code from local session files).
   - Claude Code confirmed its current setup has neither desktop chat tool, so it cannot fetch the latest private ChatGPT chat directly. It can convert pages already saved as JSON or read the TXT Codex writes.
   - For a handoff, ask Codex to export the chat and give Claude the resulting file path.
@@ -1281,6 +1283,19 @@ python ./LLM_Helpers/openai_chat_export_to_txt.py chatgpt chat-pages.json --outp
 The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/llm_chat_exports/`.
 
 Both helpers read the folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py). Set `LLM_CHAT_EXPORT_DIR` to change the shared default or pass `--output` for one export. Use a dated filename to keep another snapshot of the same chat. Both helpers refuse to overwrite an existing file.
+
+### Export from a ChatGPT share link
+
+Use the share link when the desktop chat tool returns only a slice or when Claude Code needs to export the chat itself. The share link must already exist. The helper opens it in a fresh headless Chrome session using Playwright and saves rendered message text without images or attachments.
+
+Install Playwright once in the Python environment you will use. This mode also requires Google Chrome. The local file modes continue to use only Python's standard library.
+
+```bash
+python -m pip install playwright
+python ./LLM_Helpers/openai_chat_export_to_txt.py share "https://chatgpt.com/share/<share-id>"
+```
+
+The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to the shared folder. It collects each listed turn in page order, scrolling as needed, and fails before writing if a listed turn cannot be read. Claude Code can run the same command without the Codex desktop chat tools.
 
 ## Claude Code session transcript helper
 

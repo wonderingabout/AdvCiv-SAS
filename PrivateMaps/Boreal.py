@@ -318,6 +318,11 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 					pPlot.setTerrainType(terrainGrass, true, true)
 			self.addForestsAtPlot(pPlot, iX, iY)
 
+			# <!-- custom: Added with Marsh: this script replaces the shared FeatureGenerator.addFeaturesAtPlot, so it never reached the Marsh step there and generated no Marsh. See KI#284.4.
+			# Its Forest step has no feature check and would overwrite Marsh, so Marsh fills only plots Forest left free. (Claude code Opus 5.5) -->
+			if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+				self.addMarshesAtPlot(pPlot, iX, iY)
+
 	def addForestsAtPlot(self, pPlot, iX, iY):
 		gc = CyGlobalContext()
 		iForestLevel1 = self.forests.getHeightFromPercent(90)

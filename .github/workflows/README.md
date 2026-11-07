@@ -76,6 +76,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/tech_columns.py`](#buildxmltech_columnspy)
     - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
+    - [`build/xml/feature_impassables.py`](#buildxmlfeature_impassablespy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
@@ -860,6 +861,12 @@ Verifies each era's `iAdvancedStartPoints` stays within 10% of base AdvCiv's buy
 The expected value is AdvCiv's points scaled by the ratio of the SAS and AdvCiv `iTrainPercent`, `iConstructPercent` and `iGrowthPercent`, because SAS flattened those percentages without changing the points.
 
 AdvCiv's values are pinned in the checker, as CI has no AdvCiv install; a new era needs a baseline row.
+
+#### `build/xml/feature_impassables.py`
+
+Verifies that every unit with `FeatureImpassables` blocks the same set of features.
+
+The wheeled units share one rule for dense or wet ground; when a feature such as Marsh joins that set, this catches units that were left out.
 
 #### `build/xml/wonder_cost_columns.py`
 

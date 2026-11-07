@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Build Infos -->
 <!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex).
@@ -20,7 +24,16 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>ROUTE_ROAD</RouteType>
 			<EntityEvent>ENTITY_EVENT_SHOVEL</EntityEvent>
-			<FeatureStructs/>
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
+			<FeatureStructs>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+			</FeatureStructs>
 			<HotKey>KB_R</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -41,7 +54,16 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>ROUTE_RAILROAD</RouteType>
 			<EntityEvent>ENTITY_EVENT_RAILROAD</EntityEvent>
-			<FeatureStructs/>
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
+			<FeatureStructs>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+			</FeatureStructs>
 			<HotKey>KB_R</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -63,6 +85,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
 			<!-- custom: Apply jungle removal consistently to every compatible build.
 			Move it from Masonry to Metal Casting so Masonry does not combine Slavery, forest removal and jungle removal, while keeping the existing 20 production reward. (GPT-5.6-Sol) -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -83,6 +106,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -147,6 +177,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -167,6 +198,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -192,6 +230,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -212,6 +251,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -259,6 +305,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -279,6 +326,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -305,6 +359,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -325,6 +380,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -350,6 +412,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -370,6 +433,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -395,6 +465,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -415,6 +486,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -439,6 +517,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -459,6 +538,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -483,11 +569,19 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- kekm.9 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -512,6 +606,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -532,6 +627,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -577,6 +679,7 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -597,6 +700,13 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -622,11 +732,19 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- kekm.9 -->
+			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -668,6 +786,38 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<!-- custom: import from the Middle-earth mod's PROJECT_ANGRIST thanks a lot! -->
 			<Button>Art/AdvCiv_SAS/Builds/Remove_Jungle/Angrist.dds</Button>
+		</BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_DRAIN_MARSH -->
+			<Type>BUILD_DRAIN_MARSH</Type>
+			<Description>TXT_KEY_BUILD_DRAIN_MARSH</Description>
+			<Help>TXT_KEY_BUILD_DRAIN_MARSH_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_DRAIN_MARSH_PEDIA</Civilopedia>
+			<PrereqTech>NONE</PrereqTech>
+			<iTime>0</iTime>
+			<iCost>0</iCost>
+			<bKill>0</bKill>
+			<ImprovementType>NONE</ImprovementType>
+			<RouteType>NONE</RouteType>
+			<EntityEvent>ENTITY_EVENT_SHOVEL</EntityEvent>
+			<!-- custom: Pure land reclamation: unlike chopping Forest or Jungle it yields no production, so Workers spend time here only to unlock the land underneath.
+			The Wheel puts it early so Marsh-heavy starts are not locked out for long.
+			Every build that drains Marsh, roads included, needs its FEATURE_MARSH PrereqTech, so a road cannot cross Marsh before that tech; keep those entries matching if it moves. (Claude code Opus 5.5) -->
+			<FeatureStructs>
+				<FeatureStruct>
+					<FeatureType>FEATURE_MARSH</FeatureType>
+					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+					<iTime>300</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+			</FeatureStructs>
+			<HotKey>KB_C</HotKey>
+			<bAltDown>1</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<!-- custom: import from the Realism Invictus mod's BuildDrain button, thanks. Replaced the Caveman2Cosmos Peat Bog button, which the Marsh feature keeps, so the build is not the same picture as the feature it drains. (Claude code Opus 5.5) -->
+			<Button>Art/AdvCiv_SAS/Builds/Drain_Marsh/BuildDrain.dds</Button>
 		</BuildInfo>
 		<BuildInfo> <!-- custom: BUILD_REMOVE_FOREST -->
 			<Type>BUILD_REMOVE_FOREST</Type>

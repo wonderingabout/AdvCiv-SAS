@@ -615,6 +615,7 @@ Clear, accurate explanations help users and developers understand the code and i
   - For example, the [LLM transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) uses `=== USER ===` and similar speaker markers so agents can grep long transcripts, which would be much harder to follow otherwise (who said what or to navigate or count easily).
     - Note: this helper drops raw tool logs and keeps the chat text, including code pasted into messages, so the TXT is useful directly as handoff context.
     - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), which defaults to `Downloads/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
+    - Keep reusable ChatGPT share URLs in the private local list `chatgpt-share-urls.md` under the configured chat export folder. Keep the list and its URLs out of Git, patches, light-source ZIPs and shared examples. This helps prevent private-urls (that become publicly-accessible after share) from leaking in chats needlessly or breaching privacy.
     - Prefix filenames with `codex-`, `chatgpt-`, or `claude-` and include the thread ID when known. Use a timestamp when saving another snapshot of the same thread. Start the TXT with the first speaker marker and keep any title, counts, or export notes in your reply.
     - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
@@ -912,7 +913,12 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
     - Treat these as filesystem observations only: `engineReloadState=NOT_OBSERVED` means an edit does not prove Civ4 reloaded, parsed or executed it. C++ source edits never replace the loaded DLL. Missing watcher evidence can also mean disabled/failed observation rather than no edit.
   - The file reports autoplay state, not an idle/busy lock: a manually advanced turn also runs with `autoplayActive=0`. Check `gameState` for initialization and do not infer XML/Python edit safety from the autoplay flag alone.
   - Check Windows directly to establish whether the Civ4 process still exists; the JSON can outlive it. If no Civ4 process exists, no separate user confirmation of closure is needed. A lingering process can still retain runtime resources even without a visible window.
-  - The status feature is default-off and deliberately does not guess human idle/UI state. While Civ4 is running, an absent, stale or unmatched status file does not establish that runtime-sensitive files are safe to edit.
+  - The status feature is default-off and deliberately does not guess human idle/UI state. While Civ4 is running, an absent, stale or unmatched status file does not by itself establish that runtime-sensitive files are safe to edit.
+- A running Civ4 generally makes runtime-sensitive edits unsafe, but not always: the user often has Civ4 open for other reasons, so check before stopping work.
+  - Another mod may be running. The process command line names it: `(Get-CimInstance Win32_Process -Filter "Name='Civ4BeyondSword.exe'").CommandLine` ends with `"mod=\<name>"`. Another mod loads its own files, so editing AdvCiv-SAS files is safe.
+    - Example (2026-11-07): the command line showed `mod=\Realism Invictus`, while `SASRuntimeStatus.json` still described an earlier AdvCiv-SAS process that had exited cleanly; matching `processId` to the live process exposed the mismatch.
+  - The user may also be browsing the Sevopedia or playing casually, with no current test, autoplay or later replay depending on the files being edited.
+  - If AdvCiv-SAS itself is running and its purpose is unclear, ask the user; edits are fine once they confirm.
 
 - While a validation autoplay is running:
   - Documentation and C++ source/header edits are safe because the live game does not reload them.
