@@ -1415,6 +1415,32 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 				<AudioRunTypeEnd/>
 			</AudioRunSounds>
 		</UnitArtInfo>
+		<!-- custom: Found through future mod's High Tech Infantry, thanks; the art actually ships with BtS in Assets/Art/Units/NextWar_Cyborg for its Next War scenario, so no import is needed.
+		An imported copy of futuremod's Cloneworker2 folder wore the yellow clone worker skin, which scrambled on this mesh; pointing at the BtS path avoids that and the extra files. (Claude code Opus 5.5) -->
+		<UnitArtInfo>
+			<Type>ART_DEF_UNIT_AUGMENTED_INFANTRY</Type>
+			<Button>,Art/Interface/Buttons/Units/RedCoat.dds,Art/Interface/Buttons/NextWar_Atlas.dds,3,1</Button>
+			<fScale>0.44</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<bActAsLand>1</bActAsLand>
+			<bActAsAir>0</bActAsAir>
+			<NIF>Art/Units/NextWar_Cyborg/NextWar_Cyborg.nif</NIF>
+			<KFM>Art/Units/NextWar_Cyborg/NextWar_Cyborg.kfm</KFM>
+			<SHADERNIF>Art/Units/NextWar_Cyborg/NextWar_Cyborg_FX.nif</SHADERNIF>
+			<ShadowDef>
+				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+				<fShadowScale>0.9</fShadowScale>
+			</ShadowDef>
+			<fBattleDistance>0.35</fBattleDistance>
+			<fRangedDeathTime>0.31</fRangedDeathTime>
+			<bActAsRanged>1</bActAsRanged>
+			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+			<AudioRunSounds>
+				<AudioRunTypeLoop/>
+				<AudioRunTypeEnd/>
+			</AudioRunSounds>
+		</UnitArtInfo>
 		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed but maybe fine and easier as such. -->
 		<UnitArtInfo>
 			<Type>ART_DEF_UNIT_ROBOTIC_INFANTRY</Type>

@@ -102,6 +102,9 @@ jobs:
       - name: Asset primary technologies and resource trade unlocks
         run: python .github/workflows/build/xml/asset_primary_tech.py
 
+      - name: Military unit obsolescence continuity
+        run: python LLM_Helpers/audit_unit_obsolescence_continuity.py --check --review-summary-only
+
       - name: Religion tech buttons
         run: python .github/workflows/build/xml/religion_tech_buttons.py
 

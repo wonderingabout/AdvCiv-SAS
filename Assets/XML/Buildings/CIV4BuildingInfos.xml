@@ -1859,6 +1859,7 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			<TechTypes/>
+			<!-- custom: note: we considered adding mounted bonus prereqs like horse or camel or elephant to help the AI not build it if it has no bonus to use it to produce any unit anyway for efficiency, but some civ-specific variants may have additional effects useful even without said units (e.g. as of now Arabia religion + health, Mongol military effects/production, etc.) so it would be weirdly inconsistent, although some civ-specific units like as of now swordsmen allow copper only for them or something, still this would not be as simple as a rule like as of now one settler at a time (national unit) and not strategically as useful or practical maybe; we can maybe conceptually imagine it is useful for all kinds of animals not just those, or to allow pre-building the building for strategy or something maybe, unlike as of now for the settler though. -->
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>

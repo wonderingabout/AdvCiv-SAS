@@ -64,6 +64,7 @@ Always review diffs before committing generated source changes.
   - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
   - [`audit_define_keys.py`](#audit_define_keyspy)
   - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+  - [`audit_unit_obsolescence_continuity.py`](#audit_unit_obsolescence_continuitypy)
 - [Markdown documentation cleanup helpers](#markdown-documentation-cleanup-helpers)
   - [`reflow_markdown_prose.py`](#reflow_markdown_prosepy)
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
@@ -1158,6 +1159,34 @@ TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING
 TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY
 TXT_KEY_PEDIA_SAS_PLAY_MOVIE
 TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
+```
+
+### `audit_unit_obsolescence_continuity.py`
+
+- Read-only unit/technology progression audit; does not modify XML.
+- CI-fatal invariant: for every playable civilization and each land/sea/air domain, once an earlier technology-tree column provides at least one unlimited military unit trainable from technology alone, no reachable combination of technologies in the next/current column may reduce that domain to zero such units.
+- "Trainable from technology alone" deliberately excludes units requiring a strategic Bonus, religion, corporation, prerequisite building, or finite UnitClass instance cap. This protects a fallback military option without forbidding ordinary resource-gated upgrades.
+- Pure exploration units are excluded by `UNITAI_EXPLORE*` role rather than unit type, so Scout/Explorer/Airship/Recon-Drone style units cannot hide a military-production gap.
+- The same run also reports direct upgrade successors that add an unguaranteed technology or new resource/religion/building condition. Those rows are review leads only and never fail CI by themselves.
+- `--check` exits 1 only for the domain-wide continuity invariant. `--review-summary-only` keeps CI logs compact. `--output PATH` writes the full report even when console review details are suppressed.
+- `checks-xml.yml` runs `--check --review-summary-only` automatically.
+
+```powershell
+python LLM_Helpers\audit_unit_obsolescence_continuity.py
+python LLM_Helpers\audit_unit_obsolescence_continuity.py --check
+python LLM_Helpers\audit_unit_obsolescence_continuity.py --check --review-summary-only
+python LLM_Helpers\audit_unit_obsolescence_continuity.py --output LLM_Helpers\outputs\unit_obsolescence_continuity.txt
+```
+
+The technology-column model is intentional: it enumerates every reachable subset of the current column on top of all earlier columns, so it catches combinations such as two same-column obsolescence technologies jointly removing the final unrestricted military unit without pretending that every individual upgrade must remain resource-free.
+
+[`unit_obsolescence_continuity_example.txt`](/_1_AdvCiv-SAS/Docs/examples/unit_obsolescence/unit_obsolescence_continuity_example.txt) is a full report captured on 2026-11-07. It shows the passing state, with no fatal holes, followed by the review-only rows, for example:
+
+```text
+FATAL continuity holes: 0 grouped / 0 civilization instances
+(none)
+
+- UNIT_PARATROOPER [DOMAIN_LAND] --obsolete at TECH_TRANSHUMANISM--> UNIT_ROBOTIC_INFANTRY: additional/un-guaranteed tech=TECH_AI; new/different condition=BONUS_ALUMINUM
 ```
 
 ## Markdown documentation cleanup helpers

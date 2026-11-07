@@ -78,6 +78,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
+    - [`LLM_Helpers/audit_unit_obsolescence_continuity.py`](#llm_helpersaudit_unit_obsolescence_continuitypy)
     - [`build/xml/plot_lsystem_asset_relationships.py`](#buildxmlplot_lsystem_asset_relationshipspy)
     - [`build/xml/building_art_lsystem_names.py`](#buildxmlbuilding_art_lsystem_namespy)
     - [`build/xml/civ_specific_assets.py`](#buildxmlciv_specific_assetspy)
@@ -870,6 +871,16 @@ World-wonder Great Person point rates (`iGreatPeopleRateChange`) must match with
 Flags stale additional unit/building tech requirements when the primary tech already guarantees them through every valid prerequisite path. To keep nearby foundational requirements explicit when useful, it applies only when the additional tech is from an earlier era and the primary tech is at least two columns after the start of its own era.
 
 Era starts and tech-graph guarantees are derived from current XML, so moving or collapsing tech-tree columns updates the check automatically.
+
+#### `LLM_Helpers/audit_unit_obsolescence_continuity.py`
+
+`checks-xml.yml` runs this helper with `--check --review-summary-only`.
+
+It fails only when a playable civilization loses the last unlimited, technology-only military unit in a land/sea/air domain across a reachable technology-column state; pure exploration units do not count as military fallback coverage.
+
+The manual full-report mode also lists narrower successor transitions that add unguaranteed technologies or resource/religion/building requirements; those diagnostics are review-only.
+
+See [`LLM_Helpers/README.md`](/LLM_Helpers/README.md#audit_unit_obsolescence_continuitypy) for the exact model and commands.
 
 #### `build/xml/plot_lsystem_asset_relationships.py`
 

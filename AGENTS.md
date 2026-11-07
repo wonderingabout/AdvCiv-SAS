@@ -226,7 +226,7 @@ In particular but not only, these are usually helpful:
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines).
-  - BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+  - BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
 - usually timestamped like "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord_20260710T064839Z_load1.log" (after enabling the corresponding AdvCiv-SAS game-record XML defines).
   - This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics.
   - It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces.
@@ -667,7 +667,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Example (Git Bash): `cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/ruff_all_py_${ts}.txt" && { py -m ruff check . --output-format=grouped > "$out" 2>&1 || true; } && echo "wrote $out"`
 - Use Ruff `--fix` only for reviewed safe rules (e.g. `E713`); do not broad-autofix risky rules such as `F401`, `F841`, `E712`, old parser warnings, or anything touching Civ4 import/runtime assumptions.
 - For very messy legacy files where automated scripts produce risky or hard-to-review diffs, ask the user to send the file to ChatGPT for a direct manual repair pass.
-  - This can be better than spending agent/Codex tokens on fragile automation, especially for indentation archaeology or old map scripts.
+  - This can be better than fragile automation, especially for indentation archaeology or old map scripts.
   - Example: the `BTG_Cross.py` and `BTG_Grid.py` map scripts were easier to repair manually as full files after broad indentation scripts produced misleading results.
 - Always review `git diff` before committing Ruff-driven changes.
 - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).

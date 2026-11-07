@@ -36,7 +36,7 @@ Content overall addition is minimal, as of now mostly in the future era (like th
 
 Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
 
-Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed).
+Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT, whose separate analysis may also give us a different point of view/review from local coding agents (e.g., Codex, Claude Code).
 
 Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
 
@@ -1569,7 +1569,7 @@ For examples and coverage details:
 - Full example:
   - [SASGameRecord_example.log)](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) or same file in ([raw text (raw.githubusercontent.com)](https://raw.githubusercontent.com/wonderingabout/AdvCiv-SAS/refs/heads/main/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log)).
 
-These plain-text records can be read in a text editor, analyzed with scripts, or shared with an external LLM such as ChatGPT for review without repository access. Sharing them may also reduce the time and token usage a local coding agent spends analyzing logs.
+These plain-text records can be read in a text editor, analyzed with scripts, or shared with an external LLM such as ChatGPT for review without repository access. Sharing them can also reduce the time a local coding agent spends analyzing logs.
 
 For example, these five captured rows record research discoveries and a Great Engineer hurrying the Statue of Zeus at Constantinople, followed by its completion, showing what happened during play rather than only reporting settings.
 

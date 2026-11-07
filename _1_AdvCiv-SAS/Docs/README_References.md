@@ -82,6 +82,8 @@ If you want to listen to the real audio, link is in the main readme.md 's copyri
 - Middle-earth (that i may call M-E sometimes maybe or not): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i may or may not, thanks a big big lot, thanks a lot,
 - BASE 6.4 mod, for art like the the Spanish's Lonja in AdvCiv-SAS, thanks.
 - Thomas' War mod, for art like the German's Forge in AdvCiv-SAS thanks.
+- futuremod, for future.. assets like as of now the augmented infantry i found in their mod (upon further inspection this art does not come from futuremod itself: it seems to ship with BtS for its Next War scenario, so it works as is without importing anything; futuremod still helped to nicely find it), thanks.
+- Destiny, for assets like the Automobiles tech's button (TECH_AUTOMOBILE), thanks,
 - thecowwarrior's Variety Mod mod, for art like the Portuguese grocer in AdvCiv-SAS thanks.
 - RFCEurope Enhanced Edition (RFC3E) or/and RFCEurope 1.5 (with Unofficial patch) (not sure which), for assets like the City Center's art (nif and button), thanks
 - RFC Dawn of Civilization (also referred to as RFC DoC in some older AdvCiv-SAS comments): source of certain Sevopedia implementations and art assets that were imported into earlier AdvCiv-SAS versions and subsequently modified, extended, or replaced to varying degrees.
@@ -90,7 +92,6 @@ If you want to listen to the real audio, link is in the main readme.md 's copyri
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
 - Master of mana, for assets like the Sacred Architecture tech's button (SPELLRESEARCH_ANGELS3 (Divine Wrath Spell)), thanks,
-- Destiny, for assets like the Automobiles tech's button (TECH_AUTOMOBILE), thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too, thanks, thanks,
 - Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot. They also include many copies of many mapscripts, making AdvCiv-SAS archaeology much easier, thanks a lot!

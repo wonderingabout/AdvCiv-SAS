@@ -28433,6 +28433,10 @@ Rebuilt assertion-enabled Debug-opt matched the loaded DLL and current source, w
 
 Fixed with the help of ChatGPT-5.6-Sol; cache semantics, diagnostic values and follow-up runtime evidence reviewed with GPT-6.1-Sol, thanks.
 
+2026-11-07 follow-up: `UNIT_AUGMENTED_INFANTRY` now fills the ordinary-infantry availability gap identified above: it is available at Transhumanism without Aluminum or AI, and upgrades to Robotic Infantry when those requirements are met. The trainability rows above remain evidence from the earlier roster, not a description of the current unit set.
+
+[`audit_unit_obsolescence_continuity.py`](/LLM_Helpers/README.md#audit_unit_obsolescence_continuitypy) now fails CI if a playable civilization loses its last resource-free military unit in a land, sea or air domain. (ChatGPT-5.6-Sol + Claude code Opus 5.5)
+
 <a id="ki-538"></a>
 
 ## KI#538 - (Fixed inherited AdvCiv UWAI leader-migration defect) A promoted leader inherited stale or default-true war hireability

@@ -2705,6 +2705,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Modern Infantry</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_UNIT_AUGMENTED_INFANTRY</Tag>
+		<English>Augmented Infantry</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_UNIT_MODERN_TANK</Tag>
 		<English>Modern Tank</English>
 	</TEXT>

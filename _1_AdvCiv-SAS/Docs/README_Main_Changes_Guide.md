@@ -741,7 +741,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv.
   - This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review.
   - This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)).
-  - Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+  - Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give the log file to an external LLM/AI such as ChatGPT, which also gives us a different point of view/review.
 - (Requires AdvCiv-SAS 6600+) **Clearer AI city-site diagnostics (KI#505.2):**
   - For players and modders investigating Settler choices, Found logs now explain the evaluations the AI actually uses. Scores recalculated for hypothetical comparisons are labeled separately, so they are easier to distinguish from the original decision.
     - For example, inherited `IFLOG` replay controls were replaced with explicit logging checks, and the unused AdvCiv `CvPlot::debugStr()` helper was retired after its descriptions exposed actual bonus/owner identities in player-known traces.
@@ -3675,6 +3675,13 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - **Spearman line:** base Strength **4 → 5**; anti-mounted role strengthened; civ-specific variants further differentiated (see Sevopedia/XML).
 - **Grenadiers & Bazooka (formerly Anti-Tank Infantry)**: rebalanced into **hybrid, versatile "foot-bomber" roles**.
 - **Gun units buffed (relative to pre-gun)**: units that **carry firearms** (e.g., **Musketman**, **Horse/Camel Cuirassiers**) are **relatively stronger** than their pre-gun counterparts.
+- **New Future era units**, for example:
+  - **Robotic Infantry**, **Robotic Tank** and **Levitation Artillery**: late units that need a strategic resource (Aluminum or Uranium) and have no support cost.
+  - (Requires AdvCiv-SAS 6730+) **Augmented Infantry**: a bonus-free continuation of the ordinary infantry line at Transhumanism, so that line no longer ends when Modern Infantry becomes obsolete and Robotic Infantry's AI technology or Aluminum is unavailable.
+    - Weaker and slightly more expensive than Robotic Infantry, but keeps Modern Infantry's anti-mounted bonuses as a situational niche; Robotic Infantry retains its stronger anti-Gun bonus, Mobility Range and no support cost.
+    - Upgrades to Robotic Infantry once those requirements are met; Modern Infantry can also upgrade straight to Robotic Infantry.
+    - See [KI#537.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537.2).
+  - See Sevopedia/XML.
 
 ## Military - Naval
 

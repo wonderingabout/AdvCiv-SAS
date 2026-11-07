@@ -451,6 +451,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<DefaultUnit>UNIT_PARATROOPER</DefaultUnit>
 		</UnitClassInfo>
 		<UnitClassInfo>
+			<Type>UNITCLASS_AUGMENTED_INFANTRY</Type>
+			<Description>TXT_KEY_UNIT_AUGMENTED_INFANTRY</Description>
+			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+			<iMaxTeamInstances>-1</iMaxTeamInstances>
+			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+			<iInstanceCostModifier>0</iInstanceCostModifier>
+			<DefaultUnit>UNIT_AUGMENTED_INFANTRY</DefaultUnit>
+		</UnitClassInfo>
+		<UnitClassInfo>
 			<Type>UNITCLASS_ROBOTIC_INFANTRY</Type>
 			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
