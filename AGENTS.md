@@ -112,7 +112,7 @@ In this case, let the user handle a separate commit for the move/reorder first, 
 
 Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail.
 
-The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, live-readable literal-safe BBAI/SASGameRecord sinks, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size enum/XML alignment, and map-script classification coverage.
+The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, live-readable literal-safe BBAI/SASGameRecord sinks, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size enum/XML alignment, map-script classification coverage, and art sample freshness after renderer changes.
 
 On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
 
@@ -229,6 +229,7 @@ Make sure to ask before deleting or moving files/folders inside it: its extracte
   - `c2cmerged/`: Caveman2Cosmos's FPKs, extracted; C2C also has an SVN that was not updated since.
   - `history_rewritten/`: History Rewritten's FPKs, extracted.
   - FPKs were extracted with PakBuild, for convenient searching with grep. Since 2026-11-08 an agent can also list, read or extract any `.FPK` itself with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#packed-fpk-archives).
+    - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art).
 - `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
 - Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
 

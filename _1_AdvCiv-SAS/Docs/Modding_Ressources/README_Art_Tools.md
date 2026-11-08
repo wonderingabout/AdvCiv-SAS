@@ -2,6 +2,11 @@
 
 How an AI/LLM helper can look at Civ4's art (`.dds` buttons and textures, `.tga` fonts, `.nif` models and scenes, `.bik` movies and packed `.FPK` archives), and how the user and agents edit the game font.
 
+These tools were built with Claude code Opus 5.5 and Codex (GPT-6.1-Sol), taking turns.
+
+- Claude code Opus 5.5 started the FPK reader, the still renderer and the image, font and movie helpers, then added other mods' art, galleries, animation curves, team colour and sample regeneration.
+- Codex brought the models to life: animation clips and GIFs, leader backgrounds, Civilopedia scenes, bone skinning fixes and religion-scene particles.
+
 ## Menu
 
 - [Why agents need helpers](#why-agents-need-helpers)
@@ -12,6 +17,12 @@ How an AI/LLM helper can look at Civ4's art (`.dds` buttons and textures, `.tga`
 - [Packed .FPK archives](#packed-fpk-archives)
 - [.nif models](#nif-models)
 - [Scenes and movies](#scenes-and-movies)
+- [Animated bonuses](#animated-bonuses)
+- [Other mods' art](#other-mods-art)
+  - [Galleries](#galleries)
+  - [What the tests showed](#what-the-tests-showed)
+- [Preview size and detail](#preview-size-and-detail)
+- [Regenerating the samples](#regenerating-the-samples)
 - [Example: Peat Works' art](#example-peat-works-art)
 - [Game font glyphs](#game-font-glyphs)
   - [What the game font holds](#what-the-game-font-holds)
@@ -58,6 +69,12 @@ python LLM_Helpers/art_preview.py art/craft/art/peatgatherer.dds ",Art/Interface
 
 ## Packed .FPK archives
 
+Run the helper commands from the mod root. For examples that use base-game assets, set this absolute path in PowerShell once per session. Adjust it if Civ IV is installed elsewhere.
+
+```powershell
+$civ4Assets = 'C:/Program Files (x86)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Assets'
+```
+
 BtS's own art is packed in `.FPK` archives: `Assets/Art0.FPK` under the Civ4 install holds the base game's buttons, atlases and models, and the `Beyond the Sword/Assets/STArt*.FPK` files hold the Final Frontier scenario's. Other mods ship their art the same way.
 
 PakBuild and Dragon UnPACKer, both installed, extract them, but only through their windows. On 2026-11-08 the format proved simple enough to read directly:
@@ -68,12 +85,12 @@ PakBuild and Dragon UnPACKer, both installed, extract them, but only through the
 
 On `Art0.FPK` (7583 files) and `STArt3.FPK` (802), every offset starts at a valid file header and the last file ends at the end of the archive. [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) lists and extracts files by pattern:
 
-```bash
-python LLM_Helpers/fpk_tool.py list "../../../Assets/Art0.FPK" "*atlas*"
+```powershell
+python LLM_Helpers/fpk_tool.py list "$civ4Assets/Art0.FPK" "*atlas*"
 ```
 
-```bash
-python LLM_Helpers/fpk_tool.py extract "../../../Assets/Art0.FPK" bts_quarry "art/structures/improvements/quarry/*"
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bts_quarry "art/structures/improvements/quarry/*"
 ```
 
 SAS ships one archive, `Assets/BML.fpk`, with 37 terrain, route and building textures: [its listing](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_list_example.txt), and [the `art/terrain/routes/roads/` folder extracted from it](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/), kept out of player downloads since players already have it inside the archive.
@@ -104,6 +121,30 @@ Compared with NifSkope on the same Persian Immortal, from the user's screenshot:
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_preview_vs_nifskope.PNG" alt="llm_nif_preview_vs_nifskope.PNG" width="250">
 
+The current renderer also previews the Immortal’s idle and strike using the Heavy Spearman KFM referenced by its unit art XML. The Immortal is `DOMAIN_LAND`, so both examples use the Civilopedia grass scene. `--frame-shift-y` moves the framing down to fit the upright spear without moving the unit below the ground. Omit `--environment` and its placement options for the grid view.
+
+The scene's ground is a finite mesh. The idle's camera first swung from -2° to 26°, and from about 17° the ground ended inside the frame, leaving a black band at the bottom. The same 14° swing centred on -2° stays on the ground; the strike's fixed 12° view does too.
+
+Both clips are the Heavy Spearman's own: `idle` is `HeavySpearman_MD_Idle.kf` and `strikea` is `HeavySpearman_MD_StrikeA.kf`; listing the KFM without an output shows all of them.
+
+A name picks the clip whose name ends with it. `idle` also ends `FortifyA_Idle` and `FortifyB_Idle`, so the clip whose whole name after `_MD_` matches wins.
+
+The Immortal NIF has two sets of same-named bones. Binding each transform track to the first matching node keeps the extra set from distorting the pose.
+
+```powershell
+$btsAssets = Join-Path (Split-Path $civ4Assets) 'Beyond the Sword/Assets'
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" immortal_assets "art/interface/screens/civilopedia/ancientbattlefield/*"
+$immortal = 'Assets/Art/AdvCiv_SAS/Units/Persia_Immortal/nif/persianimmortalarmoreddark.nif'
+$immortalKfm = "$btsAssets/Art/Units/Charlemagne_HeavySpearman/HeavySpearman.kfm"
+$land = 'immortal_assets/art/interface/screens/civilopedia/ancientbattlefield/ancientbattlefield.nif'
+python LLM_Helpers/nif_preview.py $immortalKfm immortal_idle.gif --clip idle --model $immortal --environment $land --model-scale 2.15 --yaw -2 --frame-shift-y 0.32 --sway 14 --cycles 2 --frames 48 --size 280
+python LLM_Helpers/nif_preview.py $immortalKfm immortal_strike.gif --clip strikea --model $immortal --environment $land --model-scale 2.15 --yaw 12 --frame-shift-y 0.32 --frames 24 --size 280 --speed 0.65
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_immortal_current.png" alt="llm_nif_immortal_current.png" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_immortal_idle.gif" alt="llm_animation_immortal_idle.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_immortal.gif" alt="llm_animation_immortal.gif" width="200">
+
 It took several steps, each found from a render that looked wrong:
 
 1. The first version filled each triangle with one colour from its texture: shapes were clear, textures were not.
@@ -121,13 +162,16 @@ Agents cannot watch a video or hear sound; they see still images only. Civ4's "m
 
 **Religion-founding scenes are `.nif` files** with their own camera, lights, particle effects and keyframed animation, such as BtS's `Assets/Art/Movies/Religion/Taoism/Tao_Found.nif`. `nif_preview.py --scene-camera` looks through that camera, and `--frames N` draws N moments of the animation side by side:
 
-```bash
-python LLM_Helpers/nif_preview.py "../../../Assets/Art/Movies/Religion/Taoism/Tao_Found.nif" daoism.png --scene-camera --frames 4 --size 320
+```powershell
+python LLM_Helpers/nif_preview.py "$civ4Assets/Art/Movies/Religion/Taoism/Tao_Found.nif" daoism.png --scene-camera --frames 4 --size 320
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" candle_assets "art/shared/fx_fire*.dds"
+python LLM_Helpers/nif_preview.py "$civ4Assets/Art/Movies/Religion/Taoism/Tao_Found.nif" daoism.gif --scene-camera --frames 36 --size 240 --particle-textures candle_assets/art/shared
+python LLM_Helpers/nif_preview.py "$civ4Assets/Art/Movies/Religion/Christianity/Chr_Found.nif" christianity.gif --scene-camera --frames 36 --size 240 --particle-textures candle_assets/art/shared
 ```
 
-- Keyframes are interpolated linearly, with rotations by slerp; the files' smoother TBC and Bezier curves are not followed, which matters little for stills.
+- The Daoism and Christianity camera rigs move along a position track while aiming at a fixed target. The preview follows that move. Ordinary translation and Euler keys use linear interpolation, quaternion keys use normalized interpolation, and compressed transform tracks use a cubic spline.
 - Such scenes bake their lighting into textures, so they are drawn without the preview's own shading.
-- Particle effects, such as the candle flame, are not drawn.
+- `--particle-textures` approximates the candle flame and glow using the scene's constant-rate box emitters and original additive sprites. Other particle behaviors and dynamic lighting still need the game renderer.
 
 Compared with the user's in-game screenshot of the Daoism movie, then four moments of its 5-second camera move:
 
@@ -138,6 +182,7 @@ Compared with the user's in-game screenshot of the Daoism movie, then four momen
 
 ```bash
 python LLM_Helpers/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik natya.png --frames 6 --width 240 --audio natya_audio.png
+python LLM_Helpers/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik natya.gif --start 3 --duration 6 --fps 10 --width 240
 ```
 
 For the Natya Shastra movie (31 seconds) it showed the Meenakshi temple's towers, carved deities and pillared hall, and music building from a quiet start to louder passages near the end (mean -19.5 dB, peak -0.9 dB). A waveform shows loudness over time, not what the sound is.
@@ -145,11 +190,11 @@ For the Natya Shastra movie (31 seconds) it showed the Meenakshi temple's towers
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_natya_shastra.PNG" alt="llm_movie_frames_natya_shastra.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_audio_natya_shastra.PNG" alt="llm_movie_audio_natya_shastra.PNG" width="250">
 
-The same helper reads the original Civ IV Great Library wonder movie and Conquest victory movie. Their paths are listed in [CIV4ArtDefines_Movie.xml](/Assets/XML/Art/CIV4ArtDefines_Movie.xml). From the mod root in the standard BtS install layout, `../../../Assets` points to the original Civ IV assets.
+The same helper reads the original Civ IV Great Library wonder movie and Conquest victory movie. Their paths are listed in [CIV4ArtDefines_Movie.xml](/Assets/XML/Art/CIV4ArtDefines_Movie.xml). The commands use the absolute `$civ4Assets` directory set above.
 
-```bash
-python LLM_Helpers/movie_frames.py "../../../Assets/Art/Movies/Wonders/GreatLibrary.bik" great_library.png --frames 4 --width 200 --audio great_library_audio.png
-python LLM_Helpers/movie_frames.py "../../../Assets/Art/Movies/Victory/Conquest.bik" conquest.png --frames 4 --width 200 --audio conquest_audio.png
+```powershell
+python LLM_Helpers/movie_frames.py "$civ4Assets/Art/Movies/Wonders/GreatLibrary.bik" great_library.png --frames 4 --width 200 --audio great_library_audio.png
+python LLM_Helpers/movie_frames.py "$civ4Assets/Art/Movies/Victory/Conquest.bik" conquest.png --frames 4 --width 200 --audio conquest_audio.png
 ```
 
 **Great Library (21.7 seconds).** The architectural drawing gives way to the library under construction and then the finished building.
@@ -160,6 +205,12 @@ python LLM_Helpers/movie_frames.py "../../../Assets/Art/Movies/Victory/Conquest.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_conquest.PNG" alt="llm_movie_frames_conquest.PNG" width="600">
 
+Use a `.gif` output to loop the whole movie or choose an excerpt with `--start` and `--duration` in seconds. Use `--fps` and `--width` to trade smoothness and detail against file size. GIFs are silent. `--audio` still makes a separate waveform of the full source.
+
+```powershell
+python LLM_Helpers/movie_frames.py "$civ4Assets/Art/Movies/Victory/Conquest.bik" conquest.gif --start 23 --duration 8.5 --fps 12 --width 320
+```
+
 **External model animations.** A `.kfm` lists the model and maps event codes to `.kf` clips. Pass the KFM without an output path to list its events, then add `--clip` to inspect one. You can also inspect a KF directly, or render it by passing its NIF with `--kf path/to/clip.kf`.
 
 ```bash
@@ -167,13 +218,14 @@ python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/
 python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp.kfm --clip 2
 python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp.kfm --clip 3
 python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Units/Incan_Llama_Kamayuq/nif/llamaarcher.kfm llama_run.png --clip 1010 --size 200
+python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Units/Incan_Llama_Kamayuq/nif/llamaarcher.kfm llama_run.gif --clip 1010 --frames 16 --size 200 --speed 0.6
 ```
 
 Peat Works' `not_worked` clip (event 2) hides `NodeFXCampfire` and its `worked` clip (event 3) shows it. The preview reports the switch. Fire and smoke particles are outside the renderer's scope. The Llama Kamayuq's run clip exercises bone transforms and gives four different moments of the stride, with the first pose repeating at the loop boundary.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_llama_run.PNG" alt="llm_kf_frames_llama_run.PNG" width="600">
 
-The renderer applies ordinary transform and visibility tracks by node name. It reports unsupported tracks, including the compressed spline tracks found in some leaderheads, Euler rotation channels and material animation.
+The renderer applies ordinary and compressed transform tracks and visibility tracks by node name. It reports unsupported tracks such as scalar and material animation.
 
 Use `--model` to select an alternate NIF when the in-game art definition uses a variant such as `camp_fx.nif`. The preview samples individual clips. Game-driven transitions and effects need an in-game check.
 
@@ -181,18 +233,73 @@ Use `--model` to select an alternate NIF when the in-game art definition uses a 
 
 ```bash
 python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm houfnice.png --clip 32113672 --size 200
+python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm houfnice.gif --clip 32113672 --frames 24 --size 200 --speed 0.8
 ```
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_houfnice_strike.PNG" alt="llm_kf_frames_houfnice_strike.PNG" width="600">
 
 **Original Civ IV Catapult.** Extract the unit's folder from the original game's `Art0.FPK`. With the textured FX model selected, the ranged-strike preview shows the arm swing and the rock disappear from the sling.
 
-```bash
-python LLM_Helpers/fpk_tool.py extract "../../../Assets/Art0.FPK" catapult_assets "art/units/catapult/*"
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" catapult_assets "art/units/catapult/*"
 python LLM_Helpers/nif_preview.py catapult_assets/art/units/catapult/catapult.kfm catapult.png --clip 1032 --model catapult_assets/art/units/catapult/catapult_fx.nif --size 200
+python LLM_Helpers/nif_preview.py catapult_assets/art/units/catapult/catapult.kfm catapult.gif --clip 1032 --model catapult_assets/art/units/catapult/catapult_fx.nif --frames 24 --size 200 --speed 0.45
 ```
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_catapult_strike.PNG" alt="llm_kf_frames_catapult_strike.PNG" width="600">
+
+For NIF GIFs, `--speed` sets the playback multiplier. The Catapult example slows its 0.7-second clip to about 1.6 seconds. `--frames` still sets how many poses to sample.
+
+**Leaderhead portraits.** Use the `NIF` and `BackgroundKFM` paths from the leader's entry in `CIV4ArtDefines_Leaderhead.xml`. The tool renders the backdrop through its own camera and reframes the leader's camera for a chest-up still.
+
+```bash
+python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif" grace.png --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_grace.png" alt="llm_nif_leaderhead_grace.png" width="320">
+
+Grace's still uses the same lakeside backdrop and a similar chest-up crop as her Sevopedia portrait. Her head angle and eyes differ in the model's rest pose.
+
+Pass `John II.kfm` without an output path to list the clips. With `--clip`, a `.png` output gives a frame sheet and a `.gif` output loops the sampled poses over the fixed backdrop. In the greeting she looks toward her raised hand, then turns to face the camera.
+
+```bash
+python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_greeting.gif --clip 6553600 --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 32 --size 230 --speed 1.8
+python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_disagree.gif --clip disagree --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 30 --size 230 --speed 1.5
+```
+
+**Original Civ IV Gandhi.** Extract Gandhi's art from the original game's `Art0.FPK`. Here `NoShaderNIF` gives the software renderer more skin and clothing detail than the main NIF. The glasses follow the face in both the still and the animated poses.
+
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" gandhi_assets "art/leaderheads/gandhi/*"
+python LLM_Helpers/nif_preview.py gandhi_assets/art/leaderheads/gandhi/gandhi_noshader.nif gandhi.png --leader-background gandhi_assets/art/leaderheads/gandhi/gandhi_bg.kfm
+python LLM_Helpers/nif_preview.py gandhi_assets/art/leaderheads/gandhi/gandhi.kfm gandhi_greeting.gif --clip 0 --model gandhi_assets/art/leaderheads/gandhi/gandhi_noshader.nif --leader-background gandhi_assets/art/leaderheads/gandhi/gandhi_bg.kfm --frames 24 --size 200
+python LLM_Helpers/nif_preview.py gandhi_assets/art/leaderheads/gandhi/gandhi.kfm gandhi_refusal.gif --clip 6 --model gandhi_assets/art/leaderheads/gandhi/gandhi_noshader.nif --leader-background gandhi_assets/art/leaderheads/gandhi/gandhi_bg.kfm --frames 24 --size 200
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_gandhi.png" alt="llm_nif_leaderhead_gandhi.png" width="320">
+
+Gandhi bows with his palms together in the greeting and raises a finger in the refusal. The lighting and framing differ from Sevopedia.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_gandhi_greeting.gif" alt="llm_animation_gandhi_greeting.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_gandhi_refusal.gif" alt="llm_animation_gandhi_refusal.gif" width="200">
+
+**Original Civ IV Montezuma.** The greeting raises both hands. The Pleased idle is a separate event, `2`, and mostly changes his expression.
+
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" montezuma_assets "art/leaderheads/montezuma/*"
+python LLM_Helpers/nif_preview.py montezuma_assets/art/leaderheads/montezuma/montezuma.kfm montezuma.gif --clip 0 --model montezuma_assets/art/leaderheads/montezuma/montezuma_noshader.nif --leader-background montezuma_assets/art/leaderheads/montezuma/montezuma_bg.kfm --frames 30 --size 200
+python LLM_Helpers/nif_preview.py montezuma_assets/art/leaderheads/montezuma/montezuma.kfm montezuma_disagree.gif --clip disagree --model montezuma_assets/art/leaderheads/montezuma/montezuma_noshader.nif --leader-background montezuma_assets/art/leaderheads/montezuma/montezuma_bg.kfm --frames 30 --size 200
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_montezuma.gif" alt="llm_animation_montezuma.gif" width="200">
+
+`--clip` also takes a clip name or a unique suffix such as `pleased` or `furious`. `greet`, `agree`, and `disagree` select the greeting, affirmative, and negative clips when the KFM contains them.
+
+Use `--yaw` and `--pitch` to set the view. `--orbit` sets the total sweep across a GIF, while `--sway` swings to either side of `--yaw` and returns for a smooth loop. A leader's backdrop stays fixed as the camera turns around the leader.
+
+```powershell
+python LLM_Helpers/nif_preview.py montezuma_assets/art/leaderheads/montezuma/montezuma.kfm monte_refusal.gif --clip disagree --model montezuma_assets/art/leaderheads/montezuma/montezuma_noshader.nif --leader-background montezuma_assets/art/leaderheads/montezuma/montezuma_bg.kfm --yaw -12 --orbit 24 --frames 24 --size 160
+```
 
 **Standalone sound.** Use `--audio-only` on an MP3 or WAV to draw its waveform and report mean and peak volume in dBFS.
 
@@ -203,6 +310,144 @@ python LLM_Helpers/movie_frames.py Assets/Art/AdvCiv_SAS/Main_Menu/music/lofi-so
 The menu track's two stereo channels taper at the beginning and end. FFmpeg reports a mean of −15.9 dBFS and a peak of 0.0 dBFS.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_audio_waveform_menu_lofi.PNG" alt="llm_audio_waveform_menu_lofi.PNG" width="600">
+
+## Animated bonuses
+
+The Fish and Pig entries in [CIV4ArtDefines_Bonus.xml](/Assets/XML/Art/CIV4ArtDefines_Bonus.xml) reference a model and a KFM. Event `1`, also selectable as `normal`, shows fish swimming and three pigs walking or lying down. `--orbit 360` turns the grid camera once while the clip plays.
+
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bonus_assets "art/terrain/resources/fish/*"
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bonus_assets "art/terrain/resources/pig/*"
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/pig/pig.nif pig.png --size 220
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/pig/pig.kfm pig.gif --clip 1 --frames 48 --size 240 --pitch 16 --orbit 360 --speed 1.5
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/fish/fish.kfm fish.gif --clip 1 --frames 48 --size 240 --pitch 16 --orbit 360 --speed 1.5
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_bonus_pig.png" alt="llm_nif_bonus_pig.png" width="220">
+
+To put a bonus in its setting, pass the original Civilopedia environment NIF with `--environment`. The scene supplies the camera and background geometry. `--model-scale` and `--model-offset` set the bonus's placement in that scene. These values are fitted for the previews.
+
+The water textures scroll using their embedded keys. `--water-opacity` controls the tint over submerged models independently of `--opacity-gain`, which boosts Fish ripples while preserving the clip's fades.
+
+The Whale uses additive blending for its spray and ripples, though some of its effect tracks still go unused. The Pig preview plays at 1.25× for presentation.
+
+Fish first swam along straight lines, while in the Sevopedia they leap in arcs.
+
+- Each fish's path in `Fish_Normal` is about 15 quadratic (Bezier) position keys over 10 seconds, with TBC rotation keys for its turns, and the renderer joined the keys with straight segments.
+- It now follows the curves: Hermite segments with the stored tangents for quadratic keys, and Kochanek-Bartels tangents for TBC keys, including rotations.
+- PyFFI's names for the quadratic tangents read backwards: a key's `backward` value is the direction leaving it, as the fish's dives and leaps show.
+
+With `--opacity-gain 1`, the ripples keep the strength their fades give them and are barely visible, as in the Sevopedia.
+
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bonus_assets "art/interface/screens/civilopedia/ancientbattlefield/*"
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bonus_assets "art/interface/screens/civilopedia/waterenvironment/*"
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" bonus_assets "art/terrain/resources/whale/*"
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/pig/pig.kfm pig_habitat.gif --clip normal --environment bonus_assets/art/interface/screens/civilopedia/ancientbattlefield/ancientbattlefield.nif --model-scale 5 --model-offset 0 0 40 --sway 8 --frames 56 --size 280 --speed 1.25
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/fish/fish.kfm fish_habitat.gif --clip normal --environment bonus_assets/art/interface/screens/civilopedia/waterenvironment/waterenvironment.nif --model-scale 1.6 --model-offset 0 -45 0 --water-opacity 0.55 --opacity-gain 2.7 --sway 8 --frames 56 --size 280
+python LLM_Helpers/nif_preview.py bonus_assets/art/terrain/resources/whale/whale.kfm whale_habitat.gif --clip normal --environment bonus_assets/art/interface/screens/civilopedia/waterenvironment/waterenvironment.nif --model-scale 1.35 --model-offset 0 -28 0 --water-opacity 0.55 --frames 50 --size 280
+python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Units/Holy_Roman_Houfnice/nif/cannon.kfm houfnice_land.gif --clip 32113672 --environment bonus_assets/art/interface/screens/civilopedia/ancientbattlefield/ancientbattlefield.nif --model-scale 2.2 --pitch 8 --frames 24 --size 280 --speed 0.8
+```
+
+**Air units.** The Bomber uses the Civilopedia sky environment. The one-second idle clip animates its four propellers. `--cycles 36` repeats it during a single 36-second camera sway. The camera motion approximates the Sevopedia view.
+
+```powershell
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" air_assets "art/units/bomber/*"
+python LLM_Helpers/fpk_tool.py extract "$civ4Assets/Art0.FPK" air_assets "art/interface/screens/civilopedia/skyenvironment/*"
+python LLM_Helpers/nif_preview.py air_assets/art/units/bomber/bomber.kfm bomber.gif --clip idle --model air_assets/art/units/bomber/bomber_fx.nif --environment air_assets/art/interface/screens/civilopedia/skyenvironment/skyenvironment.nif --model-offset 55 -70 -490 --pitch 20 --sway 26 --cycles 36 --frames 157 --size 240
+```
+
+## Other mods' art
+
+[`civ4_assets.py`](/LLM_Helpers/civ4_assets.py) finds a file the way the game does for a given mod: the mod's loose files, then its FPKs, then BtS's, Warlords' and the original game's, each loose before packed. Mods mix all of these, so one unit can take its model from the mod's FPK, its animations from the original game's `Art0.FPK` and a texture from a shared folder.
+
+With `--mod`, [`nif_preview.py`](/LLM_Helpers/nif_preview.py) accepts an `ART_DEF_` type or an `Art/...` path and copies what it needs into one folder per mod under the system temporary folder.
+
+- For an art define, it reads the files from the mod's art XML, including Caveman2Cosmos-style `Modules`.
+- The model is a leaderhead's `NoShaderNIF`, else a unit's `SHADERNIF`, else its `NIF`: the BtS Warrior's plain NIF textures its body with `TeamColor.bmp` and drew only the club.
+- A clip uses the define's KFM with that model, and a leaderhead gets its `BackgroundKFM`.
+- Use `--mod bts` for the base game alone, which searches BtS, Warlords and the original game, as the game does without a mod.
+
+A unit is placed in its domain's Sevopedia scene, read from the mod's unit XML and the game's interface art: land units on the battlefield, ships on the water and aircraft in the sky.
+
+Its largest dimension is scaled to a size taken from the hand-fitted Immortal, Houfnice and Bomber previews; `--environment none` keeps the plain grid. Units painted through `TeamColor.bmp` show the player colour as `--team-color`, by default a blue.
+
+The cache keeps copies between previews. A copy is replaced when its source differs in size or is newer, so an edited texture or a newly added loose override shows at the next render, as Codex (GPT-6.1-Sol) pointed out was needed for iterative testing. `--refresh` replaces every copy, for an edit that kept the size and an older date, such as a file copied in with its original date.
+
+```powershell
+python LLM_Helpers/civ4_assets.py --mod "History Rewritten" defines "ART_DEF_LEADER_*"
+python LLM_Helpers/civ4_assets.py --mod "Realism Invictus" locate "Art/Shared/musket.dds"
+python LLM_Helpers/nif_preview.py ART_DEF_LEADER_ALEXANDER alexander.png --mod "History Rewritten" --size 230
+python LLM_Helpers/nif_preview.py ART_DEF_LEADER_ALEXANDER alexander_greeting.gif --mod "History Rewritten" --clip greeting --frames 24 --size 200
+python LLM_Helpers/nif_preview.py ART_DEF_UNIT_APACHE_RAIDERS apache.gif --mod "Realism Invictus" --clip idle --frames 24 --size 200 --orbit 360 --environment none
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_hr_alexander_greeting.gif" alt="llm_mod_hr_alexander_greeting.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_ri_apache_raiders_idle.gif" alt="llm_mod_ri_apache_raiders_idle.gif" width="200">
+
+History Rewritten's Alexander greets from the mod's own loose art. Realism Invictus's Apache Raiders idle with a model and musket texture from two RI FPKs and animations from the original game's Musketman.
+
+### Galleries
+
+[`art_gallery.py`](/LLM_Helpers/art_gallery.py) renders every art define matching a pattern, leaders by default, in parallel. It keeps each picture as its own PNG, so a folder can be browsed with Windows thumbnails, and lays them out on numbered grid sheets of 20. `--domain`, `--combat` and `--era` keep units whose XML matches any listed word, the era coming from the unit's first prerequisite tech. `--labels` writes each name, and a unit's domain, era and unit combat, in a strip under its picture. `--clip` also renders a GIF per entry.
+
+```powershell
+python LLM_Helpers/art_gallery.py "$env:TEMP/civgold_leaders" --mod "CIV Gold" --labels
+python LLM_Helpers/art_gallery.py "$env:TEMP/ri_knights" --mod "Realism Invictus" --pattern "ART_DEF_UNIT_*" --era medieval --combat mounted --labels
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_civgold_leaders.png" alt="llm_gallery_civgold_leaders.png" width="600">
+
+The first 20 of CIV Gold's 287 leaders rendered in about 9 seconds.
+
+### What the tests showed
+
+First tests (2026-11-08):
+
+- Realism Invictus's 313 leaders use 47 leaderheads, all from BtS, Warlords and the original game. Its 4303 unit art defines draw mostly on its own FPKs, such as `RI_38_Units_Russia0.FPK`.
+- History Rewritten draws 128 of its leaders from its own loose art, 177 leaderheads in all. Its Alexander shares Zara Yaqob's KFM, which names `Zara Yaqob.nif`, so the model is taken from the art XML, as the game does.
+  - Two leaderheads and 20 unit models named by its XML exist in no layer, such as `Art/Leaderheads/Wu_Zetian/Wu.kfm` and `Anasazi AT Infantry/at_infantry.nif`.
+- Realism Invictus's Apache Raiders take their model from `RI_38_Units_Minors0.FPK` and their animations from the original game's Musketman. Their musket texture is named without a folder and comes from `Art/Shared` in `RI_381_Shared4.FPK`.
+- Some paths end a folder name with a space, such as `Art/Units/Cannon Ancient Chinese /`. Windows ignores trailing spaces and dots, so names are compared without them.
+
+A survey of the 59 installed mods (2026-11-08) found more layouts, each now handled:
+
+- futuremod names other mods' art from the Beyond the Sword folder, such as `Mods/FfH Age of Ice/Assets/Art/LeaderHeads/Charadon/brennus.kfm` for its Attila. Such paths are searched last; its misses left are in The Road to War, which is not installed.
+- The Sword of Islam ships an empty `Pak1.FPK` beside its real `Pak0.FPK`, which stopped the lookup until empty archives were skipped.
+- Chronicles of Mankind closes an XML comment with `-- >`, thecowwarrior's Variety Mod spells a Fallschirmjaeger NIF with a Latin-1 character in a file declared UTF-8, and a VIP module file has two top-level elements. A strict parser rejected these files, so they are read leniently: 985 Chronicles of Mankind units were found instead of 241.
+- Sengoku's 201 and Master of Mana's 133 leaders are flat `.dds` portraits, shown as pictures.
+- CIV Gold names `NoShaderNIF` files it does not ship, such as Abu Bakr's `frederick_the_great_noshader.nif` and Akbar's `Zara Yaqob.nif.nif`. The first model file that exists is used, as the game uses the NIF with shaders on.
+- Backgrounds in the original game's older NIF format have no camera, even BtS's own `Louis_XIV_BG.nif`; the leader's NIF lends its camera.
+- Realism Invictus lists a unit's techs as `<PrereqTechs><TechType>`, so its units' eras come from the first listed tech. It also replaces the Sevopedia battlefield scene in `RI_381_Shared3.FPK`, so its units stand in RI's own scene.
+
+The game's order between two FPKs of the same folder holding the same file was not verified; they are searched in name order. `My Games/Beyond the Sword/CustomAssets` is not searched.
+
+## Preview size and detail
+
+The game draws a leaderhead again at each size it is shown, rather than stretching a small picture, so the larger views show more of its texture's detail: Cyrus, Gandhi and Grace look markedly sharper in a large full view than in the small Sevopedia panel, on the same 1080p screen.
+
+`--size` does the same here: the picture is drawn at twice the size and shrunk, and textures are filtered between texels as the game does.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_resolution_gandhi.png" alt="llm_nif_resolution_gandhi.png" width="600">
+
+Gandhi's face at `--size 300`, about a Sevopedia panel, and at `--size 1200`, about a full view on a 4K screen, cropped and shown at the same size. The larger render shows the eyebrows, skin and the thin glasses rims more sharply, in about 11 seconds against 2. Nearest-texel sampling made magnified textures blocky in such large renders, so textures are now filtered between texels.
+
+Going past `--size 1200` adds little: at 2400, Gandhi's face looks the same apart from slightly smoother glasses rims. His no-shader model has one 512 by 512 texture, all of whose texels already show at 1200. The game's sharper shader model adds a 1024 by 1024 normal map with specular and environment maps, which this renderer does not use.
+
+## Regenerating the samples
+
+The pictures in `_1_AdvCiv-SAS/Images/LLM` were rendered one at a time as the renderer improved, and some fell behind: Grace's still kept the wide eyes of a render made before the bone skinning was fixed, while her GIFs had them right.
+
+[`regenerate_art_samples.py`](/LLM_Helpers/regenerate_art_samples.py) renders every sample made by `nif_preview.py` or `art_gallery.py` again with this guide's commands, finding base-game files through this mod rather than extracted folders; run it after changing the renderer and review the pictures before committing. `--list` shows each sample's command.
+
+```powershell
+python LLM_Helpers/regenerate_art_samples.py --list
+python LLM_Helpers/regenerate_art_samples.py "*grace*"
+```
+
+A complete, successful run also records a fingerprint of the renderer's code in `LLM_Helpers/art_samples_fingerprint.json`. The [art sample freshness](/.github/workflows/README.md#builddocumentationart_samplespy) CI check fails when that code has changed since, comments aside, so a renderer fix cannot be committed with samples that predate it.
+
+Movie and audio samples come from ffmpeg, which renderer changes do not affect, and comparison pictures such as NifSkope beside a render were assembled by hand, so neither is regenerated.
 
 ## Example: Peat Works' art
 

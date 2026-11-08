@@ -72,6 +72,9 @@ Always review diffs before committing generated source changes.
   - [`gamefont_tga.py`](#gamefont_tgapy)
   - [`art_preview.py`](#art_previewpy)
   - [`fpk_tool.py`](#fpk_toolpy)
+  - [`civ4_assets.py`](#civ4_assetspy)
+  - [`art_gallery.py`](#art_gallerypy)
+  - [`regenerate_art_samples.py`](#regenerate_art_samplespy)
   - [`nif_preview.py`](#nif_previewpy)
   - [`movie_frames.py`](#movie_framespy)
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
@@ -1272,11 +1275,42 @@ python LLM_Helpers/art_preview.py art/craft/art/peatgatherer.dds Art/AdvCiv_SAS/
 python LLM_Helpers/fpk_tool.py list "../../../Assets/Art0.FPK" "*atlas*"
 ```
 
+### `civ4_assets.py`
+
+- Finds Civ4 art as the game does for a mod: its loose files, then its FPKs, then BtS's, Warlords' and the original game's; uses `fpk_tool.py` and no other dependencies.
+- `defines PATTERN` lists art defines from the mod's art XML, `locate PATH` names the layer that supplies a file, and `stage PATH` copies its folder, merged from all layers, with any textures its NIFs name from elsewhere.
+- `nif_preview.py --mod` uses it to render another mod's leaders and units by `ART_DEF_` type; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art).
+
+```bash
+python LLM_Helpers/civ4_assets.py --mod "Realism Invictus" defines "ART_DEF_UNIT_APACHE*"
+```
+
+### `art_gallery.py`
+
+- Renders a mod's leaders, units or other art defines in bulk through `nif_preview.py --mod`, keeps each as a PNG for Windows thumbnails, and lays them out on grid sheets; needs what `nif_preview.py` needs.
+- Filters units by domain, unit combat and era from the mod's XML; `--labels` writes names and those facts under each picture. See [Galleries](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#galleries).
+
+```bash
+python LLM_Helpers/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --labels
+```
+
+### `regenerate_art_samples.py`
+
+- Renders again every sample picture in `_1_AdvCiv-SAS/Images/LLM` that `nif_preview.py` or `art_gallery.py` made, with the Art Tools Guide's commands, finding base-game files through this mod as the game does; run it after renderer changes and review the pictures before committing.
+- `--list` shows each sample's command; a pattern such as `"*grace*"` renders only matching samples. Movie, audio and hand-assembled comparison pictures are not covered.
+- A complete, successful run records the renderer's code fingerprint in `art_samples_fingerprint.json`, which the [art sample freshness](/.github/workflows/README.md#builddocumentationart_samplespy) CI check compares with the current code.
+
+```bash
+python LLM_Helpers/regenerate_art_samples.py "*leaderhead*"
+```
+
 ### `nif_preview.py`
 
 - Draws a `.nif` model as a PNG close to NifSkope's view, which shows it only in its window: textured per pixel with a depth buffer, skinned meshes posed by their bones, over a floor grid; needs numpy, PyFFI, setuptools and Pillow.
 - With `--scene-camera` and `--frames N`, draws a scene such as a religion-founding movie through its own camera at N moments of its animation.
+- With `--leader-background BACKGROUND.kfm`, draws a leaderhead over its backdrop. Add a clip to sample poses with fixed framing, or use a `.gif` output to loop those samples. See the [Grace O’Malley example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
 - Pass a `.kfm` to list event codes, add `--clip EVENT` to inspect a clip, or add a PNG output path to render it. Pass a `.kf` on its own to inspect it, or use `--kf FILE` with a NIF and a PNG output path. See the [Peat Works and Llama Kamayuq examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
+- With `--mod MOD`, the asset may be an `ART_DEF_` type or an `Art/...` path from another mod, found through [`civ4_assets.py`](#civ4_assetspy).
 - Not the game's particles, effects or exact lighting; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#nif-models) for how it was built and its limits.
 
 ```bash
@@ -1286,6 +1320,7 @@ python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/
 ### `movie_frames.py`
 
 - Turns a movie (Bink `.bik`, or anything ffmpeg reads) into a sheet of evenly spaced frames, and with `--audio` its sound into a waveform picture with mean and peak loudness, since agents can see images but not watch or hear; needs ffmpeg and Pillow.
+- A `.gif` output loops the movie or an excerpt selected with `--start` and `--duration`. Set `--fps` and `--width` to control the preview size and smoothness.
 - With `--audio-only`, takes an audio file such as an MP3 or WAV and writes its waveform to the output path.
 - See the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) for the Natya Shastra example.
 

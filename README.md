@@ -85,15 +85,19 @@ The C++ file audit album records hundreds of additional bug/issue findings acros
 
 AdvCiv-SAS also adds tools that let AI/LLM agents read Civ4's own file formats, so they can check and choose art without asking the user for screenshots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md), for example how it gave Peat Works its own art.
 
+They are standalone Python 3 command-line scripts in [`LLM_Helpers/`](/LLM_Helpers/README.md#art-viewing-helpers): they read the files directly, without launching Civ4, NifSkope or any other program, and need only the Python packages numpy, PyFFI and Pillow, plus ffmpeg for movies and audio.
+
 - `.tga` game-font glyphs
 - `.dds` buttons and textures (including cells of BtS's button atlases)
 - packed `.FPK` archives
 - `.nif` models drawn as pictures close to NifSkope's view
-- `.nif` scenes and `.bik` wonder and victory movies as frame sheets
-- `.kfm` animation event lists and `.kf` clip previews, such as the Catapult's ranged strike
+- `.nif` scenes and `.bik` wonder and victory movies as frame sheets or looping GIFs
+- `.kfm` animation event lists and `.kf` clip previews, including GIFs of leader greetings, unit attacks, and animated bonuses
 - Movie audio and standalone `.mp3` or `.wav` files as waveforms with volume readings
+- Any installed mod's leaders and units by their art define name, found as the game finds them in the mod's loose files and FPKs and the base game's, so mods that mix their own and BtS art need no extraction; units appear in their Sevopedia land, sea or air scene
+- Grid sheets of a mod's leaders or units, filterable by domain, unit combat and era, to browse a mod's art at a glance
 
-See [Agent tools for Civ4 file formats](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav) below for examples and frame sheets.
+See [Agent tools for Civ4 file formats](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav) below for stills, frame sheets, and animated examples.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all handicaps) through improved AI competency rather).
 
@@ -1260,6 +1264,11 @@ For handing a discussion to another agent, convert Codex, ChatGPT, or Claude Cod
 
 AI/LLM agents can see PNG and JPG images, but none of Civ4's own formats. These helpers turn them into pictures an agent can look at, so it can check art, models and movies itself; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) explains each one, with commands, limits and how they were built.
 
+These tools were built with Claude code Opus 5.5 and Codex (GPT-6.1-Sol), taking turns; thanks to both!
+
+- Claude code Opus 5.5 started the FPK reader, the still renderer and the image, font and movie helpers, then added other mods' art, galleries, animation curves, team colour and sample regeneration.
+- Codex brought the models to life: animation clips and GIFs, leader backgrounds, Civilopedia scenes, bone skinning fixes and religion-scene particles.
+
 **`.tga` game font**: [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) enlarges the font's glyph rows and moves glyphs between slots; it put the Camel, Peat and Hit Movies glyphs into BonusInfo order.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_gamefont_tga_preview (2).PNG" alt="llm_gamefont_tga_preview (2).PNG" width="250">
@@ -1296,9 +1305,75 @@ The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_houfnice_strike.PNG" alt="llm_kf_frames_houfnice_strike.PNG" width="400">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_catapult_strike.PNG" alt="llm_kf_frames_catapult_strike.PNG" width="400">
 
+`nif_preview.py --leader-background` also renders a leaderhead over the backdrop from its art definition. Grace O’Malley uses her lakeside scene, while the original Civ IV Gandhi uses his `NoShaderNIF` over the Taj Mahal. Both portraits show the models in their rest poses. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) has both commands.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_grace.png" alt="llm_nif_leaderhead_grace.png" width="230">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_gandhi.png" alt="llm_nif_leaderhead_gandhi.png" width="230">
+
+Their clips play as in the Diplomacy screen: Gandhi joins his hands in greeting, Montezuma raises both arms, and Grace turns toward her raised hand.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_gandhi_greeting.gif" alt="llm_animation_gandhi_greeting.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_montezuma.gif" alt="llm_animation_montezuma.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_grace.gif" alt="llm_animation_grace.gif" width="180">
+
+<details>
+<summary>Animated previews of leaderheads, units, and movies</summary>
+
+The Llama Kamayuq’s run, and the Catapult and Houfnice ranged strikes, come from the models and their `.kf` clips.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_llama.gif" alt="llm_animation_llama.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_catapult.gif" alt="llm_animation_catapult.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_houfnice.gif" alt="llm_animation_houfnice.gif" width="180">
+
+The Persian Immortal uses the Heavy Spearman's idle and strike clips with its own model in the Civilopedia land scene.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_immortal_idle.gif" alt="llm_animation_immortal_idle.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_immortal.gif" alt="llm_animation_immortal.gif" width="200">
+
+Montezuma turns his head in disagreement, and Grace has her own disagreement clip beside her greeting above.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_montezuma_disagree.gif" alt="llm_animation_montezuma_disagree.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_grace_disagree.gif" alt="llm_animation_grace_disagree.gif" width="180">
+
+The Daoism and Christianity founding scenes follow their embedded `.nif` cameras and preview the candle flame and glow using the original particle textures.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_daoism.gif" alt="llm_animation_daoism.gif" width="240">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_christianity.gif" alt="llm_animation_christianity.gif" width="240">
+
+The Fish, Whale, and Pig bonuses move inside the original Civilopedia water and grass scenes. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#animated-bonuses) shows their commands and a Pig still, along with [Gandhi’s greeting and refusal](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_fish.gif" alt="llm_animation_fish.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_whale.gif" alt="llm_animation_whale.gif" width="200">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_pig.gif" alt="llm_animation_pig.gif" width="200">
+
+The Bomber uses the Civilopedia sky scene. Its one-second idle clip repeats while the preview camera completes a 36-second sweep. The Houfnice above uses the grass scene for its ranged strike.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_bomber.gif" alt="llm_animation_bomber.gif" width="280">
+
+The Natya Shastra, Great Library, and Conquest victory loops are silent excerpts from `.bik` movies. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) shows how to select and render an excerpt.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_natya_shastra.gif" alt="llm_animation_natya_shastra.gif" width="240">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_great_library.gif" alt="llm_animation_great_library.gif" width="240">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_conquest.gif" alt="llm_animation_conquest.gif" width="240">
+
+</details>
+
 `movie_frames.py --audio-only` also draws waveforms from standalone audio. This example shows both stereo channels of the SAS menu track `lofi-song-330550.mp3`.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_audio_waveform_menu_lofi.PNG" alt="llm_audio_waveform_menu_lofi.PNG" width="400">
+
+**Other mods' art**: with `--mod`, `nif_preview.py` renders another installed mod's leader or unit by its `ART_DEF_` name, through [`civ4_assets.py`](/LLM_Helpers/README.md#civ4_assetspy), which looks a file up as the game does: the mod's loose files, then its FPKs, then BtS, Warlords and the original game.
+
+History Rewritten's Alexander comes from its own loose art; Realism Invictus's Apache Raiders combine a model and a musket from two RI FPKs with the original game's Musketman animations.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_hr_alexander_greeting.gif" alt="llm_mod_hr_alexander_greeting.gif" width="180">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_ri_apache_raiders_idle.gif" alt="llm_mod_ri_apache_raiders_idle.gif" width="180">
+
+[`art_gallery.py`](/LLM_Helpers/README.md#art_gallerypy) renders a mod's leaders or units in bulk onto labelled grid sheets, here the first 20 of CIV Gold's 287 leaders in about 9 seconds. A survey of 59 installed mods found layouts such as art borrowed from another mod's folder, flat `.dds` leaders and broken XML, which the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art) lists with the commands.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_civgold_leaders.png" alt="llm_gallery_civgold_leaders.png" width="400">
+
+[`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) renders all of these samples again with the current renderer, so none falls behind its fixes, as Grace's still once kept eyes the skinning fix had corrected in her GIFs.
 
 ### Local tests
 

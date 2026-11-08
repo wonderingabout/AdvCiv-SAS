@@ -6,9 +6,10 @@
 # ffmpeg decodes Bink video and audio; it was already installed through winget on 2026-11-08.
 # See README_Art_Tools.md. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 
-# <!-- custom: argparse parses the options; glob/os/shutil find ffmpeg; re reads its loudness report; subprocess runs it; tempfile holds the frames; PIL (Pillow) builds the sheet. (Claude code Opus 5.5) -->
+# <!-- custom: argparse parses the options; glob/os/shutil find ffmpeg; math rejects a non-finite --start or --duration; re reads its loudness report; subprocess runs it; tempfile holds the frames; PIL (Pillow) builds the sheet. (Claude code Opus 5.5) -->
 import argparse
 import glob
+import math
 import os
 import re
 import shutil
@@ -48,20 +49,46 @@ def render_audio(ffmpeg, source, target):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="Turn a Civ4 movie into a contact sheet of frames and a picture of its audio.")
+	parser = argparse.ArgumentParser(description="Preview a Civ4 movie as a contact sheet, looping GIF or audio waveform.")
 	parser.add_argument("movie")
-	parser.add_argument("out", help="PNG contact sheet, or waveform with --audio-only")
+	parser.add_argument("out", help="PNG contact sheet, looping GIF, or waveform with --audio-only")
 	parser.add_argument("--frames", type=int, default=6)
 	parser.add_argument("--width", type=int, default=320, help="width of each frame")
+	parser.add_argument("--start", type=float, help="GIF start time in seconds (default: 0)")
+	parser.add_argument("--duration", type=float, help="GIF length in seconds (default: through the end)")
+	parser.add_argument("--fps", type=int, help="GIF frames per second (default: 12)")
 	audio = parser.add_mutually_exclusive_group()
 	audio.add_argument("--audio", help="also write the audio's waveform as this PNG and print its loudness")
 	audio.add_argument("--audio-only", action="store_true", help="write a waveform and print loudness without sampling video")
 	args = parser.parse_args()
+	is_gif = args.out.lower().endswith(".gif") and not args.audio_only
+	if not is_gif and any(value is not None for value in (args.start, args.duration, args.fps)):
+		parser.error("--start, --duration and --fps require GIF output")
+	if args.start is not None and (not math.isfinite(args.start) or args.start < 0):
+		parser.error("--start must be finite and nonnegative")
+	if args.duration is not None and (not math.isfinite(args.duration) or args.duration <= 0):
+		parser.error("--duration must be finite and positive")
+	if args.fps is not None and not 1 <= args.fps <= 50:
+		parser.error("--fps must be between 1 and 50")
+	if args.width < 1:
+		parser.error("--width must be positive")
 	ffmpeg = find_tool("ffmpeg")
 	if args.audio_only:
 		render_audio(ffmpeg, args.movie, args.out)
 		return
 	length = duration_of(find_tool("ffprobe"), args.movie)
+	if is_gif:
+		start = args.start or 0
+		if start >= length:
+			parser.error("--start must be before the end of the movie")
+		duration = min(args.duration or length, length - start)
+		# <!-- custom: Trim before building the palette so its colors are chosen from the excerpt itself. (GPT-6.1-Sol) -->
+		filters = "[0:v]trim=duration=%s,setpts=PTS-STARTPTS,fps=%d,scale=%d:-1:flags=lanczos,split[v][p];[p]palettegen[palette];[v][palette]paletteuse[gif]" % (duration, args.fps or 12, args.width)
+		subprocess.run([ffmpeg, "-v", "error", "-y", "-ss", str(start), "-i", args.movie, "-filter_complex", filters, "-map", "[gif]", "-loop", "0", args.out], check=True)
+		print("wrote %s: %.2f to %.2f s" % (args.out, start, start + duration))
+		if args.audio:
+			render_audio(ffmpeg, args.movie, args.audio)
+		return
 	times = [length * (k + 0.5) / args.frames for k in range(args.frames)]
 	frames = []
 	with tempfile.TemporaryDirectory() as folder:

@@ -56,5 +56,9 @@ jobs:
       - name: Known Issues update chronology
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
+      # <!-- custom: CI has no Civ4 art to render with, so compare the renderer's code with the fingerprint regenerate_art_samples.py recorded after its last full run. (Claude code Opus 5.5) -->
+      - name: Art sample freshness
+        run: python .github/workflows/build/documentation/art_samples.py
+
       - name: Generated documentation freshness
         run: python .github/workflows/build/documentation/generated_docs.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

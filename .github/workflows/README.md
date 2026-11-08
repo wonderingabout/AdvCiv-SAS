@@ -47,6 +47,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_images.py`](#builddocumentationmarkdown_imagespy)
     - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
     - [`build/documentation/long_comments.py`](#builddocumentationlong_commentspy)
+    - [`build/documentation/art_samples.py`](#builddocumentationart_samplespy)
     - [`build/documentation/generated_docs.py`](#builddocumentationgenerated_docspy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
   - [XML and rules](#xml-and-rules)
@@ -573,6 +574,18 @@ The documentation archives must also remain valid UTF-8; this prevents legacy en
 Historical changelogs, archived Git logs, generated LLM commit-diff context and helper outputs, snapshots, and workflow/test files are ignored as references: they may legitimately preserve old marker text, but they must not keep a dead current entry alive. Multiple IDs on one marker line are supported.
 
 IDs remain stable and are not renumbered when stale entries are removed.
+
+#### `build/documentation/art_samples.py`
+
+Keeps the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#regenerating-the-samples)'s rendered sample pictures in step with the renderer. They fell behind once: Grace O'Malley's still kept the wide eyes of a render made before the bone skinning was fixed, while her GIFs had them right.
+
+- CI has no Civ4 art to render with. [`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) records a fingerprint of the renderer's code in `LLM_Helpers/art_samples_fingerprint.json` after a complete, successful run, and this check fails when `nif_preview.py`, `civ4_assets.py`, `fpk_tool.py`, `art_gallery.py` or the sample list itself has changed since.
+- Comments and blank lines are left out of the fingerprint, so editing only comments does not ask for new pictures.
+- The check cannot tell whether the regenerated pictures were reviewed; look at them before committing.
+
+```bash
+python .github/workflows/build/documentation/art_samples.py
+```
 
 #### `build/documentation/generated_docs.py`
 
