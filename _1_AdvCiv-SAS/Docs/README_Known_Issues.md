@@ -16,6 +16,11 @@ Note 4: integer KI numbers form a continuous ledger:
 
 Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
 
+Note 5: despite the name, this is not only a list of defects. An entry records any issue worth knowing about and what was investigated and decided, so its title tag can say fixed, worked around, reverted, refactored, retired, rejected, clarified, pending, and so on.
+
+- The reasoning stays with the decision, so later work can see why something was done rather than only what.
+- Code comments end with `See KI#...`, so a grep for the number finds both the entry and every related part of the code.
+
 ## Menu
 
 [KI#1 - Redundant attribute values for all AI Civs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1)\
@@ -1237,7 +1242,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#1074 - (Fixed SAS migration gaps, visual only) Plot and city art rules still named the removed Winery or an RI-only layout, so Grapes Plantations, Farms and the Chieftain's Hall missed their intended art rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1074)\
 [KI#1075 - (Fixed SAS era-scaling oversight) Late-era Advanced Starts had too few points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1075)\
 [KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)\
-[KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)
+[KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)\
+[KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)\
+[KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)
 
 <a id="ki-1"></a>
 
@@ -37201,3 +37208,64 @@ Happiness was checked for the same problem and does not have it. It comes from a
 - That line (advc.059) is still lumped like the old health line was; if modmods add several happiness features, a similar breakdown would fit there.
 
 Raised by wonderingabout while testing Marsh; implemented with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1078"></a>
+
+## KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice
+
+While adding Peat (2026-11-07), two inherited mechanics did not fit what Peat needed, so each needed a decision.
+
+**Finding a bonus.** BtS can already reveal a bonus on a plot, through `iDiscoverRand` in an improvement's `BonusTypeStructs`; the Mine has 10000 for Gold, Iron and other ores. SAS did not invent this.
+
+`CvPlot::doImprovement` rolls it every turn while the plot is improved, worked and bonus-free; the Unofficial Patch (jdog5000) scales the odds by game speed, and advc.rom3 (from Afforess) checks the bonus's terrain first.
+
+That suits ore turned up slowly while a mine is worked, but not a deposit found once while clearing what lies above it: draining removes the Marsh, and Peat is only valid under Marsh.
+
+- Decision: a new optional `FeatureRemovalDiscoveries` list on BonusInfo gives a percent chance that removing a feature by a build reveals the bonus. It sits on the bonus side because FeatureInfos load before BonusInfos, so a FeatureInfo could not yet name a bonus.
+- `CvPlot::doFeatureRemovalBonusDiscovery` rolls it once in `changeBuildProgress`, before the feature is removed, so `canHaveBonus` still sees the Marsh. It uses the synchronized game RNG and is not scaled by game speed, since it happens once per plot.
+- Both rolls now place the bonus and send the "discovered new resource" message through the shared `CvPlot::discoverBonus`, so they cannot drift apart. Peat lists Marsh at 5%.
+- SASGameRecord records a found bonus as a resource change row, as it already did for Mine discoveries; the odds themselves are XML rules and are not logged.
+
+**Keeping Marsh under an improvement.** Whether a build removes a feature is set per build in its `FeatureStructs`, not per bonus. Pasture, Plantation and Peat Works are only ever built on bonuses, so dropping their Marsh entry lets them keep the Marsh, as a Camp keeps Forest.
+
+- The Farm serves both Rice and plain land, so keeping the Marsh under it would let every plain Marsh be farmed undrained. Telling the two apart would need the plot's bonus in every check of whether a build removes a feature, 47 places across the AI, help text and SGR.
+- Decision: the Farm still drains Marsh, even on Rice. That also reads naturally, since rice paddies are managed wetland, with dikes and channels that let water in and out, rather than wild marsh.
+
+**AI.** At first the AI ignored the chance: the inherited improvement valuation only adds a token point per bonus an improvement can discover, SAS land Workers choose builds in `CvUnitAI::AI_bestCityBuild` without it, and 5% looked too small to matter.
+
+That reasoning was too narrow: the chance is XML, and a mod-mod could set 50%, which is nearly as good as the yield itself. Like a player hoping to get lucky among many Marsh tiles, the AI now scales a possible find by its chance.
+
+- `CvPlot::getFeatureRemovalDiscoveryYieldTimes100` sums each bonus's chance times its yields, and the discovery roll uses the same conditions through `CvPlot::getFeatureRemovalDiscoverPercent`.
+- Each AI weighs a find with the same yield weights as the plot's own yields, so at a high chance it counts nearly like a yield already there: the Worker AI in its value for clearing a feature, and the city-site AI through `evaluateYield`.
+  - A first city-site draft used the small 10-per-yield scale that only corrects a removable feature's own yield change, so even a likely find would barely have counted.
+- Both use only what the team can know, the bonus it sees and the bonus's placement rules, so hidden bonuses are not revealed to the AI.
+- BBAI logs each roll as `WORKER_FEATURE_REMOVAL_DISCOVERY` (Worker level 2, found or not) and the Worker's added value as `WORKER_FEATURE_REMOVAL_DISCOVERY_VALUE` (level 3, once per player, plot and turn); the city-site value is a `featureDiscoveryValue` field in the existing found-value `PLOT` row (level 3).
+- SASGameRecord counts finds per player and turn as `featureRemovalFinds` in `GAME_RECORD_WORKER_BUILDS_COMPLETED`, as compact AI evidence beside the resource change row of each find.
+- The same reasoning applies wherever the AI values land a find could change, not only where it acts on the plot. A later bonus with high yields, a 100% chance and many plots would make such land a real prize, so two more AI values now count it:
+  - Tech value: the tech that unlocks removing a feature, such as The Wheel for Marsh, adds each owned plot's chance times `AI_bonusVal` of the bonus, logged as `AI_TECH_FEATURE_REMOVAL_DISCOVERY` (player level 3).
+  - City value: `CvPlayerAI::AI_assetVal`, which war targets (UWAI's conquest asset score) and city trades both use, adds each plot's chance times the value it already gives a plot with a bonus, logged as `AI_ASSET_FEATURE_REMOVAL_DISCOVERY` (player level 3, once per player, city and turn).
+  - `AI_bonusVal` itself is unchanged: it values a bonus a player has or could trade, and a found bonus then gets its ordinary value.
+  - SASGameRecord gets no new rows: these are scoring details for BBAI, while SGR already records each find and the decisions they feed.
+- A cached `CvPlot::isFeatureRemovalDiscoveryFeature` lets these per-plot checks skip features that list no find, such as Forest and Jungle, before looping over every bonus.
+- The inherited per-turn `iDiscoverRand` roll, such as a Mine finding Gold, is still valued only by its token point; a mod-mod with high per-turn odds would make that worth revisiting.
+
+Not yet tested in game at the time of writing. Raised by wonderingabout while designing Peat; investigated and implemented with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1079"></a>
+
+## KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed
+
+While adding Peat to Mining Inc as its 6th input (2026-11-07), the Sevopedia's Mining Inc headquarters page still showed only 5 inputs.
+
+BtS stored each corporation's `PrereqBonuses` in a fixed array of `NUM_CORPORATION_PREREQ_BONUSES` slots, set to 5 in BtS's `GlobalDefines.xml`. AdvCiv's advc.003t changed it to a list without a size limit, so the game itself uses every listed input, but two places still follow the define:
+
+- Python reads inputs through `getPrereqBonus(i)` for `i` below `getNUM_CORPORATION_PREREQ_BONUSES()`, so the Sevopedia's corporation and headquarters pages, and the bonus page's corporation buttons, drop a 6th input.
+- `CvCorporationInfo::read` asserts that a corporation lists no more inputs than the define, so debug builds stop while loading the XML.
+
+The limit is a storage relic rather than a balance rule, but the inputs are still a balance matter, since a corporation's output grows with the inputs a city has, and we don't have that many bonuses anyway as of now so maybe fine.
+
+- Decision: Peat went to Aluminum Co instead, which had only Coal and burns it like Peat as power for its smelters.
+- The [`corporation_prereq_bonuses.py`](/.github/workflows/README.md#buildxmlcorporation_prereq_bonusespy) CI check fails when a corporation lists more inputs than the define, or one input twice, so the mismatch cannot return unnoticed.
+- A possible extension would be overriding the define in `GlobalDefines_advciv_sas.xml`, which the CI check already reads; whether a mod's GlobalDefines can override this BtS define was not tested.
+
+Raised by wonderingabout while reviewing Peat in the Sevopedia; investigated with the help of Claude code Opus 5.5, thanks.

@@ -1041,6 +1041,77 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_PEAT_WORKS -->
+			<!-- custom: New improvement for Peat: cut, dried and carted turf.
+			Only Peat makes it valid, and its build has no Marsh entry, so like a Camp in a Forest it keeps the Marsh.
+			Working the deposit is what yields food (peat as a growing medium and soil improver), so Peat Works adds food and production on top of the bonus's own production. (Claude code Opus 5.5) -->
+			<Type>IMPROVEMENT_PEAT_WORKS</Type>
+			<Description>TXT_KEY_IMPROVEMENT_PEAT_WORKS</Description>
+			<Civilopedia>TXT_KEY_IMPROVEMENT_PEAT_WORKS_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_PEAT_WORKS</ArtDefineTag>
+			<bActsAsCity>0</bActsAsCity>
+			<bHillsMakesValid>0</bHillsMakesValid>
+			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
+			<bRiverSideMakesValid>0</bRiverSideMakesValid>
+			<bNoFreshWater>0</bNoFreshWater>
+			<bRequiresFlatlands>0</bRequiresFlatlands>
+			<bRequiresRiverSide>0</bRequiresRiverSide>
+			<bRequiresIrrigation>0</bRequiresIrrigation>
+			<bCarriesIrrigation>0</bCarriesIrrigation>
+			<bRequiresFeature>0</bRequiresFeature>
+			<bWater>0</bWater>
+			<bGoody>0</bGoody>
+			<bPermanent>0</bPermanent>
+			<iAdvancedStartCost>36</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<iTilesPerGoody>0</iTilesPerGoody>
+			<iGoodyRange>0</iGoodyRange>
+			<iFeatureGrowth>0</iFeatureGrowth>
+			<iUpgradeTime>0</iUpgradeTime>
+			<iAirBombDefense>10</iAirBombDefense>
+			<iDefenseModifier>0</iDefenseModifier>
+			<iHappiness>0</iHappiness>
+			<iPillageGold>5</iPillageGold>
+			<bOutsideBorders>0</bOutsideBorders>
+			<TerrainMakesValids/>
+			<FeatureMakesValids/>
+			<BonusTypeStructs>
+				<BonusTypeStruct>
+					<BonusType>BONUS_PEAT</BonusType>
+					<bBonusMakesValid>1</bBonusMakesValid>
+					<bBonusTrade>1</bBonusTrade>
+					<iDiscoverRand>0</iDiscoverRand>
+					<YieldChanges>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+					</YieldChanges>
+				</BonusTypeStruct>
+			</BonusTypeStructs>
+			<ImprovementPillage/>
+			<ImprovementUpgrade/>
+			<!-- custom: Later technologies change what Peat is used for rather than adding more of the same: Environmentalism values careful, higher-value uses over bulk fuel (commerce), and Bioengineering its horticultural use as a growing medium (food). (Claude code Opus 5.5) -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+						<iYield>1</iYield>
+					</TechYields>
+				</TechYieldChange>
+				<TechYieldChange>
+					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+					<TechYields>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
+			<RouteYieldChanges/>
+			<bGraphicalOnly>0</bGraphicalOnly>
+		</ImprovementInfo>
 		<ImprovementInfo> <!-- custom: IMPROVEMENT_PASTURE -->
 			<Type>IMPROVEMENT_PASTURE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_PASTURE</Description>

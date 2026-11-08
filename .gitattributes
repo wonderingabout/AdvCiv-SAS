@@ -84,6 +84,9 @@
 /_1_AdvCiv-SAS/Docs/examples/sasgamerecord/**  export-ignore
 /_1_AdvCiv-SAS/Docs/examples/source_comparison    export-ignore
 /_1_AdvCiv-SAS/Docs/examples/source_comparison/**  export-ignore
+# <!-- custom: The fpk_tool.py example holds a file extracted from Assets/BML.fpk, which players already have inside that archive. (Claude code Opus 5.5) -->
+/_1_AdvCiv-SAS/Docs/examples/fpk    export-ignore
+/_1_AdvCiv-SAS/Docs/examples/fpk/**  export-ignore
 
 # <!-- custom: Local platform-specific harnesses are development tools, not gameplay/release content; keep them in Git and the dedicated light-source ZIP. (GPT-6.1-Sol) -->
 /tests/    export-ignore

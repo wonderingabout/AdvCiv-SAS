@@ -1424,6 +1424,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<English>Nothing</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILDING_PROJECT_CORPORATION</Tag>
+		<English>Buildings, Projects and Corporations</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS</Tag>
 		<English>Always</English>
 	</TEXT>
@@ -2299,6 +2303,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BONUS_CAMEL</Tag>
 		<English>Camel</English>
 	</TEXT>
+	<!-- custom: Peat, a new bonus on Marsh, and its Peat Works. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_PEAT</Tag>
+		<English>Peat</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_IMPROVEMENT_PEAT_WORKS</Tag>
+		<English>Peat Works</English>
+	</TEXT>
 
 
 	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. -->
@@ -2385,6 +2398,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_DRAIN_MARSH_HELP</Tag>
 		<English>[TAB]Order a worker-type unit to drain marsh from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PEAT_WORKS</Tag>
+		<English>Build [LINK=IMPROVEMENT_PEAT_WORKS]Peat Works[\LINK]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PEAT_WORKS_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to build peat works on the selected tile.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Tag>

@@ -954,9 +954,10 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	</Define>
 	<!-- custom: Share of the FeatureGenerator's Marsh fractal that receives Marsh, as a percentage; unlike SAS_MAPGEN_STANDARD_FOREST_PCT, higher values mean more Marsh.
 	Only flat Grassland without Jungle is eligible, so this is roughly the share of such plots that become Marsh. (Claude code Opus 5.5) -->
+	<!-- custom: was 30; Marsh covered too much flat Grassland in test games, so about 17% less. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_MAPGEN_STANDARD_MARSH_PCT</DefineName>
-		<iDefineIntVal>30</iDefineIntVal>
+		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
 	<!-- custom: Base Marsh grain; higher values produce smaller Marsh patches.
 	WorldInfo FeatureGrainChange is added afterward, as for Jungle and Forest. (Claude code Opus 5.5) -->
@@ -2393,7 +2394,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<!-- custom: Bonus-map symbols in this order: bonus-free water, bonus-free land, every BonusInfo loaded by the mod, then multiple different bonus types within one resampled cell. Defaults use unique, case-sensitive mnemonics where possible (e.g. I=Iron, H=Horse, S=Silver, s=Silk); the generated legend remains authoritative and records every runtime ID/type. Bonuses are sparse, so one type overrides surrounding empty plots; + marks a collision rather than hiding one type arbitrarily. Exact setup coordinates and later bonus-change rows preserve every identity/location. The number of symbols must exactly match the runtime bonus count plus three. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_MAP_ASCII_BONUS_SYMBOLS</DefineName>
-		<DefineTextVal>SPACE,.,A,C,c,H,I,M,O,T,U,B,L,Z,t,R,D,F,P,r,h,W,Y,f,J,G,N,E,s,S,z,u,g,w,d,m,a,+</DefineTextVal>
+		<DefineTextVal>SPACE,.,A,C,c,H,I,M,O,T,U,B,L,Z,t,R,D,F,P,r,h,W,Y,f,J,G,N,E,s,S,z,u,g,w,a,p,m,+</DefineTextVal>
 	</Define>
 	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory.
 	Keep this layer purely political: Coast or ice overriding a player symbol would hide owned water, while showing them only on unowned plots would make physical geography inconsistent as borders expand.
@@ -2489,7 +2490,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>191</iDefineIntVal>
+		<iDefineIntVal>192</iDefineIntVal>
 	</Define>
 
 

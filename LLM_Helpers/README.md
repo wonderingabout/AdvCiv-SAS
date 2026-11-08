@@ -68,6 +68,12 @@ Always review diffs before committing generated source changes.
 - [Markdown documentation cleanup helpers](#markdown-documentation-cleanup-helpers)
   - [`reflow_markdown_prose.py`](#reflow_markdown_prosepy)
 - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
+- [Art viewing helpers](#art-viewing-helpers)
+  - [`gamefont_tga.py`](#gamefont_tgapy)
+  - [`art_preview.py`](#art_previewpy)
+  - [`fpk_tool.py`](#fpk_toolpy)
+  - [`nif_preview.py`](#nif_previewpy)
+  - [`movie_frames.py`](#movie_framespy)
 - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
 - [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper)
@@ -1234,6 +1240,59 @@ The newer workflow scripts are stricter and more conservative: they check review
 
 In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
 
+## Art viewing helpers
+
+### `gamefont_tga.py`
+
+- Views and rearranges glyphs in Civ4's `GameFont.tga` / `GameFont_75.tga` with only Python 3's standard library, since agents' image readers cannot open `.tga` files and Pillow is not installed.
+- `preview` writes a region, enlarged, as a PNG the image reader can open; `grid` lists the magenta grid lines, to find row tops and the column pitch; `move` copies glyph cells between slots, or from another font of the same size.
+- Handles only the uncompressed 32-bit TGAs that Game Font Editor writes, and fails on anything else.
+- The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#game-font-glyphs) explains the grid, the commands and the 2026-11-08 example that moved the Camel, Peat and Hit Movies glyphs into BonusInfo order.
+
+```bash
+python LLM_Helpers/gamefont_tga.py preview Assets/Res/Fonts/GameFont.tga bonus_rows.png --box 0 175 560 222 --zoom 3
+```
+
+### `art_preview.py`
+
+- Puts Civ4 art (`.dds`, `.tga`, `.png`) side by side in one labelled PNG that an agent's image reader can open; needs Pillow.
+- Takes file paths or XML `<Button>` strings, and searches case-insensitively like the game: the mod, then BtS, Warlords and the original game (loose, then packed), then the extracted Caveman2Cosmos, History Rewritten and Realism Invictus folders; `--root` and `--fpk` add others.
+- For an atlas string it uses the standalone file if found, else cuts the 64-pixel cell (column and row counted from 1) out of the atlas, reading BtS's packed `.FPK` archives through `fpk_tool.py`. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) shows how it chose Peat Works' button.
+
+```bash
+python LLM_Helpers/art_preview.py art/craft/art/peatgatherer.dds Art/AdvCiv_SAS/Bonuses/Peat/Peat_button.dds --out compare.png
+```
+
+### `fpk_tool.py`
+
+- Lists and extracts files from Civ4's packed `.FPK` archives, which PakBuild and Dragon UnPACKer open only through their windows; no dependencies.
+- Checked on BtS's `Art0.FPK` and the Final Frontier `STArt3.FPK`; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#packed-fpk-archives) describes the format.
+
+```bash
+python LLM_Helpers/fpk_tool.py list "../../../Assets/Art0.FPK" "*atlas*"
+```
+
+### `nif_preview.py`
+
+- Draws a `.nif` model as a PNG close to NifSkope's view, which shows it only in its window: textured per pixel with a depth buffer, skinned meshes posed by their bones, over a floor grid; needs numpy, PyFFI, setuptools and Pillow.
+- With `--scene-camera` and `--frames N`, draws a scene such as a religion-founding movie through its own camera at N moments of its animation.
+- Pass a `.kfm` to list event codes, add `--clip EVENT` to inspect a clip, or add a PNG output path to render it. Pass a `.kf` on its own to inspect it, or use `--kf FILE` with a NIF and a PNG output path. See the [Peat Works and Llama Kamayuq examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
+- Not the game's particles, effects or exact lighting; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#nif-models) for how it was built and its limits.
+
+```bash
+python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp_fx.nif peat_works.png
+```
+
+### `movie_frames.py`
+
+- Turns a movie (Bink `.bik`, or anything ffmpeg reads) into a sheet of evenly spaced frames, and with `--audio` its sound into a waveform picture with mean and peak loudness, since agents can see images but not watch or hear; needs ffmpeg and Pillow.
+- With `--audio-only`, takes an audio file such as an MP3 or WAV and writes its waveform to the output path.
+- See the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) for the Natya Shastra example.
+
+```bash
+python LLM_Helpers/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik natya.png --audio natya_audio.png
+```
+
 ## AdvCiv manual text conversion helper
 
 ### `convert_advciv_manual_to_txt.py`
@@ -1280,7 +1339,7 @@ python ./LLM_Helpers/openai_chat_export_to_txt.py codex rollout.jsonl --output c
 python ./LLM_Helpers/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
 ```
 
-The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/llm_chat_exports/`.
+The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/`.
 
 Both helpers read the folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py). Set `LLM_CHAT_EXPORT_DIR` to change the shared default or pass `--output` for one export. Use a dated filename to keep another snapshot of the same chat. Both helpers refuse to overwrite an existing file.
 

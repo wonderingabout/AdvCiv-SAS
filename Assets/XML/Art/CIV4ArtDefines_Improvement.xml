@@ -138,6 +138,17 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<KFM>Art/Structures/Improvements/Quarry/Quarry.kfm</KFM>
 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
 		</ImprovementArtInfo>
+		<!-- custom: Imported from Caveman2Cosmos, thanks: the model and scale of its ART_DEF_IMPROVEMENT_PEAT_CUTTER (a gatherers' camp, whose textures load by name from the same folder) and its peat gatherer building's button of cut peat blocks.
+		The first version reused Quarry's model and button as placeholders, so Peat Works and Quarry looked the same in the Sevopedia. (Claude code Opus 5.5) -->
+		<ImprovementArtInfo>
+			<Type>ART_DEF_IMPROVEMENT_PEAT_WORKS</Type>
+			<bExtraAnimations>0</bExtraAnimations>
+			<fScale>0.6</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp_fx.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp.kfm</KFM>
+			<Button>Art/AdvCiv_SAS/Improvements/Peat_Works/Peat_Works_button.dds</Button>
+		</ImprovementArtInfo>
 		<ImprovementArtInfo>
 			<Type>ART_DEF_IMPROVEMENT_PASTURE</Type>
 			<bExtraAnimations>0</bExtraAnimations>

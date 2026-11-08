@@ -443,15 +443,8 @@ void CvPlot::doImprovement()
 			iOdds /= 100;
 			if (SyncRandOneChanceIn(iOdds))
 			{	// UNOFFICIAL_PATCH: END
-				setBonusType(eLoopBonus);
-				CvCity* pCity = GC.getMap().findCity(getX(), getY(), kOwner.getID(), NO_TEAM, false);
-				if (pCity != NULL)
-				{
-					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE",
-							GC.getInfo(eLoopBonus).getTextKeyWide(), pCity->getNameKey());
-					gDLL->UI().addMessage(kOwner.getID(), false, -1, szBuffer, *this,
-							"AS2D_DISCOVERBONUS", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(eLoopBonus).getButton());
-				}
+				// <!-- custom: Moved the bonus placement and message into discoverBonus, which the feature-removal roll shares. (Claude code Opus 5.5) -->
+				discoverBonus(eLoopBonus, kOwner.getID());
 				break;
 			}
 		}
@@ -479,6 +472,97 @@ void CvPlot::doImprovement()
 			if (bLogPlotChange) recordSASGameRecordPlotChange(*this, kOldState, "improvementUpgrades", "IMPROVEMENT_UPGRADE", true);
 		}
 	}
+}
+
+// <!-- custom: Extracted from doImprovement's discovery branch unchanged, so the feature-removal roll reports a find the same way. (Claude code Opus 5.5) -->
+void CvPlot::discoverBonus(BonusTypes eBonus, PlayerTypes eDiscoverer)
+{
+	setBonusType(eBonus);
+	CvCity* pCity = GC.getMap().findCity(getX(), getY(), eDiscoverer, NO_TEAM, false);
+	if (pCity != NULL)
+	{
+		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE",
+				GC.getInfo(eBonus).getTextKeyWide(), pCity->getNameKey());
+		gDLL->UI().addMessage(eDiscoverer, false, -1, szBuffer, *this,
+				"AS2D_DISCOVERBONUS", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(eBonus).getButton());
+	}
+}
+
+// <!-- custom: Peat forms only under Marsh, but the BtS roll in doImprovement needs an improvement on the plot and repeats every turn, which suits ore found while mining, not a deposit uncovered once while draining.
+// Roll once here, while the feature is still present, so canHaveBonus checks the bonus's FeatureBooleans; the bonus then stays after the feature is removed.
+// Unlike doImprovement's roll this one-time chance is not scaled by game speed. See KI#1078. (Claude code Opus 5.5) -->
+void CvPlot::doFeatureRemovalBonusDiscovery(PlayerTypes eDiscoverer)
+{
+	// <!-- custom: Check the plot's real bonus here, not only the one eDiscoverer sees, so a hidden bonus is never overwritten. (Claude code Opus 5.5) -->
+	if (!isFeatureRemovalDiscoveryFeature(getFeatureType()) || getBonusType() != NO_BONUS)
+		return;
+	TeamTypes const eTeam = TEAMID(eDiscoverer);
+	FOR_EACH_ENUM(Bonus)
+	{
+		int const iPercent = getFeatureRemovalDiscoverPercent(eLoopBonus, eTeam);
+		if (iPercent <= 0)
+			continue;
+		bool const bFound = SyncRandSuccess100(iPercent);
+		// <!-- custom: One row per roll, found or not, so autoplay can compare actual finds with the chance; feature removals are few enough for level 2. See KI#1078. (Claude code Opus 5.5) -->
+		if (gWorkerLogLevel >= 2) logBBAI("WORKER_FEATURE_REMOVAL_DISCOVERY turn=%d player=%d civ=%s plot=(%d,%d) feature=%s bonus=%s percent=%d found=%d",
+			GC.getGame().getGameTurn(), eDiscoverer, GC.getInfo(GET_PLAYER(eDiscoverer).getCivilizationType()).getType(), getX(), getY(),
+			GC.getInfo(getFeatureType()).getType(), GC.getInfo(eLoopBonus).getType(), iPercent, bFound);
+		if (bFound)
+		{
+			discoverBonus(eLoopBonus, eDiscoverer);
+			break;
+		}
+	}
+}
+
+// <!-- custom: Uses only what eTeam can know, the bonus it sees and the bonus's own placement rules, so the AI weighing this chance learns nothing about hidden bonuses. See KI#1078. (Claude code Opus 5.5) -->
+int CvPlot::getFeatureRemovalDiscoverPercent(BonusTypes eBonus, TeamTypes eTeam) const
+{
+	FeatureTypes const eFeature = getFeatureType();
+	if (eFeature == NO_FEATURE || getBonusType(eTeam) != NO_BONUS)
+		return 0;
+	int const iPercent = GC.getInfo(eBonus).getFeatureRemovalDiscoverPercent(eFeature);
+	if (iPercent <= 0 || !GET_TEAM(eTeam).canDiscoverBonus(eBonus) || !canHaveBonus(eBonus, false, false, true))
+		return 0;
+	return iPercent;
+}
+
+// <!-- custom: A small chance today could be large in a mod-mod, so the AI scales the find by its chance instead of ignoring it. (Claude code Opus 5.5) -->
+int CvPlot::getFeatureRemovalDiscoveryYieldTimes100(YieldTypes eYield, TeamTypes eTeam) const
+{
+	if (!isFeatureRemovalDiscoveryFeature(getFeatureType()))
+		return 0;
+	int iYieldTimes100 = 0;
+	FOR_EACH_ENUM(Bonus)
+	{
+		int const iPercent = getFeatureRemovalDiscoverPercent(eLoopBonus, eTeam);
+		if (iPercent > 0)
+			iYieldTimes100 += iPercent * GC.getInfo(eLoopBonus).getYieldChange(eYield);
+	}
+	return iYieldTimes100;
+}
+
+// <!-- custom: Cached on first use, as the XML loads once per process.
+// Most features, such as Forest and Jungle, list no find, and the Settler, Worker, tech and city valuations would otherwise check every bonus on each such plot. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+bool CvPlot::isFeatureRemovalDiscoveryFeature(FeatureTypes eFeature)
+{
+	static std::vector<bool> abFeature;
+	if (abFeature.empty())
+	{
+		abFeature.resize(GC.getNumFeatureInfos(), false);
+		FOR_EACH_ENUM(Feature)
+		{
+			FOR_EACH_ENUM(Bonus)
+			{
+				if (GC.getInfo(eLoopBonus).getFeatureRemovalDiscoverPercent(eLoopFeature) > 0)
+				{
+					abFeature[eLoopFeature] = true;
+					break;
+				}
+			}
+		}
+	}
+	return (eFeature != NO_FEATURE && abFeature[eFeature]);
 }
 
 /*	advc (caveat): When this function is called in a loop for a range of plots,
@@ -6836,6 +6920,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 		// Python Event
 		CvEventReporter::getInstance().plotFeatureRemoved(this, getFeatureType(), pCity);
 
+		// <!-- custom: Before the feature goes, so the roll can require the feature, as Peat requires Marsh. See KI#1078. (Claude code Opus 5.5) -->
+		doFeatureRemovalBonusDiscovery(ePlayer);
 		setFeatureType(NO_FEATURE);
 	}
 	// <!-- custom: Completed worker builds can change an improvement, route and feature together.

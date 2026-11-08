@@ -3985,6 +3985,7 @@ struct SASGameRecordWorkerBuildTurn
 	int iDirectReversalsWithin5TurnsObserved;
 	int iRouteChanges;
 	int iFeatureRemovals;
+	int iFeatureRemovalFinds; // <!-- custom: bonuses uncovered as a build removed the feature. See KI#1078. (Claude code Opus 5.5) -->
 	int iBFC;
 	int iOutsideBFC;
 	int iBonus;
@@ -4014,6 +4015,7 @@ struct SASGameRecordWorkerBuildTurn
 		iDirectReversalsWithin5TurnsObserved = 0;
 		iRouteChanges = 0;
 		iFeatureRemovals = 0;
+		iFeatureRemovalFinds = 0;
 		iBFC = 0;
 		iOutsideBFC = 0;
 		iBonus = 0;
@@ -4890,7 +4892,7 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 			szItem.Format(szImprovementTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", getSASGameRecordImprovementType(kTransition.eOldImprovement), getSASGameRecordImprovementType(kTransition.eNewImprovement), kTransition.iCount);
 			szImprovementTransitions += szItem;
 		}
-		logSASGameRecord("GAME_RECORD_WORKER_BUILDS_COMPLETED turn=%d player=%d completed=%d improvementChanges=%d newImprovements=%d improvementRemovals=%d improvementReplacements=%d workedImprovementReplacements=%d unworkedImprovementReplacements=%d directReversalsObserved=%d directReversalsWithin5TurnsObserved=%d routeChanges=%d featureRemovals=%d bfc=%d outsideBFC=%d bonus=%d bonusImprovementResults=%d irrigationCarrierResults=%d irrigatedCarrierResults=%d dryCarrierResults=%d irrigationCarrierReplacements=%d irrigationCarrierLosses=%d growthChainResults=%d growthChainReplacements=%d builds=%s improvementTransitions=%s featuresRemoved=%s",
+		logSASGameRecord("GAME_RECORD_WORKER_BUILDS_COMPLETED turn=%d player=%d completed=%d improvementChanges=%d newImprovements=%d improvementRemovals=%d improvementReplacements=%d workedImprovementReplacements=%d unworkedImprovementReplacements=%d directReversalsObserved=%d directReversalsWithin5TurnsObserved=%d routeChanges=%d featureRemovals=%d bfc=%d outsideBFC=%d bonus=%d bonusImprovementResults=%d irrigationCarrierResults=%d irrigatedCarrierResults=%d dryCarrierResults=%d irrigationCarrierReplacements=%d irrigationCarrierLosses=%d growthChainResults=%d growthChainReplacements=%d builds=%s improvementTransitions=%s featuresRemoved=%s featureRemovalFinds=%d",
 			iLoggedTurn, iPlayer, kWorkerBuild.iCompleted, kWorkerBuild.iImprovementChanges, kWorkerBuild.iNewImprovements, kWorkerBuild.iImprovementRemovals,
 			kWorkerBuild.iImprovementReplacements, kWorkerBuild.iWorkedImprovementReplacements, kWorkerBuild.iUnworkedImprovementReplacements,
 			kWorkerBuild.iDirectReversalsObserved, kWorkerBuild.iDirectReversalsWithin5TurnsObserved,
@@ -4899,7 +4901,7 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 			kWorkerBuild.iIrrigationCarrierResults, kWorkerBuild.iIrrigatedCarrierResults, kWorkerBuild.iDryCarrierResults,
 			kWorkerBuild.iIrrigationCarrierReplacements, kWorkerBuild.iIrrigationCarrierLosses,
 			kWorkerBuild.iGrowthChainResults, kWorkerBuild.iGrowthChainReplacements,
-			getSASDiagnosticOrDash(szBuilds).GetCString(), getSASDiagnosticOrDash(szImprovementTransitions).GetCString(), getSASDiagnosticOrDash(szFeaturesRemoved).GetCString());
+			getSASDiagnosticOrDash(szBuilds).GetCString(), getSASDiagnosticOrDash(szImprovementTransitions).GetCString(), getSASDiagnosticOrDash(szFeaturesRemoved).GetCString(), kWorkerBuild.iFeatureRemovalFinds);
 		kWorkerBuild.reset();
 	}
 	std::vector<CvString> aszPlotChunks;
@@ -5119,6 +5121,9 @@ void recordSASGameRecordWorkerBuild(CvPlot const& kPlot, SASGameRecordPlotState 
 	{
 		kWorkerBuild.iFeatureRemovals++;
 		kWorkerBuild.aiFeaturesRemoved[kOldState.eFeature]++;
+		// <!-- custom: A count is enough as compact AI evidence; the found bonus itself already has its own resource change row. See KI#1078. (Claude code Opus 5.5) -->
+		if (kOldState.eBonus == NO_BONUS && kPlot.getBonusType() != NO_BONUS)
+			kWorkerBuild.iFeatureRemovalFinds++;
 	}
 	bool const bOldCarrier = (kOldState.eImprovement != NO_IMPROVEMENT && GC.getInfo(kOldState.eImprovement).isCarriesIrrigation());
 	bool const bNewCarrier = (eNewImprovement != NO_IMPROVEMENT && GC.getInfo(eNewImprovement).isCarriesIrrigation());
@@ -5177,6 +5182,7 @@ void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshol
 		GC.getGame().calculateGwSeverityRating(), iIndexEnd > 0);
 }
 
+// <!-- custom: Records the bonus that appeared, not the odds behind it: discovery chances such as a Mine's iDiscoverRand or a bonus's FeatureRemovalDiscoveries are XML rules that seldom change and can be read in review. See KI#1078. (Claude code Opus 5.5) -->
 void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
 {
 	if (pPlot == NULL || eOldBonus == eNewBonus)

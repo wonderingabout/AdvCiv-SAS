@@ -9,7 +9,7 @@ import re
 
 
 configured_dir = os.environ.get("LLM_CHAT_EXPORT_DIR")
-DEFAULT_EXPORT_DIR = Path(configured_dir).expanduser() if configured_dir else Path.home() / "Downloads" / "llm_chat_exports"
+DEFAULT_EXPORT_DIR = Path(configured_dir).expanduser() if configured_dir else Path.home() / "Downloads" / "AdvCiv-SAS_LLM" / "llm_chat_exports"
 
 # <!-- custom: Shared input locations too, so agents need not rediscover them: Claude Code keeps each session as <session-id>.jsonl under a per-project folder, which CLAUDE_CONFIG_DIR can relocate. (Claude code Opus 5.5) -->
 REPO_ROOT = Path(__file__).resolve().parents[1]

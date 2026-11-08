@@ -113,27 +113,36 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 191 - SAS practical 6732
+### Revision 192 - SAS practical 6733
 
 - **Date:** 2026-11-07
 - **Git commit:** pending
-- **Change:** `SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS` gains `m` for the new `FEATURE_MARSH`, appended after Fallout's `X` because the palette follows FeatureInfo order.
-- **Why:** the feature map needs one symbol per loaded FeatureInfo, and the palette count check fails loudly when one is missing; the legend and the existing composition rows enumerate features dynamically.
-- **Change:** new `GAME_RECORD_LANDMASS_COVER` rows, one per landmass, terrain, plot type and feature present, featureless plots included, with `plots`, `percentOfLandmassX100`, `terrainPlotTypePlots` and `percentOfTerrainPlotTypeX100`. The composition legend names their denominators.
-- **Why:** `GAME_RECORD_LANDMASS_COMPOSITION` gives terrain and feature shares of the whole landmass separately, so a feature's share of the land it can occur on could not be derived. On the first Pangaea with Marsh, the composition row gave Marsh 0.99% of land, but not its share of flat Grassland, which is what its placement rate targets.
+- **Change:** Record the new Peat bonus and its finds when a Marsh is drained (see [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)).
+  - `SAS_SGR_MAP_ASCII_BONUS_SYMBOLS` replaces `d` with `p` for `BONUS_PEAT`, placed after Camel's `a`; the remaining disabled Hit bonus, Hit Movies (`BONUS_MOVIES`), keeps `m` and comes last, matching the new BonusInfo order.
+    - The bonus map needs one symbol per loaded BonusInfo in BonusInfo order, and `p` pairs with `P` for Pig, as `s` pairs with `S` for Silk and Silver.
+  - `GAME_RECORD_WORKER_BUILDS_COMPLETED` gains `featureRemovalFinds`, the number of bonuses uncovered as that turn's completed builds removed a feature, as compact evidence of how often the AI's drains pay off. Each find also keeps its own resource change row, since the legend and resource rows enumerate bonuses dynamically.
+  - A comment at `logSASGameRecordBonusChanged` explains that SGR records the bonus that appeared, not the chance behind it: like a Mine's `iDiscoverRand`, the chance is an XML rule that seldom changes, while the find itself is the useful fact.
+
+### Revision 191 - SAS practical 6732
+
+- **Date:** 2026-11-07
+- **Git commit:** `15395ec778c8c79b23b48ad0aa090bdcd4206eff`
+- **Change:** Record the new Marsh feature and how much of its possible land it covers.
+  - `SAS_SGR_MAP_ASCII_FEATURE_SYMBOLS` gains `m` for `FEATURE_MARSH`, appended after Fallout's `X` because the palette follows FeatureInfo order. The feature map needs one symbol per loaded FeatureInfo, and the palette count check fails loudly when one is missing; the legend and the existing composition rows enumerate features dynamically.
+  - New `GAME_RECORD_LANDMASS_COVER` rows, one per landmass, terrain, plot type and feature present, featureless plots included, with `plots`, `percentOfLandmassX100`, `terrainPlotTypePlots` and `percentOfTerrainPlotTypeX100`; the composition legend names their denominators.
+  - `GAME_RECORD_LANDMASS_COMPOSITION` gives terrain and feature shares of the whole landmass separately, so a feature's share of the land it can occur on could not be derived. On the first Pangaea with Marsh, the composition row gave Marsh 0.99% of land, but not its share of flat Grassland, which is what its placement rate targets.
 
 ### Revision 190 - SAS practical 6715
 
 - **Date:** 2026-11-03
 - **Git commit:** `200f260ba09fcb89e02ced33faa0f3282307dab6`
-- **Change:** AI upgrade rows are split into three fixed row types without losing information.
+- **Change:** AI upgrade rows are split into three fixed row types without losing information, because in a full level-3 autoplay record (2026-11-03), upgrade rows took 25.2 of 125.7 MB and 35,351 of their 39,452 rows were refusals. Every refusal repeated the pass-constant fields (6.3 MB) and nine always-empty selection fields (5.1 MB); all 35,351 had those nine fields empty.
   - `GAME_RECORD_AI_UPGRADE_PASS` is new: one row per player and upgrade pass with the pass-constant state (`focusWar`, `financialTrouble`, `startingGold`, `upgradeBudget`, `goldBefore`/`goldAfter`) and per-result counts over every evaluated unit, including interval-sampled refusals. It is written only when the pass logged a unit row.
   - `GAME_RECORD_AI_UPGRADE_SKIP` is new for the routine refusals (`NOT_READY`, `NO_BETTER_VALUE`, `ELIGIBILITY_BLOCKED`): unit identity, `result`, `pass`, `noDisband`, `maxUpgradePrice`, `ready`, `currentValue` and the evaluation counts. A refusal's gold is the pass row's `goldBefore` minus earlier `UPGRADED` rows in that pass.
   - `GAME_RECORD_AI_UPGRADE_DECISION` now covers only `UPGRADED`, `EXECUTION_REFUSED` and `MAX_PRICE_BLOCKED`, with its fields unchanged.
-- **Why:** in a full level-3 autoplay record (2026-11-03), upgrade rows took 25.2 of 125.7 MB and 35,351 of their 39,452 rows were refusals. Every refusal repeated the pass-constant fields (6.3 MB) and nine always-empty selection fields (5.1 MB); all 35,351 had those nine fields empty.
-- **Not changed:** the same per-field check of `GAME_RECORD_AI_BUILDING_CHOICE`, `GAME_RECORD_AI_COMMERCE_DECISION` and `GAME_RECORD_AI_WORKER_TASK` found no comparable lossless saving.
-  - They have only 1.3 to 2.1 rows per player and turn, each a real decision, so there is little shared state to move to a parent row.
-  - Their mostly empty fields, such as `improvementFreeSpecialists` or `selectedFollowupBuild`, mean "none" for that building or task, so dropping them would lose information.
+  - The same per-field check of `GAME_RECORD_AI_BUILDING_CHOICE`, `GAME_RECORD_AI_COMMERCE_DECISION` and `GAME_RECORD_AI_WORKER_TASK` found no comparable lossless saving, so they are unchanged.
+    - They have only 1.3 to 2.1 rows per player and turn, each a real decision, so there is little shared state to move to a parent row.
+    - Their mostly empty fields, such as `improvementFreeSpecialists` or `selectedFollowupBuild`, mean "none" for that building or task, so dropping them would lose information.
 
 ### Revision 189 - SAS practical 6713
 

@@ -253,7 +253,8 @@ private:
 	// <!-- custom: Renamed inherited AIFoundValue::logPlot(): reports BFC plot yields, culture and resource-access diagnostics without calculating valuation.
 	// Consolidated rows now also carry the already-computed nature/potential scores and cache-hit result.
 	// The BBAI prefix identifies its output sink; logBBAIFoundDetail supplies the shared row context. See KI#505.2. (GPT-6.1-Sol) -->
-	void logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature, int iNatureYieldValue, int iPotentialValue, ImprovementTypes ePotentialImprovement, int const* aiPotentialYield, int iPotentialTimingPercent, bool bPotentialCacheHit) const;
+	// <!-- custom: iFeatureDiscoveryValue added for the PLOT row's featureDiscoveryValue field. See KI#1078. (Claude code Opus 5.5) -->
+	void logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature, int iNatureYieldValue, int iPotentialValue, ImprovementTypes ePotentialImprovement, int const* aiPotentialYield, int iPotentialTimingPercent, bool bPotentialCacheHit, int iFeatureDiscoveryValue) const;
 	// </advc.031c>
 	int evaluate();
 	// Subroutines of evaluate ...
@@ -276,6 +277,8 @@ private:
 	bool isNearTech(TechTypes eTech) const;
 	int calculateCultureModifier(CvPlot const& p, bool bForeignOwned, bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl, int& iTakenTiles, int& iStealPercent) const;
 	int removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovableFeature, bool bBonus) const;
+	// <!-- custom: New: value of the bonus that removing p's feature may uncover, weighted by its chance and valued by evaluateYield like the plot's own yields. See KI#1078. (Claude code Opus 5.5) -->
+	int removableFeatureDiscoveryVal(CvPlot const& p, int const* aiNatureYield, int iNatureYieldValue, bool bCanNeverImprove) const;
 	// <!-- custom: The XML-driven replacement for AdvCiv's earlier fixed improvement-production estimate no longer accepts bPersistentFeature: feature retention or removal depends on each legal Build candidate and is derived inside the function. (GPT-5.6-Sol) -->
 	scaled estimateImprovementProduction(CvPlot const& p) const;
 	// <!-- custom: Settler sites now value ordinary plots through XML-valid improvement outcomes rather than named terrain/feature tables.

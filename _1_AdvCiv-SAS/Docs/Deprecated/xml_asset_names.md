@@ -27,6 +27,8 @@ AdvCiv-SAS renamed six inherited bonus machine families in May 2025 while also k
 
 `BONUS_CAMEL` is not a restored alias for `BONUS_MOVIES`: Camel is separate SAS content that replaced the removed Hit Movies resource slot historically.
 
+Since 2026-11-08, Camel and Peat take the places of base AdvCiv's first two Hit bonuses, Hit Musicals (`BONUS_DRAMA`) and Hit Singles (`BONUS_MUSIC`), and `BONUS_MOVIES` (Hit Movies) is the remaining disabled one; SAS's earlier disabled `BONUS_MUSIC` is retired.
+
 ## Leader identifier restoration
 
 AdvCiv-SAS renamed two inherited leader machine families in May 2025. On 2026-11-04 the inherited AdvCiv/BtS machine identifiers were restored while the SAS player-facing names and gameplay/personality changes remain.

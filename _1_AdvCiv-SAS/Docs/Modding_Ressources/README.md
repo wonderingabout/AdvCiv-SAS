@@ -6,6 +6,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 
 [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)\
 [DLL compilation guide (command-line workflow primarily for AI/LLM helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md)\
+[Art tools guide (viewing .dds, .tga, .nif and .FPK art, and editing the game font; for the user and AI/LLM helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md)\
 [Release preparation/checklist (for user + AI/LLM helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md)\
 [LLM-assisted source analysis](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#llm-assisted-source-analysis)\
 &emsp;[Light-source analysis](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#light-source-analysis)\
@@ -33,6 +34,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 &emsp;[Map types](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#map-types)\
 &emsp;[old info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#old-info)\
 [Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)\
+[Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#tools-for-aillm-helpers)\
 [Python 2.4 compatibility for modding](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding)\
 [How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)\
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)\
@@ -500,6 +502,35 @@ ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
 ```
 
 Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [all_classes_web.txt](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
+
+## Tools for AI/LLM helpers
+
+Programs an agent can run on the user's machine, and ones worth suggesting. An agent works around a missing tool where it can, but a trivial install often saves that effort, so it should say what the tool would add and let the user decide; see [Suggesting tools and ideas](/AGENTS.md#suggesting-tools-and-ideas).
+
+Installed, as checked on 2026-11-08:
+
+| Tool | Used for |
+| --- | --- |
+| Python 3.12 to 3.14 (`py`, `python`) | CI checks, tests and [LLM helpers](/LLM_Helpers/README.md) |
+| Python 2.4.4 (`C:\Python24\python.exe`) | Compile checks with Civ4's Python version; see [Python 2.4 compatibility](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding) |
+| Pillow 13.0 (`py -m pip install pillow`, for both `py` and `python`) | Opening `.tga` and `.dds` files, so an agent can look at buttons and fonts as images; installed on 2026-11-08; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) |
+| PyFFI 2.2.3, setuptools and numpy (`py -m pip install pyffi setuptools numpy`) | Reading and drawing `.nif` models for [`nif_preview.py`](/LLM_Helpers/README.md#nif_previewpy); PyFFI and setuptools installed on 2026-11-08, numpy already present |
+| Node.js (`npx`) | `npx markdownlint-cli2@0.23.2`, the same Markdown lint CI runs |
+| Ruff (`py -m ruff`) | Python lint reports; see [Ruff](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report) |
+| Git, ripgrep (`rg`) | History and search |
+| ffmpeg 6.1 (`winget install Gyan.FFmpeg`) | Decoding Bink `.bik` movies and their audio for [`movie_frames.py`](/LLM_Helpers/README.md#movie_framespy); its folder may not be on PATH, so the helper also looks in winget's package folder |
+| GitHub CLI (`gh`) | Reading CI results and logs of pushed commits directly; installed on 2026-11-08, and needs the user's one-time `gh auth login` |
+| VC2003 Toolkit, VS2010 Express | Building the DLL, and `cl.exe /Zs` syntax checks of single files; see the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md) |
+| WinDbg's `cdbX86.exe` | Reading crash dumps |
+| PakBuild, Dragon UnPACKer, NifSkope | Windowed tools for `.FPK` archives and `.nif` models, which the user runs; agents read the same files with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) and `nif_preview.py` |
+
+Worth suggesting, not installed:
+
+| Tool | What it would add |
+| --- | --- |
+| texconv (Microsoft DirectXTex) | Writing `.dds` buttons in a chosen DXT format, if agents make new buttons; Pillow already reads them |
+
+Example: markdownlint. The user had long run it through its VS Code extension, but agents could not, since the command-line version needs Node.js. Only when a Markdown issue passed a local Python-only check but failed on GitHub was Node.js installed, on 2026-11-03; agents now run the same lint as CI.
 
 ## Python 2.4 compatibility for modding
 
@@ -1005,6 +1036,10 @@ Since it was not luckily too hard to solve unlike harder times i had for example
 note 3.2 / update: i have found that as of now for ri mod in particular, downloading the SVN version (for example with TortoiseSVN as they recommend it on their website) allows to have directly all the asset files, which is extremely convenient, no need to browse through fpks painfully and very inefficiently!!!. Used for the mongol khishigten art assets!
 
 Thanks for assets to ri mod and for providing this version that happens to have no fpk to save my sanity and time or whatnot.
+
+note 3.3 / update (2026-11-07): for mods without an SVN, extracting their .fpk files once with PakBuild into a folder outside the mod gives the same convenience: the files can be searched and copied directly instead of browsing each .fpk.
+
+For example, History Rewritten's extracted Peat folder showed that its model loads its textures by name from its own folder, so the whole folder could be copied as is, and that Caveman2Cosmos ships the same files.
 
 ## (Not used anymore in advciv-sas) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
 

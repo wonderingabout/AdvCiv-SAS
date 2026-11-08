@@ -3857,6 +3857,19 @@ int CvPlayerAI::AI_cityWonderVal(CvCity const& c) const
 
 /*	For advc.104d (bConquest=true), advc.ctr (bConquest=false).
 	Replacing parts of AI_cityTradeVal. Scale: gold per turn */
+// <!-- custom: New: true the first time ePlayer values kCity, for conquest or not, this turn, as AI_assetVal runs many times a turn for the same city; only called behind the player level-3 gate. See KI#1078. (Claude code Opus 5.5) -->
+static bool SAS_isAssetFeatureRemovalDiscoveryLogNew(PlayerTypes ePlayer, CvCity const& kCity, bool bConquest)
+{
+	static std::map<std::pair<std::pair<int,int>,int>,int> aiLastLoggedTurn;
+	std::pair<std::pair<int,int>,int> const kKey(std::make_pair(2 * ePlayer + (bConquest ? 1 : 0), (int)kCity.getOwner()), kCity.getID());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	std::map<std::pair<std::pair<int,int>,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(kKey);
+	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn)
+		return false;
+	aiLastLoggedTurn[kKey] = iGameTurn;
+	return true;
+}
+
 scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
 {
 	PROFILE_FUNC();
@@ -3914,6 +3927,9 @@ scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
 	// Don't overestimate extra land when there is still room for expansion
 	scaled const rSpaceFactor = scaled::max(fixp(0.5),
 			1 - fixp(0.15) * AI_getNumCitySites());
+	// <!-- custom: Possible finds under removable features, for the BBAI row below. See KI#1078. (Claude code Opus 5.5) -->
+	scaled rFindVal;
+	int iFindPercentSum = 0;
 	for (CityPlotIter it(c); it.hasNext(); ++it)
 	{
 		CvPlot const& p = *it;
@@ -3971,6 +3987,22 @@ scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
 					if (iHealthPercent > 0)
 						rPlotVal += scaled(iHealthPercent, 250);
 				}
+			}
+		}
+		// <!-- custom: A feature whose removal may uncover a bonus through FeatureRemovalDiscoveries, such as Peat under Marsh, adds the bonus plot value above times its chance.
+		// War targets (UWAI's conquest asset score) and city trades both read this value.
+		// A small chance makes it negligible, but a mod-mod could make a valuable find likely on many plots, so it scales with the XML chance. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		if (eBonus == NO_BONUS && p.isRevealed(getTeam()) && CvPlot::isFeatureRemovalDiscoveryFeature(p.getFeatureType()))
+		{
+			FOR_EACH_ENUM(Bonus)
+			{
+				int const iPercent = p.getFeatureRemovalDiscoverPercent(eLoopBonus, getTeam());
+				if (iPercent <= 0)
+					continue;
+				scaled const rBonusPlotVal = (bOwn && !bConquest ? fixp(2.35) + scaled(AI_bonusVal(eLoopBonus, -1, true), 4) : rSpaceFactor * fixp(3.9));
+				rPlotVal += rBonusPlotVal * per100(iPercent);
+				rFindVal += rBonusPlotVal * per100(iPercent);
+				iFindPercentSum += iPercent;
 			}
 		}
 		/*	Allow AI to cheat with improvement visibility to discourage
@@ -4033,6 +4065,9 @@ scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
 		rCultureModifier.decreaseTo(rMaxCultureModifier);
 		r += rPlotVal * rCultureModifier;
 	}
+	// <!-- custom: Once per player, city and turn: shows how much possible finds added before the culture modifier, so a review can tell whether they shaped a war target or city trade. See KI#1078. (Claude code Opus 5.5) -->
+	if (gPlayerLogLevel >= 3 && iFindPercentSum > 0 && SAS_isAssetFeatureRemovalDiscoveryLogNew(getID(), c, bConquest)) logBBAI("AI_ASSET_FEATURE_REMOVAL_DISCOVERY turn=%d player=%d civ=%s cityOwner=%d city=%S cityId=%d conquest=%d expectedFindsX100=%d findValueX100=%d",
+		GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), c.getOwner(), getSASDiagnosticQuoted(c.getName().GetCString()).GetCString(), c.getID(), bConquest, iFindPercentSum, rFindVal.getPercent());
 	scaled rInflationMultiplier = 1 + per100(calculateInflationRate());
 	// Note: Handles NO_VASSAL_STATES, State Property; not affected by disorder.
 	scaled rMaintCost = per100(c.calculateBaseMaintenanceTimes100(getID()));
@@ -6209,6 +6244,41 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 						iSASMinFeaturesPerCity, iSASMinChopTurnsNormal, iSASFeatureProductionPercent,
 						bSASCapital, iSASCityValue);
 				}
+			}
+
+			// <!-- custom: Removing the feature may uncover a bonus through FeatureRemovalDiscoveries, such as Peat under Marsh, so the tech that unlocks the removal counts each owned plot's chance times that bonus's value.
+			// A small chance makes it negligible, but a mod-mod could make a valuable find likely on many plots, and the AI would otherwise underrate the tech.
+			// Each plot counts once, in the city that works it. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			if (CvPlot::isFeatureRemovalDiscoveryFeature(eFeature))
+			{
+				int iFindPlots = 0;
+				int iFindPercentSum = 0;
+				int iFindValueTimes100 = 0;
+				FOR_EACH_CITYAI(pFindCity, *this)
+				{
+					for (CityPlotIter itFind(*pFindCity, false); itFind.hasNext(); ++itFind)
+					{
+						CvPlot const& kFindPlot = *itFind;
+						if (kFindPlot.getFeatureType() != eFeature || kFindPlot.getOwner() != getID() || kFindPlot.getWorkingCity() != pFindCity)
+							continue;
+						bool bFindPlot = false;
+						FOR_EACH_ENUM(Bonus)
+						{
+							int const iPercent = kFindPlot.getFeatureRemovalDiscoverPercent(eLoopBonus, getTeam());
+							if (iPercent <= 0)
+								continue;
+							bFindPlot = true;
+							iFindPercentSum += iPercent;
+							iFindValueTimes100 += iPercent * AI_bonusVal(eLoopBonus, 1, true);
+						}
+						if (bFindPlot)
+							iFindPlots++;
+					}
+				}
+				int const iFindValue = iFindValueTimes100 / 100;
+				iBuildValue += iFindValue;
+				if (gPlayerLogLevel >= 3 && !bAsync && iFindValue > 0) logBBAI("AI_TECH_FEATURE_REMOVAL_DISCOVERY turn=%d player=%d civ=%s tech=%s feature=%s findPlots=%d expectedFindsX100=%d value=%d",
+					GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), kTech.getType(), kFeature.getType(), iFindPlots, iFindPercentSum, iFindValue);
 			}
 
 			/*  <advc.129> Very early game: Is the feature blocking a resource?

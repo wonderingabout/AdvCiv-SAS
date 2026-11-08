@@ -86,6 +86,9 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<!-- custom: Apply jungle removal consistently to every compatible build.
 			Move it from Masonry to Metal Casting so Masonry does not combine Slavery, forest removal and jungle removal, while keeping the existing 20 production reward. (GPT-5.6-Sol) -->
 			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
+			<!-- custom: Unlike Pasture and Plantation, the Farm drains Marsh even on Rice: one Farm build serves both bonus and plain land, and keeping the Marsh would let every plain Marsh be farmed undrained.
+			Telling the two apart would need the plot's bonus in every check of whether a build removes a feature, 47 places across the AI, help text and SGR.
+			Draining also suits Rice: paddies are managed wetland with dikes and channels, not wild marsh. See KI#1078. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -412,7 +415,8 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
-			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
+			<!-- custom: No FEATURE_MARSH entry: like a Camp in a Forest, a Plantation on a Marsh Sugar keeps the Marsh, giving the bonus's yields early while the Marsh stays unhealthy.
+			The bonus reaches the trade network only once a road, which drains the Marsh, connects it, so draining stays worthwhile; this also lets the build skip The Wheel. See KI#1078. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -433,13 +437,6 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<FeatureStruct>
-					<FeatureType>FEATURE_MARSH</FeatureType>
-					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
@@ -504,6 +501,37 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
 		</BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_PEAT_WORKS -->
+			<Type>BUILD_PEAT_WORKS</Type>
+			<Description>TXT_KEY_BUILD_PEAT_WORKS</Description>
+			<Help>TXT_KEY_BUILD_PEAT_WORKS_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_PEAT_WORKS_PEDIA</Civilopedia>
+			<!-- custom: Agriculture rather than Mining, like Peat's TechCityTrade; see the comment at BONUS_PEAT in CIV4BonusInfos.xml. (Claude code Opus 5.5) -->
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<iTime>500</iTime>
+			<iCost>0</iCost>
+			<bKill>0</bKill>
+			<ImprovementType>IMPROVEMENT_PEAT_WORKS</ImprovementType>
+			<RouteType>NONE</RouteType>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: No FEATURE_MARSH entry, so Peat Works keeps the Marsh: Peat can be worked before The Wheel, but it reaches the trade network only once a road, which drains the Marsh, connects it. (Claude code Opus 5.5) -->
+			<FeatureStructs>
+				<FeatureStruct>
+					<FeatureType>FEATURE_FALLOUT</FeatureType>
+					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+					<iTime>600</iTime>
+					<iProduction>0</iProduction>
+					<bRemove>1</bRemove>
+				</FeatureStruct>
+			</FeatureStructs>
+			<HotKey>KB_Q</HotKey>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>1</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>1</iHotKeyPriority>
+			<!-- custom: Same button as the improvement, as other improvement builds do; imported from Caveman2Cosmos with it. (Claude code Opus 5.5) -->
+			<Button>Art/AdvCiv_SAS/Improvements/Peat_Works/Peat_Works_button.dds</Button>
+		</BuildInfo>
 		<BuildInfo> <!-- custom: BUILD_PASTURE -->
 			<Type>BUILD_PASTURE</Type>
 			<Description>TXT_KEY_BUILD_PASTURE</Description>
@@ -517,7 +545,8 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
 			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
-			<!-- custom: Building this on Marsh drains it first, as Jungle and Forest are cleared, so Marsh never coexists with an improvement or route. (Claude code Opus 5.5) -->
+			<!-- custom: No FEATURE_MARSH entry: like a Camp in a Forest, a Pasture on a Marsh Pig or Cow keeps the Marsh, giving the bonus's yields early while the Marsh stays unhealthy.
+			The bonus reaches the trade network only once a road, which drains the Marsh, connects it, so draining stays worthwhile; this also lets the build skip The Wheel. See KI#1078. (Claude code Opus 5.5) -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -538,13 +567,6 @@ Generated with the help of ChatGPT-5.2 Thinking. -->
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
 					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 					<iTime>600</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<FeatureStruct>
-					<FeatureType>FEATURE_MARSH</FeatureType>
-					<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-					<iTime>300</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>

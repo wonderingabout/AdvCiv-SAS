@@ -99,6 +99,18 @@ jobs:
       - name: Consistent feature impassables
         run: python .github/workflows/build/xml/feature_impassables.py
 
+      - name: Marsh bonus decisions
+        run: python .github/workflows/build/xml/marsh_bonuses.py
+
+      - name: Corporation input limit
+        run: python .github/workflows/build/xml/corporation_prereq_bonuses.py
+
+      - name: Bonus glyph order
+        run: python .github/workflows/build/xml/bonus_font_order.py
+
+      - name: Plot asset buttons
+        run: python .github/workflows/build/xml/plot_asset_buttons.py
+
       - name: Wonder costs by technology tier
         run: python .github/workflows/build/xml/wonder_cost_columns.py
 

@@ -159,6 +159,8 @@ class SevoPediaBonus:
 		self.placeTradeableSince()
 		self.placeObsoleteWith()
 		self.placeHistory()
+		# <!-- custom: The legend explains the Cons/Prod labels on corporation buttons. (Claude code Opus 5.5) -->
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
 
 	def placeBonusPane(self):
 		screen = self.top.getScreen()
@@ -310,12 +312,14 @@ class SevoPediaBonus:
 		panelName = self.top.getNextWidgetName()
 		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
 		# <!-- custom: note: Now the buildings panel is larger as the units panel (is), useful for ressources like marble that could not fit all -->
-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.attachLabel(panelName, "", "  ")
+		# <!-- custom: was TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT; the panel now lists corporations too. (Claude code Opus 5.5) -->
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_BUILDING_PROJECT_CORPORATION", ()), "", False, True, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: Collect (button, widget, data, numTxt) entries and draw them in one multilist, which can show numTxt under a button, unlike attachImageButton.
+		# Aluminum Co's button on Peat's page and on Aluminum's looked the same, although Peat is consumed and Aluminum produced, so corporation buttons are labelled.
+		# The list's length now decides the "None" text; the attachImageButton version needed a separate bAnyDisplayed flag, as a bAnyFound flag had shown "None" despite buttons. (Claude code Opus 5.5) -->
+		entries = []
 		# <!-- custom: placeAllows is now renamed to placeUnits -->
 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
-		# <!-- custom: i don't know why the bAnyFound approach i tried in the other methods did not work for buildings and projects (was displaying "None" text even if we did have buttons unlike what we wanted), so using a bAnyDisplayed slightly different approach than in the other methods that use instead bAnyFound, functionnal result is the same that now indeed we can display "None" if no building is displayed, else display buttons instead and not the "None" text as intended. -->
-		bAnyDisplayed = False
 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
 			bFound = False
 			if gc.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == self.iBonus:
@@ -327,8 +331,7 @@ class SevoPediaBonus:
 						bFound = True
 					j += 1
 			if bFound:
-				bAnyDisplayed = True
-				screen.attachImageButton( panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
+				entries.append((gc.getBuildingInfo(eLoopBuilding).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, u""))
 
 		for iBuilding in range(gc.getNumBuildingInfos()):
 			info = gc.getBuildingInfo(iBuilding)
@@ -339,8 +342,7 @@ class SevoPediaBonus:
 						bShow = True
 						break
 			if bShow:
-				bAnyDisplayed = True
-				screen.attachImageButton( panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False )
+				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, u""))
 
 		# <!-- custom: in the aluminium bonus, all projects show the apostolic palace in the tooltip, and redirect to the apostolic palace instead of the correct project.
 		# Fixed with the help of chatgpt 5.2 thanks -->
@@ -348,12 +350,40 @@ class SevoPediaBonus:
 		for iProject in range(gc.getNumProjectInfos()):
 			info = gc.getProjectInfo(iProject)
 			if info.getBonusProductionModifier(self.iBonus) != 0:
-				bAnyDisplayed = True
-				screen.attachImageButton(panelName, "", info.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
+				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, u""))
 		# </advc.004y>
 
-		if not bAnyDisplayed:
+		# <!-- custom: Coal's page did not show Mining Inc or Aluminum Co, although the corporation and its HQ building pages list Coal; show each corporation that consumes or produces this bonus.
+		# Inputs are read only up to NUM_CORPORATION_PREREQ_BONUSES, like the corporation pages. See KI#1079. (Claude code Opus 5.5) -->
+		for iCorporation in range(gc.getNumCorporationInfos()):
+			info = gc.getCorporationInfo(iCorporation)
+			bConsumed = False
+			for i in range(gc.getNUM_CORPORATION_PREREQ_BONUSES()):
+				if info.getPrereqBonus(i) == self.iBonus:
+					bConsumed = True
+					break
+			# <!-- custom: Cons(umed) and Prod(uced), explained in the numTxt legend; a corporation never both consumes and produces one bonus in the shipped XML, but both labels show if a mod-mod does. (Claude code Opus 5.5) -->
+			if bConsumed:
+				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorporation, u"Cons"))
+			if info.getBonusProduced() == self.iBonus:
+				entries.append((info.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, iCorporation, u"Prod"))
+
+		if len(entries) <= 0:
 			draw_none_text(screen, self.top, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS)
+			return
+		rowListName = self.top.getNextWidgetName()
+		multiListX = self.X_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_OFFSET_X
+		multiListY = self.Y_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_OFFSET_Y
+		multiListW = self.W_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_ADDITIONAL_W
+		multiListH = self.H_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_ADDITIONAL_H
+		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+		iButtonIndex = 0
+		for szButton, eWidget, iData, numTxt in entries:
+			screen.appendMultiListButton(rowListName, szButton, SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, eWidget, iData, 1, False)
+			if numTxt:
+				add_multilist_numTxt_under_button(multiListX, multiListY, get_extra_correction_x(numTxt), iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			iButtonIndex += 1
 
 	# <!-- custom: add some terrains (as of now minus some plot types), and features information, code based on multilist code in sevopedia religion that we also use in several places. -->
 	def placeTerrains(self):

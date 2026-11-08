@@ -1055,6 +1055,16 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 						<iYield>1</iYield>
 					</ImprovementYields>
 				</ImprovementYieldChange>				
+				<!-- custom: Fits this agrarian civic's rural labor, like its Farm and Plantation yields, but as production rather than their commerce: cutting and drying turf is labor-intensive work.
+				Serfdom thus makes Peat especially productive in its era without permanently raising the tile. (Claude code Opus 5.5) -->
+				<ImprovementYieldChange>
+					<ImprovementType>IMPROVEMENT_PEAT_WORKS</ImprovementType>
+					<ImprovementYields>
+						<iYield>0</iYield>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+					</ImprovementYields>
+				</ImprovementYieldChange>
 				<ImprovementYieldChange>
 					<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 					<ImprovementYields>

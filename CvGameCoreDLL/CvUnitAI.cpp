@@ -4828,6 +4828,19 @@ static BuildTypes SAS_getWorkerPureFeatureRemovalBuild(CvUnitAI const& kUnit, Cv
 	return eBestBuild;
 }
 
+// <!-- custom: New: true the first time a player's plot is logged this turn, the same once-per-player/plot/turn rule as SAS_logWorkerCityBuildRejectOnce; only called behind the Worker level-3 gate. See KI#1078. (Claude code Opus 5.5) -->
+static bool SAS_isWorkerFeatureRemovalDiscoveryLogNew(PlayerTypes ePlayer, CvPlot const& kPlot)
+{
+	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
+	std::pair<int,int> const kKey(ePlayer, kPlot.plotNum());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(kKey);
+	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn)
+		return false;
+	aiLastLoggedTurn[kKey] = iGameTurn;
+	return true;
+}
+
 // <!-- custom: Score removal from what the current XML feature actually does: recovered plot yields, rounded and fractional city health/happiness, turn damage, received production and Worker time.
 // This makes ordinary Jungle attractive through negative health, protects Forest through positive health and production yield, and makes Fallout urgent through its severe negative yields without naming any of them or assigning a magic Fallout priority.
 // Productive early chopping remains the separate Phase-0 strategic policy. (GPT-5.6-Sol) -->
@@ -4851,7 +4864,20 @@ static int SAS_getWorkerStandaloneFeatureRemovalValue(CvUnitAI const& kUnit, CvC
 	kCity.calculateHealthHappyChange(kPlot, eCurrentImprovement, eCurrentImprovement, true, iHappyChange, iHealthChange, iHealthPercentChange);
 	CvFeatureInfo const& kFeature = GC.getInfo(kPlot.getFeatureType());
 	int const iBuildDuration = std::min(40, kPlot.getBuildTurnsLeft(eRemovalBuild, kUnit.getOwner()));
-	return 2 * (iResultUtility - iCurrentUtility) + 2 * kWeights.iFood * (iHappyChange + iHealthChange) + (kWeights.iFood * iHealthPercentChange) / 50 + 10 * std::max(0, kFeature.getTurnDamage()) + (kWeights.iProduction * iProduction) / 20 - 25 * iBuildDuration;
+	// <!-- custom: A bonus that removing the feature may uncover counts like the recovered yields, scaled by its chance, as a player would hope to get lucky with many Marsh tiles. See KI#1078. (Claude code Opus 5.5) -->
+	TeamTypes const eTeam = kUnit.getTeam();
+	int const iDiscoveryFoodTimes100 = kPlot.getFeatureRemovalDiscoveryYieldTimes100(YIELD_FOOD, eTeam);
+	int const iDiscoveryProductionTimes100 = kPlot.getFeatureRemovalDiscoveryYieldTimes100(YIELD_PRODUCTION, eTeam);
+	int const iDiscoveryCommerceTimes100 = kPlot.getFeatureRemovalDiscoveryYieldTimes100(YIELD_COMMERCE, eTeam);
+	int const iDiscoveryValue = (2 * SAS_getWorkerYieldUtility(iDiscoveryFoodTimes100, iDiscoveryProductionTimes100, iDiscoveryCommerceTimes100, kWeights)) / 100;
+	int const iRemovalValue = 2 * (iResultUtility - iCurrentUtility) + iDiscoveryValue + 2 * kWeights.iFood * (iHappyChange + iHealthChange) + (kWeights.iFood * iHealthPercentChange) / 50 + 10 * std::max(0, kFeature.getTurnDamage()) + (kWeights.iProduction * iProduction) / 20 - 25 * iBuildDuration;
+	// <!-- custom: Shows how much a possible find added to the removal value, so a review can tell whether the chance drove a drain.
+	// Only plots with such a chance log, and only once per player, plot and turn, as Workers re-evaluate the same plots many times a turn. See KI#1078. (Claude code Opus 5.5) -->
+	if (gWorkerLogLevel >= 3 && iDiscoveryValue != 0 && SAS_isWorkerFeatureRemovalDiscoveryLogNew(kUnit.getOwner(), kPlot)) logBBAI("WORKER_FEATURE_REMOVAL_DISCOVERY_VALUE turn=%d player=%d civ=%s workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%s build=%s expectedYieldsX100=(%d,%d,%d) discoveryValue=%d removalValue=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
+		getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), kPlot.getX(), kPlot.getY(), kFeature.getType(), GC.getInfo(eRemovalBuild).getType(),
+		iDiscoveryFoodTimes100, iDiscoveryProductionTimes100, iDiscoveryCommerceTimes100, iDiscoveryValue, iRemovalValue);
+	return iRemovalValue;
 }
 
 // <!-- custom: Level-3 diagnostic for the remaining late-game idle-Worker / zero-candidate investigation.

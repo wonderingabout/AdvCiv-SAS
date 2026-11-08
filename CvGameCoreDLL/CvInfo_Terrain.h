@@ -233,6 +233,9 @@ public: // All the const functions are exposed to Python
 	bool isTerrain(int i) const;
 	bool isFeature(int i) const;
 	bool isFeatureTerrain(int i) const;
+	// <!-- custom: New: percent chance that removing eFeature by a build reveals this bonus on a bonus-free plot, read from FeatureRemovalDiscoveries.
+	// The BtS iDiscoverRand roll needs an improvement and repeats every turn, which fits ore found while mining but not a deposit found once while clearing the feature above it. See KI#1078. (Claude code Opus 5.5) -->
+	int getFeatureRemovalDiscoverPercent(FeatureTypes eFeature) const;
 
 	const TCHAR* getButton() const;
 	DllExport const CvArtInfoBonus* getArtInfo() const;
@@ -283,6 +286,7 @@ protected:
 	bool* m_pbTerrain;
 	bool* m_pbFeature;
 	bool* m_pbFeatureTerrain;
+	int* m_piFeatureRemovalDiscoverPercent; // <!-- custom: see getFeatureRemovalDiscoverPercent (Claude code Opus 5.5) -->
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

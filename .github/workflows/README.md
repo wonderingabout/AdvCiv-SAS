@@ -77,6 +77,10 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
     - [`build/xml/feature_impassables.py`](#buildxmlfeature_impassablespy)
+    - [`build/xml/marsh_bonuses.py`](#buildxmlmarsh_bonusespy)
+    - [`build/xml/corporation_prereq_bonuses.py`](#buildxmlcorporation_prereq_bonusespy)
+    - [`build/xml/bonus_font_order.py`](#buildxmlbonus_font_orderpy)
+    - [`build/xml/plot_asset_buttons.py`](#buildxmlplot_asset_buttonspy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/asset_tech_prereq_redundancy.py`](#buildxmlasset_tech_prereq_redundancypy)
@@ -867,6 +871,36 @@ AdvCiv's values are pinned in the checker, as CI has no AdvCiv install; a new er
 Verifies that every unit with `FeatureImpassables` blocks the same set of features.
 
 The wheeled units share one rule for dense or wet ground; when a feature such as Marsh joins that set, this catches units that were left out.
+
+#### `build/xml/marsh_bonuses.py`
+
+Verifies that every bonus able to appear on flat Grassland either allows Marsh in its `FeatureBooleans` or is listed in the checker's exclusions with a reason, such as Corn being a dryland crop.
+
+Civ4 places a bonus under a feature only when the bonus lists that feature, so a new Grassland bonus would otherwise silently never appear on Marsh. The check also fails on stale exclusions and on a Marsh bonus missing Grassland in its `FeatureTerrainBooleans`, which could never be placed.
+
+Only Marsh is covered: the inherited Forest, Jungle and other feature bonus lists were already settled by BtS and AdvCiv, while Marsh is new and lies on Grassland, the terrain with the most bonuses. A future feature could get the same kind of check.
+
+#### `build/xml/corporation_prereq_bonuses.py`
+
+Verifies that no corporation lists more `PrereqBonuses` than `NUM_CORPORATION_PREREQ_BONUSES` allows (5 in BtS's `GlobalDefines.xml`, unless `GlobalDefines_advciv_sas.xml` overrides it), and that none lists the same bonus twice.
+
+AdvCiv stores the inputs in a list without a size limit, so the game itself uses every one, but Python reads only up to the define. When Peat was first added to Mining Inc as its 6th input, the Sevopedia's Mining Inc page showed only 5, and debug builds assert while loading the XML.
+
+#### `build/xml/bonus_font_order.py`
+
+Verifies that the Nth BonusInfo in `CIV4BonusInfos.xml` uses GameFont glyph N through its art's `FontButtonIndex`, that `CIV4ArtDefines_Bonus.xml` is sorted by `FontButtonIndex`, and that no two art entries share a glyph.
+
+The game itself works in any order, since a bonus's icon comes from `FontButtonIndex` alone. But on 2026-11-08 the XML listed Camel before Peat while their glyphs were the other way round, and the art file still had BtS's grouping, so the XML, the art and the fonts read differently.
+
+Keeping one order makes them easy to compare; [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) can move glyphs when a bonus is added or moved.
+
+Religions and corporations get their glyphs from XML order itself, and [`build/xml/xml_display_order.py`](#buildxmlxml_display_orderpy) already checks that order.
+
+#### `build/xml/plot_asset_buttons.py`
+
+Verifies that no feature, bonus, improvement, route or build shares its button with another of these, except an improvement or route with the builds that create it, which is how BtS pairs them. The inherited graphical-only Land Worked and Water Worked improvements, which both use the atlas's empty cell, are allowed.
+
+The new Peat Works first reused Quarry's button, and Drain Marsh at first reused the Marsh feature's, so the Sevopedia showed two assets with one picture. Both were noticed only by eye, the first one in game.
 
 #### `build/xml/wonder_cost_columns.py`
 

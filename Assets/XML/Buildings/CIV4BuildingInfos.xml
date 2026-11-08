@@ -1818,7 +1818,18 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs/>
 			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
+			<!-- custom: Bog iron, smelted from the iron ore that forms in peat bogs and marshes, armed much of the Norse world, and peat fuelled the smithies; cutting it also fits the hall's rougher, muddier side of war.
+			Kept small so the hall stays a military building rather than a general economic one; production rather than unhealthiness, as the peat need not be burned in this city. (Claude code Opus 5.5) -->
+			<BonusYieldModifiers>
+				<BonusYieldModifier>
+					<BonusType>BONUS_PEAT</BonusType>
+					<YieldModifiers>
+						<iYield>0</iYield>
+						<iYield>5</iYield>
+						<iYield>0</iYield>
+					</YieldModifiers>
+				</BonusYieldModifier>
+			</BonusYieldModifiers>
 			<ImprovementFreeSpecialists/>
 			<!-- custom: reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least, see xml for details) so that hopefully more varied types or there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones i guess, both for defense but more importantly for offense and from asking chatgpt too with web search, was flavor military 10; increased for the scandinavian one that is stronger for military strategies. -->
 			<Flavors>
@@ -6692,6 +6703,8 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_FACTORY</ConstructSound>
+			<!-- custom: Burning connected Peat is industrial fuel: the Factory gains production with Peat, unlike with Coal and Oil, and pays health for it, though less than for those.
+			This gives Peat its industrial-era use in a building rather than as yet another tile yield. (Claude code Opus 5.5) -->
 			<BonusHealthChanges>
 				<BonusHealthChange>
 					<BonusType>BONUS_OIL</BonusType>
@@ -6700,6 +6713,10 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 				<BonusHealthChange>
 					<BonusType>BONUS_COAL</BonusType>
 					<iHealthChange>-2</iHealthChange>
+				</BonusHealthChange>
+				<BonusHealthChange>
+					<BonusType>BONUS_PEAT</BonusType>
+					<iHealthChange>-1</iHealthChange>
 				</BonusHealthChange>
 			</BonusHealthChanges>
 			<BonusHappinessChanges/>
@@ -6711,7 +6728,16 @@ Buildings take no GameFont glyph by position, so this order is for a predictable
 			<PrereqBuildingClasses/>
 			<BuildingClassNeededs/>
 			<SpecialistYieldChanges/>
-			<BonusYieldModifiers/>
+			<BonusYieldModifiers>
+				<BonusYieldModifier>
+					<BonusType>BONUS_PEAT</BonusType>
+					<YieldModifiers>
+						<iYield>0</iYield>
+						<iYield>10</iYield>
+						<iYield>0</iYield>
+					</YieldModifiers>
+				</BonusYieldModifier>
+			</BonusYieldModifiers>
 			<ImprovementFreeSpecialists/>
 			<Flavors>
 				<Flavor>

@@ -29,10 +29,10 @@ New mechanics as well, including but not only:
 - new Game Speeds (`Nitro`, `Turbo`, `Slow`, `Very Slow`)
 - new World Sizes (`Arena`, `SAS24`, `SAS32`, `SAS40`, `SAS48`)
 - new Handicaps (`Rookie` and `Deity+`) for finer/gradual grain and broader challenge
-- new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art)
+- new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art, `FeatureRemovalDiscoveries` for a chance to find a bonus when a feature is cleared)
 - new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage until drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage until drained, the new Peat bonus that gives some Marshes production, and occasionally more when a Marsh is drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
 Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
 
@@ -82,6 +82,18 @@ Another significant part of the project is [LLM-assisted source analysis](/READM
 The completed archaeology records 130+ confirmed candidate bug/issue findings; the findings support incremental fixes alongside normal development.
 
 The C++ file audit album records hundreds of additional bug/issue findings across Civ4, its inherited mod lineage and AdvCiv-SAS; see the [source-analysis documentation](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md) for its scope, findings and status.
+
+AdvCiv-SAS also adds tools that let AI/LLM agents read Civ4's own file formats, so they can check and choose art without asking the user for screenshots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md), for example how it gave Peat Works its own art.
+
+- `.tga` game-font glyphs
+- `.dds` buttons and textures (including cells of BtS's button atlases)
+- packed `.FPK` archives
+- `.nif` models drawn as pictures close to NifSkope's view
+- `.nif` scenes and `.bik` wonder and victory movies as frame sheets
+- `.kfm` animation event lists and `.kf` clip previews, such as the Catapult's ranged strike
+- Movie audio and standalone `.mp3` or `.wav` files as waveforms with volume readings
+
+See [Agent tools for Civ4 file formats](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav) below for examples and frame sheets.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all handicaps) through improved AI competency rather).
 
@@ -165,6 +177,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)\
 [New optional XML fields (e.g. ObsoleteTech for units, Button for eras, EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras-eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art)\
 &emsp;[ObsoleteTech for units](/README.md#obsoletetech-for-units)\
+&emsp;[FeatureRemovalDiscoveries for bonuses](/README.md#featureremovaldiscoveries-for-bonuses)\
 &emsp;[Button for eras](/README.md#button-for-eras)\
 &emsp;[EraArtDefineTags and EraArtDefineTag for leaderhead era art](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art)\
 [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena)\
@@ -186,6 +199,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[DLL build reports](/README.md#dll-build-reports)\
 &emsp;[Helpers](/README.md#helpers)\
 &emsp;&emsp;[LLM chat transcripts](/README.md#llm-chat-transcripts)\
+&emsp;[Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav)\
 &emsp;[Local tests](/README.md#local-tests)\
 &emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
 &emsp;[CI](/README.md#ci)\
@@ -248,7 +262,8 @@ Beyond the quick install guide above, AdvCiv-SAS comes with more than documentat
 - analysis and comparisons, such as the [handicap comparison](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) against base AdvCiv 1.12, [SASGameRecord RNG comparisons](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) and the LLM-assisted [source analysis](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md)
 - [Known Issues](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md) and the [Logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md)
 - [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/README.md): Python API dumps per Sevopedia class, showing which getters the Civ4 Python objects expose
-- [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md): for example local Python 2.4 setup, the DLL Compilation Guide and the Release Checklist
+- [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md): for example local Python 2.4 setup, the DLL Compilation Guide, the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) for viewing art and editing the game font, the Release Checklist and the [tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#tools-for-aillm-helpers), installed or worth suggesting
+- [LLM helpers](/LLM_Helpers/README.md): scripts written as tasks needed them and kept for reuse, such as the light-source ZIP maker or `gamefont_tga.py`, which let an agent view and rearrange game-font icons it cannot open as images
 
 Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
@@ -860,7 +875,9 @@ AdvCiv-SAS revises asset stats and historical details. For example, India's Maus
 
 AdvCiv-SAS adds a Marsh feature (`FEATURE_MARSH`) on flat Grassland, which holds good land hostage rather than making it poor.
 
-Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but the tile cannot be settled, slows and exposes units, adds mild unhealthiness, and allows nothing to be built until it is drained. The question becomes when a particular piece of land is worth the Worker time.
+Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but the tile cannot be settled, slows and exposes units, adds mild unhealthiness, and allows only a few resource improvements until it is drained. The question becomes when a particular piece of land is worth the Worker time.
+
+A rare Peat resource forms only on Marsh and stays after draining. It gives production, and its Peat Works adds food while keeping the Marsh. Draining an ordinary Marsh can occasionally uncover some through the new [`FeatureRemovalDiscoveries`](/README.md#featureremovaldiscoveries-for-bonuses) chance, so some Marshes are worth seeking rather than clearing at once.
 
 See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features) for the reasoning, the units and bonuses involved, and its settings.
 
@@ -952,6 +969,14 @@ If disabled (0), the value in XML will be ignored and forced to always NONE so y
 Should have been the base in Civ4!
 
 See Sevopedia Unit and Sevopedia Tech for screenshots. See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-93).
+
+### FeatureRemovalDiscoveries for bonuses
+
+A new optional `<FeatureRemovalDiscoveries>` list on a BonusInfo gives a percent chance that removing a feature by a build, such as draining a Marsh, uncovers that bonus on a bonus-free plot.
+
+For example, Peat (see [Marsh feature](/README.md#marsh-feature)) lists Marsh at 5%, so reclaiming an ordinary Marsh occasionally reveals Peat. BtS could already reveal a bonus, such as a Mine finding Gold, but only by a roll repeated every turn on an improvement, which cannot find a deposit that lies under a feature and is only valid there. Without the list, a bonus is never found this way.
+
+Worker and Settler AI weigh the chance like the land's other yields. See [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078).
 
 ### Button for eras
 
@@ -1227,6 +1252,50 @@ For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.p
 #### LLM chat transcripts
 
 For handing a discussion to another agent, convert Codex, ChatGPT, or Claude Code conversations to readable TXT. Speaker separators such as `=== USER ===` make it easy to find message boundaries in long exports. See the [Codex and ChatGPT helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) and [Claude Code helper](/LLM_Helpers/README.md#claude-code-session-transcript-helper).
+
+### Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)
+
+AI/LLM agents can see PNG and JPG images, but none of Civ4's own formats. These helpers turn them into pictures an agent can look at, so it can check art, models and movies itself; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) explains each one, with commands, limits and how they were built.
+
+**`.tga` game font**: [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) enlarges the font's glyph rows and moves glyphs between slots; it put the Camel, Peat and Hit Movies glyphs into BonusInfo order.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gamefont_tga_preview (2).PNG" alt="llm_gamefont_tga_preview (2).PNG" width="250">
+
+**`.dds` buttons and textures**: [`art_preview.py`](/LLM_Helpers/README.md#art_previewpy) puts art side by side from file paths or XML `<Button>` strings, including cells of BtS's packed button atlases. It chose Peat Works' button among Caveman2Cosmos's peat art.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_peat_works_button_candidates.PNG" alt="llm_peat_works_button_candidates.PNG" width="250">
+
+**`.FPK` archives**: [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) lists, reads and extracts the packed art that only PakBuild's and Dragon UnPACKer's windows could open before.
+
+For example, [a listing of SAS's own `BML.fpk`](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_list_example.txt) and [a folder extracted from it](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/); below, BtS's button atlas read straight from `Art0.FPK`, with the cut cell matching the standalone button.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_fpk_atlas_cell_check.PNG" alt="llm_fpk_atlas_cell_check.PNG" width="250">
+
+**`.nif` models**: [`nif_preview.py`](/LLM_Helpers/README.md#nif_previewpy) draws a model textured and lit, with skinned units posed by their bones, close to NifSkope's view; here NifSkope's Persian Immortal beside two renders.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_preview_vs_nifskope.PNG" alt="llm_nif_preview_vs_nifskope.PNG" width="250">
+
+**`.nif` scenes and `.bik` movies**: religion-founding "movies" are `.nif` scenes, which `nif_preview.py` draws through their own camera at several moments of their animation. Wonder movies are Bink videos, which [`movie_frames.py`](/LLM_Helpers/README.md#movie_framespy) turns into frames with ffmpeg, and their audio into a waveform with loudness figures.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_scene_vs_game_daoism.PNG" alt="llm_nif_scene_vs_game_daoism.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_natya_shastra.PNG" alt="llm_movie_frames_natya_shastra.PNG" width="250">
+
+The helper also reads the original Civ IV Great Library wonder movie and Conquest victory movie. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) shows how to generate these frame sheets and audio waveforms from your installation.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_great_library.PNG" alt="llm_movie_frames_great_library.PNG" width="400">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_conquest.PNG" alt="llm_movie_frames_conquest.PNG" width="400">
+
+`nif_preview.py` also lists `.kfm` animation events and samples supported `.kf` tracks. Peat Works exposes the campfire visibility switch. The frame sheets show the Llama Kamayuq running, the Houfnice crew moving during a ranged strike, and the original Civ IV Catapult releasing its rock.
+
+The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) has the commands and rendering limits.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_llama_run.PNG" alt="llm_kf_frames_llama_run.PNG" width="400">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_houfnice_strike.PNG" alt="llm_kf_frames_houfnice_strike.PNG" width="400">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_catapult_strike.PNG" alt="llm_kf_frames_catapult_strike.PNG" width="400">
+
+`movie_frames.py --audio-only` also draws waveforms from standalone audio. This example shows both stereo channels of the SAS menu track `lofi-song-330550.mp3`.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_audio_waveform_menu_lofi.PNG" alt="llm_audio_waveform_menu_lofi.PNG" width="400">
 
 ### Local tests
 

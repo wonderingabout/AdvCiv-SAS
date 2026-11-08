@@ -13,10 +13,12 @@
 - [Research and references](#research-and-references)
   - [Source analysis](#source-analysis)
   - [Information Fetching from other known helpful mods](#information-fetching-from-other-known-helpful-mods)
+  - [Local LLM working folder](#local-llm-working-folder)
   - [Information Fetching locally (Dbg.log, Err.log, etc.)](#information-fetching-locally-dbglog-errlog-etc)
     - [Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line](#comparison-with-base-advciv-112s-cvmaininterfacepy-processed-to-single-line)
     - [Sevopedia debug dumps (Python API introspection)](#sevopedia-debug-dumps-python-api-introspection)
   - [Information Fetching online](#information-fetching-online)
+  - [Suggesting tools and ideas](#suggesting-tools-and-ideas)
 - [Documentation editing](#documentation-editing)
   - [Examples and historical records](#examples-and-historical-records)
   - [Markdown structure and readability](#markdown-structure-and-readability)
@@ -207,13 +209,27 @@ If you don't know how to do something, generally mostly for UI stuff as we like 
 
 - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
 - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
-- Realism Invictus: the SVN working copy is at "C:\Users\PC\Downloads\old\Realism"; the installed "Realism Invictus" mod folder is a separate copy. Update the SVN working copy when a current reference is needed; do not assume the installed copy follows it.
+- Realism Invictus: the SVN working copy is at "C:\Users\PC\Downloads\AdvCiv-SAS_LLM\fpks_extracted_and_svn\Realism" (see [Local LLM working folder](#local-llm-working-folder)); the installed "Realism Invictus" mod folder is a separate copy. Update the SVN working copy when a current reference is needed; do not assume the installed copy follows it.
 
 While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
 
 Example of UI tip discovered: if a new Sevopedia category needs clickable entries and the EXE doesn't fire a custom widget, use `WidgetTypes.WIDGET_PYTHON` with a custom data1 code (e.g. 6798) and route it in `SevoPediaMain.handleInput` to `pediaJump`. Middle-earth's PlatyPedia routes/traits use this pattern.
 
 C2C mod also uses `WidgetTypes.WIDGET_PYTHON`.
+
+### Local LLM working folder
+
+`C:\Users\PC\Downloads\AdvCiv-SAS_LLM` holds local material for agents, outside the repo so it stays out of Git, greps of the working tree and light-source ZIPs.
+
+Make sure to ask before deleting or moving files/folders inside it: its extracted mods and chat exports would be slow or impossible to recover; however feel free to add stuff you find useful though or ask the user if in doubt.
+
+- `fpks_extracted_and_svn/` holds other mods' files in greppable form, unlike the packed FPKs of installed mods: grep or copy art and XML there instead of guessing what an FPK contains.
+  - `Realism/`: the Realism Invictus SVN working copy, which can be updated for a current reference; the installed "Realism Invictus" mod folder is a separate copy.
+  - `c2cmerged/`: Caveman2Cosmos's FPKs, extracted; C2C also has an SVN that was not updated since.
+  - `history_rewritten/`: History Rewritten's FPKs, extracted.
+  - FPKs were extracted with PakBuild, for convenient searching with grep. Since 2026-11-08 an agent can also list, read or extract any `.FPK` itself with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#packed-fpk-archives).
+- `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
+- Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
 
 ### Information Fetching locally (Dbg.log, Err.log, etc.)
 
@@ -285,6 +301,24 @@ Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpf
 ### Information Fetching online
 
 If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
+
+### Suggesting tools and ideas
+
+If a program, package or other tool would help, suggest it to the user rather than silently working around its absence; the user may not know of it or think of it, and installing it is often trivial. The same goes for ideas in general: suggest them and let the user consider them with you.
+
+- Example 1: we worked for a long time without a local Python 2.4, although installing it was trivial. Until then, Python 2.4 errors were found by guesswork, launching the game and fixing them by hand; a native compile check now catches them before the game does (see [Syntax checks and linting](#syntax-checks-and-linting)).
+- Example 2: the user had long used markdownlint through its VS Code extension, but agents could not run it, since the command-line version needs Node.js. Node.js was installed only on 2026-11-03, after a Markdown issue passed a local Python-only check but failed on GitHub.
+- Example 3: Codex (GPT-6 Astra) drew SASGameRecord maps with Pillow, the Python imaging library, apparently from its own bundled Python, since none of the local Pythons had it.
+  - On 2026-11-08 Claude Code, lacking it, wrote [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) to work without it, then suggested installing it, which the user approved the same day.
+  - Installing it uncovered more: `.dds` buttons, which agents could not open before, open with Pillow too, so an agent can now look at a button as well as at the fonts.
+    - It was directly useful the same day: Peat Works had shipped with Quarry's button, and comparing Caveman2Cosmos's peat buttons side by side chose its own, while a new CI check now flags borrowed buttons; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md).
+    - Iterating on it the same day went further: packed `.FPK` archives, which only PakBuild and Dragon UnPACKer's windows could open, turned out simple enough to read directly.
+      - `.nif` models, shown before only in NifSkope's window, can now be drawn as pictures close to NifSkope's view.
+      - The same renderer then showed religion-founding scenes through their own camera, and ffmpeg, already installed, turned Bink wonder movies into frames and their sound into waveforms. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) documents each step, including what failed first.
+- Example 4: knowing a tool exists matters as much as installing it. The VC2003 compiler was already installed for building the DLL, but running it as `cl.exe /Zs` on edited files lets an agent catch C++ errors before handing the change over, without building the DLL (see [DLL compilation](#dll-compilation)).
+  - Record such setups where future agents look, so the next one does not have to rediscover them.
+  - Say which is which: what you worked around, and what the tool would add, so the user can decide whether it is worth installing.
+- [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#tools-for-aillm-helpers) lists what is installed and what is worth suggesting; update it when a tool is added or proves useful.
 
 ## Documentation editing
 
@@ -462,6 +496,15 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 - No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
 - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
 - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
+- Do not dismiss an effect because today's XML values make it small: they can change in a rebalance or a mod-mod. Ask what the effect would mean at other values, and where practical let the code scale with the actual value instead of assuming it stays negligible.
+  - Example (2026-11-07): Peat's `<iFeatureRemovalDiscoverPercent>5</iFeatureRemovalDiscoverPercent>` under `FeatureRemovalDiscoveries` first looked too small for the Worker or Settler AI to weigh, so we left it out. That was an oversight: at 50%-70% if not more, or for other bonuses in a mod-mod, it would be nearly as good as us always having the yield itself.
+  - The AI now multiplies each possible find by its chance, which works for any bonus, feature and percent without a Peat or Marsh rule. See KI#1078.
+  - Then follow the effect to every decision it reaches, not only the one in front of you. Valuing the find for the Worker and Settler still left the tech that unlocks the removal, war targets and city trades blind to it.
+    - Picture the extreme: a bonus unlocked later, with a 100% chance, 100 hammers and many plots. Land holding such finds is an unscratched lottery ticket, so it should raise that tech's value and make its cities worth conquering or asking for, and both now count it (and added BBAI/SGR or such logging too to track it ideally).
+- Scale the fix to the problem: we usually review or rework what we touch, but a limit that rarely matters can be kept and guarded instead of removed.
+  - Example: BtS caps a corporation at 5 inputs (`NUM_CORPORATION_PREREQ_BONUSES`); AdvCiv's DLL accepts more, but Python reads only 5. We could fixed/review/overhauled it possibly, but we have few bonuses (as compared to base AdvCiv), and corporations have few inputs, and fewer inputs also keep one from scaling too far for balance reasons too.
+    - So we kept the limit, but instead moved Peat to Aluminum Co rather than making it Mining Inc's 6th input, and added a CI check to enforce/guard this 5 limit. See KI#1079.
+  - Example 2: one GlobalDefine text value outgrew the inherited 256-byte buffer: `SAS_MAP_SCRIPT_NAMES_LAND_HEAVY` reached 297 bytes (298 with its terminator). Rather than rework the loader for one define, it was split into `SAS_MAP_SCRIPT_NAMES_LAND_HEAVY_PART_1` and `_PART_2`, of 143 and 153 bytes. See KI#1001.
 - In conditions, test the decisive gate first, usually a cached on/off define: when it is off the rest cannot matter, so evaluating it is wasted work, and leading with the switch shows what the condition is for. This applies to `&&` chains, and likewise to nested `if` blocks and early returns, where the switch belongs in the outer test.
   - Example bad: `if (pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation() && bSAS_WORKER_IRRIG_ON)`
   - Example good: `if (bSAS_WORKER_IRRIG_ON && pOnlyPlot == NULL && GET_TEAM(getTeam()).isIrrigation())` stops at the switch: when Worker irrigation is off, the other tests are skipped.
@@ -614,7 +657,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Generally avoid decorative separators such as `================`, `////`, or `####` where they add noise. However they can be useful sometimes as greppable markers or such though, and if so feel free to use short, consistent markers when readers or agents need to search for record boundaries or where it can be otherwise helpful or convenient.
   - For example, the [LLM transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) uses `=== USER ===` and similar speaker markers so agents can grep long transcripts, which would be much harder to follow otherwise (who said what or to navigate or count easily).
     - Note: this helper drops raw tool logs and keeps the chat text, including code pasted into messages, so the TXT is useful directly as handoff context.
-    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), which defaults to `Downloads/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
+    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), which defaults to `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
     - Keep reusable ChatGPT share URLs in the private local list `chatgpt-share-urls.md` under the configured chat export folder. Keep the list and its URLs out of Git, patches, light-source ZIPs and shared examples. This helps prevent private-urls (that become publicly-accessible after share) from leaking in chats needlessly or breaching privacy.
     - Prefix filenames with `codex-`, `chatgpt-`, or `claude-` and include the thread ID when known. Use a timestamp when saving another snapshot of the same thread. Start the TXT with the first speaker marker and keep any title, counts, or export notes in your reply.
     - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
@@ -657,6 +700,10 @@ Clear, accurate explanations help users and developers understand the code and i
 - For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASTextScale` (`sasFontTag*` / `sasFontTag*.bold` / `SAS_FONT_TAG_CLOSE` / `getSASUIFont*`) so XML defines control scaling globally.
   - Example good: `SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE` or `SASTextScale.sasFontTagTitle.bold + szText + SASTextScale.SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText` or `u"<font=4b>%s</font>" % szText`.
 - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+- Game-font glyphs (bonus, religion and other icons) live in `GameFont.tga` and `GameFont_75.tga` in [Assets/res/Fonts](/Assets/res/Fonts/), which agents' image readers cannot open. The user keeps Game Font Editor screenshots of both beside them, `advciv-sas_gamefont_tga.PNG` and `advciv-sas_gamefont_75_tga.PNG`.
+  - Other mods' fonts are kept only as PNG previews named the same way in `other_mods/` (e.g., base AdvCiv, C2C, HR, Middle-earth, Neoteric World, PAE, RI), not as `.tga` files.
+  - A screenshot is often too small to tell one glyph apart. [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) renders any region enlarged as a PNG the image reader can open, and can move glyphs between slots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#game-font-glyphs).
+    - Example: on 2026-11-07 it confirmed Peat's glyph in the user's edit, and on 2026-11-08 it moved the Camel, Peat and Hit Movies glyphs into BonusInfo order in both fonts. Check a slot this way, or ask the user, before assuming what it holds.
 
 #### Syntax checks and linting
 

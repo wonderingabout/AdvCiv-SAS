@@ -10,6 +10,8 @@ A few bugfixes may serve as examples of broader changes like code/performance op
 
 For technical details, see notably the root [README](/README.md) or other docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
 
+Exact values and balance numbers are generally given only as examples, so this guide does not drift with every rebalance and stays focused on a broad but exhaustive overview and its rationale; see the Sevopedia or the XML for current values.
+
 Many of these changes are partially or entirely tunable via [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 
 - **Player-tunable options (SAS defines):**
@@ -2906,6 +2908,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
 - Sevopedia — Corporations: **reworked** and **beautified** the page layout, with **new Competes With, Bonuses Consumed, Bonuses Generated, and Movie** panels.
   - Exposed `getBonusProduced` to Python in [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp) so the new generated-bonus panel is cleanly supported.
   - See [Sevopedia reworks (Corporations)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category).
+  - (Requires AdvCiv-SAS 6733+) Sevopedia bonus pages now show the corporations that consume or produce the bonus, labelled "Cons" or "Prod", in the panel renamed from "Buildings and Projects" to "Buildings, Projects and Corporations".
+    - See [Sevopedia reworks (Bonuses)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category) and [SevoPediaBonus.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py).
 - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
 - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**.
   - The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)").
@@ -3336,11 +3340,15 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
 - (Requires AdvCiv-SAS 6732+) **Feature: Marsh** (`FEATURE_MARSH`, new): holds good land hostage rather than making it poor.
   - Why: flat Grassland is the strongest land in Civ4, and buffing Plains and Tundra had not stopped it being the obvious pick, so starts played alike. Civilization III's marsh suggested a way to temper it.
   - A Marsh keeps the yield of the Grassland under it, but cannot be settled, slows movement, weakens units standing in it and adds mild unhealthiness: livable, but awkward.
-  - Nothing can be built on it while it remains. Improvements and roads drain it as part of their own build, and draining needs a technology (for example The Wheel) and gives no production, so the question is when a particular piece of land is worth the Worker time.
+  - Improvements and roads drain it as part of their own build, and draining needs a technology (for example The Wheel) and gives no production, so the question is when a particular piece of land is worth the Worker time.
+    - (Requires AdvCiv-SAS 6733+) Pasture, Plantation and the new Peat Works keep the Marsh instead, as a Camp keeps Forest. A Marsh Pig, Cow, Sugar or Peat can then be worked early while the Marsh stays unhealthy, but it reaches the trade network only once a road, which drains the Marsh, connects it; these builds no longer need The Wheel.
+    - The Farm still drains it, even on Rice: one Farm build serves both bonus and plain land, and keeping the Marsh would let every plain Marsh be farmed undrained. That also suits Rice, as paddies are managed wetland rather than wild marsh. See [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078).
   - A -1 Food Marsh, like Civ3's, was rejected: SAS had already removed that penalty from Jungle because tiles that are pure dead weight are dull to play around.
   - Some bonuses that suit wetland and still make sense on the reclaimed Grassland afterwards, such as Rice and Pig, can appear on it.
+    - (Requires AdvCiv-SAS 6733+) The [`marsh_bonuses.py`](/.github/workflows/README.md#buildxmlmarsh_bonusespy) CI check makes every bonus able to appear on flat Grassland either allow Marsh or record why not, for example Corn as a dryland crop, so a new Grassland bonus cannot be forgotten. It covers only Marsh, since the inherited features' bonus lists were already settled by BtS and AdvCiv.
   - No AI code was needed: the Worker AI already plans builds that clear a feature, and tech valuation already counts Marsh through its unhealthiness.
   - Map scripts place it in patches rather than single tiles through the shared feature generator.
+    - (Requires AdvCiv-SAS 6733+) Marsh is set to spawn fairly rarely: Jungle and Forest already cover much of the land, and only a small share of the flat Grassland that remains becomes Marsh (`SAS_MAPGEN_STANDARD_MARSH_PCT`), since tests with more Marsh showed it could disrupt play.
     - Arboria, Boreal, Fantasy Realm, Great Plains, Highlands, Hub, Oasis, Rainforest, Ring and Wheel replace that generator's per-plot placement, so they now call the Marsh step themselves. See [KI#284.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.4).
     - PerfectMongoose and Planet Generator have their own feature systems, and SAS_Simple_Flat_Grass is a featureless sandbox, so they have no Marsh.
 - **Feature: Fallout** `iHealthPercent` **-50 -> -75**.
@@ -3357,10 +3365,25 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/D
   - See [KI#1072](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1072).
 - **Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
 - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
+  - (Requires AdvCiv-SAS 6733+) Camel and Peat take the places of two of BtS's three disabled hit bonuses, in the order they were added; the remaining one, Hit Movies, stays disabled and last, and the game-font glyphs follow the same order.
 - **Animal livestock Bonuses** (as of now `BONUS_COW`, `BONUS_SHEEP`, `BONUS_PIG`): increase the number of assets that are strengthened or rebalanced with these Bonuses, which are otherwise weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale for example with ubiquitous Granaries, or for example to Mount Animal Bonuses that have a strong military purpose.
   - As of now they now notably are in early assets like **Temple of Artemis** (happiness from each bonus), Summeria's **Ziggurat** (health from Sheep), Rome's **Forum** (happiness from Pig), and Mongolia's **Ger** (happiness from Cattle (Pastoral Economy Theme)).
   - This also increases the strategic importance of these bonuses.
-- **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
+- (Requires AdvCiv-SAS 6733+) **New bonus: Peat** (`BONUS_PEAT`) and **new improvement: Peat Works** (`IMPROVEMENT_PEAT_WORKS`): a rare resource that makes some Marshes worth seeking rather than clearing at once.
+  - Why: most Marshes are only obstacles. Peat forms in waterlogged ground, so it spawns only on Marsh, and it survives draining, so reclaimed land can keep it.
+  - Its yields follow how it is used rather than piling up: the resource gives production (turf cut by hand for fuel), Peat Works adds food and production (peat as a growing medium and soil improver comes from working it), and Serfdom adds production, fitting that agrarian civic's rural labor.
+  - Peat Works and Peat trade come with Agriculture: turf was cut with a spade by farming households, while only industrial peat was mined.
+  - Peat Works keeps the Marsh, like a Pasture on a Marsh Pig, so Peat can be worked before The Wheel; it reaches the trade network only once a road, which drains the Marsh, connects it.
+  - Bonuses like Pig and Cow, which share flat Grassland and Marsh with it, now spawn slightly less often than before, so that land does not get crowded with bonuses; only slightly, as Peat gives production rather than food.
+  - It takes the place of a disabled hit bonus, as Camel did.
+  - The Worker AI values Peat Works through its yields like any resource improvement.
+  - Draining or otherwise clearing a bonus-free Marsh has a small chance to uncover Peat, set in XML by the new `FeatureRemovalDiscoveries` list.
+    - The BtS discovery roll, such as a Mine finding Gold, repeats every turn on an improvement, which suits ore found while mining but not a deposit found once under a cleared feature. See [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078).
+  - Later uses change what Peat is for rather than piling on more of the same: the Factory burns connected Peat for production at a health cost, Aluminum Co. uses it like Coal as power for its smelters (peat fired power stations in Ireland and Finland), Environmentalism adds commerce to Peat Works (careful, higher-value uses over bulk fuel), and Bioengineering adds food (its horticultural use).
+    - See also Scandinavia's Chieftain's Hall in [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md).
+  - The AI weighs a possible find by its chance: Workers and Settlers like the land's other yields, and the tech that unlocks draining, war targets and city trades like a bonus already there. A larger chance in a mod-mod counts for more. See [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078).
+  - See [CIV4BonusInfos.xml](/Assets/XML/Terrain/CIV4BonusInfos.xml), [CIV4ImprovementInfos.xml](/Assets/XML/Terrain/CIV4ImprovementInfos.xml), [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) and [CIV4CivicInfos.xml](/Assets/XML/GameInfo/CIV4CivicInfos.xml).
+- **Camel** takes the place of a disabled hit bonus; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
 - **Bonuses — distribution (repartition) & yields (with stronger competition):**
   - Adjusted **distribution/spawn chances** and **yields** across many bonuses:
   - **Yields:** formerly weak bonuses (e.g., **Silver**, **Deer**) are **stronger**; a few outliers (e.g., **Gold**) are **slightly weaker**; overall, bonuses grant **less commerce** to keep pacing gradual.

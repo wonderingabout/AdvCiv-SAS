@@ -719,7 +719,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iAdvancedStartRemoveCost>0</iAdvancedStartRemoveCost>
 		</FeatureInfo>
 		<!-- custom: Marsh holds fertile flat Grassland hostage rather than making it poor: it keeps the land's yield but blocks city founding, slows movement, exposes defenders and adds mild unhealthiness.
-		Improvements and routes drain it as part of their own build through FEATURE_MARSH FeatureStructs, so nothing is developed on it while it remains; BUILD_DRAIN_MARSH clears it alone.
+		Improvements and routes drain it as part of their own build through FEATURE_MARSH FeatureStructs; BUILD_DRAIN_MARSH clears it alone.
+		Pasture, Plantation and Peat Works have no such entry and keep it, so a Marsh bonus can be worked early but connects only once a road drains the Marsh.
 		A -1 Food version was rejected because SAS already removed that penalty from Jungle for making tiles dead weight.
 		No AI code was added: draining inside the improvement and route builds uses the AI's existing feature-removal handling, so it never needs a separate drain-then-build plan.
 		Tech valuation already counts Marsh through its unhealthiness, raising The Wheel's value when cities have Marsh nearby. (Claude code Opus 5.5) -->

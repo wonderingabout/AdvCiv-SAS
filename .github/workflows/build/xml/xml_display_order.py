@@ -40,7 +40,7 @@ TECH_INFOS = "Assets/XML/Technologies/CIV4TechInfos.xml"
 RELIGION_INFOS = "Assets/XML/GameInfo/CIV4ReligionInfo.xml"
 # <!-- custom: The DLL (CvGameTextMgr.cpp) gives each religion and corporation its GameFont icon, then its holy-city or headquarters icon, in XML order.
 # Reordering religions therefore needs the glyphs in Assets/Res/Fonts/GameFont.tga and GameFont_75.tga moved to match, or icons get swapped; CI cannot read which picture sits in a .tga slot, so it compares against this order, read from both fonts' editor previews on 2026-11-05.
-# SAS does not ship CIV4CorporationInfo.xml, so the game uses BtS's fixed CORPORATION_1 to 7 order; if SAS ever ships it, the same rule applies. (Claude code Opus 5.5) -->
+# SAS ships CIV4CorporationInfo.xml in BtS's CORPORATION_1 to 7 order, so the same rule applies; it was first written while SAS did not ship that file. (Claude code Opus 5.5) -->
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 GAMEFONT_RELIGION_ORDER = ("RELIGION_PAGANISM", "RELIGION_HINDUISM", "RELIGION_JUDAISM", "RELIGION_TAOISM", "RELIGION_BUDDHISM", "RELIGION_CHRISTIANITY", "RELIGION_ISLAM")
 CORPORATION_INFOS = "Assets/XML/GameInfo/CIV4CorporationInfo.xml"

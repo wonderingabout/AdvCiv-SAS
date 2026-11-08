@@ -1513,6 +1513,9 @@ int AIFoundValue::evaluate()
 			}
 		}
 		int const iNatureYieldValue = evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
+		// <!-- custom: After the nature yields are final, so a possible find is valued against the same yields; only a feature that would be removed can uncover one. (Claude code Opus 5.5) -->
+		int const iFeatureDiscoveryValue = (!bHome && bRemovableFeature && !bPersistentFeature && eFeature != NO_FEATURE ? removableFeatureDiscoveryVal(p, aiNatureYield, iNatureYieldValue, bCanNeverImprove) : 0);
+		iPlotValue += iFeatureDiscoveryValue;
 		ImprovementTypes eBestPotentialImprovement = NO_IMPROVEMENT;
 		int aiBestPotentialYield[NUM_YIELD_TYPES] = {0, 0, 0};
 		int iPotentialTimingPercent = 0;
@@ -1761,7 +1764,7 @@ int AIFoundValue::evaluate()
 		if (iFoundLogLevel >= 3) logBBAIFoundPlotDetails(p, iPlotValue, aiNatureYield, iCultureModifier, eBonus, eBonusImprovement,
 			bCanTradeBonus, bCanSoonTradeBonus, bCanImproveBonus, bCanSoonImproveBonus,
 			bEasyAccess, iFeatureProduction, bPersistentFeature, bRemovableFeature,
-			iNatureYieldValue, iBestPotentialYieldValue, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent, bPotentialCacheHit);
+			iNatureYieldValue, iBestPotentialYieldValue, eBestPotentialImprovement, aiBestPotentialYield, iPotentialTimingPercent, bPotentialCacheHit, iFeatureDiscoveryValue);
 		// <advc.031>
 		if (bShare)
 		{
@@ -3491,6 +3494,26 @@ int AIFoundValue::removableFeatureYieldVal(FeatureTypes eFeature, bool bRemovabl
 	return iR;
 }
 
+
+// <!-- custom: The first draft valued a find on removableFeatureYieldVal's small 10-per-yield scale, but that scale only corrects the feature's own yield change, while the plot's yields themselves are valued by evaluateYield.
+// A likely find would then barely count, so value the plot's yields with and without each bonus through evaluateYield and weight the difference by its chance; at a high chance a find counts nearly like a yield already there. See KI#1078. (Claude code Opus 5.5) -->
+int AIFoundValue::removableFeatureDiscoveryVal(CvPlot const& p, int const* aiNatureYield, int iNatureYieldValue, bool bCanNeverImprove) const
+{
+	if (!CvPlot::isFeatureRemovalDiscoveryFeature(p.getFeatureType()))
+		return 0;
+	int iR = 0;
+	FOR_EACH_ENUM(Bonus)
+	{
+		int const iPercent = p.getFeatureRemovalDiscoverPercent(eLoopBonus, eTeam);
+		if (iPercent <= 0)
+			continue;
+		int aiWithBonus[NUM_YIELD_TYPES];
+		FOR_EACH_ENUM(Yield)
+			aiWithBonus[eLoopYield] = aiNatureYield[eLoopYield] + GC.getInfo(eLoopBonus).getYieldChange(eLoopYield);
+		iR += ((evaluateYield(aiWithBonus, &p, bCanNeverImprove) - iNatureYieldValue) * iPercent) / 100;
+	}
+	return iR;
+}
 
 // <!-- custom: This replaces the old AdvCiv 031 block rather than extending its fixed Hill/feature heuristic.
 // AdvCiv itself called the earlier Hills=200/other=100 shortcut "pretty bad" because it assumed Workshops and ignored Peaks and Deserts; any fixed Hill value is also unsuitable when a mod-mod can change Hill yields and legal improvements.
@@ -5623,7 +5646,8 @@ void AIFoundValue::logBBAIFoundSiteSettings() const
 // Removed and retired the inherited AdvCiv CvPlot::debugStr() helper after replacing its Found-log calls: its descriptions printed actual bonus/owner identities during player-known evaluation.
 // For new Found rows, use plot coordinates and evaluator-scoped fields; do not reintroduce generic true-map descriptions into player-known traces.
 // hiddenBonus deliberately indicates hidden-resource presence; trueMap describes the evaluator mode, not spoiler-free output. See KI#349. See KI#505.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.1-Sol) -->
-void AIFoundValue::logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature, int iNatureYieldValue, int iPotentialValue, ImprovementTypes ePotentialImprovement, int const* aiPotentialYield, int iPotentialTimingPercent, bool bPotentialCacheHit) const
+// <!-- custom: Added iFeatureDiscoveryValue so the PLOT row shows a possible find's value as one more field instead of a separate detail line. See KI#1078. (Claude code Opus 5.5) -->
+void AIFoundValue::logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int const* aiYield, int iCultureModifier, BonusTypes eBonus, ImprovementTypes eBonusImprovement, bool bCanTradeBonus, bool bCanSoonTradeBonus, bool bCanImproveBonus, bool bCanSoonImproveBonus, bool bEasyAccess, int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature, int iNatureYieldValue, int iPotentialValue, ImprovementTypes ePotentialImprovement, int const* aiPotentialYield, int iPotentialTimingPercent, bool bPotentialCacheHit, int iFeatureDiscoveryValue) const
 {
 	// <!-- custom: Caller-side FOUND pre-gating is required; keep only a debug invariant here. (ChatGPT-5.6-Sol) -->
 	FAssert(iFoundLogLevel >= 3);
@@ -5633,12 +5657,12 @@ void AIFoundValue::logBBAIFoundPlotDetails(CvPlot const& p, int iPlotValue, int 
 	FAssert(!bHiddenBonus || eBonus == NO_BONUS);
 	if (!bHome && (iFeatureProduction != 0 || bRemovableFeature))
 		FAssert(!bPersistentFeature);
-	logBBAIFoundDetail("PLOT", "plot=%d,%d home=%d value=%d food=%d production=%d commerce=%d cultureModifier=%d hiddenBonus=%d featureProduction=%d featureRemovable=%d featurePersistent=%d potentialEvaluated=%d potentialCacheHit=%d natureValue=%d potentialValue=%d potentialImprovement=%d/%S potentialFood=%d potentialProduction=%d potentialCommerce=%d potentialTimingPercent=%d",
+	logBBAIFoundDetail("PLOT", "plot=%d,%d home=%d value=%d food=%d production=%d commerce=%d cultureModifier=%d hiddenBonus=%d featureProduction=%d featureRemovable=%d featurePersistent=%d potentialEvaluated=%d potentialCacheHit=%d natureValue=%d potentialValue=%d potentialImprovement=%d/%S potentialFood=%d potentialProduction=%d potentialCommerce=%d potentialTimingPercent=%d featureDiscoveryValue=%d",
 		p.getX(), p.getY(), bHome, iPlotValue, aiYield[F], aiYield[P], aiYield[C],
 		iCultureModifier, bHiddenBonus, iFeatureProduction, bRemovableFeature, bPersistentFeature,
 		eBonus == NO_BONUS && !p.isWater(), bPotentialCacheHit, iNatureYieldValue, iPotentialValue,
 		ePotentialImprovement, ePotentialImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePotentialImprovement).getDescription(),
-		aiPotentialYield[F], aiPotentialYield[P], aiPotentialYield[C], iPotentialTimingPercent);
+		aiPotentialYield[F], aiPotentialYield[P], aiPotentialYield[C], iPotentialTimingPercent, iFeatureDiscoveryValue);
 	if (eBonus != NO_BONUS)
 	{
 		// <!-- custom: Replace the separate availability/access status sentences with their actual booleans, including already-available resources.

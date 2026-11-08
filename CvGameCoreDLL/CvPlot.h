@@ -44,6 +44,17 @@ public:
 
 	void doTurn();
 	void doImprovement();
+	// <!-- custom: New: places eBonus and tells eDiscoverer near which city it was found; shared by the per-turn improvement roll and the feature-removal roll so both report a discovery the same way. (Claude code Opus 5.5) -->
+	void discoverBonus(BonusTypes eBonus, PlayerTypes eDiscoverer);
+	// <!-- custom: New: before a build removes the plot's feature, rolls each bonus's FeatureRemovalDiscoveries chance for that feature. See KI#1078. (Claude code Opus 5.5) -->
+	void doFeatureRemovalBonusDiscovery(PlayerTypes eDiscoverer);
+	// <!-- custom: New: percent chance that removing this plot's feature reveals eBonus, as eTeam can know it: 0 when the bonus lists no chance, eTeam cannot see it yet, or eTeam sees a bonus here already.
+	// Shared by the discovery roll and the AI, so both apply the same conditions. See KI#1078. (Claude code Opus 5.5) -->
+	int getFeatureRemovalDiscoverPercent(BonusTypes eBonus, TeamTypes eTeam) const;
+	// <!-- custom: New: expected eYield times 100 from those chances, summed over bonuses, for the AI to weigh a possible find like any other yield. (Claude code Opus 5.5) -->
+	int getFeatureRemovalDiscoveryYieldTimes100(YieldTypes eYield, TeamTypes eTeam) const;
+	// <!-- custom: New: whether any bonus lists eFeature in FeatureRemovalDiscoveries, so the AI's per-plot loops over every bonus can skip features without any. See KI#1078. (Claude code Opus 5.5) -->
+	static bool isFeatureRemovalDiscoveryFeature(FeatureTypes eFeature);
 
 	void updateCulture(bool bBumpUnits, bool bUpdatePlotGroups);
 	void updateFog();

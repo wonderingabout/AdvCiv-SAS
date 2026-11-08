@@ -9,7 +9,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- Bonus/Resource art path information -->
 <!-- custom: the file imported cleanly from "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\CIV4ArtDefines_Bonus.xml" and then modified or not for AdvCiv-SAS -->
 <!-- custom: <FontButtonIndex> is the bonus's slot in the bonus rows of Assets/Res/Fonts/GameFont.tga and GameFont_75.tga, counted from the first bonus glyph.
-So a new or changed index needs the matching glyph at that slot in both files, while the order of BonusInfos and of this file does not matter for the icons. (Claude code Opus 5.5) -->
+So a new or changed index needs the matching glyph at that slot in both files, while the order of BonusInfos and of this file does not matter for the icons.
+SAS still keeps both files in FontButtonIndex order, so the XML, the art and the fonts read alike; bonus_font_order.py checks it. (Claude code Opus 5.5) -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<BonusArtInfos>
 		<BonusArtInfo>
@@ -94,6 +95,112 @@ So a new or changed index needs the matching glyph at that slot in both files, w
 			<KFM>Art/Terrain/Resources/Uranium/Uranium.kfm</KFM>
 			<Button>,Art/Interface/Buttons/WorldBuilder/Uranium.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,14</Button>
 			<FontButtonIndex>8</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_BANANA</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.7</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Banana/Banana.nif</NIF>
+			<KFM>Art/Terrain/Resources/Banana/Banana.kfm</KFM>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Banana.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,12</Button>
+			<FontButtonIndex>9</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_CLAM</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Clam/Clam.nif</NIF>
+			<KFM>Art/Terrain/Resources/Clam/Clam.kfm</KFM>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Clam.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,12</Button>
+			<FontButtonIndex>10</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_CORN</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Corn/Corn.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Corn.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,12</Button>
+			<FontButtonIndex>11</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_COW</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.9</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Cow/Cow.nif</NIF>
+			<KFM>Art/Terrain/Resources/Cow/Cow.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Cow/Cow_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Cow.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,12</Button>
+			<FontButtonIndex>12</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_CRAB</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.1</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Crab/Crab.nif</NIF>
+			<KFM>Art/Terrain/Resources/Crab/Crab.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Crab/Crab_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Crab.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,12</Button>
+			<FontButtonIndex>13</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_DEER</Type>
+			<fScale>1.2</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Deer/Deer.nif</NIF>
+			<KFM>Art/Terrain/Resources/Deer/Deer.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Deer/Deer_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Deer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,15</Button>
+			<FontButtonIndex>14</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_FISH</Type>
+			<fScale>1.2</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Fish/Fish.nif</NIF>
+			<KFM>Art/Terrain/Resources/Fish/Fish.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Fish/Fish_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Fish.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,15</Button>
+			<FontButtonIndex>15</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_PIG</Type>
+			<fScale>1.1</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Pig/Pig.nif</NIF>
+			<KFM>Art/Terrain/Resources/Pig/Pig.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Pig/Pig_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Pig.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,15</Button>
+			<FontButtonIndex>16</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_RICE</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Rice/Rice.nif</NIF>
+			<KFM>Art/Terrain/Resources/Rice/Rice.kfm</KFM>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Rice.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,14</Button>
+			<FontButtonIndex>17</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_SHEEP</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Sheep/Sheep.nif</NIF>
+			<KFM>Art/Terrain/Resources/Sheep/Sheep.kfm</KFM>
+			<SHADERNIF>Art/Terrain/Resources/Sheep/Sheep_FX.nif</SHADERNIF>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
+			<FontButtonIndex>18</FontButtonIndex>
+		</BonusArtInfo>
+		<!-- custom: import wheat button from HR mod -->
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_WHEAT</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.8</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
+			<KFM>Art/Terrain/Resources/Wheat/Wheat.kfm</KFM>
+			<Button>Art/AdvCiv_SAS/Bonuses/Wheat/Wheat.dds</Button>
+			<FontButtonIndex>19</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_DYE</Type>
@@ -209,131 +316,7 @@ So a new or changed index needs the matching glyph at that slot in both files, w
 			<Button>,Art/Interface/Buttons/WorldBuilder/Whale.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,16</Button>
 			<FontButtonIndex>31</FontButtonIndex>
 		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_BANANA</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.7</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Banana/Banana.nif</NIF>
-			<KFM>Art/Terrain/Resources/Banana/Banana.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Banana.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,12</Button>
-			<FontButtonIndex>9</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CLAM</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Clam/Clam.nif</NIF>
-			<KFM>Art/Terrain/Resources/Clam/Clam.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Clam.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,12</Button>
-			<FontButtonIndex>10</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CORN</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Corn/Corn.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Corn.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,12</Button>
-			<FontButtonIndex>11</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_COW</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.9</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Cow/Cow.nif</NIF>
-			<KFM>Art/Terrain/Resources/Cow/Cow.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Cow/Cow_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Cow.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,12</Button>
-			<FontButtonIndex>12</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_CRAB</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.1</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Crab/Crab.nif</NIF>
-			<KFM>Art/Terrain/Resources/Crab/Crab.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Crab/Crab_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Crab.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,12</Button>
-			<FontButtonIndex>13</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_DEER</Type>
-			<fScale>1.2</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Deer/Deer.nif</NIF>
-			<KFM>Art/Terrain/Resources/Deer/Deer.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Deer/Deer_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Deer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,15</Button>
-			<FontButtonIndex>14</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_FISH</Type>
-			<fScale>1.2</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Fish/Fish.nif</NIF>
-			<KFM>Art/Terrain/Resources/Fish/Fish.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Fish/Fish_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Fish.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,15</Button>
-			<FontButtonIndex>15</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_PIG</Type>
-			<fScale>1.1</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Pig/Pig.nif</NIF>
-			<KFM>Art/Terrain/Resources/Pig/Pig.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Pig/Pig_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Pig.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,15</Button>
-			<FontButtonIndex>16</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_RICE</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Rice/Rice.nif</NIF>
-			<KFM>Art/Terrain/Resources/Rice/Rice.kfm</KFM>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Rice.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,14</Button>
-			<FontButtonIndex>17</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_SHEEP</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Sheep/Sheep.nif</NIF>
-			<KFM>Art/Terrain/Resources/Sheep/Sheep.kfm</KFM>
-			<SHADERNIF>Art/Terrain/Resources/Sheep/Sheep_FX.nif</SHADERNIF>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
-			<FontButtonIndex>18</FontButtonIndex>
-		</BonusArtInfo>
-		<!-- custom: import silk button from HR mod -->
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_WHEAT</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
-			<KFM>Art/Terrain/Resources/Wheat/Wheat.kfm</KFM>
-			<Button>Art/AdvCiv_SAS/Bonuses/Wheat/Wheat.dds</Button>
-			<FontButtonIndex>19</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_DRAMA</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Drama.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,15</Button>
-			<FontButtonIndex>32</FontButtonIndex>
-		</BonusArtInfo>
-		<BonusArtInfo>
-			<Type>ART_DEF_BONUS_MUSIC</Type>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.0</fInterfaceScale>
-			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/WorldBuilder/Music.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,16</Button>
-			<FontButtonIndex>33</FontButtonIndex>
-		</BonusArtInfo>
-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL; NIF and button assets imported from RFC Dawn of Civilization's ART_DEF_BONUS_CAMEL. (ChatGPT-5.6-Sol) -->
+		<!-- custom: replace a disabled Hit bonus with BONUS_CAMEL; NIF and button assets imported from RFC Dawn of Civilization's ART_DEF_BONUS_CAMEL. (ChatGPT-5.6-Sol + (Claude code Opus 5.5)) -->
 		<BonusArtInfo>
 			<Type>ART_DEF_BONUS_CAMEL</Type>
 			<fScale>1.2</fScale>
@@ -342,6 +325,26 @@ So a new or changed index needs the matching glyph at that slot in both files, w
 			<KFM>Art/Terrain/Resources/Deer/Deer.kfm</KFM>
 			<SHADERNIF>Art/AdvCiv_SAS/Bonuses/Camel/nif/Camel.nif</SHADERNIF>
 			<Button>Art/AdvCiv_SAS/Bonuses/Camel/Camel_button.dds</Button>
+			<FontButtonIndex>32</FontButtonIndex>
+		</BonusArtInfo>
+		<!-- custom: replace a disabled Hit bonus with BONUS_PEAT; model and button imported from History Rewritten's ART_DEF_BONUS_PEAT, thanks (Caveman2Cosmos ships the same model files, unused there).
+		FontButtonIndex follows Camel's, as in the BonusInfo order. (Claude code Opus 5.5) -->
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_PEAT</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Bonuses/Peat/nif/marble.nif</NIF>
+			<KFM>Art/AdvCiv_SAS/Bonuses/Peat/nif/marble.kfm</KFM>
+			<Button>Art/AdvCiv_SAS/Bonuses/Peat/Peat_button.dds</Button>
+			<FontButtonIndex>33</FontButtonIndex>
+		</BonusArtInfo>
+		<BonusArtInfo>
+			<Type>ART_DEF_BONUS_MOVIES</Type>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/WorldBuilder/Movies.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,15</Button>
 			<FontButtonIndex>34</FontButtonIndex>
 		</BonusArtInfo>
 		<BonusArtInfo>

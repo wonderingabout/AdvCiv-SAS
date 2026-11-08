@@ -487,6 +487,13 @@ Update: since then, added AI information about `iAIObjective` or such fields in 
 
 Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc.). The initial grouping approach was based in part on RFC Dawn of Civilization code and was further developed for AdvCiv-SAS with ChatGPT 5.2.
 
+Update 3 (2026-11-07): the "Buildings and Projects" panel is now "Buildings, Projects and Corporations", and also shows each corporation that consumes or produces the bonus, with Claude code Opus 5.5.
+
+- We noticed it while adding the new Peat to Mining Inc: the Mining Inc headquarters page listed Coal and the other inputs as requirements (one of them, hence the "or"), and the corporation page listed them as consumed, but the Coal page itself showed no corporation at all.
+- The same check showed the headquarters page with only 5 of Mining Inc's 6 inputs, because Python reads at most `NUM_CORPORATION_PREREQ_BONUSES` (5 in BtS). Peat went to Aluminum Co instead, and the [`corporation_prereq_bonuses.py`](/.github/workflows/README.md#buildxmlcorporation_prereq_bonusespy) CI check now catches a corporation over that limit.
+- The other pages already linked corporations: headquarters buildings list their inputs, Executives their corporation, and civics describe their corporation effects in their text. No corporation has a founding tech in SAS, so tech pages have none to show.
+- Update (2026-11-08): Aluminum Co's button looked the same on Peat's page, which it consumes, and on Aluminum's, which it produces. Corporation buttons now carry "Cons" or "Prod" underneath, the panel became a multilist to allow such labels, and the page links the numTxt legend, which explains both.
+
 <img src="../Images/sevopedia/1.650_sevopedia_bonuses (1).JPG" alt="1.650_sevopedia_bonuses (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.650_sevopedia_bonuses (2).JPG" alt="1.650_sevopedia_bonuses (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.650_sevopedia_bonuses (3).JPG" alt="1.650_sevopedia_bonuses (3).JPG" width="250"></img>

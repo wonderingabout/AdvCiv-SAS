@@ -999,6 +999,14 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BONUS_CAMEL_PEDIA</Tag>
 		<English>[TAB]A camel is an even-toed ungulate within the genus Camelus, bearing distinctive fatty deposits known as humps on its back. There are two species of camels: the dromedary or Arabian camel has a single hump, and the bactrian has two humps. Dromedaries are native to the dry desert areas of West Asia, and Bactrian camels are native to Central and East Asia. Both species are domesticated.[NEWLINE][NEWLINE][TAB]Camels provide milk and meat, and are working animals. Their hair is also used as a source material for woven goods, ranging from Bedouin tents to garments. They are well-suited to long desert journeys and can carry a great deal of cargo, allowing substantial trade over desert regions since ancient times. Camels have been used in wars throughout Africa, the Middle East and India, both as mounts and freight animals, instead of horses and mules.</English>
 	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_PEAT_PEDIA</Tag>
+		<English>[TAB]Peat is a deposit of partly decayed plant matter that builds up over thousands of years in waterlogged ground, where the wet and acidic conditions keep dead plants from rotting away. It forms in bogs, fens and marshes, and remains in the soil long after the land has been drained.[PARAGRAPH:1]Cut into blocks and dried, peat was burned for heating and cooking wherever wood was scarce, from Ireland and Scotland to the Netherlands, Scandinavia and Russia, and later fed power stations and industry. It has also served as a growing medium and soil improver for gardens and farms, as bedding and litter, and in filters and absorbents.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_IMPROVEMENT_PEAT_WORKS_PEDIA</Tag>
+		<English>[TAB]Peat works are sites where peat is cut, dried and carried away. Workers cut the turf into blocks with narrow turf spades, such as the Irish sleán, then stack it to dry in the wind before it is carted off for fuel or for the land.[PARAGRAPH:1]Cutting is slow, labor-intensive work, and in many places it was done under customary rights that let local households take turf for their own hearths.</English>
+	</TEXT>
 
 
 	<!-- custom: add a note that these are plot types not only terrains -->
@@ -1393,6 +1401,10 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_DRAIN_MARSH_PEDIA</Tag>
 		<English>[TAB]Draining a marsh cuts channels and ditches that lower the water table until the waterlogged ground dries into workable land.[PARAGRAPH:1]Unlike clearing a forest, draining yields no timber; the reward is the fertile land underneath, which can then be farmed, settled, crossed by roads and otherwise developed.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PEAT_WORKS_PEDIA</Tag>
+		<English>[TAB]Workers open a peat face, cut the turf into blocks and lay out ground for stacking and drying.[PARAGRAPH:1]Peat can be cut while the marsh around it remains, but the site joins the wider trade network only once a road reaches it, and a road requires draining the marsh first.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Tag>

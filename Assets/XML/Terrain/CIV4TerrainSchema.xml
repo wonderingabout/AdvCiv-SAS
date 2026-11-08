@@ -1,6 +1,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- Terrain Schema -->
 <Schema xmlns="urn:schemas-microsoft-com:xml-data" xmlns:dt="urn:schemas-microsoft-com:datatypes">
@@ -251,6 +255,15 @@
 	<ElementType name="FeatureTerrainBooleans" content="eltOnly">
 		<element type="FeatureTerrainBoolean" minOccurs="0" maxOccurs="*"/>
 	</ElementType>
+	<!-- custom: Optional bonus-side list: removing the named feature by a build reveals this bonus with the given percent chance. See KI#1078. (Claude code Opus 5.5) -->
+	<ElementType name="iFeatureRemovalDiscoverPercent" content="textOnly" dt:type="int"/>
+	<ElementType name="FeatureRemovalDiscovery" content="eltOnly">
+		<element type="FeatureType"/>
+		<element type="iFeatureRemovalDiscoverPercent"/>
+	</ElementType>
+	<ElementType name="FeatureRemovalDiscoveries" content="eltOnly">
+		<element type="FeatureRemovalDiscovery" minOccurs="0" maxOccurs="*"/>
+	</ElementType>
 	<!-- advc (note): Unused, the DLL doesn't even load it. -->
 	<ElementType name="bUseLSystem" content="textOnly" dt:type="boolean"/>
 	<ElementType name="BonusInfo" content="eltOnly">
@@ -288,6 +301,7 @@
 		<element type="TerrainBooleans"/>
 		<element type="FeatureBooleans"/>
 		<element type="FeatureTerrainBooleans"/>
+		<element type="FeatureRemovalDiscoveries" minOccurs="0"/>
 		<element type="bUseLSystem" minOccurs="0"/>
 	</ElementType>
 	<ElementType name="BonusInfos" content="eltOnly">
