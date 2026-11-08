@@ -679,8 +679,9 @@ class CvWorldAdvisorScreen:
 		aImprovementRows = []
 		for iImprovement in range(gc.getNumImprovementInfos()):
 			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
+		# <!-- custom: Route rows were plain text; the native route widget added in the DLL gives them the same hover and Sevopedia click as improvement rows. See KI#113. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 		for iRoute in range(gc.getNumRouteInfos()):
-			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
+			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, aaiRouteCounts[iRoute])
 		return aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows
 
 	def getTerrainColumnsWithoutPlotShapes(self):

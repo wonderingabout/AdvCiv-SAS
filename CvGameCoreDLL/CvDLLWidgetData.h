@@ -118,6 +118,11 @@ protected:
 	void parseProjectHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseTerrainHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseFeatureHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	// <!-- custom: New: hover for WIDGET_PEDIA_JUMP_TO_ROUTE; iData1 is the route. See KI#113. (Claude code Opus 5.5) -->
+	void parseRouteHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	// <!-- custom: New: hovers for WIDGET_PEDIA_JUMP_TO_BUILD and WIDGET_PEDIA_JUMP_TO_TRAIT. See KI#113. (Claude code Opus 5.5) -->
+	void parseBuildPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+	void parseTraitPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	void parseTechEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
 	// BULL - Trade Denial - start
 	void parseTechTradeEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);

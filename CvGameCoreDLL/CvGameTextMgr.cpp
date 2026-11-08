@@ -16461,14 +16461,21 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
 		/*	advc: Was iLast. Since we're not showing the chance of discovery,
 			we may as well put all resources in one list even if they
 			don't all have the same chance of discovery. */
+		// <!-- custom: The Civilopedia explains the worked-tile roll and links each resource alongside its glyph.
+		// The base help gave no odds and "small chance" did not say when the roll happens: CvPlot::doImprovement rolls 1 in iDiscoverRand, scaled by game speed, each turn a citizen works the tile, so the Civilopedia lists that number per resource. See KI#1078. (GPT-6.1-Sol + Claude code Opus 5.5) -->
 		bool bFirst = true;
 		FOR_EACH_ENUM(Bonus)
 		{
 			if (kImprov.getImprovementBonusDiscoverRand(eLoopBonus) > 0)
 			{
 				szFirstBuffer.Format(L"%s%s", NEWLINE,
-						gDLL->getText("TXT_KEY_IMPROVEMENT_CHANCE_DISCOVER").c_str());
-				szTempBuffer.Format(L"%c", GC.getInfo(eLoopBonus).getChar());
+						gDLL->getText(bCivilopediaText ? "TXT_KEY_PEDIA_SAS_WORKED_IMPROVEMENT_DISCOVERY" :
+						"TXT_KEY_IMPROVEMENT_CHANCE_DISCOVER").c_str());
+				CvBonusInfo const& kBonus = GC.getInfo(eLoopBonus);
+				if (bCivilopediaText)
+					szTempBuffer.Format(L"<link=literal>%s</link> %c (1/%d)", kBonus.getDescription(), kBonus.getChar(), kImprov.getImprovementBonusDiscoverRand(eLoopBonus));
+				else
+					szTempBuffer.Format(L"%c", kBonus.getChar());
 				setListHelp(szBuffer, szFirstBuffer, szTempBuffer, L", ", bFirst);
 			}
 		}
@@ -17147,7 +17154,27 @@ void CvGameTextMgr::setFeatureHelp(CvWStringBuffer &szBuffer, FeatureTypes eFeat
 	{
 		szBuffer.append(gDLL->getText("TXT_KEY_FEATURE_NO_IMPROVEMENT"));
 	}
+	appendFeatureRemovalDiscoveryHelp(szBuffer, eFeature, bCivilopediaText);
+}
 
+// <!-- custom: Share the one-time build-clearing rule across Feature and Build help.
+// It was also added to the map hover of visible Marsh, then removed: the rare find gave players false hope on every Marsh tile, and the Mine's per-turn chance has no map line either; the Sevopedia keeps it. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+void CvGameTextMgr::appendFeatureRemovalDiscoveryHelp(CvWStringBuffer& szBuffer, FeatureTypes eFeature, bool bLinkBonus)
+{
+	if (!CvPlot::isFeatureRemovalDiscoveryFeature(eFeature))
+		return;
+	FOR_EACH_ENUM(Bonus)
+	{
+		CvBonusInfo const& kBonus = GC.getInfo(eLoopBonus);
+		int const iPercent = kBonus.getFeatureRemovalDiscoverPercent(eFeature);
+		if (iPercent <= 0)
+			continue;
+		CvWString const szBonus = (bLinkBonus ?
+				CvWString::format(L"<link=literal>%s</link> %c", kBonus.getDescription(), kBonus.getChar()) :
+				CvWString::format(L"%s %c", kBonus.getDescription(), kBonus.getChar()));
+		szBuffer.append(CvWString::format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR)));
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_FEATURE_REMOVAL_DISCOVER", iPercent, szBonus.GetCString()));
+	}
 }
 
 

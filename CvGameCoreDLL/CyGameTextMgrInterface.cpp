@@ -39,6 +39,8 @@ void CyGameTextMgrInterface()
 		.def("getImprovementHelp", &CyGameTextMgr::getImprovementHelp, "wstring (int iImprovement, bool bCivilopediaText)")
 		.def("getTerrainHelp", &CyGameTextMgr::getTerrainHelp, "wstring (int iTerrain, bool bCivilopediaText)")
 		.def("getFeatureHelp", &CyGameTextMgr::getFeatureHelp, "wstring (int iFeature, bool bCivilopediaText)")
+		// <!-- custom: Expose the formatted discovery line to Sevopedia Build. See KI#1078. (GPT-6.1-Sol) -->
+		.def("getFeatureRemovalDiscoveryHelp", &CyGameTextMgr::getFeatureRemovalDiscoveryHelp, "wstring (int iFeature)")
 		.def("parseCivicInfo", &CyGameTextMgr::parseCivicInfo, "wstring (int /*CivicTypes*/ iCivicType, bool bCivilopediaText, bool bPlayerContext, bool bSkipName)")
 		.def("parseReligionInfo", &CyGameTextMgr::parseReligionInfo, "wstring (int /*ReligionTypes*/ iReligionType, bool bCivilopediaText)")
 		.def("parseCorporationInfo", &CyGameTextMgr::parseCorporationInfo, "wstring (int /*CorporationTypes*/ iCorporationType, bool bCivilopediaText)")

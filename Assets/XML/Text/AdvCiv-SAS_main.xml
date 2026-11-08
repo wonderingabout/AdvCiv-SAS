@@ -1059,6 +1059,137 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
 		<English>Builds</English>
 	</TEXT>
+	<!-- custom: Routes page panel titles and Special Abilities bullets. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_ERA_CHART</Tag>
+		<English>Open the Eras chart at %s1_Era</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_EVENT_TRIGGER</Tag>
+		<English>Open event trigger: %s1_Trigger</English>
+	</TEXT>
+	<!-- custom: Build link hover lines. See KI#113. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_HOVER_CREATES</Tag>
+		<English>Creates %s1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_HOVER_REMOVES</Tag>
+		<English>Removes %s1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_HOVER_TECH</Tag>
+		<English>Requires %s1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_HOVER_TIME</Tag>
+		<English>Base build time: %d1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_OPEN_VOTE</Tag>
+		<English>Open vote: %s1_Vote</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ROUTES</Tag>
+		<English>Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_REMOVES_FEATURES</Tag>
+		<English>Removes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_PROMOTIONS</Tag>
+		<English>Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_EVENT_TRIGGERS</Tag>
+		<English>Event Triggers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_EVENT_TRIGGER</Tag>
+		<English>Event Trigger</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_RELATION</Tag>
+		<English>Relation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_RELATION_REQUIRES</Tag>
+		<English>Req</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_RELATION_ADDS</Tag>
+		<English>Add</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_RELATION_REMOVES</Tag>
+		<English>Rem</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_ERA_ANY</Tag>
+		<English>Any</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_ERA_INDIRECT</Tag>
+		<English>(i)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_MOVE_COST</Tag>
+		<English>Movement cost: %d1/%d2 movement points per tile</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_FLAT_COST</Tag>
+		<English>Flat movement cost: %d1/%d2 of the unit's base movement per tile</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_MOVE_RULE</Tag>
+		<English>Both tiles need a usable route; the unit pays the cheapest of the terrain, route and flat costs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_TECH_CHANGE</Tag>
+		<English>%s1_Change movement cost with %s2_Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_BRIDGE</Tag>
+		<English>Speeds movement across rivers only with %s1_Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_ENEMY</Tag>
+		<English>Cannot be used in enemy territory, or in territory units must leave after peace, without a promotion that allows it</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_TRADE_NETWORK</Tag>
+		<English>Connects cities and resources to the trade network</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_BONUS_RULE</Tag>
+		<English>The required resource must be connected to an adjacent tile's network</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_VALUE</Tag>
+		<English>Route value %d1: replaces only routes of lower value</English>
+	</TEXT>
+	<!-- custom: FeatureRemovalDiscoveries chance, rolled once when a Build removes the feature. See KI#1078. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_WORKED_IMPROVEMENT_DISCOVERY</Tag>
+		<English>[ICON_BULLET]Each turn a city's citizen works this tile while it has no resource: a chance to discover one of these, if the tile can hold it (odds at Normal game speed, scaled by game speed):[SPACE]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_RESULT_REMOVED</Tag>
+		<English>RF</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BUILD_SEE_FEATURE_RULES</Tag>
+		<English>See below</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_FEATURE_REMOVAL_DISCOVER</Tag>
+		<English>When cleared by a build: a one-time %d1%% chance to uncover %s2, if the tile has no resource and can hold it</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ROUTE_IMPROVEMENT_YIELDS</Tag>
+		<English>%s1_Yields on %s2_Improvement</English>
+	</TEXT>
 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
 	I've kept the FIS translations from there. -->
 	<TEXT>

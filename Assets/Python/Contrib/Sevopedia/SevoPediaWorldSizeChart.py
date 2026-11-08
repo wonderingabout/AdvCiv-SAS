@@ -19,7 +19,6 @@ class SevoPediaWorldSizeChart:
 	def __init__(self, main):
 		self.top = main
 		self._cachedTable = None
-		self.szCsvLogButton = ""
 
 		self.MARGIN = CHART_TABLE_MARGIN
 		self.ROW_H = CHART_TABLE_ROW_H
@@ -43,7 +42,7 @@ class SevoPediaWorldSizeChart:
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
-		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+		chart_add_csv_log_button(screen, self.top, x, y, w)
 
 		table = self.top.getNextWidgetName()
 		tableX = x + self.MARGIN
@@ -116,12 +115,6 @@ class SevoPediaWorldSizeChart:
 				# Value columns (center)
 				else:
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-	def handleInput(self, inputClass):
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
-			chart_dump_table_csv("SAS_SEVOPEDIA_WORLD_SIZE_CHART", self._getTableData())
-			return 1
-		return 0
 
 	def dumpCsvLog(self):
 		chart_dump_table_csv("SAS_SEVOPEDIA_WORLD_SIZE_CHART", self._getTableData())

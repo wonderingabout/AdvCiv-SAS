@@ -34,6 +34,10 @@ import SevoPediaTerrain
 import SevoPediaFeature
 import SevoPediaImprovement
 import SevoPediaBuild
+# <!-- custom: Register the RouteInfo page separately from the Build actions that create routes. (GPT-6.1-Sol) -->
+import SevoPediaRoute
+# <!-- custom: The movement icon's route lookup. (Claude code Opus 5.5) -->
+import SevoPediaRouteUtils
 import SevoPediaCivic
 import SevoPediaCivilization
 import SevoPediaLeader
@@ -98,7 +102,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.ITEM_LIST_ID	= "PediaMainItemList"
 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
 
-		# <!-- custom: search bar for the left item list (initially based on how other mod(s) do) (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 		self.SAS_SEARCH_PANEL_ID = "PediaMainSearchPanel"
 		self.SAS_SEARCH_LABEL_ID = "PediaMainSearchLabel"
 		self.SAS_CLEAR_SEARCH_ID = "PediaMainSearchClear"
@@ -108,7 +112,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEARCH_KEYS_TEXT = u"KEYS"
 		self.SAS_SEARCH_H = 32
 		self.SAS_SEARCH_KEYBOARD_CHARS = (u"(", u")", u"_", u"/", u"*", u"+", u"-", u"=", u"[", u"]", u"'", u"#", u"&", u"~", u";", u",", u":", u"!", u"?", u".", u"@", u"\\", u"|", u"<", u">")
-		# <!-- custom: End - search bar for the left item list (initially based on how other mod(s) do) (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: End - search bar for the left item list (initially based on how Realism Invictus does it) (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 		self.H_SCREEN = 768
 		self.W_SCREEN = 1024
 
@@ -229,6 +233,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_cacheBonusesTuple = None
 		self.SAS_cacheImprovementsTuple = None
 		self.SAS_cacheBuildsTuple = None
+		self.SAS_cacheRoutesTuple = None
 		self.SAS_cacheTerrainsTuple = None
 		self.SAS_cacheFeaturesTuple = None
 		self.SAS_cacheMoviesTuple = None
@@ -331,6 +336,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			(SevoScreenEnums.PEDIA_FEATURES, "TXT_KEY_PEDIA_CATEGORY_FEATURE", iconMap, "placeFeatures", SevoPediaFeature.SevoPediaFeature, "PEDIA_MAIN_FEATURE"),
 			(SevoScreenEnums.PEDIA_BONUSES, "TXT_KEY_PEDIA_CATEGORY_BONUS", iconMap, "placeBonuses", SevoPediaBonus.SevoPediaBonus, "PEDIA_MAIN_BONUS"),
 			(SevoScreenEnums.PEDIA_IMPROVEMENTS, "TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", iconYieldFood, "placeImprovements", SevoPediaImprovement.SevoPediaImprovement, "PEDIA_MAIN_IMPROVEMENT"),
+			# <!-- custom: Food icon like Improvements and Builds: routes are built on the land by workers, unlike the map's own Terrains, Features and Bonuses. (Claude code Opus 5.5) -->
+			(SevoScreenEnums.PEDIA_ROUTES, "TXT_KEY_PEDIA_SAS_CATEGORY_ROUTES", iconYieldFood, "placeRoutes", SevoPediaRoute.SevoPediaRoute, "PEDIA_MAIN_ROUTE"),
 			(SevoScreenEnums.PEDIA_BUILDS, "TXT_KEY_PEDIA_CATEGORY_BUILD", iconYieldFood, "placeBuilds", SevoPediaBuild.SevoPediaBuild, None),
 			(SevoScreenEnums.PEDIA_UNITS, "TXT_KEY_PEDIA_CATEGORY_UNITS", iconStrength, "placeUnits", SevoPediaUnit.SevoPediaUnit, "PEDIA_MAIN_UNIT"),
 			(SevoScreenEnums.PEDIA_UNIT_UPGRADES, "TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES", iconStrength, "placeUnitUpgrades", None, None),
@@ -394,6 +401,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
 			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
 			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
+			("getNumRouteInfos", "getRouteInfo", SevoScreenEnums.PEDIA_ROUTES),
 			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
 			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
 			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
@@ -416,6 +424,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.IS_SAS_SEVO_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_CORPORATIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVO_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_RELIGIONS_GROUP_BY_ERA") > 0)
 		self.IS_SAS_SEVO_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_PROJECTS_GROUP_BY_ERA") > 0)
+		self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVO_ROUTES_GROUP_BY_ERA") > 0)
 		self.SAS_SEVO_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVO_MUSIC_ITEMS_WIDTH")
 		self.SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH")
 		self.SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVO_LEADER_ITEMS_WIDTH_FONT_1")
@@ -483,7 +492,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	def SAS_syncSearchPanel(self):
 		screen = self.getScreen()
 
-		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
+		# <!-- custom: Recreate each time: simple + safe (mirrors the approach used in Realism Invictus). (Claude code Opus 5.5) -->
 		self.SAS_deleteSearchWidgets(screen)
 
 		# <!-- custom: search bar sits in the top header, X aligned with the items column.
@@ -554,7 +563,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			return 1
 		return 0
 
-	# <!-- custom: convert InputTypes keyboard code to visible character, based on how other mod(s) use ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5) -->
+	# <!-- custom: convert InputTypes keyboard code to visible character, based on how Realism Invictus uses ScreenInput.getVisibleCharacter (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 	def SAS_getSearchCharacterKeys(self):
 		return (int(InputTypes.KB_MINUS), int(InputTypes.KB_EQUALS), int(InputTypes.KB_LBRACKET), int(InputTypes.KB_RBRACKET), int(InputTypes.KB_SEMICOLON), int(InputTypes.KB_APOSTROPHE), int(InputTypes.KB_GRAVE), int(InputTypes.KB_BACKSLASH), int(InputTypes.KB_COMMA), int(InputTypes.KB_PERIOD), int(InputTypes.KB_SLASH), int(InputTypes.KB_NUMPADSTAR), int(InputTypes.KB_NUMPADMINUS), int(InputTypes.KB_NUMPADPLUS), int(InputTypes.KB_NUMPADPERIOD), int(InputTypes.KB_NUMPADEQUALS), int(InputTypes.KB_AT), int(InputTypes.KB_UNDERLINE), int(InputTypes.KB_COLON), int(InputTypes.KB_NUMPADCOMMA), int(InputTypes.KB_NUMPADSLASH))
 
@@ -1538,9 +1547,25 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
 		SevoPediaImprovement.precomputeImprovementLeaderCache()
 
+	# <!-- custom: Group routes by era like Techs, Buildings and Projects; the era comes from the Builds that create each route. (Claude code Opus 5.5) -->
+	def getRouteList(self):
+		if self.SAS_cacheRoutesTuple is None:
+			baseList = self.getUnfilteredSortedList(gc.getNumRouteInfos(), gc.getRouteInfo)
+			if self.IS_SAS_SEVO_ROUTES_GROUP_BY_ERA:
+				self.SAS_cacheRoutesTuple = tuple(SAS_MainGroupings.SAS_getGroupedByEra_fromBaseList(baseList, SAS_MainGroupings.SAS_getRouteAvailabilityEra))
+			else:
+				self.SAS_cacheRoutesTuple = tuple(baseList)
+		return self.SAS_cacheRoutesTuple
+
+	# <!-- custom: The native route widget (WIDGET_PEDIA_JUMP_TO_ROUTE, added in the DLL) gives list items their hover and click like Improvements; the WIDGET_PYTHON list routing it replaced needed its own selection handler. See KI#113. (Claude code Opus 5.5) -->
+	def placeRoutes(self):
+		self.list = self.getRouteList()
+		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, gc.getRouteInfo)
+
+	# <!-- custom: Builds and Traits use native widgets added in the DLL, so list items get their hover and click like Improvements; their WIDGET_HELP_IMPROVEMENT and WIDGET_PYTHON routing needed list handlers of their own. See KI#113. (Claude code Opus 5.5) -->
 	def placeBuilds(self):
 		self.list = self.getBuildList()
-		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getBuildInfo)
+		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, gc.getBuildInfo)
 
 	def SAS_isBonusCapableImprovement(self, iImprovement):
 		return SAS_MainGroupings.SAS_isBonusCapableImprovement(iImprovement)
@@ -1579,7 +1604,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 
 	def getBuildList(self):
 		if self.SAS_cacheBuildsTuple is None:
-			baseList = self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo)
+			# <!-- custom: Plain names let the native Build widget handle each row's hover and click, in this list and the Index. See KI#113. (Claude code Opus 5.5) -->
+			baseList = [(strip_pedia_links(szName), iBuild) for szName, iBuild in self.getSortedList(gc.getNumBuildInfos(), gc.getBuildInfo)]
 			if self.IS_SAS_SEVO_BUILDS_GROUP_BY_TYPE:
 				self.SAS_cacheBuildsTuple = tuple(self.SAS_getBuildsGroupedByType_fromBaseList(baseList))
 			else:
@@ -1641,7 +1667,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 	# See also: SevoPediaIndex.py (row mapping), SevoPediaTrait.py (receives trait ID directly), and CvGameTextMgr.cpp parseTraits (DLL adds <link=literal> for clickable trait links). (Claude Opus 4.5 / GPT-5.5) -->
 	def placeTraits(self):
 		self.list = self.getTraitList()
-		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
+		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, gc.getTraitInfo)
 		# <!-- custom: Trigger cache precomputation on first Traits category click.
 		# Similar to SevoPediaLeader's pattern - compute once, reuse for session. (Claude Opus 4.5) -->
 		SevoPediaTrait.precomputeTraitStatisticsCache()
@@ -1755,12 +1781,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.SAS_cacheCorporationsTuple
 
 	# <!-- custom: Sevopedia Votes category (grouped by vote source).
-	# No native engine jump widget for votes, so items use WIDGET_PYTHON routed via SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY.
+	# Items use the native WIDGET_PEDIA_JUMP_TO_VOTE, added in the DLL; the WIDGET_PYTHON routing it replaced had no hover outside a loaded game. See KI#113.
 	# Vote pages have no dedicated icon art, so the left-list button reuses the hosting building's icon.
-	# Design assumes each vote has exactly one source (modders adding multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7) -->
+	# Design assumes each vote has exactly one source (modders adding multi-source votes would need to extend the grouping helper). (Claude code Opus 4.7 + Claude code Opus 5.5) -->
 	def placeVotes(self):
 		self.list = self.getVoteList()
-		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getVoteInfoForList)
+		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_VOTE, self.getVoteInfoForList)
 
 	def getVoteList(self):
 		if self.SAS_cacheVotesTuple is None:
@@ -1786,11 +1812,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return ""
 
 	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from turn 1).
-	# No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes.
-	# Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
+	# Trigger entries carry their ID in the native Event Trigger widget.
+	# Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7 + GPT-6.1-Sol) -->
 	def placeEventTriggers(self):
 		self.list = self.getEventTriggerList()
-		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)
+		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER, self.getEventTriggerInfoForList)
 
 	def getEventTriggerList(self):
 		if self.SAS_cacheEventTriggersTuple is None:
@@ -2292,21 +2318,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				else:
 					szButtonPlaceItems = info(data1).getButton()
 
-			if info == gc.getBuildInfo:
-				widgetPlaceItems = WidgetTypes.WIDGET_HELP_IMPROVEMENT
-				if data1 != -1:
-					data2 = data1
-					data1 = gc.getBuildInfo(data2).getTechPrereq()
-					bSAS_hasCustomData2 = True
-
-			# <!-- custom: Handle traits with WIDGET_PYTHON like Builds. (Claude Opus 4.5) -->
-			if info == gc.getTraitInfo:
-				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
-				if data1 != -1:
-					data2 = data1
-					data1 = SAS_MAGIC_PEDIA_PYTHON_TRAIT
-					bSAS_hasCustomData2 = True
-
 			if info == self.getMovieInfo:
 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
 				if data1 != -1:
@@ -2318,20 +2329,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if data1 != -1:
 					data2 = data1
 					data1 = SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY
-					bSAS_hasCustomData2 = True
-			# <!-- custom: votes use WIDGET_PYTHON routing since no native jump-to-vote widget exists. (Claude code Opus 4.7) -->
-			if info == self.getVoteInfoForList:
-				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
-				if data1 != -1:
-					data2 = data1
-					data1 = SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY
-					bSAS_hasCustomData2 = True
-			# <!-- custom: event triggers also have no native jump widget, so route through WIDGET_PYTHON like Votes. (Claude code Opus 4.7) -->
-			if info == self.getEventTriggerInfoForList:
-				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
-				if data1 != -1:
-					data2 = data1
-					data1 = SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY
 					bSAS_hasCustomData2 = True
 
 			if info == gc.getConceptInfo:
@@ -2348,7 +2345,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			elif (info == gc.getLeaderHeadInfo):
 				# <!-- custom: detect headers/spacers from the original list marker (item[1] == -1), not from data1.
 				# In Builds, data1 is repurposed to tech prereq for WIDGET_HELP_IMPROVEMENT; removable builds use <PrereqTech>NONE</PrereqTech>, so data1 becomes -1 even though they are real entries.
-				# If we check data1 here, those entries are misclassified as headers, their button/icon is cleared, and they appear without icons in Sevopedia Builds; the index remains fine because it uses a different list path. See also KI#113. (GPT-5.3-Codex) -->
+				# If we check data1 here, those entries are misclassified as headers, their button/icon is cleared, and they appear without icons in Sevopedia Builds; the index remains fine because it uses a different list path. See also KI#113.
+				# Builds now use their native widget with their own ID in data1, but the list marker remains the reliable header test. (GPT-5.3-Codex + Claude code Opus 5.5) -->
 				if item[1] == -1:
 					sTitlePlaceItems = CyTranslator().changeTextColor(item[0], SASVisuals.Color.HIGHLIGHT_TEXT)
 					widgetPlaceItems = WidgetTypes.WIDGET_GENERAL
@@ -2433,22 +2431,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		# Forward to leader page (existing behavior).
 		if (inputClass.getPythonFile() == SevoScreenEnums.PEDIA_LEADERS):
 			return self.pediaLeader.handleInput(inputClass)
-		if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
-			iHandled = self.pediaHandicapChart.handleInput(inputClass)
-			if iHandled:
-				return iHandled
-		if self.iCategory == SevoScreenEnums.PEDIA_GAME_SPEED_CHART:
-			iHandled = self.pediaGameSpeedChart.handleInput(inputClass)
-			if iHandled:
-				return iHandled
-		if self.iCategory == SevoScreenEnums.PEDIA_WORLD_SIZE_CHART:
-			iHandled = self.pediaWorldSizeChart.handleInput(inputClass)
-			if iHandled:
-				return iHandled
-		if self.iCategory == SevoScreenEnums.PEDIA_ERA_CHART:
-			iHandled = self.pediaEraChart.handleInput(inputClass)
-			if iHandled:
-				return iHandled
 
 		# <!-- custom: forward to Index for its letter-button and table clicks; fall through if it does not consume the event so the shared search handler below can still process typing. (Claude code Opus 4.7) -->
 		if self.SAS_USE_BOTTOM_TABS and self.isIndexShowing():
@@ -2477,7 +2459,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					self.SAS_bSearchKeyboardVisible = not self.SAS_bSearchKeyboardVisible
 					self.SAS_syncSearchPanel()
 				return 1
-		# <!-- custom: keyboard input using InputTypes constants like other mod(s) do (chatgpt 5.2 + claude opus 4.5) -->
+		# <!-- custom: keyboard input using InputTypes constants like Realism Invictus does (chatgpt 5.2 + claude opus 4.5 + Claude code Opus 5.5) -->
 		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active refresher, regardless of which tab/mode hosts it. (Claude code Opus 4.7) -->
 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
 			screen = self.getScreen()
@@ -2530,22 +2512,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 					# Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
 
 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED):
-			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_BUILDS:
-				iRow = inputClass.getData()
-				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
-				if iListIdx is not None:
-					item = self.list[iListIdx]
-					if item[1] != -1:
-						return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, item[1], True, False)
-			# <!-- custom: Handle trait item list clicks like Builds.
-			# Without this, clicking trait entries in the Traits category had no effect (though Index linking worked fine). (Claude Opus 4.5) -->
-			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_TRAITS:
-				iRow = inputClass.getData()
-				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
-				if iListIdx is not None:
-					item = self.list[iListIdx]
-					if item[1] != -1:
-						return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, item[1], True, False)
 			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_MOVIES:
 				iRow = inputClass.getData()
 				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
@@ -2564,22 +2530,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 						self.pediaJump(SevoScreenEnums.PEDIA_MUSIC, item[1], True, False)
 						self.pediaMusic.playMusic(item[1])
 						return 1
-			# <!-- custom: Votes list click -> vote page. (Claude code Opus 4.7) -->
-			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_VOTES:
-				iRow = inputClass.getData()
-				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
-				if iListIdx is not None:
-					item = self.list[iListIdx]
-					if item[1] != -1:
-						return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, item[1], True, False)
-			# <!-- custom: Event Triggers list click -> trigger page. (Claude code Opus 4.7) -->
-			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_EVENT_TRIGGERS:
-				iRow = inputClass.getData()
-				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
-				if iListIdx is not None:
-					item = self.list[iListIdx]
-					if item[1] != -1:
-						return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, item[1], True, False)
 
 		# Existing TOC/INDEX buttons.
 		if self.SAS_USE_BOTTOM_TABS:
@@ -2593,11 +2543,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		if inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
 			iData1 = inputClass.getData1()
 			iData2 = inputClass.getData2()
-			if iData1 == SAS_MAGIC_PEDIA_PYTHON_BUILD:
-				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iData2, True, False)
-			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
-			if iData1 == SAS_MAGIC_PEDIA_PYTHON_TRAIT:
-				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY:
 				return self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iData2, True, False)
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MOVIE_PLAY:
@@ -2608,12 +2553,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_MUSIC_PLAY:
 				self.pediaMusic.playMusic(iData2)
 				return 1
-			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
-			if iData1 == SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY:
-				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
-			# <!-- custom: Event Trigger WIDGET_PYTHON route (same situation as Votes — no native jump-to-event-trigger widget in the DLL). (Claude code Opus 4.7) -->
-			if iData1 == SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
-				return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iData2, True, False)
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_PREV or iData1 == SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT:
 				return self.SAS_jumpGamePlayerId(iData2)
 			# <!-- custom: route search-key clicks through WIDGET_PYTHON/data2 instead of parsing widget-name suffixes.
@@ -2622,7 +2561,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 				if self.IS_SAS_SEVO_SEARCH_SPECIAL_CHAR_LINKS_ON and iData2 >= 0 and iData2 < len(self.SAS_SEARCH_KEYBOARD_CHARS):
 					return self.SAS_appendSearchCharacter(self.SAS_SEARCH_KEYBOARD_CHARS[iData2])
 				return 1
-			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
+			# <!-- custom: The LOG button exports the current Python chart data through one shared WIDGET_PYTHON ID.
+			# This avoids matching generated widget names and is independent of the native Era and Tech links inside the tables. (GPT-5.3-Codex + GPT-6.1-Sol) -->
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_CHART_LOG:
 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
 					self.pediaHandicapChart.dumpCsvLog()
@@ -2689,11 +2629,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 			if iData1 == SAS_MAGIC_PEDIA_PYTHON_LEADER_ERA:
 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
 					return self.pediaLeader.applyLeaderEra(iData2)
-		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
-			iBuild = inputClass.getData2()
-			# <!-- custom: use same hybrid trick as Tech Chooser for Sevopedia build entries: this widget restores build hover text, and we route clicks to Builds pedia so behavior stays useful for all build types. See KI#113. (GPT-5.3-Codex) -->
-			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
-				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
+		# <!-- custom: The Tech page's movement icon keeps its native hover and now opens the route it speeds up. (Claude code Opus 5.5) -->
+		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_MOVE_BONUS and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+			iRoute = SevoPediaRouteUtils.getTechMovementRoute(inputClass.getData1())
+			if iRoute >= 0:
+				return self.pediaJump(SevoScreenEnums.PEDIA_ROUTES, iRoute, True, False)
+		# <!-- custom: Bridge building applies to every route, so the Tech page's bridge icon keeps its native hover and opens the first route page, whose Techs panel and bullets explain it; the tech page itself named no route. (Claude code Opus 5.5) -->
+		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_BUILD_BRIDGE and inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+			if gc.getNumRouteInfos() > 0:
+				return self.pediaJump(SevoScreenEnums.PEDIA_ROUTES, 0, True, False)
 
 		return 0
 		# <!-- custom: End - search bar for the left item list (chatgpt 5.2 + claude opus 4.5) -->

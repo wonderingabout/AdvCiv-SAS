@@ -213,9 +213,10 @@ If you don't know how to do something, generally mostly for UI stuff as we like 
 
 While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
 
-Example of UI tip discovered: if a new Sevopedia category needs clickable entries and the EXE doesn't fire a custom widget, use `WidgetTypes.WIDGET_PYTHON` with a custom data1 code (e.g. 6798) and route it in `SevoPediaMain.handleInput` to `pediaJump`. Middle-earth's PlatyPedia routes/traits use this pattern.
+Example of UI tip discovered: links to a Sevopedia category with no native widget first used `WidgetTypes.WIDGET_PYTHON` with a custom data1 code, as Middle-earth's PlatyPedia and C2C do.
 
-C2C mod also uses `WidgetTypes.WIDGET_PYTHON`.
+- Its hover showed only in a loaded game and table and multilist clicks did not always arrive, so links to game entries now use native widgets appended to `WidgetTypes` in the DLL, such as `WIDGET_PEDIA_JUMP_TO_ROUTE`, as Realism Invictus does.
+  - Keep `WIDGET_PYTHON` for actions on the current screen (search keys, Expand, LOG, previews) and for Sevopedia-made entries such as Movies and Music. See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113).
 
 ### Local LLM working folder
 
@@ -767,7 +768,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across advisors, Sevopedia, and utilities.
   - This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk.
   - Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star.
-  - Useful examples: `SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798` is shared by Sevopedia and Tech Chooser instead of being defined twice; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
+  - Useful examples: `SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND = 6807` is shared by the expandable text panels of many Sevopedia pages instead of being defined in each; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
 - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
 
 ### XML

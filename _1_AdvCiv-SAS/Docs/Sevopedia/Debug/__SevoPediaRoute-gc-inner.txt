@@ -1,0 +1,42 @@
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+Captured from PythonDbg.log on 2026-11-08T15:01:51.599Z with _sevopedia_debuggers.printObjAttrs on a live CvRouteInfo.
+The capture lists Python attributes and method names. It does not call the getters.
+
+[DEBUG] Beginning of show obj inner fields.
+__class__
+__delattr__
+__dict__ = {}
+__doc__ = None
+__getattribute__
+__hash__
+__init__
+__instance_size__ = 416
+__module__ = CvPythonExtensions
+__new__
+__reduce__
+__reduce_ex__
+__repr__
+__setattr__
+__str__
+__weakref__ = None
+getButton
+getCivilopedia
+getDescription
+getDescriptionForm
+getFlatMovementCost
+getHelp
+getMovementCost
+getPrereqBonus
+getPrereqOrBonus
+getStrategy
+getTechMovementChange
+getText
+getTextKey
+getType
+getValue
+getYieldChange
+isGraphicalOnly
+isMatchForLink
+[DEBUG] End of show show obj inner fields.

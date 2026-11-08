@@ -154,6 +154,8 @@ public:
 	void setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTypes eImprovement, bool bCivilopediaText = false);
 	void setTerrainHelp(CvWStringBuffer &szBuffer, TerrainTypes eTerrain, bool bCivilopediaText = false);
 	void setFeatureHelp(CvWStringBuffer &szBuffer, FeatureTypes eFeature, bool bCivilopediaText = false);
+	// <!-- custom: Shared discovery help for map, Feature and Build text. See KI#1078. (GPT-6.1-Sol) -->
+	void appendFeatureRemovalDiscoveryHelp(CvWStringBuffer& szBuffer, FeatureTypes eFeature, bool bLinkBonus = false);
 	// BUG - Building Additional info - start
 	bool setBuildingAdditionalYieldHelp(CvWStringBuffer &szBuffer, const CvCity& kCity, YieldTypes eIndex, const CvWString& szStart, bool bStarted = false);
 	bool setBuildingAdditionalCommerceHelp(CvWStringBuffer &szBuffer, const CvCity& kCity, CommerceTypes eIndex, const CvWString& szStart, bool bStarted = false);

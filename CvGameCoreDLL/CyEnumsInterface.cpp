@@ -438,6 +438,14 @@ void CyEnumsPythonInterface()
 		.value("WIDGET_HELP_NO_FEAR_FOR_SAFETY", WIDGET_HELP_NO_FEAR_FOR_SAFETY)
 		.value("WIDGET_POWER_RATIO_INFO_SCREEN", WIDGET_POWER_RATIO_INFO_SCREEN) // <!-- custom: Expose the Info Screen-specific power hover to Python. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		.value("WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY", WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY) // <!-- custom: Expose the combined Military Advisor finance hover to Python. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		.value("WIDGET_PEDIA_JUMP_TO_ROUTE", WIDGET_PEDIA_JUMP_TO_ROUTE) // <!-- custom: Route links in Sevopedia and the advisors. See KI#113. (Claude code Opus 5.5) -->
+		// <!-- custom: Let Sevopedia table cells carry era and trigger IDs for native hover and clicks. See KI#113. (GPT-6.1-Sol) -->
+		.value("WIDGET_PEDIA_JUMP_TO_ERA", WIDGET_PEDIA_JUMP_TO_ERA)
+		.value("WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER", WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER)
+		.value("WIDGET_PEDIA_JUMP_TO_VOTE", WIDGET_PEDIA_JUMP_TO_VOTE) // <!-- custom: Vote links in Sevopedia. See KI#113. (Claude code Opus 5.5) -->
+		// <!-- custom: Build and Trait links in Sevopedia and the Tech Advisor. See KI#113. (Claude code Opus 5.5) -->
+		.value("WIDGET_PEDIA_JUMP_TO_BUILD", WIDGET_PEDIA_JUMP_TO_BUILD)
+		.value("WIDGET_PEDIA_JUMP_TO_TRAIT", WIDGET_PEDIA_JUMP_TO_TRAIT)
 
 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
 		;

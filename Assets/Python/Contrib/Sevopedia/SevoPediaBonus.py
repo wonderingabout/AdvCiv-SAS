@@ -372,10 +372,8 @@ class SevoPediaBonus:
 			draw_none_text(screen, self.top, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS)
 			return
 		rowListName = self.top.getNextWidgetName()
-		multiListX = self.X_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_BUILDINGS_AND_PROJECTS + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
 		iButtonIndex = 0
@@ -405,10 +403,8 @@ class SevoPediaBonus:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
@@ -445,10 +441,8 @@ class SevoPediaBonus:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
@@ -486,10 +480,8 @@ class SevoPediaBonus:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False

@@ -339,7 +339,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		screen.enableSelect(listBoxName, False)
 		# <!-- custom: extra space (" ") in some of these listboxstringsto better align with the research icon char starting more on the right, depending on where the space is put, the text is so much better left-aligned between rows i think/feel/see or so it seems to me if i mmay say... -->
 		screen.appendListBoxString(listBoxName, SASTextScale.titleText(u" " + techInfo.getDescription()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-		screen.appendListBoxString(listBoxName, SASTextScale.labelText(u" " + szEra), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.appendListBoxString(listBoxName, SASTextScale.labelText(u" " + szEra), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, techInfo.getEra(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 		screen.appendListBoxString(listBoxName, SASTextScale.titleText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def placeMusic(self):
@@ -742,9 +742,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 				iImprovement = buildInfo.getImprovement()
 				if iImprovement != -1:
 					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+				# <!-- custom: A route unlock showed the Build icon with the Build's "Can Build a Road" hover; it now shows the route itself, with its hover and page, as improvements do. See KI#113. (Claude code Opus 5.5) -->
+				elif buildInfo.getRoute() != -1:
+					iRoute = buildInfo.getRoute()
+					screen.attachImageButton(panelName, "", gc.getRouteInfo(iRoute).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, 1, False)
 				else:
-					# Use WIDGET_HELP_IMPROVEMENT to keep the feature-removal tooltip/redirect behavior (DLL change).
-					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, self.iTech, iBuild, False)
+					# <!-- custom: The native Build widget passes this tech, so its hover keeps the "Can ..." line WIDGET_HELP_IMPROVEMENT gave, and it opens the Build page without a Python reroute. See KI#113. (Claude code Opus 5.5) -->
+					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, iBuild, self.iTech, False)
 				bButtonFound = True
 
 		# Special buildings like monasteries
@@ -1001,7 +1005,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 			# Navigation widgets only work with setImageButtonAt, not table cells.
 			# To make this clickable, would need to restructure from table to individual buttons. (Claude code Sonnet 4.5) -->
 			eraButtonPath = eraInfo.getButton()
-			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, eraInfo.getDescription(), eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY, SASTextScale.sasFontTagLabel)
+			SASTextScale.setTableTextScaled(screen, tableName, 0, iRow, eraInfo.getDescription(), eraButtonPath, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iEra, -1, CvUtil.FONT_LEFT_JUSTIFY, SASTextScale.sasFontTagLabel)
 
 			# Untradeable tech count column
 			SASTextScale.setTableTextScaled(screen, tableName, 1, iRow, u"%d" % techCount, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY, SASTextScale.sasFontTagLabel)

@@ -47,6 +47,8 @@ public:
 	std::wstring getImprovementHelp(int iImprovement, bool bCivilopediaText);
 	std::wstring getTerrainHelp(int iTerrain, bool bCivilopediaText);
 	std::wstring getFeatureHelp(int iFeature, bool bCivilopediaText);
+	// <!-- custom: Build panels reuse the discovery text without repeating the rest of the Feature help. See KI#1078. (GPT-6.1-Sol) -->
+	std::wstring getFeatureRemovalDiscoveryHelp(int iFeature);
 	std::wstring parseCivicInfo(int /*CivicTypes*/ iCivicType, bool bCivilopediaText, bool bPlayerContext, bool bSkipName);
 	std::wstring parseReligionInfo(int /*ReligionTypes*/ iReligionType, bool bCivilopediaText);
 	std::wstring parseCorporationInfo(int /*CorporationTypes*/ iCorporationType, bool bCivilopediaText);

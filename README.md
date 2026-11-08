@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
-As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
+As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Route (e.g. Road and Railroad), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
 
 Among other UI changes, notably, the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)). As for advisor screens in particular, and they have been reworked or new ones were added. For example, notably:
 
@@ -151,7 +151,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;&emsp;[Music](/README.md#music)\
 &emsp;&emsp;[Expanded Panels](/README.md#expanded-panels)\
 &emsp;[Other new categories](/README.md#other-new-categories)\
-&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)\
+&emsp;&emsp;[Linking custom categories (e.g. Builds, Traits, Routes)](/README.md#linking-custom-categories-eg-builds-traits-routes)\
 &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)\
 &emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-starting-and-untradeable-techs-charts-improvement-weights-leaders-chart)\
 &emsp;&emsp;[Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables](/README.md#notes-about-the-sevopedia-leaders-ai-personality-panel-and-sevopedia-traits-tables)\
@@ -664,15 +664,17 @@ Also, animation occupies all page height but width is a percentage of height (e.
 
 ### Other new categories
 
-#### Widget Python 6798 to link (e.g. for Builds, for Traits)
+#### Linking custom categories (e.g. Builds, Traits, Routes)
 
-Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
+Sevopedia categories that base Civ4 lacks, such as Builds, Traits, Routes, Eras, Event Triggers and Votes, link through native widgets added in the DLL, such as `WIDGET_PEDIA_JUMP_TO_BUILD`. Their hover and click work in every screen, including the main-menu Sevopedia.
 
-As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the new Sevopedia Builds' category's corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)!
+They first used `WIDGET_PYTHON`, as Middle-earth's PlatyPedia does; [Sevopedia Reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#linking-custom-categories-widget_python-then-native-dll-widgets) explains why they moved to the DLL, as in Realism Invictus; see [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113).
 
 Added a new Sevopedia Builds Category listing these distinctly from improvements (see [Sevopedia Reworks: example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)), with the big and nice help of GPT-5.2-Codex; thanks a lot!
 
-We also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter.
+Trait links replaced the old clunky base AdvCiv `CONCEPT_TRAIT` entries, which allowed us to delete old XML clutter.
+
+Routes (e.g. Road and Railroad) got their own Sevopedia Routes category page instead of linking to their Builds (see [Sevopedia Reworks: example 0.43 Routes category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-043-routes-category-routeinfo-eg-road-and-railroad)), with the help of GPT-6.1-Sol and Claude code Opus 5.5, thanks a lot!
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/1.721_sevopedia_builds (1).JPG" alt="1.721_sevopedia_builds (1).JPG" width="250"></img>
 
@@ -746,6 +748,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/1.850_sevopedia_shortcuts (1).JPG" alt="1.850_sevopedia_shortcuts (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/1.860_sevopedia_votes (3).JPG" alt="1.860_sevopedia_votes (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/1.870_sevopedia_eventtriggers (3).JPG" alt="1.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (2).JPG" alt="1.880_sevopedia_routes (2).JPG" width="250"></img>
 
 #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
 

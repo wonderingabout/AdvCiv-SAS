@@ -16,7 +16,7 @@ Note 4: integer KI numbers form a continuous ledger:
 
 Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
 
-Note 5: despite the name, this is not only a list of defects. An entry records any issue worth knowing about and what was investigated and decided, so its title tag can say fixed, worked around, reverted, refactored, retired, rejected, clarified, pending, and so on.
+Note 5: despite the name, this is not only a list of defects. An entry records any issue worth knowing about and what was investigated and decided, e.g. fixed, worked around, reverted, refactored, retired, rejected, clarified, pending, or updates, changes or corrections or enhancements since then, mistaken assumptions, confirmations or related occurences, new findings/information, and so on.
 
 - The reasoning stays with the decision, so later work can see why something was done rather than only what.
 - Code comments end with `See KI#...`, so a grep for the number finds both the entry and every related part of the code.
@@ -11120,6 +11120,55 @@ Update:
 - After the KI#113 refactor, a regression appeared in Sevopedia Builds list: removable builds (e.g. Remove Jungle, Chop Down a Forest, Scrub Fallout) could lose their icon/button in the left list, while route builds still looked fine (Sevopedia Index stayed unaffected).
 - Root cause: in `SevoPediaMain.placeItems`, header detection used `data1 == -1`, but for Builds `data1` is repurposed to build tech prereq for `WIDGET_HELP_IMPROVEMENT`; removable builds often have `<PrereqTech>NONE</PrereqTech>`, so they were falsely treated as headers.
 - Fix: detect real headers/spacers using the original list marker `item[1] == -1` (not mutated `data1`), which restores those Build icons/buttons in Sevopedia Builds.
+
+Update (2026-11-08, Routes category):
+
+- The Routes page showed its Event Triggers as identical green buttons without hover, and Votes on Civic pages, an Event Trigger's prerequisite events and a Build's route result had the same gap.
+- The speculation above that the hover generator is not reachable from `WIDGET_PYTHON` overlooked BUG: `WidgetUtil.getWidgetHelp` is registered as a game-utils handler in `Assets/Config/init.xml`, and passes `WIDGET_PYTHON` hovers to the `CvGameUtils.getWidgetHelp` default, which returns an empty string.
+  - The DLL never calls `getWidgetHelp`, so the EXE does; the World Advisor's custom BUG widgets already get their hover this way.
+- `SevoPediaMain.py` now registers `SAS_getPediaPythonWidgetHelp` for `WIDGET_PYTHON`, naming the route, vote or event trigger behind each Sevopedia jump ID. Whether the EXE asks for `WIDGET_PYTHON` hover, as it does for custom widgets, still needs an in-game check. If it does, the Build hybrid widget above could later be reconsidered too.
+- The in-game test the same day showed no hover and no click on the Routes page's Event Triggers table, whose cells used `WIDGET_PYTHON`; as the Index had found for Builds and Traits, table cells only report the selected row. The table now maps its selected row to the trigger.
+- Routes moved to a BUG custom widget, `WIDGET_SAS_PEDIA_ROUTE` in `SevoPediaRouteWidget.py`, the mechanism whose hover already works for the scoreboard buttons in `CvMainInterface.py`.
+  - Route unlocks in the Tech Advisor and Sevopedia Techs also used `WIDGET_HELP_IMPROVEMENT` on the Build icon, whose hover describes the action ("Can Build a Road"); they now show the route's icon and hover, as improvement unlocks show the improvement.
+  - Votes and an Event Trigger's prerequisite events still use `WIDGET_PYTHON` with the registration above, which remains untested on image buttons; the same custom-widget approach could follow if it gives no hover.
+- The next in-game test, also on 2026-11-08, showed that Python hover depends on where Sevopedia is opened:
+  - In a loaded game, the custom route widget showed its hover in the Tech Advisor, the World Advisor Territory table and an Event Trigger's Requires buttons, and `WIDGET_PYTHON` prerequisite-event buttons showed the trigger name through the registration above.
+  - Opened from the main menu, neither showed any hover. BUG's `getWidgetHelp` is a game-utils callback, and it apparently runs only once a game is loaded.
+  - Clicks on the custom widget worked in the Tech Advisor, the Sevopedia Tech Enables panel, Improvement rows and the World Advisor, but not in an Event Trigger's Requires multilist.
+  - Native DLL widgets, such as the tech and improvement jumps, show hover in the main menu too, so a DLL widget is the way to make route hover reliable everywhere; Realism Invictus adds `WIDGET_PEDIA_JUMP_TO_ROUTE` this way.
+- SAS now adds `WIDGET_PEDIA_JUMP_TO_ROUTE` too, appended at the end of `WidgetTypes` like the KI#388 and KI#390 widgets: `CvDLLWidgetData::parseRouteHelp` gives the hover and `executeAction` calls `pediaJumpToRoute`.
+  - The BUG custom widget, its click handlers and the Index and World Advisor row mappings for routes were removed; `SevoPediaRouteWidget.py` became `SevoPediaRouteUtils.py`, which keeps only route lookups. The Routes page's Event Triggers table keeps its row mapping, since triggers have no native widget.
+  - Votes, event triggers, eras, Builds and Traits could get native widgets the same way.
+  - The next in-game test confirmed hover and click from the main menu, in Sevopedia Techs, Builds and Event Triggers and in the World Advisor. In the Tech Advisor the hover showed, but a click did not open the route page, so `CvTechChooser.py` now opens it from its own input handler, as it already does for Build icons.
+
+Update (2026-11-08, Era and Event Trigger chart links):
+
+- Tech names already had native jump widgets. Era cells used a general widget with no era ID, so they could neither show a tooltip nor open the Eras chart.
+- The native Era widget opens the comparison chart and highlights the selected era's column heading. Era chart icons keep their movie links where available. Other era icons use the chart link.
+- Tech names in the Eras chart also retain their tech IDs, so they link back to the Tech pages with native hover. CSV output still contains the displayed names.
+- The Routes page's Event Triggers cells now carry their trigger ID in a native widget. The DLL supplies hover and navigation, replacing the Python row map. The chart keeps its era ordering. The Event Triggers category and prerequisite-event buttons use the same widget, retiring their previous Python jump ID.
+- Chart LOG buttons still use their shared Python widget ID because they export the Python chart data. The old per-chart handlers that matched generated widget names were removed.
+
+Update (2026-11-08, Votes, Builds and Traits):
+
+- Votes, Builds and Traits now use native widgets too: `WIDGET_PEDIA_JUMP_TO_VOTE`, `WIDGET_PEDIA_JUMP_TO_BUILD` and `WIDGET_PEDIA_JUMP_TO_TRAIT`.
+  - Votes: the Votes list, the Civic page's vote buttons and the Specialist page's vote-source row; the hover names the vote.
+  - Builds: the Builds list, Index, Feature, Improvement, Route and Tech pages, and the Tech Advisor's clearing actions. With a tech in its second value, the hover keeps the Tech pages' "Can ..." line; otherwise it summarises the Build.
+    - This retires the hybrid above: `WIDGET_HELP_IMPROVEMENT` remains only on Tech Advisor improvement icons, where its own click opens the Improvement as in base AdvCiv, and in BUG's tech-discovery windows.
+  - Traits: the Traits list, Index and the Trait page's pairing table; the hover is the trait's full help, as Leader pages show it.
+- `SevoPediaMain.py` no longer registers a `WIDGET_PYTHON` hover through BUG's `WidgetUtil`. The list handlers, Index row maps and the `6798`, `6799` and `6811` jump IDs for these entries were removed.
+  - The Tech Advisor still opens Build and route pages from its own input handler, since their DLL click did not open them there in game.
+- The rule this leaves: a button that opens a game entry uses a native DLL widget, which gives the same hover and click in every screen and in the main menu. `WIDGET_PYTHON` stays for actions on the current screen, such as search keys, Expand, CSV logs, music and leader previews, and for Movies and Music, which are Sevopedia pages with packed keys rather than game entries.
+
+Update (2026-11-08, Builds list and Trait table):
+
+- In game, the Routes, Votes and Traits lists worked with their native widgets, but the Builds list did neither hover nor click: selecting "Build a Mine" left the previous Build page open.
+  - Build names carry an inline link to their improvement (the underlined "Mine"), and in a table cell with a native widget that link took the hover and click; the earlier Index note that table selection was the only reliable click for Builds came from the same markup. `strip_pedia_links` now gives the Builds list and Index plain names.
+  - The empty hover had a second cause: the list passes `data2 = 1`, as BULL does, which the Build hover read as tech 1, and that tech does not unlock the Build. The hover now uses the tech line only when it has text, otherwise the Build summary.
+- The Trait page's right table (all trait pairs) put its trait names in `WIDGET_GENERAL` cells, so only the left table linked; both now use the Trait widget. A sweep of the other Sevopedia tables found only counts, ranks and labels in plain cells.
+- Two route-link fixes from the same work:
+  - The Tech Advisor's route click raised `NameError: global name 'gc' is not defined`: `pediaJumpToRoute` in `CvScreensInterface.py` used a `gc` that module never defines, and `pediaJumpToBuild`'s non-Sevopedia path had the same mistake. Both call `CyGlobalContext()` now.
+  - An Event Trigger's required routes, such as Road or Railroad for Mother Lode, appeared in Requires (Text) only; they now also get route buttons in Requires (Buttons).
 
 <a id="ki-114"></a>
 
@@ -37250,6 +37299,16 @@ That reasoning was too narrow: the chance is XML, and a mod-mod could set 50%, w
 - The inherited per-turn `iDiscoverRand` roll, such as a Mine finding Gold, is still valued only by its token point; a mod-mod with high per-turn odds would make that worth revisiting.
 
 Not yet tested in game at the time of writing. Raised by wonderingabout while designing Peat; investigated and implemented with the help of Claude code Opus 5.5, thanks.
+
+Update (2026-11-08, Routes category):
+
+- The Mine's improvement help describes the recurring discovery roll on a worked Mine. Peat uses a separate, one-time roll when a build clears eligible, bonus-free Marsh. Peat Works keeps Marsh, so neither its Build nor its Improvement page advertises a discovery roll.
+- The DLL now formats the same build-clearing discovery rule for the Marsh page, the Build page's Feature Struct panel and map hover. The Build page uses `CyGameTextMgr.getFeatureRemovalDiscoveryHelp` for the discovery line alone. Map hover shows the general rule on visible plots with no known resource, so a hidden resource cannot be inferred from the line's presence.
+
+Update (2026-11-08, discovery text review):
+
+- The map hover line for Marsh was removed: it showed the 5% Peat chance on every visible Marsh tile, which raised false hopes for a rare find, and the Mine's per-turn chance has no map line either. The Marsh page, its Sevopedia hover and the Build pages keep it.
+- The Sevopedia Mine text said "While worked: small chance each turn" without a bullet, odds or a clear moment. `CvPlot::doImprovement` rolls 1 in `iDiscoverRand`, scaled by game speed, each turn a city's citizen works the improved tile while it has no resource, for resources the tile can hold; the text now says so and lists each resource with its odds at Normal speed, such as Gold (1/10000).
 
 <a id="ki-1079"></a>
 

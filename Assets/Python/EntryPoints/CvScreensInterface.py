@@ -395,6 +395,7 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_CIVS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 								# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -446,6 +447,7 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_ROUTES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_CIVS		 	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 							# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -557,13 +559,43 @@ def pediaJumpToImprovement(argsList):
 	else:
 		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
 
+def pediaJumpToRoute(argsList):
+	iRoute = argsList[0]
+	# <!-- custom: This module has no global gc, so the Tech Advisor click raised NameError: global name 'gc' is not defined; other functions here call CyGlobalContext() directly. See KI#113. (Claude code Opus 5.5) -->
+	if bUsingSevopedia and 0 <= iRoute < CyGlobalContext().getNumRouteInfos():
+		return pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_ROUTES, iRoute, True, False)
+	return 0
+
+def pediaJumpToEra(argsList):
+	iEra = argsList[0]
+	if bUsingSevopedia and 0 <= iEra < CyGlobalContext().getNumEraInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_ERA_CHART, iEra, True, False)
+
+# <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_TRAIT. See KI#113. (Claude code Opus 5.5) -->
+def pediaJumpToTrait(argsList):
+	iTrait = argsList[0]
+	if bUsingSevopedia and 0 <= iTrait < CyGlobalContext().getNumTraitInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iTrait, True, False)
+
+# <!-- custom: Target of the native WIDGET_PEDIA_JUMP_TO_VOTE. See KI#113. (Claude code Opus 5.5) -->
+def pediaJumpToVote(argsList):
+	iVote = argsList[0]
+	if bUsingSevopedia and 0 <= iVote < CyGlobalContext().getNumVoteInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_VOTES, iVote, True, False)
+
+def pediaJumpToEventTrigger(argsList):
+	iTrigger = argsList[0]
+	if bUsingSevopedia and 0 <= iTrigger < CyGlobalContext().getNumEventTriggerInfos():
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iTrigger, True, False)
+
 def pediaJumpToBuild(argsList):
 	if (bUsingSevopedia):
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_BUILDS, argsList[0], True, False)
 	else:
 		# <!-- custom: Standard Civilopedia has no Build page, and BuildTypes IDs are unrelated to ImprovementTypes IDs.
 		# Redirect only improvement-producing Builds through their real ImprovementTypes value; unsupported route/feature-removal Builds now stay on the current screen instead of opening an unrelated Improvement. See KI#301. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		iImprovement = gc.getBuildInfo(argsList[0]).getImprovement()
+		# <!-- custom: Same missing gc as pediaJumpToRoute; this path runs only without Sevopedia. (Claude code Opus 5.5) -->
+		iImprovement = CyGlobalContext().getBuildInfo(argsList[0]).getImprovement()
 		if iImprovement >= 0:
 			pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, iImprovement, True)
 

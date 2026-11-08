@@ -233,8 +233,8 @@ class SevoPediaFeature:
 		if len(removalBuilds) > 0:
 			for iBuild in removalBuilds:
 				buildInfo = gc.getBuildInfo(iBuild)
-				# <!-- custom: use WIDGET_HELP_IMPROVEMENT for build hover text; click routing to Builds pedia is handled centrally in SevoPediaMain.handleInput. See KI#113. (GPT-5.3-Codex) -->
-				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, buildInfo.getTechPrereq(), iBuild, False)
+				# <!-- custom: The native Build widget gives the hover and opens the Build page; it replaced WIDGET_HELP_IMPROVEMENT plus a Python click reroute. See KI#113. (GPT-5.3-Codex + Claude code Opus 5.5) -->
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, iBuild, -1, False)
 		else:
 			draw_none_text(screen, self.top, self.X_BUILD_REMOVES, self.Y_BUILD_REMOVES, self.W_BUILD_REMOVES, self.H_BUILD_REMOVES)
 
@@ -245,10 +245,8 @@ class SevoPediaFeature:
 		if len(techModifiers) > 0 and len(removalBuildsWithProduction) > 0:
 			# <!-- custom: multilist instead of attachImageButton so each chop-production tech shows its +%% modifier as numTxt under the button, like the modifier buttons in Sevopedia Unit. (Claude code Opus 4.7) -->
 			rowListName = self.top.getNextWidgetName()
-			multiListX = self.X_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_X
-			multiListY = self.Y_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_Y
-			multiListW = self.W_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_W
-			multiListH = self.H_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_H
+			# <!-- custom: Shared placement aligns this button with the Remove button beside it. (Claude code Opus 5.5) -->
+			multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
 			screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 			iButtonIndex = 0
 			maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
@@ -394,10 +392,8 @@ class SevoPediaFeature:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iButtonIndex = 0
@@ -519,10 +515,8 @@ class SevoPediaFeature:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iIce = self.I_FEATURE_ICE

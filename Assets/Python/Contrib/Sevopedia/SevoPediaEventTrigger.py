@@ -269,7 +269,8 @@ class SevoPediaEventTrigger:
 				if iRoute >= 0:
 					routeInfo = gc.getRouteInfo(iRoute)
 					if routeInfo:
-						listRoutes.append(routeInfo.getDescription())
+						# <!-- custom: Link to the Routes page now that it exists, as the event route-change effect already does. (Claude code Opus 5.5) -->
+						listRoutes.append(make_pedia_link(routeInfo.getDescription()))
 			if listRoutes:
 				lines.append(SASVisuals.Font.BULLET_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES", ()) + u": " + localText.getText("TXT_KEY_OR", ()).join([u" " + szRoute + u" " for szRoute in listRoutes]).strip())
 			listPython = []
@@ -786,10 +787,8 @@ class SevoPediaEventTrigger:
 		# Only the OtherPlayerHasTech button carries a "Oth.P." numTxt — direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation icons are self-identifying by art and don't need extra text.
 		# AND/OR separator labels are dropped vs the previous inline flow; the distinction is rare in vanilla triggers and keeping multilist discipline is worth the small loss. (Claude code Opus 4.7) -->
 		rowListName = self.top.getNextWidgetName()
-		multiListX = self.X_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_REQUIRES_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_REQUIRES_BUTTONS, self.Y_REQUIRES_BUTTONS, self.W_REQUIRES_BUTTONS, self.H_REQUIRES_BUTTONS)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		iButtonIndex = 0
@@ -953,6 +952,18 @@ class SevoPediaEventTrigger:
 				iButtonIndex += 1
 				iListButtonIndex += 1
 
+		# <!-- custom: Required routes were listed in Requires (Text) only, so Mother Lode showed Road or Railroad there but not here; they get buttons like the other plot requirements now that routes have their own page. See KI#113. (Claude code Opus 5.5) -->
+		iListButtonIndex = 0
+		for i in range(info.getNumRoutesRequired()):
+			iRoute = info.getRouteRequired(i)
+			if iRoute < 0:
+				continue
+			if iListButtonIndex > 0:
+				add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+			screen.appendMultiListButton(rowListName, gc.getRouteInfo(iRoute).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, 1, False)
+			iButtonIndex += 1
+			iListButtonIndex += 1
+
 		iListButtonIndex = 0
 		for i in range(info.getNumPrereqEvents()):
 			iPrereqEvent = info.getPrereqEvent(i)
@@ -975,7 +986,7 @@ class SevoPediaEventTrigger:
 			if iTargetTrigger >= 0:
 				if iListButtonIndex > 0:
 					add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szOrLabel, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
-				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY, iTargetTrigger, False)
+				screen.appendMultiListButton(rowListName, eventInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER, iTargetTrigger, -1, False)
 				iButtonIndex += 1
 				iListButtonIndex += 1
 
@@ -995,10 +1006,8 @@ class SevoPediaEventTrigger:
 			return
 
 		rowListName = self.top.getNextWidgetName()
-		multiListX = self.X_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_OBSOLETE_BUTTONS, self.Y_OBSOLETE_BUTTONS, self.W_OBSOLETE_BUTTONS, self.H_OBSOLETE_BUTTONS)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the trigger.

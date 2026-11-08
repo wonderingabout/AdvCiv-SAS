@@ -120,6 +120,7 @@ class SevoScreenEnums:
 	PEDIA_MUSIC		= 234
 	PEDIA_VOTES		= 235
 	PEDIA_EVENT_TRIGGERS	= 236
+	PEDIA_ROUTES		= 237
 
 
 # <!-- custom: Enrich Python screen diagnostics by deriving names once from this catalog, instead of repeating ID-to-name tables at log callers.

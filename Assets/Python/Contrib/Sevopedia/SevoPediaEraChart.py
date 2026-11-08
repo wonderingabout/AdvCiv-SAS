@@ -22,7 +22,6 @@ class SevoPediaEraChart:
 	def __init__(self, main):
 		self.top = main
 		self._cachedTable = None
-		self.szCsvLogButton = ""
 
 		self.MARGIN = CHART_TABLE_MARGIN
 		self.ROW_H = CHART_TABLE_ROW_H
@@ -37,11 +36,14 @@ class SevoPediaEraChart:
 
 		# <!-- custom: Cache emoji icon path for performance. (GPT-5.2-Codex (summarized)) -->
 
-	def interfaceScreen(self):
+	# <!-- custom: A native Era jump supplies an era ID.
+	# Opening the chart from its category leaves every header unselected. (GPT-6.1-Sol) -->
+	def interfaceScreen(self, iFocusEra=-1):
 		screen = self.top.getScreen()
-		self._drawTable(screen)
+		self._drawTable(screen, iFocusEra)
 
-	def _drawTable(self, screen):
+	# <!-- custom: Pass the jump's focus to the table without storing it in the cached comparison data. (GPT-6.1-Sol) -->
+	def _drawTable(self, screen, iFocusEra):
 		x = self.top.X_ITEMS
 		y = self.top.Y_PEDIA_PAGE
 		w = self.top.W_SCREEN - self.top.X_ITEMS - self.MARGIN
@@ -49,7 +51,7 @@ class SevoPediaEraChart:
 
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
-		self.szCsvLogButton = chart_add_csv_log_button(screen, self.top, x, y, w)
+		chart_add_csv_log_button(screen, self.top, x, y, w)
 
 		data = self._getTableData()
 		if not data:
@@ -112,7 +114,7 @@ class SevoPediaEraChart:
 						iPackedEraMovie = self.top.SAS_packMovieKey(SAS_MAGIC_PEDIA_MOVIE_TYPE_ERA, iEra)
 						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedEraMovie)
 					else:
-						screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ERA, iEra, -1)
 
 		# Table starts below the button row (or at top if buttons disabled)
 		tableY = y + self.MARGIN + 4 + buttonRowH
@@ -127,6 +129,10 @@ class SevoPediaEraChart:
 		appendRow = screen.appendTableRow
 		setCell = screen.setTableText
 
+		# <!-- custom: Era links select a column in the comparison chart, which has no individual era pages. (GPT-6.1-Sol) -->
+		iFocusColumn = -1
+		if 0 <= iFocusEra < value_cols:
+			iFocusColumn = nCols - value_cols + iFocusEra
 		for iCol in range(nCols):
 			if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS and iCol == 0:
 				colW = self.W_ICON
@@ -134,7 +140,10 @@ class SevoPediaEraChart:
 				colW = self.W_FIELD
 			else:
 				colW = wNum
-			setHeader(table, iCol, header[iCol], colW)
+			szHeader = header[iCol]
+			if iCol == iFocusColumn:
+				szHeader = localText.changeTextColor(szHeader, SASVisuals.Color.HIGHLIGHT_TEXT)
+			setHeader(table, iCol, szHeader, colW)
 
 		for row in rows:
 			iRow = appendRow(table)
@@ -161,14 +170,11 @@ class SevoPediaEraChart:
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 				# Value columns (center)
+				elif isinstance(cell, tuple):
+					szText, iTech = cell
+					setCell(table, iCol, iRow, szText, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				else:
 					setCell(table, iCol, iRow, cell, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
-
-	def handleInput(self, inputClass):
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and self.szCsvLogButton and inputClass.getFunctionName() == self.szCsvLogButton:
-			chart_dump_table_csv("SAS_SEVOPEDIA_ERA_CHART", self._getTableData())
-			return 1
-		return 0
 
 	def dumpCsvLog(self):
 		chart_dump_table_csv("SAS_SEVOPEDIA_ERA_CHART", self._getTableData())
@@ -329,15 +335,7 @@ class SevoPediaEraChart:
 			iEra = tech_info.getEra()
 			if iEra < 0 or iEra >= len(era_types):
 				continue
-			tech_name = chart_get_info_display_name(tech_info)
-			techs_by_era[era_types[iEra]].append(tech_name)
-
-		for era_type in era_types:
-			tech_list = techs_by_era.get(era_type, [])
-			if tech_list:
-				parsed_data[era_type]["Techs"] = ", ".join(tech_list)
-			else:
-				parsed_data[era_type]["Techs"] = ""
+			techs_by_era[era_types[iEra]].append(iTech)
 
 		header = []
 		if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
@@ -351,19 +349,25 @@ class SevoPediaEraChart:
 		table = [header]
 
 		row_index = 0
-		techs_per_cell = 1
 		for field_name, display_label, _getter_name, _icon_token, value_type in row_specs:
 			if field_name == "Techs":
-				tech_rows = self._expandTechRows(field_name, era_types, parsed_data, techs_per_cell, none_text)
-				for tech_row in tech_rows:
-					display_text = tech_row["Field"]
+				# <!-- custom: Keep the tech ID with the rendered name so links survive duplicate translations and sorting.
+				# The shared CSV formatter still writes only the text from each tuple. (GPT-6.1-Sol) -->
+				iRows = max([1] + [len(techs) for techs in techs_by_era.values()])
+				for i in xrange(iRows):
+					# <!-- custom: Numbered field labels keep tech rows together when sorting by Field. (GPT-5.2-Codex + GPT-6.1-Sol) -->
+					row = [chart_font2("Tech %02d" % (i + 1))]
 					if self.IS_SAS_SEVO_ERA_CHART_HEADER_ICONS:
-						icon_key = tech_row.get("IconKey", "")
-						row = [icon_cell_for_key(icon_key, row_index), chart_font2(display_text)]
-					else:
-						row = [chart_font2(display_text)]
+						row.insert(0, icon_cell_for_key(field_name, row_index))
 					for era_type in era_types:
-						row.append(chart_font2(tech_row.get(era_type, "")))
+						techs = techs_by_era[era_type]
+						if i < len(techs):
+							iTech = techs[i]
+							row.append((chart_font2(chart_get_info_display_name(gc.getTechInfo(iTech))), iTech))
+						elif i == 0:
+							row.append(chart_font2(none_text))
+						else:
+							row.append(chart_font2(""))
 					table.append(row)
 					row_index += 1
 				continue
@@ -398,31 +402,3 @@ class SevoPediaEraChart:
 			if value.lower() == "false":
 				return ""
 		return value
-
-	def _expandTechRows(self, field_name, era_types, parsed_data, techs_per_cell, none_text):
-		per_era_chunks = {}
-		max_chunks = 1
-		for era_type in era_types:
-			raw = parsed_data.get(era_type, {}).get(field_name, "")
-			items = chart_format_tech_list(raw, True, none_text)
-			chunks = chart_chunk_list(items, techs_per_cell)
-			if not chunks:
-				chunks = [[none_text]]
-			per_era_chunks[era_type] = chunks
-			if len(chunks) > max_chunks:
-				max_chunks = len(chunks)
-
-		rows = []
-		# <!-- custom: use numbered field labels so sorting by the Field column keeps Tech rows together; blank labels can jump on sort. (GPT-5.2-Codex) -->
-		for i in xrange(max_chunks):
-			row = {}
-			row["Field"] = "Tech %02d" % (i + 1)
-			row["IconKey"] = field_name
-			for era_type in era_types:
-				chunks = per_era_chunks[era_type]
-				if i < len(chunks):
-					row[era_type] = ", ".join(chunks[i])
-				else:
-					row[era_type] = ""
-			rows.append(row)
-		return rows

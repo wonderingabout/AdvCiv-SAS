@@ -9,8 +9,8 @@ from CvPythonExtensions import *
 from SASMagicNumbers import *
 import CvUtil
 # <!-- custom: Consume the surviving shared helper directly after retiring the overlapping SASUIResources dependency; avoid keeping a redundant visual-resource facade. (ChatGPT-5.6-Sol) -->
+# <!-- custom: Route results link by RouteInfo ID, so this page no longer resolves Road and Railroad Build XML tags. (GPT-6.1-Sol) -->
 import SASTextScale
-from SASUtils import getInfoTypeOrFail
 
 from _sevopedia_helpers import *
 
@@ -24,8 +24,6 @@ class SevoPediaBuild:
 		self.iBuild = -1
 		self.bHistoryExpanded = False
 		self.top = main
-		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
-		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
 
 		self.X_BUILD_PANE = self.top.X_PEDIA_PAGE
 		self.Y_BUILD_PANE = self.top.Y_PEDIA_PAGE
@@ -99,7 +97,7 @@ class SevoPediaBuild:
 		self.placeBuildPane()
 		self.placeRequires()
 		self.placeFeatureProduction()
-		self.placeImprovements()
+		self.placeResult()
 		self.placeUnitsBuild()
 		self.placeFeatureStructs()
 		self.placeSpecial()
@@ -125,17 +123,23 @@ class SevoPediaBuild:
 		screen.attachLabel(panelName, "", "  ")
 
 		buildInfo = gc.getBuildInfo(self.iBuild)
-		bFound = False
-
 		iTech = buildInfo.getTechPrereq()
+		# <!-- custom: Dedicated clearing actions can have no general tech but require the same tech on every feature they remove.
+		# Keep conditional techs for improvements, routes and clearing actions with different per-feature requirements in the feature panels. (GPT-6.1-Sol) -->
+		if iTech < 0 and buildInfo.getImprovement() < 0 and buildInfo.getRoute() < 0:
+			featureTechs = set(buildInfo.getFeatureTech(iFeature) for iFeature in xrange(gc.getNumFeatureInfos()) if buildInfo.isFeatureRemove(iFeature))
+			if len(featureTechs) == 1:
+				iTech = featureTechs.pop()
+			elif len(featureTechs) > 1:
+				draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, "TXT_KEY_PEDIA_SAS_BUILD_SEE_FEATURE_RULES")
+				return
 		if iTech > -1:
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
-			bFound = True
-
-		if not bFound:
+		else:
 			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
 
-	def placeImprovements(self):
+	# <!-- custom: The Result panel now covers feature removal as well as the route or improvement that a build creates. (GPT-6.1-Sol) -->
+	def placeResult(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_RESULTS_SHORT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
@@ -152,19 +156,33 @@ class SevoPediaBuild:
 		iRoute = buildInfo.getRoute()
 		if iRoute > -1:
 			routeInfo = gc.getRouteInfo(iRoute)
-			iBuild = -1
-			if routeInfo.getType() == "ROUTE_ROAD":
-				iBuild = self.SAS_iBuildRoad
-			elif routeInfo.getType() == "ROUTE_RAILROAD":
-				iBuild = self.SAS_iBuildRailroad
-			if iBuild < 0:
-				raise Exception("SevoPediaBuild: missing Build for route %s" % routeInfo.getType())
-			# <!-- custom: use WIDGET_HELP_IMPROVEMENT for route-result build hover text; click redirect to Builds is handled in SevoPediaMain. See KI#113. (GPT-5.3-Codex) -->
-			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild, False)
+			# <!-- custom: The Result button now opens the RouteInfo page, which links back to all matching Builds with their native hover text. See KI#113.
+			# It uses the native route widget for the route's own hover; WIDGET_PYTHON showed none. (GPT-5.3-Codex + GPT-6.1-Sol + Claude code Opus 5.5) -->
+			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, 1, False)
 			bFound = True
 
-		if not bFound:
+		if bFound:
+			return
+
+		# <!-- custom: A dedicated clearing action produces no route or improvement.
+		# Show the removed feature as its result and label the icon so it cannot be mistaken for a feature the action creates. (GPT-6.1-Sol) -->
+		features = [iFeature for iFeature in xrange(gc.getNumFeatureInfos()) if buildInfo.isFeatureRemove(iFeature)]
+		if not features:
 			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
+			return
+
+		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+		rowListName = self.top.getNextWidgetName()
+		# <!-- custom: The shared placement fits a 64px icon in the one-button Result panel and aligns it with the attached buttons beside it. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+		x, y, w, h = get_panel_multilist_rect(self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
+		screen.addMultiListControlGFC(rowListName, "", x, y, w, h, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+		maxButtonsPerRow = get_multilist_max_buttons_per_row(w, MULTILIST_BUTTON_SIZE)
+		# <!-- custom: RF means Removes Feature in the legend, with a nod to rm -rf. (GPT-6.1-Sol) -->
+		szRemoved = localText.getText("TXT_KEY_PEDIA_SAS_BUILD_RESULT_REMOVED", ())
+		extraCorrectionX = get_extra_correction_x(szRemoved)
+		for iButton, iFeature in enumerate(features):
+			screen.appendMultiListButton(rowListName, gc.getFeatureInfo(iFeature).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, 1, False)
+			add_multilist_numTxt_under_button(x, y, extraCorrectionX, iButton, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, szRemoved, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def placeFeatureProduction(self):
 		screen = self.top.getScreen()
@@ -178,10 +196,8 @@ class SevoPediaBuild:
 
 		# <!-- custom: multilist instead of attachImageButton so each chop-production tech shows its +%% modifier as numTxt under the button, like Sevopedia Unit. (Claude code Opus 4.7) -->
 		rowListName = self.top.getNextWidgetName()
-		multiListX = self.X_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared placement aligns this button with the Requires button beside it. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		iButtonIndex = 0
 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
@@ -262,9 +278,11 @@ class SevoPediaBuild:
 				lines.append(u"%s+%d%s %s" % (bullet, featureProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
 			if bRemove and featureTime == 0 and featureProduction == 0:
 				lines.append(u"%s%s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE", ())))
-
 			textName = self.top.getNextWidgetName()
 			text = u"\n".join(lines)
+			# <!-- custom: Use the DLL's discovery text so this panel and the Marsh hover share the same rule. See KI#1078. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			if bRemove:
+				text += CyGameTextMgr().getFeatureRemovalDiscoveryHelp(iFeature)
 			textH = (panelY + buttonTopRel) - textTop - 6
 			if textH < 20:
 				textH = 20
@@ -297,13 +315,7 @@ class SevoPediaBuild:
 
 		bullet = localText.getText("[ICON_BULLET]", ())
 		# <!-- custom: do not repeat the created Improvement here because the Result panel already shows it with a Pedia link.
-		# Keep Route below because Sevopedia has no Route category/page to link to, so the text bullet still adds information. (GPT-5.5) -->
-
-		iRoute = buildInfo.getRoute()
-		if iRoute > -1:
-			if szSpecialText.strip():
-				szSpecialText += u"\n"
-			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_ROUTE", ()), gc.getRouteInfo(iRoute).getDescription())
+		# The Route bullet was kept while Sevopedia had no Route page; the Result panel now links to it, so the bullet is dropped too. (GPT-5.5 + Claude code Opus 5.5) -->
 
 		iTime = buildInfo.getTime()
 		if iTime > 0:

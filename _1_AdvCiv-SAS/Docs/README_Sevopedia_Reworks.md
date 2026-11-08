@@ -16,11 +16,12 @@ Note 2: in below sample examples, click the images to view them full size.
 &emsp;[example 0.2: added keyboard arrow (UP/DOWN and LEFT/RIGHT) navigation support. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-and-leftright-navigation-support-used-in-several-sevopedia-pages)\
 &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)\
 [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)\
-&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)\
+&emsp;[Linking custom categories (WIDGET_PYTHON, then native DLL widgets)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#linking-custom-categories-widget_python-then-native-dll-widgets)\
 &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)\
 &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)\
 &emsp;&emsp;[example 0.41 Votes category (VoteInfo and VoteSourceInfos)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-041-votes-category-voteinfo-and-votesourceinfos)\
 &emsp;&emsp;[example 0.42 EventTriggers category (EventTriggerInfo and EventInfo cards)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-042-eventtriggers-category-eventtriggerinfo-and-eventinfo-cards)\
+&emsp;&emsp;[example 0.43 Routes category (RouteInfo, e.g. Road and Railroad)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-043-routes-category-routeinfo-eg-road-and-railroad)\
 &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)\
 &emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)\
 &emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)\
@@ -68,6 +69,8 @@ Following this, i notably reordered categories and changed their allocated char 
 ### example 0.1: added a search bar. Used in several Sevopedia pages
 
 In AdvCiv-SAS 5247, with the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several Sevopedia pages. It allows to **search** for entries using the **keyboard**.
+
+Realism Invictus was an early reference for type-to-filter search. SAS development notes praised its search bar before the first SAS implementation, which adapted AdvCiv's item list. SAS later moved the filter into the header and unified the category and Index search paths.
 
 The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame.
 
@@ -130,7 +133,11 @@ Update: Sevopedia Index now uses the same search bar as the shared one the other
 
 ## Other new categories
 
-### Widget Python 6798 to link (e.g. for Builds, for Traits)
+### Linking custom categories (WIDGET_PYTHON, then native DLL widgets)
+
+Links to the categories SAS added first used `WIDGET_PYTHON` with an ID per category, as Middle-earth's PlatyPedia does; the paragraphs below record that. They later moved to native DLL widgets, as Realism Invictus uses for routes, because the Python hover showed only in a loaded game and table and multilist clicks did not always arrive.
+
+The current split: a link to a game entry (Build, Trait, Route, Era, Event Trigger, Vote, and the standard tech, unit or building jumps) uses a native widget; `WIDGET_PYTHON` stays for actions on the current screen and for Movies and Music, whose entries are Sevopedia-made rather than game Infos. See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113).
 
 Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
 
@@ -146,13 +153,27 @@ We then also used this approach to replace the old clunky base advciv's `CONCEPT
 
 See also [example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
 
+Update (2026-11-08): Builds, Traits, Routes, Eras, Event Triggers and Votes now link through native widgets added in the DLL, such as `WIDGET_PEDIA_JUMP_TO_BUILD`, appended to `WidgetTypes` like AdvCiv's own `WIDGET_ANARCHY`.
+
+The `WIDGET_PYTHON` hover came from a BUG callback that runs only in a loaded game, and table and multilist clicks did not always arrive; native widgets give the same hover and click everywhere, including the main-menu Sevopedia.
+
+The `6798` and `6799` IDs were removed. `WIDGET_PYTHON` stays for actions on the current screen, such as search keys, Expand, LOG, music and leader previews. See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113).
+
 #### example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")
 
 Added a new Builds category under Improvements and a dedicated Builds page with Requires, Result, Removes Features, and Build Info panels (build time/cost/consumes unit).
 
+Result links to the improvement or route the action creates. Dedicated clearing actions instead show the affected feature with RF (Removes Feature), explained in the Sevopedia legend. Production from clearing and any worker consumption stay in the Feature Struct and Build Info panels.
+
+For dedicated clearing actions, Requires also shows the tech shared by every feature the action removes. Drain Marsh shows The Wheel, and Remove Jungle shows Metal Casting. A tech that varies by feature stays in the corresponding Feature Struct panel.
+
+Discovery help follows the action that rolls it. Mine's Improvement Info lists resources that can be found on eligible tiles while the Mine is worked. A Build that clears Marsh lists the one-time Peat chance under its Marsh rule. Resource names link to their bonus pages and show the same resource glyphs used elsewhere.
+
 Notably among additions, it also has FeatureStruct panels and mod-agnostic new Civilopedia blurbs-based Background panel (added the new XML field `Civilopedia`> to BuildInfos; blurbs generated with the help of ChatGPT-5.2 Thinking thanks).
 
 It uses the new `WIDGET_PYTHON` approach and as of now does not require a DLL compile! Added with the very nice help of GPT-5.2-Codex thanks a lot! Claude code Opus 4.5 also helped in some other additions for this category.
+
+Later (2026-11-08), Build links moved to a native DLL widget; see [Linking custom categories (WIDGET_PYTHON, then native DLL widgets)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#linking-custom-categories-widget_python-then-native-dll-widgets).
 
 It features info in a beautified way, partly based on the Sevopedia Feature's approach. See [example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category).
 
@@ -189,6 +210,50 @@ See main implementation points at the [Main Changes Guide](/README.md#main-chang
 <img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (1).JPG" alt="1.870_sevopedia_eventtriggers (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (2).JPG" alt="1.870_sevopedia_eventtriggers (2).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.870_sevopedia_eventtriggers (3).JPG" alt="1.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
+
+#### example 0.43 Routes category (RouteInfo, e.g. Road and Railroad)
+
+We also added a new Routes category with the help of GPT-6.1-Sol and Claude code Opus 5.5, thanks a lot.
+
+See main implementation points at the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+
+<img src="../Images/sevopedia/1.880_sevopedia_routes (1).JPG" alt="1.880_sevopedia_routes (1).JPG" width="250"></img>
+<img src="../Images/sevopedia/1.880_sevopedia_routes (2).JPG" alt="1.880_sevopedia_routes (2).JPG" width="250"></img>
+
+Routes sits between Improvements and Builds. It reads any route (e.g. Road and Railroad, the routes this mod ships) and its name and button directly from `RouteInfo`, then joins related Build and Improvement records by route ID. The same route can be the result of more than one Build action.
+
+Middle-earth's PlatyPedia pairs direct `RouteInfo` access with Python widget navigation. Caveman2Cosmos also shows improvement yield changes on route pages. Realism Invictus uses its native route widget. Stock BtS has no standalone route page, and SAS reuses its existing `WIDGET_PYTHON` pattern without adding a DLL binding.
+
+The first draft used Movement, Construction, Yield Changes and Feature Effects panels with a labeled row per entry, such as "Build a Road" or "Engineering: -10/60 movement points to the route cost", and a "Requires any one connected" row for Railroad. These read as unrelated pieces of information and did not look like other Sevopedia pages, so the page now follows the Feature and Build pages.
+
+A second layout used button-only panels but left the right half of the page empty, while Event Triggers overflowed into a scrolled row of identical green buttons without hover. The panels are now in themed rows across the full width:
+
+- **List.** Routes are grouped by era (`SAS_SEVO_ROUTES_GROUP_BY_ERA`), like Techs, Buildings and Projects. A route has no tech of its own, so it takes the earliest era of the Builds that create it: Road is Ancient (The Wheel) and Railroad Industrial (Steam Power).
+  - The category uses the food icon like Improvements and Builds: workers build routes on the land, unlike the map's own Terrains, Features and Bonuses.
+- **Row 1: the route, what it needs and who builds it.** The main pane shows the name, "Route" and a line for the route's own tile yields, as on the Feature page (neither shipped route has any).
+  - Requires takes most of the row: the techs of the Builds that create the route, then its bonuses, with "or" between alternatives as on the Unit page. Railroad shows Steam Power, then Coal or Oil.
+  - Builds keeps its native hover and opens the Build page. It is one button wide: XML allows several Builds per route, but each route here has one.
+- **Row 2: Removes and Improvements.** Clearing a feature comes before improving the tile, so features a matching Build clears (Marsh) sit left of the improvements whose yields change with the route.
+- **Row 3: Promotions and Techs.** Promotions lists those allowing enemy routes. Techs mixes two relations, so each button has a numTxt label from the Routes legend: Move (Engineering changes Road's movement cost) or Bridge (Construction lets routes speed movement across rivers).
+  - Techs sits on the right, away from Requires, so it does not read as a prerequisite; the row keeps the standard height, which fits the labels as on the Unit page.
+- **Row 4: Special Abilities and Event Triggers.** Bullets say what each relation does, with links: movement and flat movement costs, the cheapest-cost rule, tech movement changes, river crossings, enemy territory, the trade network, the connected-resource rule, route value and improvement yield changes.
+  - `CvPlot::movementCost` takes the cheapest of normal terrain movement, the route cost and the flat route cost; tech changes apply only to the route cost. It also ignores a route across a river until the team has a bridge-building tech.
+  - `CvPlot::isValidRoute` makes routes on enemy-owned tiles, or tiles of a team being disengaged from (advc.034), unusable without a promotion such as Logistics.
+  - `CvPlot::canBuild` needs required resources connected to an adjacent tile's network, and builds a route only over one of lower `iValue`.
+  - The Event Triggers table gives each trigger's name, era and relation, in short codes explained in the Routes legend: Req (required on its plot), Add or Rem (an event adds or removes it), Any (any era) and (i) (indirect era). It follows the Event Triggers category's era order and labels, read from that category's cached list.
+  - Clicking a row opens the trigger: clicks on `WIDGET_PYTHON` table cells never reached Python, so the table maps its selected row, as the Index does. Sorting is off, since it would reorder rows away from that map.
+- **Not listed.** Workers, since a unit builds the route through a Build and the Build page lists them. Civics, Buildings, Religions, Corporations and Specialists have no route field; their "trade routes" are city connections, a different concept.
+- **Links in.** Route links use `WIDGET_PEDIA_JUMP_TO_ROUTE`, a native widget the DLL adds like Realism Invictus does: its hover (name, movement costs, improvement yields) comes from `CvDLLWidgetData::parseRouteHelp` and its click calls `pediaJumpToRoute`, in the main menu and in game, in lists, tables, multilists and button panels alike.
+  - Python links first used `WIDGET_PYTHON` and then a BUG custom widget; their hover showed only in a loaded game, and table and multilist clicks did not always arrive. See [KI#113](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113).
+  - The category list, Index, Civilopedia text links, Build results, improvement yield rows, an Event Trigger's required routes (text and buttons) and the World Advisor Territory table open the route page.
+  - The Tech Advisor and Sevopedia Tech unlocks now show the route itself, like improvement unlocks, instead of the Build icon whose hover read "Can Build a Road"; their movement icon (e.g. Engineering's) opens the route it speeds up.
+  - The Build page no longer repeats the route as a bullet, since its Result button links to it.
+  - The Tech Advisor's route lookups live in [SevoPediaRouteUtils.py](/Assets/Python/Contrib/Sevopedia/SevoPediaRouteUtils.py), which reads no GlobalDefines at import, because the Tech Advisor loads it at game start: importing the Sevopedia helpers there read `SAS_SHOW_LEGEND_LINK` before the defines were loaded and hid the Legend link on Sevopedia pages.
+- **Caching.** Fixed labels are translated once per page object, as on the Event Triggers page; texts with arguments and the scans over techs, improvements, promotions and event triggers run per view.
+- **DLL boundary.** The native build widget carries a tech ID and a build ID, and its alternate action opens Improvements when a build produces one; the route page's Build button keeps it, so it still opens its Build page. The route widget is appended at the end of `WidgetTypes`, like the KI#388 and KI#390 widgets, so existing EXE-facing values do not shift; the Python code needs a DLL with it.
+- **Fields outside the page.** Advanced Start cost and cost increase, air-bomb defense and the route left after pillaging are in the C++/XML data, but the current `CvRouteInfo` Python binding does not expose them.
+
+For API verification in a running game, `dir(CyGlobalContext().getRouteInfo(0))` gives a targeted Python console dump of the installed DLL's route methods. Compare it with `CyInfoInterface2.cpp` when considering additional fields. The dump checks method exposure. Click through the Index and the related pages in game to verify navigation.
 
 #### example 0.5: Handicap Chart category
 
@@ -376,7 +441,7 @@ Since then, we also added era attitude buttons with the very nice help of Claude
 
 ### example 1.5: traits category (Traits Charts and other changes)
 
-Initially rework was minimal there with only increasing the size of the special panel to see more effects, but more recently this page can also receive links from Sevopedia leader: see [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits) and [example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes).
+Initially rework was minimal there with only increasing the size of the special panel to see more effects, but more recently this page can also receive links from Sevopedia leader: see [Linking custom categories (WIDGET_PYTHON, then native DLL widgets)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#linking-custom-categories-widget_python-then-native-dll-widgets) and [example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes).
 
 Also enhanced it with a new Background/History panel that shows fairly mod-agnostic trait descriptions, generated with the help of ChatGPT 5.2 thanks a lot, and integrated with the help of Claude code Opus 4.5 thanks a lot!
 

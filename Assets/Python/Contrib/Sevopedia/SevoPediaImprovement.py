@@ -78,8 +78,6 @@ class SevoPediaImprovement:
 		self.bContentExpanded = False
 		self.top = main
 
-		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
-		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
 		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION")
 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
 
@@ -304,8 +302,8 @@ class SevoPediaImprovement:
 		for iBuild in range(gc.getNumBuildInfos()):
 			if gc.getBuildInfo(iBuild).getImprovement() == self.iImprovement:
 				buildInfo = gc.getBuildInfo(iBuild)
-				# <!-- custom: use WIDGET_HELP_IMPROVEMENT for build buttons so hover text is available; click redirect is handled in SevoPediaMain. See KI#113. (GPT-5.3-Codex) -->
-				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, buildInfo.getTechPrereq(), iBuild, False)
+				# <!-- custom: The native Build widget gives the hover and opens the Build page; it replaced WIDGET_HELP_IMPROVEMENT plus a Python click reroute. See KI#113. (GPT-5.3-Codex + Claude code Opus 5.5) -->
+				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, iBuild, -1, False)
 				bButtonFound = True
 
 		if not bButtonFound:
@@ -397,18 +395,9 @@ class SevoPediaImprovement:
 				if iYieldChange != 0:
 					sText += u"%+d%s" % (iYieldChange, SASVisuals.Yield.char(k))
 			if len(sText):
-				# <!-- custom: link route yield changes to the real Build entries (road/railroad) now that Builds are a category.
-				# This removes the old concept route hack and keeps behavior consistent with other Build links. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+				# <!-- custom: Link route yield changes to the RouteInfo page, replacing the earlier Build-page redirect. (Claude Opus 4.5 + GPT-5.2-Codex + GPT-6.1-Sol) -->
 				routeInfo = gc.getRouteInfo(item)
-				iBuild = -1
-				if routeInfo.getType() == "ROUTE_ROAD":
-					iBuild = self.SAS_iBuildRoad
-				elif routeInfo.getType() == "ROUTE_RAILROAD":
-					iBuild = self.SAS_iBuildRailroad
-				if iBuild < 0:
-					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
-
-				attach_button_label_row(screen, self.top, panelName, routeInfo.getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iBuild).getTechPrereq(), iBuild, sText)
+				attach_button_label_row(screen, self.top, panelName, routeInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, item, 1, sText)
 
 	def placeImprovementLeaderTable(self):
 		screen = self.top.getScreen()

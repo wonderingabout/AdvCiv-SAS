@@ -1404,7 +1404,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_PEAT_WORKS_PEDIA</Tag>
-		<English>[TAB]Workers open a peat face, cut the turf into blocks and lay out ground for stacking and drying.[PARAGRAPH:1]Peat can be cut while the marsh around it remains, but the site joins the wider trade network only once a road reaches it, and a road requires draining the marsh first.</English>
+		<English>[TAB]Workers open a peat face, cut the turf into blocks and lay out ground for stacking and drying.[PARAGRAPH:1]Peat Works develops an existing Peat deposit and leaves the Marsh in place. To learn how new deposits are found, see [LINK=FEATURE_MARSH]Marsh[\LINK]. Building a road through the Marsh drains it and can connect the deposit to the trade network.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Tag>

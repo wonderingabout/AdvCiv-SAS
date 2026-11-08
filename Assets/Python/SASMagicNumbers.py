@@ -9,8 +9,7 @@
 # <!-- custom: WIDGET_PYTHON data1 routing IDs used by Sevopedia and cross-screen pedia jumps such as Tech Chooser Build links.
 # Keep these unique across pedia handlers; data1 selects the route and data2 carries the actual item/action payload.
 # These were originally split between SevoPediaMain.py and SevoPediaLeader.py; centralizing them here avoids local magic IDs and duplicate aliases. (Claude Opus 4.5 / Claude code Sonnet 4.6 / Claude code Opus 4.7 / GPT-5.5) -->
-SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798
-SAS_MAGIC_PEDIA_PYTHON_TRAIT = 6799
+# <!-- custom: 6798 (Builds) and 6799 (Traits) were WIDGET_PYTHON jump IDs; both now use native DLL widgets. See KI#113. (Claude code Opus 5.5) -->
 SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY = 6800
 SAS_MAGIC_PEDIA_PYTHON_MOVIE_PLAY = 6801
 SAS_MAGIC_PEDIA_PYTHON_MUSIC_ENTRY = 6802
@@ -24,9 +23,7 @@ SAS_MAGIC_PEDIA_PYTHON_CONTENT_RELOAD = 6809
 # <!-- custom: Sevopedia leader era art preview buttons (default/"D" + per-era index buttons).
 # Routed via SevoPediaMain.handleInput -> applyLeaderEra. (Claude code Sonnet 4.6 / GPT-5.5) -->
 SAS_MAGIC_PEDIA_PYTHON_LEADER_ERA = 6810
-# <!-- custom: Votes and Event Triggers have no native engine jump widgets, so their Sevopedia left-list entries route through WIDGET_PYTHON like the custom Build/Trait pages. (Claude code Opus 4.7 / GPT-5.5) -->
-SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY = 6811
-SAS_MAGIC_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY = 6812
+# <!-- custom: 6811 (Votes) and 6812 (Event Triggers) were WIDGET_PYTHON jump IDs; both now use native DLL widgets. See KI#113. (Claude code Opus 4.7 / GPT-5.5 + GPT-6.1-Sol + Claude code Opus 5.5) -->
 SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_PREV = 6813
 SAS_MAGIC_PEDIA_PYTHON_GAME_PLAYER_ID_NEXT = 6814
 SAS_MAGIC_PEDIA_PYTHON_SEARCH_KEY = 6815

@@ -180,6 +180,15 @@ std::wstring CyGameTextMgr::getFeatureHelp(int iFeature, bool bCivilopediaText)
 	return szBuffer.getCString();
 }
 
+// <!-- custom: Return only the discovery lines, with links for Sevopedia. See KI#1078. (GPT-6.1-Sol) -->
+std::wstring CyGameTextMgr::getFeatureRemovalDiscoveryHelp(int iFeature)
+{
+	CvWStringBuffer szBuffer;
+	if (iFeature >= 0 && iFeature < GC.getNumFeatureInfos())
+		GAMETEXT.appendFeatureRemovalDiscoveryHelp(szBuffer, (FeatureTypes)iFeature, true);
+	return szBuffer.getCString();
+}
+
 std::wstring CyGameTextMgr::getTerrainHelp(int iTerrain, bool bCivilopediaText)
 {
 	CvWStringBuffer szBuffer;

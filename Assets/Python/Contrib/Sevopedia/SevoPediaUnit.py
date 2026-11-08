@@ -510,10 +510,8 @@ class SevoPediaUnit:
 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel -->
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
@@ -583,10 +581,8 @@ class SevoPediaUnit:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False
@@ -654,10 +650,8 @@ class SevoPediaUnit:
 
 		# Create the MultiList control
 		# Constants for button display
-		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(xPanel, yPanel, wPanel, hPanel)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 
 		isButtonFound = False

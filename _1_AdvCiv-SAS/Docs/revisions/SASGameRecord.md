@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 192 - SAS practical 6733
 
 - **Date:** 2026-11-07
-- **Git commit:** pending
+- **Git commit:** `6a392e9a3ee01df3fd7b39ca1b08946585fdf86d`
 - **Change:** Record the new Peat bonus and its finds when a Marsh is drained (see [KI#1078](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)).
   - `SAS_SGR_MAP_ASCII_BONUS_SYMBOLS` replaces `d` with `p` for `BONUS_PEAT`, placed after Camel's `a`; the remaining disabled Hit bonus, Hit Movies (`BONUS_MOVIES`), keeps `m` and comes last, matching the new BonusInfo order.
     - The bonus map needs one symbol per loaded BonusInfo in BonusInfo order, and `p` pairs with `P` for Pig, as `s` pairs with `S` for Silk and Silver.

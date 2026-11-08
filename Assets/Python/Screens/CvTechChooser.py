@@ -15,6 +15,8 @@ from SASUtils import *
 from SASMagicNumbers import *
 # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base tech-chooser text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 import CvScreensInterface
+# <!-- custom: Finds the route a tech's movement icon refers to, shared with the Sevopedia Tech page. (Claude code Opus 5.5) -->
+import SevoPediaRouteUtils
 
 TEXTURE_SIZE = 24
 X_START = 6
@@ -863,12 +865,18 @@ class CvTechChooser:
 			if (bTechFound == 1):
 				szImprovementButton = self.getNextWidgetName("Improvement")
 				iImprovement = gc.getBuildInfo(j).getImprovement()
-				# <!-- custom: use base AdvCiv behavior here (improvement icon + WIDGET_HELP_IMPROVEMENT), and only fallback to the Builds pedia redirect for builds without an improvement (routes/feature removal).
-				# This split is intentionally more useful for players: improvement-style behavior where expected, and direct Builds-page routing when the build itself is the key info. See KI#113. (GPT-5.3-Codex) -->
+				# <!-- custom: use base AdvCiv behavior here (improvement icon + WIDGET_HELP_IMPROVEMENT), and handle clicks for builds without an improvement in Python.
+				# Clearing actions go to Builds.
+				# This split is intentionally more useful for players: improvement-style behavior where expected, and direct Builds-page routing when the build itself is the key info. See KI#113. (GPT-5.3-Codex + GPT-6.1-Sol) -->
+				iRoute = gc.getBuildInfo(j).getRoute()
 				if (iImprovement != -1):
 					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getImprovementInfo(iImprovement).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IMPROVEMENT, i, j, False )
+				# <!-- custom: A route unlock showed the Build icon with the Build's "Can Build a Road" hover, which predates the Routes page; like an improvement, it now shows the result: the route's icon and hover, opening its page. See KI#113. (Claude code Opus 5.5) -->
+				elif (iRoute != -1):
+					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getRouteInfo(iRoute).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, 1, False )
+				# <!-- custom: Clearing actions use the native Build widget with this tech, keeping the "Can ..." hover. See KI#113. (Claude code Opus 5.5) -->
 				else:
-					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IMPROVEMENT, i, j, False )
+					screen.addDDSGFCAt( szImprovementButton, szTechRecord, gc.getBuildInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, j, i, False )
 				fX += X_INCREMENT
 
 		j = 0
@@ -1393,19 +1401,22 @@ class CvTechChooser:
 			elif szWidgetName == self.sTechTradeTab:
 				self.sTechTabID = self.sTechTradeTab
 				self.ShowTab()
-			elif inputClass.getButtonType() == WidgetTypes.WIDGET_PYTHON:
-				if inputClass.getData1() == SAS_MAGIC_PEDIA_PYTHON_BUILD:
-					import CvScreensInterface
-					CvScreensInterface.pediaJumpToBuild((inputClass.getData2(),))
-					return 1
-			# <!-- custom: reason for this hybrid path: in this Tech Advisor context, WIDGET_PYTHON gives our custom redirect to Sevopedia Builds but does not provide the base build hover/help text; by using WIDGET_HELP_IMPROVEMENT we restore "can build ..." hover text, then reroute clicks for non-improvement builds (routes/feature removal) to the Builds page here. (GPT-5.3-Codex) -->
-			elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
-				iBuild = inputClass.getData2()
-				if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
-					if gc.getBuildInfo(iBuild).getImprovement() == -1:
-						import CvScreensInterface
-						CvScreensInterface.pediaJumpToBuild((iBuild,))
-						return 1
+			# <!-- custom: In game, clicking a route unlock here showed its native hover but did not open the route page, unlike in Sevopedia and the World Advisor; open it here, as Build icons do below. See KI#113. (Claude code Opus 5.5) -->
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE:
+				return CvScreensInterface.pediaJumpToRoute((inputClass.getData1(),))
+			# <!-- custom: Like route unlocks, open the native Build widget's page from this handler; clearing actions used WIDGET_HELP_IMPROVEMENT with a reroute here before. See KI#113. (GPT-5.3-Codex + GPT-6.1-Sol + Claude code Opus 5.5) -->
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD:
+				CvScreensInterface.pediaJumpToBuild((inputClass.getData1(),))
+				return 1
+			# <!-- custom: The movement icon keeps its native hover and now opens the route the tech speeds up. (Claude code Opus 5.5) -->
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_MOVE_BONUS:
+				iRoute = SevoPediaRouteUtils.getTechMovementRoute(inputClass.getData1())
+				if iRoute >= 0:
+					return CvScreensInterface.pediaJumpToRoute((iRoute,))
+			# <!-- custom: Bridge building applies to every route; open the first route page, as the Sevopedia Tech page does. (Claude code Opus 5.5) -->
+			elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_BUILD_BRIDGE:
+				if gc.getNumRouteInfos() > 0:
+					return CvScreensInterface.pediaJumpToRoute((0,))
 
 		return 0
 

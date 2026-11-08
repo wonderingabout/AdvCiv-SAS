@@ -189,7 +189,7 @@ class SevoPediaSpecialist:
 					if buildingInfo.getVoteSourceType() == iVoteSource:
 						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo, while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
 						if iVoteTarget > -1:
-							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget, "+1 Free (V.Sources)")
+							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_VOTE, iVoteTarget, 1, "+1 Free (V.Sources)")
 						else:
 							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, "+1 Free (V.Sources)")
 						bAnyFound = True

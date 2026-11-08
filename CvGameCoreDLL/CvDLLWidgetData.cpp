@@ -631,6 +631,57 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
 		parseFeatureHelp(widgetDataStruct, szBuffer);
 		break;
+	// <!-- custom: Route links. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ROUTE:
+		parseRouteHelp(widgetDataStruct, szBuffer);
+		break;
+	// <!-- custom: Chart cells already show the name; say where clicking opens it. See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA:
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumEraInfos())
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_ERA_CHART", GC.getInfo((EraTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER:
+	{
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumEventTriggerInfos())
+		{
+			CvEventTriggerInfo const& kTrigger = GC.getInfo((EventTriggerTypes)widgetDataStruct.m_iData1);
+			CvWString szName(kTrigger.getDescription());
+			// <!-- custom: Stock-style triggers often have no Description.
+			// Turn their XML ID into a readable name, as the Sevopedia list does. (GPT-6.1-Sol) -->
+			if (szName.find_first_not_of(L" \t\r\n") == CvWString::npos)
+			{
+				szName = CvWString(kTrigger.getType());
+				if (szName.find(L"EVENTTRIGGER_") == 0)
+					szName.erase(0, 13);
+				bool bWordStart = true;
+				for (CvWString::iterator it = szName.begin(); it != szName.end(); ++it)
+				{
+					if (*it == L'_')
+					{
+						*it = L' ';
+						bWordStart = true;
+						continue;
+					}
+					if (!bWordStart && *it >= L'A' && *it <= L'Z')
+						*it += L'a' - L'A';
+					bWordStart = false;
+				}
+			}
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_EVENT_TRIGGER", szName.GetCString()));
+		}
+		break;
+	}
+	// <!-- custom: Vote buttons show a vote source's building, so name the vote they open. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+		parseBuildPediaHelp(widgetDataStruct, szBuffer);
+		break;
+	case WIDGET_PEDIA_JUMP_TO_TRAIT: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+		parseTraitPediaHelp(widgetDataStruct, szBuffer);
+		break;
+	case WIDGET_PEDIA_JUMP_TO_VOTE:
+		if (widgetDataStruct.m_iData1 >= 0 && widgetDataStruct.m_iData1 < GC.getNumVoteInfos())
+			szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_OPEN_VOTE", GC.getInfo((VoteTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 		parseDescriptionHelp(widgetDataStruct, szBuffer, false);
@@ -1081,6 +1132,28 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
 		py.jumpToPedia(iData1, "Feature");
 		break;
+	// <!-- custom: Calls CvScreensInterface.pediaJumpToRoute, which opens the Sevopedia Routes page. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ROUTE:
+		py.jumpToPedia(iData1, "Route");
+		break;
+	// <!-- custom: The Python entry points select the era column or event page. See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA:
+		py.jumpToPedia(iData1, "Era");
+		break;
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER:
+		py.jumpToPedia(iData1, "EventTrigger");
+		break;
+	// <!-- custom: Calls CvScreensInterface.pediaJumpToVote. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_VOTE:
+		py.jumpToPedia(iData1, "Vote");
+		break;
+	// <!-- custom: Call CvScreensInterface.pediaJumpToBuild and pediaJumpToTrait. See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD:
+		py.jumpToPedia(iData1, "Build");
+		break;
+	case WIDGET_PEDIA_JUMP_TO_TRAIT:
+		py.jumpToPedia(iData1, "Trait");
+		break;
 
 	case WIDGET_PEDIA_DESCRIPTION:
 	case WIDGET_PEDIA_DESCRIPTION_NO_HELP:
@@ -1323,6 +1396,12 @@ bool CvDLLWidgetData::isLink(const CvWidgetDataStruct &widgetDataStruct) const
 	case WIDGET_PEDIA_JUMP_TO_CORPORATION:
 	case WIDGET_PEDIA_JUMP_TO_TERRAIN:
 	case WIDGET_PEDIA_JUMP_TO_FEATURE:
+	case WIDGET_PEDIA_JUMP_TO_ROUTE: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_ERA: // <!-- custom: See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER: // <!-- custom: See KI#113. (GPT-6.1-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_VOTE: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_BUILD: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
+	case WIDGET_PEDIA_JUMP_TO_TRAIT: // <!-- custom: See KI#113. (Claude code Opus 5.5) -->
 	case WIDGET_PEDIA_FORWARD:
 	case WIDGET_PEDIA_BACK:
 	case WIDGET_PEDIA_MAIN:
@@ -5404,6 +5483,108 @@ void CvDLLWidgetData::parseFeatureHelp(CvWidgetDataStruct &widgetDataStruct, CvW
 		GAMETEXT.setFeatureHelp(szBuffer, (FeatureTypes)widgetDataStruct.m_iData1);
 }
 
+// <!-- custom: New: the route's name, its two movement costs and the improvements whose yields it changes, the same summary the Sevopedia Routes page leads with.
+// The Python hover this replaces showed only in a loaded game. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseRouteHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iRoute = widgetDataStruct.m_iData1;
+	if (iRoute < 0 || iRoute >= GC.getNumRouteInfos())
+		return;
+	RouteTypes const eRoute = (RouteTypes)iRoute;
+	CvRouteInfo const& kRoute = GC.getInfo(eRoute);
+	int const iDenominator = GC.getMOVE_DENOMINATOR();
+	CvWString const szBullet = CvWString::format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR));
+	szBuffer.append(kRoute.getDescription());
+	szBuffer.append(szBullet);
+	szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_MOVE_COST", kRoute.getMovementCost(), iDenominator));
+	szBuffer.append(szBullet);
+	szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_FLAT_COST", kRoute.getFlatMovementCost(), iDenominator));
+	for (int iImprovement = 0; iImprovement < GC.getNumImprovementInfos(); iImprovement++)
+	{
+		CvImprovementInfo const& kImprovement = GC.getInfo((ImprovementTypes)iImprovement);
+		CvWString szYields;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			int const iChange = kImprovement.getRouteYieldChanges(iRoute, iYield);
+			if (iChange == 0)
+				continue;
+			if (!szYields.empty())
+				szYields.append(L" ");
+			szYields.append(CvWString::format(L"%+d%c", iChange, GC.getInfo((YieldTypes)iYield).getChar()));
+		}
+		if (szYields.empty())
+			continue;
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_ROUTE_IMPROVEMENT_YIELDS", szYields.GetCString(), kImprovement.getDescription()));
+	}
+}
+
+
+// <!-- custom: New: with an unlocking tech, the same "Can Build ..." line as the Tech Advisor's old Build hover; otherwise the Build's name, its result (improvement, route or removed features), its tech and its base time. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseBuildPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iBuild = widgetDataStruct.m_iData1;
+	if (iBuild < 0 || iBuild >= GC.getNumBuildInfos())
+		return;
+	BuildTypes const eBuild = (BuildTypes)iBuild;
+	int const iTech = widgetDataStruct.m_iData2;
+	// <!-- custom: Sevopedia lists pass 1 as data2, as BULL does, which is a valid tech ID; the hover then came out empty because that tech does not unlock the Build.
+	// Use the tech line only when it has text, otherwise the summary. See KI#113. (Claude code Opus 5.5) -->
+	if (iTech >= 0 && iTech < GC.getNumTechInfos())
+	{
+		CvWStringBuffer szTech;
+		GAMETEXT.buildImprovementString(szTech, (TechTypes)iTech, eBuild);
+		if (!szTech.isEmpty())
+		{
+			szBuffer.append(szTech);
+			return;
+		}
+	}
+	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+	CvWString const szBullet = CvWString::format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR));
+	szBuffer.append(kBuild.getDescription());
+	if (kBuild.getImprovement() != NO_IMPROVEMENT)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_CREATES", GC.getInfo(kBuild.getImprovement()).getTextKeyWide()));
+	}
+	if (kBuild.getRoute() != NO_ROUTE)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_CREATES", GC.getInfo(kBuild.getRoute()).getTextKeyWide()));
+	}
+	FOR_EACH_ENUM(Feature)
+	{
+		if (!kBuild.isFeatureRemove(eLoopFeature))
+			continue;
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_REMOVES", GC.getInfo(eLoopFeature).getTextKeyWide()));
+	}
+	if (kBuild.getTechPrereq() != NO_TECH)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_TECH", GC.getInfo(kBuild.getTechPrereq()).getTextKeyWide()));
+	}
+	if (kBuild.getTime() > 0)
+	{
+		szBuffer.append(szBullet);
+		szBuffer.append(gDLL->getText("TXT_KEY_PEDIA_SAS_BUILD_HOVER_TIME", kBuild.getTime()));
+	}
+}
+
+// <!-- custom: New: the trait's full help, as the Leader pages show it, without the leading blank line parseTraits starts with. See KI#113. (Claude code Opus 5.5) -->
+void CvDLLWidgetData::parseTraitPediaHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	int const iTrait = widgetDataStruct.m_iData1;
+	if (iTrait < 0 || iTrait >= GC.getNumTraitInfos())
+		return;
+	CvWStringBuffer szTrait;
+	GAMETEXT.parseTraits(szTrait, (TraitTypes)iTrait, NO_CIVILIZATION, false, false);
+	CvWString szText(szTrait.getCString());
+	if (szText.find(NEWLINE) == 0)
+		szText.erase(0, 1);
+	szBuffer.append(szText);
+}
 
 void CvDLLWidgetData::parseTechEntryHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {	/*  advc.085: 0 was unused, so this check wasn't needed for anything. Now 0

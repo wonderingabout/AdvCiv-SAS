@@ -210,6 +210,12 @@ SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
 # When clicked, the engine calls SevoPediaMain.link(szLink), which reverse-looks-up the text through SAS_linkMatchDefs (techs, civics, buildings, units, promotions, specialists, features, improvements, bonuses, religions, corporations, traits, concepts, etc.) via each info's isMatchForLink(...) and pedia-jumps to the right page.
 # No DLL change needed — this piggybacks on the mechanism already used by Sevopedia Building/Unit/SASVisuals.Trait/Leader pages and by CvGameTextMgr for inline pedia links.
 # Pass the exact localized description string (whatever info.getDescription() returned) so the reverse lookup finds a match. (Claude code Opus 4.7) -->
+# <!-- custom: Removes <link=...>...</link> markup and keeps the linked words.
+# Build names such as "Build a Mine" carry a link to their improvement; in a table cell with a native widget that link took the hover and click, so the Builds list and Index rows did nothing in game. See KI#113. (Claude code Opus 5.5) -->
+_PEDIA_LINK_MARKUP = re.compile(u"</?link[^>]*>")
+def strip_pedia_links(szText):
+	return _PEDIA_LINK_MARKUP.sub(u"", szText)
+
 def make_pedia_link(szText):
 	if not szText:
 		return szText
@@ -693,6 +699,19 @@ def get_extra_correction_x_inbetween_buttons(button_size):
 	extraCorrectionOffFromTheCenter = -3
 
 	return (-1 * (int(button_size / 2))) + extraCorrectionOffFromTheCenter
+
+# <!-- custom: Returns (x, y, w, h) for a multilist inside a panel so its buttons line up with attachImageButton buttons in neighbouring panels.
+# Measured on 1920x1080 screenshots: attachImageButton centres its row, so in a 127 px panel (the Build and Feature top rows) its button sat 6 px lower than a multilist at the fixed MULTI_LIST_PANEL_OFFSET_Y, while both matched in standard 110 px panels; single-row panels between those heights are shifted down by 3/8 of the extra height.
+# The Build page's one-button RF Result also skipped MULTI_LIST_PANEL_OFFSET_X and sat 4 px from the panel edge instead of 11; the width is widened to fit iMinButtons, since a one-button panel minus both offsets is narrower than one multilist button. (Claude code Opus 5.5) -->
+def get_panel_multilist_rect(panelX, panelY, panelW, panelH, iMinButtons=1):
+	x = panelX + MULTI_LIST_PANEL_OFFSET_X
+	w = max(panelW + MULTI_LIST_PANEL_ADDITIONAL_W, get_multilist_panel_width_for_buttons(iMinButtons, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING))
+	dy = 0
+	if NON_MULTILIST_PANEL_STANDARD_HEIGHT < panelH < NON_MULTILIST_PANEL_STANDARD_HEIGHT + MULTILIST_BUTTON_SIZE:
+		dy = (panelH - NON_MULTILIST_PANEL_STANDARD_HEIGHT) * 3 / 8
+	y = panelY + MULTI_LIST_PANEL_OFFSET_Y + dy
+	h = panelH + MULTI_LIST_PANEL_ADDITIONAL_H - dy
+	return x, y, w, h
 
 def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
 	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING

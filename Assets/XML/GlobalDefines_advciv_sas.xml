@@ -527,6 +527,11 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SEVO_PROJECTS_GROUP_BY_ERA</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Routes take the earliest era of the Builds that create them. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_SEVO_ROUTES_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<Define>
 		<DefineName>SAS_SEVO_SPECIALISTS_GROUP_BY_TYPE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

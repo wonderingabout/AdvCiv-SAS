@@ -520,6 +520,22 @@ ENUM_START(Widget, WIDGET)
 	WIDGET_HELP_NO_FEAR_FOR_SAFETY, // advc.500c
 	WIDGET_POWER_RATIO_INFO_SCREEN, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: BtS has no route widget, so Sevopedia route links first used WIDGET_PYTHON, as Middle-earth's PlatyPedia does, and then a BUG custom widget; their Python hover appeared only in a loaded game, never in the main-menu Sevopedia, and multilist clicks did not arrive.
+	// A native widget gets its hover from the DLL and its click from executeAction everywhere, like the other pedia jumps.
+	// Realism Invictus adds its own WIDGET_PEDIA_JUMP_TO_ROUTE (and ERA and TRAIT) this way, which showed us the approach; Caveman2Cosmos's Pedia does the same for routes and traits.
+	// Appended to preserve existing EXE-facing WidgetTypes values. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_ROUTE,
+	// <!-- custom: Append chart links to preserve EXE-facing widget IDs.
+	// The payload is the EraInfo or EventTriggerInfo ID. See KI#113. (GPT-6.1-Sol) -->
+	WIDGET_PEDIA_JUMP_TO_ERA,
+	WIDGET_PEDIA_JUMP_TO_EVENT_TRIGGER,
+	// <!-- custom: Vote links used WIDGET_PYTHON, whose Python hover showed only in a loaded game.
+	// The payload is the VoteInfo ID. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_VOTE,
+	// <!-- custom: Build links borrowed WIDGET_HELP_IMPROVEMENT, whose own click opens an Improvement page, so Python rerouted clicks; Trait links used WIDGET_PYTHON.
+	// Build payload: the BuildInfo ID, then the unlocking tech or -1; Trait payload: the TraitInfo ID. See KI#113. (Claude code Opus 5.5) -->
+	WIDGET_PEDIA_JUMP_TO_BUILD,
+	WIDGET_PEDIA_JUMP_TO_TRAIT,
 ENUM_END(Widget, WIDGET)
 
 ENUM_START(ButtonPopup, BUTTONPOPUP)

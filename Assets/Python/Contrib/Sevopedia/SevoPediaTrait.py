@@ -248,10 +248,8 @@ class SevoPediaTrait:
 		headerText = format_leaders_header_text(len(leadersWithTrait), totalRealLeaders, headerLabel)
 		screen.addPanel( panelName, headerText, "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50 )
 		rowListName = self.top.getNextWidgetName()
-		multiListX = self.X_LEADERS + MULTI_LIST_PANEL_OFFSET_X
-		multiListY = self.Y_LEADERS + MULTI_LIST_PANEL_OFFSET_Y
-		multiListW = self.W_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_W
-		multiListH = self.H_LEADERS + MULTI_LIST_PANEL_ADDITIONAL_H
+		# <!-- custom: Shared multilist placement, see get_panel_multilist_rect. (Claude code Opus 5.5) -->
+		multiListX, multiListY, multiListW, multiListH = get_panel_multilist_rect(self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS)
 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
 		for iLeader in leadersWithTrait:
 			self.iLeader = iLeader
@@ -292,7 +290,8 @@ class SevoPediaTrait:
 				otherTraitInfo = gc.getTraitInfo(otherTrait)
 
 				traitText = SASTextScale.labelText(u"%s %s" % (SASVisuals.Trait.getIcon(otherTrait), otherTraitInfo.getDescription()))
-				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_TRAIT, otherTrait, CvUtil.FONT_LEFT_JUSTIFY)
+				# <!-- custom: Native Trait widget; the WIDGET_PYTHON cell gave no hover. See KI#113. (Claude code Opus 5.5) -->
+				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, otherTrait, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.setTableText(leftTableName, 1, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 				screen.setTableText(leftTableName, 2, iRow, SASTextScale.labelText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
@@ -324,8 +323,9 @@ class SevoPediaTrait:
 				trait2Info = gc.getTraitInfo(trait2)
 				trait1Text = SASTextScale.labelText(u"%s %s" % (SASVisuals.Trait.getIcon(trait1), trait1Info.getDescription()))
 				trait2Text = SASTextScale.labelText(u"%s %s" % (SASVisuals.Trait.getIcon(trait2), trait2Info.getDescription()))
-				screen.setTableText(rightTableName, 0, iRow, trait1Text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				screen.setTableText(rightTableName, 1, iRow, trait2Text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				# <!-- custom: These trait names were plain WIDGET_GENERAL cells, so the right table had no hover or click while the left one did. See KI#113. (Claude code Opus 5.5) -->
+				screen.setTableText(rightTableName, 0, iRow, trait1Text, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, trait1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				screen.setTableText(rightTableName, 1, iRow, trait2Text, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, trait2, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.setTableText(rightTableName, 2, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 				# Ranking bar using centralized helper

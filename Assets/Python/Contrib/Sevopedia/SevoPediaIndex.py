@@ -123,6 +123,9 @@ class SevoPediaIndex:
 		for item in improvementList:
 			list.append([item[0],"Improv",item])
 
+		for item in self.top.getRouteList():
+			list.append([item[0],"Route",item])
+
 		for item in civList:
 			list.append([item[0],"Civ",item])
 		for item in leaderList:
@@ -171,8 +174,6 @@ class SevoPediaIndex:
 
 		nColumns = 3
 		self.tableName = self.top.getNextWidgetName()
-		self.SAS_rowToBuild = {}
-		self.SAS_rowToTrait = {}  # <!-- custom: row-to-trait mapping for WIDGET_PYTHON trait handling. (Claude Opus 4.5) -->
 		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
 		# <!-- custom: search bar lives in the top header, so the Index table uses the full Y_INDEX area below it. (Claude code Opus 4.7) -->
 		iTableY = self.Y_INDEX
@@ -256,20 +257,19 @@ class SevoPediaIndex:
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBonusInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iData1, iData2)
 			elif (type == "Improv"):
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getImprovementInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iData1, iData2)
-			# <!-- custom: Build rows use the normal table cell (icon + text) and rely on table selection to trigger pediaJump.
-			# This avoids overlay widgets that don't scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+			elif (type == "Route"):
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getRouteInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iData1, iData2)
+			# <!-- custom: Build rows use the normal table cell (icon + text); overlay widgets did not scroll with the table. Credit: Claude Opus 4.5 + GPT-5.2-Codex.
+			# Builds and Traits now use native widgets, which handle the cell's hover and click like Improvements, replacing the row-to-Build and row-to-Trait maps. See KI#113. (GPT-5.2-Codex (summarized) + Claude code Opus 5.5) -->
 			elif (type == "Build"):
-				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_HELP_IMPROVEMENT, gc.getBuildInfo(iData1).getTechPrereq(), iData1)
-				self.SAS_rowToBuild[iRow] = iData1
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getBuildInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILD, iData1, -1)
 
 			elif (type == "Civ"):
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2)
 			elif (type == "Leader"):
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2)
-			# <!-- custom: SASVisuals.Trait rows use WIDGET_GENERAL and row-to-trait mapping like Builds. (Claude Opus 4.5) -->
 			elif (type == "SASVisuals.Trait"):
-				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1)
-				self.SAS_rowToTrait[iRow] = iData1
+				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TRAIT, iData1, -1)
 
 			elif (type == "Civic"):
 				self._SAS_indexPlaceCell(screen, iRow, iColumn, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2)
@@ -338,20 +338,4 @@ class SevoPediaIndex:
 			screen.selectRow(self.tableName, inputClass.getData1(), True)
 			return 1
 
-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
-			iBuild = inputClass.getData2()
-			# <!-- custom: Build rows now use WIDGET_HELP_IMPROVEMENT to restore hover text in Index; route click explicitly to Sevopedia Builds so behavior matches other Build entries. See KI#113. (GPT-5.3-Codex) -->
-			if iBuild >= 0 and iBuild < gc.getNumBuildInfos():
-				return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
-
-		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED or inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
-			if inputClass.getFunctionName() == self.top.WIDGET_ID and inputClass.getID() == self.iTableWidgetId:
-				iRow = inputClass.getData()
-				iBuild = self.SAS_rowToBuild.get(iRow, None)
-				if iBuild is not None:
-					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
-				# <!-- custom: Handle trait clicks via row mapping. (Claude Opus 4.5) -->
-				iTrait = self.SAS_rowToTrait.get(iRow, None)
-				if iTrait is not None:
-					return self.top.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iTrait, True, False)
 		return 0

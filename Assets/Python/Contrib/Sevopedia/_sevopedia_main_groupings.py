@@ -1031,35 +1031,35 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, bSortLists, getBuildingA
 
 	return buildingsList
 
-def SAS_getProjectsGroupedByEra_fromBaseList(baseList, bSortLists, getProjectAvailabilityEraFn=None):
-	# getProjectAvailabilityEraFn signature:
-	#   fn(iProject) -> iEra / -1 / None
+def SAS_getGroupedByEra_fromBaseList(baseList, getAvailabilityEraFn):
+	# <!-- custom: Generalized from the projects grouping so Routes can reuse it; Projects now delegate here.
+	# getAvailabilityEraFn(iItem) returns an era, -1 for the No Tech Prerequisite group, or None to skip. (Claude code Opus 5.5) -->
 
-	projectsList = []
+	itemsList = []
 
 	iNumEras = gc.getNumEraInfos()
 
 	noTech = []
-	groups = {}  # iEra -> [(szName, iProject), ...]
+	groups = {}  # <!-- custom: iEra -> [(szName, iItem), ...] (Claude code Opus 5.5) -->
 
 	# One pass: compute era once and bucket
-	for (szName, iProject) in baseList:
-		iEra = getProjectAvailabilityEraFn(iProject)
+	for (szName, iItem) in baseList:
+		iEra = getAvailabilityEraFn(iItem)
 		if iEra is None:
 			continue
 
 		if iEra == -1:
-			noTech.append((szName, iProject))
+			noTech.append((szName, iItem))
 		else:
 			if iEra not in groups:
 				groups[iEra] = []
-			groups[iEra].append((szName, iProject))
+			groups[iEra].append((szName, iItem))
 
 	# "No Tech Prereq" group first
 	if noTech:
-		projectsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+		itemsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
 		for x in noTech:
-			projectsList.append(x)
+			itemsList.append(x)
 
 	# Era groups in order
 	for iEraLoop in range(iNumEras):
@@ -1067,14 +1067,35 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, bSortLists, getProjectAva
 		if not tmp:
 			continue
 
-		if projectsList:
-			projectsList.append(("", -1))
+		if itemsList:
+			itemsList.append(("", -1))
 
-		projectsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
+		itemsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
 		for x in tmp:
-			projectsList.append(x)
+			itemsList.append(x)
 
-	return projectsList
+	return itemsList
+
+def SAS_getProjectsGroupedByEra_fromBaseList(baseList, bSortLists, getProjectAvailabilityEraFn=None):
+	return SAS_getGroupedByEra_fromBaseList(baseList, getProjectAvailabilityEraFn)
+
+# <!-- custom: A route has no tech of its own; its Build actions carry the tech, so a route takes the earliest era among the Builds that create it.
+# A route without such a Build, or with a Build that needs no tech, goes in the No Tech Prerequisite group. (Claude code Opus 5.5) -->
+def SAS_getRouteAvailabilityEra(iRoute):
+	iBestEra = None
+	for iBuild in xrange(gc.getNumBuildInfos()):
+		build = gc.getBuildInfo(iBuild)
+		if build.getRoute() != iRoute:
+			continue
+		iTech = build.getTechPrereq()
+		if iTech < 0:
+			return -1
+		iEra = gc.getTechInfo(iTech).getEra()
+		if iBestEra is None or iEra < iBestEra:
+			iBestEra = iEra
+	if iBestEra is None:
+		return -1
+	return iBestEra
 
 def SAS_getReligionsGroupedByEra_fromBaseList(baseList, bSortLists, getReligionAvailabilityEraFn=None):
 	# getReligionAvailabilityEraFn signature:
@@ -1636,7 +1657,8 @@ def _SAS_getEventTriggerEarliestEraAndSource(iTrigger, seenTriggers=None):
 		return (iDirectEra, True)
 	return (iIndirectMax, bHasDirectOr or bHasDirectAnd)
 
-def _SAS_getEventTriggerRowLabel(iTrigger):
+# <!-- custom: Public, without the leading underscore, since the Routes page names its event triggers the same way. (Claude code Opus 5.5) -->
+def SAS_getEventTriggerRowLabel(iTrigger):
 	info = gc.getEventTriggerInfo(iTrigger)
 	if not info:
 		return "Trigger %d" % iTrigger
@@ -1682,7 +1704,7 @@ def SAS_getEventTriggersGroupedByEra(bSortLists):
 		if not info:
 			continue
 		iEra, bDirect = _SAS_getEventTriggerEarliestEraAndSource(iTrigger)
-		row = (_SAS_getEventTriggerRowLabel(iTrigger), iTrigger)
+		row = (SAS_getEventTriggerRowLabel(iTrigger), iTrigger)
 		if iEra < 0:
 			anyEraItems.append(row)
 		elif bDirect:
