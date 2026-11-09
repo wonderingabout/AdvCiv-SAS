@@ -1849,7 +1849,7 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
   - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
 - To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
 - Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
-- Verified on the Better BTS AI export (2026-11-09): replaying every stored patch from the first revision reproduced 11 core files of the r597 tree line for line, such as `CvPlayer.cpp` (65 revisions) and `CvCityAI.cpp` (201).
+- Verified on 2026-11-09 by Claude Code and independently rerun by Codex (GPT-6.1-Sol): replaying 1,175 stored patches reproduced all 198 DLL source files in the Better BTS AI r597 reference tree line for line.
   - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
 
 The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
@@ -1860,7 +1860,7 @@ python -u LLM_Helpers/svn_history_to_diffs.py --url https://svn.code.sf.net/p/ci
 
 ### `svn_history_verify.py`
 
-Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a real checkout: it rebuilds each file from nothing by replaying its stored patches in order, then compares the result line by line.
+Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a real checkout: it rebuilds each file from nothing by replaying its stored patches in order, then compares the result line by line. Run this manually when validating an export against its reference tree. CI does not run this replay on each commit.
 
 - It follows copy origins back through `PATH_HISTORY_INDEX.txt`, including files that were born inside a copied folder.
 - A patch that does not apply, or a rebuilt file that differs, is a failure. Files with omitted or binary history are reported as not rebuildable rather than counted as matches.

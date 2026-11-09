@@ -684,6 +684,8 @@ static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlaye
 		return uiHash;
 	updateSASGameRecordStateValue(uiHash, kPlayer.isAlive());
 	updateSASGameRecordStateValue(uiHash, kPlayer.isHuman());
+	// <!-- custom: Hash the disable flag alongside effective isHuman so autoplay control remains distinguishable from an ordinary AI slot. See KI#203.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	updateSASGameRecordStateValue(uiHash, kPlayer.isHumanDisabled());
 	updateSASGameRecordStateValue(uiHash, kPlayer.isMinorCiv());
 	updateSASGameRecordStateValue(uiHash, kPlayer.getTeam());
 	updateSASGameRecordStateValue(uiHash, kPlayer.getCivilizationType());
@@ -740,6 +742,10 @@ static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlaye
 		updateSASGameRecordStateValue(uiHash, kPlayer.getCivics((CivicOptionTypes)iI));
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 		updateSASGameRecordStateValue(uiHash, kPlayer.getEspionageSpendingWeightAgainstTeam((TeamTypes)iI));
+	// <!-- custom: Controller changes alter cached unit-class production costs without necessarily changing any current unit/city object.
+	// Hash the generic cache so KI#771-style stale controller state becomes visible at the first level-3 boundary. (ChatGPT-5.6-Sol) -->
+	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+		updateSASGameRecordStateValue(uiHash, kPlayer.getUnitExtraCost((UnitClassTypes)iI));
 	// <!-- custom: Pending/occurred/countdown random-event bookkeeping is small but future-consequential; identical visible economics/cities can otherwise hide a deterministic divergence in what events may fire next. (ChatGPT-5.6-Sol) -->
 	for (int iI = 0; iI < GC.getNumEventTriggerInfos(); iI++)
 		updateSASGameRecordStateValue(uiHash, kPlayer.isTriggerFired((EventTriggerTypes)iI));
@@ -771,6 +777,9 @@ static SASGameRecordStateObjectHash getSASGameRecordPlayerStateSignature(CvPlaye
 		for (int iI = 0; iI < iStrategyCount; iI++)
 			updateSASGameRecordStateValue(uiHash, isSASGameRecordAIStrategyActive(kPlayer, getSASAIStrategyDescriptor(iI).eStrategy));
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getVictoryStageHash());
+		// <!-- custom: AI_setHuman refreshes victory weights for every major civilization during a controller handoff; preserve the cached values directly rather than inferring them from later strategy stages. See KI#203.2. (ChatGPT-5.6-Sol) -->
+		for (int iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+			updateSASGameRecordStateValue(uiHash, kPlayer.AI_getVictoryWeight((VictoryTypes)iI));
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getPeaceWeight());
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getEspionageWeight());
 		updateSASGameRecordStateValue(uiHash, kPlayer.AI_getAttackOddsChange());
@@ -891,6 +900,9 @@ static SASGameRecordStateObjectHash getSASGameRecordCityStateSignature(CvCity co
 		updateSASGameRecordStateValue(uiHash, kCity.getFreeSpecialistCount(eSpecialist));
 	}
 	CvCityAI const& kCityAI = kCity.AI();
+	// <!-- custom: A city can be deterministically queued for later citizen reassignment while its current worked plots still match.
+	// Include that latent dirty flag so handoff checkpoints distinguish present allocation from pending assignment work. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	updateSASGameRecordStateValue(uiHash, kCityAI.AI_isAssignWorkDirty());
 	for (int iI = 0; iI < GC.getNumEmphasizeInfos(); iI++)
 		updateSASGameRecordStateValue(uiHash, kCityAI.AI_isEmphasize((EmphasizeTypes)iI));
 	updateSASGameRecordStateValue(uiHash, kCityAI.AI_isStrongEmphasis());
@@ -4217,6 +4229,54 @@ struct SASGameRecordPlotComposition
 	SASGameRecordPlotComposition() : iPlots(0), iLand(0), iWater(0), iHills(0), iPeaks(0), iRiverSide(0), iFreshWater(0), iCoastal(0), iImproved(0), iUnimprovedLand(0), iRoaded(0), iBonusImproved(0), iBonusUnimproved(0), iWorked(0), iWorkedImproved(0), iWorkedUnimproved(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iCurrentFood(0), iCurrentProduction(0), iCurrentCommerce(0), aiTerrains(GC.getNumTerrainInfos(), 0), aiFeatures(GC.getNumFeatureInfos(), 0), aiBonuses(GC.getNumBonusInfos(), 0), aiImprovements(GC.getNumImprovementInfos(), 0), aiRoutes(GC.getNumRouteInfos(), 0) {}
 };
 
+// <!-- custom: A controller handoff can mutate state after the existing AUTOPLAY_BEGIN/END row, and stopping autoplay can expose a deferred city-assignment pass before the next AI restart.
+// Keep only rare level-3 correlation state here: one context per player, plus temporary before-images only for cities that are actually dirty in the handoff slice.
+// Nothing is serialized into the save. See KI#203.2. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordControlHandoffContext
+{
+	bool bValid;
+	bool bInTransition;
+	bool bToAI;
+	bool bPendingTurnActivation;
+	bool bTurnActivationInProgress;
+	bool bOldHumanDisabled;
+	bool bOldIsHuman;
+	bool bActivationIsHuman;
+	bool bActivationHumanDisabled;
+	int iHandoffId;
+	int iGameTurn;
+	int iTurnSlice;
+	int iCityAssignmentSequence;
+
+	SASGameRecordControlHandoffContext() { reset(); }
+	void reset()
+	{
+		bValid = bInTransition = bToAI = bPendingTurnActivation = bTurnActivationInProgress = false;
+		bOldHumanDisabled = bOldIsHuman = bActivationIsHuman = bActivationHumanDisabled = false;
+		iHandoffId = iGameTurn = iTurnSlice = -1;
+		iCityAssignmentSequence = 0;
+	}
+};
+
+struct SASGameRecordControlHandoffCityAssignment
+{
+	int iHandoffId;
+	int iSequence;
+	bool bDirtyBefore;
+	bool bCitizensAutomated;
+	int iWorkedFood;
+	int iWorkedProduction;
+	int iWorkedCommerce;
+	std::vector<int> aiWorkedPlots;
+	std::vector<int> aiSpecialists;
+
+	SASGameRecordControlHandoffCityAssignment() : iHandoffId(-1), iSequence(0), bDirtyBefore(false), bCitizensAutomated(false), iWorkedFood(0), iWorkedProduction(0), iWorkedCommerce(0), aiWorkedPlots(NUM_CITY_PLOTS, 0), aiSpecialists(GC.getNumSpecialistInfos(), 0) {}
+};
+
+static int g_iSASGameRecordControlHandoffSerial = 0;
+static SASGameRecordControlHandoffContext g_akSASGameRecordControlHandoff[MAX_PLAYERS];
+static std::map<std::pair<int, int>, SASGameRecordControlHandoffCityAssignment> g_mapSASGameRecordControlHandoffCityAssignment;
+
 struct SASGameRecordTerritoryDevelopment
 {
 	SASGameRecordPlotComposition kOwned;
@@ -4548,6 +4608,10 @@ static void resetSASGameRecordState()
 	g_uiSASGameRecordAutoPlayStartTime = 0;
 	g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	g_iSASGameRecordTotalActivePlayerChanges = 0;
+	g_iSASGameRecordControlHandoffSerial = 0;
+	g_mapSASGameRecordControlHandoffCityAssignment.clear();
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		g_akSASGameRecordControlHandoff[iI].reset();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 		g_aaSASGameRecordRevealedPlots[iI].clear();
 }
@@ -18242,6 +18306,192 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 		g_uiSASGameRecordAutoPlayStartTime = 0;
 		g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	}
+}
+
+static SASGameRecordControlHandoffContext* getSASGameRecordControlHandoffContext(PlayerTypes ePlayer)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return NULL;
+	return &g_akSASGameRecordControlHandoff[ePlayer];
+}
+
+bool beginSASGameRecordControlHandoff(CvPlayerAI const& kPlayer, bool bNewHumanDisabled)
+{
+	if (gGameRecordLogLevel < 3)
+		return false;
+	SASGameRecordControlHandoffContext* pContext = getSASGameRecordControlHandoffContext(kPlayer.getID());
+	if (pContext == NULL)
+		return false;
+	pContext->reset();
+	// <!-- custom: Toggling the disable flag on an AI slot can leave its controller unchanged.
+	// Mirror updateHuman's effective-state check before recording a handoff. (GPT-6.1-Sol) -->
+	if (kPlayer.isHuman() == (!bNewHumanDisabled && GC.getInitCore().getHuman(kPlayer.getID())))
+		return false;
+	CvGame const& kGame = GC.getGame();
+	pContext->bValid = true;
+	pContext->bInTransition = true;
+	pContext->bToAI = bNewHumanDisabled;
+	pContext->bPendingTurnActivation = !bNewHumanDisabled;
+	pContext->bOldHumanDisabled = kPlayer.isHumanDisabled();
+	pContext->bOldIsHuman = kPlayer.isHuman();
+	pContext->iHandoffId = ++g_iSASGameRecordControlHandoffSerial;
+	pContext->iGameTurn = kGame.getGameTurn();
+	pContext->iTurnSlice = kGame.getTurnSlice();
+	// <!-- custom: AUTOPLAY_BEGIN/END is emitted before setHumanDisabled, so it cannot by itself distinguish state changed by the controller transition from state that existed when the request arrived.
+	// Bracket the actual underlying handoff too; this also covers non-autoplay callers of the same controller path. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	if (g_bSASGameRecordRngTrackingActive)
+		logSASGameRecordRngCheckpoint(kGame.getGameTurn(), SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_BEFORE);
+	return true;
+}
+
+void finishSASGameRecordControlHandoff(CvPlayerAI const& kPlayer)
+{
+	SASGameRecordControlHandoffContext* pContext = getSASGameRecordControlHandoffContext(kPlayer.getID());
+	if (pContext == NULL || !pContext->bValid || !pContext->bInTransition)
+		return;
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_CONTROL_HANDOFF turn=%d turnSlice=%d handoffId=%d player=%d direction=%s source=SET_HUMAN_DISABLED humanDisabled=%d>%d isHuman=%d>%d turnActive=%d activePlayer=%d autoplayTurnsLeft=%d",
+		kGame.getGameTurn(), kGame.getTurnSlice(), pContext->iHandoffId, kPlayer.getID(), pContext->bToAI ? "TO_AI" : "TO_HUMAN",
+		pContext->bOldHumanDisabled, kPlayer.isHumanDisabled(), pContext->bOldIsHuman, kPlayer.isHuman(), kPlayer.isTurnActive(),
+		kGame.getActivePlayer(), kGame.getAIAutoPlay());
+	pContext->bInTransition = false;
+	if (g_bSASGameRecordRngTrackingActive)
+		logSASGameRecordRngCheckpoint(kGame.getGameTurn(), SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_AFTER);
+}
+
+bool isSASGameRecordControlHandoffToAI(PlayerTypes ePlayer)
+{
+	SASGameRecordControlHandoffContext const* pContext = getSASGameRecordControlHandoffContext(ePlayer);
+	return (pContext != NULL && pContext->bValid && pContext->bInTransition && pContext->bToAI);
+}
+
+static void getSASGameRecordControlHandoffWorkedYields(CvCityAI const& kCity, int& iFood, int& iProduction, int& iCommerce)
+{
+	iFood = iProduction = iCommerce = 0;
+	for (WorkingPlotIter it(kCity, false); it.hasNext(); ++it)
+	{
+		CvPlot const& kPlot = *it;
+		iFood += kPlot.calculateYield(YIELD_FOOD);
+		iProduction += kPlot.calculateYield(YIELD_PRODUCTION);
+		iCommerce += kPlot.calculateYield(YIELD_COMMERCE);
+	}
+}
+
+bool beginSASGameRecordControlHandoffCityAssignment(CvCityAI const& kCity)
+{
+	if (gGameRecordLogLevel < 3)
+		return false;
+	SASGameRecordControlHandoffContext* pContext = getSASGameRecordControlHandoffContext(kCity.getOwner());
+	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Restrict this detailed before/after capture to the exact update slice that returned control to the human.
+	// CvGameAI::AI_updateAssignWork iterates human players at the end of that slice; ordinary later human-city assignment stays on the existing periodic state record. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	if (pContext == NULL || !pContext->bValid || pContext->bToAI || pContext->iGameTurn != kGame.getGameTurn() || pContext->iTurnSlice != kGame.getTurnSlice())
+		return false;
+	SASGameRecordControlHandoffCityAssignment kSnapshot;
+	kSnapshot.iHandoffId = pContext->iHandoffId;
+	kSnapshot.iSequence = ++pContext->iCityAssignmentSequence;
+	kSnapshot.bDirtyBefore = kCity.AI_isAssignWorkDirty();
+	kSnapshot.bCitizensAutomated = kCity.isCitizensAutomated();
+	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+		kSnapshot.aiWorkedPlots[iI] = kCity.isWorkingPlot((CityPlotTypes)iI) ? 1 : 0;
+	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+		kSnapshot.aiSpecialists[iI] = kCity.getSpecialistCount((SpecialistTypes)iI);
+	getSASGameRecordControlHandoffWorkedYields(kCity, kSnapshot.iWorkedFood, kSnapshot.iWorkedProduction, kSnapshot.iWorkedCommerce);
+	std::pair<int, int> const kKey(kCity.getOwner(), kCity.getID());
+	g_mapSASGameRecordControlHandoffCityAssignment.erase(kKey);
+	g_mapSASGameRecordControlHandoffCityAssignment.insert(std::make_pair(kKey, kSnapshot));
+	return true;
+}
+
+void finishSASGameRecordControlHandoffCityAssignment(CvCityAI const& kCity)
+{
+	std::pair<int, int> const kKey(kCity.getOwner(), kCity.getID());
+	std::map<std::pair<int, int>, SASGameRecordControlHandoffCityAssignment>::iterator itSnapshot = g_mapSASGameRecordControlHandoffCityAssignment.find(kKey);
+	if (itSnapshot == g_mapSASGameRecordControlHandoffCityAssignment.end())
+		return;
+	SASGameRecordControlHandoffCityAssignment const& kBefore = itSnapshot->second;
+	CvString szRemovedPlots;
+	CvString szAddedPlots;
+	CvString szSpecialists;
+	bool bChanged = false;
+	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+	{
+		bool const bBefore = (kBefore.aiWorkedPlots[iI] != 0);
+		bool const bAfter = kCity.isWorkingPlot((CityPlotTypes)iI);
+		if (bBefore == bAfter)
+			continue;
+		bChanged = true;
+		CvPlot const* pPlot = kCity.getCityIndexPlot((CityPlotTypes)iI);
+		if (pPlot == NULL)
+			continue;
+		if (bAfter) appendSASGameRecordPlotCoordinate(szAddedPlots, *pPlot);
+		else appendSASGameRecordPlotCoordinate(szRemovedPlots, *pPlot);
+	}
+	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+	{
+		int const iBefore = kBefore.aiSpecialists[iI];
+		int const iAfter = kCity.getSpecialistCount((SpecialistTypes)iI);
+		if (iBefore == iAfter)
+			continue;
+		bChanged = true;
+		CvString szItem;
+		szItem.Format(szSpecialists.empty() ? "%s:%d>%d" : ",%s:%d>%d", getSASInfoTypeOrNone((SpecialistTypes)iI), iBefore, iAfter);
+		szSpecialists += szItem;
+	}
+	int iFoodAfter = 0;
+	int iProductionAfter = 0;
+	int iCommerceAfter = 0;
+	getSASGameRecordControlHandoffWorkedYields(kCity, iFoodAfter, iProductionAfter, iCommerceAfter);
+	if (kBefore.iWorkedFood != iFoodAfter || kBefore.iWorkedProduction != iProductionAfter || kBefore.iWorkedCommerce != iCommerceAfter)
+		bChanged = true;
+	// <!-- custom: Emit even when changed=0: a dirty city that actually ran the deferred assignment pass but retained the same allocation is different evidence from no handoff-time assignment pass at all. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CONTROL_HANDOFF_CITY_ASSIGNMENT turn=%d turnSlice=%d handoffId=%d direction=TO_HUMAN source=AI_UPDATE_ASSIGN_WORK sequence=%d player=%d cityId=%d x=%d y=%d citizensAutomated=%d dirty=%d>%d changed=%d workedRemoved=%s workedAdded=%s specialists=%s workedFood=%d>%d workedProd=%d>%d workedCommerce=%d>%d",
+		GC.getGame().getGameTurn(), GC.getGame().getTurnSlice(), kBefore.iHandoffId, kBefore.iSequence, kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(),
+		kBefore.bCitizensAutomated, kBefore.bDirtyBefore, kCity.AI_isAssignWorkDirty(), bChanged, getSASDiagnosticOrDash(szRemovedPlots).GetCString(),
+		getSASDiagnosticOrDash(szAddedPlots).GetCString(), getSASDiagnosticOrDash(szSpecialists).GetCString(), kBefore.iWorkedFood, iFoodAfter,
+		kBefore.iWorkedProduction, iProductionAfter, kBefore.iWorkedCommerce, iCommerceAfter);
+	g_mapSASGameRecordControlHandoffCityAssignment.erase(itSnapshot);
+}
+
+bool beginSASGameRecordControlHandoffTurnActivation(CvPlayerAI const& kPlayer, bool bDoTurn)
+{
+	if (gGameRecordLogLevel < 3 || !bDoTurn)
+		return false;
+	SASGameRecordControlHandoffContext* pContext = getSASGameRecordControlHandoffContext(kPlayer.getID());
+	if (pContext == NULL || !pContext->bValid || pContext->bToAI || !pContext->bPendingTurnActivation || pContext->bTurnActivationInProgress || !kPlayer.isHuman() || kPlayer.isHumanDisabled())
+		return false;
+	pContext->bTurnActivationInProgress = true;
+	pContext->bActivationIsHuman = kPlayer.isHuman();
+	pContext->bActivationHumanDisabled = kPlayer.isHumanDisabled();
+	if (g_bSASGameRecordRngTrackingActive)
+		logSASGameRecordRngCheckpoint(GC.getGame().getGameTurn(), SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_TURN_BEGIN);
+	return true;
+}
+
+void finishSASGameRecordControlHandoffTurnActivation(CvPlayerAI const& kPlayer)
+{
+	SASGameRecordControlHandoffContext* pContext = getSASGameRecordControlHandoffContext(kPlayer.getID());
+	if (pContext == NULL || !pContext->bValid || !pContext->bTurnActivationInProgress)
+		return;
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_CONTROL_HANDOFF_TURN_ACTIVATION turn=%d turnSlice=%d handoffId=%d direction=TO_HUMAN handoffTurn=%d handoffTurnSlice=%d player=%d isHuman=%d humanDisabled=%d turnActive=%d source=FIRST_TURN_AFTER_TO_HUMAN",
+		kGame.getGameTurn(), kGame.getTurnSlice(), pContext->iHandoffId, pContext->iGameTurn, pContext->iTurnSlice, kPlayer.getID(),
+		pContext->bActivationIsHuman, pContext->bActivationHumanDisabled, kPlayer.isTurnActive());
+	pContext->bPendingTurnActivation = false;
+	pContext->bTurnActivationInProgress = false;
+	if (g_bSASGameRecordRngTrackingActive)
+		logSASGameRecordRngCheckpoint(kGame.getGameTurn(), SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_TURN_END);
+}
+
+void logSASGameRecordControlHandoffGroupSplit(PlayerTypes ePlayer, int iOriginalGroupId, int iOriginalUnits, int iOldHeadUnitId, UnitTypes eOldHeadUnit, unsigned int uiHeadImpassables, int iTriggerUnitId, UnitTypes eTriggerUnit, unsigned int uiTriggerImpassables, int iNewHeadGroupId, int iNewHeadUnits, int iRemainderGroupId, int iRemainderUnits)
+{
+	SASGameRecordControlHandoffContext const* pContext = getSASGameRecordControlHandoffContext(ePlayer);
+	if (pContext == NULL || !pContext->bValid || !pContext->bInTransition || !pContext->bToAI)
+		return;
+	logSASGameRecord("GAME_RECORD_CONTROL_HANDOFF_GROUP_SPLIT turn=%d turnSlice=%d handoffId=%d direction=TO_AI player=%d reason=AI_HEAD_MAX_IMPASSABLE originalGroupId=%d originalUnits=%d oldHeadUnitId=%d oldHeadUnit=%s headImpassables=%u triggerUnitId=%d triggerUnit=%s triggerImpassables=%u newHeadGroupId=%d newHeadUnits=%d remainderGroupId=%d remainderUnits=%d",
+		GC.getGame().getGameTurn(), GC.getGame().getTurnSlice(), pContext->iHandoffId, ePlayer, iOriginalGroupId, iOriginalUnits, iOldHeadUnitId,
+		getSASInfoTypeOrNone(eOldHeadUnit), uiHeadImpassables, iTriggerUnitId, getSASInfoTypeOrNone(eTriggerUnit), uiTriggerImpassables,
+		iNewHeadGroupId, iNewHeadUnits, iRemainderGroupId, iRemainderUnits);
 }
 
 void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer)

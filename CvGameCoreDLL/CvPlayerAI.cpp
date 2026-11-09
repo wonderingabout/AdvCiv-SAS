@@ -33842,9 +33842,45 @@ void CvPlayerAI::AI_setHuman(bool b)
 			}
 		}
 	}
+	bool const bRecordControlHandoffSplits = (gGameRecordLogLevel >= 3 && isSASGameRecordControlHandoffToAI(getID()));
 	for (size_t i = 0; i < apSplitGroups.size(); i++)
 	{
-		apSplitGroups[i]->splitGroup(1);
+		CvSelectionGroup* pRemainderGroup = apSplitGroups[i];
+		// <!-- custom: Keep the inherited split directly on the unlogged path so recording its inputs adds no work there. (GPT-6.1-Sol) -->
+		if (!bRecordControlHandoffSplits)
+		{
+			pRemainderGroup->splitGroup(1);
+			continue;
+		}
+		int const iOriginalGroupId = pRemainderGroup->getID();
+		int const iOriginalUnits = pRemainderGroup->getNumUnits();
+		CvUnit const* pOldHeadUnit = pRemainderGroup->getHeadUnit();
+		CvUnit const* pTriggerUnit = NULL;
+		uint uiHeadImpassables = 0;
+		uint uiTriggerImpassables = 0;
+		if (pOldHeadUnit != NULL)
+		{
+			uiHeadImpassables = AI_unitImpassables(pOldHeadUnit->getUnitType());
+			FOR_EACH_UNIT_IN(pLoopUnit, *pRemainderGroup)
+			{
+				uint const uiLoopImpassables = AI_unitImpassables(pLoopUnit->getUnitType());
+				if (pLoopUnit != pOldHeadUnit && uiLoopImpassables > uiHeadImpassables)
+				{
+					pTriggerUnit = pLoopUnit;
+					uiTriggerImpassables = uiLoopImpassables;
+					break;
+				}
+			}
+		}
+		CvSelectionGroup* pSplitGroup = pRemainderGroup->splitGroup(1);
+		// <!-- custom: AI_setHuman's invariant repair is a real controller-handoff mutation, but only on TO_AI and only when a group is actually split.
+		// Preserve the old head/trigger and both resulting group identities without instrumenting ordinary group operations. See KI#203.2. (ChatGPT-5.6-Sol) -->
+		if (pOldHeadUnit != NULL && pTriggerUnit != NULL && pSplitGroup != NULL && pSplitGroup != pRemainderGroup)
+		{
+			logSASGameRecordControlHandoffGroupSplit(getID(), iOriginalGroupId, iOriginalUnits, pOldHeadUnit->getID(), pOldHeadUnit->getUnitType(), uiHeadImpassables,
+				pTriggerUnit->getID(), pTriggerUnit->getUnitType(), uiTriggerImpassables, pSplitGroup->getID(), pSplitGroup->getNumUnits(),
+				pRemainderGroup->getID(), pRemainderGroup->getNumUnits());
+		}
 	} // </advc.057>
 }
 

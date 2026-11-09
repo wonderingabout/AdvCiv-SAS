@@ -113,6 +113,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 194 - SAS practical 6741
+
+- **Date:** 2026-11-09
+- **Git commit:** pending
+- **Change:** Make human/AI controller handoffs explainable at the point where they can change a deterministic replay, without turning ordinary turns into a new recurring trace.
+  - KI#203.2's sliced replay matched the uninterrupted run through T49 and consumed the same cumulative synchronized RNG through T50, but state changed after `AUTOPLAY_END` and the RNG stream diverged on T51; the old boundary located the window without separating the autoplay request, actual controller transition, deferred human-side lifecycle work and later return to AI control.
+  - Level 3 now brackets the actual `setHumanDisabled` transition with `CONTROL_HANDOFF_BEFORE/AFTER` checkpoints and `GAME_RECORD_CONTROL_HANDOFF`, preserving the real controller state rather than inferring it from an autoplay button/request. This hook covers effective controller changes through `setHumanDisabled`, including AI Auto Play.
+  - A TO_HUMAN handoff can expose a dirty automated city to the human-only deferred assignment pass later in the same update slice. `GAME_RECORD_CONTROL_HANDOFF_CITY_ASSIGNMENT` records only cities that actually enter that pass, including unchanged results, exact added/removed worked plots, specialist-count changes and worked yields before/after.
+  - The first real player-turn activation after TO_HUMAN is bracketed separately so synchronized RNG/state changes during turn initialization can be distinguished from the later restart request. Its row records the controller state at activation. That identifies a window to inspect for skipped AI-only work.
+  - Returning TO_AI already repairs groups whose head has fewer impassable capabilities than a member. `GAME_RECORD_CONTROL_HANDOFF_GROUP_SPLIT` records only actual repairs, with the triggering unit and both resulting groups; ordinary grouping remains uninstrumented.
+  - Level-3 state fingerprints now include `isHumanDisabled`, city assignment-dirty state, cached AI victory weights and unit-class extra-cost caches. These are small future-consequential values that can differ while visible city/unit state still appears identical.
+  - All added causal rows/checkpoints are rare level-3 observations, reuse existing state and perform no pathfinding, AI valuation or RNG draws. Lower recorder levels skip the snapshots and detailed logging.
+
 ### Revision 193 - SAS practical 6738
 
 - **Date:** 2026-11-09

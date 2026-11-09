@@ -158,7 +158,11 @@ extern bool g_bSASGameRecordRngTrackingActive;
 	DO(SAS_RNG_CHECKPOINT_VICTORY, VICTORY) \
 	DO(SAS_RNG_CHECKPOINT_GAME_END, GAME_END) \
 	DO(SAS_RNG_CHECKPOINT_SAVE_LOADED, SAVE_LOADED) \
-	DO(SAS_RNG_CHECKPOINT_SESSION_FINALIZE, SESSION_FINALIZE)
+	DO(SAS_RNG_CHECKPOINT_SESSION_FINALIZE, SESSION_FINALIZE) \
+	DO(SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_BEFORE, CONTROL_HANDOFF_BEFORE) \
+	DO(SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_AFTER, CONTROL_HANDOFF_AFTER) \
+	DO(SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_TURN_BEGIN, CONTROL_HANDOFF_TURN_BEGIN) \
+	DO(SAS_RNG_CHECKPOINT_CONTROL_HANDOFF_TURN_END, CONTROL_HANDOFF_TURN_END)
 enum SASGameRecordRngCheckpointReason
 {
 #define SAS_RECORD_ENUM(NAME, LABEL) NAME,
@@ -1466,6 +1470,16 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
 void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode);
 // <!-- custom: Added eEndCause for explicit completion attribution; active-player changes update per-request and per-log-session control-transfer counts; callers remain logging-gated. See KI#203. (GPT-5.6-Sol) -->
 void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause);
+// <!-- custom: Level-3 control-handoff diagnostics bracket the actual setHumanDisabled transition, then observe only rare mutations that the existing autoplay boundary cannot explain.
+// The recorder keeps this context outside save state; callers pre-gate the ordinary paths so lower levels pay no handoff-observation cost. See KI#203.2. (ChatGPT-5.6-Sol) -->
+bool beginSASGameRecordControlHandoff(CvPlayerAI const& kPlayer, bool bNewHumanDisabled);
+void finishSASGameRecordControlHandoff(CvPlayerAI const& kPlayer);
+bool beginSASGameRecordControlHandoffCityAssignment(CvCityAI const& kCity);
+void finishSASGameRecordControlHandoffCityAssignment(CvCityAI const& kCity);
+bool beginSASGameRecordControlHandoffTurnActivation(CvPlayerAI const& kPlayer, bool bDoTurn);
+void finishSASGameRecordControlHandoffTurnActivation(CvPlayerAI const& kPlayer);
+bool isSASGameRecordControlHandoffToAI(PlayerTypes ePlayer);
+void logSASGameRecordControlHandoffGroupSplit(PlayerTypes ePlayer, int iOriginalGroupId, int iOriginalUnits, int iOldHeadUnitId, UnitTypes eOldHeadUnit, unsigned int uiHeadImpassables, int iTriggerUnitId, UnitTypes eTriggerUnit, unsigned int uiTriggerImpassables, int iNewHeadGroupId, int iNewHeadUnits, int iRemainderGroupId, int iRemainderUnits);
 void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer);
 void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind);
 void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);

@@ -2633,6 +2633,9 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 {
 	if (bNewVal == m_bDisableHuman)
 		return;
+	// <!-- custom: AUTOPLAY_BEGIN/END is recorded before the controller changes.
+	// At level 3, bracket the actual shared setHumanDisabled path so later mutations can be tied to the handoff rather than inferred from the autoplay request. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	bool const bRecordControlHandoff = (gGameRecordLogLevel >= 3 && beginSASGameRecordControlHandoff(AI(), bNewVal));
 	m_bDisableHuman = bNewVal;
 	m_bAutoPlayJustEnded = true;
 	updateHuman();
@@ -2640,6 +2643,7 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 	// <!-- custom: AI Auto Play changes isHuman() through setHumanDisabled/updateHuman rather than setIsHuman, so refresh the same controller-dependent founding-unit surcharge cache fixed by KI#771.
 	// Otherwise entering or leaving autoplay can retain the previous human/AI Settler production cost. See KI#771.2 for the replay and pre-K-Mod lineage. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
 	updateFoundingUnitExtraCosts();
+	if (bRecordControlHandoff) finishSASGameRecordControlHandoff(AI());
 	if (isActive())
 	{
 		CvWString szReplayText;
@@ -9514,6 +9518,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	if (isTurnActive() == bNewValue)
 		return;
 
+	// <!-- custom: The first real turn activation after control returns to a human can run lifecycle work that an immediate later AI Auto Play restart does not replay.
+	// Bracket only that rare activation at level 3; ordinary player turns keep the existing zero-cost path. See KI#203.2. (ChatGPT-5.6-Sol) -->
+	bool const bRecordControlHandoffTurnActivation = (gGameRecordLogLevel >= 3 && bNewValue && bDoTurn && beginSASGameRecordControlHandoffTurnActivation(AI(), bDoTurn));
 	m_bTurnActive = bNewValue;
 	CvGame& kGame = GC.getGame();
 	// <!-- custom: Runtime player timing follows this native sequential-turn lifecycle rather than Python begin/end-player callbacks, which miss the long active movement interval.
@@ -9631,6 +9638,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		}
 		// <!-- custom: Activation/setup is complete; the player now remains active through AI movement or human input until the native deactivation path below. (ChatGPT-5.6-Sol) -->
 		if (isSASRuntimeStatusEnabled() && bDoTurn) updateSASRuntimeStatusPlayerTurnMain(getID());
+		if (bRecordControlHandoffTurnActivation) finishSASGameRecordControlHandoffTurnActivation(AI());
 	}
 	else
 	{

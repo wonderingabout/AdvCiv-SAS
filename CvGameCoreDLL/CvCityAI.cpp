@@ -1566,7 +1566,13 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 void CvCityAI::AI_updateAssignWork()
 {
 	if (AI_isAssignWorkDirty())
+	{
+		// <!-- custom: After a TO_HUMAN handoff, CvGameAI::AI_updateAssignWork can process a dirty human city later in the same update slice.
+		// Capture only that rare before/after assignment at level 3; ordinary dirty-city updates construct no recorder snapshot. See KI#203.2. (ChatGPT-5.6-Sol) -->
+		bool const bRecordControlHandoffAssignment = (gGameRecordLogLevel >= 3 && beginSASGameRecordControlHandoffCityAssignment(*this));
 		AI_assignWorkingPlots();
+		if (bRecordControlHandoffAssignment) finishSASGameRecordControlHandoffCityAssignment(*this);
+	}
 }
 
 // advc.003j: Unused K-Mod function (one call commented out in CvGameTextMgr)

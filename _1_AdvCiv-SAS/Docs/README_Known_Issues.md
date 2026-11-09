@@ -324,7 +324,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-201)\
 [KI#202 - (Fixed) Base AdvCiv's uncapped second OneArea-resource pass could not revisit landmasses capped during its first pass](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202)\
 [KI#203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-203)\
-[KI#203.2 - (Observed) Stopping and resuming AI Auto Play can change the run without a reload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-203.2)\
+[KI#203.2 - (Observed and recorded) Stopping and resuming AI Auto Play can change the run without a reload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-203.2)\
 [KI#204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-204)\
 [KI#205 - (Fixed/Improved) Major K-Mod World-Wonder focus refactor bug rejected the AI's best production cities, while an AdvCiv-SAS game-speed regression could almost disable cheap-Wonder catch-up on slow speeds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-205)\
 [KI#206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-206)\
@@ -19356,21 +19356,58 @@ Improved with the help of GPT-5.6-Sol thanks.
 
 <a id="ki-203.2"></a>
 
-## KI#203.2 - (Observed) Stopping and resuming AI Auto Play can change the run without a reload
+## KI#203.2 - (Observed and recorded) Stopping and resuming AI Auto Play can change the run without a reload
 
-On 2026-11-09, a fresh 201-turn run and an uninterrupted replay from its T0 save matched all 201 end-of-turn RNG and core-state checkpoints. A second replay from that same save used 51 + 50 + 50 + 50 turns in one Civ4 session. It matched through T49, then its player and city fingerprints differed at the first scheduled handoff on T50. The synchronized RNG state first differed at the end of T51.
+On 2026-11-09, a fresh 201-turn run and an uninterrupted replay from its T0 save matched all 201 end-of-turn RNG and core-state checkpoints. A second replay from that same save used 51 + 50 + 50 + 50 turns in one Civ4 session. It matched through T49, then state changed around the first scheduled handoff and the synchronized RNG state first differed at the end of T51.
 
 Evidence from SGR193: `SASGameRecord_20261109T112139Z_new1.log` (fresh start), `SASGameRecord_20261109T112500Z_load2.log` (uninterrupted reload), and `SASGameRecord_20261109T112904Z_load3.log` (sliced reload).
 
-At T50, the extra `AUTOPLAY_END` checkpoint splits the sliced run's RNG interval into 11,782 and 360 calls, matching the uninterrupted run's 12,142 calls and final state. Compare cumulative call totals or combine intervals before interpreting a per-interval count difference as a change in RNG usage.
+At T50, the sliced run's `AUTOPLAY_END` checkpoint is still before `CvPlayer::setHumanDisabled` changes the controller. Its synchronized RNG interval has 11,782 calls; the later T50 end-of-turn interval has 360. Together they exactly match the uninterrupted run's 12,142 calls and final synchronized RNG state.
 
-The control handoff calls `CvPlayer::setHumanDisabled` and `CvPlayerAI::AI_setHuman`. The latter refreshes attitudes and victory weights and can split some groups when returning to AI control. These are candidates for the handoff audit. The checkpoints establish when the runs differed, while the exact cause of the T50 player and city differences remains open.
+The T50 difference is therefore deterministic state around the handoff, not an extra random draw hidden by the additional checkpoint.
 
-In a much earlier in-game test from around the first AdvCiv-SAS commits, the user observed doomed-city defenders retreat when autoplay started two turns before the expected evacuation. They stayed when it started one turn before. The exact build and paired logs are unknown. Reproduction on current SAS is open.
+The city difference is concrete and transient. Player 0 city 8192 temporarily replaces its worked Wine plantation with a Flood Plains Cottage, changing worked yields from 9 food / 4 production / 11 commerce to 10 / 3 / 9.
 
-Compare both starts with an uninterrupted control and inspect the first change in attacker position, defender groups, city safety or synchronized RNG before attributing it to the same handoff effects.
+The Longbowman threshold simultaneously changes from 36 to 40 because controller-dependent production modifiers change, while stored production remains 17. Unit and group fingerprints match the uninterrupted run at the T50 end-of-turn checkpoint.
 
-The T50 city delta identifies a concrete difference in player 0 city 8192. With uninterrupted AI control, it recorded worked Food/Production of 9/4 and a Longbowman cost of 36. After handoff, it recorded 10/3 and a cost of 40, with 17 production already stored in both runs. Unit and group fingerprints still matched at end of turn.
+By the sliced run's T51 `AUTOPLAY_BEGIN` checkpoint, before control is handed back to the AI, the complete cities fingerprint has returned exactly to its pre-handoff/uninterrupted T50 value.
+
+In the otherwise quiet interval after T50 end and before that restart request, the group count changes from 121 to 120, unit/group fingerprints change and 37 synchronized RNG calls occur without an ordinary SGR action row. The transient city reassignment should therefore not be assumed to cause the later RNG divergence.
+
+Two source paths are especially relevant to verify:
+
+- After a TO_HUMAN handoff, `CvGame::updateUnprofiled` later calls `CvGameAI::AI_updateAssignWork`, which iterates human players.
+  - A city that was already assignment-dirty can therefore be reassigned under human-controller city logic after the old `AUTOPLAY_END` checkpoint. This matches the observed timing and requires no synchronized RNG, but SGR193 cannot show whether Dublin actually entered that deferred pass.
+- If the next player turn becomes active while player 0 is human-controlled, `CvPlayer::setTurnActive` runs the normal unit-turn lifecycle.
+  - `CvPlayerAI::AI_doTurnUnitsPost` returns before its AI-only body for a human player. Restarting Auto Play afterward changes the controller but does not replay an already completed turn-activation phase; this remains a source-grounded candidate for the T51 divergence, not a demonstrated cause.
+
+One quantitative clue is consistent with the second path but is not sufficient proof by itself. At T51 the uninterrupted run has 279 more null-message synchronized RNG calls, exactly 3 * 93.
+
+A ready-unit AI upgrade scan in this position has 94 candidates; its first roll is labelled `AI Upgrade` and the other 93 calls use no RandLog message. Other labelled-call differences also exist, so the new boundaries must identify the actual phase before attributing the divergence to three omitted upgrade scans.
+
+`CvPlayerAI::AI_setHuman` also has a real TO_AI mutation: it splits groups whose head lacks an impassable capability held by a member. That cannot explain the T50 end state, where units/groups already match, nor the 121 -> 120 group-count change that occurs before the T51 restart.
+
+It remains relevant to later control handoffs and should be recorded only when an actual split occurs.
+
+SGR194 adds the missing causal boundaries rather than a recurring turn dump: pre/post checkpoints around the actual `setHumanDisabled` transition, exact same-slice dirty-city assignment results, the first real turn activation after TO_HUMAN, and actual TO_AI invariant group splits.
+
+Level-3 fingerprints also gain `isHumanDisabled`, assignment-dirty state, cached victory weights and unit-class extra-cost caches. The replay should use these observations to establish the first actual change before any source mechanism above is promoted from candidate to cause.
+
+A separate historical observation remains useful as a second reproduction target. In an in-game test from around the first AdvCiv-SAS commits, the user observed doomed-city defenders retreat when autoplay started two turns before the expected evacuation, but stay when it started one turn before.
+
+The exact build and paired logs are unknown, and reproduction on current SAS remains open. Compare both starts with an uninterrupted control and distinguish a different city-safety decision from the same decision failing to move the defenders before connecting it to the current handoff behavior.
+
+SGR194 replay on 2026-11-09, after KI#771.2: `SASGameRecord_20261109T210741Z_load1.log` ran uninterrupted for 201 turns and `SASGameRecord_20261109T211138Z_load2.log` used 51 + 50 + 50 + 50 turns from the same T0 save.
+
+Comparing end-of-turn checkpoints by turn, the sliced run first differed in player state on T50 and synchronized RNG on T51.
+
+The uninterrupted run matched the older post-KI#771.2 baseline's map and synchronized RNG states and call counts at all 201 turn ends.
+
+The sliced run recorded eight controller changes and four turn activations under human control.
+
+On T50, city 8192 processed its dirty assignment without changing its worked plots or yields. On T150, the same city changed worked plots, raising worked food from 19 to 22 and lowering production from 15 to 10.
+
+The new rows distinguish those outcomes. No invariant group split occurred in this replay, and the exact cause of the T51 RNG divergence remains open.
 
 <a id="ki-204"></a>
 
