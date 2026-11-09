@@ -174,12 +174,12 @@ def main() -> int:
 
 	errors, failures, total_tags = check_xml_text_duplicate_tags(args.repo_root)
 
+	# <!-- custom: Report both sections: setup/parse errors used to return first and hide the duplicates already found, needing another push to see them. (Claude code Opus 5.5) -->
 	if errors:
 		print_section("FAIL XML text duplicate tag setup/parse errors", errors)
-		return 1
-
 	if failures:
 		print_section("FAIL XML text duplicate tags", failures)
+	if errors or failures:
 		return 1
 
 	print(f"PASS XML text duplicate tags: {total_tags} text tag(s) checked")

@@ -164,6 +164,7 @@ def read_commerce_value(building_type: str, node: ET.Element, field_name: str, c
 def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, int], world_wonder_classes: set[str]) -> list[dict[str, int | str]]:
 	path = repo_root / BUILDING_INFOS_REL_PATH
 	wonders: list[dict[str, int | str]] = []
+	problems: list[str] = []
 
 	for node in parse_xml(path).getroot().iter():
 		if local_name(node.tag) != "BuildingInfo":
@@ -177,8 +178,10 @@ def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, in
 			continue
 
 		prereq_tech = child_text_by_local_name(node, "PrereqTech")
+		# <!-- custom: Collected and raised together after the loop, so one bad entry no longer hides the others until the next push. (Claude code Opus 5.5) -->
 		if prereq_tech not in tech_columns:
-			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
+			problems.append(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
+			continue
 
 		wonders.append({
 			"type": building_type,
@@ -191,12 +194,15 @@ def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, in
 			"gpp": read_int(building_type, node, "iGreatPeopleRateChange"),
 		})
 
+	if problems:
+		raise RuntimeError("\n  - ".join(problems))
 	return wonders
 
 
 def read_constructible_gp_buildings(repo_root: Path, tech_columns: dict[str, int], class_categories: dict[str, str], special_building_techs: dict[str, str]) -> list[dict[str, int | str]]:
 	path = repo_root / BUILDING_INFOS_REL_PATH
 	buildings: list[dict[str, int | str]] = []
+	problems: list[str] = []
 
 	for node in parse_xml(path).getroot().iter():
 		if local_name(node.tag) != "BuildingInfo":
@@ -214,7 +220,8 @@ def read_constructible_gp_buildings(repo_root: Path, tech_columns: dict[str, int
 			special_type = child_text_by_local_name(node, "SpecialBuildingType")
 			prereq_tech = special_building_techs.get(special_type or "")
 		if prereq_tech not in tech_columns:
-			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: GP-producing {building_type} has missing or unknown direct/special-building prerequisite tech {prereq_tech!r}")
+			problems.append(f"{BUILDING_INFOS_REL_PATH}: GP-producing {building_type} has missing or unknown direct/special-building prerequisite tech {prereq_tech!r}")
+			continue
 
 		buildings.append({
 			"type": building_type,
@@ -224,6 +231,8 @@ def read_constructible_gp_buildings(repo_root: Path, tech_columns: dict[str, int
 			"gpp": gpp,
 		})
 
+	if problems:
+		raise RuntimeError("\n  - ".join(problems))
 	return buildings
 
 

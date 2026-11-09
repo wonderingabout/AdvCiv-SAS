@@ -22,43 +22,57 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: Markdown images
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_images.py
 
       - name: Named example artifact locations
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/example_file_locations.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: Documentation image filename policy
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/image_filename_policy.py
 
       - name: Markdown links and anchors
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_links.py
 
       - name: Long-comment archive references
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/long_comments.py
 
       - name: Markdown menus, anchors and structure
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_structure.py
 
       - name: Markdown list layout and edited prose
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_prose_changes.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: SAS shipped source links in README and Main Changes Guide
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/sas_source_guide.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       # <!-- custom: Make generated diagnostic artifacts findable by explicit filename/path in both reader overviews; source links alone do not name the output JSON/JSONL. (GPT-6.1-Sol) -->
       - name: Diagnostic output filenames and locations
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/diagnostic_artifact_names.py
 
       - name: Known Issues update chronology
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       # <!-- custom: CI has no Civ4 art to render with, so compare the renderer's code with the fingerprint regenerate_art_samples.py recorded after its last full run. (Claude code Opus 5.5) -->
       - name: Art sample freshness
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/art_samples.py
 
       - name: Generated documentation freshness
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/generated_docs.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

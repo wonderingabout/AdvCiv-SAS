@@ -69,12 +69,11 @@ def read_tech_column_costs(repo_root: Path) -> dict[int, int]:
 			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX/iCost {grid_x_text!r}/{cost_text!r}") from exc
 		by_column.setdefault(grid_x, set()).add(cost)
 
-	column_costs: dict[int, int] = {}
-	for grid_x, costs in by_column.items():
-		if len(costs) != 1:
-			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: iGridX={grid_x} has multiple technology costs: {sorted(costs)}")
-		column_costs[grid_x] = next(iter(costs))
-	return column_costs
+	# <!-- custom: Collected and raised together after the loop, so one bad entry no longer hides the others until the next push. (Claude code Opus 5.5) -->
+	problems = [f"{TECH_INFOS_REL_PATH}: iGridX={grid_x} has multiple technology costs: {sorted(costs)}" for grid_x, costs in by_column.items() if len(costs) != 1]
+	if problems:
+		raise RuntimeError("\n  - ".join(problems))
+	return {grid_x: next(iter(costs)) for grid_x, costs in by_column.items()}
 
 
 def read_world_wonder_classes(repo_root: Path) -> set[str]:
@@ -101,6 +100,7 @@ def read_world_wonder_classes(repo_root: Path) -> set[str]:
 def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, int], world_wonder_classes: set[str]) -> list[dict[str, int | str]]:
 	path = repo_root / BUILDING_INFOS_REL_PATH
 	wonders: list[dict[str, int | str]] = []
+	problems: list[str] = []
 
 	for node in parse_xml(path).getroot().iter():
 		if local_name(node.tag) != "BuildingInfo":
@@ -122,8 +122,10 @@ def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, in
 			continue
 
 		prereq_tech = child_text_by_local_name(node, "PrereqTech")
+		# <!-- custom: Collected and raised together after the loop, so one bad entry no longer hides the others until the next push. (Claude code Opus 5.5) -->
 		if prereq_tech not in tech_columns:
-			raise RuntimeError(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
+			problems.append(f"{BUILDING_INFOS_REL_PATH}: {building_type} has missing or unknown PrereqTech {prereq_tech!r}")
+			continue
 
 		wonders.append({
 			"type": building_type,
@@ -132,6 +134,8 @@ def read_constructible_world_wonders(repo_root: Path, tech_columns: dict[str, in
 			"cost": cost,
 		})
 
+	if problems:
+		raise RuntimeError("\n  - ".join(problems))
 	return wonders
 
 

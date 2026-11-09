@@ -22,17 +22,23 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: BOMs, filename and installation-path limits
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/repository_hygiene.py
 
       - name: New text blank separators
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/text_blank_lines.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: Text line endings
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/line_endings.py
 
       - name: Text control characters
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/control_characters.py

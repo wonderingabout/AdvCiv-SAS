@@ -124,8 +124,10 @@ def check_asset_tech_prereq_redundancy(repo_root: Path) -> list[str]:
 				continue
 			guaranteed = guaranteed_prereqs(primary_tech, techs, guaranteed_cache, set())
 			for additional_tech in read_prereq_list(node, "TechTypes"):
+				# <!-- custom: Reported and skipped rather than raised, so one unknown prerequisite no longer hides the rest of the findings. (Claude code Opus 5.5) -->
 				if additional_tech not in techs:
-					raise RuntimeError(f"{relative_path}: {asset_type} has unknown additional prerequisite {additional_tech}")
+					failures.append(f"{relative_path}: {asset_type} has unknown additional prerequisite {additional_tech}")
+					continue
 				additional_era = str(techs[additional_tech]["era"])
 				if additional_tech in guaranteed and era_order[additional_era] < era_order[primary_era]:
 					failures.append(f"{asset_label} {asset_type}: additional {additional_tech} ({additional_era}, iGridX={techs[additional_tech]['grid_x']}) is already guaranteed by primary {primary_tech} ({primary_era}, iGridX={primary_grid_x})")

@@ -99,35 +99,37 @@ def build_report_errors(repo, commit, paths):
             continue
         summary_path = path + ".build.json"
         prefix = f"{commit[:12]}: {summary_path}"
+        # <!-- custom: Each problem of a report is collected rather than raised, so a report wrong in several ways is fixed in one go instead of one push per problem. (Claude code Opus 5.5) -->
+        problems = []
         try:
             summary = json.loads(git(repo, "show", f"{commit}:{summary_path}").decode("utf-8-sig"))
             if not isinstance(summary, dict):
                 raise ValueError("expected a JSON object")
             # <!-- custom: The distributed binary must use exactly Release; the explicit intent marker alone also allowed accidental Debug-opt binaries. (GPT-6.1-Sol) -->
             if summary.get("configuration") != "Release":
-                raise ValueError("requires configuration Release (fast, Debug and Profile builds are not accepted)")
+                problems.append("requires configuration Release (fast, Debug and Profile builds are not accepted)")
             if summary.get("status") != "SUCCEEDED" or summary.get("request") not in {"BUILD", "REBUILD"}:
-                raise ValueError("requires a successful build/rebuild")
-            for field in ("durationMilliseconds", "warningCount", "errorCount"):
-                if type(summary.get(field)) is not int or summary[field] < 0:
-                    raise ValueError(f"{field} must be a nonnegative integer")
-            if summary["errorCount"] != 0 or summary.get("exitCode") != 0:
-                raise ValueError("successful build report must report zero errors")
+                problems.append("requires a successful build/rebuild")
+            invalid = [field for field in ("durationMilliseconds", "warningCount", "errorCount") if type(summary.get(field)) is not int or summary[field] < 0]
+            problems += [f"{field} must be a nonnegative integer" for field in invalid]
+            if "errorCount" not in invalid and (summary["errorCount"] != 0 or summary.get("exitCode") != 0):
+                problems.append("successful build report must report zero errors")
             # <!-- custom: A compiler can produce a usable DLL despite warnings.
             # Reject that shipping evidence so successful compilation does not hide diagnostics still needing attention. (GPT-6.1-Sol) -->
-            if summary["warningCount"] != 0:
-                raise ValueError(f"shipped Release build must report zero warnings (reported {summary['warningCount']}); address diagnostics and rebuild")
+            if "warningCount" not in invalid and summary["warningCount"] != 0:
+                problems.append(f"shipped Release build must report zero warnings (reported {summary['warningCount']}); address diagnostics and rebuild")
             times = [datetime.fromisoformat(summary[field].replace("Z", "+00:00")) for field in ("startedUtc", "endedUtc")]
             if any(time.utcoffset() != timezone.utc.utcoffset(None) for time in times) or times[1] < times[0]:
-                raise ValueError("requires ordered UTC start/end timestamps")
+                problems.append("requires ordered UTC start/end timestamps")
             # <!-- custom: Commit the full JSON for DLL identity/status checks; keep full compiler output local rather than requiring an AdvCiv.log copy in Assets.
             # The JSON retains recognized coded diagnostics and build context, while the optional local log also preserves uncoded messages and all command output. (GPT-6.1-Sol) -->
             binary = git(repo, "show", f"{commit}:{path}")
             dll = summary["dllAfter"]
             if type(dll["sizeBytes"]) is not int or dll["sizeBytes"] != len(binary) or dll.get("sha256", "").lower() != hashlib.sha256(binary).hexdigest():
-                raise ValueError("DLL size/SHA-256 does not match this commit's binary")
+                problems.append("DLL size/SHA-256 does not match this commit's binary")
         except (RuntimeError, ValueError, KeyError, TypeError, AttributeError) as exc:
-            errors.append(f"{prefix}: {exc}")
+            problems.append(str(exc))
+        errors += [f"{prefix}: {problem}" for problem in problems]
     return errors
 
 

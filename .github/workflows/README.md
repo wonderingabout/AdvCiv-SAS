@@ -23,6 +23,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
 - [Current automated checks](#current-automated-checks)
 - [Helper reference](#helper-reference)
   - [Repository](#repository)
+    - [`build/repository/workflow_keep_going.py`](#buildrepositoryworkflow_keep_goingpy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
     - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
@@ -259,6 +260,12 @@ The `-t` argument keeps test package names distinct from standard-library module
 ## Helper reference
 
 ### Repository
+
+#### `build/repository/workflow_keep_going.py`
+
+Verifies that every check step of `checks-*.yml` keeps running after an earlier check fails, so one push reports every failure. A step added without that condition would otherwise be skipped after any earlier failure, and nothing would show it.
+
+Whether a script itself collects all its findings is left to review: an audit of 95 scripts on 2026-11-09 flagged 25 by how they exit, of which about 6 really stopped early, so a check on it would mostly raise false alarms.
 
 #### `build/repository/temp_files.py`
 
@@ -1380,7 +1387,20 @@ This check complements Ruff: Ruff gives modern static diagnostics, while this wo
 
 ## Run Locally
 
-Note for LLMs/Users: this script can also be run locally, for example on Git Bash:
+[`ci_report.py`](/LLM_Helpers/README.md#ci_reportpy) runs every workflow's steps and writes all failures to one file, `LLM_Helpers/outputs/ci_report.txt`:
+
+```bash
+python LLM_Helpers/ci_report.py
+```
+
+Each check step in `checks-*.yml` has `if: ${{ !cancelled() && steps.setup.outcome == 'success' }}`, so it runs even after an earlier check failed; the job still fails, and a failed setup still stops the checks. Give a new check step the same line. [`workflow_keep_going.py`](#buildrepositoryworkflow_keep_goingpy) enforces it.
+
+Checks collect every problem and fail at the end, because each fix-and-rerun round is costly: the user waits for GitHub and pushes again, often force-pushing an amended commit, and an agent repeats a full run for one more error.
+
+- Seeing all problems at once also shows when several share one cause.
+- Stop early only when later results would mean nothing, such as a file that cannot be parsed. For example, `xml_text_duplicate_tags.py` used to return on a parse error and hide the duplicates it had already found.
+
+Note for LLMs/Users: a single check can also be run locally, for example on Git Bash:
 
 ```bash
 py "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.github\workflows\build\diagnostics\bbai_log.py"

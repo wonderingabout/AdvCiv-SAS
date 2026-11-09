@@ -21,6 +21,8 @@ Always review diffs before committing generated source changes.
 
 ## Menu
 
+- [CI helpers](#ci-helpers)
+  - [`ci_report.py`](#ci_reportpy)
 - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
 - [Source blank-line cleanup](#source-blank-line-cleanup)
 - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -98,6 +100,22 @@ Always review diffs before committing generated source changes.
   - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
+
+## CI helpers
+
+### `ci_report.py`
+
+Writes every CI failure to one text file, so one pass can fix them all rather than one push per failure.
+
+- `python LLM_Helpers/ci_report.py`: runs each workflow's `run:` steps here. New checks need no change to the helper, as it reads the workflows.
+  - It compares with what GitHub would: the upstream commit when HEAD differs from it, which after an amend is the commit being replaced, else the parent. `--base` overrides this.
+    - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
+  - Checks read the working tree, and those comparing commits see only base..HEAD, so commit or amend before trusting them.
+  - The diagnostic default checks read staged content, so unstaged development values do not fail them.
+  - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
+- `python LLM_Helpers/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
+- Output: `LLM_Helpers/outputs/ci_report.txt`, Git-ignored, or `--out`. Exit code 1 when something failed or GitHub's run has not finished.
+- Each failure keeps its last 200 lines of output. Requires PyYAML, Git Bash and, for GitHub, `curl`.
 
 ## Inherited map-script reference sources
 

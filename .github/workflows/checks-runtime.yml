@@ -15,20 +15,27 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: Detail-manager configuration
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/detail_manager.py
 
       - name: AIP defaults
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/aip.py
 
       - name: AIP predump freshness
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/aip_predump_values.py
 
       - name: World-size alignment
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/worldsizes.py
 
       - name: Map-script classification
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/mapscripts.py

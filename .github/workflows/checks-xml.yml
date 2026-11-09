@@ -15,138 +15,184 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: SAS text references
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/sas_text_references.py
 
       - name: XML tags referenced by defines
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/define_tag_refs.py
 
       - name: Global define content and uniqueness
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_defines_nonempty.py
 
       - name: Global define fixed-buffer lengths
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_define_lengths.py
 
       - name: SAS define declarations and use
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/sas_define_usage.py
 
       - name: Retired SAS define names
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/retired_global_define_names.py
 
       - name: Retired XML asset names
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/retired_xml_asset_names.py
 
       - name: Launch-guard sentinels
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/launch_guard.py
 
       - name: Integer define bounds
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/define_int_bounds.py
 
       - name: XML comments
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_comments.py
 
       - name: XML element-only content
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_element_only_content.py
 
       - name: Suspicious XML tag punctuation
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_suspicious_angle_tags.py
 
       - name: Suspicious XML text characters
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_suspicious_text_chars.py
 
       - name: Civ4 text character support
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_civ4_text_characters.py
 
       - name: Duplicate XML text tags
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_text_duplicate_tags.py
 
       - name: SAS text file placement
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/sas_text_file_placement.py
 
       - name: Duplicate XML parent keys
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_parent_duplicate_keys.py
 
       - name: Duplicate XML children
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_child_duplicates.py
 
       - name: Turn define game-speed semantics
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/turn_define_gamespeed.py
 
       - name: SAS English text policy
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_sas_text_english.py
 
       - name: SAS text differs from inherited text
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_sas_text_inherited.py
 
       - name: XML display order
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_display_order.py
 
       - name: Redundant XML defaults
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_redundant_defaults.py
 
       - name: Technology column values
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/tech_columns.py
 
       - name: Technology prerequisites
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/tech_prereqs.py
 
       - name: Advanced Start points by era
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/advanced_start_era_points.py
 
       - name: Consistent feature impassables
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/feature_impassables.py
 
       - name: Marsh bonus decisions
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/marsh_bonuses.py
 
       - name: Corporation input limit
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/corporation_prereq_bonuses.py
 
       - name: Bonus glyph order
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/bonus_font_order.py
 
       - name: Plot asset buttons
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/plot_asset_buttons.py
 
       - name: Wonder costs by technology tier
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/wonder_cost_columns.py
 
       - name: Wonder culture and Great Person points
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/wonder_culture_gpp_columns.py
 
       - name: Asset primary technologies and resource trade unlocks
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/asset_primary_tech.py
 
       - name: Military unit obsolescence continuity
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python LLM_Helpers/audit_unit_obsolescence_continuity.py --check --review-summary-only
 
       - name: Religion tech buttons
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/religion_tech_buttons.py
 
       - name: Redundant asset technology prerequisites
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/asset_tech_prereq_redundancy.py
 
       - name: Plot L-system asset relationships
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/plot_lsystem_asset_relationships.py
 
       - name: Building art L-system names
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/building_art_lsystem_names.py
 
       - name: Civilization asset references and timing
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/civ_specific_assets.py
 
       - name: True Starts companion coverage
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/true_starts_coverage.py
 
       - name: Civilization replacement baseline strengths
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/civ_specific_not_weaker.py
 
       - name: Barbarian Worker and unit-probability lead
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/barbarian_balance.py
 
       # <!-- custom: Keep the KI#1001.2 name-length check after the other XML checks so a naming failure does not hide unrelated XML diagnostics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
       - name: Global define desired name lengths
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/global_define_name_style.py

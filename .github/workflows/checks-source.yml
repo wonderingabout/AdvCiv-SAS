@@ -22,20 +22,27 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: Source change provenance
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/source_change_provenance.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: Shared Python resource API contracts
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_resource_api.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"
 
       - name: Fail-fast XML identity lookups
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/raw_getinfotype.py
 
       - name: Custom-comment logical reflow
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python LLM_Helpers/reflow_custom_comments.py --check
 
       - name: Custom-comment indentation
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/custom_comment_indentation.py

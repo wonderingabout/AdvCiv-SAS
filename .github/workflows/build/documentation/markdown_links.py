@@ -440,6 +440,9 @@ def main() -> int:
     manifest_files, manifest_directories = manifest_repository_paths()
 
     for md_path in sorted(ROOT.rglob("*.md")):
+        # <!-- custom: LLM_Helpers/outputs is Git-ignored local output, such as old review copies of this repository, whose stale links failed this check locally but cannot exist on GitHub. (Claude code Opus 5.5) -->
+        if md_path.is_relative_to(ROOT / "LLM_Helpers" / "outputs"):
+            continue
         text = md_path.read_text(encoding="utf-8")
         scan_text = without_inline_code(strip_html_comments(without_fenced_code(text)))
         found_local = False

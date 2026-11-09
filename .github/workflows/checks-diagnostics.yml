@@ -23,30 +23,40 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
         with:
           python-version: "3.x"
 
       - name: Literal-safe diagnostic log sinks
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/diagnostic_log_safety.py
 
       - name: BBAI disabled logging defaults
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/bbai_log.py
 
       - name: BBAI and SASGameRecord greppable record format
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/diagnostic_record_format.py
 
       - name: SASGameRecord defaults and revision
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/sas_game_record_log.py
 
       - name: External-agent runtime status
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/runtime_status.py
 
       # <!-- custom: Supply GitHub's explicit push/PR range so multi-commit pushes and real merges are checked without ancestry-based event guesses. (GPT-6.1-Sol) -->
       - name: SASGameRecord revision commit history
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/sas_revision_history.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
 
       - name: Recorder revision references and pending lifetime
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/revision_commit_references.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
 
       - name: Runtime recorder revision commit history
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/diagnostics/runtime_revision_history.py --default-branch-ref "refs/remotes/origin/$DEFAULT_BRANCH" --event-name "$GITHUB_EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
