@@ -247,7 +247,7 @@ static void logSASMilitaryProductionConcreteReject(CvCityAI const& kCity, UnitTy
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	logBBAI("MILITARY_PRODUCTION_CONCRETE_REJECT turn=%d player=%d civ=%s city=%S cityId=%d unit=%s unitAI=%s reason=%s metricA=%s valueA=%d metricB=%s valueB=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
-		(eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), szReason, szMetricA, iValueA, szMetricB, iValueB);
+		getSASInfoTypeOrNone(eUnit), getSASInfoTypeOrNone(eUnitAI), szReason, szMetricA, iValueA, szMetricB, iValueB);
 }
 
 // <!-- custom: The early siege-cap exception is meant for a city whose practical attackers are otherwise too weak, not for a hardcoded Copper/Iron/Horse/Camel/Elephants list.
@@ -336,8 +336,8 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 		ImprovementTypes const eImprovement = kPlot.getImprovementType();
 		CvCity const* pWorkingCity = kPlot.getWorkingCity();
 		CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
-		char const* szBonus = (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
-		char const* szImprovement = (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
+		char const* szBonus = getSASInfoTypeOrNone(eBonus);
+		char const* szImprovement = getSASInfoTypeOrNone(eImprovement);
 		logBBAI("WORKER_SEA_NEEDED_TARGET turn=%d player=%d civ=%s city=%S cityId=%d areaLabel=%s waterArea=%d plot=(%d,%d) bonus=%s improvement=%s cityRadius=%d workingCity=%S workingCityId=%d revealed=%d",
 			GC.getGame().getGameTurn(), kCity.getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
 			szAreaLabel, pWaterArea->getID(), kPlot.getX(), kPlot.getY(), szBonus, szImprovement, kPlot.isCityRadius(),
@@ -2413,9 +2413,9 @@ static void SAS_logDefenseProductionOpportunity(CvCityAI const& kCity, BuildingT
 		iDefenseNeutralValue, iDefenseFocusValue, iDefenseStored, iDefenseNeeded, iDefenseTurnsLeft,
 		kCity.getNaturalDefense(), kCity.getTotalDefense(false), kCity.getBuildingBombardDefense(), iDefenseModifier, iBombardDefenseModifier, iRaiseDefense,
 		iCityDefenders, iNeededDefenders, iCityDefenders < iNeededDefenders, kCity.getPopulation(), kCity.happyLevel() - kCity.unhappyLevel(),
-		kCity.getHurryAngerTimer(), kCity.canPopRush(), (ePopHurry == NO_HURRY ? "-" : GC.getInfo(ePopHurry).getType()), iPopHurryPopulation, iPopHurryAngerLength,
-		(eGoldHurry == NO_HURRY ? "-" : GC.getInfo(eGoldHurry).getType()), iGoldHurryCost,
-		(eZeroAnarchyPopRushCivic == NO_CIVIC ? "-" : GC.getInfo(eZeroAnarchyPopRushCivic).getType()), iZeroAnarchyPopRushCivicValueDelta,
+		kCity.getHurryAngerTimer(), kCity.canPopRush(), getSASInfoTypeOrNone(ePopHurry), iPopHurryPopulation, iPopHurryAngerLength,
+		getSASInfoTypeOrNone(eGoldHurry), iGoldHurryCost,
+		getSASInfoTypeOrNone(eZeroAnarchyPopRushCivic), iZeroAnarchyPopRushCivicValueDelta,
 		kOwner.AI_getCivicTimer(), kOwner.getRevolutionTimer(), kOwner.getGoldenAgeTurns(), kOwner.getMaxAnarchyTurns(),
 		kTeam.getNumWars() > 0, kOwner.AI_isFocusWar(), kOwner.AI_isLandWar(kCity.getArea()), kTeam.AI_getEnemyPowerPercent(true), bImmediateDanger, bVisibleApproachThreat);
 
@@ -3145,7 +3145,7 @@ void CvCityAI::AI_chooseProduction()
 			iNumCities, getSASInfoTypeOrNone((EraTypes)(iOwnerEra)), kArea.getID(), kArea.getAreaAIType(getTeam()), iProductionRank, getBaseYieldRate(YIELD_PRODUCTION),
 			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iBuildUnitProb, AI_experienceWeight(), getMilitaryProductionModifier(),
 			iUnitSpending, kPlayer.getNumUnits(), kPlayer.getNumMilitaryUnits(), kPlayer.getPower(),
-			(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue, bUnitExempt, bFinancialTrouble,
+			getSASInfoTypeOrNone(eBestBuilding), iBestBuildingValue, bUnitExempt, bFinancialTrouble,
 			kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), bGetBetterUnits, bDagger, kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH),
 			kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1),
 			kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2), kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR), bLandWar, bAssault, bAssaultAssist,
@@ -3409,9 +3409,9 @@ void CvCityAI::AI_chooseProduction()
 			int const iShortCircuit1ProductionNeeded = (eShortCircuit1Building == NO_BUILDING ? 0 : getProductionNeeded(eShortCircuit1Building));
 			logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=SHORT_CIRCUIT_1_BUILDING bestBuilding=%s buildingValue=%d buildUnitProb=%d baseOdds=%d buildUnitProbWeightPercent=%d spendingAllowed=%d oddsReductionPercent=%d odds=%d chosen=%d chosenBuilding=%s productionStored=%d productionNeeded=%d productionPercentX100=%d unitSpending=%d maxUnitSpending=%d spendingGap=%d allowBase=%d allowPlus15=%d",
 				kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-				(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue, iBuildUnitProb, iBaseOdds,
+				getSASInfoTypeOrNone(eBestBuilding), iBestBuildingValue, iBuildUnitProb, iBaseOdds,
 				iShortCircuit1BuildUnitProbWeightPercent, bShortCircuit1MilitaryPressureAllowed, iShortCircuit1OddsReductionPercent, iOdds,
-				bShortCircuit1BuildingChosen, (eShortCircuit1Building == NO_BUILDING ? "-" : GC.getInfo(eShortCircuit1Building).getType()),
+				bShortCircuit1BuildingChosen, getSASInfoTypeOrNone(eShortCircuit1Building),
 				iShortCircuit1Production, iShortCircuit1ProductionNeeded,
 				iShortCircuit1ProductionNeeded <= 0 ? -1 : (10000 * iShortCircuit1Production) / iShortCircuit1ProductionNeeded,
 				iUnitSpending, iShortCircuit1MaxUnitSpending, iShortCircuit1MaxUnitSpending - iUnitSpending,
@@ -4637,7 +4637,7 @@ void CvCityAI::AI_chooseProduction()
 							kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), getID(),
 							(bEscortPreparationQuickEnough ? "NEED_QUICK_DEFENDER" : "SKIP_SLOW_DEFENDER"),
 							iHealthyDefenders, iSASSettlerEscortMinHealthyDefendersLeft,
-							(eBestEscortPreparationUnit == NO_UNIT ? "-" : GC.getInfo(eBestEscortPreparationUnit).getType()),
+							getSASInfoTypeOrNone(eBestEscortPreparationUnit),
 							iEscortPreparationTurns, iSASFirstSettlerEscortPreparationMaxTurns, iAreaBestFoundValue, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue);
 						if (bEscortPreparationQuickEnough && AI_chooseUnit(UNITAI_CITY_DEFENSE))
 						{
@@ -5036,7 +5036,7 @@ void CvCityAI::AI_chooseProduction()
 				int const iBestWonderValue = (eBestWonder == NO_BUILDING ? -1 : AI_buildingValue(eBestWonder));
 				if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=OPPORTUNISTIC_WONDER wonder=%s wonderValue=%d bestBuildingValue=%d wonderMaxTurns=%d eligible=%d",
 					kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-					(eBestWonder == NO_BUILDING ? "-" : GC.getInfo(eBestWonder).getType()), iBestWonderValue, iBestBuildingValue,
+					getSASInfoTypeOrNone(eBestWonder), iBestWonderValue, iBestBuildingValue,
 					iWonderTime, eBestWonder != NO_BUILDING && iBestWonderValue >= iBestBuildingValue);
 				if (eBestWonder != NO_BUILDING && iBestWonderValue >= iBestBuildingValue)
 				{
@@ -5063,7 +5063,7 @@ void CvCityAI::AI_chooseProduction()
 		iOdds = std::max(0, iOdds - 20); // was -25
 		bool const bShortCircuit2BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
 		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=SHORT_CIRCUIT_2_BUILDING bestBuilding=%s buildingValue=%d buildUnitProb=%d lowOdds=%d extraLowOdds=%d odds=%d chosen=%d",
-			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
+			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), getSASInfoTypeOrNone(eBestBuilding),
 			iBestBuildingValue, iBuildUnitProb, bLowOdds, bExtraLowOdds, iOdds, bShortCircuit2BuildingChosen);
 		if (bShortCircuit2BuildingChosen)
 		{
@@ -5189,7 +5189,7 @@ void CvCityAI::AI_chooseProduction()
 		(bOpportunisticAssaultTransportDemand ? "DEMAND_TRANSPORT" : "ENOUGH_OR_UNTRAINABLE"),
 		getSASDiagnosticQuoted(pOpportunisticAssaultTarget->getName().GetCString()).GetCString(), pOpportunisticAssaultTarget->getX(), pOpportunisticAssaultTarget->getY(),
 		iOpportunisticTargetDefenders, iUnitsToTransport, iOpportunisticTargetDistance, iOpportunisticAssaultMaxDistance,
-		(eOpportunisticAssaultUnit == NO_UNIT ? "-" : GC.getInfo(eOpportunisticAssaultUnit).getType()), iOpportunisticTargetCapacity,
+		getSASInfoTypeOrNone(eOpportunisticAssaultUnit), iOpportunisticTargetCapacity,
 		iOpportunisticExistingCapacity, iOpportunisticExistingTransports, iOpportunisticTrainingTransports, iUnitSpending,
 		iMaxUnitSpending + 25);
 
@@ -5411,7 +5411,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (bLogOverseasTransport) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=CAPACITY result=SHORTAGE bestUnit=%s bestCargo=%d unitsToTransport=%d targetCapacity=%d localTransports=%d transportsAtSea=%d effectiveTransports=%d transportCapacity=%d unitSpending=%d maxUnitSpending=%d",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-						(eBestAssaultUnit == NO_UNIT ? "-" : GC.getInfo(eBestAssaultUnit).getType()), iBestSeaAssaultCapacity,
+						getSASInfoTypeOrNone(eBestAssaultUnit), iBestSeaAssaultCapacity,
 						iUnitsToTransport, iTargetCapacity, iLocalTransports, iTransportsAtSea, iTransports, iTransportCapacity,
 						iUnitSpending, iMaxUnitSpending);
 					//if ((iUnitSpending < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
@@ -5427,19 +5427,19 @@ void CvCityAI::AI_chooseProduction()
 						{
 							if (bLogOverseasTransport) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=ORDER result=TRAIN_ASSAULT_TRANSPORT bestUnit=%s spendingAllows=%d shortageOdds=%d shortageRollPassed=%d",
 								GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-								(eBestAssaultUnit == NO_UNIT ? "-" : GC.getInfo(eBestAssaultUnit).getType()),
+								getSASInfoTypeOrNone(eBestAssaultUnit),
 								bSpendingAllowsTransport, iShortageBuildOdds, bShortageRollPassed);
 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 8);
 							return;
 						}
 						if (bLogOverseasTransport) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=ORDER result=REJECT_CHOOSE_UNIT bestUnit=%s spendingAllows=%d shortageOdds=%d shortageRollPassed=%d",
 							GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-							(eBestAssaultUnit == NO_UNIT ? "-" : GC.getInfo(eBestAssaultUnit).getType()), bSpendingAllowsTransport,
+							getSASInfoTypeOrNone(eBestAssaultUnit), bSpendingAllowsTransport,
 							iShortageBuildOdds, bShortageRollPassed);
 					}
 					else if (bLogOverseasTransport) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=ORDER result=REJECT_SHORTAGE_ROLL bestUnit=%s spendingAllows=%d shortageOdds=%d",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-						(eBestAssaultUnit == NO_UNIT ? "-" : GC.getInfo(eBestAssaultUnit).getType()), bSpendingAllowsTransport,
+						getSASInfoTypeOrNone(eBestAssaultUnit), bSpendingAllowsTransport,
 						iShortageBuildOdds);
 				}
 				else if (bLogDetailedOverseasTransport) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=CAPACITY result=ENOUGH unitsToTransport=%d targetCapacity=%d transportCapacity=%d",
@@ -5548,8 +5548,8 @@ void CvCityAI::AI_chooseProduction()
 			int iBestMissileValue = kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_AIR, this, &eBestMissile);
 			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_AIR_OPTIONS turn=%d player=%d civ=%s city=%S bestAttackAir=%s bestAttackValue=%d bestMissile=%s bestMissileValue=%d anyBuildable=%d",
 				kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-				(eBestAttackAircraft == NO_UNIT ? "-" : GC.getInfo(eBestAttackAircraft).getType()), iBestAirValue,
-				(eBestMissile == NO_UNIT ? "-" : GC.getInfo(eBestMissile).getType()), iBestMissileValue,
+				getSASInfoTypeOrNone(eBestAttackAircraft), iBestAirValue,
+				getSASInfoTypeOrNone(eBestMissile), iBestMissileValue,
 				(iBestAirValue + iBestMissileValue) > 0);
 			if ((iBestAirValue + iBestMissileValue) > 0)
 			{
@@ -5603,8 +5603,8 @@ void CvCityAI::AI_chooseProduction()
 				if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_AIR_CONTEXT turn=%d player=%d civ=%s city=%S aircraftHave=%d aircraftNeed=%d attackAirHave=%d fightersHave=%d missileAirHave=%d farTooFew=%d bestAttackAir=%s bestAttackValue=%d bestDefenseValue=%d bestMissile=%s bestMissileValue=%d airBlitz=%d landBlitz=%d landWar=%d assault=%d freeAirExperience=%d",
 					kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), iAircraftHave, iAircraftNeed,
 					iAttackAircraftHave, iFightersHave, iMissilesHave, bFarTooFewAircraft,
-					(eBestAttackAircraft == NO_UNIT ? "-" : GC.getInfo(eBestAttackAircraft).getType()), iBestAirValue, iBestDefenseValue,
-					(eBestMissile == NO_UNIT ? "-" : GC.getInfo(eBestMissile).getType()), iBestMissileValue, bAirBlitz, bLandBlitz, bLandWar,
+					getSASInfoTypeOrNone(eBestAttackAircraft), iBestAirValue, iBestDefenseValue,
+					getSASInfoTypeOrNone(eBestMissile), iBestMissileValue, bAirBlitz, bLandBlitz, bLandWar,
 					bAssault, iFreeAirExperience);
 				if (bFarTooFewAircraft)
 				{
@@ -5663,9 +5663,9 @@ void CvCityAI::AI_chooseProduction()
 		// This remains diagnostic-only and runs only at military-production log level 3. (GPT-5.6 Thinking) -->
 		logBBAI("MILITARY_PRODUCTION_CARRIER_AIR_AVAILABILITY turn=%d player=%d civ=%s city=%S carriers=%d carrierAirHave=%d bestCarrier=%s cargoSpace=%d carrierAirNeed=%d bestCarrierAir=%s bestCarrierAirValue=%d",
 			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), iCarriers, iCarrierAirHaveForLog,
-			(eBestCarrierForLog == NO_UNIT ? "-" : GC.getInfo(eBestCarrierForLog).getType()), iCarrierCargoSpaceForLog,
+			getSASInfoTypeOrNone(eBestCarrierForLog), iCarrierCargoSpaceForLog,
 			iCarrierCargoSpaceForLog < 0 ? -1 : iCarriers * iCarrierCargoSpaceForLog,
-			(eBestCarrierAirForLog == NO_UNIT ? "-" : GC.getInfo(eBestCarrierAirForLog).getType()), iBestCarrierAirValueForLog);
+			getSASInfoTypeOrNone(eBestCarrierAirForLog), iBestCarrierAirValueForLog);
 	}
 	if ((bLandWar || bAssault) && iUnitSpending < iMaxUnitSpending)
 	{
@@ -6153,7 +6153,7 @@ void CvCityAI::AI_chooseProduction()
 			BuildingTypes const eChosenDefenseBuilding = (bDefenseBuildingChosen ? getProductionBuilding() : NO_BUILDING);
 			logBBAI("BUILDING_PRODUCTION_DEFENSE_URGENCY turn=%d player=%d civ=%s city=%S cityId=%d x=%d y=%d stage=REACHED chosen=%d building=%s",
 				kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), getX(), getY(), bDefenseBuildingChosen,
-				(eChosenDefenseBuilding == NO_BUILDING ? "-" : GC.getInfo(eChosenDefenseBuilding).getType()));
+				getSASInfoTypeOrNone(eChosenDefenseBuilding));
 		}
 		if (bDefenseBuildingChosen)
 		{
@@ -6186,7 +6186,7 @@ void CvCityAI::AI_chooseProduction()
 		bool const bShortCircuit3BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
 		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d buildUnitProb=%d baseOdds=%d buildUnitProbWeightPercent=%d spendingAllowed=%d oddsReductionPercent=%d odds=%d chosen=%d",
 			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(),
-			(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue, bLandWar, iBuildUnitProb,
+			getSASInfoTypeOrNone(eBestBuilding), iBestBuildingValue, bLandWar, iBuildUnitProb,
 			iBaseOdds, iBuildUnitProbWeightPercent, bShortCircuit3MilitaryPressureAllowed, iOddsReductionPercent, iOdds,
 			bShortCircuit3BuildingChosen);
 		if (bShortCircuit3BuildingChosen)
@@ -6327,7 +6327,7 @@ void CvCityAI::AI_chooseProduction()
 			// <!-- custom: Temporary investigation: log the result of the inherited process roll without adding another RNG call. (GPT-5.6 Thinking) -->
 			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=PROCESS_BY_VALUE process=%s processValue=%d building=%s buildingValue=%d odds=%d rollPassed=1",
 				kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), GC.getInfo(eBestProcess).getType(),
-				AI_processValue(eBestProcess), (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
+				AI_processValue(eBestProcess), getSASInfoTypeOrNone(eBestBuilding),
 				iBestBuildingValue, iOdds);
 			pushOrder(ORDER_MAINTAIN, eBestProcess);
 			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAICityProductionChoice(*this, "PROCESS_BY_VALUE");
@@ -6335,7 +6335,7 @@ void CvCityAI::AI_chooseProduction()
 		}
 		else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d civ=%s city=%S stage=PROCESS_BY_VALUE process=%s processValue=%d building=%s buildingValue=%d odds=%d rollPassed=0",
 			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), GC.getInfo(eBestProcess).getType(),
-			AI_processValue(eBestProcess), (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue,
+			AI_processValue(eBestProcess), getSASInfoTypeOrNone(eBestBuilding), iBestBuildingValue,
 			iOdds);
 	}
 	// K-Mod end
@@ -6409,9 +6409,9 @@ void CvCityAI::AI_chooseProduction()
 		}
 		logBBAI("PRODUCTION_NO_TARGET_CHOOSER turn=%d player=%d civ=%s city=%S cityId=%d reason=FINAL_FALLTHROUGH bestBuilding=%s buildingValue=%d bestProject=%s projectValue=%d bestProcess=%s legalUnits=%d legalBuildings=%d legalProjects=%d legalProcesses=%d rawProduction=%d overflowProduction=%d unitSpending=%d maxPlus15=%d buildUnitProb=%d financialTrouble=%d danger=%d landWar=%d primaryArea=%d chooseUnitIntent=%d",
 			kGame.getGameTurn(), getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(sCityName).GetCString(), getID(),
-			(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue,
-			(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iProjectValue,
-			(eBestProcess == NO_PROCESS ? "-" : GC.getInfo(eBestProcess).getType()), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses,
+			getSASInfoTypeOrNone(eBestBuilding), iBestBuildingValue,
+			getSASInfoTypeOrNone(eBestProject), iProjectValue,
+			getSASInfoTypeOrNone(eBestProcess), iLegalUnits, iLegalBuildings, iLegalProjects, iLegalProcesses,
 			getCurrentProductionDifference(false, false, true), getOverflowProduction(), iUnitSpending, iMaxUnitSpending + 15, iBuildUnitProb,
 			bFinancialTrouble, bDanger, bLandWar, bPrimaryArea, bChooseUnit);
 	}
@@ -7529,8 +7529,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
 			// This distinguished maintenance-positive 9-turn candidates from a later 16-turn case and remains diagnostic-only with no selection or RNG change. See KI#48.18. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			logBBAI("PALACE_CAPITAL_FOCUS_AUDIT turn=%d player=%d civ=%s city=%S cityId=%d selected=%s selectedTurns=%d maxTurns=%d uncapped=%s uncappedTurns=%d rejectedOnlyByTurnLimit=%d minThreshold=%d baseProduction=%d beakers=%d cityDistanceSum=%d cityArea=%d currentCapitalCityId=%d capitalBaseProduction=%d capitalBeakers=%d capitalDistanceSum=%d currentCapitalArea=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
-				(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), (eBestBuilding == NO_BUILDING ? -1 : iBestTurnsLeft),
-				iMaxTurns, (eFastestCapitalBuilding == NO_BUILDING ? "-" : GC.getInfo(eFastestCapitalBuilding).getType()),
+				getSASInfoTypeOrNone(eBestBuilding), (eBestBuilding == NO_BUILDING ? -1 : iBestTurnsLeft),
+				iMaxTurns, getSASInfoTypeOrNone(eFastestCapitalBuilding),
 				(eFastestCapitalBuilding == NO_BUILDING ? -1 : iFastestCapitalTurns),
 				(eBestBuilding == NO_BUILDING && eFastestCapitalBuilding != NO_BUILDING && iMaxTurns > 0 && iFastestCapitalTurns > iMaxTurns),
 				iMinThreshold, getBaseYieldRate(YIELD_PRODUCTION), getCommerceRate(COMMERCE_RESEARCH), SAS_getOwnCityDistanceSum(*this), getArea().getID(),
@@ -9310,7 +9310,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		// <!-- custom: Keep this level-3 row after removing the old SAS Palace policy: inherited capital-building rejection remains live for direct/prospective callers and is distinct from actual BUILDINGFOCUS_CAPITAL relocation. (GPT-5.6-Sol) -->
 		if (bLogBuildingProductionLevel3) logBBAI("PALACE_INHERITED_BUILDING_VALUE_REJECT turn=%d player=%d civ=%s city=%S cityId=%d building=%s focusFlags=%d prospective=%d assumeTech=%s",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), kBuilding.getType(),
-			iFocusFlags, eAssumeTech != NO_TECH, (eAssumeTech == NO_TECH ? "-" : GC.getInfo(eAssumeTech).getType()));
+			iFocusFlags, eAssumeTech != NO_TECH, getSASInfoTypeOrNone(eAssumeTech));
 		if (bLogBuildingValueDetails && !bWonder) SAS_logInheritedBuildingValueRejection(*this, eBuilding, "CAPITAL_BUILDING");
 		return 0;
 	}
@@ -12250,7 +12250,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 			kGame.getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), kProject.getType(),
 			iProductionRank, iTurnsLeft, iRelativeTurns, getProjectProduction(eProject), kTeam.getProjectCount(eProject),
 			kTeam.getProjectMaking(eProject), kProject.getMaxGlobalInstances(), kProject.getMaxTeamInstances(), bGoodFit, iValue,
-			(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iBestValue);
+			getSASInfoTypeOrNone(eBestProject), iBestValue);
 		if (gSpaceProductionLogLevel >= 3 && kProject.isSpaceship())
 		{
 			VictoryTypes const eSpaceVictory = kProject.getVictoryPrereq();
@@ -12260,7 +12260,7 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 				kGame.getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), kProject.getType(),
 				iProductionRank, iTurnsLeft, iRelativeTurns, getProjectProduction(eProject), kTeam.getProjectCount(eProject),
 				kTeam.getProjectMaking(eProject), iVictoryThreshold, iVictoryMinThreshold, iNeededPiecesForFit, bVictory, bGoodFit, iValue,
-				(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iBestValue);
+				getSASInfoTypeOrNone(eBestProject), iBestValue);
 		}
 		if (iValue > iBestValue)
 		{
@@ -12271,12 +12271,12 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
 	if (gLimitedProjectProductionLogLevel >= 2 && eBestProject != NO_PROJECT && SAS_isOneCopyNonSpaceshipProject(eBestProject)) logBBAI("LIMITED_PROJECT_BEST turn=%d player=%d civ=%s city=%S cityId=%d productionRank=%d project=%s value=%d currentProject=%s currentStored=%d",
 		kGame.getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), iProductionRank,
 		GC.getInfo(eBestProject).getType(), iBestValue,
-		(getProductionProject() == NO_PROJECT ? "-" : GC.getInfo(getProductionProject()).getType()),
+		getSASInfoTypeOrNone(getProductionProject()),
 		(getProductionProject() == NO_PROJECT ? 0 : getProjectProduction(getProductionProject())));
 	if (gSpaceProductionLogLevel >= 2 && kOwner.AI_atVictoryStage(AI_VICTORY_SPACE2)) logBBAI("SPACE_PROJECT_BEST turn=%d player=%d civ=%s city=%S cityId=%d productionRank=%d project=%s value=%d currentProject=%s currentStored=%d",
 		kGame.getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), iProductionRank,
-		(eBestProject == NO_PROJECT ? "-" : GC.getInfo(eBestProject).getType()), iBestValue,
-		(getProductionProject() == NO_PROJECT ? "-" : GC.getInfo(getProductionProject()).getType()),
+		getSASInfoTypeOrNone(eBestProject), iBestValue,
+		getSASInfoTypeOrNone(getProductionProject()),
 		(getProductionProject() == NO_PROJECT ? 0 : getProjectProduction(getProductionProject())));
 	if (piBestValue) // note: piBestValue is set even if there is no best project.
 		*piBestValue = iBestValue;
@@ -15659,11 +15659,11 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d civ=%s city=%S cityId=%d stage=BEST_UNIT requestedAI=%s resolvedAI=%s bestUnit=%s odds=%d progress=%d needed=%d",
 		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
 		(eRequestedUnitAI == NO_UNITAI ? "ANY" : GC.getInfo(eRequestedUnitAI).getType()),
-		(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), (eBestUnit == NO_UNIT ? "-" : GC.getInfo(eBestUnit).getType()), iOdds,
+		getSASInfoTypeOrNone(eUnitAI), getSASInfoTypeOrNone(eBestUnit), iOdds,
 		(eBestUnit == NO_UNIT ? 0 : getUnitProduction(eBestUnit)), (eBestUnit == NO_UNIT ? 0 : getProductionNeeded(eBestUnit)));
 	if (bLogRequestedAssaultTransportProduction) logBBAI("ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d civ=%s city=%S stage=UNIT_SELECTION result=%s bestUnit=%s odds=%d",
 		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(),
-		(eBestUnit == NO_UNIT ? "REJECT_NO_BEST_UNIT" : "BEST_UNIT"), (eBestUnit == NO_UNIT ? "-" : GC.getInfo(eBestUnit).getType()), iOdds);
+		(eBestUnit == NO_UNIT ? "REJECT_NO_BEST_UNIT" : "BEST_UNIT"), getSASInfoTypeOrNone(eBestUnit), iOdds);
 
 	const bool bResolvedSettler = (eUnitAI == UNITAI_SETTLE);
 	if (gSettler2PlusLogLevel >= 2 && bResolvedSettler) SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", eBestUnit == NO_UNIT ? "NO_BEST_UNIT" : "BEST_UNIT", eBestUnit, eUnitAI, iOdds, -1);
@@ -15693,7 +15693,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 		if (!bUnitRollPassed) bUnitRollPassed = SyncRandSuccess100(iEffectiveOdds);
 		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d civ=%s city=%S cityId=%d stage=ODDS unit=%s unitAI=%s baseOdds=%d progressBonus=%d effectiveOdds=%d rollAttempted=%d rollPassed=%d",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), GC.getInfo(eBestUnit).getType(),
-			(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds, iProgressOddsBonus, iEffectiveOdds, iOdds >= 0, bUnitRollPassed);
+			getSASInfoTypeOrNone(eUnitAI), iOdds, iProgressOddsBonus, iEffectiveOdds, iOdds >= 0, bUnitRollPassed);
 		if (bUnitRollPassed) // K-Mod end
 		{
 			// <!-- custom: For fresh non-combat food-production units, any city that can finish within the XML Normal-speed-equivalent turn gate (scaled by game-speed TrainPercent) is already good enough and may build immediately; this preserves parallel emergency replacement.
@@ -15717,12 +15717,12 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 				if (gWorkerLogLevel >= 3 || (gWorkerLogLevel >= 2 && bDeferToPreferredCity)) logBBAI("FOOD_PRODUCTION_ALLOCATION turn=%d player=%d civ=%s city=%S cityId=%d decision=%s unit=%s unitAI=%s pop=%d stagnant=%d unitTurns=%d maxTurns=%d maxCandidatePop=%d stagnantPopGap=%d preferredCity=%S preferredCityId=%d preferredPop=%d preferredStagnant=%d preferredUnitTurns=%d preferredCurrentUnit=%s",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(),
 					getID(), (bDeferToPreferredCity ? "DEFER_TO_PREFERRED_CITY" : "KEEP"), GC.getInfo(eBestUnit).getType(),
-					(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), getPopulation(), foodDifference(true, false) <= 0,
+					getSASInfoTypeOrNone(eUnitAI), getPopulation(), foodDifference(true, false) <= 0,
 					iCurrentUnitTurns, iNonCombatFoodProductionMaxTurns, iMaxPopulation, iNonCombatFoodProductionStagnantPopulationGap,
 					getSASDiagnosticQuoted((pPreferredCity == NULL ? NULL : pPreferredCity->getName().GetCString())).GetCString(),
 					(pPreferredCity == NULL ? -1 : pPreferredCity->getID()), (pPreferredCity == NULL ? -1 : pPreferredCity->getPopulation()),
 					(pPreferredCity == NULL ? 0 : bPreferredStagnant), (pPreferredCity == NULL ? -1 : iPreferredUnitTurns),
-					(pPreferredCity == NULL || pPreferredCity->getProductionUnit() == NO_UNIT ? "-" : GC.getInfo(pPreferredCity->getProductionUnit()).getType()));
+					(pPreferredCity == NULL || getSASInfoTypeOrNone(pPreferredCity->getProductionUnit())));
 				if (bDeferToPreferredCity) return false;
 			}
 			if (gSettler2PlusLogLevel >= 2 && bResolvedSettler) SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CALL_CONCRETE", eBestUnit, eUnitAI, iOdds, -1);
@@ -15740,7 +15740,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 				bool const bChosen = AI_chooseUnit(eCandidate, eUnitAI, &bRetrySameRole);
 				if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d civ=%s city=%S cityId=%d stage=CONCRETE_RESULT unit=%s unitAI=%s success=%d retrySameRole=%d rank=%d",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
-					GC.getInfo(eCandidate).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), bChosen, bRetrySameRole, (int)i);
+					GC.getInfo(eCandidate).getType(), getSASInfoTypeOrNone(eUnitAI), bChosen, bRetrySameRole, (int)i);
 				if (bChosen) return true;
 				if (!bRetrySameRole)
 				{
@@ -15760,7 +15760,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	}
 	else if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d civ=%s city=%S cityId=%d stage=RESULT result=REJECT_NO_BEST_UNIT requestedAI=%s resolvedAI=%s odds=%d",
 		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
-		(eRequestedUnitAI == NO_UNITAI ? "ANY" : GC.getInfo(eRequestedUnitAI).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds);
+		(eRequestedUnitAI == NO_UNITAI ? "ANY" : GC.getInfo(eRequestedUnitAI).getType()), getSASInfoTypeOrNone(eUnitAI), iOdds);
 
 	return false;
 }
@@ -16078,8 +16078,8 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		iCapNonTrebuchetsLikeSiegesAll, iCapTrebsLike, iSiegesAllNonTrebuchetsLike, iSiegesAllTrebuchetsLike, bAllowOverallFallback,
 		bAllowCheapestFallback, iFallbackTrainableForLog, iFallbackLandCombatForLog, iFallbackSuitableAIForLog,
 		iFallbackSiegeRejectedForLog, iFallbackWithinCostCapForLog, iFallbackAboveCostCapForLog,
-		(ePickUnit == NO_UNIT ? "-" : GC.getInfo(ePickUnit).getType()),
-		(ePickUnitAI == NO_UNITAI ? "-" : GC.getInfo(ePickUnitAI).getType()));
+		getSASInfoTypeOrNone(ePickUnit),
+		getSASInfoTypeOrNone(ePickUnitAI));
 	return ((ePickUnit != NO_UNIT) && (ePickUnitAI != NO_UNITAI));
 }
 
@@ -17295,7 +17295,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						bSASCheapNeededInfrastructureOptimize && bNeededWouldReject, GC.getInfo(eChangedUnit).getType(),
 						GC.getInfo(eChangedUnitAI).getType(), iNeededUnitTurns, iUnitSpending, iMaxUnitSpending,
 						iMaxUnitSpending - iUnitSpending, iNeededMinUnitSpendingOverMax,
-						(eNeededBuilding == NO_BUILDING ? "-" : GC.getInfo(eNeededBuilding).getType()), SAS_getBuildingFocusType(iNeededFocusFlags), iNeededBuildingValue,
+						getSASInfoTypeOrNone(eNeededBuilding), SAS_getBuildingFocusType(iNeededFocusFlags), iNeededBuildingValue,
 						iNeededBuildingTurns,
 						(iNeededUnitTurns <= 0 || iNeededBuildingTurns < 0 ? -1 : (100 * iNeededBuildingTurns) / iNeededUnitTurns),
 						iNeededMaxBuildingToUnitProductionTimePercent, happyLevel() - unhappyLevel(), goodHealth() - badHealth(),
@@ -17329,7 +17329,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 						bSASCheapHighReturnInfrastructureOptimize && bHighReturnWouldReject, GC.getInfo(eChangedUnit).getType(),
 						GC.getInfo(eChangedUnitAI).getType(), iHighReturnUnitTurns, iUnitSpending, iMaxUnitSpending,
 						iUnitSpending - iMaxUnitSpending, iHighReturnMinUnitSpendingOverMax,
-						(eHighReturnBuilding == NO_BUILDING ? "-" : GC.getInfo(eHighReturnBuilding).getType()), SAS_getBuildingFocusType(iHighReturnFocusFlags),
+						getSASInfoTypeOrNone(eHighReturnBuilding), SAS_getBuildingFocusType(iHighReturnFocusFlags),
 						iHighReturnFocusedValue, iHighReturnBaseValue, iHighReturnFocusValueGain, iHighReturnMinFocusedBuildingValue,
 						iHighReturnMinFocusValueGain, iHighReturnBuildingTurns,
 						(iHighReturnUnitTurns <= 0 || iHighReturnBuildingTurns < 0 ? -1 : (100 * iHighReturnBuildingTurns) / iHighReturnUnitTurns),
@@ -17433,9 +17433,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetry
 			}
 			if (gMilitaryProductionLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("MILITARY_PRODUCTION_UNIT_PUSH turn=%d player=%d civ=%s city=%S cityId=%d requestedUnit=%s requestedAI=%s finalUnit=%s finalAI=%s changedUnit=%d changedAI=%d xmlCost=%d productionStored=%d productionNeeded=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
-				(eRequestedUnit == NO_UNIT ? "-" : GC.getInfo(eRequestedUnit).getType()),
-				(eRequestedUnitAI == NO_UNITAI ? "-" : GC.getInfo(eRequestedUnitAI).getType()), GC.getInfo(eChangedUnit).getType(),
-				(eChangedUnitAI == NO_UNITAI ? "-" : GC.getInfo(eChangedUnitAI).getType()), eChangedUnit != eRequestedUnit,
+				getSASInfoTypeOrNone(eRequestedUnit),
+				getSASInfoTypeOrNone(eRequestedUnitAI), GC.getInfo(eChangedUnit).getType(),
+				getSASInfoTypeOrNone(eChangedUnitAI), eChangedUnit != eRequestedUnit,
 				eChangedUnitAI != eRequestedUnitAI, GC.getInfo(eChangedUnit).getProductionCost(), getUnitProduction(eChangedUnit),
 				getProductionNeeded(eChangedUnit));
 			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
@@ -17731,7 +17731,7 @@ bool CvCityAI::AI_chooseProcess(CommerceTypes eCommerceType)
 	// <!-- custom: Temporary military-production investigation: trace process helper choices because they can end production before ordinary unit selection. (GPT-5.6 Thinking) -->
 	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian()) logBBAI("MILITARY_PRODUCTION_PROCESS_CHOICE turn=%d player=%d civ=%s city=%S cityId=%d commerceType=%d process=%s processValue=%d chosen=%d",
 		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(),
-		eCommerceType, (eBestProcess == NO_PROCESS ? "-" : GC.getInfo(eBestProcess).getType()),
+		eCommerceType, getSASInfoTypeOrNone(eBestProcess),
 		(eBestProcess == NO_PROCESS ? 0 : AI_processValue(eBestProcess)), eBestProcess != NO_PROCESS);
 	if (eBestProcess != NO_PROCESS)
 	{

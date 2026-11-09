@@ -324,6 +324,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-201)\
 [KI#202 - (Fixed) Base AdvCiv's uncapped second OneArea-resource pass could not revisit landmasses capped during its first pass](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202)\
 [KI#203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-203)\
+[KI#203.2 - (Observed) Stopping and resuming AI Auto Play can change the run without a reload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-203.2)\
 [KI#204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-204)\
 [KI#205 - (Fixed/Improved) Major K-Mod World-Wonder focus refactor bug rejected the AI's best production cities, while an AdvCiv-SAS game-speed regression could almost disable cheap-Wonder catch-up on slow speeds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-205)\
 [KI#206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-206)\
@@ -19351,6 +19352,22 @@ For scheduled runs, `elapsedGameTurns` is one lower than `completedTurns` becaus
 An ordinary `BUTTONPOPUP_TEXT` suppression has not yet occurred naturally in a confirming log, but its no-action handler and shared launcher gate make it the simpler of the two suppression paths.
 
 Improved with the help of GPT-5.6-Sol thanks.
+
+<a id="ki-203.2"></a>
+
+## KI#203.2 - (Observed) Stopping and resuming AI Auto Play can change the run without a reload
+
+On 2026-11-09, a fresh 201-turn run and an uninterrupted replay from its T0 save matched all 201 end-of-turn RNG and core-state checkpoints. A second replay from that same save used 51 + 50 + 50 + 50 turns in one Civ4 session. It matched through T49, then its player and city fingerprints differed at the first scheduled handoff on T50. The synchronized RNG state first differed at the end of T51.
+
+Evidence from SGR193: `SASGameRecord_20261109T112139Z_new1.log` (fresh start), `SASGameRecord_20261109T112500Z_load2.log` (uninterrupted reload), and `SASGameRecord_20261109T112904Z_load3.log` (sliced reload).
+
+At T50, the extra `AUTOPLAY_END` checkpoint splits the sliced run's RNG interval into 11,782 and 360 calls, matching the uninterrupted run's 12,142 calls and final state. Compare cumulative call totals or combine intervals before interpreting a per-interval count difference as a change in RNG usage.
+
+The control handoff calls `CvPlayer::setHumanDisabled` and `CvPlayerAI::AI_setHuman`. The latter refreshes attitudes and victory weights and can split some groups when returning to AI control. These are candidates for the handoff audit. The checkpoints establish when the runs differed, while the exact cause of the T50 player and city differences remains open.
+
+In a much earlier in-game test from around the first AdvCiv-SAS commits, the user observed doomed-city defenders retreat when autoplay started two turns before the expected evacuation. They stayed when it started one turn before. The exact build and paired logs are unknown. Reproduction on current SAS is open.
+
+Compare both starts with an uninterrupted control and inspect the first change in attacker position, defender groups, city safety or synchronized RNG before attributing it to the same handoff effects.
 
 <a id="ki-204"></a>
 

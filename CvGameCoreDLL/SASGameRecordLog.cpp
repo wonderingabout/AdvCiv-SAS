@@ -4665,81 +4665,6 @@ static void logSASGameRecordTeamContacts(TeamTypes eTeam, int iGameTurn, const c
 	kPrevious.iMetTeams = iMetTeams;
 }
 
-static const char* getSASGameRecordTechType(TechTypes eTech)
-{
-	return (eTech == NO_TECH ? "-" : GC.getInfo(eTech).getType());
-}
-
-static const char* getSASGameRecordEventTriggerType(EventTriggerTypes eTrigger)
-{
-	return (eTrigger == NO_EVENTTRIGGER ? "-" : GC.getInfo(eTrigger).getType());
-}
-
-static const char* getSASGameRecordEventType(EventTypes eEvent)
-{
-	return (eEvent == NO_EVENT ? "-" : GC.getInfo(eEvent).getType());
-}
-
-static const char* getSASGameRecordGoodyType(GoodyTypes eGoody)
-{
-	return (eGoody == NO_GOODY ? "-" : GC.getInfo(eGoody).getType());
-}
-
-static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
-{
-	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
-}
-
-static const char* getSASGameRecordCorporationType(CorporationTypes eCorporation)
-{
-	return (eCorporation == NO_CORPORATION ? "-" : GC.getInfo(eCorporation).getType());
-}
-
-static const char* getSASGameRecordBuildingType(BuildingTypes eBuilding)
-{
-	return (eBuilding == NO_BUILDING ? "-" : GC.getInfo(eBuilding).getType());
-}
-
-static const char* getSASGameRecordProjectType(ProjectTypes eProject)
-{
-	return (eProject == NO_PROJECT ? "-" : GC.getInfo(eProject).getType());
-}
-
-static const char* getSASGameRecordUnitType(UnitTypes eUnit)
-{
-	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
-}
-
-static const char* getSASGameRecordBonusType(BonusTypes eBonus)
-{
-	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
-}
-
-static const char* getSASGameRecordAttitudeType(AttitudeTypes eAttitude)
-{
-	return (eAttitude == NO_ATTITUDE ? "-" : GC.getInfo(eAttitude).getType());
-}
-
-static const char* getSASGameRecordTerrainType(TerrainTypes eTerrain)
-{
-	return (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
-}
-
-static const char* getSASGameRecordFeatureType(FeatureTypes eFeature)
-{
-	return (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
-}
-
-static const char* getSASGameRecordImprovementType(ImprovementTypes eImprovement)
-{
-	return (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
-}
-
-static const char* getSASGameRecordRouteType(RouteTypes eRoute)
-{
-	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
-}
-
 // <!-- custom: Generate the existing label cases from SAS_RECORD_PLOT_OWNER_CHANGE_CAUSE_ROWS beside its enum; preserve the previous fallback and any special handling below. (GPT-6.1-Sol) -->
 static char const* getSASGameRecordPlotOwnerChangeCause()
 {
@@ -4772,7 +4697,7 @@ void logSASGameRecordPlotOwnerChanged(CvPlot const& kPlot, PlayerTypes eOldOwner
 		GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), getSASGameRecordPlotOwnerChangeCause(),
 		eOldOwner, eOldTeam, eNewOwner, eNewTeam, kPlot.getSecondOwner(), kPlot.isWater(), iOwnershipDurationBefore, bOwnershipScoreBefore, kPlot.getForceUnownedTimer(),
 		iOldCulture, iOldCulturePercent, iNewCulture, iNewCulturePercent, eHighestCulturePlayer, iHighestCulturePercent,
-		getSASGameRecordBonusType(kPlot.getBonusType()), getSASGameRecordImprovementType(kPlot.getImprovementType()), getSASGameRecordRouteType(kPlot.getRouteType()));
+		getSASInfoTypeOrNone(kPlot.getBonusType()), getSASInfoTypeOrNone(kPlot.getImprovementType()), getSASInfoTypeOrNone(kPlot.getRouteType()));
 }
 
 SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
@@ -4849,7 +4774,7 @@ void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
 	int const iNewlyRevealed = iRevealed - g_iSASGameRecordFullMapRevealedBefore;
 	int const iRevealedPctX100 = (10000 * iRevealed) / std::max(1, (int)GC.getMap().numPlots());
 	logSASGameRecord("GAME_RECORD_MAP_REVELATION turn=%d team=%d cause=MAP_VISIBLE_TECH tech=%s revealMode=FULL_MAP newlyRevealedCount=%d revealedPlots=%d revealedPctX100=%d",
-		GC.getGame().getGameTurn(), eTeam, getSASGameRecordTechType(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
+		GC.getGame().getGameTurn(), eTeam, getSASInfoTypeOrNone(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
 	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
 	g_iSASGameRecordFullMapRevealedBefore = 0;
 }
@@ -4881,7 +4806,7 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 			if (kWorkerBuild.aiFeaturesRemoved[iI] <= 0)
 				continue;
 			CvString szItem;
-			szItem.Format(szFeaturesRemoved.empty() ? "%s:%d" : ",%s:%d", getSASGameRecordFeatureType((FeatureTypes)iI), kWorkerBuild.aiFeaturesRemoved[iI]);
+			szItem.Format(szFeaturesRemoved.empty() ? "%s:%d" : ",%s:%d", getSASInfoTypeOrNone((FeatureTypes)iI), kWorkerBuild.aiFeaturesRemoved[iI]);
 			szFeaturesRemoved += szItem;
 		}
 		CvString szImprovementTransitions;
@@ -4889,7 +4814,7 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 		{
 			SASGameRecordWorkerImprovementTransition const& kTransition = kWorkerBuild.aImprovementTransitions[iI];
 			CvString szItem;
-			szItem.Format(szImprovementTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", getSASGameRecordImprovementType(kTransition.eOldImprovement), getSASGameRecordImprovementType(kTransition.eNewImprovement), kTransition.iCount);
+			szItem.Format(szImprovementTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", getSASInfoTypeOrNone(kTransition.eOldImprovement), getSASInfoTypeOrNone(kTransition.eNewImprovement), kTransition.iCount);
 			szImprovementTransitions += szItem;
 		}
 		logSASGameRecord("GAME_RECORD_WORKER_BUILDS_COMPLETED turn=%d player=%d completed=%d improvementChanges=%d newImprovements=%d improvementRemovals=%d improvementReplacements=%d workedImprovementReplacements=%d unworkedImprovementReplacements=%d directReversalsObserved=%d directReversalsWithin5TurnsObserved=%d routeChanges=%d featureRemovals=%d bfc=%d outsideBFC=%d bonus=%d bonusImprovementResults=%d irrigationCarrierResults=%d irrigatedCarrierResults=%d dryCarrierResults=%d irrigationCarrierReplacements=%d irrigationCarrierLosses=%d growthChainResults=%d growthChainReplacements=%d builds=%s improvementTransitions=%s featuresRemoved=%s featureRemovalFinds=%d",
@@ -5010,11 +4935,11 @@ void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState c
 	{
 		logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
 				GC.getGame().getGameTurn(), szCause, szCategory, kPlot.getX(), kPlot.getY(), kPlot.getOwner(),
-				getSASGameRecordTerrainType(kOldState.eTerrain), getSASGameRecordTerrainType(kPlot.getTerrainType()),
-				getSASGameRecordFeatureType(kOldState.eFeature), getSASGameRecordFeatureType(kPlot.getFeatureType()),
-				getSASGameRecordBonusType(kOldState.eBonus), getSASGameRecordBonusType(kPlot.getBonusType()),
-				getSASGameRecordImprovementType(kOldState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-				getSASGameRecordRouteType(kOldState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
+				getSASInfoTypeOrNone(kOldState.eTerrain), getSASInfoTypeOrNone(kPlot.getTerrainType()),
+				getSASInfoTypeOrNone(kOldState.eFeature), getSASInfoTypeOrNone(kPlot.getFeatureType()),
+				getSASInfoTypeOrNone(kOldState.eBonus), getSASInfoTypeOrNone(kPlot.getBonusType()),
+				getSASInfoTypeOrNone(kOldState.eImprovement), getSASInfoTypeOrNone(kPlot.getImprovementType()),
+				getSASInfoTypeOrNone(kOldState.eRoute), getSASInfoTypeOrNone(kPlot.getRouteType()),
 				kOldState.aiExtraYield[YIELD_FOOD], GC.getMap().getPlotExtraYield(kPlot, YIELD_FOOD),
 				kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
 				kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
@@ -5198,49 +5123,12 @@ void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, Bon
 	// Logging the area ID explicitly fixed the crash in the next test run. (GPT-5.5) -->
 	logSASGameRecord("GAME_RECORD_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
 		GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
-		pPlot->getOwner(), getSASGameRecordBonusType(eOldBonus), getSASGameRecordBonusType(eNewBonus),
-		getSASGameRecordTerrainType(pPlot->getTerrainType()), getSASGameRecordFeatureType(pPlot->getFeatureType()),
-		getSASGameRecordImprovementType(pPlot->getImprovementType()), getSASGameRecordRouteType(pPlot->getRouteType()), pPlot->isWater(),
+		pPlot->getOwner(), getSASInfoTypeOrNone(eOldBonus), getSASInfoTypeOrNone(eNewBonus),
+		getSASInfoTypeOrNone(pPlot->getTerrainType()), getSASInfoTypeOrNone(pPlot->getFeatureType()),
+		getSASInfoTypeOrNone(pPlot->getImprovementType()), getSASInfoTypeOrNone(pPlot->getRouteType()), pPlot->isWater(),
 		pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(),
 		getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
 		getSASGameRecordQuotedCityName(pPlotCity).GetCString(), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
-}
-
-static const char* getSASGameRecordCommerceType(CommerceTypes eCommerce)
-{
-	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
-}
-
-// <!-- custom: YieldTypes also has loaded-XML identities, but SASGameRecord had no yield translator before building-choice effect lists first called getSASGameRecordYieldType and failed compilation.
-// Keep the explicit helper beside the equivalent CommerceTypes translator so future diagnostic code does not repeat that assumption. (GPT-5.6-Sol) -->
-static const char* getSASGameRecordYieldType(YieldTypes eYield)
-{
-	return (eYield == NO_YIELD ? "-" : GC.getInfo(eYield).getType());
-}
-
-static const char* getSASGameRecordDomainType(DomainTypes eDomain)
-{
-	return (eDomain == NO_DOMAIN ? "-" : GC.getInfo(eDomain).getType());
-}
-
-static const char* getSASGameRecordBuildType(BuildTypes eBuild)
-{
-	return (eBuild == NO_BUILD ? "-" : GC.getInfo(eBuild).getType());
-}
-
-static const char* getSASGameRecordMissionType(MissionTypes eMission)
-{
-	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
-}
-
-static const char* getSASGameRecordEspionageMissionType(EspionageMissionTypes eMission)
-{
-	return (eMission == NO_ESPIONAGEMISSION ? "-" : GC.getInfo(eMission).getType());
-}
-
-static const char* getSASGameRecordUnitAIType(UnitAITypes eUnitAI)
-{
-	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
 }
 
 // <!-- custom: A Worker commitment row bridges only the accepted helper result to exact mission-queue insertions observed before synchronous execution.
@@ -5373,50 +5261,10 @@ void finishSASGameRecordAIWorkerTask(PlayerTypes eOwner, int iGroupId)
 		szInsertionStatus = "MORE_INSERTIONS";
 	char const* szControl = (!kTask.bHuman ? "AI_CONTROLLED" : (kTask.bAutomated ? "HUMAN_AUTOMATED" : "HUMAN_NON_AUTOMATED_HELPER"));
 	logSASGameRecord("GAME_RECORD_AI_WORKER_TASK turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s control=%s barbarian=%d groupId=%d groupUnits=%d source=%s purpose=%s sourceX=%d sourceY=%d targetX=%d targetY=%d servingCityId=%d servingCityX=%d servingCityY=%d relatedCityId=%d selectedBuild=%s selectedFollowupBuild=%s targetBonus=%s targetFeatureBefore=%s targetImprovementBefore=%s targetRouteBefore=%s attemptedMissionPushes=%d insertedMissions=%d missionCountStatus=%s insertedMove=%d insertedRoute=%d insertedBuild=%d insertedAirlift=%d insertedOther=%d firstInsertedMission=%s firstInsertedData1=%d firstInsertedData2=%d lastInsertedMission=%s lastInsertedData1=%d lastInsertedData2=%d firstInsertedBuild=%s secondInsertedBuild=%s",
-		kTask.iTurn, kTask.eOwner, kTask.eTeam, kTask.iUnitId, getSASGameRecordUnitType(kTask.eUnit), getSASGameRecordUnitAIType(kTask.eUnitAI), getSASGameRecordDomainType(kTask.eDomain), szControl, kTask.bBarbarian ? 1 : 0,
+		kTask.iTurn, kTask.eOwner, kTask.eTeam, kTask.iUnitId, getSASInfoTypeOrNone(kTask.eUnit), getSASInfoTypeOrNone(kTask.eUnitAI), getSASInfoTypeOrNone(kTask.eDomain), szControl, kTask.bBarbarian ? 1 : 0,
 		kTask.iGroupId, kTask.iGroupUnits, kTask.szSource.c_str(), kTask.szPurpose.c_str(), kTask.iSourceX, kTask.iSourceY, kTask.iTargetX, kTask.iTargetY, kTask.iServingCityId, kTask.iServingCityX, kTask.iServingCityY, kTask.iRelatedCityId,
-		getSASGameRecordBuildType(kTask.eSelectedBuild), getSASGameRecordBuildType(kTask.eSelectedFollowupBuild), getSASGameRecordBonusType(kTask.eTargetBonus), getSASGameRecordFeatureType(kTask.eTargetFeature), getSASGameRecordImprovementType(kTask.eTargetImprovement), getSASGameRecordRouteType(kTask.eTargetRoute),
-		kTask.iAttemptedMissions, kTask.iInsertedMissions, szInsertionStatus, kTask.iInsertedMoveMissions, kTask.iInsertedRouteMissions, kTask.iInsertedBuildMissions, kTask.iInsertedAirliftMissions, kTask.iInsertedOtherMissions, getSASGameRecordMissionType(kTask.eFirstInsertedMission), kTask.iFirstInsertedData1, kTask.iFirstInsertedData2, getSASGameRecordMissionType(kTask.eLastInsertedMission), kTask.iLastInsertedData1, kTask.iLastInsertedData2, getSASGameRecordBuildType(kTask.eFirstInsertedBuild), getSASGameRecordBuildType(kTask.eSecondInsertedBuild));
-}
-
-static const char* getSASGameRecordUnitCombatType(UnitCombatTypes eUnitCombat)
-{
-	return (eUnitCombat == NO_UNITCOMBAT ? "-" : GC.getInfo(eUnitCombat).getType());
-}
-
-static const char* getSASGameRecordPromotionType(PromotionTypes ePromotion)
-{
-	return (ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType());
-}
-
-static const char* getSASGameRecordSpecialistType(SpecialistTypes eSpecialist)
-{
-	return (eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType());
-}
-
-static const char* getSASGameRecordProcessType(ProcessTypes eProcess)
-{
-	return (eProcess == NO_PROCESS ? "-" : GC.getInfo(eProcess).getType());
-}
-
-static const char* getSASGameRecordCivicType(CivicTypes eCivic)
-{
-	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
-}
-
-static const char* getSASGameRecordVoteSourceType(VoteSourceTypes eVoteSource)
-{
-	return (eVoteSource == NO_VOTESOURCE ? "-" : GC.getInfo(eVoteSource).getType());
-}
-
-static const char* getSASGameRecordVoteType(VoteTypes eVote)
-{
-	return (eVote == NO_VOTE ? "-" : GC.getInfo(eVote).getType());
-}
-
-static const char* getSASGameRecordEraType(EraTypes eEra)
-{
-	return (eEra == NO_ERA ? "-" : GC.getInfo(eEra).getType());
+		getSASInfoTypeOrNone(kTask.eSelectedBuild), getSASInfoTypeOrNone(kTask.eSelectedFollowupBuild), getSASInfoTypeOrNone(kTask.eTargetBonus), getSASInfoTypeOrNone(kTask.eTargetFeature), getSASInfoTypeOrNone(kTask.eTargetImprovement), getSASInfoTypeOrNone(kTask.eTargetRoute),
+		kTask.iAttemptedMissions, kTask.iInsertedMissions, szInsertionStatus, kTask.iInsertedMoveMissions, kTask.iInsertedRouteMissions, kTask.iInsertedBuildMissions, kTask.iInsertedAirliftMissions, kTask.iInsertedOtherMissions, getSASMissionTypeName(kTask.eFirstInsertedMission), kTask.iFirstInsertedData1, kTask.iFirstInsertedData2, getSASMissionTypeName(kTask.eLastInsertedMission), kTask.iLastInsertedData1, kTask.iLastInsertedData2, getSASInfoTypeOrNone(kTask.eFirstInsertedBuild), getSASInfoTypeOrNone(kTask.eSecondInsertedBuild));
 }
 
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
@@ -5688,19 +5536,19 @@ static void addSASGameRecordTerritoryDevelopment(SASGameRecordTerritoryDevelopme
 static void getSASGameRecordImprovementRouteTypes(SASGameRecordPlotComposition const& kComposition, CvString& szImprovements, CvString& szRoutes)
 {
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
-		appendSASGameRecordTypeCount(szImprovements, getSASGameRecordImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
+		appendSASGameRecordTypeCount(szImprovements, getSASInfoTypeOrNone((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
 	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
-		appendSASGameRecordTypeCount(szRoutes, getSASGameRecordRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
+		appendSASGameRecordTypeCount(szRoutes, getSASInfoTypeOrNone((RouteTypes)iI), kComposition.aiRoutes[iI]);
 }
 
 static void getSASGameRecordLandscapeTypes(SASGameRecordPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses)
 {
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-		appendSASGameRecordTypeCount(szTerrains, getSASGameRecordTerrainType((TerrainTypes)iI), kComposition.aiTerrains[iI]);
+		appendSASGameRecordTypeCount(szTerrains, getSASInfoTypeOrNone((TerrainTypes)iI), kComposition.aiTerrains[iI]);
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-		appendSASGameRecordTypeCount(szFeatures, getSASGameRecordFeatureType((FeatureTypes)iI), kComposition.aiFeatures[iI]);
+		appendSASGameRecordTypeCount(szFeatures, getSASInfoTypeOrNone((FeatureTypes)iI), kComposition.aiFeatures[iI]);
 	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
-		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType((BonusTypes)iI), kComposition.aiBonuses[iI]);
+		appendSASGameRecordTypeCount(szBonuses, getSASInfoTypeOrNone((BonusTypes)iI), kComposition.aiBonuses[iI]);
 }
 
 static void logSASGameRecordTerritoryDevelopment(PlayerTypes ePlayer, int iGameTurn, SASGameRecordTerritoryDevelopment const& kDevelopment)
@@ -5716,13 +5564,13 @@ static void logSASGameRecordTerritoryDevelopment(PlayerTypes ePlayer, int iGameT
 	getSASGameRecordImprovementRouteTypes(kOwned, szImprovements, szRoutes);
 	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
-		appendSASGameRecordTypeCount(szIrrigatedCarrierTypes, getSASGameRecordImprovementType((ImprovementTypes)iI), kDevelopment.aiIrrigatedCarriers[iI]);
-		appendSASGameRecordTypeCount(szDryCarrierTypes, getSASGameRecordImprovementType((ImprovementTypes)iI), kDevelopment.aiDryCarriers[iI]);
+		appendSASGameRecordTypeCount(szIrrigatedCarrierTypes, getSASInfoTypeOrNone((ImprovementTypes)iI), kDevelopment.aiIrrigatedCarriers[iI]);
+		appendSASGameRecordTypeCount(szDryCarrierTypes, getSASInfoTypeOrNone((ImprovementTypes)iI), kDevelopment.aiDryCarriers[iI]);
 	}
 	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
 	{
-		appendSASGameRecordTypeCount(szBFCDevelopmentRoutes, getSASGameRecordRouteType((RouteTypes)iI), kDevelopment.aiBFCDevelopmentRoutes[iI]);
-		appendSASGameRecordTypeCount(szSuburbDevelopmentRoutes, getSASGameRecordRouteType((RouteTypes)iI), kDevelopment.aiSuburbDevelopmentRoutes[iI]);
+		appendSASGameRecordTypeCount(szBFCDevelopmentRoutes, getSASInfoTypeOrNone((RouteTypes)iI), kDevelopment.aiBFCDevelopmentRoutes[iI]);
+		appendSASGameRecordTypeCount(szSuburbDevelopmentRoutes, getSASInfoTypeOrNone((RouteTypes)iI), kDevelopment.aiSuburbDevelopmentRoutes[iI]);
 	}
 	int const iDevelopmentPlots = kDevelopment.iDevelopmentLand + kDevelopment.iDevelopmentWater;
 	int const iImprovedPlots = kDevelopment.iImprovedLand + kDevelopment.iImprovedWater;
@@ -5786,8 +5634,8 @@ static void logSASGameRecordTerritoryDevelopment(PlayerTypes ePlayer, int iGameT
 		getSASGameRecordLandscapeTypes(kOwned, szTerrains, szFeatures, szBonuses);
 		for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
 		{
-			appendSASGameRecordTypeCount(szImprovedBonuses, getSASGameRecordBonusType((BonusTypes)iI), kDevelopment.aiImprovedBonuses[iI]);
-			appendSASGameRecordTypeCount(szUnimprovedBonuses, getSASGameRecordBonusType((BonusTypes)iI), kDevelopment.aiUnimprovedBonuses[iI]);
+			appendSASGameRecordTypeCount(szImprovedBonuses, getSASInfoTypeOrNone((BonusTypes)iI), kDevelopment.aiImprovedBonuses[iI]);
+			appendSASGameRecordTypeCount(szUnimprovedBonuses, getSASInfoTypeOrNone((BonusTypes)iI), kDevelopment.aiUnimprovedBonuses[iI]);
 		}
 		logSASGameRecord("GAME_RECORD_TERRITORY_LANDSCAPE turn=%d player=%d terrains=%s features=%s bonuses=%s improvedBonuses=%s unimprovedBonuses=%s",
 			iGameTurn, ePlayer, getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(),
@@ -5867,13 +5715,13 @@ static void logSASGameRecordStartingUnits(PlayerTypes ePlayer, const char* szRea
 	{
 		CvPlot const& kPlot = pLoopUnit->getPlot();
 		logSASGameRecord("GAME_RECORD_STARTING_UNIT turn=%d reason=%s player=%d unitId=%d unit=%s unitAI=%s unitCombat=%s x=%d y=%d damage=%d xp=%d level=%d movesLeft=%d plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s",
-			GC.getGame().getGameTurn(), szReason, ePlayer, pLoopUnit->getID(), getSASGameRecordUnitType(pLoopUnit->getUnitType()),
-			getSASGameRecordUnitAIType(pLoopUnit->AI_getUnitAIType()),
-			getSASGameRecordUnitCombatType(pLoopUnit->getUnitInfo().getUnitCombatType()), pLoopUnit->getX(), pLoopUnit->getY(),
+			GC.getGame().getGameTurn(), szReason, ePlayer, pLoopUnit->getID(), getSASInfoTypeOrNone(pLoopUnit->getUnitType()),
+			getSASInfoTypeOrNone(pLoopUnit->AI_getUnitAIType()),
+			getSASInfoTypeOrNone(pLoopUnit->getUnitInfo().getUnitCombatType()), pLoopUnit->getX(), pLoopUnit->getY(),
 			pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel(), pLoopUnit->movesLeft(), kPlot.getOwner(),
-			getSASGameRecordTerrainType(kPlot.getTerrainType()), getSASGameRecordFeatureType(kPlot.getFeatureType()),
-			getSASGameRecordBonusType(kPlot.getBonusType(pLoopUnit->getTeam())), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-			getSASGameRecordRouteType(kPlot.getRouteType()));
+			getSASInfoTypeOrNone(kPlot.getTerrainType()), getSASInfoTypeOrNone(kPlot.getFeatureType()),
+			getSASInfoTypeOrNone(kPlot.getBonusType(pLoopUnit->getTeam())), getSASInfoTypeOrNone(kPlot.getImprovementType()),
+			getSASInfoTypeOrNone(kPlot.getRouteType()));
 	}
 }
 
@@ -5967,7 +5815,7 @@ static CvString getSASGameRecordTechEraCounts(TeamTypes eTeam)
 	}
 	CvString szList;
 	for (int iI = 0; iI < GC.getNumEraInfos(); iI++)
-		appendSASGameRecordTypeCount(szList, getSASGameRecordEraType((EraTypes)iI), aiEras[iI]);
+		appendSASGameRecordTypeCount(szList, getSASInfoTypeOrNone((EraTypes)iI), aiEras[iI]);
 	return getSASDiagnosticOrDash(szList);
 }
 
@@ -5975,8 +5823,8 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	CvInitCore const& kInitCore = GC.getInitCore();
-	const char* szCivType = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
-	const char* szLeaderType = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
+	const char* szCivType = getSASInfoTypeOrNone(kPlayer.getCivilizationType());
+	const char* szLeaderType = getSASInfoTypeOrNone(kPlayer.getLeaderType());
 	const wchar* szLeaderName = (kPlayer.getLeaderType() == NO_LEADER ? L"-" : GC.getInfo(kPlayer.getLeaderType()).getDescription());
 	// <!-- custom: During AI Auto Play, isHuman becomes false for the original human slot while isHumanDisabled becomes true.
 	// Record both states explicitly so setup/load rows do not make the same player appear ambiguously human in one place and AI-controlled in another. (GPT-5.6-Sol) -->
@@ -6027,9 +5875,9 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 		szCivType, getSASDiagnosticQuoted(kPlayer.getCivilizationDescription(0)).GetCString(),
 		getSASDiagnosticQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType,
 		getSASDiagnosticQuoted(szLeaderName).GetCString(), szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue,
-		getSASDiagnosticOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()),
-		getSASGameRecordReligionType(kPlayer.getFavoriteReligion()),
-		kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+		getSASDiagnosticOrDash(szTraits).GetCString(), getSASInfoTypeOrNone(kPlayer.getFavoriteCivic()),
+		getSASInfoTypeOrNone(kPlayer.getFavoriteReligion()),
+		getSASInfoTypeOrNone(kPlayer.getHandicapType()));
 }
 
 static void logSASGameRecordAttitudeLegend()
@@ -6325,7 +6173,7 @@ static CvString getSASGameRecordLandmassBonusTypes(SASGameRecordLandmassGeograph
 	{
 		if (kLandmass.aiBonusCounts[iBonus] <= 0)
 			continue;
-		appendSASGameRecordTypeCount(szTypes, getSASGameRecordBonusType((BonusTypes)iBonus), kLandmass.aiBonusCounts[iBonus]);
+		appendSASGameRecordTypeCount(szTypes, getSASInfoTypeOrNone((BonusTypes)iBonus), kLandmass.aiBonusCounts[iBonus]);
 	}
 	return getSASDiagnosticOrDash(szTypes);
 }
@@ -6550,7 +6398,7 @@ static void logSASGameRecordGeography()
 			if (eBonus >= 0 && eBonus < (int)pLandmass->aiBonusCounts.size())
 				pLandmass->aiBonusCounts[eBonus]++;
 			CvString szBonus;
-			szBonus.Format("%s@%d,%d", getSASGameRecordBonusType(eBonus), kPlot.getX(), kPlot.getY());
+			szBonus.Format("%s@%d,%d", getSASInfoTypeOrNone(eBonus), kPlot.getX(), kPlot.getY());
 			pLandmass->aszBonusCoordinates.push_back(szBonus);
 		}
 		for (int iEra = 0; iEra < GC.getNumEraInfos(); iEra++)
@@ -6803,8 +6651,8 @@ static void logSASGameRecordGeography()
 		getSASGameRecordPercentX100(iLakePlots, iMapPlots), iIcePlots, getSASGameRecordPercentX100(iIcePlots, iMapPlots),
 		getSASGameRecordPercentX100(iIcePlots, iWaterPlots), iIceSeaPlots, getSASGameRecordPercentX100(iIceSeaPlots, iSeaPlots),
 		iIceCoastSeaPlots, iIceOceanSeaPlots, iIceLakePlots, szLargestLandmass.GetCString(), iLargestAreaPlots, kMap.isWrapX(),
-		kMap.isWrapY(), eCoast == NO_TERRAIN ? "-" : GC.getInfo(eCoast).getType(), eOcean == NO_TERRAIN ? "-" : GC.getInfo(eOcean).getType(),
-		eIce == NO_FEATURE ? "-" : GC.getInfo(eIce).getType());
+		kMap.isWrapY(), getSASInfoTypeOrNone(eCoast), getSASInfoTypeOrNone(eOcean),
+		getSASInfoTypeOrNone(eIce));
 	// <!-- custom: Name the actual engine query; listing selected contributors omitted others such as per-plot extra yields.
 	// Remaining legend fields describe this recorder's estimate and encoding, not the full gameplay algorithm. (GPT-6.1-Sol) -->
 	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=ENGINE_CALCULATE_NATURE_YIELD_NO_TEAM revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
@@ -7113,7 +6961,7 @@ static CvString getSASGameRecordMapAsciiTerrainLegend(SASGameRecordMapAsciiPalet
 {
 	CvString szLegend;
 	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
-		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acTerrain[iTerrain], iTerrain, getSASGameRecordTerrainType((TerrainTypes)iTerrain));
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acTerrain[iTerrain], iTerrain, getSASInfoTypeOrNone((TerrainTypes)iTerrain));
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acTerrain[GC.getNumTerrainInfos()], "FEATURE_ICE_OVERRIDE");
 	return szLegend;
 }
@@ -7134,7 +6982,7 @@ static CvString getSASGameRecordMapAsciiTerrainUppercaseLegend(SASGameRecordMapA
 	{
 		char const cUppercase = getSASGameRecordMapAsciiUppercaseSymbol(kPalette.acTerrain[iTerrain]);
 		if (cUppercase != kPalette.acTerrain[iTerrain])
-			appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, cUppercase, iTerrain, getSASGameRecordTerrainType((TerrainTypes)iTerrain));
+			appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, cUppercase, iTerrain, getSASInfoTypeOrNone((TerrainTypes)iTerrain));
 	}
 	if (szLegend.empty()) return "-";
 	return szLegend;
@@ -7155,7 +7003,7 @@ static CvString getSASGameRecordMapAsciiFeatureLegend(SASGameRecordMapAsciiPalet
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[0], "NO_FEATURE_WATER");
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[1], "NO_FEATURE_LAND");
 	for (int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
-		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], iFeature, getSASGameRecordFeatureType((FeatureTypes)iFeature));
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], iFeature, getSASInfoTypeOrNone((FeatureTypes)iFeature));
 	return szLegend;
 }
 
@@ -7165,7 +7013,7 @@ static CvString getSASGameRecordMapAsciiBonusLegend(SASGameRecordMapAsciiPalette
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[0], "NO_BONUS_WATER");
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[1], "NO_BONUS_LAND");
 	for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
-		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acBonuses[iBonus + 2], iBonus, getSASGameRecordBonusType((BonusTypes)iBonus));
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acBonuses[iBonus + 2], iBonus, getSASInfoTypeOrNone((BonusTypes)iBonus));
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[GC.getNumBonusInfos() + 2], "MULTIPLE_BONUS_TYPES");
 	return szLegend;
 }
@@ -7824,7 +7672,7 @@ static void logSASGameRecordMapBonusTotals(int iGameTurn)
 {
 	CvString szBonuses;
 	FOR_EACH_ENUM(Bonus)
-		appendSASGameRecordTypeCount(szBonuses, getSASGameRecordBonusType(eLoopBonus), GC.getMap().getNumBonuses(eLoopBonus));
+		appendSASGameRecordTypeCount(szBonuses, getSASInfoTypeOrNone(eLoopBonus), GC.getMap().getNumBonuses(eLoopBonus));
 	logSASGameRecord("GAME_RECORD_MAP_BONUSES turn=%d total=%s", iGameTurn, getSASDiagnosticOrDash(szBonuses).GetCString());
 }
 
@@ -7947,17 +7795,17 @@ static void logSASGameRecordFlowBuckets(int iGameTurn)
 			CvString szProjectTypes;
 			FOR_EACH_ENUM(Unit)
 			{
-				appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
-				appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
-				appendSASGameRecordTypeCount(szColonyFreeDefenderUnitTypes, getSASGameRecordUnitType(eLoopUnit), kFlow.aiColonyFreeDefenderUnitTypes[eLoopUnit]);
+				appendSASGameRecordTypeCount(szUnitTypes, getSASInfoTypeOrNone(eLoopUnit), kFlow.aiUnitTypes[eLoopUnit]);
+				appendSASGameRecordTypeCount(szConscriptedUnitTypes, getSASInfoTypeOrNone(eLoopUnit), kFlow.aiConscriptedUnitTypes[eLoopUnit]);
+				appendSASGameRecordTypeCount(szColonyFreeDefenderUnitTypes, getSASInfoTypeOrNone(eLoopUnit), kFlow.aiColonyFreeDefenderUnitTypes[eLoopUnit]);
 			}
 			FOR_EACH_ENUM(Building)
 			{
-				appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
-				appendSASGameRecordTypeCount(szAIBuildingChoiceTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiAIBuildingChoiceTypes[eLoopBuilding]);
+				appendSASGameRecordTypeCount(szBuildingTypes, getSASInfoTypeOrNone(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
+				appendSASGameRecordTypeCount(szAIBuildingChoiceTypes, getSASInfoTypeOrNone(eLoopBuilding), kFlow.aiAIBuildingChoiceTypes[eLoopBuilding]);
 			}
 			FOR_EACH_ENUM(Project)
-				appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
+				appendSASGameRecordTypeCount(szProjectTypes, getSASInfoTypeOrNone(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
 			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s colonyFreeDefenders=%d colonyFreeDefenderProductionNeeded=%d colonyFreeDefenderUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s aiBuildingChoices=%d aiBuildingChoiceRegular=%d aiBuildingChoiceNationalWonders=%d aiBuildingChoiceTeamWonders=%d aiBuildingChoiceWorldWonders=%d aiBuildingChoiceWithStored=%d aiBuildingChoiceStoredProduction=%d aiBuildingChoiceProductionNeeded=%d aiBuildingChoiceEffects=%s aiBuildingChoiceOrigins=%s aiBuildingChoiceTypes=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradePreservedActions=%d productionUpgradePreserved=%d",
 				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded,
 				getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded,
@@ -7982,7 +7830,7 @@ static void logSASGameRecordFlowBuckets(int iGameTurn)
 		{
 			CvString szPromotionChoices;
 			FOR_EACH_ENUM(Promotion)
-				appendSASGameRecordTypeCount(szPromotionChoices, getSASGameRecordPromotionType(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
+				appendSASGameRecordTypeCount(szPromotionChoices, getSASInfoTypeOrNone(eLoopPromotion), kFlow.aiPromotionChoices[eLoopPromotion]);
 			logSASGameRecord("GAME_RECORD_MILITARY_FLOW turn=%d range=%d-%d player=%d combatWins=%d combatLosses=%d cityPlotWins=%d cityPlotLosses=%d enemyProductionNeededDestroyed=%d ownProductionNeededLost=%d enemyXpDestroyed=%d ownXpLost=%d xpGained=%d combatXpGained=%d nonCombatXpGained=%d xpPreventedByCap=%d xpLostAdjustments=%d promotionsChosen=%d leaderPromotionApplications=%d promotionChoices=%s upgrades=%d upgradeGold=%d scrapped=%d scrappedProductionNeeded=%d captured=%d capturedProductionNeeded=%d",
 				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iCombatWins, kFlow.iCombatLosses, kFlow.iCityPlotWins,
 				kFlow.iCityPlotLosses, kFlow.iEnemyProductionNeededDestroyed, kFlow.iOwnProductionNeededLost,
@@ -8029,15 +7877,10 @@ static bool getSASGameRecordVictoryProjectState(TeamTypes eTeam, VictoryTypes eV
 		if (iBuilt < iMinimum)
 			bMinimumComplete = false;
 		CvString szItem;
-		szItem.Format(szProjectParts.empty() ? "%s:%d/%d/%d" : ",%s:%d/%d/%d", getSASGameRecordProjectType(eLoopProject), iBuilt, iMinimum, iMaximum);
+		szItem.Format(szProjectParts.empty() ? "%s:%d/%d/%d" : ",%s:%d/%d/%d", getSASInfoTypeOrNone(eLoopProject), iBuilt, iMinimum, iMaximum);
 		szProjectParts += szItem;
 	}
 	return !szProjectParts.empty();
-}
-
-static char const* getSASGameRecordVictoryType(VictoryTypes eVictory)
-{
-	return eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType();
 }
 
 typedef std::pair<int, CvCity const*> SASGameRecordCultureCity;
@@ -8238,9 +8081,9 @@ static void logSASGameRecordTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 	// Add one compact general row per team rather than one new row per missing victory, so Score/Time, Conquest, and Cultural progress become explicit without multiplying snapshot noise.
 	// Culture lists only the required number of leading cities. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_VICTORY_PROGRESS_GENERAL turn=%d team=%d scoreVictory=%s timeVictory=%s conquestVictory=%s culturalVictory=%s diplomaticVictory=%s teamScore=%d bestRivalScore=%d scoreLead=%+d targetScore=%d turnsRemaining=%d conquestRivals=%s conquestRivalCities=%d cultureCitiesComplete=%d cultureCitiesRequired=%d cultureThreshold=%d cultureCities=%s",
-		iGameTurn, eTeam, getSASGameRecordVictoryType(eScoreVictory), getSASGameRecordVictoryType(eTimeVictory),
-		getSASGameRecordVictoryType(eConquestVictory), getSASGameRecordVictoryType(eCultureVictory),
-		getSASGameRecordVictoryType(eDiplomaticVictory), iTeamScore, iBestRivalScore,
+		iGameTurn, eTeam, getSASInfoTypeOrNone(eScoreVictory), getSASInfoTypeOrNone(eTimeVictory),
+		getSASInfoTypeOrNone(eConquestVictory), getSASInfoTypeOrNone(eCultureVictory),
+		getSASInfoTypeOrNone(eDiplomaticVictory), iTeamScore, iBestRivalScore,
 		iBestRivalScore < 0 ? iTeamScore : iTeamScore - iBestRivalScore, kGame.getTargetScore(), iTurnsRemaining,
 		getSASDiagnosticOrDash(szConquestRivals).GetCString(), iConquestRivalCities, iCultureCitiesComplete, iCultureCitiesRequired,
 		iCultureThreshold, szCultureCities.GetCString());
@@ -8397,7 +8240,7 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 		if (eCivic == NO_CIVIC)
 			continue;
 		CvString szItem;
-		szItem.Format(szCivics.empty() ? "%s:%s" : ",%s:%s", GC.getInfo(eLoopCivicOption).getType(), getSASGameRecordCivicType(eCivic));
+		szItem.Format(szCivics.empty() ? "%s:%s" : ",%s:%s", GC.getInfo(eLoopCivicOption).getType(), getSASInfoTypeOrNone(eCivic));
 		szCivics += szItem;
 		iCivicEntries++;
 	}
@@ -8426,13 +8269,13 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 	{
 		if (aiReligionCounts[eLoopReligion] > 0)
 			iReligionEntries++;
-		appendSASGameRecordTypeCount(szCityReligions, getSASGameRecordReligionType(eLoopReligion), aiReligionCounts[eLoopReligion]);
+		appendSASGameRecordTypeCount(szCityReligions, getSASInfoTypeOrNone(eLoopReligion), aiReligionCounts[eLoopReligion]);
 	}
 	FOR_EACH_ENUM(Corporation)
 	{
 		if (aiCorporationCounts[eLoopCorporation] > 0)
 			iCorporationEntries++;
-		appendSASGameRecordTypeCount(szCityCorporations, getSASGameRecordCorporationType(eLoopCorporation), aiCorporationCounts[eLoopCorporation]);
+		appendSASGameRecordTypeCount(szCityCorporations, getSASInfoTypeOrNone(eLoopCorporation), aiCorporationCounts[eLoopCorporation]);
 	}
 
 	CvString szExtraHealthSources;
@@ -8440,7 +8283,7 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 	getSASGameRecordPlayerExtraSources(kPlayer, szExtraHealthSources, szExtraHappinessSources);
 	logSASGameRecord("GAME_RECORD_POLICIES turn=%d player=%d civicEntries=%d religionEntries=%d corporationEntries=%d civics=%s stateReligion=%s cityReligions=%s cityCorporations=%s playerExtraHealth=%d playerExtraHappiness=%d extraHealthSources=%s extraHappinessSources=%s",
 		iGameTurn, ePlayer, iCivicEntries, iReligionEntries, iCorporationEntries, getSASDiagnosticOrDash(szCivics).GetCString(),
-		getSASGameRecordReligionType(kPlayer.getStateReligion()), getSASDiagnosticOrDash(szCityReligions).GetCString(),
+		getSASInfoTypeOrNone(kPlayer.getStateReligion()), getSASDiagnosticOrDash(szCityReligions).GetCString(),
 		getSASDiagnosticOrDash(szCityCorporations).GetCString(), kPlayer.getExtraHealth(), kPlayer.getExtraHappiness(),
 		getSASDiagnosticOrDash(szExtraHealthSources).GetCString(), getSASDiagnosticOrDash(szExtraHappinessSources).GetCString());
 
@@ -8452,14 +8295,14 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 		if (eCivic == NO_CIVIC)
 			continue;
 		logSASGameRecord("GAME_RECORD_POLICY_CIVIC turn=%d player=%d optionId=%d option=%s civicId=%d civic=%s",
-			iGameTurn, ePlayer, eLoopCivicOption, GC.getInfo(eLoopCivicOption).getType(), eCivic, getSASGameRecordCivicType(eCivic));
+			iGameTurn, ePlayer, eLoopCivicOption, GC.getInfo(eLoopCivicOption).getType(), eCivic, getSASInfoTypeOrNone(eCivic));
 	}
 	FOR_EACH_ENUM(Religion)
 	{
 		if (aiReligionCounts[eLoopReligion] <= 0)
 			continue;
 		logSASGameRecord("GAME_RECORD_POLICY_RELIGION turn=%d player=%d religionId=%d religion=%s cityCount=%d stateReligion=%d",
-			iGameTurn, ePlayer, eLoopReligion, getSASGameRecordReligionType(eLoopReligion), aiReligionCounts[eLoopReligion],
+			iGameTurn, ePlayer, eLoopReligion, getSASInfoTypeOrNone(eLoopReligion), aiReligionCounts[eLoopReligion],
 			kPlayer.getStateReligion() == eLoopReligion ? 1 : 0);
 	}
 	FOR_EACH_ENUM(Corporation)
@@ -8467,7 +8310,7 @@ static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
 		if (aiCorporationCounts[eLoopCorporation] <= 0)
 			continue;
 		logSASGameRecord("GAME_RECORD_POLICY_CORPORATION turn=%d player=%d corporationId=%d corporation=%s cityCount=%d",
-			iGameTurn, ePlayer, eLoopCorporation, getSASGameRecordCorporationType(eLoopCorporation), aiCorporationCounts[eLoopCorporation]);
+			iGameTurn, ePlayer, eLoopCorporation, getSASInfoTypeOrNone(eLoopCorporation), aiCorporationCounts[eLoopCorporation]);
 	}
 }
 
@@ -8574,7 +8417,7 @@ static void logSASGameRecordCorporationPosture(PlayerTypes ePlayer, int iGameTur
 			CvUnit const* pTransport = pExecutive->getTransportUnit();
 			CvString szTarget;
 			szTarget.Format("%d:exec%d:transport%d:%s@(%d,%d)>(%d,%d):player%d:city%d:at%d:gold%d/cost%d",
-				pLoopGroup->getID(), pExecutive->getID(), pTransport == NULL ? -1 : pTransport->getID(), getSASGameRecordCorporationType(eCorporation),
+				pLoopGroup->getID(), pExecutive->getID(), pTransport == NULL ? -1 : pTransport->getID(), getSASInfoTypeOrNone(eCorporation),
 				pCurrentPlot == NULL ? -1 : pCurrentPlot->getX(), pCurrentPlot == NULL ? -1 : pCurrentPlot->getY(), pMissionPlot->getX(), pMissionPlot->getY(),
 				pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? -1 : pTargetCity->getID(), bAtTarget ? 1 : 0, kPlayer.getGold(), iSpreadCost);
 			szTargets += szTarget;
@@ -8797,9 +8640,9 @@ static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn, int iGol
 		aiPercents[eLoopCommerce] = kPlayer.getCommercePercent(eLoopCommerce);
 		aiRates[eLoopCommerce] = kPlayer.getCommerceRate(eLoopCommerce);
 		aiFlexible[eLoopCommerce] = kPlayer.isCommerceFlexible(eLoopCommerce) ? 1 : 0;
-		appendSASGameRecordValue(szPercents, getSASGameRecordCommerceType(eLoopCommerce), aiPercents[eLoopCommerce]);
-		appendSASGameRecordValue(szRates, getSASGameRecordCommerceType(eLoopCommerce), aiRates[eLoopCommerce]);
-		appendSASGameRecordValue(szFlexible, getSASGameRecordCommerceType(eLoopCommerce), aiFlexible[eLoopCommerce]);
+		appendSASGameRecordValue(szPercents, getSASInfoTypeOrNone(eLoopCommerce), aiPercents[eLoopCommerce]);
+		appendSASGameRecordValue(szRates, getSASInfoTypeOrNone(eLoopCommerce), aiRates[eLoopCommerce]);
+		appendSASGameRecordValue(szFlexible, getSASInfoTypeOrNone(eLoopCommerce), aiFlexible[eLoopCommerce]);
 	}
 
 	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected.
@@ -8808,13 +8651,13 @@ static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn, int iGol
 		iGameTurn, ePlayer, NUM_COMMERCE_TYPES, kPlayer.getGold(), iGoldRate, iGoldCommerceRate, iDealGoldPerTurn, iInflatedCosts, iUnitCost, iUnitSupply,
 		iCityMaintenance, iCivicUpkeep, iInflationRate, kPlayer.calculateTotalYield(YIELD_COMMERCE),
 		getSASDiagnosticOrDash(szPercents).GetCString(), getSASDiagnosticOrDash(szRates).GetCString(),
-		getSASDiagnosticOrDash(szFlexible).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost,
+		getSASDiagnosticOrDash(szFlexible).GetCString(), getSASInfoTypeOrNone(eResearch), iResearchProgress, iResearchCost,
 		kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(),
 		eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
 	FOR_EACH_ENUM(Commerce)
 	{
 		logSASGameRecord("GAME_RECORD_ECONOMY_COMMERCE turn=%d player=%d commerceId=%d commerce=%s percent=%d rate=%d flexible=%d",
-			iGameTurn, ePlayer, eLoopCommerce, getSASGameRecordCommerceType(eLoopCommerce), aiPercents[eLoopCommerce],
+			iGameTurn, ePlayer, eLoopCommerce, getSASInfoTypeOrNone(eLoopCommerce), aiPercents[eLoopCommerce],
 			aiRates[eLoopCommerce], aiFlexible[eLoopCommerce]);
 	}
 }
@@ -8909,7 +8752,7 @@ void logSASGameRecordGameResult(char const* szEvent)
 	logSASGameRecord("GAME_RECORD_GAME_RESULT turn=%d elapsed=%d year=%d sessionWallMilliseconds=%u event=%s gameState=%s winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), getSASGameRecordSessionWallMilliseconds(),
 		(szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent), getSASGameStateTypeName(kGame.getGameState()),
-		kGame.getWinner(), kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(),
+		kGame.getWinner(), getSASInfoTypeOrNone(kGame.getVictory()),
 		kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive());
 }
 
@@ -8924,7 +8767,7 @@ void logSASGameRecordRunStatus(char const* szReason)
 	// The assertion-enabled run also caught the initialization-only ever-alive recount here; read the maintained getter instead (`Should use getCivPlayersEverAlive instead`). (GPT-5.5 + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_RUN_STATUS turn=%d reason=%s elapsed=%d year=%d winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d playersEverAlive=%d humans=%d eliminatedPlayers=%s topScorePlayer=%d topScore=%d topPowerPlayer=%d topPower=%d totalCities=%d totalPopulation=%d",
 		kGame.getGameTurn(), szReason == NULL ? "-" : szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.getWinner(),
-		kGame.getVictory() == NO_VICTORY ? "-" : GC.getInfo(kGame.getVictory()).getType(), kGame.countCivPlayersAlive(),
+		getSASInfoTypeOrNone(kGame.getVictory()), kGame.countCivPlayersAlive(),
 		kGame.countCivTeamsAlive(), kGame.getCivPlayersEverAlive(), kGame.getNumHumanPlayers(),
 		getSASGameRecordEliminatedPlayers().GetCString(), eTopScorePlayer,
 		eTopScorePlayer == NO_PLAYER ? 0 : GET_PLAYER(eTopScorePlayer).calculateScore(), eTopPowerPlayer,
@@ -9347,14 +9190,14 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 				kBonusTrade.m_iData = eLoopBonus;
 				if (iViewerAvailable > 0 && kViewer.canTradeItem(eOther, kBonusTrade, true))
 				{
-					appendSASGameRecordType(szViewerCanOfferBonuses, getSASGameRecordBonusType(eLoopBonus));
+					appendSASGameRecordType(szViewerCanOfferBonuses, getSASInfoTypeOrNone(eLoopBonus));
 					// <!-- custom: Keep quote reconstruction independently optional because bonus trade valuation can perform substantial bonus/building work.
 					// getSASGameRecordBonusGPTQuote preserves exact Foreign Advisor semantics in ordinary human play and switches to the current AI controller's equivalent quote during AI Auto Play. (ChatGPT-5.6-Sol) -->
 					if (bBonusGPTQuotesEnabled && bOtherWillingToTalk && kOther.canTradeItem(eViewer, kOneGPTTrade, false))
 					{
 						int const iWillPayGPT = getSASGameRecordBonusGPTQuote(kOther, eLoopBonus, eViewer);
 						if (iWillPayGPT > 0)
-							appendSASGameRecordMarketValue(szOtherBonusWillPayGPT, getSASGameRecordBonusType(eLoopBonus), iWillPayGPT);
+							appendSASGameRecordMarketValue(szOtherBonusWillPayGPT, getSASInfoTypeOrNone(eLoopBonus), iWillPayGPT);
 					}
 				}
 
@@ -9362,26 +9205,26 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 					continue;
 				if (!kOther.canTradeItem(eViewer, kBonusTrade, false))
 				{
-					appendSASGameRecordMarketReason(szOtherBonusUnavailable, getSASGameRecordBonusType(eLoopBonus), getSASGameRecordBonusUnavailableReason(kOther, kViewer, eLoopBonus));
+					appendSASGameRecordMarketReason(szOtherBonusUnavailable, getSASInfoTypeOrNone(eLoopBonus), getSASGameRecordBonusUnavailableReason(kOther, kViewer, eLoopBonus));
 					continue;
 				}
 				DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kBonusTrade);
 				if (eDenial != NO_DENIAL)
 				{
-					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASGameRecordBonusType(eLoopBonus), getSASGameRecordDenialType(eDenial));
+					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASInfoTypeOrNone(eLoopBonus), getSASGameRecordDenialType(eDenial));
 					continue;
 				}
 				if (!bOtherWillingToTalk)
 				{
-					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASGameRecordBonusType(eLoopBonus), "NO_TALK");
+					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASInfoTypeOrNone(eLoopBonus), "NO_TALK");
 					continue;
 				}
-				appendSASGameRecordType(szOtherBonusesForTrade, getSASGameRecordBonusType(eLoopBonus));
+				appendSASGameRecordType(szOtherBonusesForTrade, getSASInfoTypeOrNone(eLoopBonus));
 				if (bBonusGPTQuotesEnabled && kViewer.canTradeItem(eOther, kOneGPTTrade, false))
 				{
 					int const iAskGPT = getSASGameRecordBonusGPTQuote(kViewer, eLoopBonus, eOther);
 					if (iAskGPT > 0)
-						appendSASGameRecordMarketValue(szOtherBonusAskGPT, getSASGameRecordBonusType(eLoopBonus), iAskGPT);
+						appendSASGameRecordMarketValue(szOtherBonusAskGPT, getSASInfoTypeOrNone(eLoopBonus), iAskGPT);
 				}
 			}
 		}
@@ -9410,10 +9253,10 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 						if (bAITechValuesEnabled)
 						{
 							int const iReceiveValue = GET_TEAM(kOther.getTeam()).AI_techTradeVal( eLoopTech, kViewer.getTeam());
-							appendSASGameRecordMarketValue(szOtherTechReceiveValues, getSASGameRecordTechType(eLoopTech), iReceiveValue);
+							appendSASGameRecordMarketValue(szOtherTechReceiveValues, getSASInfoTypeOrNone(eLoopTech), iReceiveValue);
 						}
 						if (kViewer.getTradeDenial(eOther, kTechTrade) == NO_DENIAL)
-							appendSASGameRecordType(szViewerTechsForTrade, getSASGameRecordTechType(eLoopTech));
+							appendSASGameRecordType(szViewerTechsForTrade, getSASInfoTypeOrNone(eLoopTech));
 					}
 					continue;
 				}
@@ -9423,18 +9266,18 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 					if (bAITechValuesEnabled)
 					{
 						int const iReceiveValue = GET_TEAM(kViewer.getTeam()).AI_techTradeVal( eLoopTech, kOther.getTeam());
-						appendSASGameRecordMarketValue(szViewerTechReceiveValues, getSASGameRecordTechType(eLoopTech), iReceiveValue);
+						appendSASGameRecordMarketValue(szViewerTechReceiveValues, getSASInfoTypeOrNone(eLoopTech), iReceiveValue);
 					}
 					DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kTechTrade);
 					if (eDenial != NO_DENIAL)
-						appendSASGameRecordMarketReason(szOtherTechDenials, getSASGameRecordTechType(eLoopTech), getSASGameRecordDenialType(eDenial));
+						appendSASGameRecordMarketReason(szOtherTechDenials, getSASInfoTypeOrNone(eLoopTech), getSASGameRecordDenialType(eDenial));
 					else if (!bOtherWillingToTalk)
-						appendSASGameRecordMarketReason(szOtherTechDenials, getSASGameRecordTechType(eLoopTech), "NO_TALK");
-					else appendSASGameRecordType(szOtherTechsForTrade, getSASGameRecordTechType(eLoopTech));
+						appendSASGameRecordMarketReason(szOtherTechDenials, getSASInfoTypeOrNone(eLoopTech), "NO_TALK");
+					else appendSASGameRecordType(szOtherTechsForTrade, getSASInfoTypeOrNone(eLoopTech));
 				}
 				else if (kViewer.canResearch(eLoopTech, false))
 				{
-					appendSASGameRecordMarketReason(szOtherTechUnavailable, getSASGameRecordTechType(eLoopTech), getSASGameRecordTechUnavailableReason(kOther, kViewer, eLoopTech));
+					appendSASGameRecordMarketReason(szOtherTechUnavailable, getSASInfoTypeOrNone(eLoopTech), getSASGameRecordTechUnavailableReason(kOther, kViewer, eLoopTech));
 				}
 			}
 		}
@@ -9484,8 +9327,8 @@ static void logSASGameRecordEnvironment(int iGameTurn)
 	CvString szNegativeHealthFeatures;
 	FOR_EACH_ENUM(Feature)
 	{
-		appendSASGameRecordTypeCount(szFeatures, getSASGameRecordFeatureType(eLoopFeature), aiFeatures[eLoopFeature]);
-		appendSASGameRecordTypeCount(szNegativeHealthFeatures, getSASGameRecordFeatureType(eLoopFeature), aiNegativeHealthFeatures[eLoopFeature]);
+		appendSASGameRecordTypeCount(szFeatures, getSASInfoTypeOrNone(eLoopFeature), aiFeatures[eLoopFeature]);
+		appendSASGameRecordTypeCount(szNegativeHealthFeatures, getSASInfoTypeOrNone(eLoopFeature), aiNegativeHealthFeatures[eLoopFeature]);
 	}
 	const int iGlobalWarmingIndex = GC.getGame().getGlobalWarmingIndex();
 	const int iGlobalWarmingChances = GC.getGame().getGlobalWarmingChances();
@@ -9540,14 +9383,14 @@ static void logSASGameRecordVoteSources(int iGameTurn)
 			if (!GC.getInfo(eLoopVote).isVoteSourceType(eLoopVoteSource) || !GC.getInfo(eLoopVote).isVictory())
 				continue;
 			CvString szItem;
-			szItem.Format(szVictoryVotes.empty() ? "%s:required=%d,possible=%d" : ",%s:required=%d,possible=%d", getSASGameRecordVoteType(eLoopVote), kGame.getVoteRequired(eLoopVote, eLoopVoteSource), kGame.countPossibleVote(eLoopVote, eLoopVoteSource));
+			szItem.Format(szVictoryVotes.empty() ? "%s:required=%d,possible=%d" : ",%s:required=%d,possible=%d", getSASInfoTypeOrNone(eLoopVote), kGame.getVoteRequired(eLoopVote, eLoopVoteSource), kGame.countPossibleVote(eLoopVote, eLoopVoteSource));
 			szVictoryVotes += szItem;
 		}
 		if (pSourceCity == NULL && eReligion == NO_RELIGION && eSecretary == NO_TEAM && szVotingTeams.empty() && szVictoryVotes.empty())
 			continue;
 		logSASGameRecord("GAME_RECORD_DIPLO_VOTE_SOURCE turn=%d source=%s secretaryTeam=%d secretaryTimer=%d voteTimer=%d religion=%s sourceOwner=%d sourceCityId=%d sourceCity=%S sourceX=%d sourceY=%d votingTeams=%s fullTeams=%s votes=%s victoryVotes=%s",
-			iGameTurn, getSASGameRecordVoteSourceType(eLoopVoteSource), eSecretary, kGame.getSecretaryGeneralTimer(eLoopVoteSource),
-			kGame.getVoteTimer(eLoopVoteSource), getSASGameRecordReligionType(eReligion), pSourceCity == NULL ? -1 : pSourceCity->getOwner(),
+			iGameTurn, getSASInfoTypeOrNone(eLoopVoteSource), eSecretary, kGame.getSecretaryGeneralTimer(eLoopVoteSource),
+			kGame.getVoteTimer(eLoopVoteSource), getSASInfoTypeOrNone(eReligion), pSourceCity == NULL ? -1 : pSourceCity->getOwner(),
 			pSourceCity == NULL ? -1 : pSourceCity->getID(), getSASGameRecordQuotedCityName(pSourceCity).GetCString(),
 			pSourceCity == NULL ? -1 : pSourceCity->getX(), pSourceCity == NULL ? -1 : pSourceCity->getY(),
 			getSASDiagnosticOrDash(szVotingTeams).GetCString(), getSASDiagnosticOrDash(szFullTeams).GetCString(),
@@ -9559,7 +9402,7 @@ static void logSASGameRecordTeamProjects(TeamTypes eTeam, int iGameTurn)
 {
 	CvString szProjects;
 	FOR_EACH_ENUM(Project)
-		appendSASGameRecordTypeCount(szProjects, getSASGameRecordProjectType(eLoopProject), GET_TEAM(eTeam).getProjectCount(eLoopProject));
+		appendSASGameRecordTypeCount(szProjects, getSASInfoTypeOrNone(eLoopProject), GET_TEAM(eTeam).getProjectCount(eLoopProject));
 	if (!szProjects.empty())
 		logSASGameRecord("GAME_RECORD_TEAM_PROJECTS turn=%d team=%d projects=%s", iGameTurn, eTeam, szProjects.GetCString());
 }
@@ -9610,7 +9453,7 @@ static CvString getSASGameRecordMilitaryOrBonuses(CvUnitInfo const& kUnit)
 	{
 		BonusTypes const eBonus = kUnit.getPrereqOrBonuses(i);
 		if (eBonus != NO_BONUS)
-			appendSASGameRecordType(szBonuses, getSASGameRecordBonusType(eBonus));
+			appendSASGameRecordType(szBonuses, getSASInfoTypeOrNone(eBonus));
 	}
 	return getSASDiagnosticOrDash(szBonuses);
 }
@@ -9680,12 +9523,12 @@ static void logSASGameRecordMilitaryTrainability(PlayerTypes ePlayer, int iGameT
 		}
 
 		iPlayerEligibleTypes++;
-		appendSASGameRecordType(szPlayerEligible, getSASGameRecordUnitType(eUnit));
+		appendSASGameRecordType(szPlayerEligible, getSASInfoTypeOrNone(eUnit));
 		bool const bCapitalTrainable = (pCapital != NULL && pCapital->canTrain(eUnit));
 		if (bCapitalTrainable)
 		{
 			iCapitalTrainableTypes++;
-			appendSASGameRecordType(szCapitalTrainable, getSASGameRecordUnitType(eUnit));
+			appendSASGameRecordType(szCapitalTrainable, getSASInfoTypeOrNone(eUnit));
 		}
 
 		CvCity const* pTrainableCity = (bCapitalTrainable ? pCapital : NULL);
@@ -9705,12 +9548,12 @@ static void logSASGameRecordMilitaryTrainability(PlayerTypes ePlayer, int iGameT
 		}
 		// <!-- custom: Keep compact type lists readable, but expose each eligible unit as fixed fields so consumers need no new comma-list parser. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_UNIT turn=%d player=%d unitId=%d unit=%s capitalPresent=%d capitalTrainable=%d anyCityTrainable=%d trainableCityId=%d trainableCityX=%d trainableCityY=%d",
-			iGameTurn, ePlayer, eUnit, getSASGameRecordUnitType(eUnit), pCapital != NULL ? 1 : 0, bCapitalTrainable ? 1 : 0, pTrainableCity != NULL ? 1 : 0,
+			iGameTurn, ePlayer, eUnit, getSASInfoTypeOrNone(eUnit), pCapital != NULL ? 1 : 0, bCapitalTrainable ? 1 : 0, pTrainableCity != NULL ? 1 : 0,
 			pTrainableCity == NULL ? -1 : pTrainableCity->getID(), pTrainableCity == NULL ? -1 : pTrainableCity->getX(), pTrainableCity == NULL ? -1 : pTrainableCity->getY());
 		if (pTrainableCity != NULL)
 		{
 			iAnyCityTrainableTypes++;
-			appendSASGameRecordType(szAnyCityTrainable, getSASGameRecordUnitType(eUnit));
+			appendSASGameRecordType(szAnyCityTrainable, getSASInfoTypeOrNone(eUnit));
 			if (iFirstTrainableCityId < 0)
 			{
 				iFirstTrainableCityId = pTrainableCity->getID();
@@ -9720,13 +9563,13 @@ static void logSASGameRecordMilitaryTrainability(PlayerTypes ePlayer, int iGameT
 			if (!bCapitalTrainable && pCapital != NULL)
 			{
 				iCapitalRestrictedElsewhereTypes++;
-				appendSASGameRecordType(szCapitalRestrictedElsewhere, getSASGameRecordUnitType(eUnit));
+				appendSASGameRecordType(szCapitalRestrictedElsewhere, getSASInfoTypeOrNone(eUnit));
 			}
 			continue;
 		}
 
 		iNoCityTrainableEligibleTypes++;
-		appendSASGameRecordType(szNoCityTrainableEligible, getSASGameRecordUnitType(eUnit));
+		appendSASGameRecordType(szNoCityTrainableEligible, getSASInfoTypeOrNone(eUnit));
 		BonusTypes const eAndBonus = kUnit.getPrereqAndBonus();
 		bool const bExplicitBonusRequirement = (eAndBonus != NO_BONUS || kUnit.getNumPrereqOrBonuses() > 0);
 		int iCapitalExplicitBonusesSatisfied = -1;
@@ -9753,10 +9596,10 @@ static void logSASGameRecordMilitaryTrainability(PlayerTypes ePlayer, int iGameT
 		for (int iBonus = 0; iBonus < kUnit.getNumPrereqOrBonuses(); iBonus++)
 		{
 			BonusTypes const eBonus = kUnit.getPrereqOrBonuses(iBonus);
-			if (eBonus != NO_BONUS) logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_OR_BONUS turn=%d player=%d unitId=%d unit=%s bonusId=%d bonus=%s", iGameTurn, ePlayer, eUnit, getSASGameRecordUnitType(eUnit), eBonus, getSASGameRecordBonusType(eBonus));
+			if (eBonus != NO_BONUS) logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_OR_BONUS turn=%d player=%d unitId=%d unit=%s bonusId=%d bonus=%s", iGameTurn, ePlayer, eUnit, getSASInfoTypeOrNone(eUnit), eBonus, getSASInfoTypeOrNone(eBonus));
 		}
 		logSASGameRecord("GAME_RECORD_MILITARY_TRAINABILITY_GAP turn=%d player=%d team=%d scope=LAND_FULL_COMBAT_CIV_CATALOG unitId=%d unit=%s explicitBonusRequirement=%d requiredAndBonus=%s requiredOrBonusCount=%d requiredOrBonuses=%s capitalExplicitBonusesSatisfied=%d anyCityExplicitBonusesSatisfied=%d allCitiesHaveUpgrade=%d restrictionHint=%s",
-			iGameTurn, ePlayer, kPlayer.getTeam(), eUnit, getSASGameRecordUnitType(eUnit), bExplicitBonusRequirement ? 1 : 0, getSASGameRecordBonusType(eAndBonus),
+			iGameTurn, ePlayer, kPlayer.getTeam(), eUnit, getSASInfoTypeOrNone(eUnit), bExplicitBonusRequirement ? 1 : 0, getSASInfoTypeOrNone(eAndBonus),
 			kUnit.getNumPrereqOrBonuses(), getSASGameRecordMilitaryOrBonuses(kUnit).GetCString(), iCapitalExplicitBonusesSatisfied,
 			bAnyCityExplicitBonusesSatisfied ? 1 : 0, bAllCitiesHaveUpgrade ? 1 : 0, szRestrictionHint);
 	}
@@ -9803,18 +9646,18 @@ static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SA
 		{
 			iBonusTypes++;
 			iBonusInstances += iAvailable;
-			appendSASGameRecordTypeCount(szAvailable, getSASGameRecordBonusType(eLoopBonus), iAvailable);
+			appendSASGameRecordTypeCount(szAvailable, getSASInfoTypeOrNone(eLoopBonus), iAvailable);
 		}
-		appendSASGameRecordTypeCount(szTradeable, getSASGameRecordBonusType(eLoopBonus), iTradeable);
+		appendSASGameRecordTypeCount(szTradeable, getSASInfoTypeOrNone(eLoopBonus), iTradeable);
 		if (iImport > 0)
 		{
 			iBonusImports += iImport;
-			appendSASGameRecordTypeCount(szImports, getSASGameRecordBonusType(eLoopBonus), iImport);
+			appendSASGameRecordTypeCount(szImports, getSASInfoTypeOrNone(eLoopBonus), iImport);
 		}
 		if (iExport > 0)
 		{
 			iBonusExports += iExport;
-			appendSASGameRecordTypeCount(szExports, getSASGameRecordBonusType(eLoopBonus), iExport);
+			appendSASGameRecordTypeCount(szExports, getSASInfoTypeOrNone(eLoopBonus), iExport);
 		}
 	}
 	logSASGameRecord("GAME_RECORD_BONUSES turn=%d player=%d detailRows=%d deltaValid=%d bonusTypes=%d bonusTypesDelta=%+d bonusInstances=%d bonusInstancesDelta=%+d imports=%d importsDelta=%+d exports=%d exportsDelta=%+d",
@@ -9833,7 +9676,7 @@ static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SA
 		if (aiAvailable[eLoopBonus] <= 0 && aiTradeable[eLoopBonus] <= 0 && aiImports[eLoopBonus] <= 0 && aiExports[eLoopBonus] <= 0)
 			continue;
 		logSASGameRecord("GAME_RECORD_BONUS_DETAIL turn=%d player=%d bonusId=%d bonus=%s available=%d tradeable=%d imported=%d exported=%d",
-			iGameTurn, ePlayer, eLoopBonus, getSASGameRecordBonusType(eLoopBonus), aiAvailable[eLoopBonus], aiTradeable[eLoopBonus],
+			iGameTurn, ePlayer, eLoopBonus, getSASInfoTypeOrNone(eLoopBonus), aiAvailable[eLoopBonus], aiTradeable[eLoopBonus],
 			aiImports[eLoopBonus], aiExports[eLoopBonus]);
 	}
 }
@@ -10246,31 +10089,31 @@ static void logSASGameRecordUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	// <!-- custom: UnitAI and combat class are useful but too coarse for game-record review: a Galley and Galleon can share naval transport roles, and a Camel Archer and Dragoon can sit in similar mounted/combat buckets despite very different strength and era impact.
 	// Include actual unit-type counts so LLM/autoplay review can see army and navy quality without per-unit spam. (GPT-5.5) -->
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
-		appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
+		appendSASGameRecordTypeCount(szUnitTypes, getSASInfoTypeOrNone((UnitTypes)iI), aiUnitTypes[iI]);
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-		appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
+		appendSASGameRecordTypeCount(szUnitAI, getSASInfoTypeOrNone((UnitAITypes)iI), aiUnitAI[iI]);
 	for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
 	{
-		appendSASGameRecordTypeCount(szUnitCombat, getSASGameRecordUnitCombatType((UnitCombatTypes)iI), aiUnitCombat[iI]);
+		appendSASGameRecordTypeCount(szUnitCombat, getSASInfoTypeOrNone((UnitCombatTypes)iI), aiUnitCombat[iI]);
 		if (aiUnitCombat[iI] > 0)
-			appendSASGameRecordValue(szUnitCombatPercentX100, getSASGameRecordUnitCombatType((UnitCombatTypes)iI), getSASGameRecordPercentX100(aiUnitCombat[iI], iUnitCombatTotal));
+			appendSASGameRecordValue(szUnitCombatPercentX100, getSASInfoTypeOrNone((UnitCombatTypes)iI), getSASGameRecordPercentX100(aiUnitCombat[iI], iUnitCombatTotal));
 	}
 	CvString szAssaultTransportTypes;
 	CvString szAssaultCargoTypes;
 	CvString szAssaultCargoAI;
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
-		appendSASGameRecordTypeCount(szAssaultTransportTypes, getSASGameRecordUnitType((UnitTypes)iI), aiAssaultTransportTypes[iI]);
-		appendSASGameRecordTypeCount(szAssaultCargoTypes, getSASGameRecordUnitType((UnitTypes)iI), aiAssaultCargoTypes[iI]);
+		appendSASGameRecordTypeCount(szAssaultTransportTypes, getSASInfoTypeOrNone((UnitTypes)iI), aiAssaultTransportTypes[iI]);
+		appendSASGameRecordTypeCount(szAssaultCargoTypes, getSASInfoTypeOrNone((UnitTypes)iI), aiAssaultCargoTypes[iI]);
 	}
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-		appendSASGameRecordTypeCount(szAssaultCargoAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiAssaultCargoAI[iI]);
+		appendSASGameRecordTypeCount(szAssaultCargoAI, getSASInfoTypeOrNone((UnitAITypes)iI), aiAssaultCargoAI[iI]);
 	if (bLogPromotionDetails)
 	{
 		FOR_EACH_ENUM(Promotion)
 		{
-			appendSASGameRecordTypeCount(szPromotions, getSASGameRecordPromotionType(eLoopPromotion), aiPromotions[eLoopPromotion]);
-			appendSASGameRecordTypeCount(szMilitaryPromotions, getSASGameRecordPromotionType(eLoopPromotion), aiMilitaryPromotions[eLoopPromotion]);
+			appendSASGameRecordTypeCount(szPromotions, getSASInfoTypeOrNone(eLoopPromotion), aiPromotions[eLoopPromotion]);
+			appendSASGameRecordTypeCount(szMilitaryPromotions, getSASInfoTypeOrNone(eLoopPromotion), aiMilitaryPromotions[eLoopPromotion]);
 		}
 	}
 	// <!-- custom: Keep late-game air/missile/nuclear posture and current naval-blockade count on the existing unit row rather than adding repetitive snapshot rows.
@@ -10396,17 +10239,17 @@ static void logSASGameRecordWorkers(PlayerTypes ePlayer, int iGameTurn)
 		if (bThreatened)
 			iThreatened++;
 		if (bLogWorkerDetails && pPlot != NULL) logSASGameRecord("GAME_RECORD_WORKER turn=%d player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d mission=%s build=%s buildTurnsLeft=%d plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s guarded=%d threatened=%d",
-			iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameRecordUnitType(pLoopUnit->getUnitType()),
-			getSASGameRecordUnitAIType(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getX(), pLoopUnit->getY(),
-			getSASGameRecordMissionType(eMission), getSASGameRecordBuildType(eBuild), getSASGameRecordBuildTurnsLeft(*pLoopUnit, eBuild),
-			pPlot->getOwner(), getSASGameRecordTerrainType(pPlot->getTerrainType()),
-			getSASGameRecordFeatureType(pPlot->getFeatureType()), getSASGameRecordBonusType(pPlot->getBonusType(pLoopUnit->getTeam())),
-			getSASGameRecordImprovementType(pPlot->getImprovementType()), getSASGameRecordRouteType(pPlot->getRouteType()), bGuarded,
+			iGameTurn, ePlayer, pLoopUnit->getID(), getSASInfoTypeOrNone(pLoopUnit->getUnitType()),
+			getSASInfoTypeOrNone(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getX(), pLoopUnit->getY(),
+			getSASMissionTypeName(eMission), getSASInfoTypeOrNone(eBuild), getSASGameRecordBuildTurnsLeft(*pLoopUnit, eBuild),
+			pPlot->getOwner(), getSASInfoTypeOrNone(pPlot->getTerrainType()),
+			getSASInfoTypeOrNone(pPlot->getFeatureType()), getSASInfoTypeOrNone(pPlot->getBonusType(pLoopUnit->getTeam())),
+			getSASInfoTypeOrNone(pPlot->getImprovementType()), getSASInfoTypeOrNone(pPlot->getRouteType()), bGuarded,
 			bThreatened);
 	}
 	CvString szBuilds;
 	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
-		appendSASGameRecordTypeCount(szBuilds, getSASGameRecordBuildType((BuildTypes)iI), aiBuilds[iI]);
+		appendSASGameRecordTypeCount(szBuilds, getSASInfoTypeOrNone((BuildTypes)iI), aiBuilds[iI]);
 	logSASGameRecord("GAME_RECORD_WORKERS turn=%d player=%d workers=%d seaWorkers=%d idle=%d building=%d buildingImprovement=%d buildingRoute=%d moving=%d waiting=%d ownTerritory=%d enemyTerritory=%d neutralTerritory=%d guarded=%d unguarded=%d threatened=%d builds=%s",
 		iGameTurn, ePlayer, iWorkers, iSeaWorkers, iIdle, iBuilding, iBuildingImprovement, iBuildingRoute, iMoving, iWaiting, iOwnTerritory,
 		iEnemyTerritory, iNeutralTerritory, iGuarded, iUnguarded, iThreatened, getSASDiagnosticOrDash(szBuilds).GetCString());
@@ -10517,7 +10360,7 @@ static void logSASGameRecordCityNetworks(std::map<int, SASGameRecordCityNetwork>
 			continue;
 		CvString szRoutes;
 		for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
-			appendSASGameRecordTypeCount(szRoutes, getSASGameRecordRouteType((RouteTypes)iI), kNetwork.aiRoutes[iI]);
+			appendSASGameRecordTypeCount(szRoutes, getSASInfoTypeOrNone((RouteTypes)iI), kNetwork.aiRoutes[iI]);
 		logSASGameRecord("GAME_RECORD_CITY_NETWORK turn=%d player=%d plotGroupId=%d containsCapital=%d cities=%d ownCities=%d foreignCities=%d networkPlots=%d landPlots=%d waterPlots=%d routePlots=%d riverNetworkPlots=%d landTerrainNetworkPlots=%d waterNetworkPlots=%d cityList=%s routes=%s",
 			iGameTurn, ePlayer, it->first, kNetwork.bContainsCapital ? 1 : 0, kNetwork.iCities, kNetwork.iOwnCities, kNetwork.iForeignCities,
 			kNetwork.iPlots, kNetwork.iLandPlots, kNetwork.iWaterPlots, kNetwork.iRoutePlots, kNetwork.iRiverNetworkPlots,
@@ -10826,12 +10669,12 @@ static void logSASGameRecordSettlers(PlayerTypes ePlayer, int iGameTurn)
 					iTargetSiteRank = getSASGameRecordCitySiteRank(kPlayer.AI(), *pMissionPlot, iTargetSiteFoundValue);
 			}
 			logSASGameRecord("GAME_RECORD_SETTLER turn=%d player=%d unitId=%d unit=%s unitAI=%s groupId=%d x=%d y=%d mission=%s missionAI=%d targetX=%d targetY=%d targetArea=%d targetDistance=%d targetSiteListRank=%d targetCachedFoundValue=%d plotOwner=%d plotTerrain=%s plotFeature=%s plotBonus=%s plotImprovement=%s plotRoute=%s guarded=%d threatened=%d nearestCityId=%d nearestCity=%S nearestCityDistance=%d",
-				iGameTurn, ePlayer, pLoopUnit->getID(), getSASGameRecordUnitType(pLoopUnit->getUnitType()),
-				getSASGameRecordUnitAIType(pLoopUnit->AI_getUnitAIType()), (pGroup == NULL ? -1 : pGroup->getID()), pLoopUnit->getX(),
-				pLoopUnit->getY(), getSASGameRecordMissionType(eMission), eMissionAI, iTargetX, iTargetY, iTargetArea, iTargetDistance,
-				iTargetSiteRank, iTargetSiteFoundValue, pPlot->getOwner(), getSASGameRecordTerrainType(pPlot->getTerrainType()),
-				getSASGameRecordFeatureType(pPlot->getFeatureType()), getSASGameRecordBonusType(pPlot->getBonusType(pLoopUnit->getTeam())),
-				getSASGameRecordImprovementType(pPlot->getImprovementType()), getSASGameRecordRouteType(pPlot->getRouteType()), bGuarded,
+				iGameTurn, ePlayer, pLoopUnit->getID(), getSASInfoTypeOrNone(pLoopUnit->getUnitType()),
+				getSASInfoTypeOrNone(pLoopUnit->AI_getUnitAIType()), (pGroup == NULL ? -1 : pGroup->getID()), pLoopUnit->getX(),
+				pLoopUnit->getY(), getSASMissionTypeName(eMission), eMissionAI, iTargetX, iTargetY, iTargetArea, iTargetDistance,
+				iTargetSiteRank, iTargetSiteFoundValue, pPlot->getOwner(), getSASInfoTypeOrNone(pPlot->getTerrainType()),
+				getSASInfoTypeOrNone(pPlot->getFeatureType()), getSASInfoTypeOrNone(pPlot->getBonusType(pLoopUnit->getTeam())),
+				getSASInfoTypeOrNone(pPlot->getImprovementType()), getSASInfoTypeOrNone(pPlot->getRouteType()), bGuarded,
 				bThreatened, pNearestCity == NULL ? -1 : pNearestCity->getID(), getSASGameRecordQuotedCityName(pNearestCity).GetCString(),
 				iNearestDistance);
 		}
@@ -10862,7 +10705,7 @@ static CvString getSASGameRecordCitySpecialists(CvCity const& kCity, bool bFree)
 	FOR_EACH_ENUM(Specialist)
 	{
 		const int iCount = (bFree ? kCity.getFreeSpecialistCount(eLoopSpecialist) : kCity.getSpecialistCount(eLoopSpecialist));
-		appendSASGameRecordTypeCount(szList, getSASGameRecordSpecialistType(eLoopSpecialist), iCount);
+		appendSASGameRecordTypeCount(szList, getSASInfoTypeOrNone(eLoopSpecialist), iCount);
 	}
 	return getSASDiagnosticOrDash(szList);
 }
@@ -10873,7 +10716,7 @@ static CvString getSASGameRecordCityGPOdds(CvCity const& kCity)
 	std::vector<std::pair<UnitTypes,int> > aeiProjection;
 	kCity.GPProjection(aeiProjection);
 	for (size_t iI = 0; iI < aeiProjection.size(); iI++)
-		appendSASGameRecordTypeCount(szList, getSASGameRecordUnitType(aeiProjection[iI].first), aeiProjection[iI].second);
+		appendSASGameRecordTypeCount(szList, getSASInfoTypeOrNone(aeiProjection[iI].first), aeiProjection[iI].second);
 	return getSASDiagnosticOrDash(szList);
 }
 
@@ -10989,13 +10832,13 @@ static const char* getSASGameRecordCityProductionKind(CvCity const& kCity)
 static const char* getSASGameRecordCityProductionType(CvCity const& kCity)
 {
 	if (kCity.getProductionUnit() != NO_UNIT)
-		return getSASGameRecordUnitType(kCity.getProductionUnit());
+		return getSASInfoTypeOrNone(kCity.getProductionUnit());
 	if (kCity.getProductionBuilding() != NO_BUILDING)
-		return getSASGameRecordBuildingType(kCity.getProductionBuilding());
+		return getSASInfoTypeOrNone(kCity.getProductionBuilding());
 	if (kCity.getProductionProject() != NO_PROJECT)
-		return getSASGameRecordProjectType(kCity.getProductionProject());
+		return getSASInfoTypeOrNone(kCity.getProductionProject());
 	if (kCity.getProductionProcess() != NO_PROCESS)
-		return getSASGameRecordProcessType(kCity.getProductionProcess());
+		return getSASInfoTypeOrNone(kCity.getProductionProcess());
 	return "-";
 }
 
@@ -11025,10 +10868,10 @@ static const char* getSASGameRecordProductionType(OrderTypes eOrder, int iData1)
 {
 	switch (eOrder)
 	{
-	case ORDER_TRAIN: return (iData1 >= 0 && iData1 < GC.getNumUnitInfos() ? getSASGameRecordUnitType((UnitTypes)iData1) : "-");
-	case ORDER_CONSTRUCT: return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() ? getSASGameRecordBuildingType((BuildingTypes)iData1) : "-");
-	case ORDER_CREATE: return (iData1 >= 0 && iData1 < GC.getNumProjectInfos() ? getSASGameRecordProjectType((ProjectTypes)iData1) : "-");
-	case ORDER_MAINTAIN: return (iData1 >= 0 && iData1 < GC.getNumProcessInfos() ? getSASGameRecordProcessType((ProcessTypes)iData1) : "-");
+	case ORDER_TRAIN: return (iData1 >= 0 && iData1 < GC.getNumUnitInfos() ? getSASInfoTypeOrNone((UnitTypes)iData1) : "-");
+	case ORDER_CONSTRUCT: return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() ? getSASInfoTypeOrNone((BuildingTypes)iData1) : "-");
+	case ORDER_CREATE: return (iData1 >= 0 && iData1 < GC.getNumProjectInfos() ? getSASInfoTypeOrNone((ProjectTypes)iData1) : "-");
+	case ORDER_MAINTAIN: return (iData1 >= 0 && iData1 < GC.getNumProcessInfos() ? getSASInfoTypeOrNone((ProcessTypes)iData1) : "-");
 	default: return "-";
 	}
 }
@@ -11266,10 +11109,10 @@ static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTur
 				if (bLogParkedDetails)
 				{
 					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:UNIT:%s:%d/%d@%d" : ",%d:UNIT:%s:%d/%d@%d", pCity->getID(), getSASGameRecordUnitType(eLoopUnit), iStored, iNeeded, iInactiveTurns);
+					szItem.Format(szParked.empty() ? "%d:UNIT:%s:%d/%d@%d" : ",%d:UNIT:%s:%d/%d@%d", pCity->getID(), getSASInfoTypeOrNone(eLoopUnit), iStored, iNeeded, iInactiveTurns);
 					szParked += szItem;
 					SASGameRecordParkedProductionItem kItem;
-					kItem.iCityId = pCity->getID(); kItem.szKind = "UNIT"; kItem.szTarget = getSASGameRecordUnitType(eLoopUnit);
+					kItem.iCityId = pCity->getID(); kItem.szKind = "UNIT"; kItem.szTarget = getSASInfoTypeOrNone(eLoopUnit);
 					kItem.iStored = iStored; kItem.iNeeded = iNeeded; kItem.iInactiveTurns = iInactiveTurns; kItem.bInactiveTurnsValid = true;
 					aParkedDetails.push_back(kItem);
 				}
@@ -11295,10 +11138,10 @@ static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTur
 				if (bLogParkedDetails)
 				{
 					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:%s:%s:%d/%d@%d" : ",%d:%s:%s:%d/%d@%d", pCity->getID(), bWonder ? "WONDER" : "BUILDING", getSASGameRecordBuildingType(eLoopBuilding), iStored, iNeeded, iInactiveTurns);
+					szItem.Format(szParked.empty() ? "%d:%s:%s:%d/%d@%d" : ",%d:%s:%s:%d/%d@%d", pCity->getID(), bWonder ? "WONDER" : "BUILDING", getSASInfoTypeOrNone(eLoopBuilding), iStored, iNeeded, iInactiveTurns);
 					szParked += szItem;
 					SASGameRecordParkedProductionItem kItem;
-					kItem.iCityId = pCity->getID(); kItem.szKind = (bWonder ? "WONDER" : "BUILDING"); kItem.szTarget = getSASGameRecordBuildingType(eLoopBuilding);
+					kItem.iCityId = pCity->getID(); kItem.szKind = (bWonder ? "WONDER" : "BUILDING"); kItem.szTarget = getSASInfoTypeOrNone(eLoopBuilding);
 					kItem.iStored = iStored; kItem.iNeeded = iNeeded; kItem.iInactiveTurns = iInactiveTurns; kItem.bInactiveTurnsValid = true;
 					aParkedDetails.push_back(kItem);
 				}
@@ -11320,10 +11163,10 @@ static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTur
 				if (bLogParkedDetails)
 				{
 					CvString szItem;
-					szItem.Format(szParked.empty() ? "%d:PROJECT:%s:%d/%d@-" : ",%d:PROJECT:%s:%d/%d@-", pCity->getID(), getSASGameRecordProjectType(eLoopProject), iStored, iNeeded);
+					szItem.Format(szParked.empty() ? "%d:PROJECT:%s:%d/%d@-" : ",%d:PROJECT:%s:%d/%d@-", pCity->getID(), getSASInfoTypeOrNone(eLoopProject), iStored, iNeeded);
 					szParked += szItem;
 					SASGameRecordParkedProductionItem kItem;
-					kItem.iCityId = pCity->getID(); kItem.szKind = "PROJECT"; kItem.szTarget = getSASGameRecordProjectType(eLoopProject);
+					kItem.iCityId = pCity->getID(); kItem.szKind = "PROJECT"; kItem.szTarget = getSASInfoTypeOrNone(eLoopProject);
 					kItem.iStored = iStored; kItem.iNeeded = iNeeded; kItem.iInactiveTurns = 0; kItem.bInactiveTurnsValid = false;
 					aParkedDetails.push_back(kItem);
 				}
@@ -11377,7 +11220,7 @@ static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, 
 			iNationalWonders += iCount;
 		else iRegular += iCount;
 		CvString szItem;
-		szItem.Format(szBuildings.empty() ? "%s:%d" : ",%s:%d", getSASGameRecordBuildingType(eBuilding), iCount);
+		szItem.Format(szBuildings.empty() ? "%s:%d" : ",%s:%d", getSASInfoTypeOrNone(eBuilding), iCount);
 		szBuildings += szItem;
 	}
 	return getSASDiagnosticOrDash(szBuildings);
@@ -11397,7 +11240,7 @@ static CvString getSASGameRecordCityProductionConversion(CvCity const& kCity)
 		CommerceTypes const eCommerce = (CommerceTypes)iI;
 		int const iRateX100 = kCity.getYieldRate(YIELD_PRODUCTION) * kCity.getProductionToCommerceModifier(eCommerce);
 		if (iRateX100 > 0)
-			appendSASGameRecordValue(szConversion, getSASGameRecordCommerceType(eCommerce), iRateX100);
+			appendSASGameRecordValue(szConversion, getSASInfoTypeOrNone(eCommerce), iRateX100);
 	}
 	return getSASDiagnosticOrDash(szConversion);
 }
@@ -11584,7 +11427,7 @@ static void logSASGameRecordCityDevelopment(CvCity const& kCity, int iGameTurn)
 			{
 				iBonusUnimproved++;
 				aiUnimprovedBonuses[eBonus]++;
-				appendSASGameRecordTypedPlotCoordinate(szUnimprovedBonusPlots, getSASGameRecordBonusType(eBonus), kPlot);
+				appendSASGameRecordTypedPlotCoordinate(szUnimprovedBonusPlots, getSASInfoTypeOrNone(eBonus), kPlot);
 			}
 		}
 		if (bDevelopmentLand)
@@ -11600,7 +11443,7 @@ static void logSASGameRecordCityDevelopment(CvCity const& kCity, int iGameTurn)
 			if (eFeature != NO_FEATURE)
 			{
 				aiUnimprovedFeatures[eFeature]++;
-				appendSASGameRecordTypedPlotCoordinate(szUnimprovedFeaturePlots, getSASGameRecordFeatureType(eFeature), kPlot);
+				appendSASGameRecordTypedPlotCoordinate(szUnimprovedFeaturePlots, getSASInfoTypeOrNone(eFeature), kPlot);
 			}
 		}
 		else
@@ -11614,9 +11457,9 @@ static void logSASGameRecordCityDevelopment(CvCity const& kCity, int iGameTurn)
 	CvString szUnimprovedFeatures;
 	CvString szUnimprovedBonuses;
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-		appendSASGameRecordTypeCount(szUnimprovedFeatures, getSASGameRecordFeatureType((FeatureTypes)iI), aiUnimprovedFeatures[iI]);
+		appendSASGameRecordTypeCount(szUnimprovedFeatures, getSASInfoTypeOrNone((FeatureTypes)iI), aiUnimprovedFeatures[iI]);
 	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
-		appendSASGameRecordTypeCount(szUnimprovedBonuses, getSASGameRecordBonusType((BonusTypes)iI), aiUnimprovedBonuses[iI]);
+		appendSASGameRecordTypeCount(szUnimprovedBonuses, getSASInfoTypeOrNone((BonusTypes)iI), aiUnimprovedBonuses[iI]);
 	int const iNotOwnedRadiusPlots = iRadiusPlots - iOwnedRadiusPlots;
 	int const iOwnedUnassignedPlots = iOwnedRadiusPlots - iAssignedPlots;
 	int const iDevelopmentPlots = iDevelopmentLand + iDevelopmentWater;
@@ -11716,7 +11559,7 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn, SASGa
 		kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getMaintenanceTimes100(),
 		kMaintenance.iBaseTimes100, kMaintenance.iDistanceTimes100, kMaintenance.iNumCitiesTimes100, kMaintenance.iColonyTimes100,
 		kMaintenance.iCorporationTimes100, kCity.getMaintenanceModifier(), kCity.isNoMaintenance() ? 1 : 0, kCity.getOccupationTimer(), kCity.isDisorder() ? 1 : 0, kCity.getCultureTimes100(kCity.getOwner()),
-		eCultureLevel == NO_CULTURELEVEL ? "-" : GC.getInfo(eCultureLevel).getType(), eCultureLevel, kCity.getCultureThreshold(),
+		getSASInfoTypeOrNone(eCultureLevel), eCultureLevel, kCity.getCultureThreshold(),
 		kCity.getCultureUpdateTimer(), kCity.calculateCulturePercent(kCity.getOwner()), eHighestCulturePlayer,
 		eHighestCulturePlayer == NO_PLAYER ? 0 : kCity.calculateCulturePercent(eHighestCulturePlayer),
 		getSASGameRecordCityReligionList(kCity, false).GetCString(), getSASGameRecordCityReligionList(kCity, true).GetCString(),
@@ -11796,9 +11639,9 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn, SASGa
 		CvString szUnitTypes;
 		CvString szUnitAI;
 		for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
-			appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
+			appendSASGameRecordTypeCount(szUnitTypes, getSASInfoTypeOrNone((UnitTypes)iI), aiUnitTypes[iI]);
 		for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
-			appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
+			appendSASGameRecordTypeCount(szUnitAI, getSASInfoTypeOrNone((UnitAITypes)iI), aiUnitAI[iI]);
 		CvSelectionGroupAI const* pLargestGroupAI = (pLargestGroup == NULL ? NULL : &pLargestGroup->AI());
 		CvUnitAI const* pLargestGroupHead = (pLargestGroupAI == NULL ? NULL : pLargestGroupAI->AI_getHeadUnit());
 		CvPlot const* pLargestGroupMissionPlot = (pLargestGroupAI == NULL ? NULL : pLargestGroupAI->AI_getMissionAIPlot());
@@ -11821,9 +11664,9 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn, SASGa
 			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCityUnits.iMilitaryUnits,
 			(int)aiGroupIds.size(), (pLargestGroup == NULL ? -1 : pLargestGroup->getID()),
 			(pLargestGroup == NULL ? 0 : pLargestGroup->getNumUnits()),
-			(pLargestGroupHead == NULL ? "-" : getSASGameRecordUnitAIType(pLargestGroupHead->AI_getUnitAIType())),
+			(pLargestGroupHead == NULL ? "-" : getSASInfoTypeOrNone(pLargestGroupHead->AI_getUnitAIType())),
 			(pLargestGroup == NULL ? NO_ACTIVITY : pLargestGroup->getActivityType()),
-			(pLargestGroup == NULL ? "-" : getSASGameRecordMissionType(pLargestGroup->getMissionType(0))),
+			(pLargestGroup == NULL ? "-" : getSASMissionTypeName(pLargestGroup->getMissionType(0))),
 			(pLargestGroupAI == NULL ? NO_MISSIONAI : pLargestGroupAI->AI_getMissionAIType()),
 			(pLargestGroupMissionPlot == NULL ? -1 : pLargestGroupMissionPlot->getX()),
 			(pLargestGroupMissionPlot == NULL ? -1 : pLargestGroupMissionPlot->getY()),
@@ -12108,12 +11951,12 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 		if (bLogPositions && pPlot != NULL)
 		{
 			CvString szItem;
-			szItem.Format("%s%s:%d:%s@(%d,%d)", szPositionChunk.empty() ? "" : ",", getSASGameRecordUnitType(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASGameRecordUnitAIType(eUnitAI), pPlot->getX(), pPlot->getY());
+			szItem.Format("%s%s:%d:%s@(%d,%d)", szPositionChunk.empty() ? "" : ",", getSASInfoTypeOrNone(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASInfoTypeOrNone(eUnitAI), pPlot->getX(), pPlot->getY());
 			if (!szPositionChunk.empty() && szPositionChunk.length() + szItem.length() > 1500)
 			{
 				aszPositionChunks.push_back(szPositionChunk);
 				szPositionChunk.clear();
-				szItem.Format("%s:%d:%s@(%d,%d)", getSASGameRecordUnitType(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASGameRecordUnitAIType(eUnitAI), pPlot->getX(), pPlot->getY());
+				szItem.Format("%s:%d:%s@(%d,%d)", getSASInfoTypeOrNone(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASInfoTypeOrNone(eUnitAI), pPlot->getX(), pPlot->getY());
 			}
 			szPositionChunk += szItem;
 		}
@@ -12121,8 +11964,8 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 	if (!szPositionChunk.empty()) aszPositionChunks.push_back(szPositionChunk);
 	CvString szUnitTypes;
 	CvString szUnitAI;
-	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++) appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
-	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++) appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++) appendSASGameRecordTypeCount(szUnitTypes, getSASInfoTypeOrNone((UnitTypes)iI), aiUnitTypes[iI]);
+	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++) appendSASGameRecordTypeCount(szUnitAI, getSASInfoTypeOrNone((UnitAITypes)iI), aiUnitAI[iI]);
 	// <!-- custom: Barbarian research advances many technologies concurrently instead of selecting one current target.
 	// Preserve only incomplete technologies with nonzero stored progress in the existing periodic row.
 	// Completed technologies remain exact TECH_ACQUIRED source=BARBARIAN_RESEARCH actions. (ChatGPT-5.6-Sol) -->
@@ -12137,7 +11980,7 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 		if (iProgress <= 0)
 			continue;
 		CvString szItem;
-		szItem.Format("%s%s:%d/%d", szPartialResearch.empty() ? "" : ",", getSASGameRecordTechType(eLoopTech), iProgress, kBarbarianTeam.getResearchCost(eLoopTech));
+		szItem.Format("%s%s:%d/%d", szPartialResearch.empty() ? "" : ",", getSASInfoTypeOrNone(eLoopTech), iProgress, kBarbarianTeam.getResearchCost(eLoopTech));
 		szPartialResearch += szItem;
 		iPartialResearchTechs++;
 	}
@@ -12321,7 +12164,7 @@ static void logSASGameRecordBarbarianPressure(PlayerTypes ePlayer, int iGameTurn
 	logSASGameRecord("GAME_RECORD_BARBARIAN_PRESSURE turn=%d player=%d team=%d human=%d barbarianCreationEra=%d visibleUnits=%d visibleAnimals=%d visibleNonAnimals=%d visibleLandUnits=%d visibleSeaUnits=%d visibleUnitsInTerritory=%d visibleUnitsWithin3OfCity=%d visibleUnitsWithin6OfCity=%d nearestVisibleUnitDistance=%d nearestVisibleUnitId=%d nearestVisibleUnit=%s nearestVisibleUnitX=%d nearestVisibleUnitY=%d revealedCities=%d visibleCities=%d knownCities=%d nearestKnownCityDistance=%d nearestKnownCityId=%d nearestKnownCityX=%d nearestKnownCityY=%d cityAttackRoleUnits=%d exploreRoleUnits=%d exploreMissionGroups=%d guardCityMissionGroups=%d citySiteGuardGroups=%d citySiteGuardGroupsAtTarget=%d citySiteAdjacentGuardGroups=%d citySiteGuardTargets=%s barbarianDefenseFocusAreas=%d capitalAreaBarbarianDefenseFocus=%d aiBarbarianAttackersNeeded=%d",
 		iGameTurn, ePlayer, eTeam, kPlayer.isHuman() ? 1 : 0, GC.getGame().isBarbarianCreationEra() ? 1 : 0, iVisibleUnits, iVisibleAnimals,
 		iVisibleUnits - iVisibleAnimals, iVisibleLandUnits, iVisibleSeaUnits, iVisibleUnitsInTerritory, iVisibleUnitsWithin3OfCity,
-		iVisibleUnitsWithin6OfCity, iNearestVisibleUnitDistance, iNearestVisibleUnitId, getSASGameRecordUnitType(eNearestVisibleUnit),
+		iVisibleUnitsWithin6OfCity, iNearestVisibleUnitDistance, iNearestVisibleUnitId, getSASInfoTypeOrNone(eNearestVisibleUnit),
 		iNearestVisibleUnitX, iNearestVisibleUnitY, iRevealedCities, iVisibleCities, iKnownCities, iNearestKnownCityDistance,
 		iNearestKnownCityId, iNearestKnownCityX, iNearestKnownCityY, kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_CITY),
 		kPlayer.AI_totalUnitAIs(UNITAI_EXPLORE), iExploreMissionGroups, iGuardCityMissionGroups, iCitySiteGuardGroups,
@@ -12367,9 +12210,9 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	const int iHistoryCulture = kPlayer.getHistorySafe(PLAYER_HISTORY_CULTURE, iGameTurn);
 	const int iHistoryEspionage = kPlayer.getHistorySafe(PLAYER_HISTORY_ESPIONAGE, iGameTurn);
 	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
-	const char* szCiv = (kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType());
-	const char* szLeader = (kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType());
-	const char* szEra = (kPlayer.getCurrentEra() == NO_ERA ? "-" : GC.getInfo(kPlayer.getCurrentEra()).getType());
+	const char* szCiv = getSASInfoTypeOrNone(kPlayer.getCivilizationType());
+	const char* szLeader = getSASInfoTypeOrNone(kPlayer.getLeaderType());
+	const char* szEra = getSASInfoTypeOrNone(kPlayer.getCurrentEra());
 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
@@ -12391,8 +12234,8 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate,
 		getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate), kPlayer.isStrike(), kPlayer.getStrikeTurns(), iResearchRate,
 		getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH),
-		getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, szEra,
-		getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(),
+		getSASInfoTypeOrNone(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, szEra,
+		getSASInfoTypeOrNone(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(),
 		kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true), kPlayer.getGoldenAgeTurns(),
 		g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer],
 		kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
@@ -12626,8 +12469,8 @@ void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer)
 					int const iNewCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
 					logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_TARGET_CHANGED player=%d team=%d reason=%s oldTech=%s oldTeamProgress=%d oldCost=%d oldTeamResearchersAfter=%d newTech=%s newTeamProgress=%d newCost=%d",
 						GC.getGame().getGameTurn(), ePlayer, eTeam, getSASResearchTargetChangeCause(kPrevious.ePendingCause),
-						getSASGameRecordTechType(eOldResearch), iOldProgress, iOldCost, iOldTeamResearchersAfter,
-						getSASGameRecordTechType(eResearch), iNewProgress, iNewCost);
+						getSASInfoTypeOrNone(eOldResearch), iOldProgress, iOldCost, iOldTeamResearchersAfter,
+						getSASInfoTypeOrNone(eResearch), iNewProgress, iNewCost);
 				}
 			}
 		}
@@ -12707,11 +12550,11 @@ static void logSASGameRecordCityUnits(CvCity const& kCity, char const* szReason)
 		kCity.getX(), kCity.getY(), kCity.getPopulation(), kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits,
 		kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWoundedDefenders, kCounts.iSettlers, kCounts.iWorkers, kCounts.iAttackers,
 		(kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getID()),
-		(kCounts.pBestDefender == NULL ? "-" : getSASGameRecordUnitType(kCounts.pBestDefender->getUnitType())),
-		(kCounts.pBestDefender == NULL ? "-" : getSASGameRecordUnitAIType(kCounts.pBestDefender->AI_getUnitAIType())),
+		(kCounts.pBestDefender == NULL ? "-" : getSASInfoTypeOrNone(kCounts.pBestDefender->getUnitType())),
+		(kCounts.pBestDefender == NULL ? "-" : getSASInfoTypeOrNone(kCounts.pBestDefender->AI_getUnitAIType())),
 		(kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getDamage()), iVisibleEnemies, iVisibleCombatEnemies,
 		(pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()),
-		(pNearestEnemy == NULL ? "-" : getSASGameRecordUnitType(pNearestEnemy->getUnitType())), iNearestEnemyDistance,
+		(pNearestEnemy == NULL ? "-" : getSASInfoTypeOrNone(pNearestEnemy->getUnitType())), iNearestEnemyDistance,
 		(pNearestOtherOwnCity == NULL ? -1 : pNearestOtherOwnCity->getID()),
 		getSASGameRecordQuotedCityName(pNearestOtherOwnCity).GetCString(), iNearestOtherOwnCityDistance);
 }
@@ -12742,10 +12585,10 @@ static bool logSASGameRecordSettlerCombatForPlot(CvUnit const* pWinner, CvUnit c
 	}
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SETTLER_GROUP_ATTACKED settlerOwner=%d settlerId=%d settlerUnit=%s x=%d y=%d cityPlot=%d winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerBaseStr=%d winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserBaseStr=%d loserDamage=%d loserWasSettler=%d winnerWasSettler=%d ownerUnitsOnPlot=%d militaryUnitsOnPlot=%d civilianUnitsOnPlot=%d settlersOnPlot=%d defendersOnPlot=%d healthyDefendersOnPlot=%d workersOnPlot=%d settlerGroupId=%d settlerGroupUnits=%d settlerGroupSettlers=%d settlerGroupDefenders=%d",
 		GC.getGame().getGameTurn(), eSettlerOwner, (pSettler == NULL ? -1 : pSettler->getID()),
-		(pSettler == NULL ? "-" : getSASGameRecordUnitType(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(),
-		pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()),
-		getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(), pLoser->getOwner(),
-		pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()),
+		(pSettler == NULL ? "-" : getSASInfoTypeOrNone(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(),
+		pWinner->getOwner(), pWinner->getID(), getSASInfoTypeOrNone(pWinner->getUnitType()),
+		getSASInfoTypeOrNone(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(), pLoser->getOwner(),
+		pLoser->getID(), getSASInfoTypeOrNone(pLoser->getUnitType()), getSASInfoTypeOrNone(pLoser->AI_getUnitAIType()),
 		pLoser->baseCombatStr(), pLoser->getDamage(), bLoserWasSettler, bWinnerWasSettler, kCounts.iUnits, kCounts.iMilitaryUnits,
 		kCounts.iCivilianUnits, kCounts.iSettlers, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWorkers,
 		(pSettlerGroup == NULL ? -1 : pSettlerGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders);
@@ -12817,11 +12660,11 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 	// <!-- custom: Spawn context records whether the new barbarian appeared in known/visible space, its terrain/feature, and its nearest major-civilization city without rerunning spawn eligibility or pathfinding.
 	// This complements later knowledge-limited per-player pressure snapshots. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_UNIT_SPAWNED cause=%s unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d plotOwner=%d terrain=%s feature=%s water=%d hills=%d cargo=%d transportId=%d plotRevealedMajorTeams=%d plotVisibleMajorTeams=%d nearestCivilizationPlayer=%d nearestCivilizationCityId=%d nearestCivilizationCityDistance=%d",
-			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(),
 			pPlot == NULL ? NO_PLAYER : pPlot->getOwner(),
-			pPlot == NULL ? "-" : getSASGameRecordTerrainType(pPlot->getTerrainType()),
-			pPlot == NULL ? "-" : getSASGameRecordFeatureType(pPlot->getFeatureType()),
+			pPlot == NULL ? "-" : getSASInfoTypeOrNone(pPlot->getTerrainType()),
+			pPlot == NULL ? "-" : getSASInfoTypeOrNone(pPlot->getFeatureType()),
 			pPlot == NULL ? -1 : (pPlot->isWater() ? 1 : 0), pPlot == NULL ? -1 : (pPlot->isHills() ? 1 : 0),
 			pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID(),
 			iRevealedMajorTeams, iVisibleMajorTeams, eNearestCivilizationPlayer, iNearestCivilizationCityId, iNearestCivilizationCityDistance);
@@ -12844,13 +12687,13 @@ static CvString getSASGameRecordGoodyUnits(std::vector<CvUnit const*> const& apU
 					continue;
 				if (!szPromotions.empty())
 					szPromotions += "+";
-				szPromotions += getSASGameRecordPromotionType(eLoopPromotion);
+				szPromotions += getSASInfoTypeOrNone(eLoopPromotion);
 			}
 		}
 		CvString szItem;
 		if (szPromotions.empty())
-			szItem.Format("%s%s:%d@(%d,%d)", szUnits.empty() ? "" : ",", getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY());
-		else szItem.Format("%s%s:%d@(%d,%d)[%s]", szUnits.empty() ? "" : ",", getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY(), szPromotions.GetCString());
+			szItem.Format("%s%s:%d@(%d,%d)", szUnits.empty() ? "" : ",", getSASInfoTypeOrNone(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY());
+		else szItem.Format("%s%s:%d@(%d,%d)[%s]", szUnits.empty() ? "" : ",", getSASInfoTypeOrNone(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY(), szPromotions.GetCString());
 		szUnits += szItem;
 	}
 	return getSASDiagnosticOrDash(szUnits);
@@ -12867,10 +12710,10 @@ void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvU
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOODY_RECEIVED player=%d team=%d x=%d y=%d area=%d triggerUnitId=%d triggerUnit=%s goody=%s bad=%d followup=%d upgradeRoll=%d upgradeApplied=%d additionalOutcomeAttempted=%d gold=%d newlyRevealedPlots=%d experienceGained=%d damageHealed=%d tech=%s techRewardValue=%d techStoredProgressBefore=%d techStoredProgressAdded=%d techStoredProgressAfter=%d techCost=%d techCompleted=%d freeUnitCount=%d freePromotionsGranted=%d freeUnits=%s barbarianUnitCount=%d barbarianUnits=%s",
 		GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
 		pTriggerUnit == NULL ? -1 : pTriggerUnit->getID(),
-		pTriggerUnit == NULL ? "-" : getSASGameRecordUnitType(pTriggerUnit->getUnitType()), getSASGameRecordGoodyType(eGoody),
+		pTriggerUnit == NULL ? "-" : getSASInfoTypeOrNone(pTriggerUnit->getUnitType()), getSASInfoTypeOrNone(eGoody),
 		GC.getInfo(eGoody).isBad(), kResult.bFollowupOutcome, kResult.bUpgradeRoll, kResult.bUpgradeApplied,
 		kResult.bAdditionalOutcomeAttempted, kResult.iGold, kResult.iNewlyRevealedPlots, kResult.iExperienceGained, kResult.iDamageHealed,
-		getSASGameRecordTechType(kResult.eTech), kResult.iTechRewardValue, kResult.iTechProgressBefore, iTechProgressAdded,
+		getSASInfoTypeOrNone(kResult.eTech), kResult.iTechRewardValue, kResult.iTechProgressBefore, iTechProgressAdded,
 		kResult.iTechProgressAfter, kResult.iTechCost, kResult.bTechCompleted, (int)kResult.apFreeUnits.size(),
 		kResult.iFreePromotionsGranted, getSASGameRecordGoodyUnits(kResult.apFreeUnits, true).GetCString(),
 		(int)kResult.apBarbarianUnits.size(), getSASGameRecordGoodyUnits(kResult.apBarbarianUnits, false).GetCString());
@@ -12885,8 +12728,8 @@ void logSASGameRecordGoodyNoOutcome(PlayerTypes ePlayer, CvPlot const* pPlot, Cv
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOODY_NO_OUTCOME player=%d team=%d x=%d y=%d area=%d triggerUnitId=%d triggerUnit=%s followup=%d taboo=%s attempts=%d",
 		GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
 		pTriggerUnit == NULL ? -1 : pTriggerUnit->getID(),
-		pTriggerUnit == NULL ? "-" : getSASGameRecordUnitType(pTriggerUnit->getUnitType()), eTaboo != NO_GOODY,
-		getSASGameRecordGoodyType(eTaboo), iAttempts);
+		pTriggerUnit == NULL ? "-" : getSASInfoTypeOrNone(pTriggerUnit->getUnitType()), eTaboo != NO_GOODY,
+		getSASInfoTypeOrNone(eTaboo), iAttempts);
 }
 
 // <!-- custom: Keep random-event narration compact: summarize only broad EventInfo effect families and gameplay-relevant Python hooks, not every static XML magnitude or AI candidate value.
@@ -13026,7 +12869,7 @@ static CvString getSASGameRecordRandomEventTriggerPrereqs(CvEventTriggerInfo con
 {
 	CvString szPrereqs;
 	for (int i = 0; i < kTrigger.getNumPrereqEvents(); i++)
-		appendSASGameRecordType(szPrereqs, getSASGameRecordEventType((EventTypes)kTrigger.getPrereqEvent(i)));
+		appendSASGameRecordType(szPrereqs, getSASInfoTypeOrNone((EventTypes)kTrigger.getPrereqEvent(i)));
 	return getSASDiagnosticOrDash(szPrereqs);
 }
 
@@ -13082,7 +12925,7 @@ struct SASGameRecordRandomEventTargets
 			iUnitExists = (pUnit != NULL);
 			if (pUnit != NULL)
 			{
-				szUnit = getSASGameRecordUnitType(pUnit->getUnitType());
+				szUnit = getSASInfoTypeOrNone(pUnit->getUnitType());
 				if (bHasEvent)
 					iUnitCanApply = pUnit->canApplyEvent(eEvent);
 			}
@@ -13153,15 +12996,15 @@ void logSASGameRecordRandomEventTriggered(CvPlayer const& kPlayer, EventTriggere
 	SASGameRecordRandomEventTargets const kTargets(kPlayer, &kTriggeredData, NO_EVENT);
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_TRIGGERED turn=%d player=%d team=%d triggeredId=%d trigger=%s delivery=%s triggerTurn=%d normalSelectionMode=%s recurring=%d global=%d teamScope=%d singlePlayer=%d plotEvent=%d triggerFiredBeforeDelivery=%d prereqEvents=%s prereqEventCity=%d pythonHooks=%s cityId=%d cityExists=%d otherPlayer=%d otherPlayerAlive=%d otherCityId=%d otherCityExists=%d unitId=%d unitExists=%d unit=%s plot=%d,%d plotExists=%d plotOwner=%d religion=%s corporation=%s building=%s buildingPresentInCity=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kTriggeredData.m_iId,
-		getSASGameRecordEventTriggerType(kTriggeredData.m_eTrigger), szDeliveryPath, kTriggeredData.m_iTurn,
+		getSASInfoTypeOrNone(kTriggeredData.m_eTrigger), szDeliveryPath, kTriggeredData.m_iTurn,
 		getSASGameRecordRandomEventNormalSelectionMode(kTrigger), kTrigger.isRecurring(), kTrigger.isGlobal(), kTrigger.isTeam(),
 		kTrigger.isSinglePlayer(), kTrigger.isPlotEventTrigger(), kPlayer.isTriggerFired(kTriggeredData.m_eTrigger),
 		getSASGameRecordRandomEventTriggerPrereqs(kTrigger).GetCString(), kTrigger.isPrereqEventCity(),
 		getSASGameRecordRandomEventTriggerPythonHooks(kTrigger).GetCString(), kTargets.iCityId, kTargets.iCityExists, kTargets.eOtherPlayer,
 		kTargets.iOtherPlayerAlive, kTargets.iOtherCityId, kTargets.iOtherCityExists, kTargets.iUnitId, kTargets.iUnitExists,
 		kTargets.szUnit, kTargets.iPlotX, kTargets.iPlotY, kTargets.iPlotExists, kTargets.iPlotOwner,
-		getSASGameRecordReligionType(kTargets.eReligion), getSASGameRecordCorporationType(kTargets.eCorporation),
-		getSASGameRecordBuildingType(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
+		getSASInfoTypeOrNone(kTargets.eReligion), getSASInfoTypeOrNone(kTargets.eCorporation),
+		getSASInfoTypeOrNone(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
 }
 
 // <!-- custom: An AI can reach the real trigger-delivery boundary yet find no currently legal EventInfo after its normal canDoEvent/AI_eventValue search.
@@ -13169,7 +13012,7 @@ void logSASGameRecordRandomEventTriggered(CvPlayer const& kPlayer, EventTriggere
 void logSASGameRecordRandomEventNoSelection(CvPlayer const& kPlayer, EventTriggeredData const& kTriggeredData, char const* szResolution)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_NO_SELECTION turn=%d player=%d team=%d triggeredId=%d trigger=%s resolution=%s triggerTurn=%d ageTurns=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kTriggeredData.m_iId, getSASGameRecordEventTriggerType(kTriggeredData.m_eTrigger), szResolution,
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kTriggeredData.m_iId, getSASInfoTypeOrNone(kTriggeredData.m_eTrigger), szResolution,
 			kTriggeredData.m_iTurn, GC.getGame().getGameTurn() - kTriggeredData.m_iTurn);
 }
 
@@ -13189,8 +13032,8 @@ void logSASGameRecordRandomEventApply(CvPlayer const& kPlayer, EventTypes eEvent
 	int const iTriggerFiredAfter = (eTrigger == NO_EVENTTRIGGER ? -1 : kPlayer.isTriggerFired(eTrigger));
 	int const iEventOccurredAfter = (kPlayer.getEventOccured(eEvent) != NULL);
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_APPLY turn=%d player=%d team=%d triggeredId=%d trigger=%s event=%s applyPath=%s bUpdateTrigger=%d disposition=%s canDoEvent=%d triggerTurn=%d replyAgeTurns=%d countdownDueTurn=%d triggerNormalSelectionMode=%s triggerRecurring=%d triggerGlobal=%d triggerTeam=%d triggerSinglePlayer=%d triggerPlotEvent=%d triggerPrereqEvents=%s triggerPrereqEventCity=%d triggerPythonHooks=%s eventQuest=%d eventGlobal=%d eventTeam=%d eventCityEffect=%d eventOtherCityEffect=%d eventEffects=%s eventPythonHooks=%s triggerFiredBefore=%d triggerFiredAfter=%d eventOccurredBefore=%d eventOccurredAfter=%d requiresConcreteUnit=%d unitId=%d unitExists=%d unit=%s unitCanApply=%d cityId=%d cityExists=%d otherPlayer=%d otherPlayerAlive=%d otherCityId=%d otherCityExists=%d plot=%d,%d plotExists=%d plotOwner=%d religion=%s corporation=%s building=%s buildingPresentInCity=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventTriggerType(eTrigger),
-		getSASGameRecordEventType(eEvent), szApplyPath, bUpdateTrigger, szDisposition, iCanDoEvent, iTriggerTurn, iReplyAgeTurns,
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eTrigger),
+		getSASInfoTypeOrNone(eEvent), szApplyPath, bUpdateTrigger, szDisposition, iCanDoEvent, iTriggerTurn, iReplyAgeTurns,
 		iCountdownDueTurn, pTrigger == NULL ? "-" : getSASGameRecordRandomEventNormalSelectionMode(*pTrigger),
 		pTrigger == NULL ? -1 : pTrigger->isRecurring(), pTrigger == NULL ? -1 : pTrigger->isGlobal(),
 		pTrigger == NULL ? -1 : pTrigger->isTeam(), pTrigger == NULL ? -1 : pTrigger->isSinglePlayer(),
@@ -13203,8 +13046,8 @@ void logSASGameRecordRandomEventApply(CvPlayer const& kPlayer, EventTypes eEvent
 		iEventOccurredAfter, kEvent.hasUnitLocalEffect(), kTargets.iUnitId, kTargets.iUnitExists, kTargets.szUnit, kTargets.iUnitCanApply,
 		kTargets.iCityId, kTargets.iCityExists, kTargets.eOtherPlayer, kTargets.iOtherPlayerAlive, kTargets.iOtherCityId,
 		kTargets.iOtherCityExists, kTargets.iPlotX, kTargets.iPlotY, kTargets.iPlotExists, kTargets.iPlotOwner,
-		getSASGameRecordReligionType(kTargets.eReligion), getSASGameRecordCorporationType(kTargets.eCorporation),
-		getSASGameRecordBuildingType(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
+		getSASInfoTypeOrNone(kTargets.eReligion), getSASInfoTypeOrNone(kTargets.eCorporation),
+		getSASInfoTypeOrNone(kTargets.eBuilding), kTargets.iBuildingPresentInCity);
 }
 
 // <!-- custom: EventInfo gold can come from fixed/random gold or a dynamically selected technology-cost percentage.
@@ -13213,7 +13056,7 @@ void logSASGameRecordRandomEventGoldResult(CvPlayer const& kPlayer, EventTypes e
 {
 	int const iOtherGoldDelta = (bGoldToPlayer && eOtherPlayer != NO_PLAYER ? -iPlayerGoldDelta : 0);
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_GOLD_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s rangeLow=%d rangeHigh=%d playerGoldDelta=%d otherPlayer=%d otherGoldDelta=%d goldToPlayer=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), iRangeLow,
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), iRangeLow,
 		iRangeHigh, iPlayerGoldDelta, eOtherPlayer, iOtherGoldDelta, bGoldToPlayer);
 }
 
@@ -13223,8 +13066,8 @@ void logSASGameRecordRandomEventGoldResult(CvPlayer const& kPlayer, EventTypes e
 void logSASGameRecordRandomEventTechResult(CvPlayer const& kPlayer, EventTypes eEvent, int iTriggeredId, TechTypes eTech, int iTechPercent, int iResearchBefore, int iBeakersApplied, int iResearchAfter, int iTechCost, int iCompleted)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_TECH_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s tech=%s techPercent=%d researchBefore=%d beakersApplied=%d researchAfter=%d techCost=%d completed=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent),
-		getSASGameRecordTechType(eTech), iTechPercent, iResearchBefore, iBeakersApplied, iResearchAfter, iTechCost, iCompleted);
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent),
+		getSASInfoTypeOrNone(eTech), iTechPercent, iResearchBefore, iBeakersApplied, iResearchAfter, iTechCost, iCompleted);
 }
 
 SASGameRecordRandomEventCityState::SASGameRecordRandomEventCityState(CvCity const& kCity, EventTypes eEvent) :
@@ -13271,7 +13114,7 @@ void logSASGameRecordRandomEventCityResult(PlayerTypes ePlayer, PlayerTypes eAff
 		return;
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_CITY_RESULT turn=%d player=%d team=%d affectedPlayer=%d affectedTeam=%d triggeredId=%d event=%s scope=%s cityId=%d city=%S x=%d y=%d populationBefore=%d populationAfter=%d populationDelta=%+d foodBefore=%d foodAfter=%d foodDelta=%+d foodYieldBefore=%d foodYieldAfter=%d productionYieldBefore=%d productionYieldAfter=%d commerceYieldBefore=%d commerceYieldAfter=%d goldRateBefore=%d goldRateAfter=%d researchRateBefore=%d researchRateAfter=%d cultureRateBefore=%d cultureRateAfter=%d espionageRateBefore=%d espionageRateAfter=%d ownerCultureTimes100Before=%d ownerCultureTimes100After=%d ownerCultureTimes100Delta=%+d occupationTurnsBefore=%d occupationTurnsAfter=%d cultureUpdateTurnsBefore=%d cultureUpdateTurnsAfter=%d extraHappinessBefore=%d extraHappinessAfter=%d extraHealthBefore=%d extraHealthAfter=%d hurryAngerTurnsBefore=%d hurryAngerTurnsAfter=%d happinessTurnsBefore=%d happinessTurnsAfter=%d angryPopulationBefore=%d angryPopulationAfter=%d happyLevelBefore=%d happyLevelAfter=%d unhappyLevelBefore=%d unhappyLevelAfter=%d goodHealthBefore=%d goodHealthAfter=%d badHealthBefore=%d badHealthAfter=%d spaceProductionModifierBefore=%d spaceProductionModifierAfter=%d freeSpecialistInstancesBefore=%d freeSpecialistInstancesAfter=%d building=%s realBuildingCountBefore=%d realBuildingCountAfter=%d",
 		GC.getGame().getGameTurn(), ePlayer, (ePlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePlayer).getTeam()), eAffectedPlayer,
-		(eAffectedPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eAffectedPlayer).getTeam()), iTriggeredId, getSASGameRecordEventType(eEvent),
+		(eAffectedPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eAffectedPlayer).getTeam()), iTriggeredId, getSASInfoTypeOrNone(eEvent),
 		szScope, kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kBefore.iPopulation,
 		kAfter.iPopulation, kAfter.iPopulation - kBefore.iPopulation, kBefore.iFood, kAfter.iFood, kAfter.iFood - kBefore.iFood,
 		kBefore.iFoodYield, kAfter.iFoodYield, kBefore.iProductionYield, kAfter.iProductionYield, kBefore.iCommerceYield,
@@ -13283,7 +13126,7 @@ void logSASGameRecordRandomEventCityResult(PlayerTypes ePlayer, PlayerTypes eAff
 		kBefore.iAngryPopulation, kAfter.iAngryPopulation, kBefore.iHappyLevel, kAfter.iHappyLevel, kBefore.iUnhappyLevel,
 		kAfter.iUnhappyLevel, kBefore.iGoodHealth, kAfter.iGoodHealth, kBefore.iBadHealth, kAfter.iBadHealth,
 		kBefore.iSpaceProductionModifier, kAfter.iSpaceProductionModifier, kBefore.iFreeSpecialistInstances, kAfter.iFreeSpecialistInstances,
-		getSASGameRecordBuildingType(kAfter.eBuilding != NO_BUILDING ? kAfter.eBuilding : kBefore.eBuilding), kBefore.iRealBuildingCount,
+		getSASInfoTypeOrNone(kAfter.eBuilding != NO_BUILDING ? kAfter.eBuilding : kBefore.eBuilding), kBefore.iRealBuildingCount,
 		kAfter.iRealBuildingCount);
 }
 
@@ -13312,10 +13155,10 @@ void logSASGameRecordRandomEventBuildingModifierResults(CvPlayer const& kPlayer,
 				iBefore = iAfter - perYieldVal.second;
 			}
 			logSASGameRecord("GAME_RECORD_RANDOM_EVENT_BUILDING_MODIFIER_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s target=%s affectedPlayer=%d affectedTeam=%d cityId=%d affectedCityCount=%d modifier=YIELD buildingClass=%s building=%s subType=%s operation=ADD configuredValue=%+d valueBefore=%d valueAfter=%d",
-					GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), szScope,
+					GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope,
 					bCityScope ? "CITY_STORED_MODIFIER" : "CURRENT_CITIES_STORED_MODIFIER", eAffectedPlayer,
 					GET_PLAYER(eAffectedPlayer).getTeam(), iCityId, iAffectedCityCount,
-					GC.getInfo(perBuildingClassVal.first).getType(), getSASGameRecordBuildingType(eBuilding), GC.getInfo(perYieldVal.first).getType(),
+					GC.getInfo(perBuildingClassVal.first).getType(), getSASInfoTypeOrNone(eBuilding), GC.getInfo(perYieldVal.first).getType(),
 					perYieldVal.second, iBefore, iAfter);
 		}
 	}
@@ -13333,10 +13176,10 @@ void logSASGameRecordRandomEventBuildingModifierResults(CvPlayer const& kPlayer,
 				iBefore = iAfter - perCommerceVal.second;
 			}
 			logSASGameRecord("GAME_RECORD_RANDOM_EVENT_BUILDING_MODIFIER_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s target=%s affectedPlayer=%d affectedTeam=%d cityId=%d affectedCityCount=%d modifier=COMMERCE buildingClass=%s building=%s subType=%s operation=ADD configuredValue=%+d valueBefore=%d valueAfter=%d",
-					GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), szScope,
+					GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope,
 					bCityScope ? "CITY_STORED_MODIFIER" : "CURRENT_CITIES_STORED_MODIFIER", eAffectedPlayer,
 					GET_PLAYER(eAffectedPlayer).getTeam(), iCityId, iAffectedCityCount,
-					GC.getInfo(perBuildingClassVal.first).getType(), getSASGameRecordBuildingType(eBuilding), getSASGameRecordCommerceType(perCommerceVal.first),
+					GC.getInfo(perBuildingClassVal.first).getType(), getSASInfoTypeOrNone(eBuilding), getSASInfoTypeOrNone(perCommerceVal.first),
 					perCommerceVal.second, iBefore, iAfter);
 		}
 	}
@@ -13361,9 +13204,9 @@ void logSASGameRecordRandomEventBuildingModifierResults(CvPlayer const& kPlayer,
 			}
 		}
 		logSASGameRecord("GAME_RECORD_RANDOM_EVENT_BUILDING_MODIFIER_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s target=%s affectedPlayer=%d affectedTeam=%d cityId=%d affectedCityCount=%d modifier=HAPPINESS buildingClass=%s building=%s subType=- operation=%s configuredValue=%+d valueBefore=%d valueAfter=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), szScope,
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope,
 			szTarget, eAffectedPlayer, GET_PLAYER(eAffectedPlayer).getTeam(), iCityId, bCityScope ? 1 : -1,
-			GC.getInfo(perBuildingClassVal.first).getType(), getSASGameRecordBuildingType(eBuilding), szOperation,
+			GC.getInfo(perBuildingClassVal.first).getType(), getSASInfoTypeOrNone(eBuilding), szOperation,
 			perBuildingClassVal.second, iBefore, iAfter);
 	}
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.getBuildingHealthChange(), BuildingClass, int)
@@ -13387,9 +13230,9 @@ void logSASGameRecordRandomEventBuildingModifierResults(CvPlayer const& kPlayer,
 			}
 		}
 		logSASGameRecord("GAME_RECORD_RANDOM_EVENT_BUILDING_MODIFIER_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s target=%s affectedPlayer=%d affectedTeam=%d cityId=%d affectedCityCount=%d modifier=HEALTH buildingClass=%s building=%s subType=- operation=%s configuredValue=%+d valueBefore=%d valueAfter=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), szScope,
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope,
 			szTarget, eAffectedPlayer, GET_PLAYER(eAffectedPlayer).getTeam(), iCityId, bCityScope ? 1 : -1,
-			GC.getInfo(perBuildingClassVal.first).getType(), getSASGameRecordBuildingType(eBuilding), szOperation,
+			GC.getInfo(perBuildingClassVal.first).getType(), getSASInfoTypeOrNone(eBuilding), szOperation,
 			perBuildingClassVal.second, iBefore, iAfter);
 	}
 }
@@ -13421,12 +13264,12 @@ void logSASGameRecordRandomEventUnitResult(PlayerTypes ePlayer, int iTriggeredId
 	if (!bChanged)
 		return;
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_UNIT_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s unitId=%d unit=%s unitAI=%s x=%d y=%d existsBefore=%d existsAfter=%d damageBefore=%d damageAfter=%d damageDelta=%+d experienceBefore=%d experienceAfter=%d experienceDelta=%+d immobileTurnsBefore=%d immobileTurnsAfter=%d immobileTurnsDelta=%+d promotion=%s hadPromotionBefore=%d hasPromotionAfter=%d unitNameKey=%S renameApplied=%d disbanded=%d",
-			GC.getGame().getGameTurn(), ePlayer, ePlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePlayer).getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent),
-			kBefore.iUnitId, getSASGameRecordUnitType(kBefore.eUnit), getSASGameRecordUnitAIType(kBefore.eUnitAI), kBefore.iX, kBefore.iY,
+			GC.getGame().getGameTurn(), ePlayer, ePlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePlayer).getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent),
+			kBefore.iUnitId, getSASInfoTypeOrNone(kBefore.eUnit), getSASInfoTypeOrNone(kBefore.eUnitAI), kBefore.iX, kBefore.iY,
 			kBefore.iExists, kAfter.iExists, kBefore.iDamage, kAfter.iDamage,
 			(kAfter.iDamage < 0 ? -1 : kAfter.iDamage - kBefore.iDamage), kBefore.iExperience, kAfter.iExperience,
 			(kAfter.iExperience < 0 ? -1 : kAfter.iExperience - kBefore.iExperience), kBefore.iImmobileTurns, kAfter.iImmobileTurns,
-			(kAfter.iImmobileTurns < 0 ? -1 : kAfter.iImmobileTurns - kBefore.iImmobileTurns), getSASGameRecordPromotionType(kBefore.ePromotion),
+			(kAfter.iImmobileTurns < 0 ? -1 : kAfter.iImmobileTurns - kBefore.iImmobileTurns), getSASInfoTypeOrNone(kBefore.ePromotion),
 			kBefore.iHasPromotion, kAfter.iHasPromotion, bRenameApplied ? kEvent.getUnitNameKey() : L"-",
 			bRenameApplied, (kEvent.isDisbandUnit() && !kAfter.iExists));
 }
@@ -13451,13 +13294,13 @@ void logSASGameRecordRandomEventPlayerResult(CvPlayer const& kPlayer, EventTypes
 	if (!bChanged)
 		return;
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_PLAYER_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s otherPlayer=%d otherTeam=%d playerExtraHappinessBefore=%d playerExtraHappinessAfter=%d playerExtraHealthBefore=%d playerExtraHealthAfter=%d baseFreeUnitsBefore=%d baseFreeUnitsAfter=%d configuredFreeUnitSupport=%+d spaceProductionModifierBefore=%d spaceProductionModifierAfter=%d configuredSpaceProductionModifier=%+d inflationRateBefore=%d inflationRateAfter=%d configuredInflationModifier=%+d espionagePointsAgainstOtherBefore=%d espionagePointsAgainstOtherAfter=%d espionagePointsDelta=%+d bonusRevealed=%s forceRevealedBefore=%d forceRevealedAfter=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), eOtherPlayer,
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), eOtherPlayer,
 			eOtherPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam(), kBefore.iExtraHappiness, kAfter.iExtraHappiness,
 			kBefore.iExtraHealth, kAfter.iExtraHealth, kBefore.iBaseFreeUnits, kAfter.iBaseFreeUnits, kEvent.getFreeUnitSupport(),
 			kBefore.iSpaceProductionModifier, kAfter.iSpaceProductionModifier, kEvent.getSpaceProductionModifier(), kBefore.iInflationRate, kAfter.iInflationRate,
 			kEvent.getInflationModifier(), kBefore.iEspionagePointsAgainstOther, kAfter.iEspionagePointsAgainstOther,
 			(kBefore.iEspionagePointsAgainstOther < 0 || kAfter.iEspionagePointsAgainstOther < 0 ? -1 : kAfter.iEspionagePointsAgainstOther - kBefore.iEspionagePointsAgainstOther),
-			getSASGameRecordBonusType(kAfter.eBonusRevealed != NO_BONUS ? kAfter.eBonusRevealed : kBefore.eBonusRevealed), kBefore.iForceRevealedBonus, kAfter.iForceRevealedBonus);
+			getSASInfoTypeOrNone(kAfter.eBonusRevealed != NO_BONUS ? kAfter.eBonusRevealed : kBefore.eBonusRevealed), kBefore.iForceRevealedBonus, kAfter.iForceRevealedBonus);
 }
 
 // <!-- custom: EventInfos can grant a persistent free promotion to a whole UnitCombat or UnitClass while also updating existing matching units immediately.
@@ -13466,12 +13309,12 @@ void logSASGameRecordRandomEventFreePromotionResult(CvPlayer const& kPlayer, Eve
 {
 	char const* szScopeType = "-";
 	if (strcmp(szScope, "UNIT_COMBAT") == 0 && iScopeId >= 0 && iScopeId < GC.getNumUnitCombatInfos())
-		szScopeType = getSASGameRecordUnitCombatType((UnitCombatTypes)iScopeId);
+		szScopeType = getSASInfoTypeOrNone((UnitCombatTypes)iScopeId);
 	else if (strcmp(szScope, "UNIT_CLASS") == 0 && iScopeId >= 0 && iScopeId < GC.getNumUnitClassInfos())
 		szScopeType = GC.getInfo((UnitClassTypes)iScopeId).getType();
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_FREE_PROMOTION_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s scopeType=%s promotion=%s existingUnitsNewlyPromoted=%d freePromotionBefore=%d freePromotionAfter=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eEvent), szScope, szScopeType,
-			getSASGameRecordPromotionType(ePromotion), iExistingUnitsNewlyPromoted, iFreePromotionBefore, iFreePromotionAfter);
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope, szScopeType,
+			getSASInfoTypeOrNone(ePromotion), iExistingUnitsNewlyPromoted, iFreePromotionBefore, iFreePromotionAfter);
 }
 
 // <!-- custom: EventInfos can create civilization-specific free units directly rather than through city production.
@@ -13480,8 +13323,8 @@ void logSASGameRecordRandomEventFreeUnitsResult(PlayerTypes ePlayer, PlayerTypes
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_FREE_UNITS_RESULT turn=%d player=%d team=%d affectedPlayer=%d triggeredId=%d event=%s unitClass=%s unit=%s requested=%d created=%d cityId=%d plot=%d,%d",
 		GC.getGame().getGameTurn(), ePlayer, (ePlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(ePlayer).getTeam()), eAffectedPlayer, iTriggeredId,
-		getSASGameRecordEventType(eEvent), eUnitClass == NO_UNITCLASS ? "-" : GC.getInfo(eUnitClass).getType(),
-		getSASGameRecordUnitType(eUnit), iRequestedCount, iCreatedCount, pSpawnCity == NULL ? -1 : pSpawnCity->getID(),
+		getSASInfoTypeOrNone(eEvent), getSASInfoTypeOrNone(eUnitClass),
+		getSASInfoTypeOrNone(eUnit), iRequestedCount, iCreatedCount, pSpawnCity == NULL ? -1 : pSpawnCity->getID(),
 		pSpawnCity == NULL ? INVALID_PLOT_COORD : pSpawnCity->getX(), pSpawnCity == NULL ? INVALID_PLOT_COORD : pSpawnCity->getY());
 }
 
@@ -13490,7 +13333,7 @@ void logSASGameRecordRandomEventFreeUnitsResult(PlayerTypes ePlayer, PlayerTypes
 void logSASGameRecordRandomEventOccurrenceCleared(CvPlayer const& kPlayer, EventTypes eSourceEvent, EventTypes eClearedEvent, int iTriggeredId, int iClearChance, char const* szScope, TeamTypes eScopeTeam, int iScopePlayerSlots, int iScopeEverAlivePlayers, int iClearedOccurrences)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_OCCURRENCE_CLEARED turn=%d player=%d team=%d triggeredId=%d sourceEvent=%s clearedEvent=%s clearChance=%d scope=%s scopeTeam=%d scopePlayerSlots=%d scopeEverAlivePlayers=%d clearedOccurrences=%d",
-			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eSourceEvent), getSASGameRecordEventType(eClearedEvent),
+			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eSourceEvent), getSASInfoTypeOrNone(eClearedEvent),
 			iClearChance, szScope, eScopeTeam, iScopePlayerSlots, iScopeEverAlivePlayers, iClearedOccurrences);
 }
 
@@ -13503,13 +13346,13 @@ void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEve
 	SASGameRecordRandomEventTargets const kTargets(kPlayer, &kTriggeredData, eEvent);
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_EXPIRED turn=%d player=%d team=%d triggeredId=%d trigger=%s event=%s reason=%s quest=%d triggerTurn=%d ageTurns=%d prereqEvents=%s prereqEventCity=%d cityId=%d cityExists=%d otherPlayer=%d otherPlayerAlive=%d otherCityId=%d otherCityExists=%d unitId=%d unitExists=%d unit=%s unitCanApply=%d plot=%d,%d plotExists=%d plotOwner=%d religion=%s corporation=%s building=%s buildingPresentInCity=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), kTriggeredData.m_iId,
-		getSASGameRecordEventTriggerType(kTriggeredData.m_eTrigger), getSASGameRecordEventType(eEvent), szReason, kEvent.isQuest(),
+		getSASInfoTypeOrNone(kTriggeredData.m_eTrigger), getSASInfoTypeOrNone(eEvent), szReason, kEvent.isQuest(),
 		kTriggeredData.m_iTurn, GC.getGame().getGameTurn() - kTriggeredData.m_iTurn,
 		getSASGameRecordRandomEventTriggerPrereqs(kTrigger).GetCString(), kTrigger.isPrereqEventCity(), kTargets.iCityId,
 		kTargets.iCityExists, kTargets.eOtherPlayer, kTargets.iOtherPlayerAlive, kTargets.iOtherCityId, kTargets.iOtherCityExists,
 		kTargets.iUnitId, kTargets.iUnitExists, kTargets.szUnit, kTargets.iUnitCanApply, kTargets.iPlotX, kTargets.iPlotY,
-		kTargets.iPlotExists, kTargets.iPlotOwner, getSASGameRecordReligionType(kTargets.eReligion),
-		getSASGameRecordCorporationType(kTargets.eCorporation), getSASGameRecordBuildingType(kTargets.eBuilding),
+		kTargets.iPlotExists, kTargets.iPlotOwner, getSASInfoTypeOrNone(kTargets.eReligion),
+		getSASInfoTypeOrNone(kTargets.eCorporation), getSASInfoTypeOrNone(kTargets.eBuilding),
 		kTargets.iBuildingPresentInCity);
 }
 
@@ -13518,7 +13361,7 @@ void logSASGameRecordRandomEventExpired(CvPlayer const& kPlayer, EventTypes eEve
 void logSASGameRecordRandomEventPillageResult(char const* szScope, PlayerTypes ePlayer, PlayerTypes eAffectedPlayer, int iCityId, int iTriggeredId, EventTypes eEvent, int iMinPillage, int iMaxPillage, int iAttempts, int iDestroyed)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_PILLAGE_RESULT turn=%d scope=%s player=%d affectedPlayer=%d cityId=%d triggeredId=%d event=%s minPillage=%d maxPillage=%d attempts=%d destroyed=%d failedAttempts=%d",
-		GC.getGame().getGameTurn(), szScope, ePlayer, eAffectedPlayer, iCityId, iTriggeredId, getSASGameRecordEventType(eEvent), iMinPillage,
+		GC.getGame().getGameTurn(), szScope, ePlayer, eAffectedPlayer, iCityId, iTriggeredId, getSASInfoTypeOrNone(eEvent), iMinPillage,
 		iMaxPillage, iAttempts, iDestroyed, std::max(0, iAttempts - iDestroyed));
 }
 
@@ -13527,8 +13370,8 @@ void logSASGameRecordRandomEventPillageResult(char const* szScope, PlayerTypes e
 void logSASGameRecordRandomEventCountdownScheduled(CvPlayer const& kPlayer, EventTypes eSourceEvent, EventTypes eFollowupEvent, int iTriggeredId, int iRequestedDueTurn, int iPreviousDueTurn, int iScheduledDueTurn)
 {
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_COUNTDOWN_SCHEDULED turn=%d player=%d team=%d triggeredId=%d sourceEvent=%s followupEvent=%s requestedDueTurn=%d previousDueTurn=%d scheduledDueTurn=%d delayTurns=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASGameRecordEventType(eSourceEvent),
-		getSASGameRecordEventType(eFollowupEvent), iRequestedDueTurn, iPreviousDueTurn, iScheduledDueTurn,
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eSourceEvent),
+		getSASInfoTypeOrNone(eFollowupEvent), iRequestedDueTurn, iPreviousDueTurn, iScheduledDueTurn,
 		iScheduledDueTurn - GC.getGame().getGameTurn());
 }
 
@@ -13568,7 +13411,7 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, SAS
 	}
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
 		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(),
-		getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), szSource,
+		getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), szSource,
 		iProductionNeeded, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 }
 
@@ -13586,7 +13429,7 @@ void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerT
 	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
 	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
-		GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore,
+		GC.getGame().getGameTurn(), ePlayer, eTeam, getSASInfoTypeOrNone(eTech), iResearchCost, iProgressBefore,
 		bApplicationKnown ? 1 : 0, iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded,
 		iProgressBeforeClamp, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow, GET_PLAYER(ePlayer).getOverflowResearch(),
 		kTeam.getResearchProgress(eTech));
@@ -13600,7 +13443,7 @@ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes 
 	// <!-- custom: The acquisition turn already gives the exact chronology.
 	// Mark technologies that enable tech or gold trading, while team snapshots state whether each capability is currently available. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s source=%s enablesTechTrading=%d enablesGoldTrading=%d",
-		GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eType), getSASTechAcquisitionCause(eCause),
+		GC.getGame().getGameTurn(), ePlayer, eTeam, getSASInfoTypeOrNone(eType), getSASTechAcquisitionCause(eCause),
 		kTech.isTechTrading(), kTech.isGoldTrading());
 }
 
@@ -13978,7 +13821,7 @@ static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHoly
 		if ((bHolyOnly && !kCity.isHolyCity(eLoopReligion)) || (!bHolyOnly && !kCity.isHasReligion(eLoopReligion)))
 			continue;
 		CvString szItem;
-		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordReligionType(eLoopReligion));
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASInfoTypeOrNone(eLoopReligion));
 		szResult += szItem;
 	}
 	return getSASDiagnosticOrDash(szResult);
@@ -13992,7 +13835,7 @@ static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bH
 		if ((bHeadquartersOnly && !kCity.isHeadquarters(eLoopCorporation)) || (!bHeadquartersOnly && !kCity.isHasCorporation(eLoopCorporation)))
 			continue;
 		CvString szItem;
-		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordCorporationType(eLoopCorporation));
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASInfoTypeOrNone(eLoopCorporation));
 		szResult += szItem;
 	}
 	return getSASDiagnosticOrDash(szResult);
@@ -14685,7 +14528,7 @@ void logSASGameRecordAIHelpRequest(CvPlayerAI const& kPlayer, PlayerTypes eHuman
 	TradeData const kSelected(kContext.eSelectedItemType, kContext.iSelectedItemData);
 	logSASGameRecord("GAME_RECORD_AI_HELP_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d origin=%s attitudeValue=%d humanAssets=%d aiTeamAssets=%d bestTech=%s techValue=%d bestCityId=%d cityValue=%d bestCityLiberation=%d cityChoiceRoll=%d selected=%s:%s",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordAIHumanRequestOrigin(kContext.eOrigin),
-		kPlayer.AI_getAttitudeVal(eHuman), kHuman.getAssets(), GET_TEAM(kPlayer.getTeam()).getAssets(), getSASGameRecordTechType(kContext.eBestTech), kContext.iTechValue,
+		kPlayer.AI_getAttitudeVal(eHuman), kHuman.getAssets(), GET_TEAM(kPlayer.getTeam()).getAssets(), getSASInfoTypeOrNone(kContext.eBestTech), kContext.iTechValue,
 		kContext.iBestCityId, kContext.iCityValue, kContext.bBestCityLiberation ? 1 : 0, kContext.iCityChoiceRoll, getSASTradeItemType(kContext.eSelectedItemType),
 		getSASTradeDataText(kSelected, eHuman).GetCString());
 }
@@ -14698,7 +14541,7 @@ void logSASGameRecordAITributeRequest(CvPlayerAI const& kPlayer, PlayerTypes eHu
 	logSASGameRecord("GAME_RECORD_AI_TRIBUTE_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d origin=%s attitudeValue=%d demand=%s minValueX100=%d finalDealValue=%d mostUsefulTech=%s selectedTech=%s selectedTechSortScore=%d selectedTechTradeValue=%d mapTradeValue=%d mapAdded=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordAIHumanRequestOrigin(kContext.eOrigin),
 		kPlayer.AI_getAttitudeVal(eHuman), getSASGameRecordAIDemandType(kContext.eDemand), kContext.iMinValueX100, kContext.iFinalDealValue,
-		getSASGameRecordTechType(kContext.eMostUsefulTech), getSASGameRecordTechType(kContext.eSelectedTech), kContext.iSelectedTechSortScore,
+		getSASInfoTypeOrNone(kContext.eMostUsefulTech), getSASInfoTypeOrNone(kContext.eSelectedTech), kContext.iSelectedTechSortScore,
 		kContext.iSelectedTechTradeValue, kContext.iMapTradeValue, kContext.bMapAdded ? 1 : 0);
 }
 
@@ -14738,8 +14581,8 @@ void logSASGameRecordAIGiveHelpDecision(CvPlayerAI const& kPlayer, PlayerTypes e
 	logSASGameRecord("GAME_RECORD_AI_GIVE_HELP_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d origin=%s sameTeam=%d targetVassal=%d giverVassal=%d attitudeValue=%d proactiveAttitude=%s proactiveAttitudeThreshold=%s giverAssets=%d targetAssets=%d selectedBonus=%s targetHadBonus=%d selectedTech=%s selectedTechCost=%d selectionScore=%d techScoreRatioX1000=%d giftProbX1000=%d contactProbMultX1000=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), eOurTeam, eTarget, eTargetTeam, kTarget.isHuman() ? 1 : 0,
 		getSASGameRecordAIGiveHelpOrigin(eOrigin), bSameTeam ? 1 : 0, bTargetVassal ? 1 : 0, bGiverVassal ? 1 : 0,
-		iAttitudeValue, getSASGameRecordAttitudeType(eAttitude), getSASGameRecordAttitudeType(eAttitudeThreshold),
-		iOurAssets, iTargetAssets, getSASGameRecordBonusType(eSelectedBonus), iTargetHadBonus, getSASGameRecordTechType(eSelectedTech),
+		iAttitudeValue, getSASInfoTypeOrNone(eAttitude), getSASInfoTypeOrNone(eAttitudeThreshold),
+		iOurAssets, iTargetAssets, getSASInfoTypeOrNone(eSelectedBonus), iTargetHadBonus, getSASInfoTypeOrNone(eSelectedTech),
 		iSelectedTechCost, iSelectionScore, iTechScoreRatioX1000, iGiftProbX1000, iContactProbMultX1000);
 }
 
@@ -14764,8 +14607,8 @@ void logSASGameRecordAITechTradeDecision(CvPlayerAI const& kPlayer, PlayerTypes 
 	logSASGameRecord("GAME_RECORD_AI_TECH_TRADE_DECISION turn=%d player=%d team=%d targetPlayer=%d targetTeam=%d targetHuman=%d origin=%s contactProbMultX1000=%d bestKnownTechScorePercent=%d randomReceiveTech=%s randomReceiveScore=%d randomReceiveLocusSuppressed=%d progressTech=%s progressResearchPoints=%d progressLocusSuppressed=%d giveTech=%s ourReceiveTechValue=%d targetReceiveTechValue=%d giveMatchDeltaValue=%d progressReceiveTechValue=%d progressMaxGold=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eTarget, kTarget.getTeam(), kTarget.isHuman() ? 1 : 0,
 		getSASGameRecordAITechTradeOrigin(eOrigin), iContactProbMultX1000, iBestKnownTechScorePercent,
-		getSASGameRecordTechType(eRandomReceiveTech), (eRandomReceiveTech == NO_TECH ? -1 : iRandomReceiveScore), bRandomReceiveLocusSuppressed ? 1 : 0,
-		getSASGameRecordTechType(eProgressTech), iProgressResearchPointsLogged, bProgressLocusSuppressed ? 1 : 0, getSASGameRecordTechType(eGiveTech),
+		getSASInfoTypeOrNone(eRandomReceiveTech), (eRandomReceiveTech == NO_TECH ? -1 : iRandomReceiveScore), bRandomReceiveLocusSuppressed ? 1 : 0,
+		getSASInfoTypeOrNone(eProgressTech), iProgressResearchPointsLogged, bProgressLocusSuppressed ? 1 : 0, getSASInfoTypeOrNone(eGiveTech),
 		iOurReceiveTechValue, iTargetReceiveTechValue, iGiveMatchDeltaValue, iProgressReceiveTechValue, iProgressMaxGold);
 }
 
@@ -14954,7 +14797,7 @@ void logSASGameRecordAISpaceshipLaunchDecision(CvPlayerAI const& kPlayer, Victor
 	FAssert(iLaunchSuccessPercent >= 0 && iLaunchSuccessPercent <= 100);
 	FAssert(iLaunchSuccessPercent >= 100 || bUrgentRival);
 	logSASGameRecord("GAME_RECORD_AI_SPACESHIP_LAUNCH_DECISION turn=%d player=%d team=%d victory=%s reason=%s launchSuccessPercent=%d nearestRivalTeam=%d nearestRivalCountdown=%d rivalAtOrBeforeOurArrival=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), getSASGameRecordVictoryType(eVictory), szReason,
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), getSASInfoTypeOrNone(eVictory), szReason,
 		iLaunchSuccessPercent, eNearestRivalTeam, iNearestRivalCountdown, bUrgentRival ? 1 : 0);
 }
 
@@ -14981,8 +14824,8 @@ void logSASGameRecordAIVassalResourceTributeDecision(CvPlayerAI const& kMaster, 
 	int const iRunnerUpValueLogged = (eRunnerUpBonus == NO_BONUS ? -1 : iRunnerUpValue);
 	logSASGameRecord("GAME_RECORD_AI_VASSAL_RESOURCE_TRIBUTE turn=%d master=%d masterTeam=%d vassal=%d vassalTeam=%d vassalHuman=%d vassalCapitulated=%d delivery=%s selectedBonus=%s selectedValue=%d runnerUpBonus=%s runnerUpValue=%d selectedAdvantage=%d candidateCount=%d",
 		GC.getGame().getGameTurn(), kMaster.getID(), kMaster.getTeam(), eVassal, kVassal.getTeam(), kVassal.isHuman() ? 1 : 0,
-		GET_TEAM(kVassal.getTeam()).isCapitulated() ? 1 : 0, bHumanPopup ? "HUMAN_POPUP" : "AI_DEAL", getSASGameRecordBonusType(eSelectedBonus), iSelectedValue,
-		getSASGameRecordBonusType(eRunnerUpBonus), iRunnerUpValueLogged, eRunnerUpBonus == NO_BONUS ? -1 : iSelectedValue - iRunnerUpValue, iCandidateCount);
+		GET_TEAM(kVassal.getTeam()).isCapitulated() ? 1 : 0, bHumanPopup ? "HUMAN_POPUP" : "AI_DEAL", getSASInfoTypeOrNone(eSelectedBonus), iSelectedValue,
+		getSASInfoTypeOrNone(eRunnerUpBonus), iRunnerUpValueLogged, eRunnerUpBonus == NO_BONUS ? -1 : iSelectedValue - iRunnerUpValue, iCandidateCount);
 }
 
 // <!-- custom: Generate the existing label cases from SAS_RECORD_AI_WAR_TRADE_PAYMENT_PATH_ROWS beside its enum; preserve the previous fallback and any special handling below. (GPT-6.1-Sol) -->
@@ -15006,7 +14849,7 @@ void logSASGameRecordAIWarTradeIntent(CvPlayerAI const& kPlayer, PlayerTypes eHi
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHireling, kHireling.getTeam(),
 		bUWAI ? "UWAI" : "LEGACY", iMinAtWarCounter, iOfferDenominator, eTargetTeam,
 		iUWAITargetValue, iLegacyTargetScore, iHirePrice, getSASGameRecordAIWarTradePaymentPath(ePaymentPath),
-		getSASGameRecordTechType(eCandidateTech1), getSASGameRecordTechType(eCandidateTech2),
+		getSASInfoTypeOrNone(eCandidateTech1), getSASInfoTypeOrNone(eCandidateTech2),
 		iWarSuccessRating, iCityId, iCityFitness, iFinalWarSideValue, iFinalPaymentSideValue);
 }
 
@@ -15049,7 +14892,7 @@ void logSASGameRecordAIPeaceDecision(PlayerTypes ePlayer, PlayerTypes eOther, in
 			GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), eOther,
 			GET_PLAYER(eOther).getTeam(), GET_PLAYER(eOther).isHuman() ? 1 : 0, bUWAI ? "UWAI" : "LEGACY", iAtWarTurns,
 			iInitialOurBenefit, iInitialTheirBenefit, iFinalOurBenefit, iFinalTheirBenefit, iGiveGold, iReceiveGold,
-			getSASGameRecordTechType(eGiveTech), getSASGameRecordTechType(eReceiveTech), iGiveCityId, iReceiveCityId,
+			getSASInfoTypeOrNone(eGiveTech), getSASInfoTypeOrNone(eReceiveTech), iGiveCityId, iReceiveCityId,
 			bCounterProposal ? 1 : 0, szOutcome, szAIGives.GetCString(), szAIReceives.GetCString());
 }
 
@@ -15083,7 +14926,7 @@ void logSASGameRecordAIExecutiveProduction(CvCity const* pCity, UnitTypes eUnit,
 	int const iProductionNeeded = kPlayer.getProductionNeeded(eUnit);
 	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=EXECUTIVE_PRODUCTION cityId=%d city=%S x=%d y=%d corporation=%s unit=%s stage=%s executiveValue=%d threshold=%d valueMargin=%d productionNeeded=%d teamHasHQ=%d cityHasCorporation=%d ownerCorporationCities=%d",
 		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
-		pCity->getX(), pCity->getY(), getSASGameRecordCorporationType(eCorporation), getSASGameRecordUnitType(eUnit),
+		pCity->getX(), pCity->getY(), getSASInfoTypeOrNone(eCorporation), getSASInfoTypeOrNone(eUnit),
 		szStage == NULL ? "-" : szStage, iExecutiveValue, iThreshold, iExecutiveValue - iThreshold, iProductionNeeded,
 		GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0, pCity->isHasCorporation(eCorporation) ? 1 : 0,
 		kPlayer.getHasCorporationCount(eCorporation));
@@ -15099,8 +14942,8 @@ void logSASGameRecordAICorporationTarget(CvUnit const* pUnit, CorporationTypes e
 	int const iSpreadCost = pUnit->spreadCorporationCost(eCorporation, pTargetCity);
 	int const iGold = kPlayer.getGold();
 	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=SPREAD_TARGET unitId=%d unit=%s unitAI=%s groupId=%d corporation=%s teamHasHQ=%d preferredPlayer=%d targetIsPreferredPlayer=%d executiveSpreadValue=%d targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d hqBaseValue=%d localCorporationValue=%d competingCorporationAdjustment=%d populationBonus=%d preferredPlayerMultiplier=%d pathTurns=%d targetScore=%d gold=%d spreadCost=%d canAfford=%d atTarget=%d action=%s",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getGroupID(), getSASGameRecordCorporationType(eCorporation),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getGroupID(), getSASInfoTypeOrNone(eCorporation),
 		GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0, ePreferredPlayer,
 		pTargetCity->getOwner() == ePreferredPlayer ? 1 : 0, iExecutiveSpreadValue, pTargetCity->getOwner(), pTargetCity->getTeam(),
 		pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity->getX(), pTargetCity->getY(),
@@ -15121,8 +14964,8 @@ void logSASGameRecordAIReligionSpreadTarget(CvUnit const* pUnit, ReligionTypes e
 			(pTargetCity->getTeam() == pUnit->getTeam() ? "TEAM" : "FOREIGN"));
 	logSASGameRecord("GAME_RECORD_AI_RELIGION_SPREAD_TARGET turn=%d player=%d team=%d ownerHuman=%d unitId=%d unit=%s unitAI=%s groupId=%d religion=%s teamHasHolyCity=%d targetScope=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d playerMultiplierPercent=%d pathTurns=%d targetScore=%d atTarget=%d action=%s",
 		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), kOwner.isHuman() ? 1 : 0, pUnit->getID(),
-		getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getGroupID(),
-		getSASGameRecordReligionType(eReligion), GET_TEAM(pUnit->getTeam()).hasHolyCity(eReligion) ? 1 : 0, szTargetScope,
+		getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getGroupID(),
+		getSASInfoTypeOrNone(eReligion), GET_TEAM(pUnit->getTeam()).hasHolyCity(eReligion) ? 1 : 0, szTargetScope,
 		pTargetCity->getOwner(), pTargetCity->getTeam(), pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(),
 		pTargetCity->getX(), pTargetCity->getY(), iPlayerMultiplierPercent, iPathTurns, iTargetScore,
 		pUnit->at(pTargetCity->getPlot()) ? 1 : 0, szAction == NULL ? "-" : szAction);
@@ -15139,9 +14982,9 @@ void logSASGameRecordAICorporationTransit(CvUnit const* pExecutive, CvUnit const
 	CvPlayerAI const& kPlayer = GET_PLAYER(pExecutive->getOwner()).AI();
 	logSASGameRecord("GAME_RECORD_AI_CORPORATION_DECISION turn=%d player=%d team=%d kind=TRANSIT_TARGET route=%s executiveId=%d executive=%s unitAI=%s transportId=%d transport=%s corporation=%s eligibleCorporations=%d teamHasHQ=%d fromX=%d fromY=%d moveX=%d moveY=%d targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d pathTurns=%d targetScore=%d",
 		GC.getGame().getGameTurn(), pExecutive->getOwner(), pExecutive->getTeam(), szRoute == NULL ? "-" : szRoute, pExecutive->getID(),
-		getSASGameRecordUnitType(pExecutive->getUnitType()), getSASGameRecordUnitAIType(pExecutive->AI_getUnitAIType()),
-		pTransport == NULL ? -1 : pTransport->getID(), pTransport == NULL ? "-" : getSASGameRecordUnitType(pTransport->getUnitType()),
-		getSASGameRecordCorporationType(eCorporation), iEligibleCorporations,
+		getSASInfoTypeOrNone(pExecutive->getUnitType()), getSASInfoTypeOrNone(pExecutive->AI_getUnitAIType()),
+		pTransport == NULL ? -1 : pTransport->getID(), pTransport == NULL ? "-" : getSASInfoTypeOrNone(pTransport->getUnitType()),
+		getSASInfoTypeOrNone(eCorporation), iEligibleCorporations,
 		GET_TEAM(kPlayer.getTeam()).hasHeadquarters(eCorporation) ? 1 : 0, pFromPlot == NULL ? -1 : pFromPlot->getX(),
 		pFromPlot == NULL ? -1 : pFromPlot->getY(), pMovePlot == NULL ? -1 : pMovePlot->getX(), pMovePlot == NULL ? -1 : pMovePlot->getY(),
 		pTargetCity->getOwner(), pTargetCity->getTeam(), pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(),
@@ -15160,7 +15003,7 @@ static CvString getSASGameRecordTechCandidatePaths(SASTechChoiceContext const* p
 	{
 		SASTechChoiceCandidate const& kCandidate = pChoice->aCandidates[i];
 		CvString szItem;
-		szItem.Format(i == 0 ? "%s:%d/%d>%s" : ",%s:%d/%d>%s", getSASGameRecordTechType(kCandidate.eTech), kCandidate.iImmediateValue, kCandidate.iPathValue, getSASGameRecordTechType(kCandidate.eAimTech));
+		szItem.Format(i == 0 ? "%s:%d/%d>%s" : ",%s:%d/%d>%s", getSASInfoTypeOrNone(kCandidate.eTech), kCandidate.iImmediateValue, kCandidate.iPathValue, getSASInfoTypeOrNone(kCandidate.eAimTech));
 		szResult += szItem;
 	}
 	return szResult;
@@ -15240,8 +15083,8 @@ void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* p
 	if (!bAlwaysRecord)
 	{
 		logSASGameRecord("GAME_RECORD_AI_UPGRADE_SKIP turn=%d player=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d result=%s pass=%s noDisband=%d maxUpgradePrice=%d ready=%d currentValue=%d improvingEvaluations=%d eligibleImprovingEvaluations=%d",
-			GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getID(), getSASGameRecordUnitType(kOldUnit.getUnitType()),
-			getSASGameRecordUnitAIType(kOldUnit.AI_getUnitAIType()), getSASGameRecordDomainType(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
+			GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getID(), getSASInfoTypeOrNone(kOldUnit.getUnitType()),
+			getSASInfoTypeOrNone(kOldUnit.AI_getUnitAIType()), getSASInfoTypeOrNone(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
 			(kOldUnit.area() == NULL ? -1 : kOldUnit.area()->getID()), GC.getGame().getGameTurn() - kOldUnit.getGameTurnCreated(), kOldUnit.getExperience(), kOldUnit.getLevel(),
 			szResult, kContext.szPassName, kContext.bNoDisband ? 1 : 0, kContext.iMaxUpgradePrice, kContext.bReady ? 1 : 0, kContext.iCurrentValue,
 			kContext.iImprovingEvaluations, kContext.iEligibleImprovingEvaluations);
@@ -15252,15 +15095,15 @@ void logSASGameRecordAIUpgradeDecision(CvUnitAI const& kOldUnit, CvUnit const* p
 	int const iNewUnitId = (pNewUnit != NULL && pNewUnit != &kOldUnit ? pNewUnit->getID() : -1);
 	UnitTypes const eNewUnit = (pNewUnit != NULL && pNewUnit != &kOldUnit ? pNewUnit->getUnitType() : NO_UNIT);
 	logSASGameRecord("GAME_RECORD_AI_UPGRADE_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d result=%s pass=%s noDisband=%d focusWar=%d financialTrouble=%d startingGold=%d goldBefore=%d spentBefore=%d upgradeBudget=%d remainingBudgetBefore=%d maxUpgradePrice=%d ready=%d currentValue=%d improvingEvaluations=%d eligibleImprovingEvaluations=%d maxPriceBlockedEvaluations=%d selectedUnit=%s selectedValue=%d selectedPrice=%d bestBlockedUnit=%s bestBlockedValue=%d bestBlockedPrice=%d newUnitId=%d newUnit=%s goldAfter=%d",
-		GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getTeam(), kOldUnit.getID(), getSASGameRecordUnitType(kOldUnit.getUnitType()),
-		getSASGameRecordUnitAIType(kOldUnit.AI_getUnitAIType()), getSASGameRecordDomainType(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
+		GC.getGame().getGameTurn(), kOldUnit.getOwner(), kOldUnit.getTeam(), kOldUnit.getID(), getSASInfoTypeOrNone(kOldUnit.getUnitType()),
+		getSASInfoTypeOrNone(kOldUnit.AI_getUnitAIType()), getSASInfoTypeOrNone(kOldUnit.getDomainType()), kOldUnit.getX(), kOldUnit.getY(),
 		(kOldUnit.area() == NULL ? -1 : kOldUnit.area()->getID()), GC.getGame().getGameTurn() - kOldUnit.getGameTurnCreated(), kOldUnit.getExperience(), kOldUnit.getLevel(),
 		szResult, kContext.szPassName, kContext.bNoDisband ? 1 : 0, kContext.bFocusWar ? 1 : 0, kContext.bFinancialTrouble ? 1 : 0,
 		kContext.iStartingGold, kContext.iGoldBeforeAttempt, kContext.iSpentBefore, kContext.iUpgradeBudget,
 		(kContext.iUpgradeBudget < 0 || kContext.iSpentBefore < 0 ? -1 : std::max(0, kContext.iUpgradeBudget - kContext.iSpentBefore)), kContext.iMaxUpgradePrice,
 		kContext.bReady ? 1 : 0, kContext.iCurrentValue, kContext.iImprovingEvaluations, kContext.iEligibleImprovingEvaluations, kContext.iMaxPriceBlockedEvaluations,
-		getSASGameRecordUnitType(kContext.eSelectedUnit), kContext.iSelectedValue, kContext.iSelectedPrice, getSASGameRecordUnitType(kContext.eBestBlockedUnit),
-		kContext.iBestBlockedValue, kContext.iBestBlockedPrice, iNewUnitId, getSASGameRecordUnitType(eNewUnit), kOwner.getGold());
+		getSASInfoTypeOrNone(kContext.eSelectedUnit), kContext.iSelectedValue, kContext.iSelectedPrice, getSASInfoTypeOrNone(kContext.eBestBlockedUnit),
+		kContext.iBestBlockedValue, kContext.iBestBlockedPrice, iNewUnitId, getSASInfoTypeOrNone(eNewUnit), kOwner.getGold());
 }
 
 // <!-- custom: A refusal's gold and remaining budget equal goldBefore here minus the UPGRADED rows earlier in the same pass, so dropping them from GAME_RECORD_AI_UPGRADE_SKIP loses nothing.
@@ -15282,8 +15125,8 @@ void logSASGameRecordAIScrapDecision(CvUnit const& kUnit, int iContext, int iEli
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	char const* szMode = (bMandatoryGameRule ? "MANDATORY" : (bForced ? "FORCED" : "ROUTINE"));
 	logSASGameRecord("GAME_RECORD_AI_SCRAP_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d context=%s mode=%s result=%s eligibility=%s decisionValue=%d unitCostPerMil=%d maxUnitCostPerMil=%d cargo=%d cargoSpace=%d fighting=%d gold=%d goldRate=%d financialTrouble=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
-		getSASGameRecordDomainType(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()),
+		getSASInfoTypeOrNone(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
 		GC.getGame().getGameTurn() - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), getSASGameRecordScrapContextName((SASUnitScrapContext)iContext), szMode, szResult,
 		getSASGameRecordScrapEligibilityName((SASUnitScrapEligibility)iEligibility), iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil, kUnit.getCargo(), kUnit.cargoSpace(), kUnit.getPlot().isFighting() ? 1 : 0,
 		kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_isFinancialTrouble() ? 1 : 0);
@@ -15310,8 +15153,8 @@ void logSASGameRecordAIScrapPreservationVeto(CvUnit const& kUnit, int iContext, 
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	int const iGoldRate = kOwner.calculateGoldRate();
 	logSASGameRecord("GAME_RECORD_AI_SCRAP_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s domain=%s x=%d y=%d area=%d age=%d exp=%d level=%d context=%s mode=ROUTINE result=PRESERVED eligibility=%s decisionValue=%d unitCostPerMil=%d maxUnitCostPerMil=%d cargo=%d cargoSpace=%d fighting=%d gold=%d goldRate=%d financialTrouble=%d observationReason=%s",
-		iTurn, kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
-		getSASGameRecordDomainType(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
+		iTurn, kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()),
+		getSASInfoTypeOrNone(kUnit.getDomainType()), kUnit.getX(), kUnit.getY(), (kUnit.area() == NULL ? -1 : kUnit.area()->getID()),
 		iTurn - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), getSASGameRecordScrapContextName((SASUnitScrapContext)iContext), getSASGameRecordScrapEligibilityName((SASUnitScrapEligibility)iEligibility),
 		iDecisionValue, iUnitCostPerMil, iMaxUnitCostPerMil, kUnit.getCargo(), kUnit.cargoSpace(), kUnit.getPlot().isFighting() ? 1 : 0,
 		kOwner.getGold(), iGoldRate, kOwner.AI_isFinancialTrouble() ? 1 : 0, bChanged ? "CHANGED" : "INTERVAL_UNCHANGED");
@@ -15389,7 +15232,7 @@ void logSASGameRecordAICommerceDecision(CvPlayerAI const& kPlayer, SASGameRecord
 		return;
 	int const iVerifyGoldAdjusted = (kContext.iGoldPercentBeforeVerify >= 0 && iFinalGold != kContext.iGoldPercentBeforeVerify ? 1 : 0);
 	logSASGameRecord("GAME_RECORD_AI_COMMERCE_DECISION turn=%d player=%d team=%d observationReason=%s changed=%d changedTypes=%d currentResearch=%s flexibleResearch=%d flexibleCulture=%d flexibleGold=%d flexibleEspionage=%d initialResearch=%d finalResearch=%d initialCulture=%d finalCulture=%d initialGold=%d finalGold=%d initialEspionage=%d finalEspionage=%d firstTech=%d noResearch=%d financialTrouble=%d gold=%d goldTargetBase=%d goldTargetAfterTrade=%d goldTargetFinal=%d targetTurnsBase=%d targetTurnsFinal=%d goldReserveIterations=%d cultureVictory2=%d cultureVictory3=%d cultureVictory4=%d cultureHappinessIdeal=%d cultureStageBonus=%d averageCulturePressure=%d cultureAvoidScience=%d cultureCap=%d cultureInitialTarget=%d researchAvoidScience=%d goldBurnEvaluated=%d goldBurnGoldRate=%d goldBurnResearchTurns=%d goldBurnAffordable=%d espionageEvaluated=%d espionageFocus=%d cheapTechStealEvaluated=%d cheapTechSteal=%d espionageTargetRateBeforeSliderScaling=%d espionageSliderEligible=%d espionageSliderTargetRate=%d espionageCap=%d espionageCapAvoidScience=%d espionageLoopIterations=%d espionageStoppedForGold=%d espionageStoppedForResearchRatio=%d avoidScienceRedistribution=%d avoidScienceRedistributionTarget=%s avoidScienceRedistributionIterations=%d avoidScienceRedistributionBlocked=%d hurryGoldAvailable=%d hurryGoldReducedCommerce=%s goldPercentBeforeVerify=%d verifyGoldAdjusted=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iChangedTypes > 0 ? "SLIDER_CHANGED" : "INTERVAL_UNCHANGED", iChangedTypes > 0 ? 1 : 0, iChangedTypes, getSASGameRecordTechType(kPlayer.getCurrentResearch()),
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iChangedTypes > 0 ? "SLIDER_CHANGED" : "INTERVAL_UNCHANGED", iChangedTypes > 0 ? 1 : 0, iChangedTypes, getSASInfoTypeOrNone(kPlayer.getCurrentResearch()),
 		kPlayer.isCommerceFlexible(COMMERCE_RESEARCH) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_CULTURE) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_GOLD) ? 1 : 0, kPlayer.isCommerceFlexible(COMMERCE_ESPIONAGE) ? 1 : 0,
 		kContext.iInitialResearchPercent, iFinalResearch, kContext.iInitialCulturePercent, iFinalCulture, kContext.iInitialGoldPercent, iFinalGold, kContext.iInitialEspionagePercent, iFinalEspionage,
 		kContext.iFirstTech, kContext.iNoResearch, kContext.iFinancialTrouble, kPlayer.getGold(), kContext.iGoldTargetBase, kContext.iGoldTargetAfterTrade, kContext.iGoldTargetFinal,
@@ -15398,8 +15241,8 @@ void logSASGameRecordAICommerceDecision(CvPlayerAI const& kPlayer, SASGameRecord
 		kContext.iResearchAvoidScience, kContext.iGoldBurnEvaluated, kContext.iGoldBurnGoldRate, kContext.iGoldBurnResearchTurns, kContext.iGoldBurnAffordable, kContext.iEspionageEvaluated, kContext.iEspionageFocus,
 		kContext.iEspionageCheapTechStealEvaluated, kContext.iEspionageCheapTechSteal, kContext.iEspionageTargetRateBeforeSliderScaling, kContext.iEspionageSliderEligible, kContext.iEspionageSliderTargetRate,
 		kContext.iEspionageCap, kContext.iEspionageCapAvoidScience, kContext.iEspionageLoopIterations, kContext.iEspionageStoppedForGold, kContext.iEspionageStoppedForResearchRatio,
-		kContext.iAvoidScienceRedistribution, getSASGameRecordCommerceType(kContext.eAvoidScienceRedistributionTarget), kContext.iAvoidScienceRedistributionIterations, kContext.iAvoidScienceRedistributionBlocked,
-		kContext.iHurryGoldAvailable, getSASGameRecordCommerceType(kContext.eHurryGoldReducedCommerce), kContext.iGoldPercentBeforeVerify, iVerifyGoldAdjusted);
+		kContext.iAvoidScienceRedistribution, getSASInfoTypeOrNone(kContext.eAvoidScienceRedistributionTarget), kContext.iAvoidScienceRedistributionIterations, kContext.iAvoidScienceRedistributionBlocked,
+		kContext.iHurryGoldAvailable, getSASInfoTypeOrNone(kContext.eHurryGoldReducedCommerce), kContext.iGoldPercentBeforeVerify, iVerifyGoldAdjusted);
 }
 
 // <!-- custom: Record one actual AI research/free-tech commitment.
@@ -15416,9 +15259,9 @@ void logSASGameRecordAIResearchDecision(CvPlayerAI const& kPlayer, char const* s
 	int const iRunnerUpPathValue = (pChoice == NULL ? -1 : pChoice->iRunnerUpPathValue);
 	CvString const szCandidates = getSASGameRecordTechCandidatePaths(pChoice);
 	logSASGameRecord("GAME_RECORD_AI_RESEARCH_DECISION turn=%d player=%d team=%d kind=%s source=%s requestedTech=%s currentResearchAfter=%s researchDepth=%d coordinatingPlayer=%d aimTech=%s immediateValue=%d pathValue=%d runnerUpTech=%s runnerUpAimTech=%s runnerUpImmediateValue=%d runnerUpPathValue=%d pathValueMargin=%d selectedPathIndex=%d depth0Evaluated=%d evaluatedTechs=%d evaluatedPaths=%d queueLength=%d candidatePaths=%s",
-		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), szKind, szSource, getSASGameRecordTechType(eRequestedTech),
-		getSASGameRecordTechType(eCurrentResearch), iResearchDepth, eCoordinatingPlayer, getSASGameRecordTechType(eAimTech),
-		iBestImmediateValue, iBestPathValue, getSASGameRecordTechType(eRunnerUpTech), getSASGameRecordTechType(eRunnerUpAimTech),
+		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), szKind, szSource, getSASInfoTypeOrNone(eRequestedTech),
+		getSASInfoTypeOrNone(eCurrentResearch), iResearchDepth, eCoordinatingPlayer, getSASInfoTypeOrNone(eAimTech),
+		iBestImmediateValue, iBestPathValue, getSASInfoTypeOrNone(eRunnerUpTech), getSASInfoTypeOrNone(eRunnerUpAimTech),
 		iRunnerUpImmediateValue, iRunnerUpPathValue, (eRunnerUpTech == NO_TECH ? -1 : iBestPathValue - iRunnerUpPathValue),
 		pChoice == NULL ? -1 : pChoice->iSelectedPathIndex, pChoice == NULL ? -1 : pChoice->iImmediateCandidateCount,
 		pChoice == NULL ? -1 : pChoice->iEvaluatedTechCount, pChoice == NULL ? -1 : pChoice->iPathCount, kPlayer.getLengthResearchQueue(),
@@ -15436,10 +15279,10 @@ void logSASGameRecordAICivicCandidate(PlayerTypes ePlayer, char const* szStatus,
 	int const iAnarchyDelta = std::max(0, iTestAnarchy - iCurrentBundleAnarchy);
 	logSASGameRecord("GAME_RECORD_AI_CIVIC_DECISION turn=%d player=%d team=%d status=%s option=%s oldCivic=%s newCivic=%s currentValue=%d bestValue=%d delta=%d anarchyTest=%d currentBundleAnarchy=%d anarchyDelta=%d threshold=%d slack=%d passPercent=%d passSlack=%d firstPass=%d civicTimer=%d goldenAgeTurns=%d maxAnarchyTurns=%d favoriteCivic=%s newIsFavorite=%d financialTrouble=%d wars=%d anyWarPlan=%d gold=%d goldRate=%d",
 		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), szStatus, GC.getInfo(eCivicOption).getType(),
-		getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic), iCurrentValue, iBestValue, iBestValue - iCurrentValue,
+		getSASInfoTypeOrNone(eOldCivic), getSASInfoTypeOrNone(eNewCivic), iCurrentValue, iBestValue, iBestValue - iCurrentValue,
 		iTestAnarchy, iCurrentBundleAnarchy, iAnarchyDelta, iThreshold, iSlack, bPassPercent ? 1 : 0, bPassSlack ? 1 : 0, bFirstPass ? 1 : 0,
 		kPlayer.AI_getCivicTimer(), kPlayer.getGoldenAgeTurns(), kPlayer.getMaxAnarchyTurns(),
-		getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), eNewCivic == kPlayer.getFavoriteCivic() ? 1 : 0,
+		getSASInfoTypeOrNone(kPlayer.getFavoriteCivic()), eNewCivic == kPlayer.getFavoriteCivic() ? 1 : 0,
 		kPlayer.AI_isFinancialTrouble() ? 1 : 0, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0, kPlayer.getGold(),
 		kPlayer.calculateGoldRate());
 }
@@ -15458,7 +15301,7 @@ static CvString getSASGameRecordCivicChanges(std::vector<std::pair<CivicTypes, C
 		if (eOptionCivic == NO_CIVIC)
 			szItem = "UNKNOWN:-";
 		else
-			szItem.Format("%s:%s>%s", GC.getInfo(GC.getInfo(eOptionCivic).getCivicOptionType()).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic));
+			szItem.Format("%s:%s>%s", GC.getInfo(GC.getInfo(eOptionCivic).getCivicOptionType()).getType(), getSASInfoTypeOrNone(eOldCivic), getSASInfoTypeOrNone(eNewCivic));
 		if (!szChanges.empty())
 			szChanges += ",";
 		szChanges += szItem;
@@ -15476,8 +15319,8 @@ void logSASGameRecordAICivicOutcome(PlayerTypes ePlayer, char const* szOutcome, 
 	// <!-- custom: getGoldPerTurn is net diplomatic deal GPT; AI_doCivics uses it directly for the paid-anarchy cash-reserve gate, while calculateGoldRate is broader economy context. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_AI_CIVIC_OUTCOME turn=%d player=%d team=%d outcome=%s changes=%s changeCount=%d plannedAnarchy=%d civicTimerBefore=%d civicTimerAfter=%d research=%s researchTurns=%d waitCivic=%s waitValue=%d waitCurrentValue=%d gold=%d goldRate=%d dealGoldPerTurn=%d goldNeeded=%d strikeTurns=%d canRevolution=%d goldenAgeTurns=%d maxAnarchyTurns=%d financialTrouble=%d wars=%d anyWarPlan=%d",
 		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), szOutcome, szChanges.GetCString(), (int)aeChanges.size(), iAnarchyLength,
-		kPlayer.AI_getCivicTimer(), iCivicTimerAfter, getSASGameRecordTechType(eResearch), iResearchTurns,
-		getSASGameRecordCivicType(eWaitCivic), iWaitValue, iWaitCurrentValue, kPlayer.getGold(), kPlayer.calculateGoldRate(),
+		kPlayer.AI_getCivicTimer(), iCivicTimerAfter, getSASInfoTypeOrNone(eResearch), iResearchTurns,
+		getSASInfoTypeOrNone(eWaitCivic), iWaitValue, iWaitCurrentValue, kPlayer.getGold(), kPlayer.calculateGoldRate(),
 		kPlayer.getGoldPerTurn(), iGoldNeeded, kPlayer.getStrikeTurns(), iCanRevolution, kPlayer.getGoldenAgeTurns(),
 		kPlayer.getMaxAnarchyTurns(), kPlayer.AI_isFinancialTrouble() ? 1 : 0, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan() ? 1 : 0);
 }
@@ -15581,19 +15424,19 @@ void logSASGameRecordAIBonusTradeDecision(PlayerTypes ePlayer, PlayerTypes eOthe
 	CvString const szTheyGive = getSASTradeListText(kTheyGive, eOther);
 	logSASGameRecord("GAME_RECORD_AI_BONUS_TRADE_DECISION turn=%d player=%d team=%d other=%d otherTeam=%d otherHuman=%d anchor=%s outcome=%s receiveBonus=%s receiveBuyerTradeValue=%d receiveSellerKeepValue=%d receiveBias=%d receiveGatePermille=%d receiveRandom=%d receiveScore=%d receiveRunnerUpBonus=%s receiveRunnerUpBuyerTradeValue=%d receiveRunnerUpSellerKeepValue=%d receiveRunnerUpBias=%d receiveRunnerUpGatePermille=%d receiveRunnerUpRandom=%d receiveRunnerUpScore=%d receiveEvaluated=%d receiveGatePassed=%d receiveNoDenial=%d receiveBuyerEra=%s receiveBuyerAvailableBefore=%d receiveSellerTradeableCopies=%d receiveBonusHealth=%d receiveBonusHappiness=%d receiveBonusAIObjective=%d receiveBuyerDynamicValue=%d receiveBuyerDynamicTradeValue=%d receiveMasterVassalCluster=%d giveBonus=%s giveBuyerTradeValue=%d giveSellerKeepValue=%d giveBias=%d giveGatePermille=%d giveRandom=%d giveScore=%d giveRunnerUpBonus=%s giveRunnerUpBuyerTradeValue=%d giveRunnerUpSellerKeepValue=%d giveRunnerUpBias=%d giveRunnerUpGatePermille=%d giveRunnerUpRandom=%d giveRunnerUpScore=%d giveEvaluated=%d giveGatePassed=%d giveNoDenial=%d giveBuyerEra=%s giveBuyerAvailableBefore=%d giveSellerTradeableCopies=%d giveBonusHealth=%d giveBonusHappiness=%d giveBonusAIObjective=%d giveBuyerDynamicValue=%d giveBuyerDynamicTradeValue=%d giveMasterVassalCluster=%d weGive=%s theyGive=%s",
 		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), eOther, kOther.getTeam(), kOther.isHuman() ? 1 : 0, szAnchor,
-		kOther.isHuman() ? "CONTACT_HUMAN" : "IMPLEMENT_AI_DEAL", getSASGameRecordBonusType(kReceive.eBestBonus),
+		kOther.isHuman() ? "CONTACT_HUMAN" : "IMPLEMENT_AI_DEAL", getSASInfoTypeOrNone(kReceive.eBestBonus),
 		kReceive.iBestBuyerTradeValue, kReceive.iBestSellerKeepValue, kReceive.iBestBias, kReceive.iBestGatePermille, kReceive.iBestRandom,
-		kReceive.iBestScore, getSASGameRecordBonusType(kReceive.eRunnerUpBonus), kReceive.iRunnerUpBuyerTradeValue,
+		kReceive.iBestScore, getSASInfoTypeOrNone(kReceive.eRunnerUpBonus), kReceive.iRunnerUpBuyerTradeValue,
 		kReceive.iRunnerUpSellerKeepValue, kReceive.iRunnerUpBias, kReceive.iRunnerUpGatePermille, kReceive.iRunnerUpRandom,
 		kReceive.iRunnerUpScore, kReceive.iEvaluated, kReceive.iGatePassed, kReceive.iNoDenial,
-		getSASGameRecordEraType((EraTypes)kReceiveFacts.iBuyerEra), kReceiveFacts.iBuyerAvailableBefore,
+		getSASInfoTypeOrNone((EraTypes)kReceiveFacts.iBuyerEra), kReceiveFacts.iBuyerAvailableBefore,
 		kReceiveFacts.iSellerTradeableCopies, kReceiveFacts.iBonusHealth, kReceiveFacts.iBonusHappiness, kReceiveFacts.iBonusAIObjective,
 		kReceiveFacts.iBuyerDynamicValue, kReceiveFacts.iBuyerDynamicTradeValue, kReceiveFacts.iMasterVassalCluster,
-		getSASGameRecordBonusType(kGive.eBestBonus), kGive.iBestBuyerTradeValue, kGive.iBestSellerKeepValue, kGive.iBestBias,
-		kGive.iBestGatePermille, kGive.iBestRandom, kGive.iBestScore, getSASGameRecordBonusType(kGive.eRunnerUpBonus),
+		getSASInfoTypeOrNone(kGive.eBestBonus), kGive.iBestBuyerTradeValue, kGive.iBestSellerKeepValue, kGive.iBestBias,
+		kGive.iBestGatePermille, kGive.iBestRandom, kGive.iBestScore, getSASInfoTypeOrNone(kGive.eRunnerUpBonus),
 		kGive.iRunnerUpBuyerTradeValue, kGive.iRunnerUpSellerKeepValue, kGive.iRunnerUpBias, kGive.iRunnerUpGatePermille,
 		kGive.iRunnerUpRandom, kGive.iRunnerUpScore, kGive.iEvaluated, kGive.iGatePassed, kGive.iNoDenial,
-		getSASGameRecordEraType((EraTypes)kGiveFacts.iBuyerEra), kGiveFacts.iBuyerAvailableBefore, kGiveFacts.iSellerTradeableCopies,
+		getSASInfoTypeOrNone((EraTypes)kGiveFacts.iBuyerEra), kGiveFacts.iBuyerAvailableBefore, kGiveFacts.iSellerTradeableCopies,
 		kGiveFacts.iBonusHealth, kGiveFacts.iBonusHappiness, kGiveFacts.iBonusAIObjective, kGiveFacts.iBuyerDynamicValue,
 		kGiveFacts.iBuyerDynamicTradeValue, kGiveFacts.iMasterVassalCluster, szWeGive.GetCString(),
 		szTheyGive.GetCString());
@@ -15609,12 +15452,12 @@ void logSASGameRecordAIBonusDemandDecision(PlayerTypes ePlayer, PlayerTypes eHum
 	getSASGameRecordBonusChoiceFacts(kPlayer, kHuman, kContext.eBestBonus, kBestFacts);
 	CvString const szDemanded = getSASTradeListText(kHumanGives, eHuman);
 	logSASGameRecord("GAME_RECORD_AI_BONUS_DEMAND_DECISION turn=%d player=%d team=%d human=%d humanTeam=%d bestBonus=%s bestSortValueX100=%d bestHumanTradeableCopies=%d bestNonSurplusSort=%d runnerUpBonus=%s runnerUpSortValueX100=%d runnerUpHumanTradeableCopies=%d runnerUpNonSurplusSort=%d candidates=%d maxSelectable=%d selected=%d selectedTotalValueX100=%d minValueX100=%d finalDealValue=%d buyerEra=%s buyerAvailableBefore=%d sellerTradeableCopies=%d bonusHealth=%d bonusHappiness=%d bonusAIObjective=%d buyerDynamicValue=%d buyerDynamicTradeValue=%d masterVassalCluster=%d demanded=%s",
-		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASGameRecordBonusType(kContext.eBestBonus),
+		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), eHuman, kHuman.getTeam(), getSASInfoTypeOrNone(kContext.eBestBonus),
 		kContext.iBestSortValueX100, kContext.iBestHumanTradeableCopies, kContext.iBestNonSurplusSort,
-		getSASGameRecordBonusType(kContext.eRunnerUpBonus), kContext.iRunnerUpSortValueX100, kContext.iRunnerUpHumanTradeableCopies,
+		getSASInfoTypeOrNone(kContext.eRunnerUpBonus), kContext.iRunnerUpSortValueX100, kContext.iRunnerUpHumanTradeableCopies,
 		kContext.iRunnerUpNonSurplusSort, kContext.iCandidateCount, kHuman.getCurrentEra() + 2, kContext.iSelectedCount,
 		kContext.iSelectedTotalValueX100, kContext.iMinValueX100, kContext.iDealValue,
-		getSASGameRecordEraType((EraTypes)kBestFacts.iBuyerEra), kBestFacts.iBuyerAvailableBefore, kBestFacts.iSellerTradeableCopies,
+		getSASInfoTypeOrNone((EraTypes)kBestFacts.iBuyerEra), kBestFacts.iBuyerAvailableBefore, kBestFacts.iSellerTradeableCopies,
 		kBestFacts.iBonusHealth, kBestFacts.iBonusHappiness, kBestFacts.iBonusAIObjective, kBestFacts.iBuyerDynamicValue,
 		kBestFacts.iBuyerDynamicTradeValue, kBestFacts.iMasterVassalCluster, szDemanded.GetCString());
 }
@@ -15838,8 +15681,8 @@ void logSASGameRecordAIEvacuationUnitDecision(CvUnitAI const& kUnit, CvCityAI co
 	char const* const szParentLink = (uiParentDecisionId == 0 ? "CITY_DECISION_UNOBSERVED" : "CITY_DECISION_OBSERVED");
 	unsigned __int64 const uiDecisionId = getSASGameRecordEvacuationDecisionSequence();
 	logSASGameRecord("GAME_RECORD_AI_EVACUATION_UNIT_DECISION decisionId=%I64u parentDecisionId=%I64u linkStatus=%s turn=%d player=%d team=%d cityId=%d cityX=%d cityY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d mode=%s evacuationProbabilityPercent=%d selected=%d",
-		uiDecisionId, uiParentDecisionId, szParentLink, GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
-		getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), szMode, iEvacuationProbabilityPercent, bSelected);
+		uiDecisionId, uiParentDecisionId, szParentLink, GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kCity.getID(), kCity.getX(), kCity.getY(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), szMode, iEvacuationProbabilityPercent, bSelected);
 	bool const bDecisionSequenced = (uiDecisionId != 0 && g_uiSASGameRecordSemanticSequence == uiDecisionId);
 	FAssert(uiDecisionId == 0 || bDecisionSequenced);
 	std::pair<int,int> const kUnitKey = getSASGameRecordEvacuationKey(kUnit.getOwner(), kUnit.getID());
@@ -15879,7 +15722,7 @@ void logSASGameRecordAIEvacuationRetreatResult(SASRetreatResult eResult, CvUnitA
 	char const* const szDecisionLink = (bMatchedOrigin ? "UNIT_DECISION_OBSERVED" : "ORIGIN_UNOBSERVED_OR_STALE");
 	logSASGameRecord("GAME_RECORD_AI_EVACUATION_RETREAT_RESULT decisionId=%I64u parentDecisionId=%I64u linkStatus=%s turn=%d player=%d team=%d action=%s sourceCityId=%d sourceX=%d sourceY=%d unitId=%d unit=%s unitAI=%s domain=%d groupId=%d groupUnits=%d targetCityId=%d targetX=%d targetY=%d endTurnX=%d endTurnY=%d pathTurns=%d currentDanger=%d",
 		uiDecisionId, uiParentDecisionId, szDecisionLink, GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), getSASRetreatResultName(eResult), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()),
-		(pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kUnit.getDomainType(),
+		(pSourceCity == NULL ? -1 : pSourceCity->getY()), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kUnit.getDomainType(),
 		(pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger);
 	// <!-- custom: Any newly observed retreat result supersedes an older pending mission link for this group.
@@ -15999,14 +15842,14 @@ void logSASGameRecordAIGreatPersonDecision(CvUnitAI const& kUnit, CvPlot const* 
 	CvCity const* pTradeCity = (pTradeChoice == NULL ? NULL : pTradeChoice->pTargetCity);
 	CvPlot const* pTradeWaypoint = (pTradeChoice == NULL ? NULL : pTradeChoice->pWaypointPlot);
 	logSASGameRecord("GAME_RECORD_AI_GREAT_PERSON_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d age=%d ageNormal=%d action=%s choiceRank=%d selectedValue=%d threshold=%d slow=%d slowBaseValue=%d slowPathTurns=%d slowMissionAI=%d slowCityId=%d slowCity=%S slowCityX=%d slowCityY=%d specialist=%s building=%s discover=%d discoverTech=%s goldenAge=%d trade=%d culture=%d tradeTargetPlayer=%d tradeTargetCityId=%d tradeTargetCity=%S tradeTargetX=%d tradeTargetY=%d tradeGold=%d tradePathTurns=%d tradeGoldWeight=%d tradeResearchMultiplier=%d tradeGoldMultiplier=%d tradeFlexPercent=%d tradeContinuationPercent=%d tradeStrategyRandPercent=%d tradeWaypointX=%d tradeWaypointY=%d targetX=%d targetY=%d previousMissionAI=%d previousTargetX=%d previousTargetY=%d",
-		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()),
-		getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), (pDecisionPlot == NULL ? kUnit.getX() : pDecisionPlot->getX()),
+		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()),
+		getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), (pDecisionPlot == NULL ? kUnit.getX() : pDecisionPlot->getX()),
 		(pDecisionPlot == NULL ? kUnit.getY() : pDecisionPlot->getY()), iAge, iAgeNormal,
 		getSASGameRecordAIGreatPersonAction(eAction), iChoiceRank, iSelectedValue, iScoreThreshold, iSlowValue, iSlowBaseValue,
 		(iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns), eSlowMissionAI, (pSlowCity == NULL ? -1 : pSlowCity->getID()),
 		getSASGameRecordQuotedCityName(pSlowCity).GetCString(), (pSlowCity == NULL ? -1 : pSlowCity->getX()),
-		(pSlowCity == NULL ? -1 : pSlowCity->getY()), getSASGameRecordSpecialistType(eSpecialist), getSASGameRecordBuildingType(eBuilding),
-		iDiscoverValue, getSASGameRecordTechType(eDiscoverTech), iGoldenAgeValue, iTradeValue, iCultureValue,
+		(pSlowCity == NULL ? -1 : pSlowCity->getY()), getSASInfoTypeOrNone(eSpecialist), getSASInfoTypeOrNone(eBuilding),
+		iDiscoverValue, getSASInfoTypeOrNone(eDiscoverTech), iGoldenAgeValue, iTradeValue, iCultureValue,
 		(pTradeCity == NULL ? NO_PLAYER : pTradeCity->getOwner()), (pTradeCity == NULL ? -1 : pTradeCity->getID()),
 		getSASGameRecordQuotedCityName(pTradeCity).GetCString(), (pTradeCity == NULL ? -1 : pTradeCity->getX()),
 		(pTradeCity == NULL ? -1 : pTradeCity->getY()), (pTradeChoice == NULL ? 0 : pTradeChoice->iGold),
@@ -16057,15 +15900,15 @@ void logSASGameRecordAIGreatGeneralDecision(CvUnitAI const& kUnit, SASGreatGener
 	CvPlot const* pWaypointPlot = kChoice.pWaypointPlot;
 	CvPlot const& kDecisionPlot = (kChoice.pDecisionPlot == NULL ? kUnit.getPlot() : *kChoice.pDecisionPlot);
 	logSASGameRecord("GAME_RECORD_AI_GREAT_GENERAL_DECISION turn=%d player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d areaAI=%d age=%d ageNormal=%d action=%s stage=%s move=%d selectedValue=%d limit=%d valueThreshold=%d minStrength=%d minHealing=%d era=%d preferInstructorFirst=%d preferThroughEra=%d randomConstructRoll=%d specialist=%s building=%s targetCityId=%d targetCity=%S targetUnitId=%d targetUnit=%s targetUnitAI=%s targetStrengthScore=%d targetHealing=%d leadByHealing=%d targetX=%d targetY=%d waypointX=%d waypointY=%d previousMissionAI=%d previousTargetX=%d previousTargetY=%d",
-		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()),
+		kGame.getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()),
 		kDecisionPlot.getX(), kDecisionPlot.getY(), kDecisionPlot.getArea().getID(), kDecisionPlot.getArea().getAreaAIType(kUnit.getTeam()), iAge, iAgeNormal,
 		getSASGameRecordAIGreatGeneralAction(kChoice.eAction), getSASGameRecordAIGreatGeneralStage(kChoice.eStage), (int)kChoice.bMove, kChoice.iSelectedValue,
 		(kChoice.iPolicyLimit == MAX_INT ? -1 : kChoice.iPolicyLimit), kChoice.iValueThreshold, kChoice.iMinStrength, kChoice.iMinHealing,
 		kOwner.getCurrentEra(), kChoice.bPreferInstructorFirst, kChoice.iPreferThroughEra, kChoice.iRandomConstructRoll,
-		getSASGameRecordSpecialistType(kChoice.eSpecialist), getSASGameRecordBuildingType(kChoice.eBuilding),
+		getSASInfoTypeOrNone(kChoice.eSpecialist), getSASInfoTypeOrNone(kChoice.eBuilding),
 		(pTargetCity == NULL ? -1 : pTargetCity->getID()), getSASGameRecordQuotedCityName(pTargetCity).GetCString(),
-		(pTargetUnit == NULL ? -1 : pTargetUnit->getID()), (pTargetUnit == NULL ? "-" : getSASGameRecordUnitType(pTargetUnit->getUnitType())),
-		(pTargetUnit == NULL ? "-" : getSASGameRecordUnitAIType(pTargetUnit->AI_getUnitAIType())), kChoice.iTargetStrengthScore, kChoice.iTargetHealing,
+		(pTargetUnit == NULL ? -1 : pTargetUnit->getID()), (pTargetUnit == NULL ? "-" : getSASInfoTypeOrNone(pTargetUnit->getUnitType())),
+		(pTargetUnit == NULL ? "-" : getSASInfoTypeOrNone(pTargetUnit->AI_getUnitAIType())), kChoice.iTargetStrengthScore, kChoice.iTargetHealing,
 		kChoice.iLeadByHealing, (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()),
 		(pWaypointPlot == NULL ? -1 : pWaypointPlot->getX()), (pWaypointPlot == NULL ? -1 : pWaypointPlot->getY()), kChoice.ePreviousMissionAI,
 		(kChoice.pPreviousMissionPlot == NULL ? -1 : kChoice.pPreviousMissionPlot->getX()), (kChoice.pPreviousMissionPlot == NULL ? -1 : kChoice.pPreviousMissionPlot->getY()));
@@ -16081,7 +15924,7 @@ static CvString getSASGameRecordReligionCandidateScores(std::vector<std::pair<Re
 	for (size_t i = 0; i < paCandidateValues->size(); i++)
 	{
 		CvString szItem;
-		szItem.Format(i == 0 ? "%s:%d" : ",%s:%d", getSASGameRecordReligionType((*paCandidateValues)[i].first), (*paCandidateValues)[i].second);
+		szItem.Format(i == 0 ? "%s:%d" : ",%s:%d", getSASInfoTypeOrNone((*paCandidateValues)[i].first), (*paCandidateValues)[i].second);
 		szResult += szItem;
 	}
 	return szResult;
@@ -16105,11 +15948,11 @@ void logSASGameRecordAIReligionDecision(PlayerTypes ePlayer, ReligionTypes eCurr
 	}
 	CvString const szCandidateScores = getSASGameRecordReligionCandidateScores(paCandidateValues);
 	logSASGameRecord("GAME_RECORD_AI_RELIGION_DECISION turn=%d player=%d team=%d currentReligion=%s evaluatedBestReligion=%s selectedReligion=%s stateReligionAfter=%s runnerUpReligion=%s bestScore=%d runnerUpScore=%d currentScore=%d bestMinusCurrentScore=%d currentRawValue=%d selectedRawValue=%d favoriteReligion=%s missionaryStrategy=%d religionFlavor=%d bestSpreadPercent=%d bestHolyCityOwned=%d anarchyLength=%d convertProbabilityPercent=%d rollSuccess=%d outcome=%s candidateScores=%s",
-		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), getSASGameRecordReligionType(eCurrentReligion),
-		getSASGameRecordReligionType(eEvaluatedBest), getSASGameRecordReligionType(eSelectedReligion),
-		getSASGameRecordReligionType(kPlayer.getStateReligion()), getSASGameRecordReligionType(eRunnerUp), iBestValue, iRunnerUpValue,
+		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), getSASInfoTypeOrNone(eCurrentReligion),
+		getSASInfoTypeOrNone(eEvaluatedBest), getSASInfoTypeOrNone(eSelectedReligion),
+		getSASInfoTypeOrNone(kPlayer.getStateReligion()), getSASInfoTypeOrNone(eRunnerUp), iBestValue, iRunnerUpValue,
 		iCurrentScore, (iCurrentScore < 0 ? -1 : iBestValue - iCurrentScore), iCurrentRawValue, iSelectedRawValue,
-		getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_MISSIONARY) ? 1 : 0,
+		getSASInfoTypeOrNone(kPlayer.getFavoriteReligion()), isSASGameRecordAIStrategyActive(kPlayer, AI_STRATEGY_MISSIONARY) ? 1 : 0,
 		kPlayer.AI_getFlavorValue(FLAVOR_RELIGION), iBestSpreadPercent, iBestHolyCityOwned, kPlayer.getReligionAnarchyLength(),
 		iConvertProbabilityPercent, iRollSuccess, szOutcome, szCandidateScores.GetCString());
 }
@@ -16219,7 +16062,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumPromotionInfos())
 		{
 			szTargetKind = "PROMOTION";
-			szTarget = getSASGameRecordPromotionType((PromotionTypes)kInfo.getData1());
+			szTarget = getSASInfoTypeOrNone((PromotionTypes)kInfo.getData1());
 		}
 		break;
 	case BUTTONPOPUP_DOESPIONAGE:
@@ -16231,7 +16074,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 			if (iButtonClicked >= 0 && iButtonClicked < GC.getNumEspionageMissionInfos())
 			{
 				szTargetKind = "ESPIONAGE_MISSION";
-				szTarget = getSASGameRecordEspionageMissionType((EspionageMissionTypes)iButtonClicked);
+				szTarget = getSASInfoTypeOrNone((EspionageMissionTypes)iButtonClicked);
 			}
 		}
 		break;
@@ -16241,7 +16084,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumEspionageMissionInfos())
 		{
 			szTargetKind = "ESPIONAGE_MISSION";
-			szTarget = getSASGameRecordEspionageMissionType((EspionageMissionTypes)kInfo.getData1());
+			szTarget = getSASInfoTypeOrNone((EspionageMissionTypes)kInfo.getData1());
 		}
 		break;
 	case BUTTONPOPUP_CHOOSETECH:
@@ -16252,7 +16095,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		{
 			szChoice = "SELECT_TECH";
 			szTargetKind = "TECH";
-			szTarget = getSASGameRecordTechType((TechTypes)iButtonClicked);
+			szTarget = getSASInfoTypeOrNone((TechTypes)iButtonClicked);
 		}
 		break;
 	case BUTTONPOPUP_RAZECITY:
@@ -16292,7 +16135,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData2() >= 0 && kInfo.getData2() < GC.getNumCivicInfos())
 		{
 			szTargetKind = "CIVIC";
-			szTarget = getSASGameRecordCivicType((CivicTypes)kInfo.getData2());
+			szTarget = getSASInfoTypeOrNone((CivicTypes)kInfo.getData2());
 		}
 		break;
 	}
@@ -16305,7 +16148,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumReligionInfos())
 		{
 			szTargetKind = "RELIGION";
-			szTarget = getSASGameRecordReligionType((ReligionTypes)kInfo.getData1());
+			szTarget = getSASInfoTypeOrNone((ReligionTypes)kInfo.getData1());
 		}
 		break;
 	}
@@ -16317,7 +16160,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		{
 			szChoice = "SELECT_RESOLUTION";
 			szTargetKind = "VOTE";
-			szTarget = getSASGameRecordVoteType(pSelection->aVoteOptions[iButtonClicked].eVote);
+			szTarget = getSASInfoTypeOrNone(pSelection->aVoteOptions[iButtonClicked].eVote);
 		}
 		else szChoice = "NO_RESOLUTION";
 		break;
@@ -16353,7 +16196,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumBonusInfos())
 		{
 			szTargetKind = "BONUS";
-			szTarget = getSASGameRecordBonusType((BonusTypes)iButtonClicked);
+			szTarget = getSASInfoTypeOrNone((BonusTypes)iButtonClicked);
 		}
 		break;
 	case BUTTONPOPUP_VASSAL_GRANT_TRIBUTE:
@@ -16362,7 +16205,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData2() >= 0 && kInfo.getData2() < GC.getNumBonusInfos())
 		{
 			szTargetKind = "BONUS";
-			szTarget = getSASGameRecordBonusType((BonusTypes)kInfo.getData2());
+			szTarget = getSASInfoTypeOrNone((BonusTypes)kInfo.getData2());
 		}
 		break;
 	case BUTTONPOPUP_EVENT:
@@ -16372,7 +16215,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		{
 			szChoice = "SELECT_EVENT";
 			szTargetKind = "EVENT";
-			szTarget = getSASGameRecordEventType((EventTypes)iButtonClicked);
+			szTarget = getSASInfoTypeOrNone((EventTypes)iButtonClicked);
 		}
 		else szChoice = "CANCEL";
 		break;
@@ -16398,7 +16241,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (kInfo.getData1() >= 0 && kInfo.getData1() < GC.getNumVictoryInfos())
 		{
 			szTargetKind = "VICTORY";
-			szTarget = getSASGameRecordVictoryType((VictoryTypes)kInfo.getData1());
+			szTarget = getSASInfoTypeOrNone((VictoryTypes)kInfo.getData1());
 		}
 		break;
 	case BUTTONPOPUP_FOUND_RELIGION:
@@ -16407,7 +16250,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumReligionInfos())
 		{
 			szTargetKind = "RELIGION";
-			szTarget = getSASGameRecordReligionType((ReligionTypes)iButtonClicked);
+			szTarget = getSASInfoTypeOrNone((ReligionTypes)iButtonClicked);
 		}
 		break;
 	case BUTTONPOPUP_RF_CHOOSECIV:
@@ -16448,7 +16291,7 @@ void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicke
 		return;
 	logSASGameRecord("GAME_RECORD_PLAYER_POPUP_TARGET turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u popup=%s popupId=%d button=%d stage=COMMAND_DISPATCH targetKind=UNIT targetPlayer=%d targetUnitId=%d target=%s x=%d y=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(), getSASButtonPopupTypeName(kInfo.getButtonPopupType()), kInfo.getButtonPopupType(), iButtonClicked,
-		kTarget.getOwner(), kTarget.getID(), getSASGameRecordUnitType(kTarget.getUnitType()), kTarget.getX(), kTarget.getY());
+		kTarget.getOwner(), kTarget.getID(), getSASInfoTypeOrNone(kTarget.getUnitType()), kTarget.getX(), kTarget.getY());
 }
 
 // <!-- custom: CvNetResearch already carries the resolved tech and queue/free-tech flags for every native UI route; record that command before application rather than treating a generic popup return as the selection's authoritative meaning.
@@ -16459,9 +16302,9 @@ void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, 
 	CvGame const& kGame = GC.getGame();
 	if (!kGame.isFinalInitialized())
 		return;
-	char const* szTech = (eTech >= 0 && eTech < GC.getNumTechInfos() ? getSASGameRecordTechType(eTech) : "-");
+	char const* szTech = (eTech >= 0 && eTech < GC.getNumTechInfos() ? getSASInfoTypeOrNone(eTech) : "-");
 	char const* szRequest = (iDiscover > 0 ? "CHOOSE_FREE_TECH" : (eTech == NO_TECH ? "CLEAR_RESEARCH_QUEUE" : "SELECT_RESEARCH"));
-	logSASGameRecord("GAME_RECORD_PLAYER_RESEARCH_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH request=%s tech=%s techId=%d discover=%d shift=%d",
+	logSASGameRecord("GAME_RECORD_PLAYER_RESEARCH_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE request=%s tech=%s techId=%d discover=%d shift=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, getSASGameRecordSessionWallMilliseconds(), szRequest, szTech, eTech, iDiscover, bShift ? 1 : 0);
 }
 
@@ -16473,7 +16316,7 @@ void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrd
 	CvGame const& kGame = GC.getGame();
 	if (!kGame.isFinalInitialized())
 		return;
-	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_CHOICE turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH order=%d kind=%s target=%s targetId=%d save=%d pop=%d position=%d queueLengthBefore=%d headKindBefore=%s headTargetBefore=%s",
+	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_CHOICE turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE order=%d kind=%s target=%s targetId=%d save=%d pop=%d position=%d queueLengthBefore=%d headKindBefore=%s headTargetBefore=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(), getSASGameRecordSessionWallMilliseconds(),
 		eOrder, getSASGameRecordProductionKind(eOrder, iData), getSASGameRecordProductionType(eOrder, iData), iData, bSave ? 1 : 0, bPop ? 1 : 0, iPosition,
 		kCity.getOrderQueueLength(), getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity));
@@ -16490,9 +16333,305 @@ void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequested
 	int const iQueueLength = kCity.getOrderQueueLength();
 	int const iIndex = (iRequestedIndex == -1 ? iQueueLength - 1 : iRequestedIndex);
 	OrderData const kOrder = kCity.getOrderData(iIndex);
-	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_REMOVAL turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH requestedIndex=%d resolvedIndex=%d queueLengthBefore=%d order=%d kind=%s target=%s targetId=%d",
+	logSASGameRecord("GAME_RECORD_PLAYER_PRODUCTION_REMOVAL turn=%d elapsed=%d player=%d cityId=%d x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE requestedIndex=%d resolvedIndex=%d queueLengthBefore=%d order=%d kind=%s target=%s targetId=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(), getSASGameRecordSessionWallMilliseconds(),
 		iRequestedIndex, iIndex, iQueueLength, kOrder.eOrderType, getSASGameRecordProductionKind(kOrder.eOrderType, kOrder.iData1), getSASGameRecordProductionType(kOrder.eOrderType, kOrder.iData1), kOrder.iData1);
+}
+
+// <!-- custom: TaskTypes is a native enum without an XML info table.
+// Keep one complete recorder-owned label switch so player city-task rows stay greppable and stable while retaining the raw numeric ID for future enum changes. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordTaskType(TaskTypes eTask)
+{
+	switch (eTask)
+	{
+	case TASK_RAZE: return "TASK_RAZE";
+	case TASK_DISBAND: return "TASK_DISBAND";
+	case TASK_GIFT: return "TASK_GIFT";
+	case TASK_SET_AUTOMATED_CITIZENS: return "TASK_SET_AUTOMATED_CITIZENS";
+	case TASK_SET_AUTOMATED_PRODUCTION: return "TASK_SET_AUTOMATED_PRODUCTION";
+	case TASK_SET_EMPHASIZE: return "TASK_SET_EMPHASIZE";
+	case TASK_CHANGE_SPECIALIST: return "TASK_CHANGE_SPECIALIST";
+	case TASK_CHANGE_WORKING_PLOT: return "TASK_CHANGE_WORKING_PLOT";
+	case TASK_CLEAR_WORKING_OVERRIDE: return "TASK_CLEAR_WORKING_OVERRIDE";
+	case TASK_HURRY: return "TASK_HURRY";
+	case TASK_CONSCRIPT: return "TASK_CONSCRIPT";
+	case TASK_CLEAR_ORDERS: return "TASK_CLEAR_ORDERS";
+	case TASK_RALLY_PLOT: return "TASK_RALLY_PLOT";
+	case TASK_CLEAR_RALLY_PLOT: return "TASK_CLEAR_RALLY_PLOT";
+	case TASK_LIBERATE: return "TASK_LIBERATE";
+	case TASK_CEDE: return "TASK_CEDE";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: Keep only borrowed type-name pointers from loaded XML or string literals; dispatch logging only needs them until the row is formatted. (GPT-6.1-Sol) -->
+struct SASGameRecordNativeCommandTarget
+{
+	SASGameRecordNativeCommandTarget() : szKind("NONE"), szType("-"), iId(-1), iPlayer(-1), iUnitId(-1), iX(-1), iY(-1) {}
+	char const* szKind;
+	char const* szType;
+	int iId;
+	int iPlayer;
+	int iUnitId;
+	int iX;
+	int iY;
+};
+
+// <!-- custom: Decode only payload meanings used directly by CvCity::doTask.
+// This performs no can-do checks, AI work or mutation; malformed/unrecognized payloads remain visible through raw data1/data2 and '-' target fields. (ChatGPT-5.6-Sol) -->
+static SASGameRecordNativeCommandTarget getSASGameRecordCityTaskTarget(CvCity const& kCity, TaskTypes eTask, int iData1, int iData2)
+{
+	SASGameRecordNativeCommandTarget kTarget;
+	switch (eTask)
+	{
+	case TASK_GIFT:
+	case TASK_CEDE:
+		kTarget.szKind = "PLAYER";
+		kTarget.iId = iData1;
+		kTarget.iPlayer = iData1;
+		break;
+	case TASK_SET_EMPHASIZE:
+		kTarget.szKind = "EMPHASIZE";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumEmphasizeInfos()) kTarget.szType = GC.getInfo((EmphasizeTypes)iData1).getType();
+		break;
+	case TASK_CHANGE_SPECIALIST:
+		kTarget.szKind = "SPECIALIST";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumSpecialistInfos()) kTarget.szType = getSASInfoTypeOrNone((SpecialistTypes)iData1);
+		break;
+	case TASK_CHANGE_WORKING_PLOT:
+	case TASK_CLEAR_WORKING_OVERRIDE:
+		kTarget.szKind = "CITY_PLOT";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < NUM_CITY_PLOTS)
+		{
+			CvPlot const* pPlot = kCity.getCityIndexPlot((CityPlotTypes)iData1);
+			if (pPlot != NULL)
+			{
+				kTarget.iX = pPlot->getX();
+				kTarget.iY = pPlot->getY();
+			}
+		}
+		break;
+	case TASK_HURRY:
+		kTarget.szKind = "HURRY";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumHurryInfos()) kTarget.szType = GC.getInfo((HurryTypes)iData1).getType();
+		break;
+	case TASK_RALLY_PLOT:
+		kTarget.szKind = "PLOT";
+		kTarget.iX = iData1;
+		kTarget.iY = iData2;
+		break;
+	default:
+		break;
+	}
+	return kTarget;
+}
+
+// <!-- custom: CvNetDoTask carries several important human/remote/scripted city controls that were previously visible only through later state or outcome rows.
+// Record the exact native submission and direct pre-application context at level 2; source=NETWORK_MESSAGE describes the dispatch mechanism, not a physical input device or proof of acceptance. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerCityTask(CvCity const& kCity, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	SASGameRecordNativeCommandTarget const kTarget = getSASGameRecordCityTaskTarget(kCity, eTask, iData1, iData2);
+	CvWString const szCity = getSASGameRecordQuotedCityName(&kCity);
+	logSASGameRecord("GAME_RECORD_PLAYER_CITY_TASK turn=%d elapsed=%d player=%d team=%d cityId=%d city=%S x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE task=%s taskId=%d data1=%d data2=%d option=%d alt=%d shift=%d ctrl=%d targetKind=%s target=%s targetId=%d targetPlayer=%d targetX=%d targetY=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kCity.getOwner(), kCity.getTeam(), kCity.getID(), szCity.GetCString(), kCity.getX(), kCity.getY(), getSASGameRecordSessionWallMilliseconds(),
+		getSASGameRecordTaskType(eTask), eTask, iData1, iData2, bOption ? 1 : 0, bAlt ? 1 : 0, bShift ? 1 : 0, bCtrl ? 1 : 0,
+		kTarget.szKind, kTarget.szType, kTarget.iId, kTarget.iPlayer, kTarget.iX, kTarget.iY);
+}
+
+static SASGameRecordNativeCommandTarget getSASGameRecordUnitMissionTarget(CvUnit const& kUnit, MissionTypes eMission, int iData1, int iData2)
+{
+	SASGameRecordNativeCommandTarget kTarget;
+	switch (eMission)
+	{
+	case MISSION_MOVE_TO:
+	case MISSION_ROUTE_TO:
+	case MISSION_AIRLIFT:
+	case MISSION_NUKE:
+	case MISSION_RECON:
+	case MISSION_PARADROP:
+	case MISSION_AIRBOMB:
+	case MISSION_RANGE_ATTACK:
+		kTarget.szKind = "PLOT";
+		kTarget.iX = iData1;
+		kTarget.iY = iData2;
+		break;
+	case MISSION_MOVE_TO_UNIT:
+		kTarget.szKind = "UNIT";
+		kTarget.iPlayer = iData1;
+		kTarget.iUnitId = iData2;
+		if (iData1 >= 0 && iData1 < MAX_PLAYERS)
+		{
+			CvUnit const* pTargetUnit = GET_PLAYER((PlayerTypes)iData1).getUnit(iData2);
+			if (pTargetUnit != NULL) kTarget.szType = getSASInfoTypeOrNone(pTargetUnit->getUnitType());
+		}
+		break;
+	case MISSION_SPREAD:
+		kTarget.szKind = "RELIGION";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumReligionInfos()) kTarget.szType = getSASInfoTypeOrNone((ReligionTypes)iData1);
+		break;
+	case MISSION_SPREAD_CORPORATION:
+		kTarget.szKind = "CORPORATION";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumCorporationInfos()) kTarget.szType = getSASInfoTypeOrNone((CorporationTypes)iData1);
+		break;
+	case MISSION_JOIN:
+		kTarget.szKind = "SPECIALIST";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumSpecialistInfos()) kTarget.szType = getSASInfoTypeOrNone((SpecialistTypes)iData1);
+		break;
+	case MISSION_CONSTRUCT:
+		kTarget.szKind = "BUILDING";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumBuildingInfos()) kTarget.szType = getSASInfoTypeOrNone((BuildingTypes)iData1);
+		break;
+	case MISSION_BUILD:
+		kTarget.szKind = "BUILD";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumBuildInfos()) kTarget.szType = getSASInfoTypeOrNone((BuildTypes)iData1);
+		break;
+	case MISSION_LEAD:
+		kTarget.szKind = "UNIT";
+		kTarget.iPlayer = kUnit.getOwner();
+		kTarget.iUnitId = iData1;
+		if (iData1 >= 0)
+		{
+			CvUnit const* pTargetUnit = GET_PLAYER(kUnit.getOwner()).getUnit(iData1);
+			if (pTargetUnit != NULL) kTarget.szType = getSASInfoTypeOrNone(pTargetUnit->getUnitType());
+		}
+		break;
+	case MISSION_ESPIONAGE:
+		kTarget.szKind = "ESPIONAGE_MISSION";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumEspionageMissionInfos()) kTarget.szType = getSASInfoTypeOrNone((EspionageMissionTypes)iData1);
+		break;
+	default:
+		break;
+	}
+	return kTarget;
+}
+
+// <!-- custom: Native CvGlobals indexes command and automation info by enum bounds.
+// The draft used the similarly named CyGlobalContext count getters, which VC2003 rejects on GC. (GPT-6.1-Sol) -->
+// <!-- custom: The manual Worker test logged target=(null) because AutomateInfo describes the UI action and does not supply a Type token here.
+// COMMAND_AUTOMATE carries an AutomateTypes value, so read its name from the loaded global type list. (GPT-6.1-Sol) -->
+static char const* getSASGameRecordNativeAutomateType(AutomateTypes eAutomate)
+{
+	return (eAutomate >= 0 && eAutomate < NUM_AUTOMATE_TYPES ? GC.getAutomateTypes(eAutomate).GetCString() : "-");
+}
+
+// <!-- custom: Preserve the requested group head before joinGroup mutates membership.
+// A missing head is the native detach/split request path; headPresent distinguishes it from a valid join without inventing post-command success. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerUnitGroupCommand(CvUnit const& kUnit, int iRequestedHeadId, CvUnit const* pHeadUnit)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	CvSelectionGroup const* pHeadGroup = (pHeadUnit == NULL ? NULL : pHeadUnit->getGroup());
+	logSASGameRecord("GAME_RECORD_PLAYER_UNIT_GROUP_COMMAND turn=%d elapsed=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE operation=%s groupIdBefore=%d groupUnitsBefore=%d requestedHeadUnitId=%d headPresent=%d headUnit=%s headGroupIdBefore=%d headGroupUnitsBefore=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), kUnit.getX(), kUnit.getY(), getSASGameRecordSessionWallMilliseconds(),
+		pHeadUnit == NULL ? "DETACH" : "JOIN", pGroup == NULL ? -1 : pGroup->getID(), pGroup == NULL ? 0 : pGroup->getNumUnits(), iRequestedHeadId, pHeadUnit == NULL ? 0 : 1,
+		pHeadUnit == NULL ? "-" : getSASInfoTypeOrNone(pHeadUnit->getUnitType()), pHeadGroup == NULL ? -1 : pHeadGroup->getID(), pHeadGroup == NULL ? 0 : pHeadGroup->getNumUnits());
+}
+
+// <!-- custom: Native mission submissions can be rejected later by busy/legality checks or execute synchronously; this row is strictly the pre-push request plus cheap existing group state and decoded payload identity. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerUnitMissionPush(CvUnit const& kUnit, MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bShift, bool bModified)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	SASGameRecordNativeCommandTarget const kTarget = getSASGameRecordUnitMissionTarget(kUnit, eMission, iData1, iData2);
+	logSASGameRecord("GAME_RECORD_PLAYER_UNIT_MISSION turn=%d elapsed=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE operation=PUSH groupId=%d groupUnits=%d queueLengthBefore=%d automateBefore=%s mission=%s missionId=%d data1=%d data2=%d flags=%d shift=%d modified=%d targetKind=%s target=%s targetId=%d targetPlayer=%d targetUnitId=%d targetX=%d targetY=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), kUnit.getX(), kUnit.getY(), getSASGameRecordSessionWallMilliseconds(),
+		pGroup == NULL ? -1 : pGroup->getID(), pGroup == NULL ? 0 : pGroup->getNumUnits(), pGroup == NULL ? 0 : pGroup->getLengthMissionQueue(), pGroup == NULL ? "-" : getSASGameRecordNativeAutomateType(pGroup->getAutomateType()),
+		getSASMissionTypeName(eMission), eMission, iData1, iData2, eFlags, bShift ? 1 : 0, bModified ? 1 : 0,
+		kTarget.szKind, kTarget.szType, kTarget.iId, kTarget.iPlayer, kTarget.iUnitId, kTarget.iX, kTarget.iY);
+}
+
+// <!-- custom: AutoMission requests a pass through the group handler, which can start, continue or clear a queued mission.
+// Capture the head before the call because the handler can change it synchronously, and keep headPresent for requests sent with an empty queue. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+void logSASGameRecordPlayerUnitAutoMission(CvUnit const& kUnit)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	CLLNode<MissionData> const* pHead = (pGroup == NULL ? NULL : pGroup->headMissionQueueNode());
+	MissionTypes const eMission = (pHead == NULL ? NO_MISSION : pHead->m_data.eMissionType);
+	int const iData1 = (pHead == NULL ? -1 : pHead->m_data.iData1);
+	int const iData2 = (pHead == NULL ? -1 : pHead->m_data.iData2);
+	SASGameRecordNativeCommandTarget const kTarget = getSASGameRecordUnitMissionTarget(kUnit, eMission, iData1, iData2);
+	logSASGameRecord("GAME_RECORD_PLAYER_UNIT_AUTO_MISSION turn=%d elapsed=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE groupId=%d groupUnits=%d queueLengthBefore=%d automateBefore=%s headPresent=%d mission=%s missionId=%d data1=%d data2=%d flags=%d pushTurn=%d modified=%d targetKind=%s target=%s targetId=%d targetPlayer=%d targetUnitId=%d targetX=%d targetY=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), kUnit.getX(), kUnit.getY(), getSASGameRecordSessionWallMilliseconds(),
+		pGroup == NULL ? -1 : pGroup->getID(), pGroup == NULL ? 0 : pGroup->getNumUnits(), pGroup == NULL ? 0 : pGroup->getLengthMissionQueue(), pGroup == NULL ? "-" : getSASGameRecordNativeAutomateType(pGroup->getAutomateType()), pHead == NULL ? 0 : 1,
+		getSASMissionTypeName(eMission), eMission, iData1, iData2, pHead == NULL ? 0 : pHead->m_data.eFlags, pHead == NULL ? -1 : pHead->m_data.iPushTurn, pHead == NULL ? 0 : (pHead->m_data.bModified ? 1 : 0),
+		kTarget.szKind, kTarget.szType, kTarget.iId, kTarget.iPlayer, kTarget.iUnitId, kTarget.iX, kTarget.iY);
+}
+
+static SASGameRecordNativeCommandTarget getSASGameRecordUnitCommandTarget(CommandTypes eCommand, int iData1, int iData2)
+{
+	SASGameRecordNativeCommandTarget kTarget;
+	switch (eCommand)
+	{
+	case COMMAND_PROMOTION:
+		kTarget.szKind = "PROMOTION";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumPromotionInfos()) kTarget.szType = getSASInfoTypeOrNone((PromotionTypes)iData1);
+		break;
+	case COMMAND_UPGRADE:
+		kTarget.szKind = "UNIT_TYPE";
+		kTarget.iId = iData1;
+		if (iData1 >= 0 && iData1 < GC.getNumUnitInfos()) kTarget.szType = getSASInfoTypeOrNone((UnitTypes)iData1);
+		break;
+	case COMMAND_AUTOMATE:
+		kTarget.szKind = "AUTOMATE";
+		kTarget.iId = iData1;
+		kTarget.szType = getSASGameRecordNativeAutomateType((AutomateTypes)iData1);
+		break;
+	case COMMAND_LOAD_UNIT:
+		kTarget.szKind = "UNIT";
+		kTarget.iPlayer = iData1;
+		kTarget.iUnitId = iData2;
+		if (iData1 >= 0 && iData1 < MAX_PLAYERS)
+		{
+			CvUnit const* pTargetUnit = GET_PLAYER((PlayerTypes)iData1).getUnit(iData2);
+			if (pTargetUnit != NULL) kTarget.szType = getSASInfoTypeOrNone(pTargetUnit->getUnitType());
+		}
+		break;
+	case COMMAND_HOTKEY:
+		kTarget.szKind = "HOTKEY";
+		kTarget.iId = iData1;
+		break;
+	default:
+		break;
+	}
+	return kTarget;
+}
+
+// <!-- custom: Unit commands are logged before CvUnit::doCommand checks eligibility; successful promotion/upgrade/scrap/etc. rows remain authoritative outcomes.
+// Alt/all is preserved from the network command plus static CommandInfo metadata without scanning candidate units or predicting which same-type units will actually act. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerUnitCommand(CvUnit const& kUnit, CommandTypes eCommand, int iData1, int iData2, bool bAlt)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	bool const bValidCommand = (eCommand >= 0 && eCommand < NUM_COMMAND_TYPES);
+	SASGameRecordNativeCommandTarget const kTarget = getSASGameRecordUnitCommandTarget(eCommand, iData1, iData2);
+	logSASGameRecord("GAME_RECORD_PLAYER_UNIT_COMMAND turn=%d elapsed=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE groupId=%d groupUnits=%d queueLengthBefore=%d automateBefore=%s command=%s commandId=%d data1=%d data2=%d alt=%d commandAll=%d targetKind=%s target=%s targetId=%d targetPlayer=%d targetUnitId=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), kUnit.getX(), kUnit.getY(), getSASGameRecordSessionWallMilliseconds(),
+		pGroup == NULL ? -1 : pGroup->getID(), pGroup == NULL ? 0 : pGroup->getNumUnits(), pGroup == NULL ? 0 : pGroup->getLengthMissionQueue(), pGroup == NULL ? "-" : getSASGameRecordNativeAutomateType(pGroup->getAutomateType()),
+		bValidCommand ? GC.getInfo(eCommand).getType() : "-", eCommand, iData1, iData2, bAlt ? 1 : 0, bValidCommand && GC.getInfo(eCommand).getAll() ? 1 : 0,
+		kTarget.szKind, kTarget.szType, kTarget.iId, kTarget.iPlayer, kTarget.iUnitId);
 }
 
 // <!-- custom: These operation labels describe SGR output, including EXIT's player-facing Begin meaning; they are never parsed or compared to dispatch gameplay, so they do not introduce another action enum. (GPT-6.1-Sol) -->
@@ -16516,19 +16655,19 @@ static CvString getSASGameRecordAdvancedStartTarget(AdvancedStartActionTypes eAc
 	{
 	case ADVANCEDSTARTACTION_UNIT:
 		szTargetKind = "UNIT";
-		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(getSASGameRecordUnitType((UnitTypes)iData)) : CvString("-"));
+		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(getSASInfoTypeOrNone((UnitTypes)iData)) : CvString("-"));
 	case ADVANCEDSTARTACTION_BUILDING:
 		szTargetKind = "BUILDING";
-		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(getSASGameRecordBuildingType((BuildingTypes)iData)) : CvString("-"));
+		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(getSASInfoTypeOrNone((BuildingTypes)iData)) : CvString("-"));
 	case ADVANCEDSTARTACTION_IMPROVEMENT:
 		szTargetKind = "IMPROVEMENT";
-		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(getSASGameRecordImprovementType((ImprovementTypes)iData)) : CvString("-"));
+		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(getSASInfoTypeOrNone((ImprovementTypes)iData)) : CvString("-"));
 	case ADVANCEDSTARTACTION_ROUTE:
 		szTargetKind = "ROUTE";
-		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(getSASGameRecordRouteType((RouteTypes)iData)) : CvString("-"));
+		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(getSASInfoTypeOrNone((RouteTypes)iData)) : CvString("-"));
 	case ADVANCEDSTARTACTION_TECH:
 		szTargetKind = "TECH";
-		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(getSASGameRecordTechType((TechTypes)iData)) : CvString("-"));
+		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(getSASInfoTypeOrNone((TechTypes)iData)) : CvString("-"));
 	case ADVANCEDSTARTACTION_CITY:
 	case ADVANCEDSTARTACTION_VISIBILITY:
 		szTargetKind = "PLOT";
@@ -16689,7 +16828,7 @@ void logSASGameRecordAdvancedStartOffers(CvPlayer const& kPlayer, CvPlot const* 
 		return;
 	++g_iSASAdvancedStartOfferSnapshot;
 	logSASGameRecord("GAME_RECORD_ADVANCED_START_OFFERS turn=%d player=%d snapshotId=%d event=%s sessionWallMilliseconds=%u startEra=%s currentEra=%s points=%d gold=%d cities=%d x=%d y=%d entries=%d changed=%d removed=%d",
-		GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, bFirst ? "FULL" : "DELTA", getSASGameRecordSessionWallMilliseconds(), getSASGameRecordEraType(GC.getGame().getStartEra()), getSASGameRecordEraType(kPlayer.getCurrentEra()), iPoints, kPlayer.getGold(), kPlayer.getNumCities(), iX, iY, (int)kOffers.size(), iChanged, iRemoved);
+		GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, bFirst ? "FULL" : "DELTA", getSASGameRecordSessionWallMilliseconds(), getSASInfoTypeOrNone(GC.getGame().getStartEra()), getSASInfoTypeOrNone(kPlayer.getCurrentEra()), iPoints, kPlayer.getGold(), kPlayer.getNumCities(), iX, iY, (int)kOffers.size(), iChanged, iRemoved);
 	for (SASAdvancedStartOfferMap::const_iterator it = kOffers.begin(); it != kOffers.end(); ++it)
 	{
 		SASAdvancedStartOfferMap::const_iterator const old = g_kSASAdvancedStartPreviousOffers.find(it->first);
@@ -16922,7 +17061,7 @@ static CvString getSASGameRecordVoteEffects(VoteTypes eVote)
 		szEffects += (szEffects.empty() ? "NO_NUKES" : ",NO_NUKES");
 	FOR_EACH_NON_DEFAULT_KEY(kVote.isForceCivic(), Civic)
 	{
-		szItem.Format(szEffects.empty() ? "FORCE_CIVIC:%s" : ",FORCE_CIVIC:%s", getSASGameRecordCivicType(eLoopCivic));
+		szItem.Format(szEffects.empty() ? "FORCE_CIVIC:%s" : ",FORCE_CIVIC:%s", getSASInfoTypeOrNone(eLoopCivic));
 		szEffects += szItem;
 	}
 	if (kVote.isOpenBorders())
@@ -17038,8 +17177,8 @@ static void logSASGameRecordAIDiploVoteDecisionImpl(CvPlayerAI const& kPlayer, V
 			szRandomRoll.Format("%d", iRandomRoll);
 	}
 	logSASGameRecord("GAME_RECORD_AI_DIPLO_VOTE turn=%d triggeredId=%d player=%d team=%d source=%s vote=%s choice=%s reason=%s effects=%s repeal=%d secretaryTeam=%d secretaryAttitude=%s decisionValue=%s decisionThreshold=%s randomRoll=%s targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
-		kGame.getGameTurn(), iTriggeredVoteId, kPlayer.getID(), kPlayer.getTeam(), getSASGameRecordVoteSourceType(eVoteSource),
-		getSASGameRecordVoteType(kVoteData.eVote), getSASGameRecordPlayerVoteChoice(eChoice).GetCString(),
+		kGame.getGameTurn(), iTriggeredVoteId, kPlayer.getID(), kPlayer.getTeam(), getSASInfoTypeOrNone(eVoteSource),
+		getSASInfoTypeOrNone(kVoteData.eVote), getSASGameRecordPlayerVoteChoice(eChoice).GetCString(),
 		getSASGameRecordAIDiploVoteReason(eReason), getSASGameRecordVoteEffects(kVoteData.eVote).GetCString(),
 		kGame.getVoteOutcome(kVoteData.eVote) == PLAYER_VOTE_YES ? 1 : 0, eSecretaryTeam, szSecretaryAttitude.GetCString(),
 		szDecisionValue.GetCString(), szDecisionThreshold.GetCString(), szRandomRoll.GetCString(), eTargetPlayer, eTargetTeam,
@@ -17070,9 +17209,9 @@ void logSASGameRecordAIElectionChoice(CvTeamAI const& kTeam, VoteSelectionData c
 	if (pSelected != NULL)
 		getSASGameRecordVoteTarget(*pSelected, eTargetPlayer, eTargetTeam, pTargetCity, eOtherPlayer, eOtherTeam);
 	logSASGameRecord("GAME_RECORD_AI_ELECTION_CHOICE turn=%d selectionId=%d team=%d secretaryPlayer=%d source=%s outcome=%s optionCount=%d validOptions=%d rejectedOptions=%d victoryBoostedOptions=%d selectedIndex=%d selectedVote=%s selectedEffects=%s selectedValue=%d selectedRandomValue=%d selectedVictoryBoost=%d targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
-		GC.getGame().getGameTurn(), kSelection.getID(), kTeam.getID(), kTeam.getSecretaryID(), getSASGameRecordVoteSourceType(kSelection.eVoteSource),
+		GC.getGame().getGameTurn(), kSelection.getID(), kTeam.getID(), kTeam.getSecretaryID(), getSASInfoTypeOrNone(kSelection.eVoteSource),
 		pSelected == NULL ? "NO_SELECTION" : "SELECTED", (int)kSelection.aVoteOptions.size(), iValidOptions, iRejectedOptions,
-		iVictoryBoostedOptions, iSelectedIndex, pSelected == NULL ? "-" : getSASGameRecordVoteType(pSelected->eVote),
+		iVictoryBoostedOptions, iSelectedIndex, pSelected == NULL ? "-" : getSASInfoTypeOrNone(pSelected->eVote),
 		pSelected == NULL ? "-" : getSASGameRecordVoteEffects(pSelected->eVote).GetCString(), iSelectedValue, iSelectedRandomValue,
 		iSelectedVictoryBoost, eTargetPlayer, eTargetTeam, pSelected == NULL ? -1 : pSelected->iCityId,
 		getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? -1 : pTargetCity->getX(),
@@ -17102,9 +17241,9 @@ void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered)
 	CvCity const* pSourceCity = kGame.getVoteSourceCity(pVoteTriggered->eVoteSource, NO_TEAM);
 
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_VOTE_TRIGGERED triggeredId=%d source=%s vote=%s context=%s sourceReligion=%s sourceBuilding=%s sourceOwner=%d sourceCityId=%d sourceCity=%S sourceX=%d sourceY=%d secretaryTeamBefore=%d proposerPlayer=%d teamVote=%d secretaryElection=%d victoryVote=%d previousOutcome=%s previouslyPassed=%d effects=%s eligibleTeams=%s requiredVotes=%d possibleVotes=%d targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
-		kGame.getGameTurn(), pVoteTriggered->getID(), getSASGameRecordVoteSourceType(pVoteTriggered->eVoteSource),
-		getSASGameRecordVoteType(eVote), szContext, getSASGameRecordReligionType(kGame.getVoteSourceReligion(pVoteTriggered->eVoteSource)),
-		getSASGameRecordBuildingType(eSourceBuilding), pSourceCity == NULL ? -1 : pSourceCity->getOwner(),
+		kGame.getGameTurn(), pVoteTriggered->getID(), getSASInfoTypeOrNone(pVoteTriggered->eVoteSource),
+		getSASInfoTypeOrNone(eVote), szContext, getSASInfoTypeOrNone(kGame.getVoteSourceReligion(pVoteTriggered->eVoteSource)),
+		getSASInfoTypeOrNone(eSourceBuilding), pSourceCity == NULL ? -1 : pSourceCity->getOwner(),
 		pSourceCity == NULL ? -1 : pSourceCity->getID(), getSASGameRecordQuotedCityName(pSourceCity).GetCString(),
 		pSourceCity == NULL ? -1 : pSourceCity->getX(), pSourceCity == NULL ? -1 : pSourceCity->getY(), eSecretaryTeam, eProposer,
 		kGame.isTeamVote(eVote) ? 1 : 0, kVote.isSecretaryGeneral() ? 1 : 0, kVote.isVictory() ? 1 : 0,
@@ -17161,9 +17300,9 @@ void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bT
 	TeamTypes const eSecretaryTeam = kGame.getSecretaryGeneral(pVoteTriggered->eVoteSource);
 
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_VOTE_RESULT triggeredId=%d source=%s vote=%s result=%s operation=%s sourceReligion=%s secretaryTeamBefore=%d teamVote=%d secretaryElection=%d victoryVote=%d previousOutcome=%s previouslyPassed=%d thresholdPassed=%d resolutionPassed=%d winningTeam=%d winningVotes=%d yesVotes=%d noVotes=%d abstainVotes=%d neverVotes=%d requiredVotes=%d possibleVotes=%d defaultedAbstain=%s defiers=%s endorsers=%s effects=%s ballots=%s targetPlayer=%d targetTeam=%d targetCityId=%d targetCity=%S targetX=%d targetY=%d otherPlayer=%d otherTeam=%d",
-		kGame.getGameTurn(), pVoteTriggered->getID(), getSASGameRecordVoteSourceType(pVoteTriggered->eVoteSource),
-		getSASGameRecordVoteType(eVote), szResult, szOperation,
-		getSASGameRecordReligionType(kGame.getVoteSourceReligion(pVoteTriggered->eVoteSource)), eSecretaryTeam, bTeamVote ? 1 : 0,
+		kGame.getGameTurn(), pVoteTriggered->getID(), getSASInfoTypeOrNone(pVoteTriggered->eVoteSource),
+		getSASInfoTypeOrNone(eVote), szResult, szOperation,
+		getSASInfoTypeOrNone(kGame.getVoteSourceReligion(pVoteTriggered->eVoteSource)), eSecretaryTeam, bTeamVote ? 1 : 0,
 		kVote.isSecretaryGeneral() ? 1 : 0, kVote.isVictory() ? 1 : 0,
 		getSASGameRecordPlayerVoteChoice(kGame.getVoteOutcome(eVote)).GetCString(), bPreviouslyPassed ? 1 : 0, bThresholdPassed ? 1 : 0,
 		bPassed ? 1 : 0, eWinningTeam, iWinningVotes, iYesVotes, iNoVotes, iAbstainVotes, iNeverVotes,
@@ -17177,13 +17316,13 @@ void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bT
 
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer)
 {
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eReligion));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s", GC.getGame().getGameTurn(), ePlayer, getSASInfoTypeOrNone(eReligion));
 }
 
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer)
 {
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_FOUNDED player=%d corporation=%s",
-		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordCorporationType(eCorporation));
+		GC.getGame().getGameTurn(), ePlayer, getSASInfoTypeOrNone(eCorporation));
 }
 
 void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded)
@@ -17261,7 +17400,7 @@ void logSASGameRecordAIDraftDecision(CvCity const& kCity, SASGameRecordAIDraftRe
 {
 	logSASGameRecord("GAME_RECORD_AI_DRAFT_DECISION turn=%d player=%d cityId=%d city=%S reason=%s unit=%s population=%d highestPopulation=%d conscriptPopulation=%d conscriptAngerTimer=%d danger=%d landWar=%d goodValue=%d tooMuchPop=%d poorPlots=%d happyDiff=%d unitCostPerMil=%d localDefense=%d localEnemyOffense=%d buildUnitProb=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), getSASGameRecordAIDraftReason(eReason),
-		getSASGameRecordUnitType(eConscriptUnit), kCity.getPopulation(), kCity.getHighestPopulation(), iConscriptPopulation, kCity.getConscriptAngerTimer(),
+		getSASInfoTypeOrNone(eConscriptUnit), kCity.getPopulation(), kCity.getHighestPopulation(), iConscriptPopulation, kCity.getConscriptAngerTimer(),
 		iDanger, iLandWar, iGoodValue, iTooMuchPop, iPoorPlots, iHappyDiff, iUnitCostPerMil, iLocalDefense, iLocalEnemyOffense, iBuildUnitProb);
 }
 
@@ -17361,27 +17500,27 @@ void logSASGameRecordAIBuildingChoice(CvCityAI const& kCity, BuildingTypes eBuil
 	CvString szCommerceModifiers;
 	FOR_EACH_ENUM(Yield)
 	{
-		appendSASGameRecordSignedValue(szYieldChanges, getSASGameRecordYieldType(eLoopYield), kBuilding.getYieldChange(eLoopYield));
-		appendSASGameRecordSignedValue(szYieldModifiers, getSASGameRecordYieldType(eLoopYield), kBuilding.getYieldModifier(eLoopYield));
+		appendSASGameRecordSignedValue(szYieldChanges, getSASInfoTypeOrNone(eLoopYield), kBuilding.getYieldChange(eLoopYield));
+		appendSASGameRecordSignedValue(szYieldModifiers, getSASInfoTypeOrNone(eLoopYield), kBuilding.getYieldModifier(eLoopYield));
 	}
 	FOR_EACH_ENUM(Commerce)
 	{
-		appendSASGameRecordSignedValue(szCommerceChanges, getSASGameRecordCommerceType(eLoopCommerce), kBuilding.getCommerceChange(eLoopCommerce) + kBuilding.getObsoleteSafeCommerceChange(eLoopCommerce));
-		appendSASGameRecordSignedValue(szCommerceModifiers, getSASGameRecordCommerceType(eLoopCommerce), kBuilding.getCommerceModifier(eLoopCommerce));
+		appendSASGameRecordSignedValue(szCommerceChanges, getSASInfoTypeOrNone(eLoopCommerce), kBuilding.getCommerceChange(eLoopCommerce) + kBuilding.getObsoleteSafeCommerceChange(eLoopCommerce));
+		appendSASGameRecordSignedValue(szCommerceModifiers, getSASInfoTypeOrNone(eLoopCommerce), kBuilding.getCommerceModifier(eLoopCommerce));
 	}
 	CvString szDomainProduction;
 	CvString szDomainExperience;
 	FOR_EACH_ENUM(Domain)
 	{
-		appendSASGameRecordSignedValue(szDomainProduction, getSASGameRecordDomainType(eLoopDomain), kBuilding.getDomainProductionModifier(eLoopDomain));
-		appendSASGameRecordSignedValue(szDomainExperience, getSASGameRecordDomainType(eLoopDomain), kBuilding.getDomainFreeExperience(eLoopDomain));
+		appendSASGameRecordSignedValue(szDomainProduction, getSASInfoTypeOrNone(eLoopDomain), kBuilding.getDomainProductionModifier(eLoopDomain));
+		appendSASGameRecordSignedValue(szDomainExperience, getSASInfoTypeOrNone(eLoopDomain), kBuilding.getDomainFreeExperience(eLoopDomain));
 	}
 	CvString szUnitCombatExperience;
 	FOR_EACH_ENUM(UnitCombat)
-		appendSASGameRecordSignedValue(szUnitCombatExperience, getSASGameRecordUnitCombatType(eLoopUnitCombat), kBuilding.getUnitCombatFreeExperience(eLoopUnitCombat));
+		appendSASGameRecordSignedValue(szUnitCombatExperience, getSASInfoTypeOrNone(eLoopUnitCombat), kBuilding.getUnitCombatFreeExperience(eLoopUnitCombat));
 	CvString szBonusProductionModifiers;
 	FOR_EACH_ENUM(Bonus)
-		appendSASGameRecordSignedValue(szBonusProductionModifiers, getSASGameRecordBonusType(eLoopBonus), kBuilding.getBonusYieldModifier(eLoopBonus, YIELD_PRODUCTION));
+		appendSASGameRecordSignedValue(szBonusProductionModifiers, getSASInfoTypeOrNone(eLoopBonus), kBuilding.getBonusYieldModifier(eLoopBonus, YIELD_PRODUCTION));
 	CvString szImprovementFreeSpecialists;
 	int iImprovementFreeSpecialistExistingPlots = 0;
 	int iImprovementFreeSpecialistExistingCount = 0;
@@ -17394,7 +17533,7 @@ void logSASGameRecordAIBuildingChoice(CvCityAI const& kCity, BuildingTypes eBuil
 		int const iExistingSpecialists = iExistingPlots * perImprovementVal.second;
 		int const iPotentialSpecialists = iPotentialPlots * perImprovementVal.second;
 		CvString szItem;
-		szItem.Format("%s:%+d@existing=%d/%d@potential=%d/%d", getSASGameRecordImprovementType(perImprovementVal.first), perImprovementVal.second,
+		szItem.Format("%s:%+d@existing=%d/%d@potential=%d/%d", getSASInfoTypeOrNone(perImprovementVal.first), perImprovementVal.second,
 			iExistingPlots, iExistingSpecialists, iPotentialPlots, iPotentialSpecialists);
 		appendSASDiagnosticListValue(szImprovementFreeSpecialists, szItem.GetCString());
 		iImprovementFreeSpecialistExistingPlots += iExistingPlots;
@@ -17416,7 +17555,7 @@ void logSASGameRecordAIBuildingChoice(CvCityAI const& kCity, BuildingTypes eBuil
 		"maintenanceTimes100=%d governmentCenter=%d capital=%d oldCapitalCityId=%d oldCapitalCity=%S oldCapitalX=%d oldCapitalY=%d nationalParkStyle=%d defenseModifier=%d bombardDefenseModifier=%d militaryProductionModifier=%d spaceProductionModifier=%d freeExperience=%d foodKept=%d tradeRoutes=%d coastalTradeRoutes=%d areaTradeRoutes=%d tradeRouteModifier=%d maintenanceModifier=%d improvementFreeSpecialistExistingPlots=%d improvementFreeSpecialistExistingCount=%d improvementFreeSpecialistPotentialPlots=%d improvementFreeSpecialistPotentialCount=%d "
 		"yieldChanges=%s yieldModifiers=%s commerceChanges=%s commerceModifiers=%s domainProductionModifiers=%s domainFreeExperience=%s unitCombatFreeExperience=%s bonusProductionModifiers=%s improvementFreeSpecialists=%s",
 		GC.getGame().getGameTurn(), ePlayer, kCity.getTeam(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
-		getSASGameRecordAIBuildingChoiceOrigin(eOrigin), iFocusFlags, szFocus, getSASGameRecordBuildingType(eBuilding), GC.getInfo(kBuilding.getBuildingClassType()).getType(), szCategory,
+		getSASGameRecordAIBuildingChoiceOrigin(eOrigin), iFocusFlags, szFocus, getSASInfoTypeOrNone(eBuilding), GC.getInfo(kBuilding.getBuildingClassType()).getType(), szCategory,
 		iDecisionValue, szDecisionValueKind, iHelperMaxTurns, iHelperMinThreshold, bHelperOrigin ? iHelperBaseOdds : -1, iHelperProgressOdds, iHelperEffectiveOdds,
 		(bHelperOrigin && iHelperBaseOdds >= 0 ? iHelperRandomRoll : -1), iHelperForced, iStored, iNeeded, getSASGameRecordPercentX100(iStored, iNeeded), iTurnsLeft,
 		kCity.getPopulation(), kCity.getBaseYieldRate(YIELD_PRODUCTION), iFoodDifference, iHappySurplus, iHealthSurplus, iHealthFoodLoss, iHealthFoodRelief,
@@ -17437,7 +17576,7 @@ void logSASGameRecordAIHurryDecision(CvCity const& kCity, HurryTypes eHurry, SAS
 	logSASGameRecord("GAME_RECORD_AI_HURRY_DECISION turn=%d player=%d cityId=%d city=%S ownerHuman=%d productionAutomated=%d reason=%s hurry=%s targetKind=%s target=%s unitAI=%s happyBalance=%d happyDiff=%d foodDifference=%d subjectivePopCost=%d subjectiveGoldCost=%d decisionValue=%d overflowValue=%d decisionMargin=%d",
 		GC.getGame().getGameTurn(), kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.isHuman() ? 1 : 0,
 		kCity.isProductionAutomated() ? 1 : 0, getSASGameRecordAIHurryReason(eReason), GC.getInfo(eHurry).getType(),
-		getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), getSASGameRecordUnitAIType(eUnitAI),
+		getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), getSASInfoTypeOrNone(eUnitAI),
 		iHappyBalance, iHappyDiff, iFoodDifference, iPopCost, iGoldCost, iDecisionValue, iOverflowValue, iDecisionMargin);
 }
 
@@ -17465,11 +17604,11 @@ void logSASGameRecordPillage(CvUnit const* pUnit, SASGameRecordPlotState const& 
 			(kOldPlotState.eImprovement != kPlot.getImprovementType() ? "IMPROVEMENT" : "-"));
 	TeamTypes const eVictimTeam = (eVictimPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eVictimPlayer).getTeam());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PILLAGE player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d victimPlayer=%d victimTeam=%d structure=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s bonus=%s workingCityId=%d workingCity=%S goldGained=%d hiddenNationality=%d alwaysHostile=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), kPlot.getX(), kPlot.getY(), eVictimPlayer, eVictimTeam, szStructure,
-		getSASGameRecordImprovementType(kOldPlotState.eImprovement), getSASGameRecordImprovementType(kPlot.getImprovementType()),
-		getSASGameRecordRouteType(kOldPlotState.eRoute), getSASGameRecordRouteType(kPlot.getRouteType()),
-		getSASGameRecordBonusType(kOldPlotState.eBonus), pWorkingCity == NULL ? -1 : pWorkingCity->getID(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), kPlot.getX(), kPlot.getY(), eVictimPlayer, eVictimTeam, szStructure,
+		getSASInfoTypeOrNone(kOldPlotState.eImprovement), getSASInfoTypeOrNone(kPlot.getImprovementType()),
+		getSASInfoTypeOrNone(kOldPlotState.eRoute), getSASInfoTypeOrNone(kPlot.getRouteType()),
+		getSASInfoTypeOrNone(kOldPlotState.eBonus), pWorkingCity == NULL ? -1 : pWorkingCity->getID(),
 		getSASGameRecordQuotedCityName(pWorkingCity).GetCString(), iGoldGained, pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0,
 		pUnit->isAlwaysHostile(kPlot) ? 1 : 0);
 }
@@ -17574,8 +17713,8 @@ void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
 		captureSASGameRecordBlockadeContext(*pUnit, kContext, true);
 		g_aSASGameRecordBlockades.push_back(kContext);
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_STARTED player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s canPlunder=%d hiddenNationality=%d alwaysHostile=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-			getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), kContext.iRangePlots,
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+			getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), kContext.iRangePlots,
 			kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(), kContext.iAffectedTeams,
 			kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(), kContext.iAffectedCities,
 			kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0,
@@ -17602,8 +17741,8 @@ void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
 	bool const bScopeChanged = (bStartKnown &&
 			(kContext.szAffectedTeams != kEndContext.szAffectedTeams || kContext.szAffectedCities != kEndContext.szAffectedCities));
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_ENDED player=%d team=%d unitId=%d unit=%s unitAI=%s startKnown=%d rangeSource=%s startTurn=%d startX=%d startY=%d endX=%d endY=%d durationTurns=%d durationElapsedTurns=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s endAffectedTeams=%d endTeams=%s endAffectedCities=%d endCities=%s scopeChanged=%d plunderEvents=%d goldPlundered=%d uniquePlunderedCities=%d canPlunderAtEnd=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bStartKnown ? 1 : 0, bStartKnown ? "START" : "END_FALLBACK",
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), bStartKnown ? 1 : 0, bStartKnown ? "START" : "END_FALLBACK",
 		kContext.iStartTurn, kContext.iStartX, kContext.iStartY, pUnit->getX(), pUnit->getY(), iDurationTurns, iDurationElapsedTurns,
 		kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(), kContext.iAffectedTeams,
 		kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(), kContext.iAffectedCities,
@@ -17633,8 +17772,8 @@ void logSASGameRecordBlockadePlunder(CvUnit const* pUnit, CvCity const* pCity, i
 		iAgeTurns = GC.getGame().getGameTurn() - kContext.iStartTurn;
 	}
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_PLUNDER player=%d team=%d unitId=%d unit=%s unitAI=%s unitX=%d unitY=%d victimPlayer=%d victimTeam=%d cityId=%d city=%S cityX=%d cityY=%d gold=%d tradeRoutes=%d profitPerRoute=%d blockadeStartKnown=%d blockadeStartTurn=%d blockadeAgeTurns=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pCity->getOwner(), pCity->getTeam(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pCity->getOwner(), pCity->getTeam(),
 		pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), iGold, iTradeRoutes,
 		iProfitPerRoute, iContext >= 0 ? 1 : 0, iStartTurn, iAgeTurns);
 }
@@ -17655,7 +17794,7 @@ void logSASGameRecordUnitGifted(CvUnit const* pUnit, PlayerTypes eGiftingPlayer,
 	}
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_GIFTED giverPlayer=%d giverTeam=%d receiverPlayer=%d receiverTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d experience=%d level=%d promotions=%d damage=%d productionNeeded=%d canCombat=%d cargo=%d transportId=%d",
 		GC.getGame().getGameTurn(), eGiftingPlayer, eGiverTeam, eReceiver, eReceiverTeam, pUnit->getID(),
-		getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+		getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
 		pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(),
 		pUnit->getExperience(), pUnit->getLevel(), iPromotions, pUnit->getDamage(),
 		eReceiver == NO_PLAYER ? -1 : GET_PLAYER(eReceiver).getProductionNeeded(pUnit->getUnitType()), pUnit->canCombat() ? 1 : 0,
@@ -17670,8 +17809,8 @@ void logSASGameRecordReligionChanged(ReligionTypes eReligion, PlayerTypes ePlaye
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d cityId=%d city=%S x=%d y=%d religion=%s holyCity=%d effectiveStateReligion=%s religionsInCity=%d",
 		kGame.getGameTurn(), bAdded ? "RELIGION_SPREAD" : "RELIGION_REMOVED", ePlayer, kPlayer.getTeam(), pCity->getID(),
-		getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), getSASGameRecordReligionType(eReligion),
-		kGame.getHolyCity(eReligion) == pCity ? 1 : 0, getSASGameRecordReligionType(kPlayer.getStateReligion()), pCity->getReligionCount());
+		getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), getSASInfoTypeOrNone(eReligion),
+		kGame.getHolyCity(eReligion) == pCity ? 1 : 0, getSASInfoTypeOrNone(kPlayer.getStateReligion()), pCity->getReligionCount());
 }
 
 void logSASGameRecordReligionSpreadAttempt(CvUnit const* pUnit, ReligionTypes eReligion, CvCity const* pCity, int iDirectSpreadChance, bool bSuccess, ReligionTypes eDisplacedReligion)
@@ -17681,9 +17820,9 @@ void logSASGameRecordReligionSpreadAttempt(CvUnit const* pUnit, ReligionTypes eR
 	char const* szOutcome = (bSuccess ? (eDisplacedReligion == NO_RELIGION ? "SPREAD" : "SPREAD_AND_DISPLACE") : "FAILED");
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_SPREAD_ATTEMPT player=%d team=%d unitId=%d unit=%s unitAI=%s religion=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d directSpreadChance=%d outcome=%s displacedReligion=%s religionsBefore=%d",
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(),
-			getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), getSASGameRecordReligionType(eReligion),
+			getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), getSASInfoTypeOrNone(eReligion),
 			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
-			iDirectSpreadChance, szOutcome, getSASGameRecordReligionType(eDisplacedReligion), pCity->getReligionCount());
+			iDirectSpreadChance, szOutcome, getSASInfoTypeOrNone(eDisplacedReligion), pCity->getReligionCount());
 }
 
 void logSASGameRecordCorporationChanged(CorporationTypes eCorporation, PlayerTypes ePlayer, CvCity const* pCity, bool bAdded)
@@ -17694,7 +17833,7 @@ void logSASGameRecordCorporationChanged(CorporationTypes eCorporation, PlayerTyp
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d cityId=%d city=%S x=%d y=%d corporation=%s headquarters=%d corporationsInCity=%d",
 		kGame.getGameTurn(), bAdded ? "CORPORATION_SPREAD" : "CORPORATION_REMOVED", ePlayer, kPlayer.getTeam(), pCity->getID(),
-		getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), getSASGameRecordCorporationType(eCorporation),
+		getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), getSASInfoTypeOrNone(eCorporation),
 		kGame.getHeadquarters(eCorporation) == pCity ? 1 : 0, pCity->getCorporationCount());
 }
 
@@ -17705,7 +17844,7 @@ void logSASGameRecordCorporationSpreadAttempt(CvUnit const* pUnit, CorporationTy
 	CvPlayer const& kPlayer = GET_PLAYER(pUnit->getOwner());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_SPREAD_ATTEMPT player=%d team=%d unitId=%d unit=%s unitAI=%s corporation=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d spreadChance=%d outcome=%s goldCost=%d goldBefore=%d goldAfter=%d corporationsBefore=%d",
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(),
-			getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), getSASGameRecordCorporationType(eCorporation),
+			getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), getSASInfoTypeOrNone(eCorporation),
 			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
 			iSpreadChance, bSuccess ? "SPREAD" : "FAILED", iGoldCost, iGoldBefore, kPlayer.getGold(), pCity->getCorporationCount());
 }
@@ -17768,8 +17907,8 @@ void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOp
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS || eCivicOption == NO_CIVICOPTION)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CIVIC_CHANGED player=%d civicOption=%s oldCivic=%s newCivic=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
-		GC.getGame().getGameTurn(), ePlayer, GC.getInfo(eCivicOption).getType(), getSASGameRecordCivicType(eOldCivic), getSASGameRecordCivicType(eNewCivic),
-		getSASGameRecordReligionType(eOldEffectiveStateReligion), getSASGameRecordReligionType(eNewEffectiveStateReligion), GET_PLAYER(ePlayer).getAnarchyTurns());
+		GC.getGame().getGameTurn(), ePlayer, GC.getInfo(eCivicOption).getType(), getSASInfoTypeOrNone(eOldCivic), getSASInfoTypeOrNone(eNewCivic),
+		getSASInfoTypeOrNone(eOldEffectiveStateReligion), getSASInfoTypeOrNone(eNewEffectiveStateReligion), GET_PLAYER(ePlayer).getAnarchyTurns());
 }
 
 void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion)
@@ -17779,8 +17918,8 @@ void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	ReligionTypes const eOldEffectiveReligion = (kPlayer.isStateReligion() ? eOldReligion : NO_RELIGION);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=LAST_STATE_RELIGION_CHANGED player=%d oldLastStateReligion=%s newLastStateReligion=%s oldEffectiveStateReligion=%s newEffectiveStateReligion=%s anarchyTurns=%d",
-		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion),
-		getSASGameRecordReligionType(eOldEffectiveReligion), getSASGameRecordReligionType(kPlayer.getStateReligion()),
+		GC.getGame().getGameTurn(), ePlayer, getSASInfoTypeOrNone(eOldReligion), getSASInfoTypeOrNone(eNewReligion),
+		getSASInfoTypeOrNone(eOldEffectiveReligion), getSASInfoTypeOrNone(kPlayer.getStateReligion()),
 		kPlayer.getAnarchyTurns());
 }
 
@@ -17796,7 +17935,7 @@ void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, Building
 	kFlow.aiBuildingTypes[eBuilding]++;
 	// <!-- custom: At level 3, also keep production-completed limited buildings here: WONDER_BUILT remains the rare strategic marker, while BUILDING_COMPLETED now owns the exact production/overflow result like units and projects. (ChatGPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
-		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded,
+		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASInfoTypeOrNone(eBuilding), iProductionNeeded,
 		iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 }
 
@@ -17806,7 +17945,7 @@ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s",
 		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
-		getSASGameRecordBuildingType(eBuilding));
+		getSASInfoTypeOrNone(eBuilding));
 }
 
 void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
@@ -17820,7 +17959,7 @@ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, in
 	kFlow.iProjectProductionNeeded += iProductionNeeded;
 	kFlow.aiProjectTypes[eProject]++;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
-		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded,
+		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASInfoTypeOrNone(eProject), iProductionNeeded,
 		iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 }
 
@@ -17852,7 +17991,7 @@ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool 
 	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
 	kFlow.iFailedInvestedProduction += iInvestedProduction;
 	kFlow.iFailGold += iGold;
-	char const* szProduction = (bProject ? GC.getInfo((ProjectTypes)iOrderData).getType() : getSASGameRecordBuildingType((BuildingTypes)iOrderData));
+	char const* szProduction = (bProject ? GC.getInfo((ProjectTypes)iOrderData).getType() : getSASInfoTypeOrNone((BuildingTypes)iOrderData));
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_FAILED_TO_GOLD player=%d cityId=%d city=%S productionKind=%s production=%s investedProduction=%d gold=%d",
 		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
 		bProject ? "PROJECT" : "BUILDING", szProduction, iInvestedProduction, iGold);
@@ -17904,7 +18043,7 @@ void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit,
 	kFlow.iProductionUpgradePreserved += std::max(0, iDestinationProductionBefore);
 	if (gGameRecordLogLevel >= 3 || iDestinationProductionBefore > 0) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d preservedDestinationProduction=%d",
 		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
-		getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore,
+		getSASInfoTypeOrNone(eOldUnit), getSASInfoTypeOrNone(eNewUnit), iProductionTransferred, iDestinationProductionBefore,
 		iDestinationProductionBefore + iProductionTransferred, std::max(0, iDestinationProductionBefore));
 }
 
@@ -17941,7 +18080,7 @@ static void logSASGameRecordVictoryProgressRemoved(TeamTypes eTeam, VictoryTypes
 	bool const bProjectVictory = getSASGameRecordVictoryProjectState(eTeam, eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
 	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s team=%d victory=%s cause=%s countdown=%d arrivalTurn=%d launchSuccessPercent=%d capitalPlayer=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d projectVictory=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
-			GC.getGame().getGameTurn(), szAction, eTeam, getSASGameRecordVictoryType(eVictory), szCause, iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
+			GC.getGame().getGameTurn(), szAction, eTeam, getSASInfoTypeOrNone(eVictory), szCause, iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
 			iLaunchSuccessPercent, pCapital == NULL ? NO_PLAYER : pCapital->getOwner(), pCapital == NULL ? -1 : pCapital->getID(),
 			getSASGameRecordQuotedCityName(pCapital).GetCString(), pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
 			bProjectVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
@@ -17986,7 +18125,7 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
 	// Reuse the same level-2 gate for final war reconciliation below. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 	if (bLogVictoryDetails) flushSASGameRecordTurnChanges(GC.getGame().getGameTurn());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s",
-		GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
+		GC.getGame().getGameTurn(), eWinner, getSASInfoTypeOrNone(eVictory));
 	// <!-- custom: ReplayInfo preserves only the selected player's final and normalized scores.
 	// Record both for every civilization once at victory so benchmark review can compare the complete final field without reconstructing Civ4's final-score formula. (GPT-5.6-Sol) -->
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -18018,8 +18157,8 @@ void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer)
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PLAYER_ELIMINATED player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d eliminatedPlayers=%s",
 		GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(),
-		kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(),
-		kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(), kPlayer.getNumCities(),
+		getSASInfoTypeOrNone(kPlayer.getCivilizationType()),
+		getSASInfoTypeOrNone(kPlayer.getLeaderType()), kPlayer.getNumCities(),
 		kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(),
 		GC.getGame().countCivTeamsAlive(), getSASGameRecordEliminatedPlayers().GetCString());
 	// <!-- custom: If this eliminated the team's last player, close its active war summaries on the exact elimination turn instead of waiting for the next periodic snapshot. (GPT-5.6-Sol) -->
@@ -18036,8 +18175,8 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
 	// Observe the maintained getter instead; this fixed the SGR accessor assertion. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d team=%d civ=%s leader=%s cities=%d units=%d score=%d power=%d playersAlive=%d teamsAlive=%d playersEverAlive=%d",
 		GC.getGame().getGameTurn(), bRevived ? "PLAYER_REVIVED" : "PLAYER_APPEARED", ePlayer, kPlayer.getTeam(),
-		kPlayer.getCivilizationType() == NO_CIVILIZATION ? "-" : GC.getInfo(kPlayer.getCivilizationType()).getType(),
-		kPlayer.getLeaderType() == NO_LEADER ? "-" : GC.getInfo(kPlayer.getLeaderType()).getType(), kPlayer.getNumCities(),
+		getSASInfoTypeOrNone(kPlayer.getCivilizationType()),
+		getSASInfoTypeOrNone(kPlayer.getLeaderType()), kPlayer.getNumCities(),
 		kPlayer.getNumUnits(), kPlayer.calculateScore(), kPlayer.getPower(), GC.getGame().countCivPlayersAlive(),
 		GC.getGame().countCivTeamsAlive(), GC.getGame().getCivPlayersEverAlive());
 	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
@@ -18128,7 +18267,7 @@ void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, C
 	// <!-- custom: Keep the newborn unit ID and exact spawn plot so one Great Person, especially a Great General, can be followed directly from birth through BBAI decisions to join/construct/attach/death rows instead of correlating only by player and turn. (ChatGPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_BORN player=%d cityId=%d city=%S unitId=%d unit=%s x=%d y=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d",
 			GC.getGame().getGameTurn(), ePlayer, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
-			pUnit == NULL ? -1 : pUnit->getID(), pUnit == NULL ? "-" : getSASGameRecordUnitType(pUnit->getUnitType()),
+			pUnit == NULL ? -1 : pUnit->getID(), pUnit == NULL ? "-" : getSASInfoTypeOrNone(pUnit->getUnitType()),
 			pUnit == NULL ? -1 : pUnit->getX(), pUnit == NULL ? -1 : pUnit->getY(),
 			ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getCombatExperience(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatPeopleCreated(),
 			ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).getGreatGeneralsCreated(), ePlayer == NO_PLAYER ? 0 : GET_PLAYER(ePlayer).greatPeopleThreshold(true));
@@ -18139,8 +18278,8 @@ void logSASGameRecordGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity,
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_JOINED_CITY player=%d unitId=%d unit=%s cityId=%d city=%S specialist=%s freeSpecialists=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-		getSASGameRecordQuotedCityName(pCity).GetCString(), eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getID(),
+		getSASGameRecordQuotedCityName(pCity).GetCString(), getSASInfoTypeOrNone(eSpecialist),
 		pCity->getFreeSpecialistCount(eSpecialist));
 }
 
@@ -18151,8 +18290,8 @@ void logSASGameRecordGreatPersonConstructed(CvUnit const* pUnit, CvCity const* p
 	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=CONSTRUCT_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-		getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getID(),
+		getSASGameRecordQuotedCityName(pCity).GetCString(), getSASInfoTypeOrNone(eBuilding));
 }
 
 void logSASGameRecordGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech, int iResearch)
@@ -18160,8 +18299,8 @@ void logSASGameRecordGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech,
 	if (pUnit == NULL || eTech == NO_TECH)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=DISCOVER_TECH player=%d unitId=%d unit=%s x=%d y=%d tech=%s research=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(),
-		pUnit->getY(), getSASGameRecordTechType(eTech), iResearch);
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pUnit->getX(),
+		pUnit->getY(), getSASInfoTypeOrNone(eTech), iResearch);
 }
 
 void logSASGameRecordGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding, int iProduction)
@@ -18169,8 +18308,8 @@ void logSASGameRecordGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity
 	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=HURRY_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s production=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
-		getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProduction);
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getID(),
+		getSASGameRecordQuotedCityName(pCity).GetCString(), getSASInfoTypeOrNone(eBuilding), iProduction);
 }
 
 void logSASGameRecordGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* pCity, int iGold)
@@ -18198,7 +18337,7 @@ void logSASGameRecordGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* 
 	CvUnitInfo const& kUnitInfo = pUnit->getUnitInfo();
 	int const iUnitTradePercent = GC.getInfo(GC.getGame().getGameSpeedType()).getUnitTradePercent();
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=TRADE_MISSION player=%d unitId=%d unit=%s targetPlayer=%d cityId=%d city=%S targetPop=%d ownerCapitalId=%d ownerCapitalPop=%d distance=%d targetConnectedToCapital=%d foreign=%d overseas=%d baseProfitTimes100=%d tradeRouteModifier=%d populationTradeModifier=%d capitalTradeModifier=%d overseasTradeModifier=%d foreignTradeRouteModifier=%d peaceTradeModifier=%d totalTradeModifier=%d tradeProfitTimes100=%d tradeProfit=%d unitBaseTrade=%d unitTradeMultiplier=%d unitTradePercent=%d gold=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getOwner(),
 		pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getPopulation(),
 		(bHasCapital ? pCapital->getID() : -1), (bHasCapital ? pCapital->getPopulation() : -1),
 		(bHasCapital ? plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) : -1),
@@ -18212,7 +18351,7 @@ void logSASGameRecordGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCi
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=GREAT_WORK player=%d unitId=%d unit=%s cityId=%d city=%S culture=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getID(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getID(),
 		getSASGameRecordQuotedCityName(pCity).GetCString(), iCulture);
 }
 
@@ -18221,7 +18360,7 @@ void logSASGameRecordGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* p
 	if (pUnit == NULL || pCity == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=INFILTRATE player=%d unitId=%d unit=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S espionage=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pCity->getOwner(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pCity->getOwner(),
 		pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), iEspionage);
 }
 
@@ -18230,7 +18369,7 @@ void logSASGameRecordGreatPersonGoldenAgeConsumed(CvUnit const* pUnit)
 	if (pUnit == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_USED use=GOLDEN_AGE player=%d unitId=%d unit=%s x=%d y=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY());
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), pUnit->getX(), pUnit->getY());
 }
 
 // <!-- custom: Add an optional explicit death plot because combat supplies its target while a dead attacker still reports its origin; other death paths retain the unit's current location. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -18240,7 +18379,7 @@ void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsib
 		return;
 	CvPlot const* pPlot = (pDeathPlot == NULL ? pUnit->plot() : pDeathPlot);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_DIED player=%d unitId=%d unit=%s x=%d y=%d cause=%s responsiblePlayer=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
 		pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), szCause, eResponsiblePlayer);
 }
 
@@ -18257,43 +18396,43 @@ static void getSASGameRecordEspionageTarget(EspionageMissionTypes eMission, int 
 		if (eTargetImprovement != NO_IMPROVEMENT)
 		{
 			szTargetKind = "improvement";
-			szTargetType = getSASGameRecordImprovementType(eTargetImprovement);
+			szTargetType = getSASInfoTypeOrNone(eTargetImprovement);
 		}
 		else if (eTargetRoute != NO_ROUTE)
 		{
 			szTargetKind = "route";
-			szTargetType = getSASGameRecordRouteType(eTargetRoute);
+			szTargetType = getSASInfoTypeOrNone(eTargetRoute);
 		}
 	}
 	else if (kMission.getDestroyBuildingCostFactor() > 0)
 	{
 		szTargetKind = "building";
-		szTargetType = getSASGameRecordBuildingType((BuildingTypes)iExtraData);
+		szTargetType = getSASInfoTypeOrNone((BuildingTypes)iExtraData);
 	}
 	else if (kMission.getDestroyProjectCostFactor() > 0)
 	{
 		szTargetKind = "project";
-		szTargetType = getSASGameRecordProjectType((ProjectTypes)iExtraData);
+		szTargetType = getSASInfoTypeOrNone((ProjectTypes)iExtraData);
 	}
 	else if (kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0)
 	{
 		szTargetKind = "unit";
-		szTargetType = getSASGameRecordUnitType(eTargetUnit);
+		szTargetType = getSASInfoTypeOrNone(eTargetUnit);
 	}
 	else if (kMission.getBuyTechCostFactor() > 0)
 	{
 		szTargetKind = "tech";
-		szTargetType = getSASGameRecordTechType((TechTypes)iExtraData);
+		szTargetType = getSASInfoTypeOrNone((TechTypes)iExtraData);
 	}
 	else if (kMission.getSwitchCivicCostFactor() > 0)
 	{
 		szTargetKind = "civic";
-		szTargetType = getSASGameRecordCivicType((CivicTypes)iExtraData);
+		szTargetType = getSASInfoTypeOrNone((CivicTypes)iExtraData);
 	}
 	else if (kMission.getSwitchReligionCostFactor() > 0)
 	{
 		szTargetKind = "religion";
-		szTargetType = getSASGameRecordReligionType((ReligionTypes)iExtraData);
+		szTargetType = getSASInfoTypeOrNone((ReligionTypes)iExtraData);
 	}
 }
 
@@ -18339,15 +18478,15 @@ void logSASGameRecordAIEspionageDecision(CvUnitAI const* pUnit, PlayerTypes eTar
 	char const* szRunnerUpTargetType;
 	getSASGameRecordLiveEspionageTarget(pUnit, eTargetPlayer, kChoice.kRunnerUp, szRunnerUpTargetKind, szRunnerUpTargetType);
 	logSASGameRecord("GAME_RECORD_AI_ESPIONAGE_DECISION turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d targetGold=%d cityId=%d city=%S x=%d y=%d mission=%s targetKind=%s target=%s extraData=%d rawValue=%d randomPercent=%d randomizedValue=%d overhead=%d costPenalty=%d cost=%d finalValue=%d runnerUpMission=%s runnerUpTargetKind=%s runnerUpTarget=%s runnerUpData=%d runnerUpRawValue=%d runnerUpRandomPercent=%d runnerUpRandomizedValue=%d runnerUpOverhead=%d runnerUpCostPenalty=%d runnerUpCost=%d runnerUpValue=%d valueMargin=%d estimatedBaseInterceptPercent=%d estimatedSpyValue=%d estimatedEscapeCost=%d teamEP=%d espionageRate=%d bigEspionage=%d espionageEconomy=%d fortifyTurns=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), eTargetPlayer,
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), eTargetPlayer,
 		eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(),
 		eTargetPlayer == NO_PLAYER ? -1 : GET_PLAYER(eTargetPlayer).getGold(), pCity == NULL ? -1 : pCity->getID(),
 		getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getX(), pUnit->getY(),
-		getSASGameRecordEspionageMissionType(kChoice.kBest.eMission), szTargetKind, szTargetType, kChoice.kBest.iData,
+		getSASInfoTypeOrNone(kChoice.kBest.eMission), szTargetKind, szTargetType, kChoice.kBest.iData,
 		kChoice.kBest.iRawValue, kChoice.kBest.iRandomPercent, kChoice.kBest.iRandomizedValue, kChoice.kBest.iOverhead,
 		kChoice.kBest.iCostPenalty, kChoice.kBest.iCost, kChoice.kBest.iFinalValue,
-		getSASGameRecordEspionageMissionType(kChoice.kRunnerUp.eMission), szRunnerUpTargetKind, szRunnerUpTargetType,
+		getSASInfoTypeOrNone(kChoice.kRunnerUp.eMission), szRunnerUpTargetKind, szRunnerUpTargetType,
 		kChoice.kRunnerUp.iData, kChoice.kRunnerUp.iRawValue, kChoice.kRunnerUp.iRandomPercent, kChoice.kRunnerUp.iRandomizedValue,
 		kChoice.kRunnerUp.iOverhead, kChoice.kRunnerUp.iCostPenalty, kChoice.kRunnerUp.iCost, kChoice.kRunnerUp.iFinalValue,
 		kChoice.kBest.iFinalValue - kChoice.kRunnerUp.iFinalValue, kChoice.iEstimatedBaseInterceptPercent, kChoice.iSpyValue,
@@ -18365,9 +18504,9 @@ void logSASGameRecordAITacticalEspionageDecision(CvUnitAI const* pUnit, CvCity c
 	int const iRemainingDefensePercent = 100 * (iMaxDefenseDamage - pCity->getDefenseDamage()) / std::max(1, iMaxDefenseDamage);
 	logSASGameRecord("GAME_RECORD_AI_ESPIONAGE_TACTICAL_DECISION turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S x=%d y=%d mission=%s kind=CITY_REVOLT defenseDamage=%d maxDefenseDamage=%d remainingDefensePercent=%d fortifyTurns=%d",
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(),
-			pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
 			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
-			getSASGameRecordEspionageMissionType(eMission), pCity->getDefenseDamage(), iMaxDefenseDamage, iRemainingDefensePercent, pUnit->getFortifyTurns());
+			getSASInfoTypeOrNone(eMission), pCity->getDefenseDamage(), iMaxDefenseDamage, iRemainingDefensePercent, pUnit->getFortifyTurns());
 }
 
 // <!-- custom: Periodic espionage totals showed investment against each rival but not what those points accomplished.
@@ -18382,8 +18521,8 @@ void logSASGameRecordEspionageMission(CvUnit const* pUnit, EspionageMissionTypes
 	getSASGameRecordEspionageTarget(eMission, iExtraData, eTargetImprovement, eTargetRoute, eTargetUnit, szTargetKind, szTargetType);
 	CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=ESPIONAGE_MISSION player=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d mission=%s cost=%d epBefore=%d epAfter=%d cityId=%d city=%S x=%d y=%d targetKind=%s target=%s effectKind=%s effectValue=%d extraData=%d fortifyTurns=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), getSASGameRecordEspionageMissionType(eMission), iCost, iEPBefore, iEPAfter,
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
+			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), getSASInfoTypeOrNone(eMission), iCost, iEPBefore, iEPAfter,
 			pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(),
 			szTargetKind, szTargetType, szEffectKind, iEffectValue, iExtraData, pUnit->getFortifyTurns());
 }
@@ -18397,9 +18536,9 @@ void logSASGameRecordSpyInterceptionCheck(CvUnit const* pUnit, PlayerTypes eTarg
 	getSASGameRecordEspionageTarget(eMission, iExtraData, eTargetImprovement, eTargetRoute, eTargetUnit, szTargetKind, szTargetType);
 	CvCity const* pCity = pUnit->getPlot().getPlotCity();
 	logSASGameRecord("GAME_RECORD_SPY_INTERCEPTION_CHECK turn=%d player=%d team=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d phase=%s mission=%s targetKind=%s target=%s extraData=%d x=%d y=%d cityId=%d city=%S modifier=%d baseInterceptPercent=%d interceptChanceX100=%d roll=%d intercepted=%d counterespionageMod=%d counterSpyDefenseAtPlot=%d targetSpiesOnPlot=%d targetCounterSpyUnitsOnPlot=%d attackerSpiesOnPlot=%d cityEspionageDefenseModifier=%d recentMissionBonusApplies=%d fortifyTurns=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), eTargetPlayer,
-		eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, getSASGameRecordEspionageMissionType(eMission),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), eTargetPlayer,
+		eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, getSASInfoTypeOrNone(eMission),
 		szTargetKind, szTargetType, iExtraData, pUnit->getX(), pUnit->getY(), pCity == NULL ? -1 : pCity->getID(),
 		getSASGameRecordQuotedCityName(pCity).GetCString(), iModifier, iBaseInterceptPercent, iInterceptChanceX100, iInterceptRoll,
 		bIntercepted, iCounterespionageMod, bCounterSpyDefenseAtPlot, iTargetSpiesOnPlot, iTargetCounterSpyUnitsOnPlot, iAttackerSpiesOnPlot,
@@ -18415,8 +18554,8 @@ void logSASGameRecordSpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlay
 	getSASGameRecordEspionageTarget(eMission, iExtraData, eTargetImprovement, eTargetRoute, eTargetUnit, szTargetKind, szTargetType);
 	CvCity const* pCity = pUnit->getPlot().getPlotCity();
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=SPY_INTERCEPTED player=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d phase=%s mission=%s targetKind=%s target=%s extraData=%d x=%d y=%d cityId=%d city=%S modifier=%d interceptChanceX100=%d fortifyTurns=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
-			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, getSASGameRecordEspionageMissionType(eMission),
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
+			eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, getSASInfoTypeOrNone(eMission),
 			szTargetKind, szTargetType, iExtraData, pUnit->getX(), pUnit->getY(), pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(),
 			iModifier, iInterceptChanceX100, pUnit->getFortifyTurns());
 }
@@ -18426,9 +18565,9 @@ void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit co
 	if (pGreatGeneral == NULL || pTargetUnit == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_ATTACHED player=%d generalUnitId=%d generalUnit=%s targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d promotion=%s targetXP=%d targetLevel=%d",
-			GC.getGame().getGameTurn(), pGreatGeneral->getOwner(), pGreatGeneral->getID(), getSASGameRecordUnitType(pGreatGeneral->getUnitType()),
-			pTargetUnit->getID(), getSASGameRecordUnitType(pTargetUnit->getUnitType()), getSASGameRecordUnitAIType(pTargetUnit->AI_getUnitAIType()),
-			pTargetUnit->getX(), pTargetUnit->getY(), ePromotion == NO_PROMOTION ? "-" : GC.getInfo(ePromotion).getType(),
+			GC.getGame().getGameTurn(), pGreatGeneral->getOwner(), pGreatGeneral->getID(), getSASInfoTypeOrNone(pGreatGeneral->getUnitType()),
+			pTargetUnit->getID(), getSASInfoTypeOrNone(pTargetUnit->getUnitType()), getSASInfoTypeOrNone(pTargetUnit->AI_getUnitAIType()),
+			pTargetUnit->getX(), pTargetUnit->getY(), getSASInfoTypeOrNone(ePromotion),
 			pTargetUnit->getExperience(), pTargetUnit->getLevel());
 }
 
@@ -18465,7 +18604,7 @@ void logSASGameRecordUnitMove(CvUnit const& kUnit, CvPlot const& kDestination, S
 {
 	int const iRevealedAfter = countSASGameRecordUnitMoveRevealedPlots(kUnit.getTeam());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_MOVE player=%d team=%d unitId=%d unit=%s unitAI=%s human=%d humanDisabled=%d automated=%d autoplayRemaining=%d firstCityFounded=%d from=%d,%d requested=%d,%d actual=%d,%d movesBefore=%d movesAfterCharge=%d movesAfter=%d moveDenominator=%d jump=%d goodyDestination=%d delayedDeath=%d revealedBefore=%d revealedAfter=%d teamRevealDeltaDuringMove=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASGameRecordUnitType(kUnit.getUnitType()), getSASGameRecordUnitAIType(kUnit.AI_getUnitAIType()), kSnapshot.bHuman, kSnapshot.bHumanDisabled, kSnapshot.bAutomated, kSnapshot.iAutoplayRemaining, kSnapshot.bFirstCityFounded,
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getTeam(), kUnit.getID(), getSASInfoTypeOrNone(kUnit.getUnitType()), getSASInfoTypeOrNone(kUnit.AI_getUnitAIType()), kSnapshot.bHuman, kSnapshot.bHumanDisabled, kSnapshot.bAutomated, kSnapshot.iAutoplayRemaining, kSnapshot.bFirstCityFounded,
 		kSnapshot.iFromX, kSnapshot.iFromY, kDestination.getX(), kDestination.getY(), kUnit.getX(), kUnit.getY(), kSnapshot.iMovesBefore, kSnapshot.iMovesAfterCharge, kUnit.movesLeft(), GC.getMOVE_DENOMINATOR(), bJump, kSnapshot.bGoodyBefore, kUnit.isDelayedDeath(), kSnapshot.iRevealedBefore, iRevealedAfter, iRevealedAfter - kSnapshot.iRevealedBefore);
 }
 
@@ -18478,7 +18617,7 @@ void logSASGameRecordUnitScrapped(CvUnit const* pUnit)
 	kFlow.iScrapped++;
 	kFlow.iScrappedProductionNeeded += GET_PLAYER(ePlayer).getProductionNeeded(pUnit->getUnitType());
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_SCRAPPED player=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damage=%d xp=%d level=%d age=%d cargo=%d cargoSpace=%d",
-		GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+		GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()), getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()),
 		pUnit->getX(), pUnit->getY(), pUnit->getDamage(), pUnit->getExperience(), pUnit->getLevel(), GC.getGame().getGameTurn() - pUnit->getGameTurnCreated(),
 		pUnit->getCargo(), pUnit->cargoSpace());
 }
@@ -18492,8 +18631,8 @@ void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit
 	kFlow.iUpgrades++;
 	kFlow.iUpgradeGold += iCost;
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_UPGRADED player=%d oldUnitId=%d newUnitId=%d fromUnit=%s toUnit=%s unitAI=%s x=%d y=%d cost=%d oldXP=%d newXP=%d oldLevel=%d newLevel=%d",
-		GC.getGame().getGameTurn(), ePlayer, pOldUnit->getID(), pNewUnit->getID(), getSASGameRecordUnitType(pOldUnit->getUnitType()),
-		getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
+		GC.getGame().getGameTurn(), ePlayer, pOldUnit->getID(), pNewUnit->getID(), getSASInfoTypeOrNone(pOldUnit->getUnitType()),
+		getSASInfoTypeOrNone(pNewUnit->getUnitType()), getSASInfoTypeOrNone(pNewUnit->AI_getUnitAIType()),
 		pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(),
 		pNewUnit->getExperience(), pOldUnit->getLevel(), pNewUnit->getLevel());
 }
@@ -18508,8 +18647,8 @@ void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType,
 	kFlow.iCapturedProductionNeeded += GET_PLAYER(eNewOwner).getProductionNeeded(pNewUnit->getUnitType());
 	// <!-- custom: Captures are rare and strategically distinct, so retain the exact captured type and location at level 2 in addition to the interval aggregate. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_CAPTURED oldOwner=%d newOwner=%d oldUnit=%s newUnitId=%d newUnit=%s newUnitAI=%s x=%d y=%d",
-		GC.getGame().getGameTurn(), eOldOwner, eNewOwner, getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(),
-		getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()),
+		GC.getGame().getGameTurn(), eOldOwner, eNewOwner, getSASInfoTypeOrNone(eOldUnitType), pNewUnit->getID(),
+		getSASInfoTypeOrNone(pNewUnit->getUnitType()), getSASInfoTypeOrNone(pNewUnit->AI_getUnitAIType()),
 		pNewUnit->getX(), pNewUnit->getY());
 }
 
@@ -18546,8 +18685,8 @@ void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char 
 	g_kSASGameRecordPendingCityBombard.iTotalDefense = pCity->getTotalDefense(false);
 	g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter = iDefenseDamageAfter;
 	g_kSASGameRecordPendingCityBombard.iDefenseDamageMax = GC.getMAX_CITY_DEFENSE_DAMAGE();
-	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitTypes, getSASGameRecordUnitType(pUnit->getUnitType()));
-	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitAIs, getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()));
+	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitTypes, getSASInfoTypeOrNone(pUnit->getUnitType()));
+	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitAIs, getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()));
 }
 
 void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter)
@@ -18557,9 +18696,9 @@ void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int
 	CvPlot const* pTargetPlot = pDefender->plot();
 	CvCity const* pCity = (pTargetPlot == NULL ? NULL : pTargetPlot->getPlotCity());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_STRIKE player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetPlayer=%d targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d cityPlot=%d cityId=%d city=%S attackerAirBaseStr=%d defenderBaseStr=%d defenderDamageBefore=%d defenderDamageAfter=%d damageDealt=%d airCombatLimit=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pDefender->getOwner(), pDefender->getID(),
-		getSASGameRecordUnitType(pDefender->getUnitType()), getSASGameRecordUnitAIType(pDefender->AI_getUnitAIType()),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pDefender->getOwner(), pDefender->getID(),
+		getSASInfoTypeOrNone(pDefender->getUnitType()), getSASInfoTypeOrNone(pDefender->AI_getUnitAIType()),
 		pTargetPlot == NULL ? -1 : pTargetPlot->getX(), pTargetPlot == NULL ? -1 : pTargetPlot->getY(), pCity != NULL,
 		pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->airBaseCombatStr(),
 		pDefender->baseCombatStr(), iDefenderDamageBefore, iDefenderDamageAfter, std::max(0, iDefenderDamageAfter - iDefenderDamageBefore),
@@ -18571,9 +18710,9 @@ void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInt
 	if (pAttacker == NULL || pInterceptor == NULL || pTargetPlot == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_INTERCEPTION attackerPlayer=%d attackerUnitId=%d attackerUnit=%s attackerUnitAI=%s interceptorPlayer=%d interceptorUnitId=%d interceptorUnit=%s interceptorUnitAI=%s x=%d y=%d attackerDamageTaken=%d interceptorDamageTaken=%d attackerDead=%d interceptorDead=%d attackerIsAir=%d",
-		GC.getGame().getGameTurn(), pAttacker->getOwner(), pAttacker->getID(), getSASGameRecordUnitType(pAttacker->getUnitType()),
-		getSASGameRecordUnitAIType(pAttacker->AI_getUnitAIType()), pInterceptor->getOwner(), pInterceptor->getID(),
-		getSASGameRecordUnitType(pInterceptor->getUnitType()), getSASGameRecordUnitAIType(pInterceptor->AI_getUnitAIType()),
+		GC.getGame().getGameTurn(), pAttacker->getOwner(), pAttacker->getID(), getSASInfoTypeOrNone(pAttacker->getUnitType()),
+		getSASInfoTypeOrNone(pAttacker->AI_getUnitAIType()), pInterceptor->getOwner(), pInterceptor->getID(),
+		getSASInfoTypeOrNone(pInterceptor->getUnitType()), getSASInfoTypeOrNone(pInterceptor->AI_getUnitAIType()),
 		pTargetPlot->getX(), pTargetPlot->getY(), iAttackerDamageTaken, iInterceptorDamageTaken, pAttacker->isDead(), pInterceptor->isDead(),
 		pAttacker->getDomainType() == DOMAIN_AIR);
 }
@@ -18583,8 +18722,8 @@ void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot,
 	if (pUnit == NULL || pTargetPlot == NULL)
 		return;
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_BOMB_PLOT player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetOwner=%d x=%d y=%d targetKind=%s target=%s success=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(),
 		pTargetPlot->getY(), szTargetKind, szTarget, bSuccess);
 }
 
@@ -18602,7 +18741,7 @@ void logSASGameRecordNukeLaunched(CvUnit const* pUnit, CvPlot const* pTargetPlot
 	}
 	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NUKE_LAUNCHED player=%d team=%d unitId=%d unit=%s x=%d y=%d plotOwner=%d plotTeam=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulation=%d affectedTeams=%s intercepted=%d bestInterceptorTeam=%d interceptionChance=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
 		pTargetPlot->getX(), pTargetPlot->getY(), pTargetPlot->getOwner(), pTargetPlot->getTeam(),
 		pTargetCity == NULL ? -1 : pTargetCity->getID(), getSASGameRecordQuotedCityName(pTargetCity).GetCString(),
 		pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(), pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(),
@@ -18618,7 +18757,7 @@ void logSASGameRecordNukeEffects(CvUnit const* pUnit, CvPlot const* pTargetPlot,
 		return;
 	CvCity const* pTargetCity = pTargetPlot->getPlotCity();
 	logSASGameRecord("GAME_RECORD_NUKE_EFFECTS turn=%d player=%d team=%d unitId=%d unit=%s x=%d y=%d targetCityId=%d targetCity=%S targetCityOwner=%d targetCityTeam=%d targetCityPopulationAfter=%d falloutPlotsCreated=%d improvementsDestroyed=%d featuresDestroyed=%d unitsDamaged=%d unitsKilled=%d buildingsDestroyed=%d citiesAffected=%d populationKilled=%d nukesExplodedAfter=%d",
-		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
+		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
 		pTargetPlot->getX(), pTargetPlot->getY(), pTargetCity == NULL ? -1 : pTargetCity->getID(),
 		getSASGameRecordQuotedCityName(pTargetCity).GetCString(), pTargetCity == NULL ? NO_PLAYER : pTargetCity->getOwner(),
 		pTargetCity == NULL ? NO_TEAM : pTargetCity->getTeam(), pTargetCity == NULL ? -1 : pTargetCity->getPopulation(),
@@ -18635,10 +18774,10 @@ void logSASGameRecordNukeCityEffect(CvUnit const* pNukeUnit, CvCity const* pCity
 		return;
 	CvString szBuildingsDestroyed;
 	for (size_t i = 0; i < aeBuildingsDestroyed.size(); i++)
-		appendSASGameRecordType(szBuildingsDestroyed, getSASGameRecordBuildingType(aeBuildingsDestroyed[i]));
+		appendSASGameRecordType(szBuildingsDestroyed, getSASInfoTypeOrNone(aeBuildingsDestroyed[i]));
 	int const iPopulationAfter = pCity->getPopulation();
 	logSASGameRecord("GAME_RECORD_NUKE_CITY_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d cityId=%d city=%S x=%d y=%d nukeModifier=%d populationBefore=%d populationAfter=%d populationKilled=%d buildingsDestroyedCount=%d buildingsDestroyed=%s",
-			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASGameRecordUnitType(pNukeUnit->getUnitType()),
+			GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(), getSASInfoTypeOrNone(pNukeUnit->getUnitType()),
 			pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), iNukeModifier,
 			iPopulationBefore, iPopulationAfter, std::max(0, iPopulationBefore - iPopulationAfter), (int)aeBuildingsDestroyed.size(),
 			getSASDiagnosticOrDash(szBuildingsDestroyed).GetCString());
@@ -18654,8 +18793,8 @@ void logSASGameRecordNukeUnitEffect(CvUnit const* pNukeUnit, CvUnit const* pAffe
 	int const iDamageDelta = (iDamageBefore >= 0 && iDamageAfter >= 0 ? iDamageAfter - iDamageBefore : -1);
 	logSASGameRecord("GAME_RECORD_NUKE_UNIT_EFFECT turn=%d player=%d team=%d nukeUnitId=%d nukeUnit=%s affectedPlayer=%d affectedTeam=%d unitId=%d unit=%s unitAI=%s x=%d y=%d damageBefore=%d damageAfter=%d damageDelta=%d killed=%d cause=%s cargo=%d transportPlayer=%d transportId=%d",
 		GC.getGame().getGameTurn(), pNukeUnit->getOwner(), pNukeUnit->getTeam(), pNukeUnit->getID(),
-		getSASGameRecordUnitType(pNukeUnit->getUnitType()), pAffectedUnit->getOwner(), pAffectedUnit->getTeam(), pAffectedUnit->getID(),
-		getSASGameRecordUnitType(pAffectedUnit->getUnitType()), getSASGameRecordUnitAIType(pAffectedUnit->AI_getUnitAIType()), pPlot->getX(),
+		getSASInfoTypeOrNone(pNukeUnit->getUnitType()), pAffectedUnit->getOwner(), pAffectedUnit->getTeam(), pAffectedUnit->getID(),
+		getSASInfoTypeOrNone(pAffectedUnit->getUnitType()), getSASInfoTypeOrNone(pAffectedUnit->AI_getUnitAIType()), pPlot->getX(),
 		pPlot->getY(), iDamageBefore, iDamageAfter, iDamageDelta, bKilled, szCause, pAffectedUnit->isCargo(),
 		pTransport == NULL ? NO_PLAYER : pTransport->getOwner(), pTransport == NULL ? -1 : pTransport->getID());
 }
@@ -18786,8 +18925,8 @@ void logSASGameRecordNonlethalCombat(CvUnit const* pAttacker, CvUnit const* pDef
 	SASGameRecordCombatPending kPending;
 	bool const bPending = popSASGameRecordCombatPending(pAttacker, pDefender, pBattlePlot, kPending);
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerFromX=%d attackerFromY=%d riverCrossingAttack=%d riverAttackPenalty=%d amphibiousAttack=%d amphibiousAttackPenalty=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d attackerCombatOddsPermille=%d attackerXP=%d attackerLevel=%d defenderXP=%d defenderLevel=%d",
-		GC.getGame().getGameTurn(), eAttacker, eDefender, getSASGameRecordUnitType(pAttacker->getUnitType()), pAttacker->getID(),
-		getSASGameRecordUnitType(pDefender->getUnitType()), pDefender->getID(), bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL",
+		GC.getGame().getGameTurn(), eAttacker, eDefender, getSASInfoTypeOrNone(pAttacker->getUnitType()), pAttacker->getID(),
+		getSASInfoTypeOrNone(pDefender->getUnitType()), pDefender->getID(), bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL",
 		pBattlePlot->getX(), pBattlePlot->getY(), pBattlePlot->isCity(),
 		bPending ? kPending.iAttackerFromX : -1, bPending ? kPending.iAttackerFromY : -1,
 		bPending ? kPending.iRiverCrossingAttack : -1, bPending ? kPending.iRiverAttackPenalty : -1,
@@ -18844,8 +18983,8 @@ void logSASGameRecordUnitPromoted(CvUnit const* pUnit, PromotionTypes ePromotion
 	if (iPromotion >= 0 && iPromotion < (int)kFlow.aiPromotionChoices.size())
 		kFlow.aiPromotionChoices[iPromotion]++;
 	if (gGameRecordLogLevel >= 3) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_PROMOTED player=%d unitId=%d unit=%s unitAI=%s promotion=%s x=%d y=%d xp=%d level=%d",
-		GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()),
-		getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), getSASGameRecordPromotionType(ePromotion),
+		GC.getGame().getGameTurn(), ePlayer, pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
+		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), getSASInfoTypeOrNone(ePromotion),
 		pUnit->getX(), pUnit->getY(), pUnit->getExperience(), pUnit->getLevel());
 }
 
@@ -18873,9 +19012,9 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 	// <!-- custom: Aggregate battle rows omit the Barbarian player, and Settler-defense rows cover only one special case.
 	// At level 3, retain exact ordinary Barbarian/animal combat so spawned pressure can be followed through its actual outcome. (GPT-5.6-Sol) -->
 	if (bLogExactBattle && (pWinner->getOwner() == BARBARIAN_PLAYER || pLoser->getOwner() == BARBARIAN_PLAYER)) logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_COMBAT winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserDamage=%d x=%d y=%d cityPlot=%d",
-		GC.getGame().getGameTurn(), pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()),
-		getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->getDamage(), pLoser->getOwner(), pLoser->getID(),
-		getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->getDamage(),
+		GC.getGame().getGameTurn(), pWinner->getOwner(), pWinner->getID(), getSASInfoTypeOrNone(pWinner->getUnitType()),
+		getSASInfoTypeOrNone(pWinner->AI_getUnitAIType()), pWinner->getDamage(), pLoser->getOwner(), pLoser->getID(),
+		getSASInfoTypeOrNone(pLoser->getUnitType()), getSASInfoTypeOrNone(pLoser->AI_getUnitAIType()), pLoser->getDamage(),
 		pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), bCityPlot);
 	int const iLoserProductionNeeded = (eLoser >= 0 && eLoser < MAX_PLAYERS ? GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType()) : 0);
 	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
@@ -18939,9 +19078,9 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 	if (pLoser->getLeaderUnitType() != NO_UNIT)
 	{
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
-			GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()),
-			getSASGameRecordUnitType(pLoser->getLeaderUnitType()), eWinner, pWinner->getID(),
-			getSASGameRecordUnitType(pWinner->getUnitType()), pPlot->getX(), pPlot->getY());
+			GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASInfoTypeOrNone(pLoser->getUnitType()),
+			getSASInfoTypeOrNone(pLoser->getLeaderUnitType()), eWinner, pWinner->getID(),
+			getSASInfoTypeOrNone(pWinner->getUnitType()), pPlot->getX(), pPlot->getY());
 	}
 	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT", pPlot);
 	if (bLogExactBattle)
@@ -18950,15 +19089,15 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, C
 		// The transient start context additionally preserves true attacker identity and pre-combat odds after visible-combat delay. (ChatGPT-5.6-Sol) -->
 		int const iWinnerOddsPermille = (!bPendingCombat || kPending.iAttackerCombatOddsPermille < 0 ? -1 : (pWinner->getOwner() == kPending.eAttacker && pWinner->getID() == kPending.iAttackerUnitId ? kPending.iAttackerCombatOddsPermille : 1000 - kPending.iAttackerCombatOddsPermille));
 		logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s winnerUnitId=%d loserUnit=%s loserUnitId=%d attacker=%d attackerUnitId=%d attackerCombatOddsPermille=%d winnerCombatOddsPermille=%d luckEligible=%d x=%d y=%d cityPlot=%d attackerFromX=%d attackerFromY=%d riverCrossingAttack=%d riverAttackPenalty=%d amphibiousAttack=%d amphibiousAttackPenalty=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerXP=%d winnerLevel=%d loserXP=%d loserLevel=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
-			GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(),
-			getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(), bPendingCombat ? kPending.eAttacker : NO_PLAYER,
+			GC.getGame().getGameTurn(), eWinner, eLoser, getSASInfoTypeOrNone(pWinner->getUnitType()), pWinner->getID(),
+			getSASInfoTypeOrNone(pLoser->getUnitType()), pLoser->getID(), bPendingCombat ? kPending.eAttacker : NO_PLAYER,
 			bPendingCombat ? kPending.iAttackerUnitId : -1, bPendingCombat ? kPending.iAttackerCombatOddsPermille : -1, iWinnerOddsPermille,
 			bPendingCombat && kPending.bLuckEligible, pPlot->getX(), pPlot->getY(), bCityPlot,
 			bPendingCombat ? kPending.iAttackerFromX : -1, bPendingCombat ? kPending.iAttackerFromY : -1,
 			bPendingCombat ? kPending.iRiverCrossingAttack : -1, bPendingCombat ? kPending.iRiverAttackPenalty : -1,
 			bPendingCombat ? kPending.iAmphibiousAttack : -1, bPendingCombat ? kPending.iAmphibiousAttackPenalty : -1,
 			pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), pWinner->getExperience(), pWinner->getLevel(),
-			pLoser->getExperience(), pLoser->getLevel(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()),
-			getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
+			pLoser->getExperience(), pLoser->getLevel(), getSASInfoTypeOrNone(pWinner->getLeaderUnitType()),
+			getSASInfoTypeOrNone(pLoser->getLeaderUnitType()));
 	}
 }

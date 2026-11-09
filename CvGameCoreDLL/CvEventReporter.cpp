@@ -103,10 +103,10 @@ static void logSASBBAIWorkerDeathContext(CvUnit const* pWinner, CvUnit const* pL
 		(pNearestOwnedCity == NULL ? -1 : pNearestOwnedCity->getID()), iNearestOwnedCityDistance,
 		getSASDiagnosticQuoted((pWorkingCity == NULL ? NULL : pWorkingCity->getName().GetCString())).GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
 		GC.getInfo(kPlot.getTerrainType()).getType(),
-		(kPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kPlot.getFeatureType()).getType()),
-		(kPlot.getBonusType(pLoser->getTeam()) == NO_BONUS ? "-" : GC.getInfo(kPlot.getBonusType(pLoser->getTeam())).getType()),
-		(kPlot.getImprovementType() == NO_IMPROVEMENT ? "-" : GC.getInfo(kPlot.getImprovementType()).getType()),
-		(kPlot.getRouteType() == NO_ROUTE ? "-" : GC.getInfo(kPlot.getRouteType()).getType()));
+		getSASInfoTypeOrNone(kPlot.getFeatureType()),
+		getSASInfoTypeOrNone(kPlot.getBonusType(pLoser->getTeam())),
+		getSASInfoTypeOrNone(kPlot.getImprovementType()),
+		getSASInfoTypeOrNone(kPlot.getRouteType()));
 }
 
 // advc.003y: Just pass the call along

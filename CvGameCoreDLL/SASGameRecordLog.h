@@ -69,6 +69,13 @@ void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicke
 void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift);
 void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition);
 void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequestedIndex);
+// <!-- custom: Complete the typed native command-dispatch layer with city tasks and unit group/mission/command requests.
+// Callers pre-gate at level 2+ and the action-trace switch; helpers record only direct payload/context and do not evaluate command legality or success. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerCityTask(CvCity const& kCity, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
+void logSASGameRecordPlayerUnitGroupCommand(CvUnit const& kUnit, int iRequestedHeadId, CvUnit const* pHeadUnit);
+void logSASGameRecordPlayerUnitMissionPush(CvUnit const& kUnit, MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bShift, bool bModified);
+void logSASGameRecordPlayerUnitAutoMission(CvUnit const& kUnit);
+void logSASGameRecordPlayerUnitCommand(CvUnit const& kUnit, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
 // <!-- custom: Observe native city-circle submissions at enabled UI refreshes, with change-only snapshots for both Advanced Start and selected Settlers.
 // Call begin/add/end only behind the level/action gate; early native returns still end the observation.
 // Python-owned overlays are outside this trace; debug all-player city sites use a separate owner-labelled snapshot family. (GPT-6.1-Sol) -->

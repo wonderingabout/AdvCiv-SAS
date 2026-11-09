@@ -293,7 +293,10 @@ CvWString getSASDiagnosticQuoted(wchar const* szValue);
 // <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticOrDash(CvString const& szValue);
 // <!-- custom: XML type of an info enum for diagnostic rows, or "-" for its NO_ value, e.g. unitAI=UNITAI_SETTLE instead of unitAI=1; the same "-" convention as getSASDiagnosticQuoted.
-// BBAI rows logged such enums as numbers or as getUnitAIString labels like "no unitAI"; the XML type is stable across languages and mods. Templated so this header needs no info definitions. (Claude code Opus 5.5) -->
+// BBAI rows logged such enums as numbers or as getUnitAIString labels like "no unitAI"; the XML type is stable across languages and mods. Templated so this header needs no info definitions.
+// CommerceTypes and YieldTypes also have loaded XML names. SGR building-effect lists once failed to compile when they called a missing yield-specific getter, so use this shared lookup for both.
+// Use getSASMissionTypeName for a raw MissionTypes ID from dispatch because this template does not check positive IDs against the table size.
+// MissionAITypes has no XML info table. Use getMissionAIString for its names. (Claude code Opus 5.5 + GPT-5.6-Sol + GPT-6.1-Sol) -->
 template<typename E> char const* getSASInfoTypeOrNone(E eType)
 {
 	return (eType < 0 ? "-" : GC.getInfo(eType).getType());
@@ -409,6 +412,8 @@ SASAIStrategyDescriptor const& getSASAIStrategyDescriptor(int iIndex);
 char const* getSASAIStrategyType(AIStrategy eStrategy); // <!-- custom: Shared raw enum-token text for AIStrategy because the static bitfield enum has no CvInfo type strings; the getter still queries the shared descriptor table, now generated with compile-time token stringification from the enum source list. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 // <!-- custom: One shared conversion for typed Found diagnostic contexts; called only from enabled diagnostic output. See KI#505.2. (GPT-6.1-Sol) -->
 char const* getSASFoundLogContextType(SASFoundLogContextTypes eContext);
+// <!-- custom: Share one bounds-checked mission label between SASGameRecord dispatch/state rows and BBAI. (GPT-6.1-Sol) -->
+char const* getSASMissionTypeName(MissionTypes eMission);
 char const* getSASAreaAIType(AreaAITypes eAreaAI); // <!-- custom: Shared raw enum-token text for AreaAITypes so SASGameRecord and detailed AI diagnostics can describe theater posture without opaque enum integers. (ChatGPT-5.6-Sol) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
 int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->

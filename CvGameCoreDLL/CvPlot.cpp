@@ -4991,7 +4991,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) /
 			logBBAI("WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d ownerCiv=%s plot=(%d,%d) area=%d bonus=%s oldImprovement=%s newImprovement=%s workingCity=%S workingCityId=%d visibleEnemy=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getX(), getY(), getArea().getID(),
 				GC.getInfo(eBonus).getType(), GC.getInfo(eOldImprovement).getType(),
-				(eNewValue == NO_IMPROVEMENT ? "-" : GC.getInfo(eNewValue).getType()), getSASDiagnosticQuoted(szWorkingCity.GetCString()).GetCString(),
+				getSASInfoTypeOrNone(eNewValue), getSASDiagnosticQuoted(szWorkingCity.GetCString()).GetCString(),
 				(pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
 		}
 	}

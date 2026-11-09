@@ -12,6 +12,7 @@
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Command.h" // <!-- custom: CvGlobals only forward-declares CvMissionInfo, so the shared mission label needs its definition here to read the XML type. (GPT-6.1-Sol) -->
 #include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
 #include "CvInfo_Tech.h" // <!-- custom: Shared initial-team/deal diagnostics use stable technology type names. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Terrain.h" // <!-- custom: Shared trade serialization resolves CvBonusInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
@@ -2402,6 +2403,15 @@ char const* getSASFoundLogContextType(SASFoundLogContextTypes eContext)
 		FErrorMsg("Invalid Found diagnostic context");
 		return "INVALID_FOUND_LOG_CONTEXT";
 	}
+}
+
+// <!-- custom: SGR and BBAI use the same XML mission token and "-" fallback.
+// NO_MISSION already maps to "-" by the lower-bound check.
+// Check the upper bound too because native dispatch can carry an unrecognized positive ID.
+// MissionAITypes describes the AI purpose of a mission and uses getMissionAIString. (GPT-6.1-Sol) -->
+char const* getSASMissionTypeName(MissionTypes eMission)
+{
+	return (eMission >= 0 && eMission < NUM_MISSION_TYPES ? GC.getInfo(eMission).getType() : "-");
 }
 
 // <!-- custom: Keep one canonical machine-readable name for AreaAI theater posture; these raw tokens intentionally match the C++ enum rather than player-facing prose. (ChatGPT-5.6-Sol) -->

@@ -99,21 +99,6 @@ struct SASSettlerParkingRecord
 
 static std::map<int, SASSettlerParkingRecord> g_kSASSettlerParkingRecords;
 
-static const char* SAS_getUnitTypeName(UnitTypes eUnit)
-{
-	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
-}
-
-static const char* SAS_getUnitAITypeName(UnitAITypes eUnitAI)
-{
-	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
-}
-
-static const char* SAS_getMissionTypeName(MissionTypes eMission)
-{
-	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
-}
-
 static int SAS_updateSettlerParkedTurns(CvUnitAI const& kUnit, CvPlot const* pTargetPlot)
 {
 	int const iKey = 1000000 * kUnit.getOwner() + kUnit.getID();
@@ -248,7 +233,7 @@ static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettle
 		if (pszUnitList != NULL && iLoggedUnits < 10)
 		{
 			CvString szItem;
-			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", SAS_getUnitTypeName(pLoopUnit->getUnitType()), pLoopUnit->getID(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
+			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", getSASInfoTypeOrNone(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASInfoTypeOrNone(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
 			if (!pszUnitList->empty())
 				*pszUnitList += ",";
 			*pszUnitList += szItem;
@@ -358,10 +343,10 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
 	logBBAI("SETTLER_PARKED turn=%d player=%d civ=%s reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
 		GC.getGame().getGameTurn(), kSettler.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), szReason, kSettler.getID(),
-		SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()),
+		getSASInfoTypeOrNone(kSettler.getUnitType()), getSASInfoTypeOrNone(kSettler.AI_getUnitAIType()),
 		GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(),
 		getSASDiagnosticQuoted((kCityPool.pCity == NULL ? NULL : kCityPool.pCity->getName().GetCString())).GetCString(),
-		(kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI,
+		(kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, getSASMissionTypeName(eMission), eMissionAI,
 		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue,
 		(pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders,
 		(pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue,
@@ -369,11 +354,11 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 		(pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()), bDanger,
 		(pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies,
 		(pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()),
-		(pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits,
+		(pNearestEnemy == NULL ? "-" : getSASInfoTypeOrNone(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits,
 		kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders,
 		kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()),
-		(kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())),
-		(kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())),
+		(kCityPool.pBestEscort == NULL ? "-" : getSASInfoTypeOrNone(kCityPool.pBestEscort->getUnitType())),
+		(kCityPool.pBestEscort == NULL ? "-" : getSASInfoTypeOrNone(kCityPool.pBestEscort->AI_getUnitAIType())),
 		(kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
 	if (iSettlerLogLevel >= 3 && kCityPool.pCity != NULL) logBBAI("SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
 		GC.getGame().getGameTurn(), kSettler.getOwner(), getSASDiagnosticQuoted(kCityPool.pCity->getName().GetCString()).GetCString(), kCityPool.pCity->getID(),
@@ -409,7 +394,7 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 		logBBAI("SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d civ=%s city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
 			GC.getGame().getGameTurn(), kSettler.getOwner(), GC.getInfo(GET_PLAYER(kSettler.getOwner()).getCivilizationType()).getType(),
 			getSASDiagnosticQuoted(kPool.pCity->getName().GetCString()).GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(),
-			SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(),
+			getSASInfoTypeOrNone(pEscort->getUnitType()), getSASInfoTypeOrNone(pEscort->AI_getUnitAIType()), pEscort->getDamage(),
 			pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits,
 			kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates,
 			iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
@@ -539,10 +524,10 @@ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUni
 	ImprovementTypes const eTargetImprovement = (pMissionPlot == NULL ? NO_IMPROVEMENT : pMissionPlot->getImprovementType());
 	CvWString const szCity = (pCity == NULL ? CvWString(L"-") : pCity->getName());
 	CvWString const szTargetWorkingCity = (pTargetWorkingCity == NULL ? CvWString(L"-") : pTargetWorkingCity->getName());
-	char const* szBonus = (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
-	char const* szImprovement = (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
-	char const* szTargetBonus = (eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType());
-	char const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetImprovement).getType());
+	char const* szBonus = getSASInfoTypeOrNone(eBonus);
+	char const* szImprovement = getSASInfoTypeOrNone(eImprovement);
+	char const* szTargetBonus = getSASInfoTypeOrNone(eTargetBonus);
+	char const* szTargetImprovement = getSASInfoTypeOrNone(eTargetImprovement);
 	int const iTargetMissionAIsSkipSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, pGroup, 0, MAX_INT));
 	int const iTargetMissionAIsIncludingSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT));
 	logBBAI("WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d civ=%s unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%s improvement=%s missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%s targetImprovement=%s targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
@@ -2058,18 +2043,18 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 				GC.getGame().getGameTurn(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), szContext, kCityPlot.getX(), kCityPlot.getY(),
 				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), pLoopPlot->calculateNatureYield(YIELD_FOOD, NO_TEAM, false),
 				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, NO_TEAM, false), pLoopPlot->calculateNatureYield(YIELD_COMMERCE, NO_TEAM, false),
-				(eActualTerrain == NO_TERRAIN ? "-" : GC.getInfo(eActualTerrain).getType()),
-				(eActualFeature == NO_FEATURE ? "-" : GC.getInfo(eActualFeature).getType()),
-				(eActualBonus == NO_BONUS ? "-" : GC.getInfo(eActualBonus).getType()));
+				getSASInfoTypeOrNone(eActualTerrain),
+				getSASInfoTypeOrNone(eActualFeature),
+				getSASInfoTypeOrNone(eActualBonus));
 			continue;
 		}
 		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
 		BonusTypes const eActualBonus = pLoopPlot->getBonusType();
 		TerrainTypes const eTerrain = pLoopPlot->getTerrainType();
 		FeatureTypes const eFeature = pLoopPlot->getFeatureType();
-		char const* szBonus = (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
-		char const* szTerrain = (eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType());
-		char const* szFeature = (eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType());
+		char const* szBonus = getSASInfoTypeOrNone(eBonus);
+		char const* szTerrain = getSASInfoTypeOrNone(eTerrain);
+		char const* szFeature = getSASInfoTypeOrNone(eFeature);
 		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
 		logBBAI("FIRST_CITY_BFC_PLOT turn=%d player=%d civ=%s context=%s site=%d,%d plotIndex=%d x=%d y=%d revealed=1 home=%d food=%d production=%d commerce=%d foodEnvironmentScore=%d hasYield=%d terrain=%s feature=%s bonusKnown=%s bonusActual=%s bonusHidden=%d water=%d hills=%d fresh=%d river=%d",
 				GC.getGame().getGameTurn(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), szContext, kCityPlot.getX(), kCityPlot.getY(),
@@ -2077,7 +2062,7 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(CitySiteEvaluator const* pOm
 				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false), pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
 				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, eTeam, false),
 				pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement), pLoopPlot->hasYield(),
-				szTerrain, szFeature, szBonus, (eActualBonus == NO_BONUS ? "-" : GC.getInfo(eActualBonus).getType()),
+				szTerrain, szFeature, szBonus, getSASInfoTypeOrNone(eActualBonus),
 				eBonus != eActualBonus, pLoopPlot->isWater(), pLoopPlot->isHills(), pLoopPlot->isFreshWater(), pLoopPlot->isRiver());
 	}
 }
@@ -2735,7 +2720,7 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
 		pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iCityMilitary,
 		100 * iCityMilitary / std::max(1, iTotalMilitary), iCityGroups, iUpgradeUnits, iUpgradeGroups, iWounded, kUnit.getX(), kUnit.getY(),
 		getSASDiagnosticQuoted((kUnit.getPlot().getPlotCity() == NULL ? NULL : kUnit.getPlot().getPlotCity()->getName().GetCString())).GetCString(), pGroup->getActivityType(),
-		SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
+		getSASMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()),
 		(pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()),
 		(pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(), iIncomingJoiners, kUnit.movesLeft(),
 		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getX()),
@@ -4721,12 +4706,12 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 		if (bDetailedYieldLogging && iLegalCandidateCount > 0 && SAS_shouldLogWorkerYieldDecision(kUnit, kCity, kPlot, SAS_WORKER_YIELD_LOG_NO_BUILD, eBestMarginRejectedCandidate, kContext.kCurrentWeights, kBestMarginRejectedTransitionWeights)) logBBAI("WORKER_YIELD_NO_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d current=%s weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) currentUtility=%d legal=%d marginRejected=%d bestRejected=%s bestRejectedGain=%d bestRejectedMargin=%d",
 			GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
 			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
-			(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()),
+			getSASInfoTypeOrNone(eCurrentImprovement),
 			kContext.kCurrentWeights.iFood, kContext.kCurrentWeights.iProduction, kContext.kCurrentWeights.iCommerce,
 			kBestMarginRejectedProspectiveWeights.iFood, kBestMarginRejectedProspectiveWeights.iProduction, kBestMarginRejectedProspectiveWeights.iCommerce,
 			kBestMarginRejectedTransitionWeights.iFood, kBestMarginRejectedTransitionWeights.iProduction, kBestMarginRejectedTransitionWeights.iCommerce,
 			aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE], iBestMarginRejectedCurrentUtility, iLegalCandidateCount, iMarginRejectedCount,
-			(eBestMarginRejectedCandidate == NO_BUILD ? "-" : GC.getInfo(eBestMarginRejectedCandidate).getType()),
+			getSASInfoTypeOrNone(eBestMarginRejectedCandidate),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedGain),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedReplacementMargin));
 		return false;
@@ -4746,7 +4731,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 		logBBAI("WORKER_YIELD_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d current=%s build=%s result=%s weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) currentYields=(%d,%d,%d) immediateResultYields=(%d,%d,%d) resultYields=(%d,%d,%d) currentUtility=%d gain=%d replacementMargin=%d rawBuildValue=%d opportunityPenalty=%d buildValue=%d oneTechAway=%s oneTechAwayTech=%s oneTechAwayValue=%d runnerUp=%s runnerUpValue=%d third=%s thirdValue=%d legal=%d marginRejected=%d bestRejected=%s bestRejectedGain=%d bestRejectedMargin=%d",
 			GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
 			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
-			(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()), GC.getInfo(eBestCandidate).getType(),
+			getSASInfoTypeOrNone(eCurrentImprovement), GC.getInfo(eBestCandidate).getType(),
 			GC.getInfo(eResultImprovement).getType(), kContext.kCurrentWeights.iFood, kContext.kCurrentWeights.iProduction, kContext.kCurrentWeights.iCommerce,
 			kBestCandidateProspectiveWeights.iFood, kBestCandidateProspectiveWeights.iProduction, kBestCandidateProspectiveWeights.iCommerce,
 			kBestCandidateTransitionWeights.iFood, kBestCandidateTransitionWeights.iProduction, kBestCandidateTransitionWeights.iCommerce,
@@ -4754,14 +4739,14 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 			aiImmediateResultYields[YIELD_FOOD], aiImmediateResultYields[YIELD_PRODUCTION], aiImmediateResultYields[YIELD_COMMERCE],
 			aiResultYields[YIELD_FOOD], aiResultYields[YIELD_PRODUCTION], aiResultYields[YIELD_COMMERCE], iBestCandidateCurrentUtility, iBestCandidateGain, iBestCandidateReplacementMargin,
 			iBestCandidateRawValue, iBestCandidateOpportunityPenalty, iBestCandidateValue,
-			(eBestOneTechAwayBuild == NO_BUILD ? "-" : GC.getInfo(eBestOneTechAwayBuild).getType()),
-			(eBestOneTechAwayTech == NO_TECH ? "-" : GC.getInfo(eBestOneTechAwayTech).getType()),
+			getSASInfoTypeOrNone(eBestOneTechAwayBuild),
+			getSASInfoTypeOrNone(eBestOneTechAwayTech),
 			(eBestOneTechAwayBuild == NO_BUILD ? 0 : iBestOneTechAwayValue),
-			(eSecondCandidate == NO_BUILD ? "-" : GC.getInfo(eSecondCandidate).getType()),
+			getSASInfoTypeOrNone(eSecondCandidate),
 			(eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue),
-			(eThirdCandidate == NO_BUILD ? "-" : GC.getInfo(eThirdCandidate).getType()),
+			getSASInfoTypeOrNone(eThirdCandidate),
 			(eThirdCandidate == NO_BUILD ? 0 : iThirdCandidateValue), iLegalCandidateCount, iMarginRejectedCount,
-			(eBestMarginRejectedCandidate == NO_BUILD ? "-" : GC.getInfo(eBestMarginRejectedCandidate).getType()),
+			getSASInfoTypeOrNone(eBestMarginRejectedCandidate),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedGain),
 			(eBestMarginRejectedCandidate == NO_BUILD ? 0 : iBestMarginRejectedReplacementMargin));
 		// <!-- custom: A dry XML irrigation carrier can still win the ordinary yield path; this is intentionally separate from the dedicated irrigation-chain planner above.
@@ -4779,9 +4764,9 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 			logBBAI("WORKER_DRY_IRRIGATION_CARRIER_BUILD turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d terrain=%s feature=%s current=%s build=%s result=%s ordinaryYieldPath=1 freshWater=%d potentialIrrigation=%d currentYields=(%d,%d,%d) resultYields=(%d,%d,%d) irrigatedResultYields=(%d,%d,%d) weights=(%d,%d,%d) prospectiveWeights=(%d,%d,%d) valuationWeights=(%d,%d,%d) foodDeficit=(%d,%d,%d) currentUtility=%d resultUtility=%d irrigatedUtility=%d gain=%d irrigatedGain=%d replacementMargin=%d gainOverMargin=%d buildValue=%d runnerUp=%s runnerUpValue=%d",
 				GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
 				getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot),
-				(kPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kPlot.getTerrainType()).getType()),
-				(kPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kPlot.getFeatureType()).getType()),
-				(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()), GC.getInfo(eBestCandidate).getType(), GC.getInfo(eResultImprovement).getType(),
+				getSASInfoTypeOrNone(kPlot.getTerrainType()),
+				getSASInfoTypeOrNone(kPlot.getFeatureType()),
+				getSASInfoTypeOrNone(eCurrentImprovement), GC.getInfo(eBestCandidate).getType(), GC.getInfo(eResultImprovement).getType(),
 				kPlot.isFreshWater(), kPlot.canHavePotentialIrrigation(), aiCurrentYields[YIELD_FOOD], aiCurrentYields[YIELD_PRODUCTION], aiCurrentYields[YIELD_COMMERCE],
 				aiResultYields[YIELD_FOOD], aiResultYields[YIELD_PRODUCTION], aiResultYields[YIELD_COMMERCE],
 				aiIrrigatedResultYields[YIELD_FOOD], aiIrrigatedResultYields[YIELD_PRODUCTION], aiIrrigatedResultYields[YIELD_COMMERCE],
@@ -4790,7 +4775,7 @@ static bool SAS_pickWorkerYieldBuild(CvUnitAI const& kUnit, CvCityAI const& kCit
 				kBestCandidateTransitionWeights.iFood, kBestCandidateTransitionWeights.iProduction, kBestCandidateTransitionWeights.iCommerce,
 				iCurrentFoodDeficit, iResultFoodDeficit, iIrrigatedFoodDeficit,
 				iBestCandidateCurrentUtility, iResultUtility, iIrrigatedResultUtility, iBestCandidateGain, iIrrigatedResultUtility - iBestCandidateCurrentUtility, iBestCandidateReplacementMargin, iBestCandidateGain - iBestCandidateReplacementMargin, iBestCandidateValue,
-				(eSecondCandidate == NO_BUILD ? "-" : GC.getInfo(eSecondCandidate).getType()), (eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue));
+				getSASInfoTypeOrNone(eSecondCandidate), (eSecondCandidate == NO_BUILD ? 0 : iSecondCandidateValue));
 		}
 	}
 	return true;
@@ -4932,11 +4917,11 @@ static void SAS_logWorkerCityBuildRejectOnce(CvUnitAI const& kUnit, CvCityAI con
 	logBBAI("WORKER_CITY_BUILD_REJECT turn=%d player=%d civ=%s workerId=%d city=%S cityId=%d plot=(%d,%d) reason=%s terrain=%s feature=%s bonus=%s hills=%d worked=%d yields=(%d,%d,%d) proposedBuild=%s legalImprovementBuilds=%d legalImprovementBuildTypes=%s legalFeatureRemovingImprovementBuilds=%d legalFeatureRemovingImprovementBuildTypes=%s",
 		iGameTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
 		getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), kPlot.getX(), kPlot.getY(), szReason,
-		(eTerrain == NO_TERRAIN ? "-" : GC.getInfo(eTerrain).getType()),
-		(eFeature == NO_FEATURE ? "-" : GC.getInfo(eFeature).getType()),
-		(eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType()), kPlot.isHills(), kCity.isWorkingPlot(kPlot),
+		getSASInfoTypeOrNone(eTerrain),
+		getSASInfoTypeOrNone(eFeature),
+		getSASInfoTypeOrNone(eBonus), kPlot.isHills(), kCity.isWorkingPlot(kPlot),
 		kPlot.getYield(YIELD_FOOD), kPlot.getYield(YIELD_PRODUCTION), kPlot.getYield(YIELD_COMMERCE),
-		(eProposedBuild == NO_BUILD ? "-" : GC.getInfo(eProposedBuild).getType()),
+		getSASInfoTypeOrNone(eProposedBuild),
 		iLegalImprovementBuilds, szLegalImprovementBuilds.c_str(),
 		iLegalFeatureRemovingImprovementBuilds, szLegalFeatureRemovingImprovementBuilds.c_str());
 }
@@ -5067,9 +5052,9 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 		{
 			logBBAI("WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=FIRST_OBSERVED_NO_POTENTIAL terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
 				kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
-				kPlot.getX(), kPlot.getY(), (kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
-				(kCurrent.eFeature == NO_FEATURE ? "-" : GC.getInfo(kCurrent.eFeature).getType()),
-				(kCurrent.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kCurrent.eImprovement).getType()),
+				kPlot.getX(), kPlot.getY(), getSASInfoTypeOrNone(kCurrent.eTerrain),
+				getSASInfoTypeOrNone(kCurrent.eFeature),
+				getSASInfoTypeOrNone(kCurrent.eImprovement),
 				kCurrent.bIrrigated, kCurrent.bIrrigationAvailable, kCurrent.bFreshWater);
 		}
 		return;
@@ -5084,12 +5069,12 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 		logBBAI("WORKER_IRRIGATION_PLOT_STATE_CHANGE turn=%d player=%d civ=%s city=%S plot=(%d,%d) terrainChanged=%d featureChanged=%d lostPotentialIrrigation=%d oldTerrain=%s newTerrain=%s oldFeature=%s newFeature=%s oldImprovement=%s newImprovement=%s oldPotentialIrrigation=%d newPotentialIrrigation=%d oldIrrigated=%d newIrrigated=%d oldIrrigationAvailable=%d newIrrigationAvailable=%d oldFreshWater=%d newFreshWater=%d lastObservedTurn=%d",
 			kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 			kPlot.getX(), kPlot.getY(), bTerrainChanged, bFeatureChanged, bLostPotential,
-			(kPrevious.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kPrevious.eTerrain).getType()),
-			(kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
-			(kPrevious.eFeature == NO_FEATURE ? "-" : GC.getInfo(kPrevious.eFeature).getType()),
-			(kCurrent.eFeature == NO_FEATURE ? "-" : GC.getInfo(kCurrent.eFeature).getType()),
-			(kPrevious.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kPrevious.eImprovement).getType()),
-			(kCurrent.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kCurrent.eImprovement).getType()),
+			getSASInfoTypeOrNone(kPrevious.eTerrain),
+			getSASInfoTypeOrNone(kCurrent.eTerrain),
+			getSASInfoTypeOrNone(kPrevious.eFeature),
+			getSASInfoTypeOrNone(kCurrent.eFeature),
+			getSASInfoTypeOrNone(kPrevious.eImprovement),
+			getSASInfoTypeOrNone(kCurrent.eImprovement),
 			kPrevious.bPotentialIrrigation, kCurrent.bPotentialIrrigation, kPrevious.bIrrigated, kCurrent.bIrrigated,
 			kPrevious.bIrrigationAvailable, kCurrent.bIrrigationAvailable, kPrevious.bFreshWater, kCurrent.bFreshWater, kPrevious.iTurn);
 	}
@@ -5097,9 +5082,9 @@ static void SAS_logWorkerIrrigationPlotStateChange(CvUnitAI const& kUnit, CvCity
 	{
 		logBBAI("WORKER_IRRIGATION_CARRIER_STRANDED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=LOST_POTENTIAL_IRRIGATION terrain=%s feature=%s improvement=%s irrigated=%d irrigationAvailable=%d freshWater=%d",
 			kCurrent.iTurn, kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
-			kPlot.getX(), kPlot.getY(), (kCurrent.eTerrain == NO_TERRAIN ? "-" : GC.getInfo(kCurrent.eTerrain).getType()),
-			(kCurrent.eFeature == NO_FEATURE ? "-" : GC.getInfo(kCurrent.eFeature).getType()),
-			(kCurrent.eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(kCurrent.eImprovement).getType()),
+			kPlot.getX(), kPlot.getY(), getSASInfoTypeOrNone(kCurrent.eTerrain),
+			getSASInfoTypeOrNone(kCurrent.eFeature),
+			getSASInfoTypeOrNone(kCurrent.eImprovement),
 			kCurrent.bIrrigated, kCurrent.bIrrigationAvailable, kCurrent.bFreshWater);
 	}
 	it->second = kCurrent;
@@ -5150,14 +5135,14 @@ static void SAS_logWorkerReplacementAssignment(CvUnitAI const& kUnit, CvPlot con
 		GC.getGame().getGameTurn(), kUnit.getOwner(), GC.getInfo(GET_PLAYER(kUnit.getOwner()).getCivilizationType()).getType(), kUnit.getID(),
 		getSASDiagnosticQuoted((pWorkingCity == NULL ? NULL : pWorkingCity->getName().GetCString())).GetCString(), kPlot.getX(), kPlot.getY(),
 		(pWorkingCity == NULL ? 0 : pWorkingCity->isWorkingPlot(kPlot)),
-		(kPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kPlot.getTerrainType()).getType()),
-		(kPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kPlot.getFeatureType()).getType()),
+		getSASInfoTypeOrNone(kPlot.getTerrainType()),
+		getSASInfoTypeOrNone(kPlot.getFeatureType()),
 		(bIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"),
 		GC.getInfo(eFrom).getType(), GC.getInfo(eTo).getType(), GC.getInfo(eBuild).getType(),
-		(eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType()), bReverseOfPrevious, bCrossPathReverse,
+		getSASInfoTypeOrNone(eFollowupBuild), bReverseOfPrevious, bCrossPathReverse,
 		(pPrevious == NULL ? "-" : (pPrevious->bIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD")),
-		(pPrevious == NULL || pPrevious->eFrom == NO_IMPROVEMENT ? "-" : GC.getInfo(pPrevious->eFrom).getType()),
-		(pPrevious == NULL || pPrevious->eTo == NO_IMPROVEMENT ? "-" : GC.getInfo(pPrevious->eTo).getType()),
+		(pPrevious == NULL || getSASInfoTypeOrNone(pPrevious->eFrom)),
+		(pPrevious == NULL || getSASInfoTypeOrNone(pPrevious->eTo)),
 		(pPrevious == NULL ? -1 : pPrevious->iTurn),
 		(pPrevious == NULL ? -1 : GC.getGame().getGameTurn() - pPrevious->iTurn),
 		(pPrevious == NULL ? -1 : pPrevious->iWorkerId), iTransitionCount, iReverseCount);
@@ -5443,9 +5428,9 @@ static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTa
 					CvString szRoutePlot;
 					szRoutePlot.Format("(%d,%d):%s:current=%s:build=%s:bonus=%s:irr=%d:avail=%d:fresh=%d",
 						pRoutePlot->getX(), pRoutePlot->getY(), bTarget ? "target" : (pRoutePlot == pNodePlot ? "source" : "link"),
-						(eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType()),
+						getSASInfoTypeOrNone(eCurrentImprovement),
 						(eRouteBuild == NO_BUILD ? (bExistingCarrier ? "EXISTING_CARRIER" : "-") : GC.getInfo(eRouteBuild).getType()),
-						(eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType()), pRoutePlot->isIrrigated(),
+						getSASInfoTypeOrNone(eBonus), pRoutePlot->isIrrigated(),
 						pRoutePlot->isIrrigationAvailable(true), pRoutePlot->isFreshWater());
 					if (!pDiagnostics->szRoute.empty())
 						pDiagnostics->szRoute += ">";
@@ -5783,7 +5768,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 				getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), pBestPhase0Plot->getX(), pBestPhase0Plot->getY(),
 				GC.getInfo(pBestPhase0Plot->getFeatureType()).getType(),
-				GC.getInfo(eBestPhase0Build).getType(), (eBestPhase0FollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestPhase0FollowupBuild).getType()), iBestPhase0FollowupValue, iBestPhase0Production, iBestPhase0PathTurns,
+				GC.getInfo(eBestPhase0Build).getType(), getSASInfoTypeOrNone(eBestPhase0FollowupBuild), iBestPhase0FollowupValue, iBestPhase0Production, iBestPhase0PathTurns,
 				iSASPhase0Eligible, iSASPhase0Targeted, iSASPhase0Uncommitted,
 				SAS_getWorkerPhase0MinEligiblePlots(kCity),
 				bBestPhase0PressureRelief, bBestPhase0BonusRemoval);
@@ -5869,15 +5854,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					logBBAI("IRRIGATION_CHAIN_STEP_SELECTED turn=%d player=%d civ=%s workerId=%d city=%S step=(%d,%d) stepCurrent=%s build=%s carrier=%s stepFreshWater=%d stepIrrigated=%d stepIrrigationAvailable=%d sourceAdjacentIrrigated=%d target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%s targetCarrier=%s targetBonus=%s targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routePlots=%d maxRoutePlots=%d overwritePenalty=%d value=%d foodPressure=%d route=%s",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 						getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), pChainStepPlot->getX(), pChainStepPlot->getY(),
-						(eStepCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eStepCurrentImprovement).getType()),
+						getSASInfoTypeOrNone(eStepCurrentImprovement),
 						GC.getInfo(eChainStepBuild).getType(), GC.getInfo(GC.getInfo(eChainStepBuild).getImprovement()).getType(),
 						kRouteDiagnostics.iSourceFreshWater, pChainStepPlot->isIrrigated(), pChainStepPlot->isIrrigationAvailable(true), kRouteDiagnostics.iSourceAdjacentIrrigated,
 						kTargetPlot.getX(), kTargetPlot.getY(),
-						(kTargetPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kTargetPlot.getTerrainType()).getType()),
-						(kTargetPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kTargetPlot.getFeatureType()).getType()),
-						(eTargetCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetCurrentImprovement).getType()),
-						(eTargetIrrigationImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetIrrigationImprovement).getType()),
-						(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), bTargetDryCarrier,
+						getSASInfoTypeOrNone(kTargetPlot.getTerrainType()),
+						getSASInfoTypeOrNone(kTargetPlot.getFeatureType()),
+						getSASInfoTypeOrNone(eTargetCurrentImprovement),
+						getSASInfoTypeOrNone(eTargetIrrigationImprovement),
+						getSASInfoTypeOrNone(eTargetBonus), bTargetDryCarrier,
 						iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 						kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), iRoutePlots,
 						iSAS_WORKER_IRRIG_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
@@ -5896,11 +5881,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				logBBAI("IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d civ=%s workerId=%d city=%S target=(%d,%d) targetTerrain=%s targetFeature=%s targetCurrent=%s targetCarrier=%s targetBonus=%s targetDryCarrier=%d targetIrrigationGain=(%d,%d,%d) targetIrrigationUtilityGain=%d targetIrrigated=%d targetIrrigationAvailable=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visitedStates=%d deepestRoute=%d routeLimitStops=%d rejectEdgeOrIgnored=%d rejectUnowned=%d rejectForeign=%d rejectArea=%d rejectWater=%d rejectNoPotential=%d rejectBonuses=%d rejectAutomationSafe=%d rejectCannotBuildCarrier=%d blockerNoPotentialPlot=(%d,%d) blockerBonusPlot=(%d,%d) blockerCannotBuildCarrierPlot=(%d,%d) cityCarrierTraversals=%d",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(),
 					getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kTargetPlot.getX(), kTargetPlot.getY(),
-					(kTargetPlot.getTerrainType() == NO_TERRAIN ? "-" : GC.getInfo(kTargetPlot.getTerrainType()).getType()),
-					(kTargetPlot.getFeatureType() == NO_FEATURE ? "-" : GC.getInfo(kTargetPlot.getFeatureType()).getType()),
-					(eTargetCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetCurrentImprovement).getType()),
-					(eTargetIrrigationImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTargetIrrigationImprovement).getType()),
-					(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), bTargetDryCarrier,
+					getSASInfoTypeOrNone(kTargetPlot.getTerrainType()),
+					getSASInfoTypeOrNone(kTargetPlot.getFeatureType()),
+					getSASInfoTypeOrNone(eTargetCurrentImprovement),
+					getSASInfoTypeOrNone(eTargetIrrigationImprovement),
+					getSASInfoTypeOrNone(eTargetBonus), bTargetDryCarrier,
 					iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 					kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), bFoundChainStep,
 					iRoutePlots, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
@@ -6086,15 +6071,15 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				logBBAI("WORKER_BONUS_CANDIDATE turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) worked=%d bonus=%s specificBuild=%s canBuildNow=%d buildTech=%s buildTechKnown=%d buildTechTurnsIfCurrent=%d featureTech=%s featureTechKnown=%d currentResearch=%s rawBonusYields=(%d,%d,%d) potentialResultYields=(%d,%d,%d) weights=(%d,%d,%d) rawYieldValue=%d potentialResultYieldValue=%d dynamicBonusValue=%d selectedBuild=%s selectedValue=%d",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 					kPlot.getX(), kPlot.getY(), kCity.isWorkingPlot(kPlot), kBonusInfo.getType(),
-					(eBonusSpecificBuild == NO_BUILD ? "-" : GC.getInfo(eBonusSpecificBuild).getType()), bCanBuildBonusSpecific,
-					(eBuildTech == NO_TECH ? "-" : GC.getInfo(eBuildTech).getType()), (eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
-					(eFeatureTech == NO_TECH ? "-" : GC.getInfo(eFeatureTech).getType()), (eFeatureTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eFeatureTech)),
-					(eCurrentResearch == NO_TECH ? "-" : GC.getInfo(eCurrentResearch).getType()),
+					getSASInfoTypeOrNone(eBonusSpecificBuild), bCanBuildBonusSpecific,
+					getSASInfoTypeOrNone(eBuildTech), (eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
+					getSASInfoTypeOrNone(eFeatureTech), (eFeatureTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eFeatureTech)),
+					getSASInfoTypeOrNone(eCurrentResearch),
 					kBonusInfo.getYieldChange(YIELD_FOOD), kBonusInfo.getYieldChange(YIELD_PRODUCTION), kBonusInfo.getYieldChange(YIELD_COMMERCE),
 					aiPotentialResultYields[YIELD_FOOD], aiPotentialResultYields[YIELD_PRODUCTION], aiPotentialResultYields[YIELD_COMMERCE],
 					iSAS_WORKER_BONUS_YIELD_VAL_PER_FOOD, iSAS_WORKER_BONUS_YIELD_VAL_PER_PROD, iSAS_WORKER_BONUS_YIELD_VAL_PER_COM,
 					iRawYieldValue, iPotentialResultYieldValue, iDynamicBonusValue,
-					(eBestSupposedBuild == NO_BUILD ? "-" : GC.getInfo(eBestSupposedBuild).getType()), iValue);
+					getSASInfoTypeOrNone(eBestSupposedBuild), iValue);
 			}
 		}
 
@@ -6171,7 +6156,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			{
 				if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerIrrigationCarrierProtection(kCity, kPlot))
 				{
-					char const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(ePlotCurrentImprovement).getType());
+					char const* szCurrentImprovement = getSASInfoTypeOrNone(ePlotCurrentImprovement);
 					logBBAI("WORKER_IRRIGATION_CARRIER_PROTECTED turn=%d player=%d civ=%s city=%S plot=(%d,%d) reason=%s dependent=(%d,%d) dependencyComponentHasCityCarrier=%d build=%s improvement=%s currentImprovement=%s",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(),
 						kPlot.getX(), kPlot.getY(), (bPendingChainProvider ? "PENDING_CHAIN_PROVIDER" : "ESTABLISHED_ROUTE_DEPENDENCY"),
@@ -6245,9 +6230,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			{
 				TerrainTypes const eCandidateTerrain = pCandidatePlot->getTerrainType();
 				FeatureTypes const eCandidateFeature = pCandidatePlot->getFeatureType();
-				char const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? "-" : GC.getInfo(eCandidateTerrain).getType());
-				char const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? "-" : GC.getInfo(eCandidateFeature).getType());
-				char const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCandidateImprovement).getType());
+				char const* szCandidateTerrain = getSASInfoTypeOrNone(eCandidateTerrain);
+				char const* szCandidateFeature = getSASInfoTypeOrNone(eCandidateFeature);
+				char const* szCandidateImprovement = getSASInfoTypeOrNone(eCandidateImprovement);
 				logBBAI("WORKER_CITY_BUILD_CANDIDATE player=%d civ=%s city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%s feature=%s hills=%d yields=(%d,%d,%d) build=%s improvement=%s value=%d",
 					getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), iCityPopulation,
 					pCandidatePlot->getX(), pCandidatePlot->getY(), candidatePlots[i].ePlot, kCity.isWorkingPlot(*pCandidatePlot),
@@ -6282,11 +6267,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 		}
 
-		char const* szTopUnimprovedBuild = (eTopUnimprovedBuild == NO_BUILD ? "-" : GC.getInfo(eTopUnimprovedBuild).getType());
-		char const* szTopUnimprovedImprovement = (eTopUnimprovedImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopUnimprovedImprovement).getType());
-		char const* szTopReplacementBuild = (eTopReplacementBuild == NO_BUILD ? "-" : GC.getInfo(eTopReplacementBuild).getType());
-		char const* szTopReplacementCurrentImprovement = (eTopReplacementCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopReplacementCurrentImprovement).getType());
-		char const* szTopReplacementImprovement = (eTopReplacementImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopReplacementImprovement).getType());
+		char const* szTopUnimprovedBuild = getSASInfoTypeOrNone(eTopUnimprovedBuild);
+		char const* szTopUnimprovedImprovement = getSASInfoTypeOrNone(eTopUnimprovedImprovement);
+		char const* szTopReplacementBuild = getSASInfoTypeOrNone(eTopReplacementBuild);
+		char const* szTopReplacementCurrentImprovement = getSASInfoTypeOrNone(eTopReplacementCurrentImprovement);
+		char const* szTopReplacementImprovement = getSASInfoTypeOrNone(eTopReplacementImprovement);
 		logBBAI("WORKER_CITY_BUILD_SCAN turn=%d player=%d workerId=%d civ=%s city=%S pop=%d candidates=%d unimprovedBuilds=%d replacementBuilds=%d bonusCandidates=%d hasBlank=%d topBlank=(%d,%d) topBlankBuild=%s topBlankImprovement=%s topBlankValue=%d topReplacement=(%d,%d) topReplacementBuild=%s topReplacementCurrent=%s topReplacementImprovement=%s topReplacementValue=%d",
 			GC.getGame().getGameTurn(), getOwner(), getID(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
 			getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), iCityPopulation, (int)candidatePlots.size(),
@@ -6451,8 +6436,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					int const iDiagnosticPathTurns = (bIgnorePath ? 0 : pathFinder.getPathTurns());
 					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
 					ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
-					char const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCurrentImprovement).getType());
-					char const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eCandidateImprovement).getType());
+					char const* szCurrentImprovement = getSASInfoTypeOrNone(eCurrentImprovement);
+					char const* szCandidateImprovement = getSASInfoTypeOrNone(eCandidateImprovement);
 					logBBAI("WORKER_CITY_BUILD_CANDIDATE turn=%d player=%d civ=%s city=%S cityId=%d result=ACCEPT plot=(%d,%d) build=%s currentImprovement=%s candidateImprovement=%s value=%d pathTurns=%d reserved=%d/%d irrigationChainStep=%d",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
 						pB->getX(), pB->getY(), GC.getInfo(eB).getType(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue,
@@ -6491,9 +6476,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
 		ImprovementTypes const eTopCandidateCurrentImprovement = (pTopCandidatePlot == NULL ? NO_IMPROVEMENT : pTopCandidatePlot->getImprovementType());
 		ImprovementTypes const eTopCandidateImprovement = (eTopCandidateBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eTopCandidateBuild).getImprovement());
-		char const* szTopCandidateBuild = (eTopCandidateBuild == NO_BUILD ? "-" : GC.getInfo(eTopCandidateBuild).getType());
-		char const* szTopCandidateCurrentImprovement = (eTopCandidateCurrentImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopCandidateCurrentImprovement).getType());
-		char const* szTopCandidateImprovement = (eTopCandidateImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eTopCandidateImprovement).getType());
+		char const* szTopCandidateBuild = getSASInfoTypeOrNone(eTopCandidateBuild);
+		char const* szTopCandidateCurrentImprovement = getSASInfoTypeOrNone(eTopCandidateCurrentImprovement);
+		char const* szTopCandidateImprovement = getSASInfoTypeOrNone(eTopCandidateImprovement);
 		// <!-- custom: The old worker no-path log spammed harmless cases with 0 raw candidates, hiding real failures.
 		// Log only raw-candidate failures, with worker/city/top-candidate context and rejection counters, so BBAI reviews can tell whether pathing, reservations, enemies, or replacement-skip policy blocked all work without changing behavior.
 		// Reservation-only failures are often normal worker coordination, so the tag says "no accepted" rather than implying no candidate was pathable. (ChatGPT-5.5 + GPT-5.5) -->
@@ -6923,8 +6908,8 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot const& kPlot, MovementFlags eFlags, cha
 			CvSelectionGroupAI const& kGroup = *AI_getGroup();
 			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 			logBBAI("PATH_DOW_PATH_FAILURE turn=%d caller=%s player=%d civ=%s unitId=%d unit=%s unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) stepDistance=%d sourceArea=%d targetArea=%d targetOwner=%d targetTeam=%d flags=%d declareWar=%d throughEnemy=%d attackStack=%d avoidDanger=%d ignoreDanger=%d startEqualsTarget=%d targetWater=%d targetPeak=%d targetImpassable=%d cachedBorderDanger=%d targetVisibleEnemy=%d targetEnemy=%d amphib=%d missionAI=%d groupDomain=%d groupCanFight=%d",
-				GC.getGame().getGameTurn(), szCaller, getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), SAS_getUnitTypeName(getUnitType()),
-				SAS_getUnitAITypeName(AI_getUnitAIType()), kGroup.getID(), kGroup.getNumUnits(),
+				GC.getGame().getGameTurn(), szCaller, getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASInfoTypeOrNone(getUnitType()),
+				getSASInfoTypeOrNone(AI_getUnitAIType()), kGroup.getID(), kGroup.getNumUnits(),
 				getX(), getY(), kPlot.getX(), kPlot.getY(), stepDistance(getX(), getY(), kPlot.getX(), kPlot.getY()), getArea().getID(), kPlot.getArea().getID(),
 				kPlot.getOwner(), kPlot.getTeam(), (int)eFlags, ((eFlags & MOVE_DECLARE_WAR) != 0), ((eFlags & MOVE_THROUGH_ENEMY) != 0), ((eFlags & MOVE_ATTACK_STACK) != 0),
 				((eFlags & MOVE_AVOID_DANGER) != 0), ((eFlags & MOVE_IGNORE_DANGER) != 0), at(kPlot), kPlot.isWater(), kPlot.isPeak(), kPlot.isImpassable(),
@@ -8796,8 +8781,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			if (bLogPhase0Action) logBBAI("WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%s build=%s followup=%s production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
 				getSASDiagnosticQuoted(pPhase0City->getName().GetCString()).GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-				(ePhase0FeatureForLog == NO_FEATURE ? "-" : GC.getInfo(ePhase0FeatureForLog).getType()),
-				GC.getInfo(ePhase0Build).getType(), (ePhase0Followup == NO_BUILD ? "-" : GC.getInfo(ePhase0Followup).getType()), kVerify.iProduction,
+				getSASInfoTypeOrNone(ePhase0FeatureForLog),
+				GC.getInfo(ePhase0Build).getType(), getSASInfoTypeOrNone(ePhase0Followup), kVerify.iProduction,
 				iEligible, iTargeted, iPhase0MinEligibleForLog, bCoreFoodProduction);
 			return;
 		}
@@ -8916,8 +8901,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			if (bLogPhase0Action) logBBAI("WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%s build=%s followup=%s production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getX(), getY(),
 				getSASDiagnosticQuoted(pPhase0City->getName().GetCString()).GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
-				(ePhase0FeatureForLog == NO_FEATURE ? "-" : GC.getInfo(ePhase0FeatureForLog).getType()),
-				GC.getInfo(ePhase0Build).getType(), (ePhase0Followup == NO_BUILD ? "-" : GC.getInfo(ePhase0Followup).getType()), kVerify.iProduction,
+				getSASInfoTypeOrNone(ePhase0FeatureForLog),
+				GC.getInfo(ePhase0Build).getType(), getSASInfoTypeOrNone(ePhase0Followup), kVerify.iProduction,
 				iEligible, iTargeted, iPhase0MinEligibleForLog);
 			return;
 		}
@@ -11331,7 +11316,7 @@ void CvUnitAI::AI_attackCityMove()
 						// <!-- custom: Reaching this documented fallback is not an invalid state; replace K-Mod's development tripwire with optional context while retaining the separate failed-solver assertion below.
 						// A T395 replay reached a real blocker here and exposed a distinct staging/direct-attack flag mismatch in the helper. See KI#49.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 						if (gUnitLogLevel >= 2) logBBAI("BLOCKAGE_FALLBACK turn=%d player=%d unitId=%d unitAI=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCityId=%d target=(%d,%d)",
-							GC.getGame().getGameTurn(), getOwner(), getID(), SAS_getUnitAITypeName(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+							GC.getGame().getGameTurn(), getOwner(), getID(), getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
 							pAreaTargetCity->getOwner(), pAreaTargetCity->getID(), pAreaTargetCity->getX(), pAreaTargetCity->getY());
 						if (AI_solveBlockageProblem(pAreaTargetCity->plot(),
 							(GET_TEAM(getTeam()).getNumWars() <= 0)))
@@ -18412,9 +18397,9 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			if (kLoopPlot.isVisibleEnemyUnit(this))
 			{
 				if (gUnitLogLevel >= 2) logBBAI("OMNI_GROUP_VISIBLE_ENEMY_REJECT turn=%d player=%d civ=%s requestedAI=%s callerId=%d caller=%S callerAI=%s callerGroupId=%d callerGroupUnits=%d source=(%d,%d) targetHeadId=%d targetHead=%S targetAI=%s targetGroupId=%d targetGroupUnits=%d target=(%d,%d) targetOwner=%d targetTeam=%d targetMissionAI=%d safeOnly=%d plotEnemy=%d callerAlwaysHostile=%d mergeGroups=%d",
-					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), SAS_getUnitAITypeName(eUnitAI), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
-					SAS_getUnitAITypeName(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
-					pLoopUnit->getID(), getSASDiagnosticQuoted(pLoopUnit->getName(0).GetCString()).GetCString(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()),
+					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getSASInfoTypeOrNone(eUnitAI), getID(), getSASDiagnosticQuoted(getName(0).GetCString()).GetCString(),
+					getSASInfoTypeOrNone(AI_getUnitAIType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+					pLoopUnit->getID(), getSASDiagnosticQuoted(pLoopUnit->getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(pLoopUnit->AI_getUnitAIType()),
 					pLoopGroup->getID(), pLoopGroup->getNumUnits(), kLoopPlot.getX(), kLoopPlot.getY(), kLoopPlot.getOwner(), kLoopPlot.getTeam(),
 					pLoopGroup->AI_getMissionAIType(), bSafeOnly, isEnemy(kLoopPlot), isAlwaysHostile(kLoopPlot), bMergeGroups);
 				continue;
@@ -18880,7 +18865,7 @@ bool CvUnitAI::AI_guardCityOnlyDefender()
 				if (bLogSplit) logBBAI("RESERVE_ONLY_DEFENDER_SPLIT turn=%d player=%d civ=%s city=%S cityPlot=(%d,%d) reserveUnitId=%d guardUnitId=%d guardUnitAI=%s guardWasHead=%d oldGroupId=%d oldGroupUnits=%d oldMissionAI=%d guardCityUnits=%d otherGuardCityUnits=%d action=EJECT_ONE_DEFENDER",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
 					getSASDiagnosticQuoted(pPlotCity->getName().GetCString()).GetCString(), pPlotCity->getX(), pPlotCity->getY(), getID(), pGuardUnit->getID(),
-					SAS_getUnitAITypeName(pGuardUnit->AI_getUnitAIType()), (pGuardUnit == pOldHeadUnit), iOldGroupId, iGroupUnits, eGroupMissionAI,
+					getSASInfoTypeOrNone(pGuardUnit->AI_getUnitAIType()), (pGuardUnit == pOldHeadUnit), iOldGroupId, iGroupUnits, eGroupMissionAI,
 					iGuardCityUnits, iOtherGuardCityUnits);
 			}
 			pGuardUnit->getGroup()->pushMission(pGuardUnit->isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP,
@@ -19242,8 +19227,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		MissionAITypes const eMissionAI = (bDangerOnly || !pEjectedUnit->noDefensiveBonus() ? MISSIONAI_GUARD_CITY : NO_MISSIONAI);
 		if (gUnitLogLevel >= 2 && bDangerOnly) logBBAI("ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d civ=%s continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S targetPlot=(%d,%d)",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), bContinuingGuardCity, iOriginalGroupId,
-			pEjectedUnit->getID(), getSASDiagnosticQuoted(pEjectedUnit->getName(0).GetCString()).GetCString(), SAS_getUnitTypeName(pEjectedUnit->getUnitType()),
-			SAS_getUnitAITypeName(pEjectedUnit->AI_getUnitAIType()), pEjectedUnit->noDefensiveBonus(), eMissionAI,
+			pEjectedUnit->getID(), getSASDiagnosticQuoted(pEjectedUnit->getName(0).GetCString()).GetCString(), getSASInfoTypeOrNone(pEjectedUnit->getUnitType()),
+			getSASInfoTypeOrNone(pEjectedUnit->AI_getUnitAIType()), pEjectedUnit->noDefensiveBonus(), eMissionAI,
 			(eMissionAI == MISSIONAI_GUARD_CITY), pSourcePlot->getX(), pSourcePlot->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(),
 			getSASDiagnosticQuoted((pBestGuardCityForEvacuationLog == NULL ? NULL : pBestGuardCityForEvacuationLog->getName().GetCString())).GetCString(), pBestGuardPlot->getX(),
 			pBestGuardPlot->getY());
@@ -19619,7 +19604,7 @@ bool CvUnitAI::AI_guardYield()
 	bool const bAtTarget = at(*pBestPlot);
 	if (bLogSASMapControl && (eOldMissionAI != MISSIONAI_GUARD_BONUS || pOldMissionPlot != pBestPlot)) logSASGameRecord("GAME_RECORD_AI_MAP_CONTROL_DECISION turn=%d player=%d team=%d kind=YIELD_GUARD unitId=%d unit=%s unitAI=%s groupId=%d fromX=%d fromY=%d contextCityId=%d contextCityX=%d contextCityY=%d targetX=%d targetY=%d targetYieldValue=%d targetDefenseModifier=%d nearestInvisibleDistance=%d targetScore=%d threshold=%d ragingBarbarians=%d atTarget=%d action=%s",
 		GC.getGame().getGameTurn(), getOwner(), getTeam(), getID(),
-		SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+		getSASInfoTypeOrNone(getUnitType()), getSASInfoTypeOrNone(AI_getUnitAIType()),
 		getGroup()->getID(), getX(), getY(),
 		pCity->getID(), pCity->getX(), pCity->getY(),
 		pBestPlot->getX(), pBestPlot->getY(),
@@ -19950,7 +19935,7 @@ bool CvUnitAI::AI_guardCitySite()
 		bool const bAtTarget = at(*pBestGuardPlot);
 		if (bLogSASMapControl && (eOldMissionAI != MISSIONAI_GUARD_CITY || pOldMissionPlot != pBestGuardPlot)) logSASGameRecord("GAME_RECORD_AI_MAP_CONTROL_DECISION turn=%d player=%d team=%d kind=CITY_SITE_GUARD unitId=%d unit=%s unitAI=%s groupId=%d fromX=%d fromY=%d citySiteRank=%d citySiteX=%d citySiteY=%d citySiteFoundValue=%d targetX=%d targetY=%d targetIsCitySite=%d targetDefenseModifier=%d targetSeeFromLevel=%d targetScore=%d pathTurns=%d endTurnX=%d endTurnY=%d atTarget=%d action=%s",
 			GC.getGame().getGameTurn(), getOwner(), getTeam(), getID(),
-			SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+			getSASInfoTypeOrNone(getUnitType()), getSASInfoTypeOrNone(AI_getUnitAIType()),
 			getGroup()->getID(), getX(), getY(),
 			iBestCitySiteRank, pBestCitySite->getX(), pBestCitySite->getY(),
 			iBestValue,
@@ -22960,7 +22945,7 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity
 						GroupPathNode const* pPrevNode = (pPathNode == NULL ? NULL : pPathNode->m_pParent);
 						GroupPathNode const* pNextNode = (pPathNode == NULL ? NULL : pTowardDestNode);
 						logBBAI("TARGET_CITY_WATER_ENDTURN_PATH selection=BEST_SO_FAR turn=%d player=%d unitId=%d unit=%s groupId=%d groupUnits=%d source=(%d,%d) targetCityOwner=%d targetCity=%S targetCityPlot=(%d,%d) selectedAdjacent=(%d,%d) selectedAdjacentWater=%d selectedAdjacentArea=%d endTurn=(%d,%d) endTurnArea=%d pathTurns=%d finalMoves=%d pathEnd=(%d,%d) endNodeFound=%d endNodeTurns=%d endNodeMoves=%d prev=(%d,%d) prevWater=%d prevTurns=%d prevMoves=%d next=(%d,%d) nextWater=%d nextTurns=%d nextMoves=%d flags=%d",
-							GC.getGame().getGameTurn(), getOwner(), getID(), SAS_getUnitTypeName(getUnitType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+							GC.getGame().getGameTurn(), getOwner(), getID(), getSASInfoTypeOrNone(getUnitType()), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
 							pTargetCity->getOwner(), getSASDiagnosticQuoted(pTargetCity->getName().GetCString()).GetCString(), pTargetCity->getX(), pTargetCity->getY(), pAdj->getX(), pAdj->getY(), pAdj->isWater(), pAdj->getArea().getID(),
 							pEndTurnPlot->getX(), pEndTurnPlot->getY(), pEndTurnPlot->getArea().getID(), iPathTurns, getPathFinder().getFinalMoves(),
 							(pFinalNode == NULL ? -1 : pFinalNode->getPlot().getX()), (pFinalNode == NULL ? -1 : pFinalNode->getPlot().getY()), pPathNode != NULL,
@@ -25677,7 +25662,7 @@ bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTarge
 			(bImpassableAmphibiousTarget ? "AMPHIBIOUS_TARGET" : "UNEXPECTED"));
 		logBBAI("TRANSPORT_IMPASSABLE_ENDPOINT turn=%d player=%d civ=%s transportId=%d transport=%s transportAI=%s groupId=%d groupUnits=%d source=(%d,%d) endTurn=(%d,%d) target=(%d,%d) endIsTarget=%d targetAmphibious=%d endWater=%d endPeak=%d transportCanMoveImpassable=%d cargoUnits=%d cargoCanMoveImpassable=%d cargoGroupHeads=%d cargoGroupsCanEnterTarget=%d missionAI=%d flags=%d reason=%s",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
-			getID(), SAS_getUnitTypeName(getUnitType()), SAS_getUnitAITypeName(AI_getUnitAIType()),
+			getID(), getSASInfoTypeOrNone(getUnitType()), getSASInfoTypeOrNone(AI_getUnitAIType()),
 			getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
 			kEndTurnPlot.getX(), kEndTurnPlot.getY(), kTargetPlot.getX(), kTargetPlot.getY(),
 			(&kEndTurnPlot == &kTargetPlot ? 1 : 0), bImpassableAmphibiousTarget ? 1 : 0,
@@ -26231,7 +26216,7 @@ bool CvUnitAI::AI_ferryWorkers()
 				if (gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) logBBAI("WORKER_CROSS_WATER_BFC_CANDIDATE turn=%d player=%d civ=%s transportId=%d workerId=%d city=%S plot=(%d,%d) plotArea=%d directBuild=%s followup=%s improvement=%s buildValue=%d result=ELIGIBLE",
 					GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pWorker->getID(), getSASDiagnosticQuoted(pWorkingCity->getName().GetCString()).GetCString(),
 					kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), GC.getInfo(eBestBuild).getType(),
-					(eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType()), GC.getInfo(eBestImpr).getType(), iBuildValue);
+					getSASInfoTypeOrNone(eFollowupBuild), GC.getInfo(eBestImpr).getType(), iBuildValue);
 			}
 			else
 			{
@@ -27038,7 +27023,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 	if (bLogRoute && eMission == MISSION_ROUTE_TO) logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_CITY target=(%d,%d) targetCity=%S targetCityId=%d reason=%s targetHasRoute=%d intendedBuild=%s followup=%s",
 		GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 		pBestPlot->getX(), pBestPlot->getY(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(), szRouteReason, pBestPlot->isRoute(),
-		GC.getInfo(eBestBuild).getType(), (eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType()));
+		GC.getInfo(eBestBuild).getType(), getSASInfoTypeOrNone(eFollowupBuild));
 	return true;
 }
 
@@ -27386,8 +27371,8 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
         if (bLogWorkerCityTarget)
         {
 			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
-			char const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? "-" : GC.getInfo(eDiagnosticBonus).getType());
-			char const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eFollowupBuild).getType());
+			char const* szDiagnosticBonus = getSASInfoTypeOrNone(eDiagnosticBonus);
+			char const* szDiagnosticFollowup = getSASInfoTypeOrNone(eFollowupBuild);
 			// <!-- custom: Cross-city scheduling can hide a locally correct Mine/Farm/Cottage decision by sending the Worker to another city's numerically larger job.
 			// Repeat the city scarcity snapshot only inside level-3 logging so each competing city job carries the need signal that produced its buildValue; this is diagnostic and does not alter scheduling. See KI#33.4. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 			SASWorkerCityYieldAnalysis const kDiagnosticYieldAnalysis = SAS_getWorkerCityYieldAnalysis(*this, *pLoopCity);
@@ -27434,7 +27419,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (gWorkerLogLevel >= 2)
 	{
 		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
-		char const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestFollowupBuild).getType());
+		char const* szFollowupBuild = getSASInfoTypeOrNone(eBestFollowupBuild);
 		logBBAI("WORKER_CITY_JOB_CHOSEN turn=%d player=%d workerId=%d civ=%s from=(%d,%d) targetCity=%S plot=(%d,%d) decisionPath=%s build=%s followup=%s currentCity=%d bestScore=%d",
 			GC.getGame().getGameTurn(), getOwner(), getID(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getX(), getY(),
 			getSASDiagnosticQuoted((pChosenWorkingCity == NULL ? NULL : pChosenWorkingCity->getName().GetCString())).GetCString(), pBestPlot->getX(), pBestPlot->getY(),
@@ -27478,7 +27463,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (gWorkerLogLevel >= 3)
 	{
 		SAS_logWorkerReplacementAssignment(*this, *pBestPlot, eBestBuild, eBestFollowupBuild, bBestIrrigationChainStep);
-		char const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? "-" : GC.getInfo(eBestFollowupBuild).getType());
+		char const* szFollowupBuild = getSASInfoTypeOrNone(eBestFollowupBuild);
 		logBBAI("WORKER_CITY_ASSIGNMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) decisionPath=%s moveMission=MOVE_TO routePolicy=DIRECT_TO_CITY_YIELD targetHasRoute=%d build=%s followup=%s missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 			getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), (bBestIrrigationChainStep ? "IRRIGATION_CHAIN" : "CITY_BUILD"),
@@ -27913,9 +27898,9 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 					logBBAI("WORKER_IMPROVE_BONUS_UNAVAILABLE turn=%d player=%d civ=%s workerId=%d city=%S plot=(%d,%d) bonus=%s build=%s connectsBonus=%d canBuildNow=%d buildTech=%s buildTechKnown=%d buildTechTurnsIfCurrent=%d currentResearch=%s",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), getSASDiagnosticQuoted(pWorkingCity->getName().GetCString()).GetCString(),
 						kPlot.getX(), kPlot.getY(), GC.getInfo(eNonObsoleteBonus).getType(), GC.getInfo(eBuild).getType(),
-						bCandidateConnectsBonus, bCanBuildCandidate, (eBuildTech == NO_TECH ? "-" : GC.getInfo(eBuildTech).getType()),
+						bCandidateConnectsBonus, bCanBuildCandidate, getSASInfoTypeOrNone(eBuildTech),
 						(eBuildTech == NO_TECH || GET_TEAM(getTeam()).isHasTech(eBuildTech)), iBuildTechTurns,
-						(eCurrentResearch == NO_TECH ? "-" : GC.getInfo(eCurrentResearch).getType()));
+						getSASInfoTypeOrNone(eCurrentResearch));
 				}
 				bDoImprove = false;
 			}
@@ -28109,8 +28094,8 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 		BonusTypes const eSelectedBonus = pBestPlot->getNonObsoleteBonusType(getTeam());
 		logBBAI("WORKER_IMPROVE_BONUS_SELECTED turn=%d player=%d civ=%s workerId=%d target=(%d,%d) bonus=%s build=%s routeOnly=%d value=%d",
 			GC.getGame().getGameTurn(), getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), getID(), pBestPlot->getX(), pBestPlot->getY(),
-			(eSelectedBonus == NO_BONUS ? "-" : GC.getInfo(eSelectedBonus).getType()),
-			(eBestBuild == NO_BUILD ? "-" : GC.getInfo(eBestBuild).getType()), bBestBuildIsRoute, iBestValue);
+			getSASInfoTypeOrNone(eSelectedBonus),
+			getSASInfoTypeOrNone(eBestBuild), bBestBuildIsRoute, iBestValue);
 	}
 
 	if (eBestBuild != NO_BUILD)
@@ -28183,7 +28168,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 			logBBAI("WORKER_ROUTE_BEFORE_CITY_IMPROVEMENT turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s targetHasRoute=%d targetBonus=%s intendedBuild=%s value=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 				pBestPlot->getX(), pBestPlot->getY(), szRouteReason, pBestPlot->isRoute(),
-				(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), GC.getInfo(eBestBuild).getType(), iBestValue);
+				getSASInfoTypeOrNone(eTargetBonus), GC.getInfo(eBestBuild).getType(), iBestValue);
 		}
 		if (bLogRoute && GC.getInfo(eBestBuild).getRoute() != NO_ROUTE)
 		{
@@ -28191,7 +28176,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 			logBBAI("WORKER_ROUTE_BUILD_ACTION turn=%d player=%d civ=%s workerId=%d worker=(%d,%d) source=IMPROVE_BONUS target=(%d,%d) reason=%s bonus=%s build=%s value=%d",
 				GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(), getID(), getX(), getY(),
 				pBestPlot->getX(), pBestPlot->getY(), szBuildRouteReason,
-				(eTargetBonus == NO_BONUS ? "-" : GC.getInfo(eTargetBonus).getType()), GC.getInfo(eBestBuild).getType(), iBestValue);
+				getSASInfoTypeOrNone(eTargetBonus), GC.getInfo(eBestBuild).getType(), iBestValue);
 		}
 		return true;
 	}

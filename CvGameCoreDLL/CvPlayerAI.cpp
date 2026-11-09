@@ -2457,7 +2457,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				iRazeValueAfterCulturalOwner - iRazeValueAfterBonuses, iRazeValueAfterExpansion - iRazeValueAfterCulturalOwner,
 				iRazeValueBeforeRandom - iRazeValueAfterExpansion, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness,
 				bBarbCity, bPrevOwnerBarb, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()),
-				(getStateReligion() == NO_RELIGION ? "-" : GC.getInfo(getStateReligion()).getType()),
+				getSASInfoTypeOrNone(getStateReligion()),
 				(getStateReligion() != NO_RELIGION && kCity.isHasReligion(getStateReligion())),
 				(getStateReligion() != NO_RELIGION && GET_TEAM(getTeam()).hasShrine(getStateReligion())), kCity.isHolyCity(), kCity.isHeadquarters(),
 				kCity.getNumActiveWorldWonders(), kCity.getNumGreatPeople(), eCulturalOwner, iTargetCities, getNumCities(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
@@ -8438,8 +8438,8 @@ void CvPlayerAI::AI_chooseResearch()
 	// This reveals whether currentResearch=- in an end-of-round summary was harmless timing, exhaustion of all technologies, or an actual failure to find a researchable target. (GPT-5.6-Sol) -->
 	if (gPlayerLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("RESEARCH_TARGET_CHOSEN turn=%d player=%d civ=%s requested=%s current=%s queueLength=%d",
 		GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(),
-		(eBestTech == NO_TECH ? "-" : GC.getInfo(eBestTech).getType()),
-		(getCurrentResearch() == NO_TECH ? "-" : GC.getInfo(getCurrentResearch()).getType()), getLengthResearchQueue());
+		getSASInfoTypeOrNone(eBestTech),
+		getSASInfoTypeOrNone(getCurrentResearch()), getLengthResearchQueue());
 }
 
 DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
@@ -16639,8 +16639,8 @@ void CvPlayerAI::AI_logWorkerSeaAudit() const
 		CvCity const* pWorkingCity = kPlot.getWorkingCity();
 		CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
 		CvWString const szNearestCity = (pNearestCoastalCity == NULL ? CvWString(L"-") : pNearestCoastalCity->getName());
-		char const* szImprovement = (eImprovement == NO_IMPROVEMENT ? "-" : GC.getInfo(eImprovement).getType());
-		char const* szBestBuild = (eBestBuild == NO_BUILD ? "-" : GC.getInfo(eBestBuild).getType());
+		char const* szImprovement = getSASInfoTypeOrNone(eImprovement);
+		char const* szBestBuild = getSASInfoTypeOrNone(eBestBuild);
 		logBBAI("WORKER_SEA_AUDIT_TARGET turn=%d player=%d civ=%s plot=(%d,%d) area=%d bonus=%s improvement=%s cityRadius=%d workingCity=%S workingCityId=%d nearestCoastalCity=%S nearestCityId=%d nearestCityDistance=%d firstSeenUnimproved=%d ageUnimproved=%d firstSeenBuildable=%d ageBuildable=%d firstSeenReachable=%d ageReachable=%d assignedMissions=%d visibleEnemy=%d waterDanger=%d canBuildSeaImprovement=%d bestBuild=%s countedReachable=%d areaWorkers=%d areaTrain=%d totalWorkers=%d totalTrain=%d",
 			iTurn, getID(), GC.getInfo(getCivilizationType()).getType(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(),
 			GC.getInfo(eBonus).getType(), szImprovement, kPlot.isCityRadius(), getSASDiagnosticQuoted(szWorkingCity.GetCString()).GetCString(),
@@ -23200,8 +23200,8 @@ void CvPlayerAI::AI_doReligion()
 	if (bConvert) // </advc.131>
 	{
 		if (gPlayerLogLevel > 0) logBBAI("RELIGION_CONVERSION_DECISION turn=%d player=%d civ=%s action=CONVERT oldReligion=%s newReligion=%s currentValue=%d selectedValue=%d probabilityPercent=%d",
-			GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), (eCurrentReligion == NO_RELIGION ? "-" : GC.getInfo(eCurrentReligion).getType()),
-			(eBestReligion == NO_RELIGION ? "-" : GC.getInfo(eBestReligion).getType()),
+			GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), getSASInfoTypeOrNone(eCurrentReligion),
+			getSASInfoTypeOrNone(eBestReligion),
 			eCurrentReligion == NO_RELIGION ? 0 : (iCurrentReligionValue >= 0 ? iCurrentReligionValue : AI_religionValue(eCurrentReligion)),
 			eBestReligion == NO_RELIGION ? 0 : (iSelectedReligionValue >= 0 ? iSelectedReligionValue : AI_religionValue(eBestReligion)), rConvertProb.getPercent());
 		convert(eBestReligion);

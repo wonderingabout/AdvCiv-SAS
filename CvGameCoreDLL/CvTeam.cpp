@@ -4919,7 +4919,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 			// Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
 			if (gPlayerLogLevel >= 2 && bWasResearchingAcquiredTech && !kMember.isHuman() && kGame.isFinalInitialized()) logBBAI("RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d civ=%s acquired=%s next=%s queueLength=%d",
 				kGame.getGameTurn(), kMember.getID(), GC.getInfo(kMember.getCivilizationType()).getType(), kTech.getType(),
-				(kMember.getCurrentResearch() == NO_TECH ? "-" : GC.getInfo(kMember.getCurrentResearch()).getType()),
+				getSASInfoTypeOrNone(kMember.getCurrentResearch()),
 				kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */

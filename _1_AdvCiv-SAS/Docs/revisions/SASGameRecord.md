@@ -32,10 +32,10 @@ Therefore:
 - **Historical state at practical 6439: revision 68.**
 - **The commit that introduces the explicit revision field/history/check should be revision 69**, because the mechanism itself changes SASGameRecord-related code.
 
-Current emitted source-context field:
+Source-context field format:
 
 ```text
-GAME_RECORD_SOURCE_CONTEXT recordRevision=176 ...
+GAME_RECORD_SOURCE_CONTEXT recordRevision=...
 ```
 
 After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` in `GlobalDefines_advciv_sas.xml` exactly once and adds one short latest-first entry to this file in the same commit. The revision remains a downstream-update signal; exact runtime source/build identity remains separate provenance in `GAME_RECORD_SOURCE_CONTEXT` and the DLL/build context.
@@ -112,6 +112,21 @@ An empty structured collection means **zero companion rows** (with parent counts
 Only the listed collections use this convention; other compact fields retain their field-specific interpretation. Companion rows follow the parent snapshot's logging level and interval, rather than recording every live change.
 
 ## History (latest first)
+
+### Revision 193 - SAS practical 6738
+
+- **Date:** 2026-11-09
+- **Git commit:** pending
+- **Change:** Record native city and unit requests at dispatch so they can be compared with the subsequent game outcomes.
+  - The coverage audit drew on [CIVAI](https://github.com/noreff/civai), whose player bridge distinguishes submitted commands from resulting state. Direct Python city mutations illustrate why a native dispatch record cannot identify every caller.
+  - `GAME_RECORD_PLAYER_CITY_TASK` observes `CvNetDoTask` before `CvCity::doTask`, retaining the native task ID/name, raw payload/modifier flags, city identity and direct typed target where the task itself defines one (player, emphasize, specialist, city plot, hurry or rally plot).
+  - `GAME_RECORD_PLAYER_UNIT_MISSION`, `GAME_RECORD_PLAYER_UNIT_AUTO_MISSION`, `GAME_RECORD_PLAYER_UNIT_COMMAND` and `GAME_RECORD_PLAYER_UNIT_GROUP_COMMAND` record dispatch before the handlers run.
+  - Unit dispatch rows retain unit/group/queue/automation context, raw payload/flags and direct XML/plot/unit targets where those payload meanings are fixed.
+  - All five families are level-2 action-trace rows with `stage=COMMAND_DISPATCH source=NETWORK_MESSAGE`. The source identifies the dispatch path. The sender and whether the command succeeded remain unknown at this point.
+  - Read dispatch alongside existing movement, promotion, upgrade, scrap, city and Worker records for the observed outcomes.
+  - SGR and BBAI share the same XML type lookup and missing-value label. The shared mission lookup also checks the upper bound because native dispatch can receive an out-of-range ID.
+  - Typed research and production command rows now carry the same `source=NETWORK_MESSAGE` provenance for a consistent submitted-intent layer. No pathfinding, can-do query, AI valuation, RNG, target scan or post-command success inference is added for recording.
+  - The neighboring native-message audit keeps civic/religion/election/vote/colony/event/launch/war and commerce-result coverage in their existing popup/action/state observers rather than duplicating every `CvNet*` message. Future origin work should distinguish only caller origins that are actually established, preserving unknown instead of equating network dispatch with manual input.
 
 ### Revision 192 - SAS practical 6733
 

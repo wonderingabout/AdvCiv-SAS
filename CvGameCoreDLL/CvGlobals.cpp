@@ -587,7 +587,9 @@ CvString*& CvGlobals::getAutomateTypes()
 	return m_paszAutomateTypes;
 }
 
-CvString& CvGlobals::getAutomateTypes(AutomateTypes e)
+// <!-- custom: Expose the indexed automation token read-only through const GC.
+// The loader still uses the separate array accessor to populate the global types. (GPT-6.1-Sol) -->
+CvString const& CvGlobals::getAutomateTypes(AutomateTypes e) const
 {
 	FAssertEnumBounds(e);
 	return m_paszAutomateTypes[e];

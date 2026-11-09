@@ -5,7 +5,7 @@
 #include "CvCity.h"
 #include "CvUnit.h"
 #include "CvSelectionGroup.h"
-#include "SASGameRecordLog.h" // <!-- custom: Research and production messages provide typed command evidence as well as research-target redirection causes for SASGameRecord; the recorder owns formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Native research, production, city-task and unit-command messages provide typed command evidence as well as research-target redirection causes for SASGameRecord; the recorder owns formatting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 
 
 CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
@@ -320,6 +320,8 @@ void CvNetDoTask::Execute()
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
 		if (pCity != NULL)
 		{
+			// <!-- custom: Observe the exact native city task before CvCity applies it; the recorder decodes only direct payload identities/plots and does not claim the task will succeed. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerCityTask(*pCity, m_eTask, m_iData1, m_iData2, m_bOption, m_bAlt, m_bShift, m_bCtrl);
 			pCity->doTask(m_eTask, m_iData1, m_iData2,
 					m_bOption, m_bAlt, m_bShift, m_bCtrl);
 		}
@@ -782,6 +784,8 @@ void CvNetJoinGroup::Execute()
 		if (pUnit != NULL)
 		{
 			CvUnit* pHeadUnit = GET_PLAYER(m_ePlayer).getUnit(m_iHeadID);
+			// <!-- custom: Group joins/splits are native unit commands too; preserve the requested head and its pre-change group when present without inferring later group state. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitGroupCommand(*pUnit, m_iHeadID, pHeadUnit);
 			if (pHeadUnit != NULL)
 			{
 				pUnit->joinGroup(pHeadUnit->getGroup());
@@ -837,6 +841,8 @@ void CvNetPushMission::Execute()
 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
 			if (pSelectionGroup != NULL)
 			{
+				// <!-- custom: Record the submitted mission payload at the network-message boundary; queue insertion/execution remains separate factual evidence. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitMissionPush(*pUnit, m_eMission, m_iData1, m_iData2, m_eFlags, m_bShift, m_bModified);
 				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2,
 						m_eFlags, m_bShift, true,
 						NO_MISSIONAI, NULL, NULL, m_bModified); // advc.011b
@@ -894,6 +900,8 @@ void CvNetAutoMission::Execute()
 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
 			if (pSelectionGroup != NULL)
 			{
+				// <!-- custom: Auto-mission dispatch invokes the group handler, so capture the queued head before the handler can advance or clear it. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+				if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitAutoMission(*pUnit);
 				pSelectionGroup->autoMission();
 			}
 		}
@@ -944,6 +952,8 @@ void CvNetDoCommand::Execute()
 		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
 		if (pUnit != NULL)
 		{
+			// <!-- custom: Preserve the exact native command before canDoCommand/application; alt/all semantics and safe typed payload identities come from already-loaded command data only. (ChatGPT-5.6-Sol) -->
+			if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) logSASGameRecordPlayerUnitCommand(*pUnit, m_eCommand, m_iData1, m_iData2, m_bAlt);
 			if (m_bAlt && GC.getInfo(m_eCommand).getAll())
 			{
 				/*FOR_EACH_UNIT_VAR(pLoopUnit, GET_PLAYER(m_ePlayer)) // BtS

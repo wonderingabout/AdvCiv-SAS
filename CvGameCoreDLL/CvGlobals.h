@@ -335,7 +335,7 @@ public:
 	CvString& getDiplomacyPowerTypes(DiplomacyPowerTypes e);
 
 	CvString*& getAutomateTypes();
-	CvString& getAutomateTypes(AutomateTypes e);
+	CvString const& getAutomateTypes(AutomateTypes e) const; // <!-- custom: Read the loaded automation token through const GC for diagnostic labels. (GPT-6.1-Sol) -->
 
 	CvString*& getDirectionTypes();
 	CvString& getDirectionTypes(AutomateTypes e);
