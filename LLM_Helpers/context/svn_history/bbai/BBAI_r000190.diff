@@ -1,0 +1,74 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 190
+# Author: blakeciv
+# Date: 2006-12-15T22:04:06.655528Z
+# Coverage: full
+# Message:
+#   Fixed bug in foundValue related to coast. Also added new code for lake-valuing.
+#   Deleted Warlord stuff from CvGameCoreUtils.h preventing it from compiling.
+# Changed paths (2):
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h@189
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreUtils.h@190
+@@ -373,7 +373,7 @@
+ 	case MISSION_GREAT_WORK: szString = L"MISSION_GREAT_WORK"; break;
+ 	case MISSION_GOLDEN_AGE: szString = L"MISSION_GOLDEN_AGE"; break;
+ 	case MISSION_BUILD: szString = L"MISSION_BUILD"; break;
+-	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
++//	case MISSION_LEAD: szString = L"MISSION_LEAD"; break;
+ 
+ 	case MISSION_BEGIN_COMBAT: szString = L"MISSION_BEGIN_COMBAT"; break;
+ 	case MISSION_END_COMBAT: szString = L"MISSION_END_COMBAT"; break;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@189
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@190
+@@ -1283,8 +1283,22 @@
+ 
+ 	pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	pArea = pPlot->area();
+-	bIsCoastal = pPlot->isCoastalLand();
++	//bIsCoastal = pPlot->isCoastalLand(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN"));
+ 	iNumAreaCities = pArea->getCitiesPerPlayer(getID());
++	
++	bIsCoastal = false;
++	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		pLoopPlot = plotDirection(iX, iY, (DirectionTypes)iI);
++		if (pLoopPlot != NULL)
++		{
++			if (pLoopPlot->isWater() && !pLoopPlot->isLake())
++			{
++				bIsCoastal = true;
++				break;
++			}
++		}
++	}
+ 
+     paiBonusCount = new int[GC.getNumBonusInfos()];
+ 
+@@ -1584,13 +1598,17 @@
+                 if (aiYield[YIELD_COMMERCE] > 1)
+                 {
+                     iTempValue += bIsCoastal ? 30 : -20;
++                    if (bIsCoastal && (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
++                    {
++                    	iSpecialFoodPlus += 1;                    	
++                    }
+                     if (bStartingLoc)
+                     {
+                         // I'm pretty much forbidding starting 1 tile inland non-coastal.
+                         // with more than a few coast tiles.
+                         iTempValue += bIsCoastal ? 0 : -400;
+-			}
+-                }                
++					}
++                }
+             }
+             
+ 			if (pLoopPlot->isRiver())
+

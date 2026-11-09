@@ -1,0 +1,58 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 353
+# Author: blakeciv
+# Date: 2007-02-09T00:13:25.571288Z
+# Coverage: full
+# Message:
+#   Revised the "Grow More" calculation to encourage more sensible training of worker/settlers
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@352
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@353
+@@ -3768,21 +3768,28 @@
+ 	int iBestOriginalValue;
+ 	int iI, iJ, iK;
+ 	
+-	bool bGrowMore;
+-
+ 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
+-
+-    bGrowMore = ((getPopulation() < 3) && (AI_countGoodTiles(true, false, 100) >= getPopulation()));
+-    if (!bGrowMore && (getPopulation() < 5) && (AI_countGoodTiles(true, false, 80) >= getPopulation()))
+-    {
+-        if ((getFood() - (getFoodKept() / 2)) >= (growthThreshold() / 2))
+-        {
+-            if (angryPopulation(1) == 0)
+-            {
+-                bGrowMore = true;                
+-            }
+-        }
+-    }
++	
++	bool bGrowMore = false;
++
++	if (GET_PLAYER(getOwnerINLINE()).getNumCities() <= 2)
++	{
++		bGrowMore = ((getPopulation() < 3) && (AI_countGoodTiles(true, false, 100) >= getPopulation()));
++	}
++	else
++	{
++		bGrowMore = ((getPopulation() < 3) || (AI_countGoodTiles(true, false, 100) >= getPopulation()));
++	}
++	if (!bGrowMore && (getPopulation() < 6) && (AI_countGoodTiles(true, false, 80) >= getPopulation()))
++	{
++		if ((getFood() - (getFoodKept() / 2)) >= (growthThreshold() / 2))
++		{
++			if ((angryPopulation(1) == 0) && (healthRate(false, 1) == 0))
++			{
++				bGrowMore = true;                
++			}
++		}
++	}
+ 	iBestOriginalValue = 0;
+ 
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+

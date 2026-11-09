@@ -1,0 +1,354 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 560
+# Author: jdog5000
+# Date: 2010-05-15T03:12:00.311122Z
+# Coverage: full
+# Message:
+#   Fixed new defensive pact option behavior
+#   Boost sacrifice value of siege units
+#   Great Generals no longer lead siege, are more selective
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@559
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@560
+@@ -407,7 +407,17 @@
+ 		return true;
+ 	}
+ 
+-	if (!AI_isEmphasizeYield(YIELD_FOOD) && !AI_isEmphasizeGreatPeople())
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++	//if (!AI_isEmphasizeYield(YIELD_FOOD) && !AI_isEmphasizeGreatPeople())
++	// AI should avoid growth when it has angry citizens, even if emphasizing great people
++	if( !(isHuman()) || (!AI_isEmphasizeYield(YIELD_FOOD) && !AI_isEmphasizeGreatPeople()) )
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	{
+ 		int iExtra = (isHuman()) ? 0 : 1;
+ 		int iHappinessLevel = happyLevel() - unhappyLevel(iExtra);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@559
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@560
+@@ -5091,7 +5091,7 @@
+ 	if( !bWarPlan )
+ 	{
+ 		// Aggressive players will stick with war civics
+-		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 200 )
++		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 400 )
+ 		{
+ 			bWarPlan = true;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@559
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@560
+@@ -1275,12 +1275,12 @@
+ 
+ 	return true;
+ }
++
++
++void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bCancelPacts)
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-
+-void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -1640,7 +1640,6 @@
+ 
+ 		CvEventReporter::getInstance().changeWar(true, getID(), eTeam);
+ 
+-
+ 		if( GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() <= 1 )
+ 		{
+ 			cancelDefensivePacts();
+@@ -1652,7 +1651,7 @@
+ 			{
+ 				if (GET_TEAM((TeamTypes)iI).isDefensivePact(eTeam))
+ 				{
+-					GET_TEAM((TeamTypes)iI).declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE);
++					GET_TEAM((TeamTypes)iI).declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() == 0));
+ 				}
+ 				else if( (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 1) && GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
+ 				{
+@@ -1662,7 +1661,7 @@
+ 			}
+ 		}
+ 
+-		if( GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() == 0 )
++		if( GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() == 0 || (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() == 1 && bCancelPacts))
+ 		{
+ 			GET_TEAM(eTeam).cancelDefensivePacts();
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@559
++++ /trunk/CvGameCoreDLL/CvTeam.h@560
+@@ -55,10 +55,10 @@
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+ 	bool canEventuallyDeclareWar(TeamTypes eTeam) const;
++	DllExport void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bCancelPacts = true);										// Exposed to Python
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-	DllExport void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan);										// Exposed to Python
+ 	DllExport void makePeace(TeamTypes eTeam, bool bBumpUnits = true);																		// Exposed to Python
+ 	bool canContact(TeamTypes eTeam) const;																							// Exposed to Python
+ 	void meet(TeamTypes eTeam, bool bNewDiplo);																		// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@559
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@560
+@@ -1125,7 +1125,7 @@
+ 	else 
+ 	{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* General AI                                                                                   */
+ /************************************************************************************************/
+@@ -1147,19 +1147,23 @@
+ 		// Value experience a bit more, especially medics
+ 		iValue /= (8 + getExperience());
+ 		iValue /= (10 + getSameTileHeal() + getAdjacentTileHeal());
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+-		if (m_pUnitInfo->getCombatLimit() < 100)
++
++		// Value units which can't kill units later
++		if (combatLimit() < 100)
+ 		{
+ 			iValue *= 150;
+ 			iValue /= 100;
+-		}
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
++
++			iValue *= 100;
++			iValue /= std::max(1, combatLimit());
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++	}
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* From Lead From Behind                                                                        */
+ /************************************************************************************************/
+@@ -1170,7 +1174,9 @@
+ 		iValue *= 100;
+ 		int iRating = LFBgetRelativeValueRating();
+ 		if (iRating > 0)
+-			iValue /= (iRating * 100 / GC.getLFBBasedOnAverage());
++		{
++			iValue /= (1 + 3*iRating);
++		}
+ 	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -4761,7 +4767,12 @@
+ 		return;
+ 	}
+ 	
+-	if (bOffenseWar && (GC.getGameINLINE().getSorenRandNum(2, "AI General Lead") == 0))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
+ 	{
+ 		aeUnitAITypes.clear();
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
+@@ -4769,8 +4780,14 @@
+ 		{
+ 			return;
+ 		}
+-	}
+-	
++
++		aeUnitAITypes.clear();
++		aeUnitAITypes.push_back(UNITAI_ATTACK);
++		if (AI_lead(aeUnitAITypes))
++		{
++			return;
++		}
++	}
+ 	
+ 	if (AI_join(2))
+ 	{
+@@ -4804,11 +4821,6 @@
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+ 	if( getGroup()->isStranded() )
+ 	{
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+@@ -12573,7 +12585,11 @@
+ 
+ 	CvUnit* pBestHealUnit = NULL;
+ 	CvPlot* pBestHealPlot = NULL;
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/*                                                                                              */
++/* Great People AI, Unit AI                                                                     */
++/************************************************************************************************/
+ 	if (bNeedLeader)
+ 	{
+ 		int iBestStrength = 0;
+@@ -12583,51 +12599,36 @@
+ 		{
+ 			for (uint iI = 0; iI < aeUnitAITypes.size(); iI++)
+ 			{
+-				if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI])
+-				{
+-					if (canLead(pLoopUnit->plot(), pLoopUnit->getID()))
++				if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI] || (GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances() > 0) )
++				{
++					if (canLead(pLoopUnit->plot(), pLoopUnit->getID()) > 0)
+ 					{
+ 						if (AI_plotValid(pLoopUnit->plot()))
+ 						{
+ 							if (!(pLoopUnit->plot()->isVisibleEnemyUnit(this)))
+ 							{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/03/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+-								if (generatePath(pLoopUnit->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++								if( pLoopUnit->combatLimit() == 100 )
+ 								{
+-									// pick the unit with the highest current strength
+-									int iCombatStrength = pLoopUnit->currCombatStr(NULL, NULL);
+-									if (iCombatStrength > iBestStrength)
++									if (generatePath(pLoopUnit->plot(), MOVE_AVOID_ENEMY_WEIGHT_3, true))
+ 									{
+-										iBestStrength = iCombatStrength;
+-										pBestStrUnit = pLoopUnit;
+-										pBestStrPlot = getPathEndTurnPlot();
+-									}
+-									
+-									// or the unit with the best healing ability
+-									int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+-									if (iHealing > iBestHealing)
+-									{
+-										iBestHealing = iHealing;
+-										pBestHealUnit = pLoopUnit;
+-										pBestHealPlot = getPathEndTurnPlot();
+-									}
+-									
+-									if (GC.getGame().getSorenRandNum(3, "AI Warlord mash unit") != 0)
+-									{
+-										pBestPlot = pBestStrPlot;
+-										pBestUnit = pBestStrUnit;
+-									}
+-									else
+-									{
+-										pBestPlot = pBestHealPlot;
+-										pBestUnit = pBestHealUnit;
++										// pick the unit with the highest current strength
++										int iCombatStrength = pLoopUnit->currCombatStr(NULL, NULL);
++
++										if (iCombatStrength > iBestStrength)
++										{
++											iBestStrength = iCombatStrength;
++											pBestStrUnit = pLoopUnit;
++											pBestStrPlot = getPathEndTurnPlot();
++										}
++										
++										// or the unit with the best healing ability
++										int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
++										if (iHealing > iBestHealing)
++										{
++											iBestHealing = iHealing;
++											pBestHealUnit = pLoopUnit;
++											pBestHealPlot = getPathEndTurnPlot();
++										}
+ 									}
+ 								}
+ 							}
+@@ -12639,28 +12640,41 @@
+ 		}
+ 	}
+ 
++	if( AI_getBirthmark() % 3 == 0 && pBestHealUnit != NULL )
++	{
++		pBestPlot = pBestHealPlot;
++		pBestUnit = pBestHealUnit;
++	}
++	else
++	{
++		pBestPlot = pBestStrPlot;
++		pBestUnit = pBestStrUnit;
++	}
++
+ 	if (pBestPlot)
+ 	{
+ 		if (atPlot(pBestPlot) && pBestUnit)
+ 		{
++			if( gUnitLogLevel > 2 )
++			{
++				CvWString szString;
++				getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
++
++				logBBAI("      Great general %d for %S chooses to lead %S with UNITAI %S", getID(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pBestUnit->getName(0).GetCString(), szString);
++			}
+ 			getGroup()->pushMission(MISSION_LEAD, pBestUnit->getID());
+ 			return true;
+ 		}
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/09/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+ 			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_AVOID_ENEMY_WEIGHT_3);
++			return true;
++		}
++	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-			return true;
+-		}
+-	}
+ 
+ 	return false;
+ }
+

@@ -1,0 +1,36 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 294
+# Author: iustus
+# Date: 2007-01-25T10:30:37.989878Z
+# Coverage: full
+# Message:
+#   fixed FASTER_VISIBILITY_NON_SAVE_COMPATABLE case so that it compiles, note, not used for 1.0 release, not well tested, was just in for speed testing
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@293
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@294
+@@ -1673,13 +1673,15 @@
+ 
+ #ifdef FASTER_VISIBILITY_NON_SAVE_COMPATABLE
+ 	// get list of visible plots 
+-	CLinkList<CvPlot*> visiblePlotList; 
+-	getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++	CvPlotRegion visiblePlotRegion;
++	addVisiblePlots(visiblePlotRegion, iRange, eTeam);
+ 
+ 	// change visibility
+-	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
+-	{
+-		pNode->m_data->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible);
++	for (CvPlotRegionConstIterator it = visiblePlotRegion.begin(); it != visiblePlotRegion.end(); it++)
++	{
++		XYCoords xy(getXYCoords(it));
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(xy.iX, xy.iY);
++		pLoopPlot->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible);
+ 	}
+ 
+ 	return;
+

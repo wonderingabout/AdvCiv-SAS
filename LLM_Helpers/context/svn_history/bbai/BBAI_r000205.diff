@@ -1,0 +1,115 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 205
+# Author: iustus
+# Date: 2006-12-19T02:12:20.905590Z
+# Coverage: full
+# Message:
+#   group info under chipotle with ctrl down improved
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@204
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@205
+@@ -1019,14 +1019,40 @@
+ 					szString += CvWString::format(SETCOLR L"%s" ENDCOLR, 255,190,0,255, pHeadUnit->getName().GetCString());
+ 					szString += CvWString::format(L" (%d)", shortenID(pHeadUnit->getID()));
+ 					getUnitAIString(szTempString, pHeadUnit->AI_getUnitAIType());
+-					szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
+-					
++					szString += CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pHeadUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++
++					// promotion icons
++					for (int iPromotionIndex = 0; iPromotionIndex < GC.getNumPromotionInfos(); iPromotionIndex++)
++					{
++						PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++						if (pHeadUnit->isHasPromotion(ePromotion))
++						{
++							szString += CvWString::format(L"<img=%S size=16></img>", GC.getPromotionInfo(ePromotion).getButton());
++						}
++					}
++
+ 					// group
+ 					CvSelectionGroup* pHeadGroup = pHeadUnit->getGroup();
+ 					FAssertMsg(pHeadGroup != NULL, "unit has NULL group");
+ 					if (pHeadGroup->getNumUnits() > 1)
+ 					{
+ 						szString += CvWString::format(L"\nGroup:%d [%d units]", shortenID(pHeadGroup->getID()), pHeadGroup->getNumUnits());
++					
++						// get average damage
++						int iAverageDamage = 0;
++						CLLNode<IDInfo>* pUnitNode = pHeadGroup->headUnitNode();
++						while (pUnitNode != NULL)
++						{
++							CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++							pUnitNode = pHeadGroup->nextUnitNode(pUnitNode);
++
++							iAverageDamage += (pLoopUnit->getDamage() * pLoopUnit->maxHitPoints()) / 100;
++						}
++						iAverageDamage /= pHeadGroup->getNumUnits();
++						if (iAverageDamage > 0)
++						{
++							szString += CvWString::format(L" %d%%", 100 - iAverageDamage);
++						}
+ 					}
+ 					
+ 					// mission ai
+@@ -1129,7 +1155,17 @@
+ 								szString += CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString());
+ 								szString += CvWString::format(L"(%d)", shortenID(pCargoUnit->getID()));
+ 								getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+-								szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++								szString += CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++								
++								// promotion icons
++								for (int iPromotionIndex = 0; iPromotionIndex < GC.getNumPromotionInfos(); iPromotionIndex++)
++								{
++									PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++									if (pCargoUnit->isHasPromotion(ePromotion))
++									{
++										szString += CvWString::format(L"<img=%S size=16></img>", GC.getPromotionInfo(ePromotion).getButton());
++									}
++								}
+ 							}
+ 						}
+ 					}
+@@ -1146,7 +1182,17 @@
+ 							szString += CvWString::format(SETCOLR L"\n-%s" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), pUnit->getName().GetCString());
+ 							szString += CvWString::format(L" (%d)", shortenID(pUnit->getID()));
+ 							getUnitAIString(szTempString, pUnit->AI_getUnitAIType());
+-							szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++							szString += CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++
++							// promotion icons
++							for (int iPromotionIndex = 0; iPromotionIndex < GC.getNumPromotionInfos(); iPromotionIndex++)
++							{
++								PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++								if (pUnit->isHasPromotion(ePromotion))
++								{
++									szString += CvWString::format(L"<img=%S size=16></img>", GC.getPromotionInfo(ePromotion).getButton());
++								}
++							}
+ 
+ 							// display cargo for loop unit
+ 							for (int k = 0; k < pPlot->getNumUnits(); k++)
+@@ -1162,7 +1208,17 @@
+ 										szString += CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString());
+ 										szString += CvWString::format(L"(%d)", shortenID(pCargoUnit->getID()));
+ 										getUnitAIString(szTempString, pCargoUnit->AI_getUnitAIType());
+-										szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++										szString += CvWString::format(SETCOLR L" %s " ENDCOLR, GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pCargoUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
++								
++										// promotion icons
++										for (int iPromotionIndex = 0; iPromotionIndex < GC.getNumPromotionInfos(); iPromotionIndex++)
++										{
++											PromotionTypes ePromotion = (PromotionTypes)iPromotionIndex;
++											if (pCargoUnit->isHasPromotion(ePromotion))
++											{
++												szString += CvWString::format(L"<img=%S size=16></img>", GC.getPromotionInfo(ePromotion).getButton());
++											}
++										}
+ 									}
+ 								}
+ 							}
+

@@ -1,0 +1,35 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 592
+# Author: jdog5000
+# Date: 2010-07-05T06:05:59.365619Z
+# Coverage: full
+# Message:
+#   Attempt fix for AI not attacking empty cities
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@591
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@592
+@@ -14366,6 +14366,7 @@
+ 									// already on the way, pick a different target
+ 									if( iPathTurns > 2 && pLoopCity->isVisible(getTeam(), false) )
+ 									{
++										/*
+ 										int iOurOffense = GET_TEAM(getTeam()).AI_getOurPlotStrength(pLoopCity->plot(),2,false,false,true);	
+ 										int iEnemyDefense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pLoopCity->plot(),1,true,false);
+ 
+@@ -14373,8 +14374,9 @@
+ 										{
+ 											continue;
+ 										}
+-
+-										if( GET_PLAYER(getOwnerINLINE()).AI_cityTargetUnitsByPath(pLoopCity, getGroup(), iPathTurns) > 3 * pLoopCity->plot()->getNumVisibleEnemyDefenders(this) )
++										*/
++
++										if( GET_PLAYER(getOwnerINLINE()).AI_cityTargetUnitsByPath(pLoopCity, getGroup(), iPathTurns) > std::max( 6, 3 * pLoopCity->plot()->getNumVisibleEnemyDefenders(this) ) )
+ 										{
+ 											continue;
+ 										}
+

@@ -1,0 +1,14 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 557
+# Author: jdog5000
+# Date: 2010-05-13T04:27:19.327555Z
+# Coverage: full
+# Message:
+#   With unofficial patch 1.5
+# Changed paths (1):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+

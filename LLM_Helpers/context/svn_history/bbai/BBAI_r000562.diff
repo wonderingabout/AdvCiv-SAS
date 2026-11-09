@@ -1,0 +1,123 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 562
+# Author: jdog5000
+# Date: 2010-05-15T05:17:58.380904Z
+# Coverage: full
+# Message:
+#   Wartime city build tweaks
+#   Extra alert from high enemy power
+#   Attack unit grouping changes
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@561
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@562
+@@ -1795,11 +1795,10 @@
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses cultural victory 1", getName().GetCString());
+                 return;
+             }
+-        }
+-        
+-        else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 , "AI Build up Culture") < iCultureRateRank)
++		}
++        else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 + (bLandWar ? 5 : 0), "AI Build up Culture") < iCultureRateRank)
+         {
+-            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, 40))
++            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, (bLandWar ? 20 : 40)))
+             {
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses cultural victory 2", getName().GetCString());
+                 return;
+@@ -1848,7 +1847,7 @@
+         }
+     }
+         
+-	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10))
++	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10, (bLandWar ? 30 : -1)))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 3", getName().GetCString());
+ 		return;
+@@ -1891,7 +1890,7 @@
+ 	}
+     
+ 	//essential economic builds
+-	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold))
++	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold, (bLandWar ? 50 : -1)))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 1", getName().GetCString());
+ 		return;
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@561
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@562
+@@ -4513,7 +4513,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.00b");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.00c");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@561
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@562
+@@ -17301,6 +17301,14 @@
+ 								}
+ 
+ 								iCloseTargets++;
++							}
++
++							if( iTheirPower > 2*iOurDefensivePower )
++							{
++								if( AI_getAttitude((PlayerTypes)iI) != ATTITUDE_FRIENDLY )
++								{
++									iTempParanoia += 25;
++								}
+ 							}
+ 						}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@561
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@562
+@@ -1982,7 +1982,7 @@
+ 		UnitAITypes eGroupAI = getGroup()->getHeadUnitAI();
+ 		if( eGroupAI == AI_getUnitAIType() )
+ 		{
+-			if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() && !bDanger )
++			if( plot()->getOwnerINLINE() == getOwnerINLINE() && !bDanger )
+ 			{
+ 				// Shouldn't have groups of > 2 attack units
+ 				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK) > 2 )
+@@ -2199,7 +2199,7 @@
+ 		// Allow larger groups if outside territory
+ 		if( getGroup()->getNumUnits() < 3 )
+ 		{
+-			if( plot()->isOwned() && plot()->getOwnerINLINE() != getOwnerINLINE() )
++			if( plot()->isOwned() && GET_TEAM(getTeam()).isAtWar(plot()->getTeam()) )
+ 			{
+ 				if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, true))
+ 				{
+@@ -2415,9 +2415,12 @@
+ 			return;
+ 		}
+ 
+-		if (AI_patrol())
+-		{
+-			return;
++		if( getGroup()->getNumUnits() < 4 )
++		{
++			if (AI_patrol())
++			{
++				return;
++			}
+ 		}
+ 
+ 		if (AI_retreatToCity())
+

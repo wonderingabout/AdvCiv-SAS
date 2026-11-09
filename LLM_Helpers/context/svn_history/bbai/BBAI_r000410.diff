@@ -1,0 +1,27 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 410
+# Author: jdog5000
+# Date: 2008-12-08T10:09:47.594318Z
+# Coverage: full
+# Message:
+#   Crash bug fix
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@409
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@410
+@@ -8450,6 +8450,11 @@
+ 	for(pLoopGroup = GET_PLAYER(getOwnerINLINE()).firstSelectionGroup(&iLoop); pLoopGroup != NULL; pLoopGroup = GET_PLAYER(getOwnerINLINE()).nextSelectionGroup(&iLoop))
+ 	{
+ 		pLoopUnit = pLoopGroup->getHeadUnit();
++		if( pLoopUnit == NULL )
++		{
++			continue;
++		}
++
+ 		CvPlot* pPlot = pLoopUnit->plot();
+ 		if (AI_plotValid(pPlot))
+ 		{
+

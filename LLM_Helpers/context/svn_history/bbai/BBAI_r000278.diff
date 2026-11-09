@@ -1,0 +1,115 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 278
+# Author: iustus
+# Date: 2007-01-21T09:01:46.915297Z
+# Coverage: full
+# Message:
+#   once again will go for goody huts that are far away when exploring
+#   will not send multiple units to the same goody hut (unless can get there this turn)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@277
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@278
+@@ -8411,6 +8411,8 @@
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestGoodyPlot = NULL;
++	int iUnitsHeadedToBestGoody = 0;
++	int iBestPathTurns = 0;
+ 
+ 	int iArea = pStartPlot->getArea();
+ 
+@@ -8446,19 +8448,27 @@
+ 							iFoundGoodyRange = iGoodyRange;
+ 
+ 							int iUnitsHeadedToGoody = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, pGroup, 0);
+-						
+-							int iValue = 200000 / ((iPathTurns + 1) * (iUnitsHeadedToGoody + 1));
++
++							int iValue = 200000 / ((iPathTurns + 1) * ((3 * iUnitsHeadedToGoody) + 1));
+ 							if (iValue > iBestValue || (!bNoRandom && iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestGoodyPlot")))
+ 							{
+ 								iBestValue = iValue;
+ 								pBestPlot = getPathEndTurnPlot();
+ 								pBestGoodyPlot = pCheckPlot;
++								iUnitsHeadedToBestGoody = iUnitsHeadedToGoody;
++								iBestPathTurns = iPathTurns;
+ 							}
+ 						}
+ 					}
+ 				}
+ 			}
+ 		}
++	}
++
++	// bail if another unit is headed there and we cannot get there in this turn
++	if (iUnitsHeadedToBestGoody > 0 && pBestPlot != pBestGoodyPlot)
++	{
++		pBestGoodyPlot = pBestPlot = NULL;
+ 	}
+ 
+ 	if (pThisTurnPlot != NULL)
+@@ -8751,7 +8761,7 @@
+ 		const int iMaxMoreToCheck = 3;
+ 		const int iMaxGoodOnes = 3;
+ 
+-		// loop through the plots in random order, if the plot is unexplored, search all plots in range
++		// loop through the plots in random order, if the plot is unexplored (or a goody), search all plots in range
+ 		// once one good match is found, only search iMaxMoreToCheck more unexplored areas
+ 		int iMoreToCheck = -1;
+ 		int iRand1 = GC.getGameINLINE().getSorenRandNum(iNumPlots, "AI_explore rand1");
+@@ -8768,21 +8778,45 @@
+ 
+ 			int iShuffledIndex = intShuffle(iI, iNumPlots, iRand1, iRand2);
+ 			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iShuffledIndex);
+-			if (pLoopPlot != NULL && !pLoopPlot->isRevealed(eTeam, false))
++			if (pLoopPlot != NULL && (!pLoopPlot->isRevealed(eTeam, false) || pLoopPlot->isRevealedGoody(eTeam)))
+ 			{		
+ 				// after we find iMaxGoodOnes good ones stop looking for pLoopPlot
+ 				int iGoodOnes = 0;
+ 				
+-				// in random order, check the plots that can pontentially see this plot
++				// in random order (but with center first), check the plots that can pontentially see this plot
+ 				// stop when we find one good one in this area
+ 				int iCenterX = pLoopPlot->getX_INLINE();
+ 				int iCenterY = pLoopPlot->getY_INLINE();
+-				for (int iYRange = 0; iYRange < iCheckDiameter && iGoodOnes <= iMaxGoodOnes; iYRange++)
++				for (int iYRange = -1; iYRange < iCheckDiameter && iGoodOnes <= iMaxGoodOnes; iYRange++)
+ 				{
+-					int iDY = intShuffle(iYRange, iCheckDiameter, iRand1, iRand2) - iVisibilityRange;
++					int iDY = 0;
++					
++					// shuffle if we not doing the center one
++					if (iYRange >= 0)
++					{
++						iDY = intShuffle(iYRange, iCheckDiameter, iRand1, iRand2) - iVisibilityRange;
++					}
++
+ 					for (int iXRange = 0; iXRange < iCheckDiameter && iGoodOnes <= iMaxGoodOnes; iXRange++)
+ 					{
+-						int iDX = intShuffle(iXRange, iCheckDiameter, iRand2, iRand1) - iVisibilityRange;
++						int iDX = 0;
++						
++						// shuffle if we not doing the center one
++						if (iYRange >= 0)
++						{
++							iDX = intShuffle(iXRange, iCheckDiameter, iRand2, iRand1) - iVisibilityRange;
++							
++							// if the shuffle resulted in the center one, skip, we already did it
++							if (iDX == 0 && iDY == 0)
++							{
++								continue;
++							}
++						}
++						// doing center, do not need to loop here, just check this one and then break out of inner loop
++						else
++						{
++							iXRange = iCheckDiameter;
++						}
+ 
+ 						CvPlot* pCheckPlot = plotXY(iCenterX, iCenterY, iDX, iDY);
+ 						if (pCheckPlot != NULL)
+

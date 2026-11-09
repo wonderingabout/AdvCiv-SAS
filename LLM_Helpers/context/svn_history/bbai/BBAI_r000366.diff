@@ -1,0 +1,137 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 366
+# Author: iustus
+# Date: 2007-02-15T14:52:35.216764Z
+# Coverage: full
+# Message:
+#   new governor fixes (still disabled)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@365
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@366
+@@ -41,6 +41,8 @@
+ #ifndef FINAL_RELEASE
+ //#define TESTING_EXTRA_SAVE_DATA
+ #define DEBUG_OUT_OF_SYNCS
++#define DEBUG_AI_FOOD_ADJUST
++#define DEBUG_AI_FOOD_ADJUST_LOWEST_FOOD
+ #endif
+ 
+ // our own version number on our extra data
+@@ -865,11 +867,12 @@
+ 			int iPass = 0;
+ 			while ((iFoodDifference < 0 || bEncourageGrowth) && ++iPass < 16)
+ 			{
++#ifdef DEBUG_AI_FOOD_ADJUST
++				DEBUGLOG("%S:foodAdjustCitizens: %d [max %d] - %d (%d); Pass %d\n", getName().GetCString(),
++					iCurrentFood, iMaxFood, iFoodConsumption, iFoodDifference, iPass);
++#endif
++
+ 				FAssert(iPass < 3);
+-				if (iPass > 1)
+-				{
+-					bEncourageGrowth = false;
+-				}
+ 			
+ 				// search iterator will be the first citizen with a higher value than our first swap
+ 				bool bRemovedFirst = false;
+@@ -885,6 +888,9 @@
+ 				{
+ 					iTotalChangeCount += swapHigherFoodCitizen(ir, iFoodDifference, bEncourageGrowth, iLowestFood, irLowestFood, governorWork, governorCitizens);
+ 				}
++
++				// only add food past starving on the first pass
++				bEncourageGrowth = false;
+ 			}
+ 		}
+ 	}
+@@ -929,6 +935,14 @@
+ 	{
+ 		iLowestFood = iFood;
+ 		irLowestFood = ir;
++
++#ifdef DEBUG_AI_FOOD_ADJUST_LOWEST_FOOD
++		CvGovernorCitizen* pLowestCitizen = getCitizen(irLowestFood);
++		CvWString szLowestString;
++		if (pLowestCitizen->bIsSpecialist) { szLowestString.Format(L"%s[%d]", GC.getSpecialistInfo((SpecialistTypes)pLowestCitizen->iIndex).getDescription(), pLowestCitizen->iCount); }
++		else { szLowestString.Format(L"plot(%d)", pLowestCitizen->iIndex); }
++		DEBUGLOG("  lowest food: %df; %S\n", iLowestFood, szLowestString.GetCString());
++#endif
+ 	}
+ 
+ 	// if we are at the top of the list, then there are no better ones we can swap in
+@@ -942,6 +956,9 @@
+ 	int iMoveCount = (iCanChangeMax - iCanChangeCount);
+ 	if (iFood > 0 && iFood > iLowestFood && iMoveCount > 0)
+ 	{
++		// remember original lowest food, we will not set lowest food to a value higher than this, will keep at -1
++		int iOriginalLowestFood = iLowestFood;
++		
+ 		// remove points to the citizen we will remove one (or more) of
+ 		CvCitizensReverseIterator irRemove = governorCitizens.rend();
+ 		
+@@ -963,6 +980,9 @@
+ 			// search for the worst citizen we are working that has less food
+ 			if (irRemove == governorCitizens.rend())
+ 			{
++				int iLowestFoodFound = -1;
++				CvCitizensReverseIterator irLowestFoundFood = governorCitizens.rend();
++				
+ 				// do the search
+ 				bool bDone = false;
+ 				while (!bDone)
+@@ -986,13 +1006,28 @@
+ 							irRemove = irSearch;
+ 							break;
+ 						}
+-						// otherwise, update lowest food cached value
+-						else if (iLowestFood < 0 || iSearchFood < iLowestFood)
++						// otherwise, update lowest food found
++						else if (iLowestFoodFound < 0 || iSearchFood < iLowestFoodFound)
+ 						{
+-							iLowestFood = iSearchFood;
+-							irLowestFood = irSearch;
++							iLowestFoodFound = iSearchFood;
++							irLowestFoundFood = irSearch;
+ 						}
+ 					}
++				}
++
++				// update lowest food cached value, if we can
++				if ((iLowestFood < 0 && (bDone || iLowestFoodFound <= iOriginalLowestFood)) || iLowestFoodFound < iLowestFood)
++				{
++					iLowestFood = iLowestFoodFound;
++					irLowestFood = irLowestFoundFood;
++
++#ifdef DEBUG_AI_FOOD_ADJUST_LOWEST_FOOD
++					CvGovernorCitizen* pLowestCitizen = getCitizen(irLowestFood);
++					CvWString szLowestString;
++					if (pLowestCitizen->bIsSpecialist) { szLowestString.Format(L"%s[%d]", GC.getSpecialistInfo((SpecialistTypes)pLowestCitizen->iIndex).getDescription(), pLowestCitizen->iCount); }
++					else { szLowestString.Format(L"plot(%d)", pLowestCitizen->iIndex); }
++					DEBUGLOG("  lowest food: %df; %S\n", iLowestFood, szLowestString.GetCString());
++#endif
+ 				}
+ 			}
+ 			
+@@ -1031,6 +1066,17 @@
+ 				}
+ 			
+ 				// do the swap
++#ifdef DEBUG_AI_FOOD_ADJUST
++				CvWString szRemoveString, szAddString;
++				if (pRemoveCitizen->bIsSpecialist) { szRemoveString.Format(L"%s[%d]", GC.getSpecialistInfo((SpecialistTypes)pRemoveCitizen->iIndex).getDescription(), pRemoveCitizen->iCount); }
++				else { szRemoveString.Format(L"plot(%d)", pRemoveCitizen->iIndex); }
++				if (pCitizen->bIsSpecialist) { szAddString.Format(L"%s[%d]", GC.getSpecialistInfo((SpecialistTypes)pCitizen->iIndex).getDescription(), pCitizen->iCount); }
++				else { szAddString.Format(L"plot(%d)", pCitizen->iIndex); }
++				DEBUGLOG("  swap: remove %S (%df) and add %S (%df) [%d%%,%d,%d]\n", 
++					szRemoveString.GetCString(), pRemoveCitizen->iFood,
++					szAddString.GetCString(), iFood,
++					(getCitizenValue(irRemove) * 100) / getCitizenValue(ir), iChangeCount, iFoodDifference);
++#endif
+ 				pCitizen->iCount += iChangeCount;
+ 				pRemoveCitizen->iCount -= iChangeCount;
+ 
+

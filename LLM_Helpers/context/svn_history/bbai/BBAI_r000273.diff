@@ -1,0 +1,422 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 273
+# Author: iustus
+# Date: 2007-01-16T17:06:01.127730Z
+# Coverage: full
+# Message:
+#   groupAttack no longer tries to attack when there is no defender (should fix some cases of units not taking cities)
+#   units that cannot capture cities no longer return true in canMoveInto when destination is an enemy city with no units
+#   human explorers do not attack units or cities or pillage 
+#   all explorers will attack an enemy unit on a goody hut if the odds are good enough
+#   fogbusting is allowed in enemy territory
+#   automated explorers now wake up properly mid-turn when intended
+#   turn should not show over until after all the automated explorers move (bug from last commit)
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@272
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@273
+@@ -2513,16 +2513,12 @@
+ // Returns true if attack was made...
+ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags)
+ {
+-	CvUnit* pBestAttackUnit;
+-	CvPlot* pDestPlot;
+-	bool bAttack;
+-
+-	pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
++	CvPlot* pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+ 	bool bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+     
+-	bAttack = false;
++	bool bAttack = false;
+ 
+ 	if (getNumUnits() > 0)
+ 	{
+@@ -2531,10 +2527,16 @@
+ 			if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+ 			{
+ 				int iAttackOdds;
+-				pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
++				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+ 
+ 				if (pBestAttackUnit)
+ 				{
++					// if there are no defenders, do not attack
++					if (pDestPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true) == NULL)
++					{
++						return false;
++					}
++
+ 					bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
+ 
+ 					if (groupDeclareWar(pDestPlot))
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@272
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@273
+@@ -199,7 +199,11 @@
+ 
+ 			resetPath();
+ 
+-			pHeadUnit->AI_update();
++			if (pHeadUnit->AI_update())
++			{
++				// AI_update returns true when we should abort the loop and wait until next slice
++				break;
++			}
+ 		}
+ 
+ 		if (doDelayedDeath())
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@272
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@273
+@@ -1999,10 +1999,10 @@
+ 			{
+ 				if (!isHuman() || (pPlot->isVisible(getTeam(), false)))
+ 				{
+-					if (pPlot->isVisibleEnemyUnit(getOwnerINLINE()) != bAttack && !(bAttack && pPlot->isEnemyCity(getTeam())))
++					if (pPlot->isVisibleEnemyUnit(getOwnerINLINE()) != bAttack && !(bAttack && pPlot->isEnemyCity(getTeam()) && !isNoCapture()))
+ 					{
+ 						//FAssertMsg(isHuman() || (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack)), "hopefully not an issue, but tracking how often this is the case when we dont want to really declare war");
+-						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack && !(bAttack && pPlot->getPlotCity())))
++						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack && !(bAttack && pPlot->getPlotCity() && !isNoCapture())))
+ 						{
+ 							return false;
+ 						}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@272
++++ /trunk/CvGameCoreDLL/CvUnit.h@273
+@@ -638,7 +638,7 @@
+ 	virtual void AI_init(UnitAITypes eUnitAI) = 0;
+ 	virtual void AI_uninit() = 0;
+ 	virtual void AI_reset(UnitAITypes eUnitAI = NO_UNITAI) = 0;
+-	virtual void AI_update() = 0;
++	virtual bool AI_update() = 0;
+ 	virtual bool AI_follow() = 0;
+ 	virtual void AI_upgrade() = 0;
+ 	virtual void AI_promote() = 0;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@272
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@273
+@@ -71,8 +71,8 @@
+ 	m_iAutomatedAbortTurn = -1;
+ }
+ 
+-
+-void CvUnitAI::AI_update()
++// AI_update returns true when we should abort the loop and wait until next slice
++bool CvUnitAI::AI_update()
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -90,7 +90,7 @@
+ 	delete pyUnit;	// python fxn must not hold on to this pointer
+ 	if (lResult == 1)
+ 	{
+-		return;
++		return false;
+ 	}
+ 
+ 	if (getDomainType() == DOMAIN_LAND)
+@@ -98,7 +98,7 @@
+ 		if (plot()->isWater())
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+-			return;
++			return false;
+ 		}
+ 		else
+ 		{
+@@ -109,7 +109,7 @@
+ 				if (pTransportUnit->getGroup()->hasMoved() || (pTransportUnit->getGroup()->headMissionQueueNode() != NULL))
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP);
+-					return;
++					return false;
+ 				}
+ 			}
+ 		}
+@@ -117,7 +117,7 @@
+ 
+ 	if (AI_afterAttack())
+ 	{
+-		return;
++		return false;
+ 	}
+ 
+ 	if (getGroup()->isAutomated())
+@@ -161,9 +161,7 @@
+ 				if (iCurrentTurn == s_iLastAutomatedTurn && (iCurrentTurnSlice - s_iLastAutomatedTurnSlice) < 2)
+ 				{
+ 					// bail, wait a slice
+-					getGroup()->setActivityType(ACTIVITY_SLEEP);
+-					getGroup()->setForceUpdate(true);
+-					break;
++					return true;
+ 				}
+ 
+ 				s_iLastAutomatedTurn = iCurrentTurn;
+@@ -226,6 +224,9 @@
+ 			FAssert(false);
+ 			break;
+ 		}
++	
++		// if no longer automated, then we want to bail
++		return !getGroup()->isAutomated();
+ 	}
+ 	else
+ 	{
+@@ -391,6 +392,8 @@
+ 			break;
+ 		}
+ 	}
++
++	return false;
+ }
+ 
+ 
+@@ -2441,15 +2444,20 @@
+ void CvUnitAI::AI_exploreMove()
+ {
+ 	PROFILE_FUNC();
+-
+-	if (AI_cityAttack(1, 60))
+-	{
+-		return;
+-	}
+-
+-	if (AI_anyAttack(1, 70))
+-	{
+-		return;
++	
++	bool bCanAttackOrPillage = (!isHuman() || GC.getGameINLINE().isGameMultiPlayer());
++	
++	if (bCanAttackOrPillage)
++	{
++		if (AI_cityAttack(1, 60))
++		{
++			return;
++		}
++
++		if (AI_anyAttack(1, 70))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_heal())
+@@ -2457,14 +2465,17 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillageRange(1))
+-	{
+-		return;
+-	}
+-
+-	if (AI_cityAttack(3, 80))
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillageRange(1))
++		{
++			return;
++		}
++
++		if (AI_cityAttack(3, 80))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_goody(4))
+@@ -2477,9 +2488,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillageRange(3))
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillageRange(3))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_explore())
+@@ -2487,9 +2501,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillage())
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillage())
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_fogbust())
+@@ -2497,7 +2514,7 @@
+ 		return;
+ 	}
+ 
+-	if (!(isHuman()) && (AI_getUnitAIType() == UNITAI_EXPLORE))
++	if (!isHuman() && (AI_getUnitAIType() == UNITAI_EXPLORE))
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_EXPLORE) > GET_PLAYER(getOwnerINLINE()).AI_neededExplorers(area()))
+ 		{
+@@ -3550,9 +3567,14 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (AI_anyAttack(1, 70))
+-	{
+-		return;
++	bool bCanAttackOrPillage = (!isHuman() || GC.getGameINLINE().isGameMultiPlayer());
++		
++	if (bCanAttackOrPillage)
++	{
++		if (AI_anyAttack(1, 70))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_heal())
+@@ -3560,9 +3582,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillageRange(1))
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillageRange(1))
++		{
++			return;
++		}
+ 	}
+ 	
+ 	if (AI_exploreRange(4))
+@@ -3570,9 +3595,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillageRange(4))
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillageRange(4))
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_explore())
+@@ -3580,9 +3608,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillage())
+-	{
+-		return;
++	if (bCanAttackOrPillage)
++	{
++		if (AI_pillage())
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_fogbust())
+@@ -3590,7 +3621,7 @@
+ 		return;
+ 	}
+ 
+-	if (!(isHuman()) && (AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
++	if (!isHuman() && (AI_getUnitAIType() == UNITAI_EXPLORE_SEA))
+ 	{
+ 		CvArea* pWaterArea = plot()->waterArea();
+ 
+@@ -7514,7 +7545,7 @@
+ 	//int iRange = visibilityRange();
+ 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
+ 	int iArea = getArea();
+-
++	
+ 	// build region of all the plots visible to our group
+ 	CvPlotDataRegion visiblePlotRegion;
+ 	getGroup()->buildVisibilityRegion(visiblePlotRegion);
+@@ -7777,13 +7808,10 @@
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), MOVE_NO_ENEMY_TERRITORY, false, false, MISSIONAI_EXPLORE, pBestFogbustPlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_EXPLORE, pBestFogbustPlot);
+ 			return true;
+ 		}
+ 	}
+-
+-
+-
+ 
+ 	return false;
+ }
+@@ -8371,7 +8399,10 @@
+ 				{
+ 					if (pLoopPlot->isRevealedGoody(getTeam()))
+ 					{
+-						if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++						bool bIsVisibleEnemy = pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE());
++						int iAttackOdds = (bIsVisibleEnemy) ? getGroup()->AI_attackOdds(pLoopPlot, /*bPotentialEnemy*/ false) : 128;
++						
++						if (!bIsVisibleEnemy || (iAttackOdds > 85))
+ 						{
+ 							if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 							{
+@@ -8380,6 +8411,9 @@
+ 									iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "AI Goody"));
+ 
+ 									iValue /= (iPathTurns + 1);
++									
++									iValue *= 128;
++									iValue /= iAttackOdds;
+ 
+ 									if (iValue > iBestValue)
+ 									{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@272
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@273
+@@ -20,7 +20,7 @@
+ 	void AI_uninit();
+ 	void AI_reset(UnitAITypes eUnitAI = NO_UNITAI);
+ 
+-	void AI_update();
++	bool AI_update();
+ 	bool AI_follow();
+ 
+ 	void AI_upgrade();
+

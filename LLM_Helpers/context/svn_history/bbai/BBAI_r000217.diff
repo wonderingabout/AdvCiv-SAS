@@ -1,0 +1,90 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 217
+# Author: blakeciv
+# Date: 2006-12-19T19:12:24.759530Z
+# Coverage: full
+# Message:
+#   I think this WaterWorldPercent works better.
+#   Also increased the value of commerce relative to hammers.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@216
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@217
+@@ -491,7 +491,7 @@
+ 		    
+ 			iCommerce = ((iCommerce * iModifier) / 100);
+ 
+-			iTempValue = (iCommerce * 4);
++			iTempValue = (iCommerce * 5);
+ 
+ 			int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			
+@@ -5672,11 +5672,11 @@
+ 	// if food is production, the count it
+ 	int adjustedYIELD_PRODUCTION = (((bFoodIsProduction) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
+ 
+-	// value production medium(15)
+-	iProductionValue += (adjustedYIELD_PRODUCTION * 15);
+-	
+-	// value commerce low(4)
+-	iCommerceValue += (aiYields[YIELD_COMMERCE] * 4);
++	// value production medium(14 was 15)
++	iProductionValue += (adjustedYIELD_PRODUCTION * 14);
++	
++	// value commerce low(5 was 4)
++	iCommerceValue += (aiYields[YIELD_COMMERCE] * 5);
+ 
+ 	if (bEmphasizeFood)
+ 	{
+@@ -6732,14 +6732,18 @@
+ 	int iOtherCityCount = 0;
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+-	    if (iI == getID())
+-	    {
+-	        iTeamCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
+-	    }
+-	    else
+-	    {
+-            iOtherCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
+-	    }
++		if (GET_TEAM((TeamTypes)iI).isAlive())
++		{
++			if (iI == getTeam() || GET_TEAM((TeamTypes)iI).isVassal(getTeam())
++				|| GET_TEAM(getTeam()).isVassal((TeamTypes)iI))
++			{
++				iTeamCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
++			}
++			else
++			{
++				iOtherCityCount += GET_TEAM((TeamTypes)iI).countNumCitiesByArea(area());
++			}
++		}
+ 	}
+ 
+     if (iOtherCityCount == 0)
+@@ -6754,7 +6758,7 @@
+     iWaterPercent *= 50;
+     iWaterPercent /= 100;
+     
+-    iWaterPercent += (50 * iTeamCityCount) / (iTeamCityCount + iOtherCityCount);
++    iWaterPercent += (50 * (2 + iTeamCityCount)) / (2 + iTeamCityCount + iOtherCityCount);
+     
+     iWaterPercent = max(1, iWaterPercent);
+     
+@@ -7021,6 +7025,11 @@
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 100;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+ 		}
++		if ((GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER) ||
++			(GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER))
++		{
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;			
++		}
+ 	}
+ 
+ 	BuildingTypes eProductionBuilding = getProductionBuilding();
+

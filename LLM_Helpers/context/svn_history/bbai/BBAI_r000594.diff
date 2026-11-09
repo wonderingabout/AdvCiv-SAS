@@ -1,0 +1,73 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 594
+# Author: jdog5000
+# Date: 2010-07-05T07:32:00.403777Z
+# Coverage: full
+# Message:
+#   devel version 1.02
+#   
+#   Fix a couple efficiency bugs
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@593
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@594
+@@ -4552,12 +4552,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      07/04/10                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.01f");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.02a");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@593
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@594
+@@ -5608,7 +5608,7 @@
+ 	{
+ 		// If trapped in small hole in ice or around tiny island, disband to allow other units to be generated
+ 		bool bScrap = true;
+-		int iMaxRange = maxMoves() + 2;
++		int iMaxRange = baseMoves() + 2;
+ 		for (int iDX = -(iMaxRange); iDX <= iMaxRange; iDX++)
+ 		{
+ 			for (int iDY = -(iMaxRange); iDY <= iMaxRange; iDY++)
+@@ -15565,7 +15565,7 @@
+ /* 	Naval AI																*/
+ /********************************************************************************/
+ 						// Loop construction doesn't guarantee we can get there anytime soon, could be on other side of narrow continent
+-						if( iPathTurns <= (1 + iMaxRange/maxMoves()) )
++						if( iPathTurns <= (1 + iMaxRange/std::max(1, baseMoves())) )
+ 						{
+ 							// Check only for supporting our own ground troops first, if none will look for another target
+ 							int iValue = (kPlayer.AI_plotTargetMissionAIs(pBombardCity->plot(), MISSIONAI_ASSAULT, NULL, 2) * 3);
+@@ -15628,7 +15628,7 @@
+ 							if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 							{	
+ 								// Loop construction doesn't guarantee we can get there anytime soon, could be on other side of narrow continent
+-								if( iPathTurns <= 1 + iMaxRange/maxMoves() )
++								if( iPathTurns <= 1 + iMaxRange/std::max(1, baseMoves()) )
+ 								{
+ 									int iValue = std::min(20,pBombardCity->getDefenseModifier(false)/2); 
+ 
+@@ -16606,7 +16606,7 @@
+ 	int iValue;
+ 
+ 	// Loop over nearby plots for groups in enemy territory to reinforce
+-	int iRange = 2*maxMoves();
++	int iRange = 2*baseMoves();
+ 	int iDX, iDY;
+ 	for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+

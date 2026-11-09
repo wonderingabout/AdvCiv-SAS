@@ -1,0 +1,249 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 319
+# Author: iustus
+# Date: 2007-01-29T04:40:42.658512Z
+# Coverage: full
+# Message:
+#   Added some logging for oos errors
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@318
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@319
+@@ -20,6 +20,11 @@
+ 
+ // interface uses
+ #include "CvDLLInterfaceIFaceBase.h"
++
++// for testing only
++#ifndef FINAL_RELEASE
++#define DEBUG_OUT_OF_SYNCS
++#endif
+ 
+ #define FOUND_RANGE				(6)
+ 
+@@ -7695,6 +7700,24 @@
+ 								}
+ 							}
+ 
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (iValue > 0 && iValue == iBestValue)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI fogbust (%d, %d), %d\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pAdjacentPlot->getX_INLINE(),
++				pAdjacentPlot->getY_INLINE(),
++				iValue);
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++
+ 							// if better, or equal and random chance choose this one
+ 							if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI fogbust")))
+ 							{
+@@ -7758,6 +7781,23 @@
+ 			{
+ 				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+ 				
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (true)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_Fogbust distance adjustment (%d, %d)\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pLoopCity->getX_INLINE(),
++				pLoopCity->getY_INLINE());
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++
+ 				// do slight randomization
+ 				int iAdjustment = GC.getGameINLINE().getSorenRandNum(64, "AI_Fogbust distance adjustment");
+ 				iDistance *= 97 + iAdjustment;
+@@ -7779,6 +7819,23 @@
+ 		{
+ 			if (bSeaUnit || pLoopCity->getArea() == getArea())
+ 			{
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (true)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_Fogbust direction (%d, %d)\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pLoopCity->getX_INLINE(),
++				pLoopCity->getY_INLINE());
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++
+ 				// for each city, check each of the 8 sides in random order to see if there is a good fogbusting spot
+ 				int iDirectionRand = GC.getGameINLINE().getSorenRandNum(32, "AI_Fogbust direction");
+ 				for (int iI = 0; iI < NUM_DIRECTION_TYPES && iBestValue <= 0; iI++)
+@@ -7901,6 +7958,23 @@
+ 								iValue /= ((16 * iMissionCount) + 1);
+ 								iValue = (iValue > 0) ? iValue : 1;
+ 								
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (iValue > 0 && iValue == iBestValue)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_Fogbust (%d, %d) %d\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pCheckPlot->getX_INLINE(),
++				pCheckPlot->getY_INLINE(),
++				iValue);
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
+ 								// if better, or equal and random chance choose this one
+ 								if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI fogbust")))
+ 								{
+@@ -7979,6 +8053,24 @@
+ 	// randomly check a direction, stopping when we find a good one
+ 	int iReconVisibilityRange = ((airRange() + 1) / 2);
+ 	CvPlot* pLaunchPlot = plot();
++
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (true)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_airFogbust direction (%d, %d)\n",
++				getName().GetCString(),
++				GET_PLAYER(getOwnerINLINE()).getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				getX_INLINE(),
++				getY_INLINE());
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++
+ 	int iDirectionRand = GC.getGameINLINE().getSorenRandNum(32, "AI_airFogbust direction");
+ 	for (int iI = 0; iI < NUM_DIRECTION_TYPES && !bEnemyFound && iBestValue <= 0; iI++)
+ 	{
+@@ -8034,6 +8126,24 @@
+ 			{
+ 				break;
+ 			}
++
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (iValue > 0 && iValue == iBestValue)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_airFogbust (%d, %d) %d\n",
++				getName().GetCString(),
++				GET_PLAYER(getOwnerINLINE()).getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pCheckPlot->getX_INLINE(),
++				pCheckPlot->getY_INLINE(),
++				iValue);
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
+ 
+ 			// if better, or equal and random chance choose this one
+ 			if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airFogbust")))
+@@ -8862,6 +8972,24 @@
+ 		// loop through the plots in random order, if the plot is unexplored (or a goody), search all plots in range
+ 		// once one good match is found, only search iMaxMoreToCheck more unexplored areas
+ 		int iMoreToCheck = -1;
++
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (true)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_explore (%d, %d)\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				getX_INLINE(),
++				getY_INLINE());
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++
+ 		int iRand1 = GC.getGameINLINE().getSorenRandNum(iNumPlots, "AI_explore rand1");
+ 		int iRand2 = GC.getGameINLINE().getSorenRandNum(iNumPlots, "AI_explore rand2");
+ 		for (int iI = 0; iI < iNumPlots; iI++)
+@@ -9049,6 +9177,24 @@
+ 										// add the value of the plots we actually moving to this turn
+ 										iValue += AI_exploreTurnPathValue();
+ 										
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (!bNoRandom && iValue > 0 && iValue == iBestValue)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_getBestExplorePlot (%d, %d), %d\n",
++				getName().GetCString(),
++				kPlayer.getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pBestExplorePlot->getX_INLINE(),
++				pBestExplorePlot->getY_INLINE(),
++				iValue);
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++	
+ 										if (iValue > iBestValue || (!bNoRandom && iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestExplorePlot")))
+ 										{
+ 											iBestValue = iValue;
+@@ -9146,6 +9292,24 @@
+ 			{
+ 				int iValue = AI_explorePlotValue(pCheckPlot, /*bAddRandom*/ false, /*bIgnoreGoodies*/ true);
+ 
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		if (iValue > 0 && iValue == iBestValue)
++		{
++			TCHAR szOut[1024];
++			sprintf(szOut, "%S(%S)[%d]: AI_airExplore (%d, %d), %d\n",
++				getName().GetCString(),
++				GET_PLAYER(getOwnerINLINE()).getName(),
++				GC.getGameINLINE().getTurnSlice(),
++				pCheckPlot->getX_INLINE(),
++				pCheckPlot->getY_INLINE(),
++				iValue);
++			gDLL->messageControlLog(szOut);
++		}
++	}
++#endif
++				
+ 				// if better, or equal and random chance choose this one
+ 				if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_airExplore")))
+ 				{
+

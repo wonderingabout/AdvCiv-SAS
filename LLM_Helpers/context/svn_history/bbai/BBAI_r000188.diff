@@ -1,0 +1,136 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 188
+# Author: iustus
+# Date: 2006-12-15T16:28:57.594869Z
+# Coverage: full
+# Message:
+#   tweaked chipotle war info
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@187
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@188
+@@ -2928,8 +2928,8 @@
+ 		bool bIsAnyCapitalAreaAlone = kTeam.AI_isAnyCapitalAreaAlone();
+ 
+ 		// show war/endwar values, we make 4 passes, drawing on the 4th pass
+-		int iValidMaxWarPass = MAX_INT;
+-		const int iDrawPass = 3;
++		int iBestValidMaxWarPass = MAX_INT;
++		const int iDrawPass = 1;
+ 		for (int iPass = 0; iPass <= iDrawPass; iPass++)
+ 		{
+ 			for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
+@@ -2982,33 +2982,45 @@
+ 								{
+ 									bool bIsNearbyPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarNearbyPowerRatio()) / 100));
+ 									bool bIsDistantPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarDistantPowerRatio()) / 100));
+-									bool bIsAdjacentForWar = (kTeam.AI_calculateAdjacentLandPlots(eLoopTeam) >= ((kTeam.getTotalLand() * kTeam.AI_maxWarMinAdjacentLandPercent()) / 100));
+-
+-									// check to see if the pass is valid for this loop team
+-									int iPassToCheck = (iPass == iDrawPass) ? iValidMaxWarPass : iPass;
+-									bool bPassValid = false;
+-									if (iPassToCheck < MAX_INT)
++									
++									bool bIsAdjacentForWar = true;
++									int iMaxWarMinAdjacentPercent = kTeam.AI_maxWarMinAdjacentLandPercent();
++									if (iMaxWarMinAdjacentPercent > 0)
+ 									{
+-										if ((iPassToCheck > 1) ? bIsDistantPowerRatio : bIsNearbyPowerRatio)
++										int iMinAdjacentPlots = ((kTeam.getTotalLand() * iMaxWarMinAdjacentPercent) / 100);
++										if (iMinAdjacentPlots > 0)
+ 										{
+-											if ((iPassToCheck > 1) || (bIsLandTarget || bIsAnyCapitalAreaAlone))
+-											{
+-												if ((iPassToCheck > 0) || bIsAdjacentForWar)
+-												{
+-													bPassValid = true;;
+-												}
+-											}
++											bIsAdjacentForWar = (kTeam.AI_calculateAdjacentLandPlots(eLoopTeam) >= iMinAdjacentPlots);
+ 										}
+ 									}
++
++									// check to see which mass war pass, if any is valid for this loop team
++									int iValidMaxWarPass = MAX_INT;
++									if (bIsNearbyPowerRatio && bIsAdjacentForWar)
++									{
++										iValidMaxWarPass = 0;
++									}
++									else if (bIsNearbyPowerRatio && (bIsLandTarget || bIsAnyCapitalAreaAlone))
++									{
++										iValidMaxWarPass = 1;
++									}
++
++									else if (bIsDistantPowerRatio)
++									{
++										iValidMaxWarPass = 2;
++									}									
+ 									
+-									if (bPassValid)
++									// on draw pass
++									if (iPass == iDrawPass)
+ 									{
+-										// on draw pass
+-										if (iPass == iDrawPass)
++										float fMaxWarPercentage = (((100 - iNoWarChance) / 100) * fOverallWarPercentage) / iMaxWarRand;
++										
++										FAssertMsg(iValidMaxWarPass >= iBestValidMaxWarPass, "somehow the best was not best");
++										// if we are valid on the same pass
++										if (iValidMaxWarPass <= iBestValidMaxWarPass)
+ 										{
+-											float fMaxWarPercentage = (((100 - iNoWarChance) / 100) * fOverallWarPercentage) / iMaxWarRand;
+ 											szBuffer += CvWString::format(SETCOLR 
+-												L"%.2f%% %s%s%s total %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++												L"%.2f%% %s%s%s total %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"),
+ 												fMaxWarPercentage,
+ 												(iValidMaxWarPass <= 1 && bIsAnyCapitalAreaAlone) ? L"lonely " : L"",
+ 												(iValidMaxWarPass <= 0 && bIsAdjacentForWar) ? L"adjacent " : L"",
+@@ -3017,11 +3029,23 @@
+ 												kTeam.AI_startWarVal(eLoopTeam), 
+ 												kLoopTeam.getName().GetCString());
+ 										}
+-										// we are on the check passes, if this pass valid, then this is the pass to display
+-										else if (iPass < iValidMaxWarPass)
++										else if (iValidMaxWarPass < MAX_INT)
+ 										{
+-											iValidMaxWarPass = iPass;
++											szBuffer += CvWString::format(SETCOLR 
++												L"(%.2f%% %s%s%s total %s war (%d) with %s)\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++												fMaxWarPercentage,
++												(iValidMaxWarPass <= 1 && bIsAnyCapitalAreaAlone) ? L"lonely " : L"",
++												(iValidMaxWarPass <= 0 && bIsAdjacentForWar) ? L"adjacent " : L"",
++												(iValidMaxWarPass <= 1) ? L"near" : L"distant",
++												(bIsLandTarget) ? L"land" : L"sea",
++												kTeam.AI_startWarVal(eLoopTeam), 
++												kLoopTeam.getName().GetCString());
+ 										}
++									}
++									// if this team is valid on a lower pass, then it is the best pass
++									else if (iValidMaxWarPass < iBestValidMaxWarPass)
++									{
++										iBestValidMaxWarPass = iValidMaxWarPass;
+ 									}
+ 								}
+ 							}
+@@ -3042,7 +3066,7 @@
+ 											float fLimitedWarPercentage = (((100 - iNoWarChance) / 100) * fOverallWarPercentage) / iLimitedWarRand;
+ 											
+ 											szBuffer += CvWString::format(SETCOLR 
+-												L"%.2f%% %slimted %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++												L"%.2f%% %slimted %s war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"),
+ 												fLimitedWarPercentage,
+ 												(bIsAnyCapitalAreaAlone && bIsAnyLoopTeamCapitalAreaAlone) ? L"lonely " : L"",
+ 												(bIsLandTarget) ? L"land" : L"sea",
+@@ -3085,7 +3109,7 @@
+ 											float fDogpileWarPercentage = (((100 - iNoWarChance) / 100) * fOverallWarPercentage) / iDogpileWarRand;
+ 											
+ 											szBuffer += CvWString::format(SETCOLR 
+-												L"%.2f% dogpile war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++												L"%.2f% dogpile war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"),
+ 												fDogpileWarPercentage,
+ 												kTeam.AI_startWarVal(eLoopTeam), 
+ 												kLoopTeam.getName().GetCString());
+

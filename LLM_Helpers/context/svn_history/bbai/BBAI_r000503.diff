@@ -1,0 +1,749 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 503
+# Author: jdog5000
+# Date: 2009-10-28T20:52:18.939896Z
+# Coverage: full
+# Message:
+#   Spy AI improvements for stealing techs from friends
+#   Fixed issue with spies causing revolt
+#   Improvements to attack city move ai
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@502
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@503
+@@ -748,7 +748,7 @@
+ /************************************************************************************************/
+ 			if( gTeamLogLevel >= 2 )
+ 			{
+-				logBBAI("    Player %d (%S) trades bonus type %s due to TRADE_RESOURCES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getBonusInfo((BonusTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				logBBAI("    Player %d (%S) trades bonus type %S due to TRADE_RESOURCES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getBonusInfo((BonusTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
+ 			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@502
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@503
+@@ -3169,7 +3169,7 @@
+ 		iValue += 2;
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/11/08                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/28/09                                jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -3177,7 +3177,7 @@
+ 		{
+ 			if( pCity->isHolyCity(getStateReligion()) )
+ 			{
+-				iValue += 2;
++				iValue += 4;
+ 			}
+ 		}
+ /************************************************************************************************/
+@@ -11382,8 +11382,10 @@
+ 		return 0;
+ 	}
+ 
++	bool bMalicious = (AI_getAttitudeWeight(pPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1) || GET_TEAM(getTeam()).AI_getWarPlan(eTargetTeam) != NO_WARPLAN);
++
+ 	int iValue = 0;
+-	if (GC.getEspionageMissionInfo(eMission).isDestroyImprovement())
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).isDestroyImprovement())
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11396,23 +11398,25 @@
+ 					if (NO_BONUS != eBonus)
+ 					{
+ 						iValue += GET_PLAYER(eTargetPlayer).AI_bonusVal(eBonus, -1);
+-					}
+-					// BBAI TODO:  Is pillaging non-bonus plot ever worth it?  Is this plot ever chosen intentionally?
+-					int iTempValue = 0;
+-					if (NULL != pPlot->getWorkingCity())
+-					{
+-						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, pPlot->getOwnerINLINE()) * 2);
+-						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 1);
+-						iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 2);
+-						iTempValue += GC.getImprovementInfo(eImprovement).getUpgradeTime() / 2;
+-						iValue += iTempValue;
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if (GC.getEspionageMissionInfo(eMission).getDestroyBuildingCostFactor() > 0)
++					
++						// BBAI TODO:  Is pillaging non-bonus plot ever worth it?  Is this plot ever chosen intentionally?
++						
++						int iTempValue = 0;
++						if (NULL != pPlot->getWorkingCity())
++						{
++							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, pPlot->getOwnerINLINE()) * 2);
++							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 1);
++							iTempValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 2);
++							iTempValue += GC.getImprovementInfo(eImprovement).getUpgradeTime() / 2;
++							iValue += iTempValue;
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyBuildingCostFactor() > 0)
+ 	{
+ 		if (canSpyDestroyBuilding(eTargetPlayer, (BuildingTypes)iData))
+ 		{
+@@ -11444,7 +11448,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getDestroyProjectCostFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyProjectCostFactor() > 0)
+ 	{
+ 		if (canSpyDestroyProject(eTargetPlayer, (ProjectTypes)iData))
+ 		{
+@@ -11454,7 +11458,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getDestroyProductionCostFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyProductionCostFactor() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11489,7 +11493,7 @@
+ 	}
+ 
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getDestroyUnitCostFactor() > 0 || GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0)
++	if (bMalicious && (GC.getEspionageMissionInfo(eMission).getDestroyUnitCostFactor() > 0 || GC.getEspionageMissionInfo(eMission).getBuyUnitCostFactor() > 0) )
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11512,7 +11516,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
+ 	{
+ 		int iGoldStolen = iData;
+ 		iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 6 : 2) * (2 * std::max(0, iGoldStolen - iCost));
+@@ -11523,7 +11527,7 @@
+ 		//iValue += 100 * GET_TEAM(getTeam()).AI_getAttitudeVal(GET_PLAYER(eTargetPlayer).getTeam());
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getBuyCityCostFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getBuyCityCostFactor() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11536,7 +11540,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11556,7 +11560,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11577,7 +11581,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -11597,7 +11601,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getCityRevoltCounter() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityRevoltCounter() > 0)
+ 	{
+ 		// Handled else where
+ 	}
+@@ -11617,17 +11621,17 @@
+ 		}
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getSwitchCivicCostFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getSwitchCivicCostFactor() > 0)
+ 	{
+ 		iValue += AI_civicTradeVal((CivicTypes)iData, eTargetPlayer);
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getSwitchReligionCostFactor() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getSwitchReligionCostFactor() > 0)
+ 	{
+ 		iValue += AI_religionTradeVal((ReligionTypes)iData, eTargetPlayer);
+ 	}
+ 
+-	if (GC.getEspionageMissionInfo(eMission).getPlayerAnarchyCounter() > 0)
++	if (bMalicious && GC.getEspionageMissionInfo(eMission).getPlayerAnarchyCounter() > 0)
+ 	{
+ 		// AI doesn't use Player Anarchy
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@502
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@503
+@@ -2522,7 +2522,11 @@
+ 	return;
+ }
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/28/09                                jdog5000      */
++/*                                                                                              */
++/* War tactics AI, Barbarian AI                                                                 */
++/************************************************************************************************/
+ void CvUnitAI::AI_attackCityMove()
+ {
+ 	PROFILE_FUNC();
+@@ -2593,23 +2597,27 @@
+ 			return;
+ 		}
+ 
++		// BBAI TODO: Find some way of reliably targetting nearby cities with little defense ...
++		//This is completely redundant with following code for now
++/*		if (getGroup()->getNumUnits() > 1)
++		{
++			if (AI_stackAttackCity(1, 250, true))
++			{
++				return;
++			}
++		}
++*/
++
+ 		//stack attack
+ 		if (getGroup()->getNumUnits() > 1)
+-		{
+-			if (AI_stackAttackCity(1, 250, true))
++		{ 
++			// BBAI TODO: 110 causes suicide sometimes ... 
++			int iRatio = std::max( GC.getDefineINT("BBAI_ATTACK_CITY_STACK_RATIO"), 100 );
++			if (AI_stackAttackCity(1, iRatio, true))
+ 			{
+ 				return;
+ 			}
+ 		}
+-
+-		//stack attack
+-		if (getGroup()->getNumUnits() > 1)
+-		{
+-			if (AI_stackAttackCity(1, 110, true))
+-			{
+-				return;
+-			}
+-		}
+ 	}
+ 
+ 	if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true, bIgnoreFaster))
+@@ -2622,11 +2630,6 @@
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* War tactics AI, Barbarian AI                                                                 */
+-/************************************************************************************************/
+ 	// Rearranged so attack stacks will more readily attack nearby enemy units
+ 	bool bHuntBarbs = false;
+ 	if (area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > 0 && !isBarbarian())
+@@ -2719,6 +2722,15 @@
+ 			int iTargetCount = GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
+ 			if ((iTargetCount * 5) > getGroup()->getNumUnits())
+ 			{
++				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
++				int iJoiners = GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
++				
++				if( (iJoiners*5) > getGroup()->getNumUnits() )
++				{
++					getGroup()->pushMission(MISSION_SKIP);
++					return;
++				}
++
+ 				if (AI_moveToStagingCity())
+ 				{
+ 					return;
+@@ -2747,9 +2759,6 @@
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	if (!bReadyToAttack && !noDefensiveBonus())
+ 	{
+@@ -2766,11 +2775,6 @@
+ //			((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) && (getGroup()->getNumUnits() >= AI_stackOfDoomExtra())))
+ 	if (bReadyToAttack)
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Barbarin AI                                                                                  */
+-/************************************************************************************************/
+ 		if( isBarbarian() )
+ 		{
+ 			if (AI_targetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 9))
+@@ -2779,9 +2783,6 @@
+ 			}
+ 		}
+ 		else if (bHuntBarbs && AI_targetBarbCity((bAnyWarPlan ? 7 : 12)))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		{
+ 			return;
+ 		}
+@@ -2806,16 +2807,8 @@
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	else
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+ 		int iTargetCount = GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_GROUP);
+ 
+ 		// If will be ready to attack with soon to group units
+@@ -2826,9 +2819,6 @@
+ 				return;
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 		if ((bombardRate() > 0) && noDefensiveBonus())
+ 		{
+@@ -2847,11 +2837,7 @@
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/07/08                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
++
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE() && bLandWar)
+ 	{
+ 		if( (GET_TEAM(getTeam()).getAtWarCount(true) > 0) && !(getGroup()->isHasPathToAreaEnemyCity()) )
+@@ -2868,9 +2854,6 @@
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	if (AI_moveToStagingCity())
+ 	{
+@@ -2887,11 +2870,6 @@
+ 		return;
+ 	}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI                                                                                      */
+-/************************************************************************************************/
+ 	if( getGroup()->isStranded() )
+ 	{
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
+@@ -2899,9 +2877,6 @@
+ 			return;
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2911,6 +2886,9 @@
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 
+ void CvUnitAI::AI_attackCityLemmingMove()
+@@ -4823,7 +4801,7 @@
+ 	int iEspionageChance = 0;
+ 	if (plot()->isOwned() && (plot()->getTeam() != getTeam()))
+ 	{
+-		switch (kTeam.AI_getAttitude(plot()->getTeam()))
++		switch (GET_PLAYER(getOwnerINLINE()).AI_getAttitude(plot()->getOwnerINLINE()))
+ 		{
+ 		case ATTITUDE_FURIOUS:
+ 			iEspionageChance = 100;
+@@ -4834,11 +4812,11 @@
+ 			break;
+ 
+ 		case ATTITUDE_CAUTIOUS:
+-			iEspionageChance = 0;
++			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 30 : 10);
+ 			break;
+ 
+ 		case ATTITUDE_PLEASED:
+-			iEspionageChance = 0;
++			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+ 			break;
+ 
+ 		case ATTITUDE_FRIENDLY:
+@@ -4860,7 +4838,7 @@
+ 			}
+ 			else
+ 			{
+-				iEspionageChance += 10;
++				iEspionageChance += 20;
+ 			}
+ 		}
+ 		
+@@ -4872,7 +4850,7 @@
+ 			int iOurPower = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),1,false,true);
+ 			int iEnemyPower = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),0,false,false);
+ 
+-			if( 5*iOurPower > 6*iEnemyPower )
++			if( 5*iOurPower > 6*iEnemyPower && eWarPlan != NO_WARPLAN )
+ 			{
+ 				bTargetCity = true;
+ 
+@@ -4924,6 +4902,7 @@
+ 		}
+ 		else if (GC.getGameINLINE().getSorenRandNum(100, "AI Spy Espionage") < iEspionageChance)
+ 		{
++			// This applies only when not in an enemy city, so for destroying improvements
+ 			if (AI_espionageSpy())
+ 			{
+ 				return;
+@@ -4935,15 +4914,19 @@
+ 	{
+ 		if (kTeam.getAnyWarPlanCount(true) == 0)
+ 		{
+-			if (AI_guardSpy(0))
+-			{
+-				return;			
++			// BBAI TODO: Go steal techs, mess with other players
++			if( GC.getGame().getSorenRandNum(10, "AI Spy pillage improvement") > 0)
++			{
++				if (AI_guardSpy(0))
++				{
++					return;			
++				}
+ 			}
+ 		}
+ 		
+ 		if (GC.getGame().getSorenRandNum(100, "AI Spy pillage improvement") < 25)
+ 		{
+-			if (AI_bonusOffenseSpy(3))
++			if (AI_bonusOffenseSpy(5))
+ 			{
+ 				return;
+ 			}
+@@ -14262,26 +14245,30 @@
+ 		//getGroup()->AI_compareStacks(pBombardCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+ 		//int iOurStrength = pBombardCity->plot()->AI_sumStrength(getOwnerINLINE(), NO_PLAYER, DOMAIN_LAND, false, false, false)
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/28/09                                jdog5000      */
+ /*                                                                                              */
+ /* War Tactics AI                                                                               */
+ /************************************************************************************************/
+ 		// If we have reasonable odds, check for attacking without waiting for bombards
+-		if( iAttackOdds > 15 )
+-		{
++		if( iAttackOdds > std::max(1, GC.getDefineINT("BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS")) )
++		{
++			int iBase = GC.getDefineINT("BBAI_SKIP_BOMBARD_BASE_STACK_RATIO");
++			iBase = ((iBase == 0) ? 300 : iBase);
+ 			int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+ 			
+ 			// Big troop advantage plus pretty good starting odds, don't wait to allow reinforcements
+-			if( iComparison > (300 - 2*iAttackOdds) )
++			if( iComparison > (iBase - 2*iAttackOdds) )
+ 			{
+ 				return false;
+ 			}
+ 
++			int iMin = GC.getDefineINT("BBAI_SKIP_BOMBARD_MIN_STACK_RATIO");
++			iMin = ((iMin == 0) ? 140 : iMin);
+ 			// Bombard at least one turn to allow bombers/ships to get some shots in too
+ 			if( (getFortifyTurns() > 0) && (pBombardCity->getDefenseDamage() > ((GC.getMAX_CITY_DEFENSE_DAMAGE()) / 5)) )
+ 			{
+ 				int iBombardTurns = getGroup()->getBombardTurns(pBombardCity);
+-				if( iComparison > std::max(140, 300 - 2*iAttackOdds - 3*iBombardTurns) )
++				if( iComparison > std::max(iMin, iBase - 2*iAttackOdds - 3*iBombardTurns) )
+ 				{
+ 					return false;
+ 				}
+@@ -21161,22 +21148,17 @@
+ 		CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+ 		if ((kMissionInfo.getCityRevoltCounter() > 0) || (kMissionInfo.getPlayerAnarchyCounter() > 0))
+ 		{
+-			int iValue = GET_PLAYER(getOwnerINLINE()).AI_espionageVal(pCity->getOwnerINLINE(), (EspionageMissionTypes)iMission, pCity->plot(), -1);
++			if (!GET_PLAYER(getOwnerINLINE()).canDoEspionageMission((EspionageMissionTypes)iMission, pCity->getOwnerINLINE(), pCity->plot(), -1, this))
++			{
++				continue;
++			}
+ 			
+-			if (iValue > 0)
+-			{
+-				if (!GET_PLAYER(getOwnerINLINE()).canDoEspionageMission((EspionageMissionTypes)iMission, pCity->getOwnerINLINE(), pCity->plot(), -1, this))
+-				{
+-					continue;
+-				}
+-				
+-				if (!espionage((EspionageMissionTypes)iMission, -1))
+-				{
+-					continue;
+-				}
+-
+-				return true;
+-			}
++			if (!espionage((EspionageMissionTypes)iMission, -1))
++			{
++				continue;
++			}
++
++			return true;
+ 		}
+ 	}
+ 
+@@ -21198,6 +21180,9 @@
+ 			if (pCity != NULL)
+ 			{
+ 				iValue += pCity->getPopulation();
++				iValue += pCity->plot()->calculateCulturePercent(getOwnerINLINE())/8;
++
++				// BBAI TODO: Should go to cities where missions will be cheaper ...
+ 
+ 				int iRand = GC.getGame().getSorenRandNum(6, "AI spy choose city");
+ 				iValue += iRand * iRand;
+@@ -21241,8 +21226,8 @@
+ 						iValue *= 3;
+ 					}
+ 
+-					iValue *= 2;
+-					iValue /= (2 + GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pPlot, MISSIONAI_ATTACK_SPY, getGroup()));
++					iValue *= 3;
++					iValue /= (3 + GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pPlot, MISSIONAI_ATTACK_SPY, getGroup()));
+ 				}
+ 			}
+ 		}
+@@ -21264,20 +21249,79 @@
+ 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam() && !GET_TEAM(getTeam()).isVassal(kLoopPlayer.getTeam()))
+ 		{
+-			int iLoop;
+-			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); NULL != pLoopCity; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+-			{
+-				if( pLoopCity == pSkipCity )
+-				{
+-					continue;
+-				}
+-
+-				if (pLoopCity->area() == area() || canMoveAllTerrain())
+-				{
+-					CvPlot* pLoopPlot = pLoopCity->plot();
+-					if (AI_plotValid(pLoopPlot))
++			// Only move to cities where we will run missions
++			if (GET_PLAYER(getOwnerINLINE()).AI_getAttitudeWeight((PlayerTypes)iPlayer) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1)
++				|| GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN
++				|| GET_TEAM(getTeam()).getBestKnownTechScorePercent() < 85 )
++			{
++				int iLoop;
++				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); NULL != pLoopCity; pLoopCity = kLoopPlayer.nextCity(&iLoop))
++				{
++					if( pLoopCity == pSkipCity )
+ 					{
+-						int iValue = AI_getEspionageTargetValue(pLoopPlot, iMaxPath);
++						continue;
++					}
++
++					if (pLoopCity->area() == area() || canMoveAllTerrain())
++					{
++						CvPlot* pLoopPlot = pLoopCity->plot();
++						if (AI_plotValid(pLoopPlot))
++						{
++							int iValue = AI_getEspionageTargetValue(pLoopPlot, iMaxPath);
++							if (iValue > iBestValue)
++							{
++								iBestValue = iValue;
++								pBestPlot = pLoopPlot;								
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++	
++	if (pBestPlot != NULL)
++	{
++		if (atPlot(pBestPlot))
++		{
++			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
++		}
++		else
++		{
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_ATTACK_SPY );			
++			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
++		}
++		return true;
++	}
++	
++	return false;
++}
++
++bool CvUnitAI::AI_bonusOffenseSpy(int iRange)
++{
++	PROFILE_FUNC();
++
++	CvPlot* pBestPlot = NULL;
++
++	int iBestValue = 10;
++
++	int iSearchRange = AI_searchRange(iRange);
++
++	for (int iX = -iSearchRange; iX <= iSearchRange; iX++)
++	{
++		for (int iY = -iSearchRange; iY <= iSearchRange; iY++)
++		{
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iX, iY);
++
++			if (NULL != pLoopPlot && pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
++			{
++				if( pLoopPlot->isOwned() && pLoopPlot->getTeam() != getTeam() )
++				{
++					// Only move to plots where we will run missions
++					if (GET_PLAYER(getOwnerINLINE()).AI_getAttitudeWeight(pLoopPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1)
++						|| GET_TEAM(getTeam()).AI_getWarPlan(pLoopPlot->getTeam()) != NO_WARPLAN )
++					{
++						int iValue = AI_getEspionageTargetValue(pLoopPlot, iRange);
+ 						if (iValue > iBestValue)
+ 						{
+ 							iBestValue = iValue;
+@@ -21288,69 +21332,9 @@
+ 			}
+ 		}
+ 	}
+-	
++
+ 	if (pBestPlot != NULL)
+ 	{
+-		if (atPlot(pBestPlot))
+-		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+-		}
+-		else
+-		{
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_ATTACK_SPY );			
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+-		}
+-		return true;
+-	}
+-	
+-	return false;
+-}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                   */
+-/************************************************************************************************/
+-
+-bool CvUnitAI::AI_bonusOffenseSpy(int iRange)
+-{
+-	PROFILE_FUNC();
+-
+-	CvPlot* pBestPlot = NULL;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/23/09                                jdog5000      */
+-/*                                                                                              */
+-/* Espionage AI                                                                                 */
+-/************************************************************************************************/					
+-	int iBestValue = 10;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+-	int iSearchRange = AI_searchRange(iRange);
+-
+-	for (int iX = -iSearchRange; iX <= iSearchRange; iX++)
+-	{
+-		for (int iY = -iSearchRange; iY <= iSearchRange; iY++)
+-		{
+-			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iX, iY);
+-
+-			if (NULL != pLoopPlot && pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+-			{
+-				int iValue = AI_getEspionageTargetValue(pLoopPlot, iRange);
+-				if (iValue > iBestValue)
+-				{
+-					iBestValue = iValue;
+-					pBestPlot = pLoopPlot;								
+-				}
+-			}
+-		}
+-	}
+-
+-	if (pBestPlot != NULL)
+-	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/25/09                                jdog5000      */
+-/*                                                                                              */
+-/* Espionage AI                                                                                 */
+-/************************************************************************************************/					
+ 		if (atPlot(pBestPlot))
+ 		{	
+ 			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+@@ -21362,13 +21346,13 @@
+ 			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+ 			return true;
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	}
+ 
+ 	return false;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ //Returns true if the spy performs espionage.
+ bool CvUnitAI::AI_espionageSpy()
+

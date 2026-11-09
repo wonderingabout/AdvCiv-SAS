@@ -1,0 +1,249 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 180
+# Author: blakeciv
+# Date: 2006-12-13T02:36:27.722114Z
+# Coverage: full
+# Message:
+#   Updated whip logic to be better.
+#   Tweaked some cultural victory stuff - they should put less cultural stuff in their top city and save it for the weaker cities. 
+#   AI's with a favorite civic preventing religion spread are less likely to pursue CV and more likely to do Missionary strat.
+#   War values have been tweaked, AI's should much prefer going to war with their neighbors, basically. No more long distance wars, or rarer anyway.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@179
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@180
+@@ -839,7 +839,8 @@
+                 return;
+             }
+         }
+-        else if (GC.getGameINLINE().getSorenRandNum(iCulturalVictoryNumCultureCities * 2,"AI Build up Culture") < iCultureRateRank)
++        
++        else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 , "AI Build up Culture") < iCultureRateRank)
+         {
+             if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE, 40))
+             {
+@@ -2841,7 +2842,8 @@
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
+ 					// we do _not_ want to build this here (unless the value was small anyway)
+-					if (bIsLimitedWonder && (aiCommerceRank[iI] > (3 + iLimitedWonderLimit)))
++					if (bIsLimitedWonder && ((aiCommerceRank[iI] > (3 + iLimitedWonderLimit)))
++						|| (bCulturalVictory1 && (iI == COMMERCE_CULTURE) && (aiCommerceRank[iI] == 1)))
+ 					{
+ 						iTempValue *= -1;
+ 
+@@ -3828,6 +3830,7 @@
+ 	bool bDanger;
+ 	bool bWait;
+ 	bool bEssential;
++	bool bGrowth;
+ 	int iI, iJ;
+ 
+ 	FAssert(!isHuman() || isProductionAutomated());
+@@ -3854,6 +3857,7 @@
+ 
+ 			iMinTurns = MAX_INT;
+ 			bEssential = false;
++			bGrowth = false;
+ 
+ 			// Whip to eliminate unhappiness - thank you Blake!
+ 			if (getProduction() > 0)
+@@ -3931,6 +3935,10 @@
+ 						{
+ 						    bEssential = true;
+ 						    iMinTurns = min(iMinTurns, 5);
++						    if (AI_countNumBonuses(NO_BONUS, false, true, 2) > 0)
++						    {
++						    	bGrowth = true;						    	
++						    }
+ 						}
+ 					}
+ 				}
+@@ -3962,8 +3970,13 @@
+ 			{
+ 				if (GC.getBuildingInfo(eProductionBuilding).getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 				{
++					
+ 					iMinTurns = min(iMinTurns, 10);
+-					bEssential = true;
++					if (AI_buildingSpecialYieldChangeValue(eProductionBuilding, YIELD_FOOD) > 10)
++					{
++						bEssential = true;
++						bGrowth = true;
++					}
+ 				}
+ 			}
+ 
+@@ -3986,6 +3999,7 @@
+ 					if (getMaintenance() >= 10)
+ 					{
+ 						iMinTurns = min(iMinTurns, 10);
++						bEssential = true;
+ 					}
+ 				}
+ 			}
+@@ -4042,6 +4056,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -4081,6 +4096,7 @@
+ 						{
+ 							iMinTurns = min(iMinTurns, 5);
+ 							bEssential = true;
++							bGrowth = true;
+ 						}
+ 					}
+ 				}
+@@ -4106,6 +4122,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -4115,6 +4132,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -4138,6 +4156,15 @@
+ 
+ 			iMinTurns /= 100;
+ 
++			//this overrides everything.
++			if (bGrowth)
++			{
++				if (AI_countGoodTiles((healthRate(0) == 0), false, 90) <= (getPopulation() - iHurryPopulation))
++				{
++					hurry((HurryTypes)iI);
++					break;					
++				}
++			}
+ 			if (getProductionTurnsLeft() > iMinTurns)
+ 			{
+ 				bWait = false;
+@@ -4152,7 +4179,7 @@
+ 					if (iHurryAngerLength > 0)
+ 					{
+ 						//is the whip just too small or the population just too reduced to bother?
+-						if ((iHurryPopulation < 1 + GC.getDefineINT("HURRY_POP_ANGER") && !bEssential) || ((getPopulation() - iHurryPopulation) <= max(3, (getHighestPopulation() / 2))))
++						if (!bEssential && ((iHurryPopulation < (1 + GC.getDefineINT("HURRY_POP_ANGER"))) || ((getPopulation() - iHurryPopulation) <= max(3, (getHighestPopulation() / 2)))))
+ 						{
+ 							bWait = true;
+ 						}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@179
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@180
+@@ -7355,6 +7355,7 @@
+ 		{
+ 			iValue *= 5;
+ 			iValue /= 4;
++			iValue += 6 * getNumCities();
+ 			iValue += 20;
+ 		}
+ 	}
+@@ -9709,6 +9710,14 @@
+ 			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
+         }
+     }
++    
++    
++	
++	CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++	if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
++	{
++		iValue -= 3;		
++	}
+ 
+     //atleast I'm honest
+     int iNonsense = 0;
+@@ -9975,6 +9984,12 @@
+                 iMissionary += AI_getFlavorValue(AI_FLAVOR_CULTURE) * 4; // up to 40
+                 iMissionary += AI_getFlavorValue(AI_FLAVOR_RELIGION) * 6; // up to 60
+                 
++                CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++                if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
++                {
++                	iMissionary += 20;
++                }
++                
+                 iMissionary += (iHolyCityCount - 1) * 5;
+                 
+                 iMissionary += iMetCount * 7;
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@179
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@180
+@@ -548,11 +548,15 @@
+ 
+ 	iDistance = 0;
+ 	iCount = 0;
++	
++	int iSameAreaCount = 0;
++	bool bSameArea;
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
++			
+ 			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+ 			{
+ 				pOurCapitalCity = GET_PLAYER((PlayerTypes)iI).getCapitalCity();
+@@ -569,8 +573,11 @@
+ 
+ 								if (pTheirCapitalCity != NULL)
+ 								{
+-									iDistance += (plotDistance(pOurCapitalCity->getX_INLINE(), pOurCapitalCity->getY_INLINE(), pTheirCapitalCity->getX_INLINE(), pTheirCapitalCity->getY_INLINE()) * ((pOurCapitalCity->area() != pTheirCapitalCity->area()) ? 3 : 2));
++									bSameArea = (pOurCapitalCity->area() == pTheirCapitalCity->area());
++									
++									iDistance += (plotDistance(pOurCapitalCity->getX_INLINE(), pOurCapitalCity->getY_INLINE(), pTheirCapitalCity->getX_INLINE(), pTheirCapitalCity->getY_INLINE()) * ((!bSameArea) ? 3 : 2));
+ 									iCount++;
++									iSameAreaCount += (bSameArea ? 1 : 0);
+ 								}
+ 							}
+ 						}
+@@ -584,7 +591,18 @@
+ 
+ 	if (iCount > 0)
+ 	{
+-		return max(1, (GC.getMapINLINE().maxPlotDistance() - (iDistance / iCount)));
++		//cross up to the entire map to kill the only other foe
++		//be more picky if there are more foes...
++		int iTeamCount = GC.getGame().countCivTeamsAlive();
++		int iMaxDistance = GC.getMapINLINE().maxPlotDistance();
++		
++		if (iSameAreaCount > 0) //preserve sanity on islands...
++		{
++			iMaxDistance *= 4;
++			iMaxDistance /= (2 + iTeamCount);
++		}
++		
++		return max(1, (iMaxDistance - (iDistance / iCount)));
+ 	}
+ 
+ 	return 0;
+@@ -855,7 +873,7 @@
+ 
+ 	iValue = AI_calculatePlotWarValue(eTeam);
+ 
+-	iValue += AI_calculateCapitalProximity(eTeam);
++	iValue += (3 * AI_calculateCapitalProximity(eTeam)) / ((iValue > 0) ? 2 : 3);
+ 
+ 	switch (AI_getAttitude(eTeam))
+ 	{
+

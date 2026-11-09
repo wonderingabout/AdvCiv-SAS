@@ -1,0 +1,144 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 447
+# Author: jdog5000
+# Date: 2009-05-22T01:03:12.663442Z
+# Coverage: full
+# Message:
+#   0.75F
+#   
+#   Final tweaks for version 0.75F
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@446
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@447
+@@ -7934,7 +7934,31 @@
+ 	if (!isProduction() && !isHuman())
+ 	{
+ 		iProductionValue /= 2;
+-	}	
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      05/18/09                                jdog5000      */
++/**                                                                                              */
++/** City AI				                                                                         */
++/*************************************************************************************************/
++	// If city has more than enough food, but very little production, add large value to production
++	// Particularly helps coastal cities with plains forests
++	if( aiYields[YIELD_PRODUCTION] > 0 )
++	{
++		if( !bFoodIsProduction && isProduction() )
++		{
++			if( foodDifference(false) >= GC.getFOOD_CONSUMPTION_PER_POPULATION() )
++			{
++				if( getYieldRate(YIELD_PRODUCTION) < (1 + getPopulation()/3) )
++				{
++					iValue += 128 + 8 * aiYields[YIELD_PRODUCTION];
++				}
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	// value commerce low(6)
+ 
+ 	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@446
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@447
+@@ -4265,12 +4265,12 @@
+ 	CvWString szTempBuffer;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/12/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      05/19/09                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.75C");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.75F");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@446
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@447
+@@ -8863,6 +8863,16 @@
+ 		iValue += (iCombatValue / 2);
+ 		iValue += (GC.getUnitInfo(eUnit).getMoves() * 200);
+ 		iValue += (GC.getUnitInfo(eUnit).getCargoSpace() * 300);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      05/18/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++		// Never build galley transports when ocean faring ones exist (issue mainly for Carracks)
++		iValue /= (1 + AI_unitImpassableCount(eUnit));
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		break;
+ 
+ 	case UNITAI_CARRIER_SEA:
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@446
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@447
+@@ -6681,7 +6681,7 @@
+ 		}
+ 	}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/14/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      05/19/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -6744,17 +6744,30 @@
+ 							FAssert(pWaterArea != NULL);
+ 							if (pWaterArea != NULL)
+ 							{
++								if( AI_getBirthmark()%3 == 0 )
++								{
++									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_EXPLORE_SEA, pWaterArea) > 0)
++									{
++										AI_setUnitAIType(UNITAI_EXPLORE_SEA);
++										AI_exploreSeaMove();
++										return;
++									}
++								}
++
++								if( AI_getBirthmark()%3 == 1 )
++								{
++									if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_RESERVE_SEA, area()) > 0)
++									{
++										AI_setUnitAIType(UNITAI_RESERVE_SEA);
++										AI_reserveSeaMove();
++										return;
++									}
++								}
++
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_ATTACK_SEA, pWaterArea) > 0)
+ 								{
+ 									AI_setUnitAIType(UNITAI_ATTACK_SEA);
+ 									AI_attackSeaMove();
+-									return;
+-								}
+-
+-								if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), UNITAI_EXPLORE_SEA, pWaterArea) > 0)
+-								{
+-									AI_setUnitAIType(UNITAI_EXPLORE_SEA);
+-									AI_exploreSeaMove();
+ 									return;
+ 								}
+ 							}
+

@@ -1,0 +1,65 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 532
+# Author: jdog5000
+# Date: 2010-03-04T06:05:33.896597Z
+# Coverage: full
+# Message:
+#   Fix bug in pathValid causing ships to be able to cross land diagonally
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@531
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@532
+@@ -1721,10 +1721,26 @@
+ 
+ 	pSelectionGroup = ((CvSelectionGroup *)pointer);
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      03/03/10                                jdog5000      */
+ /*                                                                                              */
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
++	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
++	{
++		PROFILE("pathValid domain sea");
++
++		if (pFromPlot->isWater() && pToPlot->isWater())
++		{
++			if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
++			{
++				if( !(pSelectionGroup->canMoveAllTerrain()) )
++				{
++					return FALSE;
++				}
++			}
++		}
++	}
++
+ 	if (pSelectionGroup->atPlot(pFromPlot))
+ 	{
+ 		return TRUE;
+@@ -1755,21 +1771,6 @@
+ 		if (pFromPlot->isOwned())
+ 		{
+ 			if (atWar(pFromPlot->getTeam(), pSelectionGroup->getHeadTeam()))
+-			{
+-				return FALSE;
+-			}
+-		}
+-	}
+-
+-	// XXX might want to take this out...
+-	// BBAI TODO: fix this check to allow all terrain sea units to move diagonally over land
+-	if (pSelectionGroup->getDomainType() == DOMAIN_SEA)
+-	{
+-		PROFILE("pathValid domain sea");
+-
+-		if (pFromPlot->isWater() && pToPlot->isWater())
+-		{
+-			if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
+ 			{
+ 				return FALSE;
+ 			}
+

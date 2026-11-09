@@ -1,0 +1,57 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 111
+# Author: blakeciv
+# Date: 2006-11-22T07:28:58.205337Z
+# Coverage: full
+# Message:
+#   AI builds barracks earlier and gives other AI's more military respect.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@110
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@111
+@@ -719,6 +719,10 @@
+     {
+         if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
+         {
++            if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
++            {
++                return;
++            }
+             if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
+             {
+                 AI_chooseUnit(UNITAI_ATTACK_CITY);
+@@ -857,8 +861,16 @@
+ 		}
+ 	}
+ 
+-	if (bDanger || (bHasMetHuman && (GC.getGameINLINE().getSorenRandNum(30, "AI Build Defense") < getPopulation())))
+-	{
++	if (bDanger || (GC.getGameINLINE().getSorenRandNum(30, "AI Build Defense") < getPopulation()))
++	{
++	    if (!bDanger)
++	    {
++            if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
++            {
++                return;
++            }
++	    }
++
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20))
+ 		{
+ 			return;
+@@ -1053,11 +1065,6 @@
+ 				}
+ 			}
+ 		}
+-	}
+-
+-	if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 6))
+-	{
+-		return;
+ 	}
+ 
+ 	if (iProductionRank <= ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 2) + 1))
+

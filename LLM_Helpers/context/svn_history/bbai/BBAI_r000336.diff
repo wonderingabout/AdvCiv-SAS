@@ -1,0 +1,98 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 336
+# Author: blakeciv
+# Date: 2007-02-01T01:20:58.478213Z
+# Coverage: full
+# Message:
+#   AI will train more city defender units.
+#   
+#   Commerce value increased by 20% (from 5 to 6)
+#   Emphasis Great People halved - should now prefer a 1-5-0 tile over a EmpGP specialist.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@335
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@336
+@@ -507,7 +507,7 @@
+ 		    iModifier = 100;
+ 			iModifier = getTotalCommerceRateModifier((CommerceTypes) iI);
+ 			
+-			iTempValue = iCommerce * 5;
++			iTempValue = iCommerce * 6;
+ 			iTempValue *= iModifier;
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
+ 			iTempValue /= 10000;
+@@ -603,7 +603,7 @@
+ 
+ 		if (AI_isEmphasizeGreatPeople())
+ 		{
+-			iTempValue += (iGreatPeopleRate * 40);
++			iTempValue += (iGreatPeopleRate * 20);
+ 		}
+ 
+         if (!isHuman() && (GET_PLAYER(getOwnerINLINE()).getCurrentEra() <= (GC.getNumEraInfos() / 2)))
+@@ -983,6 +983,17 @@
+ 		if (kPlayer.AI_totalUnitAIs(UNITAI_ATTACK) < 2)
+ 		{
+ 			if (AI_chooseUnit(UNITAI_ATTACK))
++			{
++				return;
++			}
++		}
++	}
++	else
++	{
++		//minimal defense.
++		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == 0)
++		{
++			if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 			{
+ 				return;
+ 			}
+@@ -4973,6 +4984,16 @@
+ {
+  	int iCount;
+  	
++	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE);
++	if (iCount < (iTotalNeededDefenders / 5))
++	{
++		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++		{
++			return true;
++		}
++	}
++	iTotalNeededDefenders -= iCount;
++	
+ 	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COLLATERAL);
+ 	if (iCount <= (iTotalNeededDefenders / 4))
+ 	{
+@@ -4993,16 +5014,7 @@
+ 		}
+ 	}
+ 	iTotalNeededDefenders -= iCount;
+-	
+-//	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COUNTER);
+-//	if (iCount < (iTotalNeededDefenders / 2))
+-//	{
+-//		if (AI_chooseUnit(UNITAI_COUNTER))
+-//		{
+-//			return true;
+-//		}
+-//	}
+-//	iTotalNeededDefenders -= iCount;
++
+ 	
+ 	if (AI_chooseUnit(UNITAI_RESERVE))
+ 	{
+@@ -5884,7 +5896,7 @@
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight((CommerceTypes)iI);
+-		iCommerceValue += (iCommerceWeight * (iCommerceYields[iI] * 5) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 10000;
++		iCommerceValue += (iCommerceWeight * (iCommerceYields[iI] * 6) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 10000;
+ 	}
+ 
+ 	if (bEmphasizeFood)
+

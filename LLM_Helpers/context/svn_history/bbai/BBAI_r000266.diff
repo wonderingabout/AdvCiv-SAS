@@ -1,0 +1,211 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 266
+# Author: iustus
+# Date: 2007-01-13T02:30:25.167609Z
+# Coverage: full
+# Message:
+#   vastly increased speed of CvMap::updateSight(false) (just clears everything now)
+#   added non-savecompatible build #define FASTER_VISIBILITY_NON_SAVE_COMPATIBLE, when used visibility calculations are much much faster. 
+#   added new value to map extra save data to know if the save is a non-compatible save. builds without the #define only check to see if a save is non-compatible, they do not change how they save at all
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvMap.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+
+Index: /trunk/CvGameCoreDLL/CvMap.cpp
+--- /trunk/CvGameCoreDLL/CvMap.cpp@265
++++ /trunk/CvGameCoreDLL/CvMap.cpp@266
+@@ -41,9 +41,21 @@
+ enum MapExtraDataIndicies
+ {
+ 	MAPEXTRADATA_VERSION = 0,
+-	//MAPEXTRADATA_UNUSED1,
+-	//MAPEXTRADATA_UNUSED2,
++	MAPEXTRADATA_MAPVISIONTYPE,
+ };
++
++enum MapVisionTypes
++{
++	MAPVISION_STANDARD = 1,
++	MAPVISION_FASTER_VISION = 2,
++};
++
++#define MAPEXTRADATA_MAPVISIONTYPE_CURRENT		MAPVISION_STANDARD
++
++#ifdef FASTER_VISIBILITY_NON_SAVE_COMPATABLE
++#undef MAPEXTRADATA_MAPVISIONTYPE_CURRENT
++#define MAPEXTRADATA_MAPVISIONTYPE_CURRENT		MAPVISION_FASTER_VISION
++#endif
+ 
+ // Public Functions...
+ 
+@@ -406,7 +418,14 @@
+ 
+ 	for (iI = 0; iI < numPlotsINLINE(); iI++)
+ 	{
+-		plotByIndexINLINE(iI)->updateSight(bIncrement);
++		if (bIncrement)
++		{
++			plotByIndexINLINE(iI)->updateSight(true);
++		}
++		else
++		{
++			plotByIndexINLINE(iI)->clearAllVisibility();
++		}
+ 	}
+ }
+ 
+@@ -1276,6 +1295,7 @@
+ 		}
+ 	}
+ 	
++
+ 	// read in the save info from the found values, and set those values to -1 (cleaning them)
+ 	CvExtraSaveData& extraSaveData = getExtraSaveDataClass();
+ 	extraSaveData.setupForRead(*this);
+@@ -1288,21 +1308,30 @@
+ 
+ 	// get the map saved data for ourselves
+ 	int iVersion;
++	int iMapVisionType = -1;
+ 	if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_VERSION, iVersion))
+ 	{
+ 		if (iVersion == MAPEXTRADATA_CURRENTVERSION)
+ 		{
+-			//int iValue;
+-			//if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED1, iValue))
+-			//{
+-			//	m_unused1 = iValue;
+-			//}
+-			//if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED2, iValue))
+-			//{
+-			//	m_unused2 = iValue;
+-			//}
+-		}
+-	}
++			if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_MAPVISIONTYPE, iMapVisionType))
++			{
++				// dont save vision type, we always save as current vision type
++				// m_iMapVisionType = iMapVisionType;
++			}
++		}
++	}
++
++#ifdef FASTER_VISIBILITY_NON_SAVE_COMPATABLE
++	if (iMapVisionType != MAPEXTRADATA_MAPVISIONTYPE_CURRENT)
++#else
++	if (iMapVisionType > MAPEXTRADATA_MAPVISIONTYPE_CURRENT)
++#endif
++	{
++		// force refresh of all visibility on a load ,incompatable vision type
++		updateSight(false);
++		updateSight(true);
++	}
++
+ }
+ 
+ // save object to a stream
+@@ -1403,11 +1432,11 @@
+ 	int iVersion = MAPEXTRADATA_CURRENTVERSION;
+ 	extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_VERSION, iVersion);
+ 
+-	//int iUnused = 0;
+-	//extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED1, iUnused);
+-
+-	//int iUnused = 0;
+-	//extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED2, iUnused);
++#ifdef FASTER_VISIBILITY_NON_SAVE_COMPATABLE
++	// for now only save for faster version (works fine if you remove the #ifdef though)
++	int iMapVisionType = MAPEXTRADATA_MAPVISIONTYPE_CURRENT;
++	extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_MAPVISIONTYPE, iMapVisionType);
++#endif
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@265
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@266
+@@ -1666,6 +1666,20 @@
+ 		return;
+ 	}
+ 
++#ifdef FASTER_VISIBILITY_NON_SAVE_COMPATABLE
++	// get list of visible plots 
++	CLinkList<CvPlot*> visiblePlotList; 
++	getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++
++	// change visibility
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		pNode->m_data->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible);
++	}
++
++	return;
++#endif
++
+ 	for	(iDX = -(iRange	- 1); iDX <= (iRange - 1); iDX++)
+ 	{
+ 		for	(iDY = -(iRange	- 1); iDY <= (iRange - 1); iDY++)
+@@ -6238,6 +6252,46 @@
+ 
+ 			if (eTeam == GC.getGameINLINE().getActiveTeam())
+ 			{
++				updateFog();
++				updateMinimapColor();
++				updateCenterUnit();
++			}
++		}
++	}
++}
++
++void CvPlot::clearAllVisibility()
++{
++	PROFILE_FUNC();
++
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
++	{
++		TeamTypes eTeam = (TeamTypes) iI;
++		bool bOldVisible = isVisible(eTeam, false);
++
++		m_aiVisibilityCount[eTeam] = 0;
++		m_aiStolenVisibilityCount[eTeam] = 0;
++		
++		for	(int iJ	= 0; iJ	< GC.getNumInvisibleInfos(); iJ++)
++		{
++			if (m_apaiInvisibleVisibilityCount[eTeam] != NULL)
++			{
++				m_apaiInvisibleVisibilityCount[eTeam][iJ] = 0;
++			}
++		}
++
++		if (bOldVisible)
++		{
++			CvCity* pCity = getPlotCity();
++			if (pCity != NULL)
++			{
++				pCity->setInfoDirty(true);
++			}
++
++			if (eTeam == GC.getGameINLINE().getActiveTeam())
++			{
++				PROFILE("CvPlot::clearAllVisibility 1");
++
+ 				updateFog();
+ 				updateMinimapColor();
+ 				updateCenterUnit();
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@265
++++ /trunk/CvGameCoreDLL/CvPlot.h@266
+@@ -354,6 +354,8 @@
+ 	int getStolenVisibilityCount(TeamTypes eTeam) const;																								// Exposed to Python
+ 	void changeStolenVisibilityCount(TeamTypes eTeam, int iChange);
+ 
++	void clearAllVisibility();
++
+ 	DllExport PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;													// Exposed to Python
+ 	DllExport TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;														// Exposed to Python
+ 	void setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue);
+

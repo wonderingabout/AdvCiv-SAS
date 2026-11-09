@@ -1,0 +1,188 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 448
+# Author: jdog5000
+# Date: 2009-05-22T06:55:33.497385Z
+# Coverage: full
+# Message:
+#   Version 0.75F
+# Changed paths (5):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   D /trunk/Better BTS AI/Better BTS AI sources for 0.70.zip
+#   A /trunk/Better BTS AI/Better BTS AI sources for 0.75.zip
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.70.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.75.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@447
++++ /trunk/Better BTS AI/readme.txt@448
+@@ -1,11 +1,15 @@
+ Installation Instructions
+ _________________________
+ 
++
++Installation Instructions
++_________________________
++
+ Better BTS AI requires Civ4: Beyond the Sword patched to 3.17.  There are two ways to use Better BTS AI:
+ 
+ 1	As a mod.  Place the Better BTS AI folder which contains this readme and the Assets folder in "C:\Program Files\Firaxis Games\Sid Meier's Civilization 4\Beyond the Sword\Mods\".  You can then load Better BTS AI as a mod in the normal way or set BTS to autoload Better BTS AI in "\My Games\Beyond the Sword\CivilizationIV.ini".  This method maintains compatibility for online play but the changes in Better BTS AI will only apply when the mod is running (not in other mods, Firaxis scenarios).  [B]Recommended if[/B] you want to easily go back to standard BTS or play online.
+ 
+-2	Replace default files.  The contents of the Assets folder are intended to replace the files located in the same locations in "C:\Program Files\Firaxis Games\Sid Meier's Civilization 4\Beyond the Sword\Assets\".  It is recommended that you backup your current dll and other file (renaming it will work fine) before installing this version.  Simply paste the contents the mod's Assets folder into the same locations in BTS's Assets folder, making sure the game isn't currently running.  This method will make the Better BTS AI changes always apply unless you load a mod with its own DLL.  For online play everyone must have install Better BTS AI in this way or things may not work correctly.  [B]Recommended if[/B] you always want to use Better BTS AI.
++2	Replace default files.  The contents of the Assets folder are intended to replace the files located in the same locations in "C:\Program Files\Firaxis Games\Sid Meier's Civilization 4\Beyond the Sword\Assets\".  It is recommended that you backup your current dll and other files which will be replaced (renaming them will work fine) before installing this version.  When the game is not running, simply paste the contents the mod's Assets folder into the same locations in BTS's Assets folder.  This method will make the Better BTS AI changes always apply unless you load a mod with its own DLL.  For online play everyone must have installed Better BTS AI in this way or things may not work correctly.  [B]Recommended if[/B] you always want to use Better BTS AI.
+ 
+ The source code for the changes is also included in a zip.  If you are not a modder, you do not need those files and there is no need to extract them from the zip file.
+ 
+@@ -17,7 +21,7 @@
+ 
+ Python:  Only the file in Assets\Python\Screens\ contains a fix, the other Python files are only to facilitate testing.  AIAutoPlay and ChangePlayer are very useful for general testing, so consider including them.  Tester contains some test popups specific to this mod.  These components use DrElmerGiggles custom event manager to manage their subscriptions to different Python events.
+ 
+-XML:  The XML changes will need to be merged with the exception of Text\CIV4GameText_AIAutoPlay.xml which is only needed if you also are using the AIAutoPlay python component.
++XML:  Most XML changes are fixes from the unofficial patch, if you already have these changes then you are fine, otherwise you should merge them.  The exceptions to this are GlobalDefinesAlt.xml (which has updated AI variables), and two files with game text, Text\CIV4GameText_BetterBTSAI.xml and Text\CIV4GameText_AIAutoPlay.xml.  You will want to copy these files over, although the AIAutoPlay text is only needed if you also are using the AIAutoPlay python component.  
+ 
+ 
+ Debug Keyboard Commands
+@@ -31,7 +35,7 @@
+ Ctrl+Shift+L    ChangePlayer    Open popup to switch which player the human controls.
+ 
+ 
+-Better BTS AI v0.70 Changelog
++Better BTS AI v0.80 Changelog
+ _________________________
+ 
+ Bugfix
+@@ -62,6 +66,8 @@
+ - Fixed potential crash bug (introduced) for boats on the edge of non-wrapping maps
+ - Fixed bug where running 100% espionage would often cause cities to ignore commerce yield when picking tiles
+ - Fixed bug where running 100% culture would often cause cities to ignore commerce yield when picking tiles
++- Fixed bug where AI would demand tribute when about to declare war, potentially screwing up its war plans
++- Fixed bug where AI units would head off to attack an enemy when they were not yet able to declare war, causing them to eventually get bumped out of enemy territory once the temporary peace treaty ended.
+ 
+ War strategy AI
+ - Modified how closeness is used for determining who to attack, different settings for regular and Aggressive AI
+@@ -70,7 +76,7 @@
+ - An AI winning a war no longer automatically accepts offers of capitulation, may continue conquest under a few circumstances
+ - AIs will no longer declare war on faraway vassals of their neighbors
+ - Added function AI_getWarSuccessCapitulationRatio to measure how well a team is doing in war
+-- If team is losing a land war badly, they will now use defensive ar
++- If team is losing a land war badly, they will now use defensive area AI in all areas where there is significant enemy presence
+ 
+ War tactics AI
+ - Attack city stacks will now reduce the distance they travel in enemy territory so the enemy has less time to prepare or hit them with suicide siege
+@@ -114,10 +120,13 @@
+ - Tweaked logic for production of escorts so the AI builds them faster if it doesn't have any
+ - Adjusted threshold for construction of missionaries when at war, an AI that is on a roll capturing cities will now be more likely to build missionaries to convert the new cities
+ - Added extra logic for panic production of defensive and counter attack units when AI is losing the wars it is in
++- AI will no longer build Galley settler or troop transports when it has access to Carracks or some other transport which can enter ocean tiles (half of fix for Galley->Carrack->Galleon issues)
++- Fix for issue with selection of plots to work which led to tiny per turn production in some large coastal cities due to higher weighting on food.  Particularly an issue with coastal cities whose only hammer access is forested plains.  AI coastal cities will now produce at least a few hammers when they have enough food.
+ 
+ Worker AI
+ - Fix issue where AI would not build workboats to make use of resources in small lakes (was blocked because it felt lake was not relevant militarily)
+ - Fixed issue where AI workers would load into a galley with a settler, causing a defenseless settler to freze on empty island
++- Fixed issue where AI workers responded strongly to temporary commerce/research emphasis decisions (one cause of cottage cycling down)
+ 
+ Settler AI
+ - Fixed bug where settlers with no path to city sites on same continent would idle indefinitely and never load on transports
+@@ -195,6 +204,7 @@
+ - Transports which launch an amphibious invasion will now also drop-off any units which remain on board after the invasion (due to winning combat, seige units) in the captured city instead of transporting them back
+ - Transports no longer attempt to pickup attack city units recovering in recently captured cities
+ - Second waves of invasions will now more likely target areas where AI already has captured some cities
++- AI transports now scrap or switch UNITAI type if owner can build better transports but unit can't upgrade to them (half of fix for Galley->Carrack->Galleon issues)
+ 
+ Air AI
+ - Modified and expanded Solver's changes to retreat from city/fort AI to be more specialized for various unit AI types, only move if there's a real threat
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@447
++++ /trunk/Better BTS AI/todo and ideas.txt@448
+@@ -9,8 +9,6 @@
+ - Check out Super Spies AI
+ 
+ City AI:
+-- Valuation of commerce incorrect at 100% culture, 100% espionage
+-- Golden age adjustments for plot selection logic
+ - Better logic (centralized) for determining when to relocate capital
+ x Rework "early" city hunting stack logic
+ 
+@@ -18,35 +16,41 @@
+ - Target cities to stop potential victory - capital for space, high culture cities for cultural.  Use war declaration code as a guide for how to determine if other player is close
+ - Consider closeness to cultural victory?
+ - War alliances:  If want to declare war on a civ, but simply not powerful enough, check for other AIs who want to join right from the beginning?  Would have to skip the preparing phase, just set Dogpile or something ... any way to make them all declare on the same turn?  Some new ALLIED ATTACK war plan or something?
++- Divide war success by two if recaptuing own city previously lost?
+ 
+ Unit AI:
+ - City defense axemen don't upgrade to Macemen since Macemen don't have that UNITAI ... switch to city counter under some circumstances?
+ - Check calculations of which cities fall under blockade, AI privateer positioning choices
+ x Privateers: move in the shadows
+-x Galleys on lakes not upgrading?
+ x Attack stacks should stage in coastal cities if in assault areas
+ - If sending an attack load with no attack city units, change at least one unit ai
+ - When pillaging, have fast units pillage once each and then slow units/second pillage so that group can still move
++- Stranded move to city with good closeness
++- Generals spawned in enemy territory -> lead
++- 
+ 
+ Naval AI:
+ x Have AI transfer troops from Assault to Defensive and Offensive areas if it is out-gunned
+-- Portugese can't upgrade existing galley transports to Carracks, so often won't build new settler transports since already have
++x Portugese can't upgrade existing galley transports to Carracks, so often won't build new settler transports since already have
+ - Block transports from grouping with transports running MISSIONAI_ASSAULT
+ - When transport heads out on assault mission, clear missions for all those coming to join with it
++- Escorts for picking up stranded
+ 
+ Great people AI
+ - If losing war or on defensive, up value of Golden Age (so can switch to drafting civics)
+ 
+ Civics AI
+-x Check that Golden Age lowers thesholds for changes just like Spiritual
+ - If in tough war, up value of civics which allow drafting, whipping, or buying?
+ 
+ Vassal AI:
+ - Option to turn off extra human's vassal military production
+-x Make it clear that SHIFT+ALT clicking on enemies in scoreboard toggles war planning
+ 
+ Barbarian AI:
+ - Build smallish attack stacks?
++- Plot improvements: no commerce value
++- Plot working: no commerce value
++- No value for commerce/maintanence buildings
++- No financial trouble
+ 
+ Diplomacy:
+ - How do losing/weak civs ask for help in war?
+@@ -56,8 +60,8 @@
+ - Less willing to make peace when about to capture city, more willing when have threatened cities
+ 
+ General AI:
+-x Adjust new path finding flags so they only weight end of turn position heavily
+-- XML option for beelining length
++- XML option for tech beelining length
++- Issue with tactical nukes being able to auto explore (also, range causing crashes?)
+ 
+ -----------------------------------------------------------
+ 
+@@ -67,7 +71,7 @@
+ 
+ Stack strength assesment?  
+ 
+-Workers: Keep them from plowing under villages/towns.  See Bhruic's thread for more.
++Workers: Keep them from plowing under villages/towns.  See thread for more.
+ 
+ Area city graphs, or some way to pick ports for naval invasion.
+ 
+@@ -76,5 +80,3 @@
+ Why do blockades not get properly set some times?  Seems to happen when a city is captured same turn blockade starts.  Also, problem with not clearing all plots.
+ 
+ Active defense, both shifting defenders around plus forming a stack to attack invaders.  See Version 0.50 thread.
+-
+-Make city threat check a function, only call in unit AI if owner is at war
+

@@ -1,0 +1,856 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 226
+# Author: blakeciv
+# Date: 2006-12-21T23:57:41.290996Z
+# Coverage: full
+# Message:
+#   Massive city specialization improvements with great understanding of commerce types value and merchants are no longer discriminated against.
+#   Governor understanding of commerce upgraded significantly (ie with build research it recongnizes when a specialist will be absolutely superior to a plains hill mine)
+#   Minor misc build governor improvements (both human and AI)
+#   Tweaks to starting plot stuff... pretty minor should just help avoid isolated players on continents.
+#   The AI values gold much higher in trade (the rounding to 10g isn't working atm)
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@225
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@226
+@@ -484,14 +484,12 @@
+ 		if (iCommerce != 0)
+ 		{
+ 		    iModifier = 100;
+-		    
+-
+ 			iModifier = getTotalCommerceRateModifier((CommerceTypes) iI);
+-
+-		    
+-			iCommerce = ((iCommerce * iModifier) / 100);
+-
+-			iTempValue = (iCommerce * 5);
++			
++			iTempValue = iCommerce * 5;
++			iTempValue *= iModifier;
++			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++			iTempValue /= 10000;
+ 
+ 			int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			
+@@ -545,9 +543,10 @@
+ 			}
+ 			
+ 			iTempValue *= iCommerceWeight;
+-//			iTempValue /= 100;
++			iTempValue /= 100;
+ 			//since multipliers have been allowed back in...
+-			iTempValue /= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceMultiplier((CommerceTypes)iI);
++			iTempValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
++			iTempValue /= 100;
+ 
+ 			iValue += iTempValue;
+ 		}
+@@ -930,7 +929,7 @@
+ 		}
+ 	}
+ 
+-	if (AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ false, /*bIncludeNeutral*/ true, /*iOtherCultureThreshold*/ -1) > 0)
++	if (AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ false, /*bIncludeNeutral*/ true, /*iOtherCultureThreshold*/ -1) > 0, true, true)
+ 	{
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+@@ -4320,7 +4319,7 @@
+ 						{
+ 						    bEssential = true;
+ 						    iMinTurns = min(iMinTurns, 5);
+-						    if (AI_countNumBonuses(NO_BONUS, false, true, 2) > 0)
++						    if (AI_countNumBonuses(NO_BONUS, false, true, 2, true, true) > 0)
+ 						    {
+ 						    	bGrowth = true;						    	
+ 						    }
+@@ -5169,7 +5168,7 @@
+ 	// one at a time, remove the worst citizen, then add the best citizen
+ 	// until we add back the same one we removed
+ 	bool bCompletedStandardChecks = false;
+-	bool bCompletedIgnoreFoodChecks = false;
++	bool bCompletedIgnoreFoodChecks = false;//false;
+ 	while (!bCompletedStandardChecks || !bCompletedIgnoreFoodChecks)
+ 	{
+ 		int iLowestStandardValue = MAX_INT;
+@@ -5380,29 +5379,26 @@
+ 	int iNewCityYield;
+ 	int iOldCityYield;
+ 	int iValue;
+-	int iI;
++	int iI, iJ;
+ 	int iModifier;
+ 	
++	int iCommerceYields[NUM_COMMERCE_TYPES];
+ 	int iExtraProductionModifier = 0;
+ 	int iBaseProductionModifier = 100;
+ 	
+-	int iCommerceYields[NUM_COMMERCE_TYPES];
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+ 	bool bFoodIsProduction = isFoodProduction();
++	
++	for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++	{
++		iCommerceYields[iJ] = 0;
++	}
+ 
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		if (piYields[iI] == 0)
+ 		{
+ 			aiYields[iI] = 0;
+-
+-			if (iI == YIELD_COMMERCE)
+-			{
+-				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+-				{
+-					iCommerceYields[iJ] = 0;
+-				}
+-			}
+ 		}
+ 		else
+ 		{
+@@ -5421,28 +5417,38 @@
+ 			iNewCityYield = (iNewCityYield * iModifier) / 100;
+ 			iOldCityYield = (iOldCityYield * iModifier) / 100;
+ 
++
++
++			// The yield of the citizen in question is the difference of total yields
++			// to account for rounding of modifiers
++			aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++			
+ 			if (iI == YIELD_COMMERCE)
+ 			{
+-				aiYields[iI] = 0;
+-				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++				//aiYields[iI] = 0; // be careful not to actually count the value for commerce
++				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 				{
+ 				    iModifier = getTotalCommerceRateModifier((CommerceTypes)iJ);
+ 				    
+                     int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * iModifier) / 100;
+                     int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * iModifier) / 100;
+ 
+-					iCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
+-
+-					aiYields[iI] += iCommerceYields[iJ];
+-				}
+-			}
+-			else
+-			{
+-				// The yield of the citizen in question is the difference of total yields
+-				// to account for rounding of modifiers
+-				aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
+-			}
+-
++					iCommerceYields[iJ] += (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++				}
++			}
++			
++			if (iI == YIELD_PRODUCTION)
++			{
++				if (isProductionProcess())
++				{
++					
++					aiYields[iI] = 0;
++					for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++					{
++						iCommerceYields[iJ] += ((GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iJ)) * (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield))) / 100;
++					}
++				}
++			}			
+ 		}
+ 	}
+ 
+@@ -5676,7 +5682,11 @@
+ 	iProductionValue += (adjustedYIELD_PRODUCTION * 14);
+ 	
+ 	// value commerce low(5 was 4)
+-	iCommerceValue += (aiYields[YIELD_COMMERCE] * 5);
++
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		iCommerceValue += ((iCommerceYields[iI] * 5) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++	}
+ 
+ 	if (bEmphasizeFood)
+ 	{
+@@ -5695,17 +5705,150 @@
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		// value commerce medium(40)
+-		iCommerceValue += (aiYields[YIELD_COMMERCE] * 40);
+-	}
+-
+-	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			iCommerceValue += ((iCommerceYields[iI] * 40) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++		}
++	}
++
++	for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 	{
+ 		if (AI_isEmphasizeCommerce((CommerceTypes) iJ))
+ 		{
+ 			// value the part of our commerce that goes to our emphasis medium (40)
+ 			iCommerceValue += (iCommerceYields[iJ] * 40);
+ 		}
++	}
++	
++	//Lets have some fun with the multipliers, this basically bluntens the impact of
++	//massive bonuses.....
++	
++	//normalize the production... this allows the system to account for rounding
++	//and such while preventing an "out to lunch smoking weed" scenario with
++	//unusually high transient production modifiers.
++	//Other yields don't have transient bonuses in quite the same way.
++	iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
++	iProductionValue *= iBaseProductionModifier;
++	iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
++	iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++	iValue += iProductionValue;
++	
++	
++	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
++	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
++	iValue += iCommerceValue;
++//	
++	iFoodValue *= 100;
++	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
++	iValue += iFoodValue;
++
++	
++	return iValue;
++}
++
++int CvCityAI::AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth)
++{
++	PROFILE_FUNC();
++
++	int aiYields[NUM_YIELD_TYPES];
++	int aiCommerceYields[NUM_COMMERCE_TYPES];
++	int iNewCityYield;
++	int iOldCityYield;
++	int iValue;
++	int iI, iJ;
++	int iModifier;
++	
++	int iExtraProductionModifier = 0;
++	int iBaseProductionModifier = 100;
++	
++	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
++	bool bFoodIsProduction = isFoodProduction();
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		aiCommerceYields[iI] = piCommerce[iI];
++	}
++
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		if (piYields[iI] == 0)
++		{
++			aiYields[iI] = 0;
++		}
++		else
++		{
++			// Get yield for city after adding/removing the citizen in question
++			iOldCityYield = getBaseYieldRate((YieldTypes)iI);
++			iNewCityYield = (bRemove ? (iOldCityYield - piYields[iI]) : (iOldCityYield + piYields[iI]));
++			
++			iModifier = getBaseYieldRateModifier((YieldTypes)iI);
++			if (iI == YIELD_PRODUCTION)
++			{
++				iBaseProductionModifier = iModifier;
++				iExtraProductionModifier = getProductionModifier();
++				iModifier += iExtraProductionModifier;
++			}
++
++			iNewCityYield = (iNewCityYield * iModifier) / 100;
++			iOldCityYield = (iOldCityYield * iModifier) / 100;
++
++			// The yield of the citizen in question is the difference of total yields
++			// to account for rounding of modifiers
++			aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++			
++			//Convert Commerce into COMMERCE_TYPES
++			if (iI == YIELD_COMMERCE)
++			{
++				aiYields[iI] = 0; 
++				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++				{
++				    iModifier = getTotalCommerceRateModifier((CommerceTypes)iJ);
++				    
++                    int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * iModifier) / 100;
++                    int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * iModifier) / 100;
++
++					aiCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++				}
++			}
++			
++			//Convert Production into COMMERCE_TYPES			
++			if (iI == YIELD_PRODUCTION)
++			{
++				if (isProductionProcess())
++				{					
++					aiYields[iI] = 0;
++					for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++					{
++						aiCommerceYields[iJ] += (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iJ)) * (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++					}
++				}
++			}
++		}
++	}
++
++	iValue = 0;
++	int iStuffValue = 0;
++	
++	int iProductionValue = 0;
++	int iCommerceValue = 0;
++	int iFoodValue = 0;
++	
++	if (bFoodIsProduction)
++	{
++		// if food is production, the count it
++		iProductionValue += aiYields[YIELD_FOOD] * 55;
++	}
++	else
++	{
++	
++		iFoodValue += 100 * aiYields[YIELD_FOOD];
++	}
++	
++	iProductionValue += aiYields[YIELD_PRODUCTION] * 55;
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		iCommerceValue += ((aiCommerceYields[iI] * 40) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
+ 	}
+ 	
+ 	//Lets have some fun with the multipliers, this basically bluntens the impact of
+@@ -5724,11 +5867,58 @@
+ 	
+ 	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
+ 	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+-	iValue += iCommerceValue;
+-	
+-	iFoodValue *= 100;
++	
++	iFoodValue *= (100 + AI_specialYieldMultiplier(YIELD_FOOD));
+ 	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
++	
++	iStuffValue += iProductionValue;
++	iStuffValue += iCommerceValue;
++	
++	iValue += iStuffValue;
+ 	iValue += iFoodValue;
++
++	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
++	{
++		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
++		int iFoodLevel = getFood();
++		int iFoodToGrow = growthThreshold();
++		int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 0);
++		int iHappinessLevel = (isNoUnhappiness() ? max(1, iHealthLevel + 3) : happyLevel() - unhappyLevel(0));
++		int iPopulation = getPopulation();
++		int iWorkingPopulation = getWorkingPopulation();
++		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
++		int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++
++		// if we not human, allow us to starve to half full if avoiding growth
++		int iStarvingAllowance = 0;
++		if (bAvoidGrowth && !isHuman())
++		{
++			iStarvingAllowance = max(0, (iFoodLevel - max(1, ((9 * iFoodToGrow) / 10))));
++		}
++		
++		// if still starving
++		if ((iFoodPerTurn + iStarvingAllowance) < 0)
++		{
++			// if working plots all like this one will save us from starving
++			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
++			{
++				// if this is high food, then we want to pick it first, this will allow us to pick some great non-food later
++				int iHighFoodThreshold = iConsumtionPerPop + 1;				
++				if (iFoodPerTurn <= -iHighFoodThreshold && aiYields[YIELD_FOOD] >= iHighFoodThreshold)
++				{
++					// value all the food that will contribute to not starving
++					iValue += 250 * (1 + min(aiYields[YIELD_FOOD], -iFoodPerTurn));
++				}
++				else
++				{
++					// give a huge boost to this plot, but not based on how much food it has
++					// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
++					iValue += 250;
++				}
++			}
++		}
++	}
++	
+ 	
+ 	return iValue;
+ }
+@@ -6637,8 +6827,8 @@
+ 		}
+ 	}
+ 
+-	if ((AI_countNumBonuses(NO_BONUS, false, true, 10) > 0)
+-		&& (getPopulation() > AI_countNumBonuses(NO_BONUS, true, false, -1)))
++	if ((AI_countNumBonuses(NO_BONUS, false, true, 10, true, true) > 0)
++		&& (getPopulation() > AI_countNumBonuses(NO_BONUS, true, false, -1, true, true)))
+ 	{
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+@@ -6983,26 +7173,12 @@
+ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ {
+ 	PROFILE_FUNC();
+-	int iI;
+ 	
+ 	int iMultiplier = getBaseYieldRateModifier(eYield);
+ 	
+ 	if (eYield == YIELD_PRODUCTION)
+ 	{
+ 		iMultiplier += (getMilitaryProductionModifier() / 2);
+-	}
+-	else if (eYield == YIELD_COMMERCE)
+-	{
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-		{
+-			if ((iI == COMMERCE_GOLD) || (iI == COMMERCE_RESEARCH))
+-			{
+-				//use the average of science and gold. To be strictly correct these should be
+-				//weighted by the *sustainable* slider allocation, using the present slider
+-				//is fallacious logic. However an average is probably good enough....
+-				iMultiplier += ((getTotalCommerceRateModifier((CommerceTypes)iI) - 100) / 2);
+-			}
+-		}
+ 	}
+ 	
+ 	return iMultiplier;	
+@@ -7022,7 +7198,7 @@
+ 	{
+ 		if (GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER_SEA)
+ 		{
+-			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 100;
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+ 		}
+ 		if ((GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER) ||
+@@ -7047,12 +7223,12 @@
+ 	{
+ 		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
+ 		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER)
++		if ((GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER) && getPopulation() >= 4)
+ 			|| (eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) 
+ 			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+ 		{
+-			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 40;
+-			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 30;	
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 10;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 40;
+ 		}
+ 	}
+ }
+@@ -7082,7 +7258,7 @@
+ 				{
+ 					if ((eBonus == NO_BONUS) || (eBonus == eLoopBonus))
+ 					{
+-						if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()))
++						if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) && (pLoopPlot->getWorkingCity() == this))
+ 						{
+ 							iCount++;                    
+ 						}
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@225
++++ /trunk/CvGameCoreDLL/CvCityAI.h@226
+@@ -149,6 +149,7 @@
+ 	bool AI_potentialPlot(short* piYields);
+ 	bool AI_foodAvailable(int iExtra = 0);
+ 	int AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
++	int AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth);
+ 	int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
+ 
+ 	int AI_experienceWeight();
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@225
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@226
+@@ -46,10 +46,11 @@
+ 				Name="VCCustomBuildTool"/>
+ 			<Tool
+ 				Name="VCLinkerTool"
+-				AdditionalDependencies="boost_python-vc71-mt-gd-1_32.lib winmm.lib"
+-				OutputFile="../Warlords/Assets/CvGameCoreDLL_DEBUG.dll"
++				AdditionalDependencies="boost_python-vc71-mt-gd-1_32.lib winmm.lib msvcprt.lib"
++				OutputFile="F:\Documents and Settings\Grater1\My Documents\My Games\Warlords\CustomAssets\CvGameCoreDLL.dll"
+ 				LinkIncremental="2"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
++				IgnoreDefaultLibraryNames="msvcprtd.lib"
+ 				GenerateDebugInformation="TRUE"
+ 				ProgramDatabaseFile="$(OutDir)/CvGameCoreDLL_DEBUG.pdb"
+ 				SubSystem="2"
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@225
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@226
+@@ -2208,6 +2208,13 @@
+ 					
+ 					szString += CvWString::format(L"\nCitySp:(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
+ 					
++					szString += CvWString::format(L"\nExchange");
++					for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++					{
++						iCommerce = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++						szTempBuffer.Format(L", %d%c", iCommerce, GC.getCommerceInfo((CommerceTypes) iI).getChar());
++						szString+=szTempBuffer;
++					}
+ 				}
+ 			}
+ 			else
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@225
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@226
+@@ -1014,11 +1014,7 @@
+                 iValue *= (iDistance + (iRange / 2));
+ 			    iValue /= (iRange + 1 + (iRange / 2));
+ 			}
+-//			if (iDistance < (iRange / 2))
+-//			{
+-//				iValue /= 2;
+-//			}
+-			if (iDistance <= CITY_PLOTS_RADIUS)
++			if (iDistance <= (CITY_PLOTS_RADIUS * 2))
+ 			{
+ 				iValue /= 2;
+ 			}
+@@ -1071,7 +1067,7 @@
+ 			iValue *= min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
+ 			iValue /= (NUM_CITY_PLOTS + 1);
+ 
+-			if (iNumPlayersOnArea == 2)
++			if (iNumPlayersOnArea <= 2)
+ 			{
+ 				iValue *= 4;
+ 				iValue /= 3;
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@225
++++ /trunk/CvGameCoreDLL/CvPlayer.h@226
+@@ -498,7 +498,7 @@
+ 
+ 	DllExport int getPopScore(bool bCheckVassal = true);																																				// Exposed to Python
+ 	void changePopScore(int iChange);																																		// Exposed to Python
+-	DllExport int getLandScore(bool bCheckVassal = true);																																				// Exposed to Python
++	DllExport int getLandScore(bool bCheckVassalF = true);																																				// Exposed to Python
+ 	void changeLandScore(int iChange);																																	// Exposed to Python
+ 	DllExport int getTechScore();																																				// Exposed to Python
+ 	void changeTechScore(int iChange);																																	// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@225
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@226
+@@ -98,6 +98,7 @@
+ 	
+ 	m_aiAverageYieldMultiplier = new int[NUM_YIELD_TYPES];
+ 	m_aiAverageCommerceMultiplier = new int[NUM_COMMERCE_TYPES];
++	m_aiAverageCommerceExchange = new int[NUM_COMMERCE_TYPES];
+ 
+ 	AI_reset();
+ }
+@@ -132,6 +133,7 @@
+ 	
+ 	SAFE_DELETE_ARRAY(m_aiAverageYieldMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceMultiplier);
++	SAFE_DELETE_ARRAY(m_aiAverageCommerceExchange);
+ }
+ 
+ 
+@@ -212,6 +214,7 @@
+ 	for (iI = 0; iI< NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		m_aiAverageCommerceMultiplier[iI] = 0;
++		m_aiAverageCommerceExchange[iI] = 0;
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
+ 	m_iAveragesCacheTurn = -1;
+@@ -1281,7 +1284,10 @@
+ {
+ 	int iWeight;
+ 
+-	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent(); 
++	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent();
++	
++	//sorry but the merchant descrimination must stop.
++	iWeight = min(101, iWeight);
+ 
+ 	if (eCommerce == COMMERCE_RESEARCH)
+ 	{
+@@ -1972,52 +1978,9 @@
+ 		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
+-//		    int iTotalDist = 0;
+-//		    int iTotalCount = 0;
+-//		    int iMinDist = MAX_INT;
+-//		    int iMinStartDist = startingPlotRange();
+-//		    int iClosePenalty = 1000;
+-//            for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-//            {
+-//                if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-//                {
+-//                    CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-//
+-//                    if (pStartingPlot != NULL)
+-//                    {
+-//                        int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
+-//                        iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
+-//                        iDist = min(iDist, iMinStartDist * 2);
+-//                        iTotalDist += iDist;
+-//                        iTotalCount++;
+-//                        
+-//                        iMinDist = min(iDist, iMinDist);
+-//                        
+-//                        iClosePenalty *= min(iDist, iMinStartDist);
+-//                        iClosePenalty /= iMinStartDist;
+-//                    }
+-//                }
+-//            }
+-//            
+-//            //This generally encourages distant starts
+-//            iValue *= (iMinStartDist + iTotalDist);
+-//            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
+-//            
+-////            //This specifically pushes apart close starts
+-////            iValue *= iClosePenalty + 100;
+-////            iValue /= 1000 + 100;
+-////            iValue *= iClosePenalty + 100;
+-////            iValue /= 1000 + 100;
+-////            
+-////            //further decimate the value for very close starts.
+-////            if (iMinDist < 5)
+-////            {
+-////                iValue /= 10;
+-////            }
+-//            
+             if (pPlot->getBonusType() != NO_BONUS)
+             {
+-                iValue /= 2;                
++                iValue /= 2;
+             }
+ 		}
+ 	}
+@@ -4745,6 +4708,8 @@
+ 
+ 	iHumanDealWeight = AI_dealVal(ePlayer, pTheirList);
+ 	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList);
++	
++	int iGoldValuePercent = AI_goldTradeValuePercent();
+ 
+ 	pTheirCounter->clear();
+ 	pOurCounter->clear();
+@@ -4831,11 +4796,15 @@
+ 			if (pGoldNode)
+ 			{
+ 				iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++				if ((iGoldData * iGoldValuePercent) < iGoldWeight)
++				{
++					iGoldData++;
++				}
+ 				if (GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += iGoldWeight;
++					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -4919,14 +4888,19 @@
+ 			if (pGoldNode)
+ 			{
+ 				iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++				
++				if ((iGoldWeight * 100) > (iGoldData * iGoldValuePercent))
++				{
++					iGoldData++;
++				}
+ 
+ 				iGoldData = min(iGoldData, GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()));
+ 
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += (iGoldData * AI_goldTradeValuePercent()) / 100;
++					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -5105,11 +5079,12 @@
+ 			if (pGoldNode)
+ 			{
+ 				int iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++
+ 				if (AI_maxGoldTrade(ePlayer) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += (iGoldData * AI_goldTradeValuePercent());
++					iAIDealWeight += ((iGoldData * iGoldValuePercent) / 100);
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -10371,6 +10346,20 @@
+ 	return m_iAverageGreatPeopleMultiplier;	
+ }
+ 
++//"100 eCommerce is worth (return) raw YIELD_COMMERCE
++int CvPlayerAI::AI_averageCommerceExchange(CommerceTypes eCommerce)
++{
++	FAssert(eCommerce > -1);
++	FAssert(eCommerce < NUM_COMMERCE_TYPES);
++	
++	if (m_iAveragesCacheTurn != GC.getGameINLINE().getGameTurn())
++	{
++		AI_calculateAverages();
++	}
++	
++	return m_aiAverageCommerceExchange[eCommerce];
++}
++
+ void CvPlayerAI::AI_calculateAverages()
+ {
+ 	CvCity* pLoopCity;
+@@ -10386,7 +10375,7 @@
+ 	}
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+-		m_aiAverageCommerceMultiplier[iI] = 0;		
++		m_aiAverageCommerceMultiplier[iI] = 0;	
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
+ 	
+@@ -10395,22 +10384,19 @@
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		iPopulation = max(pLoopCity->getPopulation(), NUM_CITY_PLOTS);
+-		
+-		if (iPopulation > 0)
+-		{
+-			iTotalPopulation += iPopulation;
++		iTotalPopulation += iPopulation;
+ 			
+-			for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+-			{
++		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
+ 			m_aiAverageYieldMultiplier[iI] += iPopulation * pLoopCity->AI_yieldMultiplier((YieldTypes)iI);
+ 		}
+-			for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-			{
+-				m_aiAverageCommerceMultiplier[iI] += iPopulation * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI);
+-		}
+-			m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
+-		}
+-	}	
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_aiAverageCommerceMultiplier[iI] += iPopulation * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI);
++		}
++		m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
++	}
++	
+ 	
+ 	if (iTotalPopulation > 0)
+ 	{
+@@ -10438,6 +10424,48 @@
+ 			m_aiAverageCommerceMultiplier[iI] = 100;
+ 		}
+ 		m_iAverageGreatPeopleMultiplier = 100;
++	}
++	
++	
++	//Calculate Exchange Rate
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		m_aiAverageCommerceExchange[iI] = 0;		
++	}
++	
++	int iCommerce = 0;
++	int iTotalCommerce = 0;
++	
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		iCommerce = pLoopCity->getYieldRate(YIELD_COMMERCE);
++		iTotalCommerce += iCommerce;
++		
++		int iExtraCommerce = 0;
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			iExtraCommerce +=((pLoopCity->getSpecialistPopulation() + pLoopCity->getNumGreatPeople()) * getSpecialistExtraCommerce((CommerceTypes)iI));
++			iExtraCommerce += (pLoopCity->getBuildingCommerce((CommerceTypes)iI) + pLoopCity->getSpecialistCommerce((CommerceTypes)iI) + pLoopCity->getReligionCommerce((CommerceTypes)iI) + getFreeCityCommerce((CommerceTypes)iI));
++		}
++		iTotalCommerce += iExtraCommerce;
++		
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_aiAverageCommerceExchange[iI] += ((iCommerce + iExtraCommerce) * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI)) / 100;		
++		}
++	}
++
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		if (m_aiAverageCommerceExchange[iI] > 0)
++		{
++			m_aiAverageCommerceExchange[iI] = (100 * iTotalCommerce) / m_aiAverageCommerceExchange[iI];
++		}
++		else
++		{
++			m_aiAverageCommerceExchange[iI] = 100;
++		}
+ 	}
+ 
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@225
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@226
+@@ -242,6 +242,7 @@
+ 	int AI_averageYieldMultiplier(YieldTypes eYield);
+ 	int AI_averageCommerceMultiplier(CommerceTypes eCommerce);
+ 	int AI_averageGreatPeopleMultiplier();
++	int AI_averageCommerceExchange(CommerceTypes eCommerce);
+ 	
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+@@ -266,6 +267,7 @@
+ 	
+ 	int *m_aiAverageYieldMultiplier;
+ 	int *m_aiAverageCommerceMultiplier;
++	int *m_aiAverageCommerceExchange;
+ 	
+ 	
+ 	int *m_aiNumTrainAIUnits;
+

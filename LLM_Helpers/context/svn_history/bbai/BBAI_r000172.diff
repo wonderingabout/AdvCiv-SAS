@@ -1,0 +1,408 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 172
+# Author: iustus
+# Date: 2006-12-12T03:56:15.068807Z
+# Coverage: full
+# Message:
+#   AI_bestTech changes: improvements for bonus resources counted correctly again, sea based units do not count at all if there are no coastal cities
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@171
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@172
+@@ -2822,7 +2822,7 @@
+ 										}
+ 										else
+ 										{
+-											// only increment build value if it is not an improvement, otherwise hand it there
++											// only increment build value if it is not an improvement, otherwise handle it there
+ 											iBuildValue += 200;
+ 										}
+ 
+@@ -2857,38 +2857,30 @@
+ 												iTempValue += (kImprovement.getHillsYieldChange(iK) * 100);
+ 												iTempValue += (kImprovement.getIrrigatedYieldChange(iK) * 150);
+ 
++												// land food yield is more valueble
++												if (iK == YIELD_FOOD && !kImprovement.isWater())
++												{
++													iTempValue *= 3;
++													iTempValue /= 2;
++												}
++
+ 												iTempValue *= AI_yieldWeight((YieldTypes)iK);
+ 												iTempValue /= 100;
+ 
+ 												iImprovementValue += iTempValue;
+ 											}
+ 											
+-											int iBestUnownedBonusValue = 0;
+ 											for (iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 											{
+ 												iBonusValue = 0;
+ 
+-												iTempValue = 0;
+-
+-												iTempValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 30 : 0);
+-												iTempValue += ((kImprovement.isImprovementBonusTrade(iK)) ? 60 : 0);
+-
+-//												if (iTempValue > 0)
+-//												{
+-//													TechTypes eBonusRevealTech = (TechTypes) GC.getBonusInfo((BonusTypes) iK).getTechReveal();
+-//													bool bCanUseBonus = (((TechTypes) iI) == eBonusRevealTech || GET_TEAM(getTeam()).isHasTech(eBonusRevealTech));
+-//													int iMultiplier = AI_bonusVal((BonusTypes) iK);
+-//													
+-//													// if we are not going to be able to use this bonus, cap its multiplier
+-//													if (!bCanUseBonus)
+-//													{
+-//														iMultiplier = min(iMultiplier/2, 8);
+-//													}
+-//													
+-//													iTempValue *= iMultiplier;
+-//
+-//													iBonusValue += iTempValue;
+-//												}
++												iBonusValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 30 : 0);
++												iBonusValue += ((kImprovement.isImprovementBonusTrade(iK)) ? 60 : 0);
++
++												if (iBonusValue > 0)
++												{
++													iBonusValue *= AI_bonusVal((BonusTypes) iK);
++												}
+ 
+ 												for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
+ 												{
+@@ -2896,12 +2888,18 @@
+ 
+ 													iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
+ 
+-													// land food bonuses are super valueble!
++													// land food bonuses are more valueble
+ 													if (iL == YIELD_FOOD && !kImprovement.isWater())
+ 													{
+ 														iTempValue *= 3;
+ 														iTempValue /= 2;
+ 													}
++													// otherwise, devalue the bonus slightly
++													else
++													{
++														iTempValue *= 3;
++														iTempValue /= 4;
++													}
+ 
+ 													iTempValue *= AI_yieldWeight((YieldTypes)iL);
+ 													iTempValue /= 100;
+@@ -2911,7 +2909,7 @@
+ 
+ 												if (iBonusValue > 0)
+ 												{
+-													iNumBonuses = countOwnedBonuses((BonusTypes)iK);
++													iNumBonuses = countOwnedBonuses((BonusTypes) iK);
+ 
+ 													if (iNumBonuses > 0)
+ 													{
+@@ -2920,23 +2918,9 @@
+ 
+ 														iImprovementValue += iBonusValue;
+ 													}
+-//													else 
+-//													{
+-//														//// weight based on how common the resource is (rare bonuses likely are not close)
+-//														//iBonusValue *= GC.getMapINLINE().getNumBonuses((BonusTypes)iK);
+-//														//iBonusValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
+-//														
+-//														if (iBonusValue > iBestUnownedBonusValue)
+-//														{
+-//															iBestUnownedBonusValue = iBonusValue;
+-//														}
+-//													}
+ 												}
+ 											}
+ 											
+-											// if tech gives improvement that improves bonuses we dont have, pick the most valueble bonus and count that one
+-											//iImprovementValue += iBestUnownedBonusValue / 30;
+-
+ 											// if water improvement, weight by coastal cities (weight the whole build)
+ 											if (kImprovement.isWater())
+ 											{
+@@ -3054,12 +3038,13 @@
+ 									{
+ 										if (isTechRequiredForUnit(((TechTypes)iI), eLoopUnit))
+ 										{
+-											iValue += 200;
+-
+-                                            if ((GC.getUnitClassInfo((UnitClassTypes)iJ).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)))
++                                            const int iBaseUnitValue = 200;
++											int iUnitValue = 0;
++											
++											if ((GC.getUnitClassInfo((UnitClassTypes)iJ).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)))
+                                             {
+                                                 //UU
+-                                                iValue += 600;
++                                                iUnitValue += 600;
+                                             }
+ 
+ 											if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == iI)
+@@ -3070,66 +3055,73 @@
+ 												{
+ 												case UNITAI_UNKNOWN:
+ 												case UNITAI_ANIMAL:
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_SETTLE:
+-													iValue += 1200;
++													iUnitValue += 1200 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_WORKER:
+-													iValue += 800;
++													iUnitValue += 800 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ATTACK:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+-													iValue += 100;
++													iUnitValue += 100 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ATTACK_CITY:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+-													iValue += 100;
++													iUnitValue += 100 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_COLLATERAL:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 500 : 0);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_PILLAGE:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_RESERVE:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_COUNTER:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 600 : 0);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_DEFENSE:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
+ 													iMilitaryValue += ((!bCapitalAlone) ? 400 : 200);
+-													iValue += ((iHasMetCount > 0) ? 800 : 200);
++													iUnitValue += ((iHasMetCount > 0) ? 800 : 200) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_COUNTER:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_SPECIAL:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_EXPLORE:
+-													iValue += ((bCapitalAlone) ? 100 : 200);
++													iUnitValue += ((bCapitalAlone) ? 100 : 200) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_MISSIONARY:
+-													iValue += ((getStateReligion() != NO_RELIGION) ? 600 : 300);
++													iUnitValue += ((getStateReligion() != NO_RELIGION) ? 600 : 300) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_PROPHET:
+@@ -3138,20 +3130,24 @@
+ 												case UNITAI_GENERAL:
+ 												case UNITAI_MERCHANT:
+ 												case UNITAI_ENGINEER:
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_SPY:
+ 													iMilitaryValue += ((bWarPlan) ? 100 : 50);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ICBM:
+ 													iMilitaryValue += ((bWarPlan) ? 100 : 50);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_WORKER_SEA:
+ 													if (iCoastalCities > 0)
+ 													{
+-														iValue += 400;
++														// note, workboat improvements are already counted in the improvement section above
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3160,6 +3156,7 @@
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 200 : 100);
+ 														iMilitaryValue += 100;
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3167,6 +3164,7 @@
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3174,13 +3172,14 @@
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_EXPLORE_SEA:
+ 													if (iCoastalCities > 0)
+ 													{
+-														iValue += ((bCapitalAlone) ? 1800 : 600);
++														iUnitValue += ((bCapitalAlone) ? 1800 : 600) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3188,20 +3187,21 @@
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan || bCapitalAlone) ? 400 : 200);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_SETTLER_SEA:
+ 													if (iCoastalCities > 0)
+ 													{
+-														iValue += ((bWarPlan || bCapitalAlone) ? 200 : 100);
++														iUnitValue += ((bWarPlan || bCapitalAlone) ? 200 : 100) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_MISSIONARY_SEA:
+ 													if (iCoastalCities > 0)
+ 													{
+-														iValue += 100;
++														iUnitValue += 100 + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3209,6 +3209,7 @@
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += 100;
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3216,21 +3217,25 @@
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ATTACK_AIR:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_DEFENSE_AIR:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CARRIER_AIR:
+ 													if (iCoastalCities > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -3250,24 +3255,28 @@
+ 													iMilitaryValue /= 3;
+ 												}
+ 
+-												iValue += iMilitaryValue;
++												iUnitValue += iMilitaryValue;
+ 
+ 												if (AI_totalUnitAIs((UnitAITypes)(GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType())) == 0)
+ 												{
+-													iValue += 200;
++													// do not give bonus to seagoing units if they are worthless
++													if (iUnitValue > 0)
++													{
++														iUnitValue += 200;
++													}
+ 
+ 													if (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == UNITAI_EXPLORE)
+ 													{
+ 														if (pCapitalCity != NULL)
+ 														{
+-															iValue += (AI_neededExplorers(pCapitalCity->area()) * 400);
++															iUnitValue += (AI_neededExplorers(pCapitalCity->area()) * 400);
+ 														}
+ 													}
+ 
+ 													if (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+ 													{
+-														iValue += 400;
+-														iValue += ((GC.getGameINLINE().countCivTeamsAlive() - iHasMetCount) * 200);
++														iUnitValue += 400;
++														iUnitValue += ((GC.getGameINLINE().countCivTeamsAlive() - iHasMetCount) * 200);
+ 													}
+ 												}
+ 
+@@ -3279,16 +3288,13 @@
+ 														{
+ 															if (!(GC.getGameINLINE().isUnitClassMaxedOut((UnitClassTypes)iJ)))
+ 															{
+-																iValue += ((bAsync) ? GC.getASyncRand().get(400, "AI Research Wonder Unit ASYNC") : GC.getGameINLINE().getSorenRandNum(400, "AI Research Wonder Unit"));
+-
+-																if (bCapitalAlone)
+-																{
+-																	iValue += 200;
+-																}
++																bEnablesUnitWonder = true;
+ 															}
+ 														}
+ 													}
+ 												}
++
++												iValue += iUnitValue;
+ 											}
+ 										}
+ 									}
+@@ -3296,7 +3302,7 @@
+ 								if (bEnablesUnitWonder)
+ 								{
+ 									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(400, "AI Research Wonder Unit ASYNC") : GC.getGameINLINE().getSorenRandNum(400, "AI Research Wonder Unit"));
+-									iValue += iWonderRandom;
++									iValue += iWonderRandom + (bCapitalAlone ? 200 : 0);
+ 
+ 									iRandomMax += 400;
+ 									iRandomFactor += iWonderRandom;
+

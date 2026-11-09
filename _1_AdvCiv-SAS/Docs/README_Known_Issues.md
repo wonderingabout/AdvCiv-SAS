@@ -935,6 +935,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#769 - (Fixed inherited AdvCiv projection regression) Civilian unit changes also altered projected military upkeep](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-769)\
 [KI#770 - (Provisional Pending inherited BtS colony-lifecycle defect) A dead player on a live team can be revived as a malformed colony](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-770)\
 [KI#771 - (Fixed inherited AdvCiv Rise & Fall cache regression) Controller changes retained the former Settler production cost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-771)\
+[KI#771.2 - (Fixed inherited BBAI AI Auto Play cache bug, KI#771 follow-up) Settlers retained the previous controller's production cost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-771.2)\
 [KI#772 - (Provisional Pending inherited AdvCiv message-state defect) Hidden observers downgrade later visible Great Person announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-772)\
 [KI#773 - (Provisional Pending inherited AdvCiv Globe arithmetic regression) Military strength is divided by combat strength](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-773)\
 [KI#774 - (Fixed inherited BBAI/K-Mod area-filter omission) Missionaries being trained on other land areas suppressed local production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-774)\
@@ -19369,6 +19370,8 @@ In a much earlier in-game test from around the first AdvCiv-SAS commits, the use
 
 Compare both starts with an uninterrupted control and inspect the first change in attacker position, defender groups, city safety or synchronized RNG before attributing it to the same handoff effects.
 
+The T50 city delta identifies a concrete difference in player 0 city 8192. With uninterrupted AI control, it recorded worked Food/Production of 9/4 and a Longbowman cost of 36. After handoff, it recorded 10/3 and a cost of 40, with 17 production already stored in both runs. Unit and group fingerprints still matched at end of turn.
+
 <a id="ki-204"></a>
 
 ## KI#204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test
@@ -32733,6 +32736,98 @@ Found during ChatGPT-5.6-Sol's C031-WIP156 `CvPlayer.cpp` deep re-audit and prep
 Compiled successfully and validated through a complete Large Continents Debug-opt autoplay ending in a turn-383 Space Race victory.
 
 A separate Rise & Fall test then reached the turn-73 chapter handoff and showed the newly human-controlled Indian civilization's Settler at the expected refreshed cost of 100 production; see screenshots `Civ4ScreenShot0482.JPG` and `Civ4ScreenShot0483.JPG`, with the session identified by `SASGameRecord_20260907T165939Z_new2.log`.
+
+<a id="ki-771.2"></a>
+
+## KI#771.2 - (Fixed inherited BBAI AI Auto Play cache bug, KI#771 follow-up) Settlers retained the previous controller's production cost
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/19GyQa64xBGKhgyFPgGurwDh29NjEra27?usp=sharing).
+
+The control-handoff audit after SASGameRecord revision 193 found that AI Auto Play switches the active player through `CvPlayer::setHumanDisabled`, not `CvPlayer::setIsHuman`.
+
+`setHumanDisabled` changes `isHuman()` through `updateHuman()` and calls `AI_setHuman`, but it did not rebuild the controller-dependent founding-unit surcharge cache added to KI#771's repair. Entering or leaving AI Auto Play could therefore retain the previous human/AI Settler production cost even though the live controller state had changed.
+
+Fixed by refreshing `updateFoundingUnitExtraCosts()` after the final human/AI state and `AI_setHuman` handoff, matching `setIsHuman`'s KI#771 ordering without adding a separate formula or cache path.
+
+Found during ChatGPT-5.6-Sol's 2026-11-09 control-handoff/SASGameRecord follow-up audit.
+
+Tracing where the bug came from then led further back.
+
+`setHumanDisabled` switches human status without rebuilding the stored founding-unit cost, whose population component calls `getGrowthThreshold` and can depend on whether the player is human.
+
+AdvCiv had retained the autoplay path and added an explicit controller-dependent training modifier and rounding to the cost calculation (`bf48af8b3`, 2019-01-21). SAS's earlier KI#771 repair (`4a764a16e`, 2026-09-07) covered the Rise & Fall controller and handicap setters, leaving the inherited autoplay path untouched.
+
+The earliest K-Mod snapshot in this history (`2414225e6`, 2010-12-27) retains both pieces, so the stale-cache combination predates K-Mod.
+
+That prompted a deeper look at history older than K-Mod, using the full SourceForge repository f1rpo had pointed us to.
+
+The Better BTS AI SVN history is exported to `LLM_Helpers/context/svn_history/bbai/`. Stock BtS (Civ4CE) has the stored cost and the human-dependent growth threshold but no autoplay switch. Its `CvGame::setAIAutoPlay` instead kills the active player's units and cities when autoplay starts.
+
+Both pieces first appear together in r379 (2008-08-07), jdog5000's "Better BTS AI code submission", following the r378 load of release 0.35.
+
+r379 is that import rather than the original edit, so it is the earliest evidence and not the introducing change. The `AI_AUTO_PLAY_MOD` comment it adds is dated 7/9/08, and `setHumanDisabled` already carries `//MRGENIE fix for BtS 3.13`, so the switch's first authorship predates the SVN record and remains unverified.
+
+Later revisions edited around the switch (r382, r403, r524) without adding a refresh, and `setHumanDisabled` in the final r597 still only calls `updateHuman`.
+
+That full history is now available for grepping in `LLM_Helpers/context/svn_history/bbai/`, as described under [comparison sources](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#comparison-sources) and [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
+
+The pre-fix autoplay record `SASGameRecord_20261109T112500Z_load2.log` (Monarch, Normal speed) shows the effect: during autoplay the active player's Settlers needed 100 production (T45, T89), while every AI player's needed 92.
+
+That difference is the human-versus-AI handicap difference, so the fault was the controller, not the amount: the autoplay-controlled player was charged the human price. Only founding units are affected, because Settlers have no base cost and their whole price is this cached value; the same record shows every other unit and building at the AI price.
+
+The fix was confirmed in `SASGameRecord_20261109T201303Z_load1.log`, an autoplay on the rebuilt DLL: the active player's Settlers needed 92, the same as every AI player's.
+
+Completed-item costs from the two autoplay records, for items the active player built, with the most common AI price:
+
+| Item | Before: active player | Before: AI | After: active player | After: AI |
+| --- | --- | --- | --- | --- |
+| `UNIT_ARCHER` | 22 | 22 | 22 | 22 |
+| `UNIT_CATAPULT` | 45 | 45 | 45 | 45 |
+| `UNIT_CROSSBOWMAN` | - | 58 | 58 | 58 |
+| `UNIT_GALLEON` | - | 63 | 63 | 63 |
+| `UNIT_GALLEY` | 40 | 40 | 40 | 40 |
+| `UNIT_LONGBOWMAN` | 36 | 36 | 36 | 36 |
+| `UNIT_MACEMAN` | 58 | 58 | 58 | 58 |
+| `UNIT_PIKEMAN` | - | 67 | 67 | 67 |
+| `UNIT_SCOUT` | 13 | 13 | 13 | 13 |
+| `UNIT_SETTLER` | 100 | 92 | 92 | 92 |
+| `UNIT_SPY` | 27 | 27 | 27 | 27 |
+| `UNIT_TREBUCHET` | 72 | 72 | 72 | 72 |
+| `UNIT_WORKER` | 54 | 54 | 54 | 54 |
+| `BUILDING_BANK` | - | 180 | 180 | 180 |
+| `BUILDING_BARRACKS` | 45 | 45 | 45 | 45 |
+| `BUILDING_CASTLE` | - | 117 | 117 | 117 |
+| `BUILDING_FORGE` | - | 90 | 90 | 90 |
+| `BUILDING_GRANARY` | 40 | 40 | 40 | 40 |
+| `BUILDING_HARBOR` | 45 | 45 | - | 45 |
+| `BUILDING_IRELAND_MUILEANN_UISCE` | - | - | 81 | - |
+| `BUILDING_JAIL` | - | 99 | 99 | 99 |
+| `BUILDING_LIBRARY` | 72 | 72 | 72 | 72 |
+| `BUILDING_MARKET` | - | 99 | 99 | 99 |
+| `BUILDING_PAGAN_TEMPLE` | - | 72 | 72 | 72 |
+| `BUILDING_UNIVERSITY` | - | 171 | 171 | 171 |
+| `BUILDING_WALLS` | - | 45 | 45 | 45 |
+
+After that autoplay returned control at T201, the city screens showed the refreshed human price: a Settler cost 100 in the human Dublin and 92 in the AI's Carthage; see screenshots `Civ4ScreenShot3239.JPG` and `Civ4ScreenShot3240.JPG`.
+
+A Courthouse, priced live, cost 110 and 99 in the same two cities, the expected Monarch AI discount of 90%; see screenshots `Civ4ScreenShot3241.JPG` and `Civ4ScreenShot3242.JPG`.
+
+Replaying the same T0 save before and after the fix (`SASGameRecord_20261109T112500Z_load2.log` and `SASGameRecord_20261109T201303Z_load1.log`) shows when history changed. The two runs match through T43 in synchronized RNG state and every end-of-turn state fingerprint.
+
+They split at T44, when the active player's first Settler, 8 production cheaper, finished one turn earlier than the T45 of the earlier run.
+
+| At T200 | Before the fix | After the fix |
+| --- | --- | --- |
+| Active player's Settlers built | 2 (T45, T89) | 5 (T44, T103, T133, T168, T185) |
+| Active player's cities | 1 | 5 |
+| Active player's score | 410 | 735 |
+| Leader | Player 10 (1528) | Player 14 (1465) |
+| Total cities | 85 | 87 |
+| Total units | 799 | 775 |
+
+Only the earlier first Settler is a direct effect of the fix. The later differences follow from two games diverging at T44, so this single pair of runs does not measure how much the fix helps.
+
+The origin trace was done by Codex (GPT-6.1-Sol) and Claude Code Opus 5.5, with the SVN history export by Claude Code Opus 5.5.
 
 <a id="ki-772"></a>
 

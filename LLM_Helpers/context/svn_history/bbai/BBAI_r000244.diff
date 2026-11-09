@@ -1,0 +1,25 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 244
+# Author: blakeciv
+# Date: 2007-01-06T09:50:13.615491Z
+# Coverage: full
+# Message:
+#   I guess it wouldn't hurt for the AI to target barb cities.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@243
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@244
+@@ -11149,8 +11149,7 @@
+ 	{
+ 		if (atPlot(pBestPlot))
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP);
+-			return true;
++			return false;
+ 		}
+ 		else
+ 		{
+

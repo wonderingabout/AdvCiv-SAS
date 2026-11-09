@@ -1,0 +1,380 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 154
+# Author: blakeciv
+# Date: 2006-12-08T06:34:19.888836Z
+# Coverage: full
+# Message:
+#   Fixed a bug which led to the governor choosing tiles with inferior yield.
+#   Fixed the bug where units will get stuck after losing their target. This may have side effects.
+#   Fixed a bug where City Attack UU's were penalized due to also having the City Defense AI (ie Sword UU's).
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@153
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@154
+@@ -462,6 +462,8 @@
+         {
+             // try to spawn a prophet for any shrines we have yet to build
+             bool bNeedProphet = false;
++            int iBestSpreadValue = 0;
++
+ 			
+ 			for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
+             {
+@@ -487,24 +489,20 @@
+ 							if (GC.getUnitInfo(eGreatPeopleUnit).getBuildings(eBuilding) || GC.getUnitInfo(eGreatPeopleUnit).getForceBuildings(eBuilding))
+ 							{
+ 								bNeedProphet = true;
+-								break;
++								iBestSpreadValue = max(iBestSpreadValue, GC.getGameINLINE().countReligionLevels(eReligion));
+ 							}
+ 						}
+ 				
+ 					}
+ 				}
+-				
+-				// stop loop if know we need one
+-				if (bNeedProphet)
+-					break;
+ 			}
+ 
+ 			if (bNeedProphet)
+             {
+-                iTempValue += (iGreatPeopleRate * 4);
++                iTempValue += ((iGreatPeopleRate * iBestSpreadValue));
+                 if (AI_isEmphasizeGreatPeople())
+                 {
+-                    iTempValue += (iGreatPeopleRate * 8);
++                    iTempValue += (iGreatPeopleRate * iBestSpreadValue);
+                 }
+             }
+ 		}
+@@ -1909,14 +1907,14 @@
+ 									DEBUGLOG("[+%d]", iTempValue);
+ #endif
+ 
+-									iValue += iTempValue;
+-
+-									if (AI_isEmphasizeYield(YIELD_FOOD))
+-									{
+-										// Building the Wonder will no longer emphasize food, so we will gain production
+-										iTurnsLeft *= 2;
+-										iTurnsLeft /= 3;
+-									}
++									iValue += (iTempValue * 2) / 3;
++
++//									if (AI_isEmphasizeYield(YIELD_FOOD))
++//									{
++//										// Building the Wonder will no longer emphasize food, so we will gain production
++//										iTurnsLeft *= 2;
++//										iTurnsLeft /= 3;
++//									}
+ 								}
+ 							}
+ 
+@@ -5189,9 +5187,6 @@
+ 
+ 	if (eCurrentImprovement != NO_IMPROVEMENT)
+ 	{
+-		// prefer to use improved tiles
+-		iValue += 925;
+-		
+ 		if (pPlot->getBonusType(getTeam()) == NO_BONUS) // XXX double-check CvGame::doFeature that the checks are the same...
+ 		{
+ 			for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+@@ -5209,20 +5204,15 @@
+ 
+ 	if ((eCurrentImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
+ 	{
+-		iValue += 125;
+-
+-		iValue += pPlot->getUpgradeProgress();
++		iValue += 100;
++
++		iValue += pPlot->getUpgradeProgress() * 5;
+ 
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_isCommercePlot(pPlot))
+ 		{
+ 			iValue += 200;
+ 		}
+ 	}
+-	// removed, why would you want to prefer non-improved tiles?
+-	//else if (pPlot->getImprovementType() == NO_IMPROVEMENT)
+-	//{
+-	//	iValue++;
+-	//}
+ 
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@153
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@154
+@@ -1571,10 +1571,14 @@
+                 iCultureMultiplier = 100 * (iOurCulture + iClaimThreshold);
+                 iCultureMultiplier /= (iOtherCulture + iClaimThreshold);
+                 iCultureMultiplier = min(100, iCultureMultiplier);
++                //The multiplier is basically normalized...
++                //100% means we own (or rightfully own) the tile.
++                //50% means the hostile culture is fairly firmly entrenched.
+             }
+             
+             if (iCultureMultiplier < ((iNumAreaCities > 0) ? 25 : 50))
+             {
++                //discourage hopeless cases, especially on other continents.
+                 iTakenTiles += (iNumAreaCities > 0) ? 1 : 2;
+             }
+ 
+@@ -1654,6 +1658,8 @@
+                     iTempValue += bIsCoastal ? 30 : -20;
+                     if (bStartingLoc)
+                     {
++                        // I'm pretty much forbidding starting 1 tile inland non-coastal.
++                        // with more than a few coast tiles.
+                         iTempValue += bIsCoastal ? 0 : -400;
+                     }
+                 }                
+@@ -1684,7 +1690,7 @@
+ 			
+ 			iValue += iTempValue;
+ 			
+-			if (iCultureMultiplier > 33)
++			if (iCultureMultiplier > 33) //ignore hopelessly entrenched tiles.
+ 			{
+                 if (eFeature != NO_FEATURE)
+                 {
+@@ -1855,6 +1861,7 @@
+ 				}
+ 			}
+ 		}
++		
+ 		iGreaterBadTile /= 2;
+ 		if (iGreaterBadTile > 8)
+ 		{
+@@ -1886,6 +1893,7 @@
+ 		
+ 		if (iLandCount < 12)
+ 		{
++		    //discourage very water-heavy starts.
+ 		    iValue *= 1 + iLandCount;
+ 		    iValue /= 13;
+ 		}
+@@ -1902,7 +1910,7 @@
+ 			iValue += (pPlot->getMinOriginalStartDist() * 100);
+ 		}
+ 		
+-		//nice hacky way to avoid this messing with normalizer
++		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
+ 		    int iTotalDist = 0;
+@@ -1915,15 +1923,21 @@
+ 
+                     if (pStartingPlot != NULL)
+                     {		
+-                        if (pStartingPlot->area() == pPlot->area())
++                        int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
++                        iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
++                        
++                        if (iDist > 8)
+                         {
+-                            iTotalDist += plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());                        
+-                            iTotalCount++;
++                            iDist = 4 + ((iDist + 1) / 2);
+                         }
++                        iTotalDist += iDist;
++                        iTotalCount++;
+                     }
+                 }
+             }
+             
++            //maybe this could be normalized by map size better or something. 
++            //is the effect too strong?
+             iValue *= (10 + iTotalDist);
+             iValue /= (10 + 10 * iTotalCount);
+ 		}
+@@ -1979,6 +1993,27 @@
+ 
+         iValue *= 100 + 20 * max(0, min(iFoodSurplus, 2 * GC.getFOOD_CONSUMPTION_PER_POPULATION()));
+         iValue /= 100 + 20 * max(0, iFoodDeficit);
++	}
++	
++	if (!bStartingLoc)
++	{
++	    int iBonusCount = 0;
++	    int iUniqueBonusCount = 0;
++	    for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	    {
++	        iBonusCount += paiBonusCount[iI];
++	        iUniqueBonusCount += (paiBonusCount[iI] > 0) ? 1 : 0;
++	    }
++	    if (iBonusCount > 4)
++	    {
++	        iValue *= 5;
++	        iValue /= (1 + iBonusCount);
++	    }
++	    else if (iUniqueBonusCount > 2)
++	    {
++	        iValue *= 5;
++	        iValue /= (3 + iUniqueBonusCount);	        
++	    }
+ 	}
+ 	
+ 	iValue /= (1 + AI_countDeadlockedBonuses(pPlot));
+@@ -9414,7 +9449,7 @@
+ 	    int iDagger = 0;
+ 	    int iAttackUnitCount = 0;
+ 	    iDagger += 3000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+-	    iDagger += 4 * AI_getFlavorValue(AI_FLAVOR_MILITARY);
++	    iDagger += 5 * AI_getFlavorValue(AI_FLAVOR_MILITARY);
+ 	    
+         for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+         {
+@@ -9424,70 +9459,86 @@
+             {
+                 if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
+                 {
+-                    if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
+-                    {               
++                    if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY))
++                    {
++                        iDagger += 10;
++                    }
++                    else if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
++                    {
+                         iDagger -= 20;
+                     }
+-                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
++                       
++                    if (getCapitalCity()->canTrain(eLoopUnit))
+                     {
+                         iDagger += 40;
+-                        iAttackUnitCount++;
++                        
++                        int iUUStr = GC.getUnitInfo(eLoopUnit).getCombat();
++                        int iNormalStr = GC.getUnitInfo((UnitTypes)(GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex())).getCombat();
++                        iDagger += 20 * max(0, (iUUStr - iNormalStr));
+                     }
+                     else
+                     {
+-                        if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
++                        if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                         {
+-                            if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
++                            iDagger += 40;
++                            iAttackUnitCount++;
++                        }
++                        else
++                        {
++                            if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
+                             {
+-                                iDagger += 40;
+-                            }
+-                            else
+-                            {
+-                                iDagger += 25;
++                                if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
++                                {
++                                    iDagger += 40;
++                                }
++                                else
++                                {
++                                    iDagger += 25;
++                                }
+                             }
+                         }
+-                    }
+-                            
+-                    bool bNeedsAndBonus = false;
+-                    int iOrBonusCount = 0;
+-                    int iOrBonusHave = 0;
+-                    
+-                    for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+-                    {
+-                        BonusTypes eBonus = (BonusTypes)iJ;
+-                        if (eBonus != NO_BONUS)
++                                
++                        bool bNeedsAndBonus = false;
++                        int iOrBonusCount = 0;
++                        int iOrBonusHave = 0;
++                        
++                        for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+                         {
+-                            if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
++                            BonusTypes eBonus = (BonusTypes)iJ;
++                            if (eBonus != NO_BONUS)
+                             {
+-                                if (getNumTradeableBonuses(eBonus) == 0)
++                                if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
+                                 {
+-                                    bNeedsAndBonus = true;
++                                    if (getNumTradeableBonuses(eBonus) == 0)
++                                    {
++                                        bNeedsAndBonus = true;
++                                    }
+                                 }
+-                            }
+-
+-                            for (iK = 0; iK < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iK++)
+-                            {
+-                                if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iK) == eBonus)
++
++                                for (iK = 0; iK < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iK++)
+                                 {
+-                                    iOrBonusCount++;
+-                                    if (getNumTradeableBonuses(eBonus) > 0)
++                                    if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iK) == eBonus)
+                                     {
+-                                        iOrBonusHave++;
++                                        iOrBonusCount++;
++                                        if (getNumTradeableBonuses(eBonus) > 0)
++                                        {
++                                            iOrBonusHave++;
++                                        }
+                                     }
+                                 }
+                             }
+                         }
+-                    }
+-                    
+-                    
+-                    iDagger += 20;
+-                    if (bNeedsAndBonus)
+-                    {
+-                        iDagger -= 20;
+-                    }
+-                    if ((iOrBonusCount > 0) && (iOrBonusHave == 0))
+-                    {
+-                        iDagger -= 20;
++                        
++                        
++                        iDagger += 20;
++                        if (bNeedsAndBonus)
++                        {
++                            iDagger -= 20;
++                        }
++                        if ((iOrBonusCount > 0) && (iOrBonusHave == 0))
++                        {
++                            iDagger -= 20;
++                        }
+                     }
+                 }
+         
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@153
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@154
+@@ -9755,7 +9755,7 @@
+ 			}
+ 		}
+ 
+-		if (getGroup()->canFight() || getGroup()->alwaysInvisible())
++		if (getGroup()->alwaysInvisible())
+ 		{
+ 			break;
+ 		}
+

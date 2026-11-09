@@ -1,0 +1,22 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 494
+# Author: jdog5000
+# Date: 2009-10-05T17:20:47.915466Z
+# Coverage: full
+# Message:
+#   removed files which shouldn't be in svn
+# Changed paths (3):
+#   D /trunk/CvGameCoreDLL/AIAutoPlay.ncb
+#   D /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   D /trunk/CvGameCoreDLL/CvGameCoreDLL.ncb
+
+Index: /trunk/CvGameCoreDLL/AIAutoPlay.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.ncb
+# Binary file, contents not shown
+

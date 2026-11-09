@@ -1,0 +1,1099 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 487
+# Author: jdog5000
+# Date: 2009-09-20T04:51:52.520134Z
+# Coverage: full
+# Message:
+#   0.81L
+#   
+#   Barb city and attack city AI
+#   War planning speed up
+#   Bug fixes
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@486
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@487
+@@ -897,7 +897,7 @@
+ 	// Special circumstances
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						10/25/08			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						09/18/09			jdog5000	*/
+ /**																				*/
+ /**		Barbarian AI															*/
+ /********************************************************************************/
+@@ -921,7 +921,7 @@
+ 			}
+ 		}
+ 		
+-		if (!bDanger && (iNeededWorkers > 0) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
++		if (!bDanger && (2*iExistingWorkers < iNeededWorkers) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+ 		{
+ 			if( getPopulation() > 1 || (GC.getGameINLINE().getGameTurn() - getGameTurnAcquired() > (15 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent())/100) )
+ 			{
+@@ -940,23 +940,40 @@
+ 			}
+ 		}
+ 		
++		iBuildUnitProb += (3 * iFreeLandExperience);
++		
++		bool bRepelColonists = false;
++		if( area()->getNumCities() > area()->getCitiesPerPlayer(BARBARIAN_PLAYER) + 2 )
++		{
++			if( area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > area()->getNumCities()/3 )
++			{
++				// New world scenario with invading colonists ... fight back!
++				bRepelColonists = true;
++				iBuildUnitProb += 8*(area()->getNumCities() - area()->getCitiesPerPlayer(BARBARIAN_PLAYER));
++			}
++		}
++
+ 		bChooseUnit = false;
+-		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") > AI_buildUnitProb())
++		if (!bDanger && GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") > iBuildUnitProb)
+ 		{
+ 			
+ 			int iBarbarianFlags = 0;
+-			iBarbarianFlags |= BUILDINGFOCUS_FOOD;
++			if( getPopulation() < 4 ) iBarbarianFlags |= BUILDINGFOCUS_FOOD;
+ 			iBarbarianFlags |= BUILDINGFOCUS_PRODUCTION;
+ 			iBarbarianFlags |= BUILDINGFOCUS_EXPERIENCE;
++			if( getPopulation() > 3 ) iBarbarianFlags |= BUILDINGFOCUS_DEFENSE;
+ 			
+-			if (AI_chooseBuilding(iBarbarianFlags))
++			if (AI_chooseBuilding(iBarbarianFlags, 15))
+ 			{
+ 				return;
+ 			}
+-			
+-			if (AI_chooseBuilding())
+-			{
+-				return;
++
++			if( GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") > iBuildUnitProb)
++			{
++				if (AI_chooseBuilding())
++				{
++					return;
++				}
+ 			}
+ 		}
+ 		
+@@ -968,9 +985,9 @@
+ 			}
+ 		}
+ 		
+-		if ((pWaterArea != NULL) && (iWaterPercent > 30))
+-		{
+-			if (GC.getGameINLINE().getSorenRandNum(2, "AI Coast Raiders!") == 0)
++		if (!bDanger && (pWaterArea != NULL) && (iWaterPercent > 30))
++		{
++			if (GC.getGameINLINE().getSorenRandNum(3, "AI Coast Raiders!") == 0)
+ 			{
+ 				if (kPlayer.AI_getNumAIUnits(UNITAI_ASSAULT_SEA) <= (1 + kPlayer.getNumCities() / 2))
+ 				{
+@@ -998,6 +1015,31 @@
+ 					}
+ 				}
+ 			}
++		}
++
++		if (GC.getGameINLINE().getSorenRandNum(2, "Barb worker") == 0)
++		{
++			if (!bDanger && (iExistingWorkers < iNeededWorkers) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
++			{
++				if( getPopulation() > 1 )
++				{
++					if (AI_chooseUnit(UNITAI_WORKER))
++					{
++						return;
++					}
++				}			
++			}
++		}
++
++		UnitTypeWeightArray barbarianTypes;
++		barbarianTypes.push_back(std::make_pair(UNITAI_ATTACK, 125));
++		barbarianTypes.push_back(std::make_pair(UNITAI_ATTACK_CITY, (bRepelColonists ? 100 : 50)));
++		barbarianTypes.push_back(std::make_pair(UNITAI_COUNTER, 100));
++		barbarianTypes.push_back(std::make_pair(UNITAI_CITY_DEFENSE, 50));
++
++		if (AI_chooseLeastRepresentedUnit(barbarianTypes))
++		{
++			return;
+ 		}
+ 		
+ 		if (AI_chooseUnit())
+@@ -1821,13 +1863,13 @@
+ 	}
+ 	
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+-/** City AI                                                                                      */
++/** City AI, Bugfix                                                                              */
+ /*************************************************************************************************/
+ 	if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
+ 	{
+-		if (iNeededWorkers < iExistingWorkers)
++		if (iExistingWorkers < iNeededWorkers )
+ 		{
+ 			if ((AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+ 			{
+@@ -9516,18 +9558,17 @@
+ int CvCityAI::AI_buildUnitProb()
+ {
+ 	int iProb;
+-
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** City AI, Barbarian AI                                                                        */
++/*************************************************************************************************/
+ 	iProb = (GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + AI_experienceWeight());
+ 
+-	if (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++	if (!isBarbarian() && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+ 	{
+ 		iProb /= 2;
+ 	}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/07/08                                jdog5000      */
+-/**                                                                                              */
+-/** City AI                                                                                      */
+-/*************************************************************************************************/
+ 	// more units from cities with military production bonuses
+ 	else
+ 	{
+@@ -9536,8 +9577,6 @@
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-
+-
+ 	return iProb;
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@486
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@487
+@@ -4441,7 +4441,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81K");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81L");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@486
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@487
+@@ -9599,8 +9599,8 @@
+ 	{
+ 		if (pLoopCity->getArea() == pArea->getID())
+ 		{
+-		iCount += pLoopCity->AI_getWorkersNeeded() * 3;
+-	}
++			iCount += pLoopCity->AI_getWorkersNeeded() * 3;
++		}
+ 	}
+ 	
+ 	if (iCount == 0)
+@@ -9614,10 +9614,10 @@
+ 	}
+ 
+ 
+-	    iCount += 1;
+-		iCount /= 3;
+-		iCount = std::min(iCount, 3 * pArea->getCitiesPerPlayer(getID()));
+-		iCount = std::min(iCount, (1 + getTotalPopulation()) / 2);
++	iCount += 1;
++	iCount /= 3;
++	iCount = std::min(iCount, 3 * pArea->getCitiesPerPlayer(getID()));
++	iCount = std::min(iCount, (1 + getTotalPopulation()) / 2);
+ 
+ 	return std::max(1, iCount);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@486
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@487
+@@ -3842,20 +3842,17 @@
+ 				int iTimeModifier = 100;
+ 				{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      03/18/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/19/09                                jdog5000      */
+ /**                                                                                              */
+ /** War strategy AI                                                                              */
+ /*************************************************************************************************/
+-					// Count enemy defensive power, start accelerated build up at 1.5x instead of 2x
+-					int iOurPower = getPower(true);
+-					int iTheirPower = GET_TEAM((TeamTypes)iI).getDefensivePower();
+-					
+-					int iRatio = (1 + iOurPower) / (1 + iTheirPower);
+-					
+-					if (iRatio > 150)
+-					{
+-						iTimeModifier *= 100;
+-						iTimeModifier /= iRatio - 50;
++					int iEnemyPowerPercent = AI_getEnemyPowerPercent();
++					int iThreshold = (80*AI_maxWarNearbyPowerRatio())/100;
++
++					if( iEnemyPowerPercent < iThreshold )
++					{
++						iTimeModifier *= iEnemyPowerPercent;
++						iTimeModifier /= iThreshold;
+ 					}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@486
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@487
+@@ -1304,6 +1304,22 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -1653,6 +1669,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Worker AI                                                                                    */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -1840,6 +1872,21 @@
+ /*************************************************************************************************/
+ 	{
+ 		PROFILE("CvUnitAI::AI_attackMove() 1");
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++		if( !(plot()->isOwned()) )
++		{
++			if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 1, true))
++			{
++				return;
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 		if (AI_guardCity(true))
+ 		{
+@@ -2237,6 +2284,14 @@
+ 			return;
+ 		}
+ 
++		if( getGroup()->isStranded() )
++		{
++			if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++			{
++				return;
++			}
++		}
++
+ 		if( !bDanger && !isHuman() && plot()->isCoastalLand() && GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+ 		{
+ 			// If no other desireable actions, wait for pickup
+@@ -2388,6 +2443,23 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2499,20 +2571,29 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      02/09/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+-/** War tactics AI                                                                               */
++/** War tactics AI, Barbarian AI                                                                 */
+ /*************************************************************************************************/
+ 	// Rearranged so attack stacks will more readily attack nearby enemy units
+ 	bool bHuntBarbs = false;
+-	if (area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > 0)
+-	{
++	if (area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > 0 && !isBarbarian())
++	{
++		// BBAI TODO: if massing, only if not losing
+ 		if ((eAreaAIType != AREAAI_OFFENSIVE) && (eAreaAIType != AREAAI_DEFENSIVE))
+ 		{
+ 			bHuntBarbs = true;
+ 		}
+ 	}
+-	bool bReadyToAttack = ((getGroup()->getNumUnits() >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())));
++
++	// BBAI TODO: If losing badly, play more defense?
++	bool bReadyToAttack = ((getGroup()->getNumUnits() >= ((bHuntBarbs) ? 3 : AI_stackOfDoomExtra())));
++
++	if( isBarbarian() )
++	{
++		bLandWar = (area()->getNumCities() - area()->getCitiesPerPlayer(BARBARIAN_PLAYER) > 0);
++		bReadyToAttack = (getGroup()->getNumUnits() >= 3);
++	}
+ 
+ 	if (collateralDamage() > 0)
+ 	{
+@@ -2633,7 +2714,22 @@
+ //			((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) && (getGroup()->getNumUnits() >= AI_stackOfDoomExtra())))
+ 	if (bReadyToAttack)
+ 	{
+-		if (bHuntBarbs && AI_targetBarbCity((bAnyWarPlan ? 7 : 12)))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Barbarin AI                                                                                  */
++/*************************************************************************************************/
++		if( isBarbarian() )
++		{
++			if (AI_targetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 9))
++			{
++				return;
++			}
++		}
++		else if (bHuntBarbs && AI_targetBarbCity((bAnyWarPlan ? 7 : 12)))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			return;
+ 		}
+@@ -2738,6 +2834,22 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -2885,6 +2997,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -3071,6 +3199,22 @@
+ 		}
+ 	}
+ 	
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++	if( !(plot()->isOwned()) )
++	{
++		if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 1, true))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (!bDanger)
+ 	{
+ 		if (AI_group(UNITAI_SETTLE, 2, -1, -1, false, false, false, 3, true))
+@@ -3188,6 +3332,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -3219,6 +3379,22 @@
+ 				getGroup()->AI_separate(); // will change group
+ 				return;
+ 			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++	if( !(plot()->isOwned()) )
++	{
++		if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 1, true))
++		{
++			return;
+ 		}
+ 	}
+ /*************************************************************************************************/
+@@ -3436,6 +3612,22 @@
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++	if( !(plot()->isOwned()) )
++	{
++		if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 1, true))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (bDanger)
+ 	{
+ 		if (AI_leaveAttack(1, 70, 175))
+@@ -3573,6 +3765,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -3589,6 +3797,22 @@
+ 
+ 	CvCity* pCity;
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++	if( !(plot()->isOwned()) )
++	{
++		if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 1, true))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_leaveAttack(2, 55, 150))
+ 	{
+ 		return;
+@@ -3782,6 +4006,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -3838,6 +4078,22 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -3929,6 +4185,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -4024,6 +4296,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -4124,6 +4412,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -4206,6 +4510,22 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -4302,6 +4622,22 @@
+ 		return;
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (AI_safety())
+ 	{
+ 		return;
+@@ -4396,6 +4732,22 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++	if( getGroup()->isStranded() )
++	{
++		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, MOVE_NO_ENEMY_TERRITORY, 1))
++		{
++			return;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (AI_safety())
+ 	{
+@@ -6786,8 +7138,16 @@
+ 			return;
+ 		}
+ 	}
+-	
+-	if (plot()->isCity() && !hasCargo())
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	if (plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() && !hasCargo())
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		AreaAITypes eAreaAI = area()->getAreaAIType(getTeam());
+ 		if ((eAreaAI == AREAAI_ASSAULT) || (eAreaAI == AREAAI_ASSAULT_MASSING))
+@@ -6822,7 +7182,7 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/14/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+ /** Settler AI                                                                                   */
+ /*************************************************************************************************/
+@@ -6856,7 +7216,7 @@
+ 				return;
+ 			}
+ 		}
+-		else
++		else if( cargoSpace() - 2 >= getCargo() + iWorkerCount )
+ 		{
+ 			if (AI_pickup(UNITAI_SETTLE, true))
+ 			{
+@@ -6879,7 +7239,7 @@
+ 		}
+ 	}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      05/23/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -6889,27 +7249,33 @@
+ 		return;
+ 	}
+ */
+-	if( getGroup()->isFull() )
++	if( !getGroup()->hasCargo() )
++	{
++		// Rescue stranded non-settlers
++		if(AI_pickupStranded())
++		{
++			return;
++		}
++	}
++	
++	if( cargoSpace() - 2 < getCargo() + iWorkerCount )
+ 	{
+ 		// If full of workers and not going anywhere, dump them if a settler is available
+ 		if( (iSettlerCount == 0) && (plot()->plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_SETTLE, -1, getOwnerINLINE(), NO_TEAM, PUF_isFiniteRange) > 0) )
+ 		{
+-			getGroup()->unloadAll();		
+-			getGroup()->pushMission(MISSION_SKIP);
+-			return;
+-		}
+-	}
+-	else
+-	{
+-		if( !getGroup()->hasCargo() )
+-		{
+-			// Rescue stranded non-settlers
+-			if(AI_pickupStranded())
++			getGroup()->unloadAll();
++
++			if (AI_pickup(UNITAI_SETTLE, true))
+ 			{
+ 				return;
+ 			}
+-		}
+-
++
++			return;
++		}
++	}
++	
++	if( !(getGroup()->isFull()) )
++	{
+ 		if (AI_pickup(UNITAI_WORKER))
+ 		{
+ 			return;
+@@ -13531,7 +13897,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+ /** War tactics AI, Efficiency                                                                   */
+ /*************************************************************************************************/
+@@ -13649,28 +14015,31 @@
+ 						{
+ 							if (generatePath(pAdjacentPlot, iFlags, true, &iPathTurns))
+ 							{
+-								iValue = std::max(0, (pAdjacentPlot->defenseModifier(getTeam(), false) + 100));
+-
+-								if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
++								if( iPathTurns <= iMaxPathTurns )
+ 								{
+-									iValue += (12 * -(GC.getRIVER_ATTACK_MODIFIER()));
+-								}
+-
+-								if (!isEnemy(pAdjacentPlot->getTeam(), pAdjacentPlot))
+-								{
+-									iValue += 100;                                
+-								}
+-
+-								iValue = std::max(1, iValue);
+-
+-								iValue *= 1000;
+-
+-								iValue /= (iPathTurns + 1);
+-
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									pBestPlot = getPathEndTurnPlot();
++									iValue = std::max(0, (pAdjacentPlot->defenseModifier(getTeam(), false) + 100));
++
++									if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
++									{
++										iValue += (12 * -(GC.getRIVER_ATTACK_MODIFIER()));
++									}
++
++									if (!isEnemy(pAdjacentPlot->getTeam(), pAdjacentPlot))
++									{
++										iValue += 100;                                
++									}
++
++									iValue = std::max(1, iValue);
++
++									iValue *= 1000;
++
++									iValue /= (iPathTurns + 1);
++
++									if (iValue > iBestValue)
++									{
++										iBestValue = iValue;
++										pBestPlot = getPathEndTurnPlot();
++									}
+ 								}
+ 							}
+ 						}
+@@ -13771,23 +14140,26 @@
+ 					{
+ 						if (generatePath(pAdjacentPlot, 0, true, &iPathTurns))
+ 						{
+-							iValue = std::max(0, (pAdjacentPlot->defenseModifier(getTeam(), false) + 100));
+-
+-							if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
++							if( iPathTurns <= iMaxPathTurns )
+ 							{
+-								iValue += (10 * -(GC.getRIVER_ATTACK_MODIFIER()));
+-							}
+-
+-							iValue = std::max(1, iValue);
+-
+-							iValue *= 1000;
+-
+-							iValue /= (iPathTurns + 1);
+-
+-							if (iValue > iBestValue)
+-							{
+-								iBestValue = iValue;
+-								pBestPlot = getPathEndTurnPlot();
++								iValue = std::max(0, (pAdjacentPlot->defenseModifier(getTeam(), false) + 100));
++
++								if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
++								{
++									iValue += (10 * -(GC.getRIVER_ATTACK_MODIFIER()));
++								}
++
++								iValue = std::max(1, iValue);
++
++								iValue *= 1000;
++
++								iValue /= (iPathTurns + 1);
++
++								if (iValue > iBestValue)
++								{
++									iBestValue = iValue;
++									pBestPlot = getPathEndTurnPlot();
++								}
+ 							}
+ 						}
+ 					}
+@@ -18744,7 +19116,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      08/08/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -18811,43 +19183,40 @@
+ 			iCount = pLoopGroup->getNumUnits();
+ 			
+ 			// Units are stranded, attempt rescue
+-			if (!atPlot(pLoopPlot) )
+-			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pHeadUnit, MISSIONAI_PICKUP, getGroup()) < ((iCount + (cargoSpace() - 1)) / cargoSpace()))
+-				{
+-					pPickupPlot = NULL;
+-					if( generatePath(pLoopPlot, 0, true, &iPathTurns) )
++			if ( atPlot(pLoopPlot) || GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pHeadUnit, MISSIONAI_PICKUP, getGroup()) < ((iCount + (cargoSpace() - 1)) / cargoSpace()))
++			{
++				pPickupPlot = NULL;
++				if( atPlot(pLoopPlot) || generatePath(pLoopPlot, 0, true, &iPathTurns) )
++				{
++					pPickupPlot = pLoopPlot;
++				}
++				else
++				{
++					for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 					{
+-						pPickupPlot = pLoopPlot;
+-					}
+-					else
+-					{
+-						for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++						pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iI));
++
++						if (pAdjacentPlot != NULL)
+ 						{
+-							pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iI));
+-
+-							if (pAdjacentPlot != NULL)
++							if( generatePath(pAdjacentPlot, 0, true, &iPathTurns) )
+ 							{
+-								if( generatePath(pAdjacentPlot, 0, true, &iPathTurns) )
+-								{
+-									pPickupPlot = pAdjacentPlot;
+-									break;
+-								}
++								pPickupPlot = pAdjacentPlot;
++								break;
+ 							}
+ 						}
+ 					}
+-
+-					if( pPickupPlot != NULL )
++				}
++
++				if( pPickupPlot != NULL )
++				{
++					iValue = 1000*iCount;
++
++					iValue /= (iPathTurns + 1);
++
++					if (iValue > iBestValue && iPathTurns <= iMaxPath)
+ 					{
+-						iValue = 1000*iCount;
+-
+-						iValue /= (iPathTurns + 1);
+-
+-						if (iValue > iBestValue && iPathTurns <= iMaxPath)
+-						{
+-							iBestValue = iValue;
+-							pBestUnit = pHeadUnit;
+-						}
++						iBestValue = iValue;
++						pBestUnit = pHeadUnit;
+ 					}
+ 				}
+ 			}
+@@ -18856,9 +19225,17 @@
+ 
+ 	if ((pBestUnit != NULL))
+ 	{
+-		FAssert(!atPlot(pBestUnit->plot()));
+-		getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_PICKUP, NULL, pBestUnit);
+-		return true;
++		if( atPlot(pBestUnit->plot()) )
++		{
++			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_PICKUP, pBestUnit->plot());
++			return true;
++		}
++		else
++		{
++			FAssert(!atPlot(pBestUnit->plot()));
++			getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), MOVE_AVOID_ENEMY_WEIGHT_3, false, false, MISSIONAI_PICKUP, NULL, pBestUnit);
++			return true;
++		}
+ 	}
+ 
+ 	return false;
+

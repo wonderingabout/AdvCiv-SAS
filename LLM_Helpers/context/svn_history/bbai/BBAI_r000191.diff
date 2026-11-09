@@ -1,0 +1,70 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 191
+# Author: iustus
+# Date: 2006-12-16T08:24:04.496230Z
+# Coverage: full
+# Message:
+#   slightly tweaked chiptole war display
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@190
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@191
+@@ -3025,6 +3025,8 @@
+ 			bool	bIsLandTarget;
+ 			bool	bIsAnyCapitalAreaAlone;
+ 			bool	bAdjacentCheckPassed;
++			bool	bIsMaxWarNearbyPowerRatio;
++			bool	bIsMaxWarDistantPowerRatio;
+ 		} aStartWarInfo[MAX_TEAMS];
+ 		
+ 		// first calculate all the values and put into array
+@@ -3057,9 +3059,11 @@
+ 							int iNoWarChance = max(0, iNoWarAttitudeProb - (bAggressive ? 10 : 0) - (bFinancesProMaxWar ? 10 : 0));
+ 							if (iNoWarChance < 100)
+ 							{
+-								bool bIsNearbyPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarNearbyPowerRatio()) / 100));
+-								bool bIsDistantPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarDistantPowerRatio()) / 100));
+-								
++								bool bIsMaxWarNearbyPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarNearbyPowerRatio()) / 100));
++								bool bIsMaxWarDistantPowerRatio = (iLoopTeamPower < ((iTeamPower * kTeam.AI_maxWarDistantPowerRatio()) / 100));
++								aStartWarInfo[iTeamIndex].bIsMaxWarNearbyPowerRatio = bIsMaxWarNearbyPowerRatio;
++								aStartWarInfo[iTeamIndex].bIsMaxWarDistantPowerRatio = bIsMaxWarDistantPowerRatio;
++
+ 								bool bAdjacentCheckPassed = true;
+ 								int iMaxWarMinAdjacentPercent = kTeam.AI_maxWarMinAdjacentLandPercent();
+ 								if (iMaxWarMinAdjacentPercent > 0)
+@@ -3074,16 +3078,16 @@
+ 
+ 								// check to see which mass war pass, if any is valid for this loop team
+ 								int iPossibleMaxWarPass = MAX_INT;
+-								if (bIsNearbyPowerRatio && bAdjacentCheckPassed)
++								if (bIsMaxWarNearbyPowerRatio && bAdjacentCheckPassed)
+ 								{
+ 									iPossibleMaxWarPass = 0;
+ 								}
+-								else if (bIsNearbyPowerRatio && (bIsLandTarget || bIsAnyCapitalAreaAlone))
++								else if (bIsMaxWarNearbyPowerRatio && (bIsLandTarget || bIsAnyCapitalAreaAlone))
+ 								{
+ 									iPossibleMaxWarPass = 1;
+ 								}
+ 
+-								else if (bIsDistantPowerRatio)
++								else if (bIsMaxWarDistantPowerRatio)
+ 								{
+ 									iPossibleMaxWarPass = 2;
+ 								}
+@@ -3218,8 +3222,8 @@
+ 								(aStartWarInfo[iTeamIndex].bIsLandTarget) ? L"land" : L"sea",
+ 								aStartWarInfo[iTeamIndex].iStartWarValue, 
+ 								kLoopTeam.getName().GetCString(),
+-								(iBestPossibleMaxWarPass == 0) ? L"not adjacent" : L"",
+-								(iBestPossibleMaxWarPass == 1) ? ((bIsAnyCapitalAreaAlone) ? L"low power" : L"not land") : L"");
++								(iBestPossibleMaxWarPass == 0) ? ((aStartWarInfo[iTeamIndex].bIsMaxWarNearbyPowerRatio) ? L"not adjacent" : L"low power") : L"",
++								(iBestPossibleMaxWarPass == 1) ? ((aStartWarInfo[iTeamIndex].bIsMaxWarNearbyPowerRatio) ? L"not land" : L"low power") : L"");
+ 						}
+ 					}
+ 				}
+

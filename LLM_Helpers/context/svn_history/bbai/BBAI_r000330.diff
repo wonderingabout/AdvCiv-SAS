@@ -1,0 +1,133 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 330
+# Author: blakeciv
+# Date: 2007-01-30T12:07:25.836404Z
+# Coverage: full
+# Message:
+#   Tweak to raze city function (might need more).
+#   Minor economic tweaks.
+#   Missionary strat more powerful (moved forward in chooseProduction).
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@329
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@330
+@@ -1258,7 +1258,7 @@
+         }
+         
+ 		//essential economic builds
+-		if (AI_chooseBuilding(iEconomyFlags, 9, 30))
++		if (AI_chooseBuilding(iEconomyFlags, 10, 20))
+ 		{
+ 			return;
+ 		}
+@@ -1337,14 +1337,6 @@
+  	// don't build frivilious things if this is an imporant city
+     if (!bImportantCity)
+     {
+-//        if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+-//        {
+-//            if (AI_chooseBuilding(0, 8))
+-//            {
+-//                return;
+-//            }
+-//        }
+-
+        if (!bLandWar)
+         {
+             if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+@@ -1363,6 +1355,28 @@
+         }
+     }
+     
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
++	{
++		ReligionTypes eStateReligion = kPlayer.getStateReligion();
++		if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
++		{
++			if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < (bLandWar ? 25 : 50))
++			{
++				iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), eStateReligion);
++				if (iNeededMissionaries > 0)
++				{
++					if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), eStateReligion))
++					{
++						if (AI_chooseUnit(UNITAI_MISSIONARY))
++						{
++							return;
++						}
++					}
++				}
++			}
++		}
++	}
++		
+ 	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
+ 	{
+ 		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Floating Defender") < 50)
+@@ -1391,28 +1405,6 @@
+ 	}
+ 	if (!bLandWar)
+ 	{		
+-		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
+-		{
+-		    ReligionTypes eStateReligion = kPlayer.getStateReligion();
+-            if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
+-            {
+-                if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 30)
+-                {
+-                    iNeededMissionaries = kPlayer.AI_neededMissionaries(area(), eStateReligion);
+-                    if (iNeededMissionaries > 0)
+-                    {
+-                        if (iNeededMissionaries > kPlayer.countReligionSpreadUnits(area(), eStateReligion))
+-                        {
+-                            if (AI_chooseUnit(UNITAI_MISSIONARY))
+-                            {
+-                                return;
+-                            }
+-                        }
+-                    }
+-                }
+-            }
+-		}
+-
+ 		if ((iCulturePressure > 90) || kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 20))
+@@ -2732,7 +2724,7 @@
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+ 			{
+-				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 4);
++				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 6);
+ 				if (bFinancialTrouble)
+ 				{
+ 					iTempValue *= 2;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@329
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@330
+@@ -1140,7 +1140,7 @@
+                         {
+                             iRazeValue += (70 - 15 * pCity->getPopulation());
+                         }
+-                    }                    
++                    }
+                     
+                     if (getStateReligion() != NO_RELIGION)
+                     {
+@@ -1155,6 +1155,10 @@
+                     {
+                     	iRazeValue -= 25;
+                     	iRazeValue -= iCloseness * 2;
++                    }
++                    else
++                    {
++                    	iRazeValue += 60;
+                     }
+                     
+                     if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+

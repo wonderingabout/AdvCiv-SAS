@@ -1,0 +1,687 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 150
+# Author: iustus
+# Date: 2006-12-06T13:32:31.434597Z
+# Coverage: full
+# Message:
+#   group attack fix: AI stacks should attack correctly now. needs a lot of testing!
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@149
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@150
+@@ -1215,12 +1215,13 @@
+ 	{
+ 		return false;
+ 	}
+-
+-	pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false);
++	
++	int iOdds;
++	pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds);
+ 
+ 	if (pAttacker == NULL)
+ 	{
+-		pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, true);
++		pAttacker = gDLL->getInterfaceIFace()->getSelectionList()->AI_getBestGroupAttacker(pPlot, false, iOdds, true);
+ 	}
+ 
+ 	if (pAttacker != NULL)
+@@ -1252,7 +1253,7 @@
+ 					szString += NEWLINE + gDLL->getText("TXT_KEY_COMBAT_PLOT_ODDS_RETREAT", szTempBuffer.GetCString());
+ 				}
+ 
+-				//szTempBuffer.Format(L"AI odds: %d%%", pAttacker->AI_attackOdds(pPlot, true));
++				//szTempBuffer.Format(L"AI odds: %d%%", iOdds);
+ 				//szString += NEWLINE + szTempBuffer;
+ 			}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@149
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@150
+@@ -19,7 +19,6 @@
+ #include "CvDLLEventReporterIFaceBase.h"
+ 
+ // Public Functions...
+-
+ CvSelectionGroup::CvSelectionGroup()
+ {
+ 	reset(0, NO_PLAYER, true);
+@@ -2380,19 +2379,13 @@
+ {
+ 	CvUnit* pBestAttackUnit;
+ 	CvPlot* pDestPlot;
+-	bool bStack;
+ 	bool bAttack;
+-
+-	if (getDomainType() != DOMAIN_AIR)
+-	{
+-	    return AI_groupSmartAttack(iX, iY, iFlags);
+-	}
+ 
+ 	pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+-	bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+-
++	bool bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
++    
+ 	bAttack = false;
+ 
+ 	if (getNumUnits() > 0)
+@@ -2401,7 +2394,8 @@
+ 		{
+ 			if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+ 			{
+-				pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true);
++				int iAttackOdds;
++				pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+ 
+ 				if (pBestAttackUnit)
+ 				{
+@@ -2414,11 +2408,25 @@
+ 
+ 					while (true)
+ 					{
+-						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, false, bNoBlitz);
++						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds, false, bNoBlitz);
+ 
+ 						if (pBestAttackUnit == NULL)
+ 						{
++						    if (!atWar(getTeam(), pDestPlot->getTeam()))
++						    {
++						        groupMove(pDestPlot, false);
++						    }
++						    
+ 							break;
++						}
++
++						if (iAttackOdds < 68)
++						{
++						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false, bNoBlitz);
++						    if (pBestSacrifice != NULL)
++						    {
++                                pBestAttackUnit = pBestSacrifice;
++						    }
+ 						}
+ 
+ 						bAttack = true;
+@@ -2429,6 +2437,7 @@
+ 							{
+ 								break;
+ 							}
++
+ 							pBestAttackUnit->attack(pDestPlot, bStack);
+ 						}
+ 						else
+@@ -2439,6 +2448,12 @@
+ 
+ 						if (!bStack)
+ 						{
++							// if this is AI stack, follow through with the attack to the end
++							if (!isHuman() && getNumUnits() > 1)
++							{
++								AI_queueGroupAttack(iX, iY);
++							}
++							
+ 							break;
+ 						}
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@149
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@150
+@@ -164,9 +164,12 @@
+ 	virtual void AI_separate() = 0;
+ 	virtual bool AI_update() = 0;
+ 	virtual int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const = 0;
+-	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const = 0;
++	virtual CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const = 0;
++	virtual CvUnit* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const = 0;
+ 	virtual int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
+ 	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
++	virtual void AI_queueGroupAttack(int iX, int iY) = 0;
++	virtual void AI_cancelGroupAttack() = 0;
+ 
+ 	virtual bool AI_isControlled() = 0;
+ 	virtual bool AI_isDeclareWar() = 0;
+@@ -177,15 +180,14 @@
+ 	virtual void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit) = 0;
+ 	virtual CvUnit* AI_getMissionAIUnit() = 0;
+ 
+-	virtual bool AI_groupSmartAttack(int iX, int iY, int iFlags) = 0;
+-
+ protected:
++	// WARNING: adding to this class will cause the civ4 exe to crash
+ 
+ 	int m_iID;
+ 	int m_iMissionTimer;
+ 
+ 	bool m_bForceUpdate;
+-
++	
+ 	PlayerTypes m_eOwner;
+ 	ActivityTypes m_eActivityType;
+ 	AutomateTypes m_eAutomateType;
+@@ -196,7 +198,6 @@
+ 
+ 	void activateHeadMission();
+ 	void deactivateHeadMission();
+-
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@149
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@150
+@@ -11,7 +11,6 @@
+ #include "CVInfos.h"
+ 
+ // Public Functions...
+-
+ CvSelectionGroupAI::CvSelectionGroupAI()
+ {
+ 	AI_reset();
+@@ -50,6 +49,8 @@
+ 	m_eMissionAIType = NO_MISSIONAI;
+ 
+ 	m_missionAIUnit.reset();
++
++	m_bGroupAttack = false;
+ }
+ 
+ 
+@@ -131,6 +132,9 @@
+ 		clearMissionQueue(); // XXX ???
+ 		setActivityType(ACTIVITY_AWAKE);
+ 		setForceUpdate(false);
++
++		// if we are in the middle of attacking with a stack, cancel it
++		AI_cancelGroupAttack();
+ 	}
+ 
+ 	FAssert(!(GET_PLAYER(getOwnerINLINE()).isAutoMoves()));
+@@ -138,32 +142,45 @@
+ 	int iTempHack = 0; // XXX
+ 
+ 	bDead = false;
+-
+-	while (readyToMove())
+-	{
+-		pHeadUnit = getHeadUnit();
+-
+-		if (pHeadUnit == NULL)
++	
++	bool bGroupAttacked = false;
++
++	// if we want to force the group to attack, force another attack
++	if (m_bGroupAttack)
++	{
++		m_bGroupAttack = false;
++		
++		bGroupAttacked = groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK);
++	}
++	
++	if (!bGroupAttacked)
++	{
++		while (readyToMove())
+ 		{
+-			break;
+-		}
+-
+-		iTempHack++;
+-		if (iTempHack > 100)
+-		{
+-			FAssert(false);
+-			pHeadUnit->finishMoves();
+-			break;
+-		}
+-
+-		resetPath();
+-
+-		pHeadUnit->AI_update();
+-
+-		if (doDelayedDeath())
+-		{
+-			bDead = true;
+-			break;
++			pHeadUnit = getHeadUnit();
++
++			if (pHeadUnit == NULL)
++			{
++				break;
++			}
++
++			iTempHack++;
++			if (iTempHack > 100)
++			{
++				FAssert(false);
++				pHeadUnit->finishMoves();
++				break;
++			}
++
++			resetPath();
++
++			pHeadUnit->AI_update();
++
++			if (doDelayedDeath())
++			{
++				bDead = true;
++				break;
++			}
+ 		}
+ 	}
+ 
+@@ -171,23 +188,27 @@
+ 	{
+ 		if (!isHuman())
+ 		{
+-			pEntityNode = headUnitNode();
+-
+ 			bFollow = false;
+ 
+-			while ((pEntityNode != NULL) && readyToMove(true))
+-			{
+-				pLoopUnit = ::getUnit(pEntityNode->m_data);
+-				pEntityNode = nextUnitNode(pEntityNode);
+-
+-				if (pLoopUnit->canMove())
++			// if we not group attacking, then check for follow action
++			if (!m_bGroupAttack)
++			{
++				pEntityNode = headUnitNode();
++
++				while ((pEntityNode != NULL) && readyToMove(true))
+ 				{
+-					resetPath();
+-
+-					if (pLoopUnit->AI_follow())
++					pLoopUnit = ::getUnit(pEntityNode->m_data);
++					pEntityNode = nextUnitNode(pEntityNode);
++
++					if (pLoopUnit->canMove())
+ 					{
+-						bFollow = true;
+-						break;
++						resetPath();
++
++						if (pLoopUnit->AI_follow())
++						{
++							bFollow = true;
++							break;
++						}
+ 					}
+ 				}
+ 			}
+@@ -227,18 +248,19 @@
+ 	{
+ 		return 100;
+ 	}
+-
+-	pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy);
++	
++	int iOdds = 0;
++	pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+ 
+ 	if (pAttacker == NULL)
+ 	{
+ 		return 0;
+ 	}
+ 
+-	return pAttacker->AI_attackOdds(pPlot, bPotentialEnemy);
+-}
+-
+-CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
++	return iOdds;
++}
++
++CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -246,8 +268,11 @@
+ 	int iPossibleTargets;
+ 	int iValue;
+ 	int iBestValue;
++	int iOdds;
++	int iBestOdds;
+ 
+ 	iBestValue = 0;
++	iBestOdds = 0;
+ 	pBestUnit = NULL;
+ 
+ 	pUnitNode = headUnitNode();
+@@ -280,7 +305,9 @@
+ 				{
+ 					if (bForce || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true, /*bDeclareWar*/ bPotentialEnemy))
+ 					{
+-						iValue = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
++						iOdds = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
++						
++						iValue = iOdds;
+ 						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+ 
+ 						if (pLoopUnit->collateralDamage() > 0)
+@@ -293,6 +320,68 @@
+ 								iValue /= 100;
+ 							}
+ 						}
++
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							iBestOdds = iOdds;
++							pBestUnit = pLoopUnit;
++						}
++					}
++				}
++			}
++		}
++	}
++	
++	iUnitOdds = iBestOdds;
++	return pBestUnit;
++}
++
++CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
++{
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	CvUnit* pBestUnit;
++	int iValue;
++	int iBestValue;
++
++	iBestValue = 0;
++	pBestUnit = NULL;
++
++	pUnitNode = headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if (!pLoopUnit->isDead())
++		{
++			bool bCanAttack = false;
++			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
++			{
++				bCanAttack = pLoopUnit->canAirAttack();
++			}
++			else
++			{
++				bCanAttack = pLoopUnit->canAttack();
++
++				if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++				{
++					bCanAttack = false;
++				}
++			}
++
++			if (bCanAttack)
++			{
++				if (bForce || pLoopUnit->canMove())
++				{
++					if (bForce || pLoopUnit->canMoveInto(pPlot, true))
++					{
++
++                        iValue = pLoopUnit->AI_sacrificeValue(pPlot);
++						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
++
+ 
+ 						if (iValue > iBestValue)
+ 						{
+@@ -308,66 +397,6 @@
+ 	return pBestUnit;
+ }
+ 
+-CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+-{
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvUnit* pBestUnit;
+-	int iValue;
+-	int iBestValue;
+-
+-	iBestValue = 0;
+-	pBestUnit = NULL;
+-
+-	pUnitNode = headUnitNode();
+-
+-	while (pUnitNode != NULL)
+-	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = nextUnitNode(pUnitNode);
+-
+-		if (!pLoopUnit->isDead())
+-		{
+-			bool bCanAttack = false;
+-			if (pLoopUnit->getDomainType() == DOMAIN_AIR)
+-			{
+-				bCanAttack = pLoopUnit->canAirAttack();
+-			}
+-			else
+-			{
+-				bCanAttack = pLoopUnit->canAttack();
+-
+-				if (bCanAttack && bNoBlitz && pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
+-				{
+-					bCanAttack = false;
+-				}
+-			}
+-
+-			if (bCanAttack)
+-			{
+-				if (bForce || pLoopUnit->canMove())
+-				{
+-					if (bForce || pLoopUnit->canMoveInto(pPlot, true))
+-					{
+-
+-                        iValue = pLoopUnit->AI_sacrificeValue(pPlot);
+-						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+-
+-
+-						if (iValue > iBestValue)
+-						{
+-							iBestValue = iValue;
+-							pBestUnit = pLoopUnit;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	return pBestUnit;
+-}
+-
+ // Returns ratio of strengths of stacks times 100
+ // (so 100 is even ratio, numbers over 100 mean this group is more powerful than the stack on a plot)
+ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack, bool bCheckCanMove) const
+@@ -437,6 +466,18 @@
+ 	return strSum;
+ }
+ 
++void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
++{
++	m_bGroupAttack = true;
++
++	m_iGroupAttackX = iX;
++	m_iGroupAttackY = iY;
++}
++
++void CvSelectionGroupAI::AI_cancelGroupAttack()
++{
++	m_bGroupAttack = false;
++}
+ 
+ bool CvSelectionGroupAI::AI_isControlled()
+ {
+@@ -581,107 +622,6 @@
+ 	return getUnit(m_missionAIUnit);
+ }
+ 
+-
+-// Returns true if attack was made...
+-bool CvSelectionGroupAI::AI_groupSmartAttack(int iX, int iY, int iFlags)
+-{
+-	CvUnit* pBestAttackUnit;
+-	CvPlot* pDestPlot;
+-	bool bStack;
+-	bool bAttack;
+-
+-	int iAttackOdds;
+-
+-	pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+-	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+-
+-	bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+-    
+-	bool bQuick = bStack;
+-
+-	// temp fix to make AIs stack attack, need to do this better so humans can watch if they want to
+-	// the _real_ fix is to change it elsewhere
+-	if (!isHuman())
+-	{
+-		bStack = true;
+-		bQuick = false;
+-	}
+-	
+-	bAttack = false;
+-
+-	if (getNumUnits() > 0)
+-	{
+-		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+-		{
+-			if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+-			{
+-				pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true);
+-
+-				if (pBestAttackUnit)
+-				{
+-					bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
+-
+-					if (groupDeclareWar(pDestPlot))
+-					{
+-						return true;
+-					}
+-
+-					while (true)
+-					{
+-						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, false, bNoBlitz);
+-
+-						if (pBestAttackUnit == NULL)
+-						{
+-						    if (!atWar(getTeam(), pDestPlot->getTeam()))
+-						    {
+-						        groupMove(pDestPlot, false);
+-						    }
+-						    
+-							break;
+-						}
+-
+-						//AI_getBestGroupAttacker could be modified to return the attack odds
+-						//altough it's already called once for every unit in the stack so
+-						//probably no real time savings
+-						iAttackOdds = pBestAttackUnit->AI_attackOdds(pDestPlot, false);
+-						if (iAttackOdds < 68)
+-						{
+-						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false, bNoBlitz);
+-						    if (pBestSacrifice != NULL)
+-						    {
+-                                pBestAttackUnit = pBestSacrifice;
+-						    }
+-						}
+-
+-						bAttack = true;
+-
+-						if (getNumUnits() > 1)
+-						{
+-							if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
+-							{
+-								break;
+-							}
+-							pBestAttackUnit->attack(pDestPlot, bQuick);
+-						}
+-						else
+-						{
+-							pBestAttackUnit->attack(pDestPlot, false);
+-							break;
+-						}
+-
+-						if (!bStack)
+-						{
+-							break;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	return bAttack;
+-}
+-
+ // Protected Functions...
+ 
+ void CvSelectionGroupAI::read(FDataStreamBase* pStream)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@149
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@150
+@@ -22,10 +22,12 @@
+ 	bool AI_update();
+ 
+ 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+-	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
++	CvUnit* AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce = false, bool bNoBlitz = false) const;
+ 	CvUnit* AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce = false, bool bNoBlitz = false) const;
+ 	int AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+ 	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
++	void AI_queueGroupAttack(int iX, int iY);
++	void AI_cancelGroupAttack();
+ 
+ 	bool AI_isControlled();
+ 	bool AI_isDeclareWar();
+@@ -39,8 +41,6 @@
+ 	void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
+ 
+ 	CvUnit* AI_getMissionAIUnit();
+-
+-	bool AI_groupSmartAttack(int iX, int iY, int iFlags);
+ 
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+@@ -56,6 +56,9 @@
+ 
+ 	IDInfo m_missionAIUnit;
+ 
++	bool m_bGroupAttack;
++	int m_iGroupAttackX;
++	int m_iGroupAttackY;
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@149
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@150
+@@ -10842,7 +10842,7 @@
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+-		getGroup()->AI_groupSmartAttack(pBestPlot->getX(),pBestPlot->getY(), MOVE_DIRECT_ATTACK);
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), ((bFollow) ? MOVE_DIRECT_ATTACK : 0));
+ 		return true;
+ 	}
+ 
+

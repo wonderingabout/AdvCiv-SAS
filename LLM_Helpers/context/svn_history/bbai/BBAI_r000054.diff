@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 54
+# Author: iustus
+# Date: 2006-11-09T09:15:37.514518Z
+# Coverage: full
+# Message:
+#   fixed final release build to correctly have precompile debug off
+# Changed paths (1):
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@53
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@54
+@@ -278,7 +278,7 @@
+ 				OmitFramePointers="TRUE"
+ 				OptimizeForProcessor="3"
+ 				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
+-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;FINAL_RELEASE"
++				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;FINAL_RELEASE"
+ 				MinimalRebuild="FALSE"
+ 				ExceptionHandling="TRUE"
+ 				RuntimeLibrary="2"
+

@@ -1,0 +1,45 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 264
+# Author: iustus
+# Date: 2007-01-12T15:58:09.268999Z
+# Coverage: full
+# Message:
+#   I was channeling Blake and I forgot to check for NULL!
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@263
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@264
+@@ -3097,16 +3097,19 @@
+ 		if (eNewValue == NO_AUTOMATE)
+ 		{
+ 			CvPlot* pPlot = plot();
+-			CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
+-			while (pUnitNode != NULL)
+-			{
+-				CvUnit* pCargoUnit = ::getUnit(pUnitNode->m_data);
+-				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+-				
+-				CvUnit* pTransportUnit = pCargoUnit->getTransportUnit();
+-				if (pTransportUnit != NULL && pTransportUnit->getGroup() == this)
+-				{
+-					pCargoUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++			if (pPlot != NULL)
++			{
++				CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++				while (pUnitNode != NULL)
++				{
++					CvUnit* pCargoUnit = ::getUnit(pUnitNode->m_data);
++					pUnitNode = pPlot->nextUnitNode(pUnitNode);
++					
++					CvUnit* pTransportUnit = pCargoUnit->getTransportUnit();
++					if (pTransportUnit != NULL && pTransportUnit->getGroup() == this)
++					{
++						pCargoUnit->getGroup()->setAutomateType(NO_AUTOMATE);
++					}
+ 				}
+ 			}
+ 		}
+

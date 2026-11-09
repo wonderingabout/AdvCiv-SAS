@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 445
+# Author: jdog5000
+# Date: 2009-05-02T05:41:34.368890Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   A /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_BetterBTSAI.xml
+
+Index: /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_BetterBTSAI.xml
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_BetterBTSAI.xml@445
+@@ -0,0 +1,17 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Text - New -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++	<TEXT>
++		<Tag>TXT_KEY_MISC_SHIFT_ALT_PREPARE_WAR</Tag>
++		<English>(&lt;SHIFT>+&lt;ALT> to toggle War Plan)</English>
++		<French>(&lt;SHIFT>+&lt;ALT> pour commuter le plan de guerre)</French>
++		<German>(&lt;SHIFT>+&lt;ALT> zum des Krieg-Planes umzuschalten)</German>
++		<Italian>(&lt;SHIFT>+&lt;ALT> per commutare programma di guerra)</Italian>
++		<Spanish>(&lt;SHIFT>+&lt;ALT> para cambiar plan de la guerra)</Spanish>
++	</TEXT>
++</Civ4GameText>
++
+

@@ -1,0 +1,241 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 277
+# Author: iustus
+# Date: 2007-01-20T23:59:27.756085Z
+# Coverage: full
+# Message:
+#   iUnitCostPercentage calculated inside AI_chooseProduction(), to be used to determine not to build units
+#   CvPlayerAI::AI_goldToUpgradeAllUnits(int iExpThreshold) added, to calculate the total gold needed to upgrade all that player's units. (Currently only used to determine gold target)
+#   fixed a runtime warning (that wasnt important, but fixed anyway) in CvUnitAI.cpp
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@276
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@277
+@@ -774,6 +774,8 @@
+         return;        
+     }
+ 
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	
+ 	pWaterArea = waterArea();
+ 
+ 	bWasFoodProduction = isFoodProduction();
+@@ -781,8 +783,8 @@
+ 	bLandWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 	bDefenseWar = (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	bAssault = (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT);
+-	bPrimaryArea = GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(area());
+-	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
++	bPrimaryArea = kPlayer.AI_isPrimaryArea(area());
++	bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 	bool bImportantCity = false; //be very careful about setting this.
+@@ -790,13 +792,13 @@
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 
++	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
++
+ 	int iSeaAssaultUnits = -1;
+     
+-    int iExistingWorkers = (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER));
+-    int iNeededWorkers = (GET_PLAYER(getOwnerINLINE()).AI_neededWorkers(area()));
+-
+-	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+-	
++    int iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
++    int iNeededWorkers = kPlayer.AI_neededWorkers(area());
++
+ 	if (iNumCitiesInArea > 2)
+ 	{	
+ 		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@276
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@277
+@@ -221,9 +221,12 @@
+ 	
+ 	m_iStrategyHash = 0;
+ 	
+-
+ 	m_bWasFinancialTrouble = false;
+ 	m_iTurnLastProductionDirty = -1;
++
++	m_iUpgradeUnitsCacheTurn = -1;
++	m_iUpgradeUnitsCachedExpThreshold = 0;
++	m_iUpgradeUnitsCachedGold = 0;
+ }
+ 
+ 
+@@ -2570,6 +2573,8 @@
+ 	{
+ 		iGold *= 10;
+ 	}
++
++	iGold += (AI_goldToUpgradeAllUnits() / 2);
+ 
+ 	return iGold;
+ }
+@@ -10539,6 +10544,117 @@
+ 	
+ }
+ 
++int CvPlayerAI::AI_goldToUpgradeAllUnits(int iExpThreshold)
++{
++	if (m_iUpgradeUnitsCacheTurn == GC.getGameINLINE().getGameTurn() && m_iUpgradeUnitsCachedExpThreshold == iExpThreshold)
++	{
++		return m_iUpgradeUnitsCachedGold;
++	}
++
++	int iTotalGold = 0;
++	
++	CvCivilizationInfo& kCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
++	
++	// cache the value for each unit type
++	std::vector<int> aiUnitUpgradePrice(GC.getNumUnitInfos(), 0);	// initializes to zeros
++
++	int iLoop;
++	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
++	{
++		// if experience is below threshold, skip this unit
++		if (pLoopUnit->getExperience() < iExpThreshold)
++		{
++			continue;
++		}
++		
++		UnitTypes eUnitType = pLoopUnit->getUnitType();
++
++		// check cached value for this unit type
++		int iCachedUnitGold = aiUnitUpgradePrice[eUnitType];
++		if (iCachedUnitGold != 0)
++		{
++			// if positive, add it to the sum
++			if (iCachedUnitGold > 0)
++			{
++				iTotalGold += iCachedUnitGold;
++			}
++			
++			// either way, done with this unit
++			continue;
++		}
++		
++		int iUnitGold = 0;
++		int iUnitUpgradePossibilities = 0;
++		
++		UnitAITypes eUnitAIType = pLoopUnit->AI_getUnitAIType();
++		CvArea* pUnitArea = pLoopUnit->area();
++		int iUnitValue = AI_unitValue(eUnitType, eUnitAIType, pUnitArea);
++
++		for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++		{
++			UnitTypes eUpgradeUnitType = (UnitTypes) iI;
++			UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) GC.getUnitInfo(eUpgradeUnitType).getUnitClassType();
++			
++			// is this unit the correct one of this class for this civilization?
++			if (kCivilizationInfo.getCivilizationUnits(eUpgradeUnitClassType) == eUpgradeUnitType)
++			{
++				// is it better?
++				int iUpgradeValue = AI_unitValue(eUpgradeUnitType, eUnitAIType, pUnitArea);
++				if (iUpgradeValue > iUnitValue)
++				{
++					// is this a valid upgrade?
++					if (pLoopUnit->upgradeAvailable(eUnitType, eUpgradeUnitClassType))
++					{
++						// can we actually make this upgrade?
++						bool bCanUpgrade = false;
++						CvCity* pCapitalCity = getCapitalCity();
++						if (pCapitalCity != NULL && pCapitalCity->canTrain(eUpgradeUnitType))
++						{
++							bCanUpgrade = true;
++						}
++						else
++						{
++							CvCity* pCloseCity = GC.getMapINLINE().findCity(pLoopUnit->getX_INLINE(), pLoopUnit->getY_INLINE(), NO_PLAYER, getTeam(), true, (pLoopUnit->getDomainType() == DOMAIN_SEA));
++							if (pCloseCity != NULL && pCloseCity->canTrain(eUpgradeUnitType))
++							{
++								bCanUpgrade = true;
++							}
++						}
++
++						if (bCanUpgrade)
++						{
++							iUnitGold += pLoopUnit->upgradePrice(eUpgradeUnitType);
++							iUnitUpgradePossibilities++; 
++						}
++					}
++				}
++			}
++		}
++		
++		// if we found any, find average and add to total
++		if (iUnitUpgradePossibilities > 0)
++		{
++			iUnitGold /= iUnitUpgradePossibilities;
++
++			// add to cache
++			aiUnitUpgradePrice[eUnitType] = iUnitGold;
++
++			// add to sum
++			iTotalGold += iUnitGold;
++		}
++		else
++		{
++			// add to cache, dont upgrade to this type
++			aiUnitUpgradePrice[eUnitType] = -1;
++		}
++	}
++
++	m_iUpgradeUnitsCacheTurn = GC.getGameINLINE().getGameTurn();
++	m_iUpgradeUnitsCachedExpThreshold = iExpThreshold;
++	m_iUpgradeUnitsCachedGold = iTotalGold;
++
++	return iTotalGold;
++}
+ 
+ int CvPlayerAI::AI_goldTradeValuePercent()
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@276
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@277
+@@ -242,6 +242,8 @@
+     int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
+     int AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves);
+ 
++	int AI_goldToUpgradeAllUnits(int iExpThreshold = 0);
++
+ 	int AI_goldTradeValuePercent();
+ 	
+ 	int AI_averageYieldMultiplier(YieldTypes eYield);
+@@ -285,6 +287,10 @@
+ 	int *m_aiAverageYieldMultiplier;
+ 	int *m_aiAverageCommerceMultiplier;
+ 	int *m_aiAverageCommerceExchange;
++	
++	int m_iUpgradeUnitsCacheTurn;
++	int m_iUpgradeUnitsCachedExpThreshold;
++	int m_iUpgradeUnitsCachedGold;
+ 	
+ 	
+ 	int *m_aiNumTrainAIUnits;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@276
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@277
+@@ -7661,7 +7661,7 @@
+ 		int iClosestDistance = MAX_INT;
+ 		CvCity* pLoopCity = NULL;
+ 		CvCity* pStartCity = NULL;
+-		int iLoop, iStartLoop;
++		int iLoop, iStartLoop = 0;
+ 		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+ 		{
+ 			if (bSeaUnit || pLoopCity->getArea() == getArea())
+

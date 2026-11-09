@@ -1,0 +1,133 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 577
+# Author: jdog5000
+# Date: 2010-05-28T01:20:35.494899Z
+# Coverage: full
+# Message:
+#   Devel version 1.01b
+# Changed paths (3):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@576
++++ /trunk/Better BTS AI/readme.txt@577
+@@ -76,11 +76,17 @@
+ 
+ New in Better BTS AI 1.01
+ 
++Merged in UP 1.51
++
+ Bugfixes
+-
++- AI now considers monuments a cultural building when evaluating techs (thanks denev)
++- Fixed detection of when to have AIs go for wonders for cultural reasons in late game (thanks Fuyu)
+ 
+ Victory strategy
+ - Tweaked Conquest 3 and 4 so that they work better for isolated starts and continents maps
++- Boosted value of Apollo granting tech for civs running Space 2
++- AIs going for diplo victory now more highly value techs allowing construction of diplo wonder
++- AIs going for diplo victory now more highly value building wonders which allow diplo votes
+ 
+ War strategy
+ - Changes to encourage aggressive AI players to consider limited wars in early game to choke opponents, should make first couple eras a little less predictable in normal games
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@576
++++ /trunk/Better BTS AI/todo and ideas.txt@577
+@@ -46,20 +46,17 @@
+ x Gives spies auto-explore option (in CvUnit, look for AUTOMATE_EXPLORE)
+ 
+ Victory Strategy
+-- Effect civic choices
++x Effect civic choices
+ - Effect wonder construction
+ - Effect tech values
+ - Effect unit construction
+ - Effect great people usage
+-- Spies go after competitors in final stages
++- Spies go after competitors in final stages and play defense
+ 
+ City AI:
+ - Better logic (centralized) for determining when to relocate capital
+-x Gold (or pop) rush defense when threatened and unprepared
+-x Rush defenses just after being declared on if behind in power
+ - Settler production priority, adjust area city site values based on number of settlers in the field
+ - Cities build culture to grab bonuses
+-x Handle early choke better
+ 
+ Worker AI:
+ - Build railroads on mines etc with high priority to speed industrial revolution
+@@ -69,16 +66,14 @@
+ - Target cities to stop potential victory - capital for space, high culture cities for cultural.  Use war declaration code as a guide for how to determine if other player is close
+ 
+ Tech selection AI:
+-x Peaceful civs put off Rifling too long, boosting defenses is necessary for builders too
+ - Replace randomized method with having computed value weight random draw instead of using random multiplies (will allow debugging of final valuation)
+ 
+ Unit AI:
+ x Attack stacks should stage in coastal cities if in assault areas
+ - If sending an attack load with no attack city units, change at least one unit ai
+-- Don't send attack city stack with just seige ...
++x Don't send attack city stack with just seige ...
+ - Stranded move to city with good closeness
+ - Generals spawned in enemy territory (mods) -> lead
+-x Adjust anyAttack odds threshold up if more enemy units than friendly units?
+ - Fast moving attack/pillage groups sometimes shadow instead of join attack stacks, break off to pillage
+ 
+ Nuke AI:
+@@ -90,24 +85,17 @@
+ - AttackSea have pretty low attack odds threshold ... how to coordinate buildup of naval strength to take out strong enemy units?
+ - Keep transport groups out of recently captured cities
+ x Escorts start with transports better, by having transports start mission ai but not leave until they have escorts under many circumstances
+-x Pickup stranded not block if others are going if path length is short
+ 
+ Great people AI
+ - If losing war or on defensive, up value of Golden Age (so can switch to drafting civics easily)
+ 
+ Missionary AI
+-x When to build missionaries
+-x Where to send them
+ - Fix disconnect in shipping missionaries to small islands
+ - When to build monasteries, esp non-state
+ 
+ Civics AI
+ - If in tough war, up value of civics which allow whipping, or buying?
+ - If preparing for war against a tough opponent, up value of above as well
+-
+-Barbarian AI:
+-- Attack unit production overdone now, early game?
+-- Terra maps have good balance?
+ 
+ Diplomacy:
+ - How do losing/weak civs ask for help in war?  Try to vassal themselves to anyone
+@@ -116,14 +104,10 @@
+ - Less willing to make peace when about to capture city, more willing when have threatened cities
+ - Go after civs who previously took your prized cities?
+ - Teams behind in tech more willing to make trades with others also behind?
+-x Teams behind in tech more frequently check for tech trades
+ - Scale some interactions with game speed?
+ 
+ Logging system:
+-x Log upgrade expenses
+-x attack stack movement
+ - goodies
+-x Log player strategies
+ - Log religion founding
+ 
+ Expose AI variables:
+@@ -146,8 +130,6 @@
+ 
+ Guard city logic causes cycles due to inconsistent counting of units.
+ 
+-How to get early rushes ready?  Early rush defense too.
+-
+ New type of warplan:  opportunity.  AI who wants to do Total War but is too weak to declare but still has a fighting chance if enemy is distracted, prepares and then enters a waiting for opportunity state.  Multiple waiters can join together if joint power high enough, otherwise individuals wait and declare when enemy is tied up and there's an opportunity.  Waiting eventually clears if AI decides to go after a different target.
+ 
+ Rework power calculations so that:
+

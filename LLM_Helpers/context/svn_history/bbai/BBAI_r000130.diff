@@ -1,0 +1,51 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 130
+# Author: iustus
+# Date: 2006-11-30T22:22:14.854477Z
+# Coverage: full
+# Message:
+#   fixed bug where stack merge would not merge stacks of size 1 (a stack of the same size counts as 'bigger')
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@129
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@130
+@@ -22,6 +22,8 @@
+ #include "CvDLLInterfaceIFaceBase.h"
+ 
+ #define FOUND_RANGE				(6)
++
++//#define DEBUG_WAR_ACTIONS
+ 
+ 
+ // Public Functions...
+@@ -4730,7 +4732,7 @@
+ 							{
+ 								if (canJoinGroup(pPlot, pLoopGroup))
+ 								{
+-									if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
++									if (!bBiggerOnly || (pLoopGroup->getNumUnits() >= pGroup->getNumUnits()))
+ 									{
+ 										int iPathTurns;
+ 										if (generatePath(pPlot, 0, true, &iPathTurns))
+@@ -7465,6 +7467,17 @@
+ 			}
+ 			else
+ 			{
++#ifdef DEBUG_WAR_ACTIONS
++				// debugging
++				if (true)
++				{
++					CvSelectionGroup* pCurrentGroup = getGroup();
++					CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++					DEBUGLOG("AI_targetCity: %S(%d) headed to %S. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++						pBestCity->getName().GetCString(),
++						ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				}
++#endif
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+ 				return true;
+ 			}
+

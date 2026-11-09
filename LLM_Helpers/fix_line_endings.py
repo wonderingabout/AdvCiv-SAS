@@ -37,6 +37,7 @@ IGNORED_RELATIVE_DIRS = {
 	Path("_1_AdvCiv-SAS/Docs/examples/sasgamerecord"),
 	Path("LLM_Helpers/outputs"),
 	Path("LLM_Helpers/context/mapscript_refs"),
+	Path("LLM_Helpers/context/svn_history"),
 	Path("_0_Legacy"),
 	Path("_1_AdvCiv-SAS/Docs/Sevopedia/Debug"),
 	Path("CvGameCoreDLL/Project/temp_files"),

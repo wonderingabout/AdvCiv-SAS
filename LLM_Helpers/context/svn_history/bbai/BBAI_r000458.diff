@@ -1,0 +1,60 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 458
+# Author: jdog5000
+# Date: 2009-06-12T09:05:48.027481Z
+# Coverage: full
+# Message:
+#   Couple more fixes
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@457
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@458
+@@ -4271,7 +4271,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.76G");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.77A");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@457
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@458
+@@ -7904,14 +7904,14 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** UNOFFICIAL_PATCH                       06/13/09                                jdog5000      */
++/** UNOFFICIAL_PATCH                       06/11/09                                jdog5000      */
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
+ /* original BTS code
+ 	if (getCivicPercentAnger(eCivic) > 0)
+ */
+-	if ( getCivicPercentAnger(eCivic) > getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) )
++	if ( getCivicPercentAnger(eCivic) < getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) )
+ /*************************************************************************************************/
+ /** UNOFFICIAL_PATCH                        END                                                  */
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@457
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@458
+@@ -3174,7 +3174,7 @@
+ 		{
+ 			if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() )
+ 			{
+-				FAssert(false); // just interested in when this happens, not a problem
++				//FAssert(false); // just interested in when this happens, not a problem
+ 				getGroup()->AI_seperate(); // will change group
+ 				return;
+ 			}
+

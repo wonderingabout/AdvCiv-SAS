@@ -1,0 +1,38 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 550
+# Author: jdog5000
+# Date: 2010-04-26T19:45:15.126695Z
+# Coverage: full
+# Message:
+#   Fixed crash bug
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@549
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@550
+@@ -10684,7 +10684,7 @@
+ 	int iPathTurns;
+ 	for(CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+-		if (pLoopSelectionGroup != pSkipSelectionGroup)
++		if (pLoopSelectionGroup != pSkipSelectionGroup && pLoopSelectionGroup->plot() != NULL && pLoopSelectionGroup->getNumUnits() > 0)
+ 		{
+ 			CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@549
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@550
+@@ -3067,7 +3067,7 @@
+ 
+ 	case AUTOMATE_EXPLORE:
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      04/25/10                                jdog5000      */
+ /*                                                                                              */
+ /* Player Interface                                                                             */
+ /************************************************************************************************/
+

@@ -1,0 +1,907 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 268
+# Author: iustus
+# Date: 2007-01-15T10:18:59.427409Z
+# Coverage: full
+# Message:
+#   moved region stuff to its own file, other misc code cleanup
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   A /trunk/CvGameCoreDLL/CvPlotRegion.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@267
++++ /trunk/CvGameCoreDLL/CvGame.cpp@268
+@@ -2083,22 +2083,85 @@
+ 			TeamTypes eTeam = pHeadSelectedUnit->getTeam();
+ 			int iRange = pHeadSelectedUnit->visibilityRange();
+ 
+-			CvVisibilityRegion visibilityValues;
++			CvPlotRegion visiblePlotRegion;
++			pHeadSelectedUnit->plot()->getVisiblePlots(visiblePlotRegion, eTeam, iRange);
++			for(CvPlotRegionIterator it = visiblePlotRegion.begin(); it != visiblePlotRegion.end(); it++)
++			{
++				CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->iX, it->iY);
++				FAssert(pLoopPlot != NULL);
++				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}
++
++			CvPlotDataRegion visibilityValues;
+ 			pHeadSelectedUnit->plot()->addPlotVisiblity(visibilityValues, iRange, 1, eTeam);
+-			for(CvVisibilityRegionIterator it = visibilityValues.begin(); it != visibilityValues.end(); it++)
+-			{
+-				CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->first.iX, it->first.iY);
+-				FAssert(pLoopPlot != NULL);
+-				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_POSITIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			
++			if (pHeadSelectedUnit->getDomainType() == DOMAIN_LAND)
++			{
++				CvPlotDataRegion adjacentPlots;
++				bool bIncludeOriginal = (pHeadSelectedUnit->getDomainType() == DOMAIN_AIR);
++				int iIncrement = (pHeadSelectedUnit->getDomainType() == DOMAIN_LAND) ? 2 : 1;
++				findAdjacentPlots(visibilityValues, adjacentPlots, bIncludeOriginal, iIncrement);
++				for(CvVisibilityRegionIterator it = adjacentPlots.begin(); it != adjacentPlots.end(); it++)
++				{
++					CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->first.iX, it->first.iY);
++					FAssert(pLoopPlot != NULL);
++					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_POSITIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				}
++
++				CvPlotDataRegion furtherAdjacentPlots;
++				bIncludeOriginal = false;
++				iIncrement = 1;
++				findAdjacentPlots(adjacentPlots, furtherAdjacentPlots, bIncludeOriginal, iIncrement);
++				for(CvVisibilityRegionIterator it = furtherAdjacentPlots.begin(); it != furtherAdjacentPlots.end(); it++)
++				{
++					CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->first.iX, it->first.iY);
++					FAssert(pLoopPlot != NULL);
++					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				}
++			}
++			else
++			{
++				CvPlotRegion adjacentPlots;
++				bool bIncludeOriginal = (pHeadSelectedUnit->getDomainType() == DOMAIN_AIR);
++				int iIncrement = (pHeadSelectedUnit->getDomainType() == DOMAIN_LAND) ? 2 : 1;
++				findAdjacentPlots(visiblePlotRegion, adjacentPlots, bIncludeOriginal, iIncrement);
++				for(CvPlotRegionIterator it = adjacentPlots.begin(); it != adjacentPlots.end(); it++)
++				{
++					CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->iX, it->iY);
++					FAssert(pLoopPlot != NULL);
++					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_POSITIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				}
++
++				CvPlotRegion furtherAdjacentPlots;
++				bIncludeOriginal = false;
++				iIncrement = 1;
++				findAdjacentPlots(adjacentPlots, furtherAdjacentPlots, bIncludeOriginal, iIncrement);
++				for(CvPlotRegionIterator it = furtherAdjacentPlots.begin(); it != furtherAdjacentPlots.end(); it++)
++				{
++					CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(it->iX, it->iY);
++					FAssert(pLoopPlot != NULL);
++					gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++				}
++
+ 			}
+ 
+ 			CLinkList<CvPlot*> visiblePlotList;
+ 			pHeadSelectedUnit->plot()->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
+-			for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++			/*for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
+ 			{
+ 				CvPlot* pLoopPlot = pNode->m_data;
+ 				CvVisibilityRegionIterator itValue = visibilityValues.find(XYCoords(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()));
+ 				gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString(itValue != visibilityValues.end() ? "COLOR_UNIT_TEXT" : "COLOR_NEGATIVE_TEXT")).getColor(), PLOT_STYLE_BOX_OUTLINE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++			}*/
++
++			// check size
++			FAssert(visiblePlotList.getLength() == visiblePlotRegion.size());
++
++			// compare
++			for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++			{
++				CvPlotRegionIterator itPlot = visiblePlotRegion.find(XYCoords(pNode->m_data->getX_INLINE(), pNode->m_data->getY_INLINE()));
++				FAssert(itPlot != visiblePlotRegion.end());
+ 			}
+ 
+ 			/*CLinkList<CvPlot*> furtherPlotList;
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@267
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@268
+@@ -1546,6 +1546,9 @@
+ 				RelativePath=".\CvPlotGroup.h">
+ 			</File>
+ 			<File
++				RelativePath=".\CvPlotRegion.h">
++			</File>
++			<File
+ 				RelativePath=".\CvPopupInfo.h">
+ 			</File>
+ 			<File
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@267
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@268
+@@ -1686,7 +1686,20 @@
+ 	CLinkList<CvPlot*> visiblePlotList; 
+ 	getVisiblePlotsList(visiblePlotList, eTeam, iRange);
+ 
+-	CvVisibilityRegion oldVisibilityValues;
++	CvPlotRegion visiblePlotRegion;
++	getVisiblePlots(visiblePlotRegion, eTeam, iRange);
++
++	// check size
++	FAssert(visiblePlotList.getLength() == visiblePlotRegion.size());
++
++	// compare
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		CvPlotRegionIterator itPlot = visiblePlotRegion.find(XYCoords(pNode->m_data->getX_INLINE(), pNode->m_data->getY_INLINE()));
++		FAssert(itPlot != visiblePlotRegion.end());
++	}
++
++	CvPlotDataRegion oldVisibilityValues;
+ 	addPlotVisiblity(oldVisibilityValues, iRange, 1, eTeam);
+ 
+ 	// check size
+@@ -1733,7 +1746,7 @@
+ 
+ #ifdef DO_VISIBILITY_TESTING
+ 	// get list of visible plots 
+-	CvVisibilityRegion visibilityValues;
++	CvPlotDataRegion visibilityValues;
+ 	addPlotVisiblity(visibilityValues, iRange, 1, eTeam);
+ 
+ 	// check size
+@@ -1756,8 +1769,7 @@
+ 
+ // addPlotVisiblity adds all plots visible from this at iRange to visiblePlots if they do not already exist in it,
+ // and adds the (*iObserverCount*visibility) value to the int value for each plot
+-
+-void CvPlot::addPlotVisiblity(CvVisibilityRegion& visiblePlots, int iRange, int iObserverCount, TeamTypes eTeam) const
++void CvPlot::addPlotVisiblity(CvPlotDataRegion& visiblePlots, int iRange, int iObserverCount, TeamTypes eTeam) const
+ {
+ 	// special case range 0
+ 	if (iRange == 0)
+@@ -1823,17 +1835,48 @@
+ 
+ }
+ 
+-void CvPlot::diffPlotVisiblity(TeamTypes eTeam, CvVisibilityRegion& newVisiblePlots, CvVisibilityRegion& oldVisiblePlots, bool bChangeOldPlots) const
+-{
+-
+-}
+-
+-void CvPlot::buildVisibilityRegion(CvVisibilityRegion& visiblePlots, TeamTypes eTeam) const
++// diffPlotVisibility essentially does newVisiblePlots - getVisibilityCount(eTeam) - oldVisiblePlots
++// so the result is a set of plots which were not previously visible but now will be visible
++// diffPlotVisiblity calculates the change in visibility if an observer at oldVisiblePlots is removed and an observer at newVisiblePlots is added
++// newVisiblePlots is changed to hold the result. If bChangeOldPlots is true, oldVisiblePlots is changed to hold the lost visibility plots
++// the visibility values in each plot should not be used in the result regions, just test for inclusion
++
++// diffPlotVisiblity
++
++//void CvPlot::newPlotVisiblity(TeamTypes eTeam, CvPlotDataRegion& newVisiblePlots, CvPlotDataRegion& oldVisiblePlots, bool bChangeOldPlots) const
++//{
++//	// loop over the new plots, removing as necessary
++//	CvVisibilityRegionIterator it = newVisiblePlots.begin()
++//	while (it != newVisiblePlots.end())
++//	{
++//		// increment before we work with it, so we can remove it if necessary
++//		CvVisibilityRegionIterator itNew = it;
++//		it++;
++//
++//		CvVisibilityRegionIterator itOld = oldVisiblePlots.find(GET_COORDS(it);
++//		
++//		CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(GET_COORDS(itNew).iX, GET_COORDS(itNew).iY);
++//		int iCurrentVisibility = pLoopPlot->getVisibilityCount(eTeam);
++//
++//		int iNewVisibility = 
++//	}
++//
++//	for (CvVisibilityRegionIterator it = newVisiblePlots.begin(); it != newVisiblePlots.end(); it++)
++//	{
++//		CvVisibilityRegionIterator itOldValue = oldVisibilityValues.find(GET_COORDS(it);
++//		
++//		CvPlot* pLoopPlot = GC.getMapINLINE().plotSorenINLINE(GET_COORDS(it).iX, GET_COORDS(it).iY);
++//		
++//		int iCurrentVisibility = pLoopPlot->getVisibilityCount(eTeam);
++//	}
++//}
++
++void CvPlot::buildVisibilityRegion(CvPlotDataRegion& visiblePlots, TeamTypes eTeam) const
+ {
+ 	buildVisibilityRegion(visiblePlots, headUnitNode(), eTeam);
+ }
+ 
+-void CvPlot::buildVisibilityRegion(CvVisibilityRegion& visiblePlots, CLLNode<IDInfo>* pHeadNode, TeamTypes eTeam) const
++void CvPlot::buildVisibilityRegion(CvPlotDataRegion& visiblePlots, CLLNode<IDInfo>* pHeadUnitNode, TeamTypes eTeam) const
+ {
+ 	int iLastRange = MAX_INT;
+ 	
+@@ -1843,13 +1886,13 @@
+ 		int iNextRange = -1;
+ 		int iNextObserverCount = 0;
+ 
+-		CLLNode<IDInfo>* pUnitNode = pHeadNode;
++		CLLNode<IDInfo>* pUnitNode = pHeadUnitNode;
+ 		while (pUnitNode !=	NULL)
+ 		{
+ 			CvUnit*	pLoopUnit =	::getUnit(pUnitNode->m_data);
+ 			pUnitNode =	nextUnitNode(pUnitNode);
+ 			
+-			if (pLoopUnit->getTeam() == eTeam)
++			if (eTeam == NO_TEAM || pLoopUnit->getTeam() == eTeam)
+ 			{
+ 				int iUnitRange = pLoopUnit->visibilityRange();
+ 
+@@ -1883,6 +1926,89 @@
+ 	}
+ }
+ 
++void CvPlot::getVisiblePlots(CvPlotRegion& plotRegion, TeamTypes eTeam, int iRange, CvPlotRegion* pExcludePlotRegion, bool bXOrExcludeRegion) const
++{
++	PROFILE_FUNC();
++
++	plotRegion.clear();
++
++	// iterate over	all	the	plots potentially visible
++	int	iCenterX = getX_INLINE();
++	int	iCenterY = getY_INLINE();
++	for	(int iDX = -(iRange	+ 1); iDX <= (iRange + 1); iDX++)
++	{
++		for	(int iDY = -(iRange	+ 1); iDY <= (iRange + 1); iDY++)
++		{
++			PROFILE("getVisiblePlots 1");
++
++			CvPlot*	pLoopPlot =	plotXY(iCenterX, iCenterY, iDX,	iDY);
++			if (pLoopPlot != NULL)
++			{
++				XYCoords xy(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++
++				bool bPlotVisible =	false;
++
++				// exclude plots in	exclude	region
++				if (pExcludePlotRegion != NULL)
++				{
++					// does plot exist in exclude region?
++					CvPlotRegionIterator itExclude = pExcludePlotRegion->find(xy);
++					if (itExclude != pExcludePlotRegion->end())
++					{
++						// remove from the exclude region if desired
++						if (bXOrExcludeRegion)
++						{
++							pExcludePlotRegion->erase(itExclude);
++						}
++
++						// skip	this plot if it	is excluded
++						continue;
++					}
++				}
++
++				// if interior,	then it	is visible
++				if (abs(iDX) <=	abs(iRange)	&& abs(iDY)	<= abs(iRange))
++				{
++					bPlotVisible = true;
++				}
++				// if outer	edge, check	if it would	be visible
++				// uses	reverse	of logic found in CvPlot::changeAdjacentSight
++				else
++				{
++					int	iEdgePlotSeeFromLevel =	pLoopPlot->seeFromLevel(eTeam);
++
++					// for every adjacent inner	plot, check	its	adjacent inner plots
++					CvPlot*	pAdjacentPlot;
++					int	iAdjacentPlotIndex = 0;
++					while (!bPlotVisible &&	(pAdjacentPlot = getIndexedInnerPlot(iCenterX, iCenterY, iDX, iDY, iAdjacentPlotIndex++)) != NULL)
++					{
++						int	iAdjacentPlotSeeThroughLevel = pAdjacentPlot->seeThroughLevel();
++
++						CvPlot*	pInnerPlot;
++						int	iInnerPlotIndex	= 0;
++						int	iAdjacentDX	= dxWrap(pAdjacentPlot->getX_INLINE() - iCenterX);
++						int	iAdjacentDY	= dyWrap(pAdjacentPlot->getY_INLINE() - iCenterY);
++						while (!bPlotVisible &&	(pInnerPlot	= getIndexedInnerPlot(iCenterX,	iCenterY, iAdjacentDX, iAdjacentDY,	iInnerPlotIndex++, iDX,	iDY)) != NULL)
++						{
++							int	iInnerSeeFromLevel = pInnerPlot->seeFromLevel(eTeam);
++
++							if ((iInnerSeeFromLevel	> iAdjacentPlotSeeThroughLevel)	||
++								(iInnerSeeFromLevel	== iAdjacentPlotSeeThroughLevel	&& iEdgePlotSeeFromLevel > iInnerSeeFromLevel))
++							{
++								bPlotVisible = true;
++							}
++						}
++					}
++				}
++
++				if (bPlotVisible)
++				{
++					plotRegion.insert(xy);
++				}
++			}
++		}
++	}
++}
+ 
+ void CvPlot::getVisiblePlotsList(CLinkList<CvPlot*>& plotsList,	TeamTypes eTeam, int iRange, CLinkList<CvPlot*>* pExcludePlotsList,	bool bXOrExcludeList) const
+ {
+@@ -2020,7 +2146,7 @@
+ 	}
+ 
+ #ifdef NEW_IMPLEMENTATION
+-	CvVisibilityRegion visiblePlots;
++	CvPlotDataRegion visiblePlots;
+ 	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
+ 	{
+ 		visiblePlots.clear();
+@@ -2030,7 +2156,7 @@
+ #endif
+ 
+ #ifdef DO_VISIBILITY_TESTING
+-	CvVisibilityRegion teamUnitOldVisibility[MAX_TEAMS];
++	CvPlotDataRegion teamUnitOldVisibility[MAX_TEAMS];
+ 	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
+ 	{
+ 		buildVisibilityRegion(teamUnitOldVisibility[iI], (TeamTypes) iI);
+@@ -2063,7 +2189,7 @@
+ 	}
+ 
+ #ifdef DO_VISIBILITY_TESTING
+-	CvVisibilityRegion teamUnitVisibility[MAX_TEAMS];
++	CvPlotDataRegion teamUnitVisibility[MAX_TEAMS];
+ 	for	(iI	= 0; iI	< MAX_TEAMS; iI++)
+ 	{
+ 		buildVisibilityRegion(teamUnitVisibility[iI], (TeamTypes) iI);
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@267
++++ /trunk/CvGameCoreDLL/CvPlot.h@268
+@@ -5,8 +5,8 @@
+ 
+ //#include "CvStructs.h"
+ #include "LinkedList.h"
++#include "CvPlotRegion.h"
+ #include <bitset>
+-#include <map>
+ 
+ #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
+ 
+@@ -23,60 +23,6 @@
+ class CvFlagEntity;
+ class CvExtraSaveData;
+ 
+-class CvVisibilityRegion : public std::map<XYCoords, int>
+-{
+-public:	
+-	// adding adds the int values at each plot, building a union of the two regions
+-	void operator+= (const CvVisibilityRegion& regionToAdd)
+-	{ 
+-		for(CvVisibilityRegion::const_iterator it = regionToAdd.begin(); it != regionToAdd.end(); it++)
+-		{
+-			// add the value, creating the entry if it doesnt exist
+-			(*this)[(*it).first] += (*it).second;
+-		}
+-	}
+-	
+-	// subtract finds the _positive_ intersection of the regions, 
+-	// if a point from regionToSubtract is in this region, then subtract the value from the other set 
+-	// if the result value is not positive, then remove this point from this set
+-	void operator-= (const CvVisibilityRegion& regionToSubtract)
+-	{ 
+-		for(CvVisibilityRegion::const_iterator it = regionToSubtract.begin(); it != regionToSubtract.end(); it++)
+-		{
+-			const XYCoords& xy = (*it).first;
+-			// make sure we have this plot in the set
+-			CvVisibilityRegion::iterator itFind = this->find(xy);
+-			if (itFind != this->end())
+-			{
+-				// subtract
+-				int iNewValue = (*itFind).second - (*it).second;
+-				if (iNewValue > 0)
+-				{
+-					(*itFind).second = iNewValue;
+-				}
+-				else
+-				{
+-					this->erase(itFind);
+-				}
+-			}
+-		}
+-	}
+-	
+-	// copy the left hand operand into new region, then += that with the right hand operand and return the result
+-	CvVisibilityRegion operator+ (const CvVisibilityRegion& regionToAdd) const 
+-	{
+-		CvVisibilityRegion resultRegion(*this);
+-		resultRegion += regionToAdd;
+-		return resultRegion;
+-	}
+-
+-};
+-
+-typedef CvVisibilityRegion::iterator CvVisibilityRegionIterator;
+-
+-#define GET_COORDS(it) (it->first)
+-#define GET_VISIBILITY(it) (it->second)
+-
+ typedef bool (*ConstPlotUnitFunc)( const CvUnit* pUnit, int iData1, int iData2);
+ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
+ 
+@@ -161,11 +107,11 @@
+ 	int seeThroughLevel() const;																																// Exposed to Python
+ 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
+ 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible);
+-	void addPlotVisiblity(CvVisibilityRegion& visiblePlots, int iRange, int iObserverCount, TeamTypes eTeam) const;
+-	void diffPlotVisiblity(TeamTypes eTeam, CvVisibilityRegion& newVisiblePlots, CvVisibilityRegion& oldVisiblePlots, bool bChangeOldPlots = false) const;
++	void addPlotVisiblity(CvPlotDataRegion& visiblePlots, int iRange, int iObserverCount, TeamTypes eTeam) const;
++	void getVisiblePlots(CvPlotRegion& plotRegion, TeamTypes eTeam, int iRange, CvPlotRegion* pExcludePlotRegion = NULL, bool bXOrExcludeRegion = false) const;
+ 	void getVisiblePlotsList(CLinkList<CvPlot*>& plotsList, TeamTypes eTeam, int iRange, CLinkList<CvPlot*>* pExcludePlotsList = NULL, bool bXOrExcludeList = false) const;
+-	void buildVisibilityRegion(CvVisibilityRegion& visiblePlots, TeamTypes eTeam) const;
+-	void buildVisibilityRegion(CvVisibilityRegion& visiblePlots, CLLNode<IDInfo>* pHeadNode, const TeamTypes eTeam) const;
++	void buildVisibilityRegion(CvPlotDataRegion& visiblePlots, TeamTypes eTeam) const;
++	void buildVisibilityRegion(CvPlotDataRegion& visiblePlots, CLLNode<IDInfo>* pHeadUnitNode, const TeamTypes eTeam = NO_TEAM) const;
+ 	void updateSight(bool bIncrement);
+ 	void updateSeeFromSight(bool bIncrement);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlotRegion.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvPlotRegion.h@268
+@@ -0,0 +1,378 @@
++#ifndef CIV4_PLOT_REGION_H
++#define CIV4_PLOT_REGION_H
++
++#include <map>
++#include <set>
++
++#define GET_COORDS(it) (it->first)
++#define GET_VISIBILITY(it) (it->second)
++
++inline XYCoords getIteratorXY(const std::set<XYCoords>::const_iterator itPlotRegion)
++{
++	return XYCoords(*itPlotRegion);
++}
++
++inline XYCoords getIteratorXY(const std::map<XYCoords,int>::const_iterator itPlotRegion)
++{
++	return XYCoords((itPlotRegion->first));
++}
++
++inline XYCoords makeIteratorXY(const std::set<XYCoords>::const_iterator itPlotRegion, XYCoords xy)
++{
++	return xy;
++}
++
++inline std::pair<XYCoords,int> makeIteratorXY(const std::map<XYCoords,int>::const_iterator itPlotRegion, XYCoords xy)
++{
++	return std::pair<XYCoords,int>(xy, 0);
++}
++
++template <class _RegionIter>
++inline int getRegionValue(const _RegionIter itRegion)
++{
++	return itRegion->second;
++}
++
++template <class _RegionIter>
++inline _RegionIter setRegionValue(const _RegionIter itRegion, int iValue)
++{
++	return itRegion->second = iValue;
++}
++
++// increases the size of regionToAddTo by adding all plots in regionToAdd 
++template <class _RegionClass>
++void regionUnion(_RegionClass& regionToAddTo, const _RegionClass& regionToAdd)
++{ 
++	for (_RegionClass::const_iterator it = regionToAdd.begin(); it != regionToAdd.end(); it++)
++	{
++		regionToAddTo.insert((*it));
++	}
++}
++
++// subtract removes all plots in regionToSubtract from regionToSubtractFrom (non-symetrical difference) 
++template <class _RegionClass>
++void regionDifference(_RegionClass& regionToSubtractFrom, const _RegionClass& regionToSubtract)
++{ 
++	for (_RegionClass::const_iterator it = regionToSubtract.begin(); it != regionToSubtract.end(); it++)
++	{
++		// if we have this plot in the set, remove it
++		_RegionClass::iterator itToSubtract = regionToSubtractFrom.find(getIteratorXY(it));
++		if (itToSubtract != regionToSubtractFrom.end())
++		{
++			regionToSubtractFrom.erase(itToSubtract);
++		}
++	}
++}
++
++// removes intersection from both regions
++template <class _RegionClass>
++void removeIntersection (_RegionClass& regionA, _RegionClass& regionB)
++{
++	_RegionClass& smallerRegion;
++	_RegionClass& largerRegion;
++
++	if (regionA < regionB)
++	{
++		smallerRegion = regionA;
++		largerRegion = regionB;
++	}
++	else
++	{
++		smallerRegion = regionB;
++		largerRegion = regionA;
++	}
++	
++	// loop over the plots, removing as necessary
++	_RegionClass::iterator it = smallerRegion.begin();
++	while (it != smallerRegion.end())
++	{
++		// increment before we work with it, so we can remove it if necessary
++		_RegionClass::iterator itSmaller = it;
++		it++;
++
++		_RegionClass::iterator itLarger = largerRegion.find(getIteratorXY(itSmaller));
++		if (itLarger != this->end())
++		{
++			largerRegion.erase(itLarger);
++			smallerRegion.erase(itSmaller);
++		}
++	}
++}
++
++class CvPlotRegion : public std::set<XYCoords>
++{
++public:	
++	// adding builds a union of the two regions
++	void operator+= (const CvPlotRegion& regionToAdd)
++	{ 
++		regionUnion<CvPlotRegion>(*this, regionToAdd);
++	}
++
++	// subtract removes all plots in regionToSubtract (non-symetrical difference) 
++	void operator-= (const CvPlotRegion& regionToSubtract)
++	{ 
++		regionDifference<CvPlotRegion>(*this, regionToSubtract);
++	}
++	
++	// copy the left hand operand into new region, then += that with the right hand operand and return the result
++	CvPlotRegion operator+ (const CvPlotRegion& regionToAdd) const 
++	{
++		CvPlotRegion resultRegion(*this);
++		resultRegion += regionToAdd;
++		return resultRegion;
++	}
++};
++
++typedef CvPlotRegion::iterator CvPlotRegionIterator;
++typedef CvPlotRegion::const_iterator CvPlotRegionConstIterator;
++
++class CvPlotDataRegion : public std::map<XYCoords,int>
++{
++public:	
++	// adding adds the int values at each plot, building a union of the two regions with a sum of the values
++	void operator+= (const CvPlotDataRegion& regionToAdd)
++	{ 
++		for (CvPlotDataRegion::const_iterator it = regionToAdd.begin(); it != regionToAdd.end(); it++)
++		{
++			(*this)[(*it).first] += (*it).second;
++		}
++	}
++	
++	// subtract finds the _positive_ intersection of the regions, 
++	// if a point from regionToSubtract is in this region, then subtract the value from the other set 
++	// if the result value is not positive, then remove this point from this set
++	// note, this is the only place where negative or zero visibility values cause a removal
++	// if -= is never called, then it is entirely legal to have zero or negative values
++	void operator-= (const CvPlotDataRegion& regionToSubtract)
++	{ 
++		for (CvPlotDataRegion::const_iterator it = regionToSubtract.begin(); it != regionToSubtract.end(); it++)
++		{
++			const XYCoords& xy = (*it).first;
++			// make sure we have this plot in the set
++			CvPlotDataRegion::iterator itFind = this->find(xy);
++			if (itFind != this->end())
++			{
++				// subtract
++				int iNewValue = (*itFind).second - (*it).second;
++				if (iNewValue > 0)
++				{
++					(*itFind).second = iNewValue;
++				}
++				else
++				{
++					this->erase(itFind);
++				}
++			}
++		}
++	}
++	
++	// copy the left hand operand into new region, then += that with the right hand operand and return the result
++	CvPlotDataRegion operator+ (const CvPlotDataRegion& regionToAdd) const 
++	{
++		CvPlotDataRegion resultRegion(*this);
++		resultRegion += regionToAdd;
++		return resultRegion;
++	}
++};
++
++typedef CvPlotDataRegion::iterator CvVisibilityRegionIterator;
++typedef CvPlotDataRegion::const_iterator CvVisibilityRegionConstIterator;
++typedef std::pair<XYCoords,int> CvVisibilityRegionPair;
++
++template<class _RegionClass>
++void findAdjacentPlots(const _RegionClass& sourceRegion, _RegionClass& adjacentRegion, bool bIncludeOriginal = false, int iIncrement = 1)
++{
++	// we are going to perform multiple steps
++	// step (1) smear the region horizontally, allowing negative and invalid coordinate values
++	// step (2) smear the region vertically, allowing negative and invalid coordinate values
++	// step (3) clip and wrap the final result to valid range
++	
++	// setup result
++	if (bIncludeOriginal)
++	{
++		adjacentRegion = sourceRegion;
++	}
++	else
++	{
++		adjacentRegion.clear();
++	}
++
++	_RegionClass::const_iterator itSource = sourceRegion.begin();
++
++	// if empty region, bail
++	if (itSource == sourceRegion.end())
++	{
++		return;
++	}
++	
++	//XYCoords topLeft = getIteratorXY(itSource);
++
++	// first smear horizontal adjacent plots
++	_RegionClass horizontalRegion;
++	while (itSource != sourceRegion.end())
++	{
++		// start this block
++		XYCoords blockXY = getIteratorXY(itSource);
++
++		// add iIncrement plots to the left
++		for (int iI = iIncrement; iI > 0; iI--)
++		{
++			// add left, (hint to end)
++			FAssert(sourceRegion.find(XYCoords(blockXY.iX - iI, blockXY.iY)) == sourceRegion.end());
++			horizontalRegion.insert(horizontalRegion.end(), makeIteratorXY(horizontalRegion.end(), XYCoords(blockXY.iX - iI, blockXY.iY)));
++		}
++
++		// loop until we are at the end or find a big enough gap
++		XYCoords sourceXY, nextXY;
++		while (itSource != sourceRegion.end())
++		{
++			// find the end of contiguous plots
++			_RegionClass::const_iterator itNext = itSource;
++			while (++itNext != sourceRegion.end())
++			{
++				sourceXY = getIteratorXY(itSource);
++				nextXY = getIteratorXY(itNext);
++				if (nextXY.iY != blockXY.iY || nextXY.iX != sourceXY.iX + 1)
++				{
++					break;				
++				}
++
++				itSource = itNext;
++			}
++			
++			// are we at end or end of row or is gap big enough to have a skip?
++			sourceXY = getIteratorXY(itSource);
++			nextXY = getIteratorXY(itNext);
++			if (itNext == sourceRegion.end() || nextXY.iY != blockXY.iY || nextXY.iX > sourceXY.iX + (2 * iIncrement) + 1)
++			{
++				// add iIncrement plots to the right
++				for (int iI = 1; iI <= iIncrement; iI++)
++				{
++					// add right, (hint to end)
++					FAssert(sourceRegion.find(XYCoords(sourceXY.iX + iI, blockXY.iY)) == sourceRegion.end());
++					horizontalRegion.insert(horizontalRegion.end(), makeIteratorXY(horizontalRegion.end(), XYCoords(sourceXY.iX + iI, blockXY.iY)));
++				}
++
++				// increment
++				itSource++;
++
++				// stop loop, go to next block
++				break;
++
++			}
++			
++			// fill in the too-small hole, then loop again, gap is less than ((2 * iIncrement) + 1)
++			int iGapSize = nextXY.iX - sourceXY.iX - 1;
++
++			// add iIncrement plots to the right
++			for (int iI = 1; iI <= iGapSize; iI++)
++			{
++				// add right, (hint to end)
++				FAssert(sourceRegion.find(XYCoords(sourceXY.iX + iI, blockXY.iY)) == sourceRegion.end());
++				horizontalRegion.insert(horizontalRegion.end(), makeIteratorXY(horizontalRegion.end(), XYCoords(sourceXY.iX + iI, blockXY.iY)));
++			}
++
++			// increment, search again for a hole or next line
++			itSource++;
++		}
++	}
++
++	// now smear vertical adjacent plots, just do this one brute force for now
++
++	// first smear plots from source
++	for (_RegionClass::const_iterator itSource = sourceRegion.begin(); itSource != sourceRegion.end(); itSource++)
++	{
++		XYCoords sourceXY = getIteratorXY(itSource);
++
++		// add iIncrement plots up
++		for (int iI = iIncrement; iI > 0; iI--)
++		{
++			// if not in source, then add it to adjacent
++			XYCoords adjacentXY(sourceXY.iX, sourceXY.iY - iI);
++			if (sourceRegion.find(adjacentXY) == sourceRegion.end())
++			{
++				adjacentRegion.insert(adjacentRegion.begin(), makeIteratorXY(adjacentRegion.begin(), adjacentXY));
++			}
++		}
++
++		// add iIncrement plots down
++		for (int iI = 1; iI <= iIncrement; iI++)
++		{
++			// if not in source, then add it to adjacent
++			XYCoords adjacentXY(sourceXY.iX, sourceXY.iY + iI);
++			if (sourceRegion.find(adjacentXY) == sourceRegion.end())
++			{
++				adjacentRegion.insert(adjacentRegion.end(), makeIteratorXY(adjacentRegion.end(), adjacentXY));
++			}
++		}
++	}
++	
++	// now smear plots from horizontal
++	for (_RegionClass::const_iterator itHorizontal = horizontalRegion.begin(); itHorizontal != horizontalRegion.end(); itHorizontal++)
++	{
++		// add the horizontal smear to the destination as well (we do not have to check for presense in source)
++		XYCoords sourceXY = getIteratorXY(itHorizontal);
++		adjacentRegion.insert(adjacentRegion.begin(), makeIteratorXY(adjacentRegion.begin(), sourceXY));
++
++		// add iIncrement plots up
++		for (int iI = iIncrement; iI > 0; iI--)
++		{
++			// if not in source, then add it to adjacent (note we do not bother to check for duplicates with previous smear)
++			XYCoords adjacentXY(sourceXY.iX, sourceXY.iY - iI);
++			if (sourceRegion.find(adjacentXY) == sourceRegion.end())
++			{
++				adjacentRegion.insert(adjacentRegion.begin(), makeIteratorXY(adjacentRegion.begin(), adjacentXY));
++			}
++		}
++
++		// add iIncrement plots down
++		for (int iI = 1; iI <= iIncrement; iI++)
++		{
++			// if not in source, then add it to adjacent (note we do not bother to check for duplicates with previous smear)
++			XYCoords adjacentXY(sourceXY.iX, sourceXY.iY + iI);
++			if (sourceRegion.find(adjacentXY) == sourceRegion.end())
++			{
++				adjacentRegion.insert(adjacentRegion.end(), makeIteratorXY(adjacentRegion.end(), adjacentXY));
++			}
++		}
++	}
++	
++	// clip/wrap any plots that are off the edge
++	_RegionClass::iterator it = adjacentRegion.begin();
++	while (it != adjacentRegion.end())
++	{
++		// increment before we work with it, so we can remove it if necessary
++		_RegionClass::iterator itAdjacent = it;
++		it++;
++
++		// does plot exist on map?
++		XYCoords adjacentXY = getIteratorXY(itAdjacent);
++		CvPlot* adjacentPlot = GC.getMapINLINE().plotINLINE(adjacentXY.iX, adjacentXY.iY);
++		if (adjacentPlot != NULL)
++		{
++			// did it wrap?
++			XYCoords wrapXY(adjacentPlot->getX_INLINE(), adjacentPlot->getY_INLINE());
++			if (adjacentXY != wrapXY)
++			{
++				// add wrapped one, if it is not already in source or destination
++				if (sourceRegion.find(wrapXY) == sourceRegion.end())
++				{
++					if (adjacentRegion.find(wrapXY) == adjacentRegion.end())
++					{
++						adjacentRegion.insert(makeIteratorXY(itAdjacent, wrapXY));
++					}
++				}
++				
++				// remove old one
++				adjacentRegion.erase(itAdjacent);
++			}
++		}
++		// doesnt exist, remove it
++		else
++		{
++			adjacentRegion.erase(itAdjacent);
++		}
++	}
++}
++
++#endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@267
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@268
+@@ -3622,13 +3622,12 @@
+ 	return NO_TEAM;
+ }
+ 
+-void CvSelectionGroup::buildVisibilityRegion(CvVisibilityRegion& visiblePlots) const
++void CvSelectionGroup::buildVisibilityRegion(CvPlotDataRegion& visiblePlots) const
+ {
+ 	CLLNode<IDInfo>* pHeadUnitNode = headUnitNode();
+ 	if (pHeadUnitNode != NULL)
+ 	{
+-		TeamTypes eTeam = ::getUnit(pHeadUnitNode->m_data)->getTeam();
+-		plot()->buildVisibilityRegion(visiblePlots, pHeadUnitNode, eTeam);
++		plot()->buildVisibilityRegion(visiblePlots, pHeadUnitNode);
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@267
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@268
+@@ -9,7 +9,7 @@
+ class CvPlot;
+ class CvArea;
+ class FAStarNode;
+-class CvVisibilityRegion;
++class CvPlotDataRegion;
+ 
+ class CvSelectionGroup
+ {
+@@ -149,7 +149,7 @@
+ 	PlayerTypes getHeadOwner() const;
+ 	TeamTypes getHeadTeam() const;
+ 
+-	void buildVisibilityRegion(CvVisibilityRegion& visiblePlots) const;
++	void buildVisibilityRegion(CvPlotDataRegion& visiblePlots) const;
+ 
+ 	void clearMissionQueue();																																	// Exposed to Python
+ 	DllExport int getLengthMissionQueue();																											// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@267
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@268
+@@ -8313,6 +8313,23 @@
+ 	int iRange = (eDomain != DOMAIN_AIR) ? visibilityRange() : ((airRange() + 1) / 2);
+ 	CLinkList<CvPlot*> visiblePlotList;
+ 	pPlot->getVisiblePlotsList(visiblePlotList, eTeam, iRange);
++
++#ifdef DO_VISIBILITY_TESTING
++	// new way
++	CvPlotRegion visiblePlotRegion;
++	pPlot->getVisiblePlots(visiblePlotRegion, eTeam, iRange);
++
++	// check size
++	FAssert(visiblePlotList.getLength() == visiblePlotRegion.size());
++
++	// compare
++	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
++	{
++		CvPlotRegionIterator itPlot = visiblePlotRegion.find(XYCoords(pNode->m_data->getX_INLINE(), pNode->m_data->getY_INLINE()));
++		FAssert(itPlot != visiblePlotRegion.end());
++	}
++#endif
++
+ 	for (CLLNode<CvPlot*>* pNode = visiblePlotList.head(); (pNode != NULL); pNode = visiblePlotList.next(pNode))
+ 	{
+ 		CvPlot* pLoopPlot = pNode->m_data;
+

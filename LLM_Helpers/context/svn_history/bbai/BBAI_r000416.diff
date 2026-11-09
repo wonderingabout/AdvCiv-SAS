@@ -1,0 +1,83 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 416
+# Author: jdog5000
+# Date: 2008-12-18T23:04:57.083499Z
+# Coverage: full
+# Message:
+#   Corrected some changes so they're labeled as CHANGE_PLAYER
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CyPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CyPlayer.h
+#   M /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CyPlayer.cpp
+--- /trunk/CvGameCoreDLL/CyPlayer.cpp@415
++++ /trunk/CvGameCoreDLL/CyPlayer.cpp@416
+@@ -26,7 +26,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI                         08/27/08                                 jdog5000      */
++/** CHANGE_PLAYER                         08/27/08                                 jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+@@ -47,7 +47,7 @@
+ 		m_pPlayer->setIsHuman( bNewValue );
+ }
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI                          END                                                  */
++/** CHANGE_PLAYER                          END                                                  */
+ /*************************************************************************************************/
+ 
+ int CyPlayer::startingPlotRange()
+
+Index: /trunk/CvGameCoreDLL/CyPlayer.h
+--- /trunk/CvGameCoreDLL/CyPlayer.h@415
++++ /trunk/CvGameCoreDLL/CyPlayer.h@416
+@@ -24,7 +24,7 @@
+ 	bool isNone() { return (m_pPlayer==NULL); }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI                         08/27/08                                 jdog5000      */
++/** CHANGE_PLAYER                         08/27/08                                 jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+@@ -32,7 +32,7 @@
+ 	void changeCiv( int /*CivilizationTypes*/ eNewCiv );
+ 	void setIsHuman( bool bNewValue );
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI                           END                                                  */
++/** CHANGE_PLAYER                           END                                                  */
+ /*************************************************************************************************/
+ 	int startingPlotRange();
+ 	bool startingPlotWithinRange(CyPlot *pPlot, int /*PlayerTypes*/ ePlayer, int iRange, int iPass);
+
+Index: /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp
+--- /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp@415
++++ /trunk/CvGameCoreDLL/CyPlayerInterface1.cpp@416
+@@ -22,7 +22,7 @@
+ 	x
+ 		.def("isNone", &CyPlayer::isNone, "checks for a null player")
+ 		/********************************************************************************/
+-		/**		BETTER_BTS_AI							08/27/08			jdog5000	*/
++		/**		CHANGE_PLAYER							08/27/08			jdog5000	*/
+ 		/**																				*/
+ 		/**		 																		*/
+ 		/********************************************************************************/
+@@ -30,7 +30,7 @@
+ 		.def( "changeCiv", &CyPlayer::changeCiv, "void ( int /*CivilizationTypes*/ eNewCiv ) - change civilization of player" )
+ 		.def( "setIsHuman", &CyPlayer::setIsHuman, "void ( bool bNewValue ) - set whether player is human" )
+ 		/********************************************************************************/
+-		/**		BETTER_BTS_AI							END								*/
++		/**		CHANGE_PLAYER							END								*/
+ 		/********************************************************************************/
+ 		.def("startingPlotRange", &CyPlayer::startingPlotRange, "int ()")
+ 		.def("startingPlotWithinRange", &CyPlayer::startingPlotWithinRange, "bool (CyPlot *pPlot, int /*PlayerTypes*/ ePlayer, int iRange, int iPass)")
+

@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 178
+# Author: iustus
+# Date: 2006-12-12T14:25:36.143210Z
+# Coverage: full
+# Message:
+#   AI_bestBuilding fix, wonder value was using uninitialized variable, could make wonders worth a near random value
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@177
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@178
+@@ -1969,11 +1969,11 @@
+ 								{
+ 									if (bAsync)
+ 									{
+-										iTempValue += ((iMultiplier * GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC")) / 100);
++										iTempValue = ((iMultiplier * GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC")) / 100);
+ 									}
+ 									else
+ 									{
+-										iTempValue += ((iMultiplier * GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand")) / 100);
++										iTempValue = ((iMultiplier * GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand")) / 100);
+ 									}
+ 									
+ 									if (bAreaAlone)
+

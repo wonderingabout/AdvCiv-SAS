@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 348
+# Author: iustus
+# Date: 2007-02-08T02:28:10.415498Z
+# Coverage: full
+# Message:
+#   fixed infinite loop when a group is split, so it can move, but an attack is already in progress where it wants to attack, so it is delayed. also fixed crash that infinite loop could cause
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@347
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@348
+@@ -171,13 +171,13 @@
+ 	bDead = false;
+ 	
+ 	bool bFailedAlreadyFighting = false;
+-	while ((m_bGroupAttack && !bFailedAlreadyFighting) || readyToMove())
++	while (!bFailedAlreadyFighting && (m_bGroupAttack || readyToMove()))
+ 	{
+ 		iTempHack++;
+ 		if (iTempHack > 100)
+ 		{
+ 			FAssert(false);
+-			pHeadUnit->finishMoves();
++			if ((pHeadUnit = getHeadUnit()) != NULL) { pHeadUnit->finishMoves(); }
+ 			break;
+ 		}
+ 
+@@ -222,7 +222,7 @@
+ 		}
+ 	}
+ 
+-	if (!bDead)
++	if (!bFailedAlreadyFighting && !bDead)
+ 	{
+ 		if (!isHuman())
+ 		{
+

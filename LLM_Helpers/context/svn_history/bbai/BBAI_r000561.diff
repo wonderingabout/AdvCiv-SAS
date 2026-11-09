@@ -1,0 +1,64 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 561
+# Author: jdog5000
+# Date: 2010-05-15T03:24:34.225204Z
+# Coverage: full
+# Message:
+#   More sacrifice tweaks
+#   Better GG world unit method
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@560
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@561
+@@ -1138,17 +1138,20 @@
+ 		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+ 		iValue /= (10 + getExperience());
+ */
+-		iValue  = 1280 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
++		iValue  = 128 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
+ 		iValue *= (100 + iCollateralDamageValue);
+ 		iValue /= (100 + cityDefenseModifier());
+-		iValue *= (100 + withdrawalProbability());	
+-		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+-
+-		// Value experience a bit more, especially medics
+-		iValue /= (8 + getExperience());
+-		iValue /= (10 + getSameTileHeal() + getAdjacentTileHeal());
+-
+-		// Value units which can't kill units later
++		iValue *= (100 + withdrawalProbability());
++
++		// Experience and medics now better handled in LFB
++		iValue /= (10 + getExperience());
++		if( !GC.getLFBEnable() )
++		{
++			iValue *= 10;
++			iValue /= (10 + getSameTileHeal() + getAdjacentTileHeal());
++		}
++
++		// Value units which can't kill units later, also combat limits mean higher survival odds
+ 		if (combatLimit() < 100)
+ 		{
+ 			iValue *= 150;
+@@ -1157,6 +1160,8 @@
+ 			iValue *= 100;
+ 			iValue /= std::max(1, combatLimit());
+ 		}
++
++		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -12599,7 +12604,7 @@
+ 		{
+ 			for (uint iI = 0; iI < aeUnitAITypes.size(); iI++)
+ 			{
+-				if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI] || (GC.getUnitClassInfo(pLoopUnit->getUnitClassType()).getMaxGlobalInstances() > 0) )
++				if (pLoopUnit->AI_getUnitAIType() == aeUnitAITypes[iI] || NO_UNITAI == aeUnitAITypes[iI] || isWorldUnitClass(pLoopUnit->getUnitClassType()) )
+ 				{
+ 					if (canLead(pLoopUnit->plot(), pLoopUnit->getID()) > 0)
+ 					{
+

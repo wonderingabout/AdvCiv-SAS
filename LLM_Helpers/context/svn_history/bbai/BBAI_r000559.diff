@@ -1,0 +1,455 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 559
+# Author: jdog5000
+# Date: 2010-05-14T22:18:52.847226Z
+# Coverage: full
+# Message:
+#   Devel version 1.00b
+#   
+#   - Smarter AI civics choices, less perturbed by war plans
+#   - War mongers now value techs like if at war
+#   - Much improved active choke attacking early in game
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@558
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@559
+@@ -1310,12 +1310,19 @@
+     
+ 	// -------------------- BBAI Notes -------------------------
+ 	// Minimal attack force, both land and sea
+-    if (bDanger && kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK) < 2)
++    if (bDanger) 
+     {
+-    	if (AI_chooseUnit(UNITAI_ATTACK))
+-    	{
+-    		return;
+-    	}
++		int iAttackNeeded = 4;
++		iAttackNeeded += std::max(0, AI_neededDefenders() - plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()));
++
++		if( kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK) <  iAttackNeeded)
++		{
++    		if (AI_chooseUnit(UNITAI_ATTACK))
++    		{
++				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses danger minimal attack", getName().GetCString());
++    			return;
++    		}
++		}
+     }
+     
+     if (bMaybeWaterArea)
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@558
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@559
+@@ -4508,12 +4508,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/21/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.00a");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.00b");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@558
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@559
+@@ -3958,7 +3958,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/18/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* Tech AI                                                                                      */
+ /************************************************************************************************/
+@@ -5087,9 +5087,16 @@
+ 
+ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnablesUnitWonder ) const
+ {
+-	// BBAI TODO: effectively war plan if total war odds high enough
+-	//GET_TEAM(getTeam()).AI_getWarRands(iMaxWarRand, iLimitedWarRand, iDogpileWarRand);
+ 	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	if( !bWarPlan )
++	{
++		// Aggressive players will stick with war civics
++		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 200 )
++		{
++			bWarPlan = true;
++		}
++	}
++
+ 	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+ 	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 	int iCoastalCities = countNumCoastalCities();
+@@ -10930,7 +10937,11 @@
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/		
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
++/*                                                                                              */
++/* Civic AI, Victory Strategy AI                                                                */
++/************************************************************************************************/
+ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ {
+ 	PROFILE_FUNC();
+@@ -10944,16 +10955,8 @@
+ 	int iValue;
+ 	int iTempValue;
+ 	int iI, iJ;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/08/10                                jdog5000      */
+-/*                                                                                              */
+-/* Victory Strategy AI                                                                          */
+-/************************************************************************************************/
+ 	bool bCultureVictory3 = AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3);
+ 	bool bCultureVictory2 = AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
+@@ -10970,12 +10973,69 @@
+ 	}
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/	
++/************************************************************************************************/
++
++	if( isBarbarian() )
++	{
++		return 1;
++	}
+ 
+ 	CvCivicInfo& kCivic = GC.getCivicInfo(eCivic);
+ 
+-	// BBAI TODO: effectively war plan if total war odds high enough
+ 	bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	if( bWarPlan )
++	{
++		bWarPlan = false;
++		int iEnemyWarSuccess = 0;
++
++		for( int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++ )
++		{
++			if( GET_TEAM((TeamTypes)iTeam).isAlive() && !GET_TEAM((TeamTypes)iTeam).isMinorCiv() )
++			{
++				if( GET_TEAM(getTeam()).isAtWar((TeamTypes)iTeam) )
++				{
++					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_TOTAL )
++					{
++						bWarPlan = true;
++						break;
++					}
++
++					if( GET_TEAM(getTeam()).AI_isLandTarget((TeamTypes)iTeam) )
++					{
++						bWarPlan = true;
++						break;
++					}
++
++					iEnemyWarSuccess += GET_TEAM((TeamTypes)iTeam).AI_getWarSuccess(getTeam());
++				}
++			}
++		}
++
++		if( !bWarPlan )
++		{
++			if( iEnemyWarSuccess > std::min(getNumCities(), 4) * GC.getWAR_SUCCESS_CITY_CAPTURING() )
++			{
++				// Lots of fighting, so war is real
++				bWarPlan = true;
++			}
++			else if( iEnemyWarSuccess > std::min(getNumCities(), 2) * GC.getWAR_SUCCESS_CITY_CAPTURING() )
++			{
++				if( GET_TEAM(getTeam()).AI_getEnemyPowerPercent() > 120 )
++				{
++					bWarPlan = true;
++				}
++			}
++		}
++	}
++
++	if( !bWarPlan )
++	{
++		// Aggressive players will stick with war civics
++		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 200 )
++		{
++			bWarPlan = true;
++		}
++	}
+ 
+ 	iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+ 	iTotalReligonCount = countTotalHasReligion();
+@@ -10995,11 +11055,6 @@
+ 
+ 	iValue += -(GC.getCivicInfo(eCivic).getAnarchyLength() * getNumCities());
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/14/10                                jdog5000      */
+-/*                                                                                              */
+-/* Civic AI                                                                                     */
+-/************************************************************************************************/
+ 	iValue += -(getSingleCivicUpkeep(eCivic, true)*80)/100;
+ 
+ 	int iTemp = 0;
+@@ -11412,12 +11467,12 @@
+ 	{
+ 	    iValue /= 10;	    
+ 	}
++
++	return iValue;
++}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
+-
+-	return iValue;
+-}
++/************************************************************************************************/
+ 
+ 
+ ReligionTypes CvPlayerAI::AI_bestReligion() const
+@@ -18493,7 +18548,7 @@
+ 			{
+ 				// This may be our first city captured on a large enemy continent, need defenses to scale up based
+ 				// on total number of area cities not just ours
+-				iDefenders = std::min(iDefenders, iAreaCities * iAreaCities + (pArea->getNumCities() - iAreaCities) - 1);
++				iDefenders = std::min(iDefenders, iAreaCities * iAreaCities + pArea->getNumCities() - iAreaCities - 1);
+ 			}
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@558
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@559
+@@ -2789,7 +2789,21 @@
+ 	iTotalWarThreshold += bAggressive ? 1 : 0;
+ }
+ 
+-// BBAI TODO: Total war odds function, so that can be checked elsewhere
++// Returns odds of player declaring total war times 100
++int CvTeamAI::AI_getTotalWarOddsTimes100( ) const
++{
++	int iTotalWarRand;
++	int iLimitedWarRand;
++	int iDogpileWarRand;
++	AI_getWarRands( iTotalWarRand, iLimitedWarRand, iDogpileWarRand );
++
++	int iTotalWarThreshold;
++	int iLimitedWarThreshold;
++	int iDogpileWarThreshold;
++	AI_getWarThresholds( iTotalWarThreshold, iLimitedWarThreshold, iDogpileWarThreshold );
++
++	return ((100 * 100 * iTotalWarThreshold) / std::max(1, iTotalWarRand));
++}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -4425,8 +4439,9 @@
+ 								{
+ 									if (AI_isChosenWar((TeamTypes)iI))
+ 									{
+-										if (AI_getAtWarCounter((TeamTypes)iI) > 20)
++										if( AI_getAtWarCounter((TeamTypes)iI) > std::max(10, (14 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent())/100) )
+ 										{
++											// If nothing is happening in war
+ 											if( AI_getWarSuccess((TeamTypes)iI) + GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID()) < 2*GC.getDefineINT("WAR_SUCCESS_ATTACKING") )
+ 											{
+ 												if( (GC.getGameINLINE().getSorenRandNum(8, "AI Make Peace 1") == 0) )
+@@ -4444,6 +4459,16 @@
+ 																break;
+ 															}
+ 														}
++
++														if( GET_PLAYER((PlayerTypes)iPlayer).getTeam() == iI )
++														{
++															MissionAITypes eMissionAI = MISSIONAI_ASSAULT;
++															if( GET_PLAYER((PlayerTypes)iPlayer).AI_enemyTargetMissionAIs(getID(), &eMissionAI, 1) > 0 )
++															{
++																bValid = false;
++																break;
++															}
++														}
+ 													}
+ 
+ 													if( bValid )
+@@ -4460,7 +4485,8 @@
+ 												}
+ 											}
+ 
+-											if (AI_getAtWarCounter((TeamTypes)iI) > ((AI_getWarPlan((TeamTypes)iI) == WARPLAN_TOTAL) ? 40 : 30))
++											// Fought to a long draw
++											if (AI_getAtWarCounter((TeamTypes)iI) > ((((AI_getWarPlan((TeamTypes)iI) == WARPLAN_TOTAL) ? 40 : 30) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent())/100) )
+ 											{
+ 												int iOurValue = AI_endWarVal((TeamTypes)iI);
+ 												int iTheirValue = GET_TEAM((TeamTypes)iI).AI_endWarVal(getID());
+@@ -4475,16 +4501,22 @@
+ 												}
+ 											}
+ 
++											// All alone in what we thought was a dogpile
+ 											if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_DOGPILE)
+ 											{
+ 												if (GET_TEAM((TeamTypes)iI).getAtWarCount(true) == 1)
+ 												{
+-													if( gTeamLogLevel >= 1 )
++													int iOurValue = AI_endWarVal((TeamTypes)iI);
++													int iTheirValue = GET_TEAM((TeamTypes)iI).AI_endWarVal(getID());
++													if ((iTheirValue > (iOurValue / 2)))
+ 													{
+-														logBBAI("  Team %d (%S) making peace due to being only dog-piler left", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++														if( gTeamLogLevel >= 1 )
++														{
++															logBBAI("  Team %d (%S) making peace due to being only dog-piler left", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0) );
++														}
++														makePeace((TeamTypes)iI);
++														break;
+ 													}
+-													makePeace((TeamTypes)iI);
+-													break;
+ 												}
+ 											}
+ 										}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@558
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@559
+@@ -110,7 +110,7 @@
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/20/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -122,6 +122,7 @@
+ 
+ 	void AI_getWarRands( int &iMaxWarRand, int &iLimitedWarRand, int &iDogpileWarRand ) const;
+ 	void AI_getWarThresholds( int &iMaxWarThreshold, int &iLimitedWarThreshold, int &iDogpileWarThreshold ) const;
++	int AI_getTotalWarOddsTimes100( ) const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@558
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@559
+@@ -1960,16 +1960,18 @@
+ 	PROFILE_FUNC();
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/03/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* Unit AI, Settler AI, Efficiency                                                              */
+ /************************************************************************************************/
++	bool bDanger = (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 3));
++
+ 	if( getGroup()->getNumUnits() > 2 )
+ 	{
+ 		UnitAITypes eGroupAI = getGroup()->getHeadUnitAI();
+ 		if( eGroupAI == AI_getUnitAIType() )
+ 		{
+-			if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() )
++			if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() && !bDanger )
+ 			{
+ 				// Shouldn't have groups of > 2 attack units
+ 				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK) > 2 )
+@@ -1993,7 +1995,42 @@
+ 		}
+ 	}
+ 
+-	bool bDanger = (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 3));
++
++	// Attack choking units
++	if( plot()->isCity() && plot()->getOwnerINLINE() == getOwnerINLINE() && bDanger )
++	{
++		int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
++		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
++
++		if( iOurDefense < 3*iEnemyOffense )
++		{
++			if (AI_guardCity(true))
++			{
++				return;
++			}
++		}
++
++		if( iOurDefense > 2*iEnemyOffense )
++		{
++			if (AI_anyAttack(2, 55))
++			{
++				return;
++			}
++		}
++
++		if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, false))
++		{
++			return;
++		}
++
++		if( iOurDefense > 2*iEnemyOffense )
++		{
++			if (AI_anyAttack(2, 30))
++			{
++				return;
++			}
++		}
++	}
+ 
+ 	{
+ 		PROFILE("CvUnitAI::AI_attackMove() 1");
+@@ -2148,15 +2185,15 @@
+ 			}
+ 		}
+ 
+-		// BBAI TODO: Not sure about this ... UNITAI_ATTACK groups with many UNITAI_ATTACK members???
++		// Allow larger groups if outside territory
+ 		if( getGroup()->getNumUnits() < 3 )
+ 		{
+ 			if( plot()->isOwned() && plot()->getOwnerINLINE() != getOwnerINLINE() )
+ 			{
+-				//if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, true))
+-				//{
+-				//	return;
+-				//}
++				if (AI_groupMergeRange(UNITAI_ATTACK, 1, true, true, true))
++				{
++					return;
++				}
+ 			}
+ 		}
+ 
+@@ -2254,6 +2291,11 @@
+ 			//		return;
+ 			//	}
+ 			//}
++
++			if (AI_group(UNITAI_ATTACK, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, true, false, false, /*iMaxPath*/ 1))
++			{
++				return;
++			}
+ 		}
+ 
+ 		if (area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+

@@ -1,0 +1,30 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 234
+# Author: blakeciv
+# Date: 2006-12-28T22:47:44.075481Z
+# Coverage: full
+# Message:
+#   Happy Holidays I lost Part II so here it is:
+#   
+#   
+#   Start Points: Now always take distance properly into consideration regardless of map script. Should be less polar starts since the "Push starts apart" factor has been weakened quite a lot.
+#   
+#   Units: Promotions will be chosen more smartly, the AI should follow promotion lines better and have less mismatched promotions.
+#   The AI will now build and use a few more pillagers, targeting strategics where possible. (towards these ends you can now pass a threshold to pillage functions, if set the AI will only pillage bonuses and only those meeting the threshold (compared directly with the AI_bonusVal))
+#   The AI will build considerably more defenders.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@233
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@234
+@@ -24,6 +24,7 @@
+ #define FOUND_RANGE				(6)
+ 
+ //#define DEBUG_WAR_ACTIONS
++//this line changed so i can add another commit message :P
+ 
+ // Public Functions...
+ 
+

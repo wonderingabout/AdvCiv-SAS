@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 140
+# Author: blakeciv
+# Date: 2006-12-01T19:47:39.853147Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@139
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@140
+@@ -4211,7 +4211,7 @@
+ 	{
+ 		iValue += (iTemp / 10);
+ 	}
+-	else
++	else if (AI_getUnitAIType() != UNITAI_CITY_DEFENSE)
+ 	{
+ 		iValue += (iTemp / 20);
+ 	}
+

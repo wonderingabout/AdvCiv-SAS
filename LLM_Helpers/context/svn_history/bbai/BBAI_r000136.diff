@@ -1,0 +1,405 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 136
+# Author: blakeciv
+# Date: 2006-12-01T03:57:57.279048Z
+# Coverage: full
+# Message:
+#   Crash nuked changes to CvPlayerAI, rewrote the code. Also added culture-awareness to FoundValue.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@135
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@136
+@@ -1509,6 +1509,7 @@
+ 
+ 	iGreed = 100;
+ 
++
+     if (!bStartingLoc)
+     {
+         for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
+@@ -1522,6 +1523,10 @@
+             }
+         }
+     }
++    //iClaimThreshold is the culture required to pop the 2nd borders.
++    int iClaimThreshold = GC.getCultureLevelInfo((CultureLevelTypes)(min(2, (GC.getNumCultureLevelInfos() - 1)))).getSpeedThreshold(GC.getGameINLINE().getGameSpeedType());
++    iClaimThreshold = max(1, iClaimThreshold);
++    iClaimThreshold *= (max(100, iGreed));
+ 
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+@@ -1551,6 +1556,25 @@
+ 			eFeature = pLoopPlot->getFeatureType();
+ 			eBonus = pLoopPlot->getBonusType((bStartingLoc) ? NO_TEAM : getTeam());
+ 			eBonusImprovement = NO_IMPROVEMENT;
++			
++			int iCultureMultiplier;
++            if (!pLoopPlot->isOwned() || pPlot->getOwnerINLINE() == getID())
++            {	
++                iCultureMultiplier = 100;    
++            }
++            else
++            {
++                int iOurCulture = pLoopPlot->getCulture(getID());
++                int iOtherCulture = max(1, pLoopPlot->getCulture(pPlot->getOwnerINLINE()));
++                iCultureMultiplier = 100 * (iOurCulture + iClaimThreshold);
++                iCultureMultiplier /= (iOtherCulture + iClaimThreshold);
++                iCultureMultiplier = min(100, iCultureMultiplier);
++            }
++            
++            if (iCultureMultiplier < 25)
++            {
++                iTakenTiles++;
++            }
+ 
+ 			if (eBonus != NO_BONUS)
+ 			{
+@@ -1645,81 +1669,88 @@
+ 				iTempValue *= iGreed;
+ 				iTempValue /= 100;
+ 			}
+-
++			
++			iTempValue *= iCultureMultiplier;
++			iTempValue /= 100;
++			
+ 			iValue += iTempValue;
+-
+-			if (eFeature != NO_FEATURE)
+-			{
+-				if (iI != CITY_HOME_PLOT)
+-				{
+-					iHealth += GC.getFeatureInfo(eFeature).getHealthPercent();
+-
+-					iSpecialFoodPlus += max(0, aiYield[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION());
+-				}
+-			}
+-
+-			if (eBonus != NO_BONUS)
+-			{
+-				PROFILE("CvPlayerAI::AI_foundValue() 4");
+-
+-                paiBonusCount[eBonus]++;
+-                FAssert(paiBonusCount[eBonus] > 0);
+-
+-				iTempValue = (AI_bonusVal(eBonus) * ((!bStartingLoc && (getNumTradeableBonuses(eBonus) == 0) && (paiBonusCount[eBonus] == 1)) ? 80 : 20));
+-				iTempValue *= ((bStartingLoc) ? 100 : iGreed);
+-				iTempValue /= 100;
+-
+-				if (iI != CITY_HOME_PLOT && !bStartingLoc)
++			
++			if (iCultureMultiplier > 33)
++			{
++                if (eFeature != NO_FEATURE)
+                 {
+-					if ((pLoopPlot->getOwnerINLINE() != getID()) && stepDistance(pPlot->getX_INLINE(),pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) > 1)
+-					{
+-						iTempValue *= 2;
+-						iTempValue /= 3;
+-
+-						iTempValue *= min(150, iGreed);
+-						iTempValue /= 100;
+-					}
++                    if (iI != CITY_HOME_PLOT)
++                    {
++                        iHealth += GC.getFeatureInfo(eFeature).getHealthPercent();
++
++                        iSpecialFoodPlus += max(0, aiYield[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION());
++                    }
+                 }
+ 
+-				iValue += (iTempValue + 10);
+-
+-				if (iI != CITY_HOME_PLOT)
+-				{
+-					if (eBonusImprovement != NO_IMPROVEMENT)
+-					{
+-						int iSpecialFoodTemp;
+-						iSpecialFoodTemp = pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
+-
+-						iSpecialFood += iSpecialFoodTemp;
+-
+-						iSpecialFoodTemp -= GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-
+-						iSpecialFoodPlus += max(0,iSpecialFoodTemp);
+-						iSpecialFoodMinus -= min(0,iSpecialFoodTemp);
+-						iSpecialProduction += pLoopPlot->calculateBestNatureYield(YIELD_PRODUCTION, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
+-						iSpecialCommerce += pLoopPlot->calculateBestNatureYield(YIELD_COMMERCE, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+-					}
+-
+-					if (eFeature != NO_FEATURE)
+-					{
+-						if (GC.getFeatureInfo(eFeature).getYieldChange(YIELD_FOOD) < 0)
+-						{
+-							iResourceValue -= 30;
+-						}
+-					}
+-
+-                    if (pLoopPlot->isWater())
++                if (eBonus != NO_BONUS)
++                {
++                    PROFILE("CvPlayerAI::AI_foundValue() 4");
++
++                    paiBonusCount[eBonus]++;
++                    FAssert(paiBonusCount[eBonus] > 0);
++
++                    iTempValue = (AI_bonusVal(eBonus) * ((!bStartingLoc && (getNumTradeableBonuses(eBonus) == 0) && (paiBonusCount[eBonus] == 1)) ? 80 : 20));
++                    iTempValue *= ((bStartingLoc) ? 100 : iGreed);
++                    iTempValue /= 100;
++
++                    if (iI != CITY_HOME_PLOT && !bStartingLoc)
+                     {
+-                        iValue += (bIsCoastal ? 150 : -150);
++                        if ((pLoopPlot->getOwnerINLINE() != getID()) && stepDistance(pPlot->getX_INLINE(),pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) > 1)
++                        {
++                            iTempValue *= 2;
++                            iTempValue /= 3;
++
++                            iTempValue *= min(150, iGreed);
++                            iTempValue /= 100;
++                        }
+                     }
+-				}
+-			}
+-		}
+-	}
+-
+-	iResourceValue += iSpecialFood * 50;
+-	iResourceValue += iSpecialProduction * 50;
+-	iResourceValue += iSpecialCommerce * 50;
++
++                    iValue += (iTempValue + 10);
++
++                    if (iI != CITY_HOME_PLOT)
++                    {
++                        if (eBonusImprovement != NO_IMPROVEMENT)
++                        {
++                            int iSpecialFoodTemp;
++                            iSpecialFoodTemp = pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD);
++
++                            iSpecialFood += iSpecialFoodTemp;
++
++                            iSpecialFoodTemp -= GC.getFOOD_CONSUMPTION_PER_POPULATION();
++
++                            iSpecialFoodPlus += max(0,iSpecialFoodTemp);
++                            iSpecialFoodMinus -= min(0,iSpecialFoodTemp);
++                            iSpecialProduction += pLoopPlot->calculateBestNatureYield(YIELD_PRODUCTION, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_PRODUCTION);
++                            iSpecialCommerce += pLoopPlot->calculateBestNatureYield(YIELD_COMMERCE, getTeam()) + GC.getImprovementInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
++                        }
++
++                        if (eFeature != NO_FEATURE)
++                        {
++                            if (GC.getFeatureInfo(eFeature).getYieldChange(YIELD_FOOD) < 0)
++                            {
++                                iResourceValue -= 30;
++                            }
++                        }
++
++                        if (pLoopPlot->isWater())
++                        {
++                            iValue += (bIsCoastal ? 100 : -800);
++                        }
++                    }                    
++				}
++			}
++		}
++	}
++	
++    iResourceValue += iSpecialFood * 50;
++    iResourceValue += iSpecialProduction * 50;
++    iResourceValue += iSpecialCommerce * 50;
++
+ 	iValue += max(0, iResourceValue);
+ 
+ 	if (iTakenTiles > (NUM_CITY_PLOTS / 3) && iResourceValue < 250)
+@@ -1843,11 +1874,16 @@
+ 			iValue /= 4;
+ 		}
+ 	}
+-
+-	iValue *= 100 + 20 * max(0, min(iSpecialFoodPlus, 4 * GC.getFOOD_CONSUMPTION_PER_POPULATION()));
+-	iValue /= 100 + 10 * max(0, iSpecialFoodMinus);
++	
++	int iFoodSurplus = max(0, iSpecialFoodPlus - iSpecialFoodMinus);
++	int iFoodDeficit = max(0, iSpecialFoodMinus - iSpecialFoodPlus);
++
++	iValue *= 100 + 20 * max(0, min(iFoodSurplus, 2 * GC.getFOOD_CONSUMPTION_PER_POPULATION()));
++	iValue /= 100 + 20 * max(0, iFoodDeficit);
+ 
+ 	iValue /= (max(0, (iBadTile - (NUM_CITY_PLOTS / 4))) + 3);
++	
++	iValue /= (1 + AI_countDeadlockedBonuses(pPlot));
+ 
+ 	if (bStartingLoc)
+ 	{
+@@ -2148,6 +2184,99 @@
+ 	return iCount;
+ }
+ 
++int CvPlayerAI::AI_getUnitDanger(CvUnit* pUnit, int iRange, bool bTestMoves, bool bAnyDanger)
++{
++	PROFILE_FUNC();
++
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++	CvPlot* pLoopPlot;
++	int iCount;
++	int iDistance;
++	int iBorderDanger;
++	int iDX, iDY;
++
++    CvPlot* pPlot = pUnit->plot();
++	iCount = 0;
++	iBorderDanger = 0;
++
++	if (iRange == -1)
++	{
++		iRange = DANGER_RANGE;
++	}
++	
++	for (iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (iDY = -(iRange); iDY <= iRange; iDY++)
++		{
++			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (pLoopPlot->area() == pPlot->area())
++				{
++				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++				    if (atWar(pLoopPlot->getTeam(), getTeam()))
++				    {
++				        if (iDistance == 1)
++				        {
++				            iBorderDanger++;
++				        }
++				        else if ((iDistance == 2) && (pLoopPlot->isRoute()))
++				        {
++				            iBorderDanger++;
++				        }
++				    }
++
++
++					pUnitNode = pLoopPlot->headUnitNode();
++
++					while (pUnitNode != NULL)
++					{
++						pLoopUnit = ::getUnit(pUnitNode->m_data);
++						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++						if (atWar(pLoopUnit->getTeam(), getTeam()))
++						{
++							if (pLoopUnit->canAttack())
++							{
++								if (!(pLoopUnit->isInvisible(getTeam(), false)))
++								{
++								    if (pLoopUnit->canMoveOrAttackInto(pPlot))
++								    {
++                                        if (!bTestMoves)
++                                        {
++                                            iCount++;
++                                        }
++                                        else
++                                        {
++                                            int iDangerRange = pLoopUnit->baseMoves();
++                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
++                                            if (iDangerRange >= iDistance)
++                                            {
++                                                iCount++;
++                                            }
++                                        }
++								    }
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (iBorderDanger > 0)
++	{
++	    if (!isHuman() || pUnit->isAutomated())
++	    {
++            iCount += iBorderDanger;
++	    }
++	}
++
++	return iCount;
++}
+ 
+ bool CvPlayerAI::AI_avoidScience()
+ {
+@@ -9357,6 +9486,66 @@
+ }
+ 
+ 
++int CvPlayerAI::AI_countDeadlockedBonuses(CvPlot* pPlot)
++{
++    CvPlot* pLoopPlot;
++    CvPlot* pLoopPlot2;
++    int iDX, iDY;
++    int iI;
++    
++    int iMinRange = GC.getDefineINT("MIN_CITY_RANGE");
++    int iRange = iMinRange * 2;
++    int iCount = 0;
++
++    for (iDX = -(iRange); iDX <= iRange; iDX++)
++    {
++        for (iDY = -(iRange); iDY <= iRange; iDY++)
++        {
++            if (plotDistance(iDX, iDY, 0, 0) > CITY_PLOTS_RADIUS)
++            {
++                pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++
++                if (pLoopPlot != NULL)
++                {
++                    if (pLoopPlot->getBonusType() != NO_BONUS)
++                    {
++                        if (!pLoopPlot->isCityRadius() && ((pLoopPlot->area() == pPlot->area()) || pLoopPlot->isWater()))
++                        {
++                            bool bCanFound = false;
++                            bool bNeverFound = true;
++                            //potentially blockable resource
++                            //look for a city site within a city radius
++                            for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++                            {
++                                pLoopPlot2 = plotCity(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iI);
++                                if (pLoopPlot2 != NULL)
++                                {
++                                    //canFound usually returns very quickly
++                                    if (canFound(pLoopPlot2->getX_INLINE(), pLoopPlot2->getY_INLINE(), false))
++                                    {
++                                        bNeverFound = false;
++                                        if (stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot2->getX_INLINE(), pLoopPlot2->getY_INLINE()) > iMinRange)
++                                        {
++                                            bCanFound = true;
++                                            break;
++                                        }
++                                    }
++                                }
++                            }
++                            if (!bNeverFound && !bCanFound)
++                            {
++                                iCount++;
++                            }
++                        }
++                    }
++                }
++            }
++        }
++    }
++    
++    return iCount;
++}
++
+ //
+ // read object from a stream
+ // used during load
+

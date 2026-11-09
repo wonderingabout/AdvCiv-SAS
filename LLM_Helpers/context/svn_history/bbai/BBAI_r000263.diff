@@ -1,0 +1,27 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 263
+# Author: iustus
+# Date: 2007-01-12T15:16:45.839233Z
+# Coverage: full
+# Message:
+#   fixed fogbusting wakeup issue (was waking from different area)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@262
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@263
+@@ -7754,8 +7754,10 @@
+ 			// check again for enemies, post recon
+ 			for (CLLNode<CvPlot*>* pNode = reconPlotList.head(); (pNode != NULL); pNode = reconPlotList.next(pNode))
+ 			{
++				CvPlot* pRevealedPlot = pNode->m_data;
++
+ 				// abort if necessary
+-				if (pNode->m_data->isVisibleEnemyUnit(getOwnerINLINE()))
++				if (pRevealedPlot->getArea() == getArea() && pRevealedPlot->isVisibleEnemyUnit(getOwnerINLINE()))
+ 				{
+ 					bEnemyFound = true;
+ 					break;
+

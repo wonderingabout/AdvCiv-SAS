@@ -1,0 +1,11 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 497
+# Author: jdog5000
+# Date: 2009-10-07T18:44:17.956199Z
+# Coverage: full
+# Message:
+#   Add doxygen documentation setup
+# Changed paths (1):
+#   A /trunk/doc
+

@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 229
+# Author: blakeciv
+# Date: 2006-12-22T02:41:10.229524Z
+# Coverage: full
+# Message:
+#   reverted changes accidentally committed
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@228
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@229
+@@ -5458,7 +5458,7 @@
+ 	{
+ 		// tiny food factor, to insure that even when we dont want to grow, 
+ 		// we still prefer more food if everything else is equal
+-		iValue += (aiYields[YIELD_FOOD] * 14);
++		iValue += (aiYields[YIELD_FOOD] * 1);
+ 
+ 		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodLevel = getFood();
+@@ -5488,13 +5488,13 @@
+ 				if (iFoodPerTurn <= -iHighFoodThreshold && aiYields[YIELD_FOOD] >= iHighFoodThreshold)
+ 				{
+ 					// value all the food that will contribute to not starving
+-					iValue += 32 * min(aiYields[YIELD_FOOD], -iFoodPerTurn);
++					iValue += 2048 * min(aiYields[YIELD_FOOD], -iFoodPerTurn);
+ 				}
+ 				else
+ 				{
+ 					// give a huge boost to this plot, but not based on how much food it has
+ 					// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
+-					iValue += 64;
++					iValue += 4096;
+ 				}
+ 			}
+ 			else
+

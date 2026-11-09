@@ -1,0 +1,52 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 145
+# Author: iustus
+# Date: 2006-12-03T09:09:43.727882Z
+# Coverage: full
+# Message:
+#   stack attack now works again for the human player
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@144
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@145
+@@ -345,9 +345,9 @@
+ 
+ 			if (bCanAttack)
+ 			{
+-				if (pLoopUnit->canMove() || bForce)
++				if (bForce || pLoopUnit->canMove())
+ 				{
+-					if (pLoopUnit->canMoveInto(pPlot, true) || bForce)
++					if (bForce || pLoopUnit->canMoveInto(pPlot, true))
+ 					{
+ 
+                         iValue = pLoopUnit->AI_sacrificeValue(pPlot);
+@@ -597,10 +597,15 @@
+ 
+ 	bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+     
++	bool bQuick = bStack;
++
+ 	// temp fix to make AIs stack attack, need to do this better so humans can watch if they want to
+ 	// the _real_ fix is to change it elsewhere
+ 	if (!isHuman())
++	{
+ 		bStack = true;
++		bQuick = false;
++	}
+ 	
+ 	bAttack = false;
+ 
+@@ -656,7 +661,7 @@
+ 							{
+ 								break;
+ 							}
+-							pBestAttackUnit->attack(pDestPlot, false);
++							pBestAttackUnit->attack(pDestPlot, bQuick);
+ 						}
+ 						else
+ 						{
+

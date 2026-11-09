@@ -1,0 +1,475 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 541
+# Author: jdog5000
+# Date: 2010-03-26T18:08:00.448942Z
+# Coverage: full
+# Message:
+#   devel version 0.90m
+#   
+#   Revised scaling for first level victory adoption
+#   More fixes for early game defense/escort training
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvInfos.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@540
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@541
+@@ -823,7 +823,10 @@
+     
+     int iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_WORKER);
+     int iNeededWorkers = kPlayer.AI_neededWorkers(pArea);
++	// Sea worker need independent of whether water area is militarily relevant
+ 	int iNeededSeaWorkers = (bMaybeWaterArea) ? AI_neededSeaWorkers() : 0;
++	int iExistingSeaWorkers = (waterArea(true) != NULL) ? kPlayer.AI_totalWaterAreaUnitAIs(waterArea(true), UNITAI_WORKER_SEA) : 0;
++
+ 
+     int iTargetCulturePerTurn = AI_calculateTargetCulturePerTurn();
+     
+@@ -1016,7 +1019,7 @@
+ 		{
+ 			if (GC.getGameINLINE().getSorenRandNum(3, "AI Coast Raiders!") == 0)
+ 			{
+-				if (kPlayer.AI_getNumAIUnits(UNITAI_ASSAULT_SEA) <= (1 + kPlayer.getNumCities() / 2))
++				if (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) <= (1 + kPlayer.getNumCities() / 2))
+ 				{
+ 					if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 					{
+@@ -1027,7 +1030,7 @@
+ 			}
+ 			if (GC.getGameINLINE().getSorenRandNum(110, "AI arrrr!") < (iWaterPercent + 10))
+ 			{
+-				if (kPlayer.AI_getNumAIUnits(UNITAI_PIRATE_SEA) <= kPlayer.getNumCities())
++				if (kPlayer.AI_totalUnitAIs(UNITAI_PIRATE_SEA) <= kPlayer.getNumCities())
+ 				{
+ 					if (AI_chooseUnit(UNITAI_PIRATE_SEA))
+ 					{
+@@ -1113,6 +1116,8 @@
+ 
+ 	if (plot()->getNumDefenders(getOwnerINLINE()) == 0) // XXX check for other team's units?
+ 	{
++		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses no defenders", getName().GetCString());
++
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 		{
+ 			return;
+@@ -1159,15 +1164,35 @@
+ 		}
+ 	}
+ 
++	// So what's the right detection of defense which works in early game too?
+ 	int iPlotSettlerCount = (iNumSettlers == 0) ? 0 : plot()->plotCount(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE());
+ 	int iPlotCityDefenderCount = plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE());
++	if( kPlayer.getCurrentEra() == 0 )
++	{
++		// Warriors are blocked from UNITAI_CITY_DEFENSE, in early game this confuses AI city building
++		if( kPlayer.AI_totalUnitAIs(UNITAI_CITY_DEFENSE) <= kPlayer.getNumCities() )
++		{
++			if( kPlayer.AI_bestCityUnitAIValue(UNITAI_CITY_DEFENSE, this) == 0 )
++			{
++				iPlotCityDefenderCount = plot()->plotCount(PUF_canDefend, -1, -1, getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_LAND);
++			}
++		}
++	}
++
+ 	//minimal defense.
+ 	if (iPlotCityDefenderCount <= iPlotSettlerCount)
+ 	{
++		if( gCityLogLevel >= 2 ) logBBAI("      City %S needs escort for existing settler", getName().GetCString());
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 		{
+-			// BBAI TODO: This doesn't work ... why not???
+-			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses escort existing settler 1", getName().GetCString());
++			// BBAI TODO: Does this work right after settler is built???
++			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses escort existing settler 1 defense", getName().GetCString());
++			return;
++		}
++
++		if (AI_chooseUnit(UNITAI_ATTACK))
++		{
++			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses escort existing settler 1 attack", getName().GetCString());
+ 			return;
+ 		}
+ 	}
+@@ -1188,20 +1213,15 @@
+ 	{
+ 		if( !bDanger && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{	
+-			// pWaterArea is only != NULL if water area is militarily relevant
+-			// Need for workboats is independent of military relevance
+-			CvArea* pWorkerWaterArea = waterArea(true);
+-			if( pWorkerWaterArea != NULL )
+-			{
+-				if (!bWaterDanger && (getPopulation() < 3) && (iNeededSeaWorkers > 0))
+-				{
+-					if (kPlayer.AI_totalWaterAreaUnitAIs(pWorkerWaterArea, UNITAI_WORKER_SEA) == 0)
+-					{
+-						if (AI_chooseUnit(UNITAI_WORKER_SEA))
+-						{
+-							if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker sea 1a", getName().GetCString());
+-							return;
+-						}
++			if (!bWaterDanger && (getPopulation() < 3) && (iNeededSeaWorkers > 0))
++			{
++				if (iExistingSeaWorkers == 0)
++				{
++					// Build workboat first since it doesn't stop growth
++					if (AI_chooseUnit(UNITAI_WORKER_SEA))
++					{
++						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker sea 1a", getName().GetCString());
++						return;
+ 					}
+ 				}
+ 			}
+@@ -1233,7 +1253,7 @@
+ 				bChooseWorker = true;
+ 			}
+ 
+-			if (!bWaterDanger && (iNeededSeaWorkers > 0) && (getPopulation() < 3))
++			if (!bWaterDanger && (iNeededSeaWorkers > iExistingSeaWorkers) && (getPopulation() < 3))
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 				{
+@@ -1347,6 +1367,8 @@
+ 						}
+ 					}
+ 
++					// BBAI TODO: Really only want to do this if no good area city sites ... 13% chance on water heavy maps
++					// of slow start, little benefit
+ 					if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) == 0)
+ 					{
+ 						if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
+@@ -1469,9 +1491,9 @@
+ 	
+ 	//do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+-    if (bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > 0)))
++    if (bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
+     {
+-		if( !(bDefenseWar && iWarSuccessRatio < -50) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
++		if( !(bDefenseWar && iWarSuccessRatio < -30) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+ 			if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+ 				(isCapital() && (getPopulation() > 3) && iNumCitiesInArea > 1))
+@@ -1483,7 +1505,8 @@
+ 				}
+ 				bChooseWorker = true;
+     		}
+-			if (iNeededSeaWorkers > 0)
++
++			if (iNeededSeaWorkers > iExistingSeaWorkers)
+ 			{
+ 				if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 				{
+@@ -1496,21 +1519,12 @@
+ 
+ 	if( !(bDefenseWar && iWarSuccessRatio < -30) )
+ 	{
+-		if (!bWaterDanger && iNeededSeaWorkers > 0)
+-		{
+-			// pWaterArea is only != NULL if water area is militarily relevant
+-			// Need for workboats is independent of military relevance
+-			CvArea* pWorkerWaterArea = waterArea(true);
+-			if( pWorkerWaterArea != NULL )
+-			{
+-				if (kPlayer.AI_totalWaterAreaUnitAIs(pWorkerWaterArea, UNITAI_WORKER_SEA) < iNeededSeaWorkers)
+-				{
+-					if (AI_chooseUnit(UNITAI_WORKER_SEA))
+-					{
+-						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker sea 3", getName().GetCString());
+-						return;
+-					}
+-				}
++		if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers)
++		{
++			if (AI_chooseUnit(UNITAI_WORKER_SEA))
++			{
++				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker sea 3", getName().GetCString());
++				return;
+ 			}
+ 		}
+ 	}
+@@ -1678,11 +1692,17 @@
+ 	}
+ 	
+ 	//minimal defense.
+-	if (plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) < (AI_minDefenders() + iPlotSettlerCount))
++	if (iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount))
+ 	{
+ 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose min defender", getName().GetCString());
++			return;
++		}
++
++		if (AI_chooseUnit(UNITAI_ATTACK))
++		{
++			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose min defender (attack ai)", getName().GetCString());
+ 			return;
+ 		}
+ 	}
+@@ -1731,7 +1751,7 @@
+ 					{
+ 						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses build settler 1", getName().GetCString());
+ 
+-						if (kPlayer.getNumMilitaryUnits() <= 1)
++						if (kPlayer.getNumMilitaryUnits() <= kPlayer.getNumCities() + 1)
+ 						{
+ 							if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 							{
+@@ -1892,9 +1912,9 @@
+ 	{
+ 		iMaxUnitSpending += 3;
+ 	}
+-	else if( kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST2) )
+-	{
+-		iMaxUnitSpending += 2;
++	else if( kPlayer.AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST1) )
++	{
++		iMaxUnitSpending += 1;
+ 	}
+ 
+     if (bAlwaysPeace)
+@@ -2185,7 +2205,7 @@
+ 			int iBestMissileValue = kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_AIR, this, &eBestMissile);
+ 			if ((iBestAirValue + iBestMissileValue) > 0)
+ 			{
+-				iAircraftHave = kPlayer.AI_getNumAIUnits(UNITAI_ATTACK_AIR) + kPlayer.AI_getNumAIUnits(UNITAI_DEFENSE_AIR) + kPlayer.AI_getNumAIUnits(UNITAI_MISSILE_AIR);
++				iAircraftHave = kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR) + kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR) + kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR);
+ 				if (NO_UNIT != eBestAttackAircraft)
+ 				{
+ 					iAircraftNeed = (2 + kPlayer.getNumCities() * (3 * GC.getUnitInfo(eBestAttackAircraft).getAirCombat())) / (2 * std::max(1, GC.getGame().getBestLandUnitCombat()));
+@@ -2231,9 +2251,9 @@
+ 					}
+ 				}
+ 				// Additional check for air defenses
+-				int iFightersHave = kPlayer.AI_getNumAIUnits(UNITAI_DEFENSE_AIR);
+-
+-				if( 4*iFightersHave < iAircraftNeed )
++				int iFightersHave = kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR);
++
++				if( 3*iFightersHave < iAircraftNeed )
+ 				{
+ 					if (AI_chooseUnit(UNITAI_DEFENSE_AIR))
+ 					{
+@@ -2344,7 +2364,7 @@
+ 		if( !bFinancialTrouble )
+ 		{
+ 			// Force civs with foreign colonies to build a few assault transports to defend the colonies
+-			if( kPlayer.AI_getNumAIUnits(UNITAI_ASSAULT_SEA) < (kPlayer.getNumCities() - iNumCapitalAreaCities)/3 )
++			if( kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) < (kPlayer.getNumCities() - iNumCapitalAreaCities)/3 )
+ 			{
+ 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 				{
+@@ -2355,7 +2375,7 @@
+ 			if (kPlayer.AI_calculateUnitAIViability(UNITAI_SETTLER_SEA, DOMAIN_SEA) < 61)
+ 			{
+ 				// Force civs to build escorts for settler_sea units
+-				if( kPlayer.AI_getNumAIUnits(UNITAI_SETTLER_SEA) > kPlayer.AI_getNumAIUnits(UNITAI_RESERVE_SEA) )
++				if( kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA) > kPlayer.AI_getNumAIUnits(UNITAI_RESERVE_SEA) )
+ 				{
+ 					if (AI_chooseUnit(UNITAI_RESERVE_SEA))
+ 					{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@540
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@541
+@@ -4511,7 +4511,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.90k");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90m");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvInfos.cpp
+--- /trunk/CvGameCoreDLL/CvInfos.cpp@540
++++ /trunk/CvGameCoreDLL/CvInfos.cpp@541
+@@ -14600,11 +14600,11 @@
+ /*                                                                                              */
+ /* Victory Strategy AI                                                                          */
+ /************************************************************************************************/
+-	pXML->GetChildXmlValByName(&m_iCultureVictoryWeight, "iCultureVictoryWeight");
+-	pXML->GetChildXmlValByName(&m_iSpaceVictoryWeight, "iSpaceVictoryWeight");
+-	pXML->GetChildXmlValByName(&m_iConquestVictoryWeight, "iConquestVictoryWeight");
+-	pXML->GetChildXmlValByName(&m_iDominationVictoryWeight, "iDominationVictoryWeight");
+-	pXML->GetChildXmlValByName(&m_iDiplomacyVictoryWeight, "iDiplomacyVictoryWeight");
++	pXML->GetChildXmlValByName(&m_iCultureVictoryWeight, "iCultureVictoryWeight", 0);
++	pXML->GetChildXmlValByName(&m_iSpaceVictoryWeight, "iSpaceVictoryWeight", 0);
++	pXML->GetChildXmlValByName(&m_iConquestVictoryWeight, "iConquestVictoryWeight", 0);
++	pXML->GetChildXmlValByName(&m_iDominationVictoryWeight, "iDominationVictoryWeight", 0);
++	pXML->GetChildXmlValByName(&m_iDiplomacyVictoryWeight, "iDiplomacyVictoryWeight", 0);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@540
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@541
+@@ -5214,6 +5214,7 @@
+ 						break;
+ 
+ 					case UNITAI_ATTACK_SEA:
++						// BBAI TODO: Boost value for maps where Barb ships are pestering us
+ 						if (iCoastalCities > 0)
+ 						{
+ 							iMilitaryValue += ((bWarPlan) ? 200 : 100);
+@@ -5320,7 +5321,6 @@
+ 						FAssert(false);
+ 						break;
+ 					}
+-
+ 					
+ 					if( AI_isDoStrategy(AI_STRATEGY_ALERT1) )
+ 					{
+@@ -16041,12 +16041,16 @@
+ 
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
+ 	{
+-    	iValue += 4;
+-	}
+-	
+-	iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
+-	
+-	iValue += countHolyCities();
++    	iValue += 30;
++	}
++	
++	iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
++	
++	if( iValue > 20 && getNumCities() >= GC.getGameINLINE().culturalVictoryNumCultureCities() )
++	{
++		iValue += 10*countHolyCities();
++	}
++	/*
+ 	if ((GET_TEAM(getTeam()).isAVassal()) && (getNumCities() > 5))
+ 	{
+ 		int iReligionCount = countTotalHasReligion();
+@@ -16056,11 +16060,12 @@
+ 			iValue += ((2 * iReligionCount) + 1) / getNumCities();
+ 		}
+ 	}
+-
+-	int iNonsense = AI_getStrategyRand() + 1;
+-	iValue += (iNonsense % 10);
+-
+-	if (iValue < 10)
++	*/
++
++	int iNonsense = AI_getStrategyRand() + 10;
++	iValue += (iNonsense % 100);
++
++	if (iValue < 100)
+ 	{
+ 		return 0;
+ 	}
+@@ -16209,20 +16214,15 @@
+ 
+ 		if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
+ 		{
+-    		iValue += 4;
++    		iValue += 30;
+ 		}
+ 		
+-		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
+-
+-		if( getNumCities() > 3 && GET_TEAM(getTeam()).getBestKnownTechScorePercent() > 90 )
+-		{
+-			iValue += 2;
+-		}
+-
+-		int iNonsense = AI_getStrategyRand() + 5;
+-		iValue += (iNonsense % 10);
+-
+-		if (iValue >= 10)
++		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
++
++		int iNonsense = AI_getStrategyRand() + 50;
++		iValue += (iNonsense % 100);
++
++		if (iValue >= 100)
+ 		{
+ 			if( getCurrentEra() >= GC.getNumEraInfos() - 3 )
+ 			{
+@@ -16337,17 +16337,12 @@
+ 	{
+ 		iValue = GC.getLeaderHeadInfo(getPersonalityType()).getConquestVictoryWeight();
+ 		
+-		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 3 : 0);
+-
+-		if( getNumCities() > 3 && 4*iOurPower > 5*iAverageOtherPower )
+-		{
+-			iValue += 3;
+-		}
+-
+-		int iNonsense = AI_getStrategyRand() + 3;
+-		iValue += (iNonsense % 10);
+-
+-		if (iValue >= 10)
++		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
++
++		int iNonsense = AI_getStrategyRand() + 30;
++		iValue += (iNonsense % 100);
++
++		if (iValue >= 100)
+ 		{
+ 			if( m_iStrategyHash & AI_STRATEGY_GET_BETTER_UNITS )
+ 			{
+@@ -16425,12 +16420,12 @@
+ 	{
+ 		iValue = GC.getLeaderHeadInfo(getPersonalityType()).getDominationVictoryWeight();
+ 		
+-		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 3 : 0);
+-
+-		int iNonsense = AI_getStrategyRand() + 7;
+-		iValue += (iNonsense % 10);
+-
+-		if (iValue >= 10)
++		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
++
++		int iNonsense = AI_getStrategyRand() + 70;
++		iValue += (iNonsense % 100);
++
++		if (iValue >= 100)
+ 		{
+ 			if( getNumCities() > 3 && (GC.getGameINLINE().getPlayerRank(getID()) < (GC.getGameINLINE().countCivPlayersAlive() + 1)/2) )
+ 			{
+@@ -16498,17 +16493,17 @@
+ 
+ 		if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
+ 		{
+-    		iValue += 4;
++    		iValue += 30;
+ 		}
+ 		
+-		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
+-
+-		int iNonsense = AI_getStrategyRand() + 9;
+-		iValue += (iNonsense % 10);
++		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
++
++		int iNonsense = AI_getStrategyRand() + 90;
++		iValue += (iNonsense % 100);
+ 
+ 		// BBAI TODO: Level 2?
+ 
+-		if (iValue >= 10)
++		if (iValue >= 100)
+ 		{
+ 			return 1;
+ 		}
+@@ -16749,7 +16744,7 @@
+ {
+     if( m_iStrategyRand <= 0 )
+ 	{
+-		m_iStrategyRand = 1 + GC.getGameINLINE().getSorenRandNum(10000, "AI Strategy Rand");
++		m_iStrategyRand = 1 + GC.getGameINLINE().getSorenRandNum(100000, "AI Strategy Rand");
+ 	}
+ 
+ 	return m_iStrategyRand;
+

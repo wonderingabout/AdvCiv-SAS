@@ -1,0 +1,212 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 544
+# Author: jdog5000
+# Date: 2010-03-29T21:22:15.860330Z
+# Coverage: full
+# Message:
+#   New conscript logic
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@543
++++ /trunk/CvGameCoreDLL/CvCity.cpp@544
+@@ -3558,8 +3558,15 @@
+ 		return;
+ 	}
+ 
+-	changePopulation(-(getConscriptPopulation()));
+-	changeConscriptAngerTimer(flatConscriptAngerLength());
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++	int iPopChange = -(getConscriptPopulation());
++	int iAngerLength = flatConscriptAngerLength();
++	changePopulation(iPopChange);
++	changeConscriptAngerTimer(iAngerLength);
+ 
+ 	setDrafted(true);
+ 
+@@ -3574,6 +3581,13 @@
+ 		{
+ 			gDLL->getInterfaceIFace()->selectUnit(pUnit, true, false, true);
+ 		}
++		if( gCityLogLevel >= 2 )
++		{
++			logBBAI("      City %S does conscript of a %S at cost of %d pop, %d anger", getName().GetCString(), pUnit->getName().GetCString(), iPopChange, iAngerLength );
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@543
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@544
+@@ -7520,40 +7520,61 @@
+ 				return;
+ 			}
+ 
++			// Don't shrink cities too much
+             int iConscriptPop = getConscriptPopulation();
+-			// Large cities want a little spare happiness, 
+-			int iHappyDiff = GC.getDefineINT("CONSCRIPT_POP_ANGER") - iConscriptPop + getPopulation()/12;
+-
+-            if (bLandWar && 0 == angryPopulation(iHappyDiff))
++			if ( !bDanger && (3 * (getPopulation() - iConscriptPop) < getHighestPopulation() * 2) )
+             {
+-                bool bWait = false;
+-
+-                if (!bDanger)
+-                {
+-					if (3 * (getPopulation() - iConscriptPop) < getHighestPopulation() * 2)
+-                    {
+-                        bWait = true;
+-						return;
+-                    }
+-
+-					if( GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE) )
+-					{
+-						// Full out defensive
++				return;
++            }
++
++			// Large cities want a little spare happiness
++			int iHappyDiff = GC.getDefineINT("CONSCRIPT_POP_ANGER") - iConscriptPop + getPopulation()/10;
++
++            if (bLandWar && (0 == angryPopulation(iHappyDiff)))
++            {
++                bool bWait = true;
++
++				if( bWait && GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_TURTLE) )
++				{
++					// Full out defensive
++					if( bDanger || (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
++					{
+ 						bWait = false;
+ 					}
+-					else if( (GET_PLAYER(getOwnerINLINE()).calculateUnitCost() * 100) / std::max(1, GET_PLAYER(getOwnerINLINE()).calculatePreInflatedCosts()) > 50 )
+-					{
+-						bWait = true;
+-					}
+ 					else if( AI_countWorkedPoorTiles() > 1 )
+ 					{
+ 						bWait = false;
+ 					}
+-                    else if (getConscriptAngerTimer() > 0)
+-                    {
+-                        bWait = true;
+-                    }
+-                }
++				}
++				
++				if( bWait && bDanger )
++				{
++					// If city might be captured, don't hold back
++					int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
++					int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(),2,false,false);
++
++					if( (iOurDefense == 0) || (3*iEnemyOffense > 2*iOurDefense) )
++					{
++						bWait = false;
++					}
++				}
++
++				if( bWait )
++				{
++					// Non-critical, only burn population if population is not worth much
++					if ((getConscriptAngerTimer() == 0) && (AI_countWorkedPoorTiles() >= iConscriptPop))
++					{
++						if( (getPopulation() >= std::max(5, getHighestPopulation() - 1)) )
++						{
++							bWait = false;
++						}
++					}
++				}
++
++				if( !bWait && gCityLogLevel >= 2 )
++				{
++					logBBAI("      City %S (size %d, highest %d) chooses to conscript with danger: %d, land war: %d, poor tiles: %d", getName().GetCString(), getPopulation(), getHighestPopulation(), bDanger, bLandWar, AI_countWorkedPoorTiles() );
++				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@543
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@544
+@@ -3750,7 +3750,6 @@
+ 								{
+ 									iPossibleMaxWarPass = 1;
+ 								}
+-
+ 								else if (bIsMaxWarDistantPowerRatio)
+ 								{
+ 									iPossibleMaxWarPass = 2;
+@@ -4498,7 +4497,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50 pre-release");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+@@ -4511,7 +4510,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.90m");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90n");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@543
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@544
+@@ -4159,7 +4159,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/25/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      03/26/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -4168,7 +4168,7 @@
+ {
+ 	if( GET_TEAM(eTeam).isAVassal() )
+ 	{
+-		if( !AI_hasCitiesInPrimaryArea(eTeam) )
++		if( !(AI_hasCitiesInPrimaryArea(eTeam)) || AI_calculateAdjacentLandPlots(eTeam) == 0 )
+ 		{
+ 			for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+ 			{
+@@ -4604,7 +4604,7 @@
+ 												FAssertMsg(!(GET_TEAM((TeamTypes)iI).isBarbarian()), "Expected to not be declaring war on the barb civ");
+ 												FAssertMsg(iI != getID(), "Expected not to be declaring war on self (DOH!)");
+ 
+-												if ((iPass > 1) || (AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone()))
++												if ((iPass > 1) || AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone())
+ 												{
+ 													if ((iPass > 0) || (AI_calculateAdjacentLandPlots((TeamTypes)iI) >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100)))
+ 													{
+@@ -4612,7 +4612,7 @@
+ 
+ 														if( iValue > 0 && gTeamLogLevel >= 2 )
+ 														{
+-															logBBAI("      Team %d (%S) considering starting TOTAL war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
++															logBBAI("      Team %d (%S) considering starting TOTAL war with team %d with value %d on pass %d with %d adjacent plots", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue, iPass, AI_calculateAdjacentLandPlots((TeamTypes)iI) );
+ 														}
+ 
+ 														if (iValue > iBestValue)
+

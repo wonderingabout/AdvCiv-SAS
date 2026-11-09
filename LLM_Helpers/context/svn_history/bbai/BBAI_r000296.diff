@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 296
+# Author: iustus
+# Date: 2007-01-26T00:22:07.918307Z
+# Coverage: full
+# Message:
+#   fixed zero warplan bug as reported on civ fanatics
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@295
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@296
+@@ -995,7 +995,7 @@
+ 		{
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+-				if (GET_TEAM(eTeam).AI_isChosenWar((TeamTypes)iI))
++				if (!GET_TEAM(eTeam).isAtWar((TeamTypes)iI) && GET_TEAM(eTeam).AI_isChosenWar((TeamTypes)iI))
+ 				{
+ 					GET_TEAM(eTeam).AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
+ 				}
+

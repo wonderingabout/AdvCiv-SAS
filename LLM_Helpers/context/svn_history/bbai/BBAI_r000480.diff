@@ -1,0 +1,389 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 480
+# Author: jdog5000
+# Date: 2009-08-07T20:33:30.857850Z
+# Coverage: full
+# Message:
+#   0.80K
+#   
+#   Fixes and tweaks for tech diffusion system
+#   Fixes from UP for bugs in AI pop/gold hurry decisions
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@479
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@480
+@@ -1627,7 +1627,7 @@
+ /** City AI                                                                                      */
+ /*************************************************************************************************/
+ 			// BBAI TODO: Temporary for testing
+-			if( getOwnerINLINE()%2 == 1 )
++			//if( getOwnerINLINE()%2 == 1 )
+ 			{
+ 				if (AI_chooseProject())
+ 				{
+@@ -2723,7 +2723,7 @@
+ /** City AI                                                                                      */
+ /*************************************************************************************************/
+ 	// BBAI TODO: Temporary for testing
+-	if( getOwnerINLINE()%2 == 1 )
++	//if( getOwnerINLINE()%2 == 1 )
+ 	{
+ 		// Only cities with reasonable production
+ 		if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+@@ -3333,7 +3333,7 @@
+ /*************************************************************************************************/
+ 				// BBAI TODO: Temp testing, remove once centralized building is working
+ 				bool bWonderOk = false;
+-				if( isHuman() || getOwner()%2 == 1 )
++				//if( isHuman() || getOwner()%2 == 1 )
+ 				{
+ 					bWonderOk = ((iFocusFlags == 0) || (iFocusFlags & BUILDINGFOCUS_WONDEROK) || (iFocusFlags & BUILDINGFOCUS_WORLDWONDER));
+ 				}
+@@ -7549,9 +7549,34 @@
+ 					if (iValuePerTurn > 0)
+ 					{
+ 						int iHurryGold = hurryGold((HurryTypes)iI);
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/06/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
+ 						if ((iHurryGold / iValuePerTurn) < getProductionTurnsLeft(eProductionBuilding, 1))
+-						{
++*/
++						if ( (iHurryGold > 0) && ((iHurryGold / iValuePerTurn) < getProductionTurnsLeft(eProductionBuilding, 1)) )
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++						{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      08/06/09                                jdog5000      */
++/**                                                                                              */
++/** Gold AI                                                                                      */
++/*************************************************************************************************/
++/* original bts code
+ 							if (iHurryGold < (GET_PLAYER(getOwnerINLINE()).getGold() / 3))
++*/
++							int iGoldThreshold = GET_PLAYER(getOwnerINLINE()).getGold();
++							iGoldThreshold -= (GET_PLAYER(getOwnerINLINE()).AI_goldToUpgradeAllUnits() / ((GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0) ? 1 : 3));
++							iGoldThreshold /= 3;
++							if (iHurryGold < iGoldThreshold)
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/		
+ 							{
+ 								hurry((HurryTypes)iI);
+ 								return;
+@@ -7848,6 +7873,12 @@
+ 					hurry((HurryTypes)iI);
+ 					break;					
+ 				}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/06/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
+ 				if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+ 				{
+ 					hurry((HurryTypes)iI);
+@@ -7856,6 +7887,22 @@
+ 			}
+ 			if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+ 			{
++*/
++				// Only consider population hurry if that's actually what the city can do!!!
++				if( (iHurryPopulation > 0) && (getPopulation() > iHurryPopulation) )
++				{
++					if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
++					{
++						hurry((HurryTypes)iI);
++						break;					
++					}
++				}				
++			}
++			if ((iHurryPopulation > 0) && (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation)))
++			{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 				if (getProductionTurnsLeft() > iMinTurns)
+ 				{
+ 					bWait = isHuman();
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@479
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@480
+@@ -4436,24 +4436,24 @@
+ 	CvWString szTempBuffer;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      08/08/09                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.80J");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.80K");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+ /*************************************************************************************************/
+-/** UNOFFICIAL_PATCH                      07/15/09                                jdog5000       */
++/** UNOFFICIAL_PATCH                      08/08/09                                jdog5000       */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.01");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.10");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@479
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@480
+@@ -7229,6 +7229,7 @@
+ /*************************************************************************************************/
+ 	if( GC.getDefineINT("TECH_DIFFUSION_ENABLE") )
+ 	{
++		double knownExp = 0.0;
+ 		// Tech flows better through open borders
+ 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
+@@ -7238,15 +7239,15 @@
+ 				{
+ 					if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
+ 					{
+-						iKnownCount++;
++						knownExp += 0.5;
+ 
+ 						if( GET_TEAM(getTeam()).isOpenBorders((TeamTypes)iI) || GET_TEAM((TeamTypes)iI).isVassal(getTeam()) )
+ 						{
+-							iKnownCount += 2;
++							knownExp += 1.5;
+ 						}
+ 						else if( GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) || GET_TEAM(getTeam()).isVassal((TeamTypes)iI) )
+ 						{
+-							iKnownCount += 1;
++							knownExp += 0.5;
+ 						}
+ 					}
+ 				}
+@@ -7254,9 +7255,9 @@
+ 		}
+ 
+ 		int techDiffMod = GC.getDefineINT("TECH_DIFFUSION_KNOWN_TEAM_MODIFIER");
+-		if (iKnownCount > 0)
+-		{
+-			iModifier += techDiffMod - (int)(techDiffMod * pow(0.85, (double)iKnownCount) + 0.5);
++		if (knownExp > 0.0)
++		{
++			iModifier += techDiffMod - (int)(techDiffMod * pow(0.85, knownExp) + 0.5);
+ 		}
+ 
+ 		// Tech flows downhill to those who are far behind
+@@ -7264,9 +7265,9 @@
+ 		int iWelfareThreshold = GC.getDefineINT("TECH_DIFFUSION_WELFARE_THRESHOLD");
+ 		if( iTechScorePercent < iWelfareThreshold )
+ 		{
+-			if( iKnownCount > 0 )
+-			{
+-				iModifier += (GC.getDefineINT("TECH_DIFFUSION_WELFARE_MODIFIER") * getCurrentEra() * (iWelfareThreshold - iTechScorePercent))/100;
++			if( knownExp > 0.0 )
++			{
++				iModifier += (GC.getDefineINT("TECH_DIFFUSION_WELFARE_MODIFIER") * (GC.getGameINLINE().getCurrentEra() + 1) * (iWelfareThreshold - iTechScorePercent))/200;
+ 			}
+ 		}
+ 	}
+@@ -7313,12 +7314,14 @@
+ 
+ 	FAssertMsg(iPossiblePaths >= iUnknownPaths, "The number of possible paths is expected to match or exceed the number of unknown ones");
+ 
+-	if( iPossiblePaths > GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN") )
+-	{
+-		iPossiblePaths -= GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN");
+-		iUnknownPaths -= GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN");
++	if( iPossiblePaths > iUnknownPaths )
++	{
++		iModifier += GC.getDefineINT("TECH_COST_FIRST_KNOWN_PREREQ_MODIFIER");
++		iPossiblePaths--;
+ 		iModifier += (iPossiblePaths - iUnknownPaths) * GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MODIFIER");
+ 	}
++
++	iModifier += GC.getDefineINT("TECH_COST_MODIFIER");
+ 
+ 	return iModifier;
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@479
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@480
+@@ -441,11 +441,11 @@
+ 		return;
+ 	}
+ 
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
+-	/**																				*/
+-	/**		Gold AI																	*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
++/**																				*/
++/**		Gold AI																	*/
++/********************************************************************************/
+ 	bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 	int iStartingGold = getGold();
+ 	int iTargetGold = AI_goldTarget();
+@@ -462,9 +462,9 @@
+ 	iUpgradeBudget = std::max(iUpgradeBudget,1);
+ 
+ 	bool bUnderBudget = true;
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	CvPlot* pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+@@ -1398,7 +1398,7 @@
+ 	}
+ 
+ 	// BBAI TODO: Temp testing
+-	if( getID() % 2 == 1 )
++	//if( getID() % 2 == 1 )
+ 	{
+ 		return;
+ 	}
+@@ -2403,7 +2403,6 @@
+ 
+ 			if (pLoopPlot->isWater())
+ 			{
+-				// BBAI TODO: One place to make one-tile off coast cities rare
+ 				if (aiYield[YIELD_COMMERCE] > 1)
+ 				{
+ /*************************************************************************************************/
+@@ -6399,7 +6398,7 @@
+ 						else if (kVoteData.ePlayer == getID())
+ 						{
+ 							bValid = false;
+-							// BBAI TODO: Wonders, holy city, aggressive AI
++							// BBAI TODO: Wonders, holy city, aggressive AI?
+ 							if (GC.getGame().getSorenRandNum(3, "AI Erratic Defiance (Assign City)") == 0)
+ 							{
+ 								bDefy = true;
+@@ -10390,8 +10389,7 @@
+ 		iValue += (iTempValue / 2); 
+ 	} 
+ 
+-	// BBAI TODO: Temp for testing
+-	/*if (GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic() == eCivic)
++	if (GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic() == eCivic)
+ 	{
+ 		if (!kCivic.isStateReligion() || iHighestReligionCount > 0)
+ 		{
+@@ -10400,7 +10398,7 @@
+ 			iValue += 6 * getNumCities();
+ 			iValue += 20; 
+ 		}
+-	}*/
++	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/		
+@@ -14897,14 +14895,25 @@
+     
+     if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + iNonsense % 2)))
+     {
++		bool bAt3 = false;
+         if (countTotalHasReligion() >= getNumCities() * 3)
+         {
+-            return 3;
++            bAt3 = true;
+         }
+ 		
+ 		// if we have enough high culture cities, go to stage 3
+ 		if (iHighCultureCount >= GC.getGameINLINE().culturalVictoryNumCultureCities())
+ 		{
++			bAt3 = true;
++		}
++
++		if( bAt3 )
++		{
++			if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
++			{
++				return 4;
++			}
++
+ 			return 3;
+ 		}
+     }
+@@ -15299,9 +15308,6 @@
+ 
+ 				if (iVictoryStage > 3)
+ 				{
+-				// BBAI TODO: Move below to cultural victory stage
+-                //if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
+-                //{
+                 	m_iVictoryStrategyHash |= AI_VICTORY_CULTURE4; 
+                 }
+             }
+@@ -15323,9 +15329,6 @@
+ 
+ 				if (iVictoryStage > 3)
+ 				{
+-				// BBAI TODO: Move below to cultural victory stage
+-                //if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
+-                //{
+                 	m_iVictoryStrategyHash |= AI_VICTORY_SPACE4; 
+                 }
+             }
+@@ -15347,9 +15350,6 @@
+ 
+ 				if (iVictoryStage > 3)
+ 				{
+-				// BBAI TODO: Move below to cultural victory stage
+-                //if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
+-                //{
+                 	m_iVictoryStrategyHash |= AI_VICTORY_CONQUEST4; 
+                 }
+             }
+@@ -15371,9 +15371,6 @@
+ 
+ 				if (iVictoryStage > 3)
+ 				{
+-				// BBAI TODO: Move below to cultural victory stage
+-                //if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
+-                //{
+                 	m_iVictoryStrategyHash |= AI_VICTORY_DOMINATION4; 
+                 }
+             }
+@@ -15395,9 +15392,6 @@
+ 
+ 				if (iVictoryStage > 3)
+ 				{
+-				// BBAI TODO: Move below to cultural victory stage
+-                //if (AI_cultureVictoryTechValue(getCurrentResearch()) < 100)
+-                //{
+                 	m_iVictoryStrategyHash |= AI_VICTORY_DIPLOMACY4; 
+                 }
+             }
+

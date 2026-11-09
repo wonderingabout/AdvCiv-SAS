@@ -1,0 +1,1596 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 72
+# Author: blakeciv
+# Date: 2006-11-14T06:41:45.101507Z
+# Coverage: full
+# Message:
+#   Added player strategy infrastructure, and some other random tweaks.
+# Changed paths (5):
+#   A /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/AI_Defines.h@72
+@@ -0,0 +1,15 @@
++#ifndef AI_DEFINES_H
++#define AI_DEFINES_H
++
++#define AI_DEFAULT_STRATEGY             (0x00000001)
++#define AI_STRATEGY_DAGGER              (0x00000002)
++#define AI_STRATEGY_SLEDGEHAMMER        (0x00000004)
++#define AI_STRATEGY_CASTLE              (0x00000008)
++#define AI_STRATEGY_FASTMOVERS          (0x00000010)
++#define AI_STRATEGY_SLOWMOVERS          (0x00000020)
++#define AI_STRATEGY_IHATEYOU            (0x00000040)
++
++
++
++#endif // AI_DEFINES_H
++
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@71
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@72
+@@ -431,8 +431,6 @@
+ 	int iExperience = GC.getSpecialistInfo(eSpecialist).getExperience();
+ 	if (0 != iExperience)
+ 	{
+-		iExperience += getFreeExperience();
+-
+ 		int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 
+ 		iValue += (iExperience * ((iHasMetCount > 0) ? 4 : 2));
+@@ -440,6 +438,7 @@
+ 		{
+ 			iValue += iExperience *  4;
+ 		}
++		iValue += ((getMilitaryProductionModifier() * iExperience * 8) / 100);
+ 	}
+ 
+ 	return (iValue * 100);
+@@ -2752,7 +2751,7 @@
+ 			{
+ 				if (pLoopPlot->area() == pArea)
+ 				{
+-					if ((pLoopPlot->getImprovementType() == NO_IMPROVEMENT) || !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION)))
++					if ((pLoopPlot->getImprovementType() == NO_IMPROVEMENT) || !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && !(pLoopPlot->getImprovementType() == (GC.getDefineINT("RUINS_IMPROVEMENT")))))
+ 					{
+ 						iTotalValue += AI_getBestBuildValue(iI);
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@71
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@72
+@@ -73,11 +73,52 @@
+ 					<Add directory="boost-1.32.0\libs\" />
+ 				</Linker>
+ 			</Target>
++			<Target title="Release|Win32">
++				<Option output="..\Assets\CvGameCoreDLL.dll" prefix_auto="1" extension_auto="1" />
++				<Option object_output="ReleaseWin32" />
++				<Option type="3" />
++				<Option compiler="msvctk" />
++				<Option createDefFile="1" />
++				<Option createStaticLib="1" />
++				<Compiler>
++					<Add option="/MD" />
++					<Add option="/GR" />
++					<Add option="/O2" />
++					<Add option="/W3" />
++					<Add option="/EHsc" />
++					<Add option="/DWIN32" />
++					<Add option="/DNDEBUG" />
++					<Add option="/D_WINDOWS" />
++					<Add option="/D_USRDLL" />
++					<Add option="/DCVGAMECOREDLL_EXPORTS" />
++					<Add option="/DFASSERT_ENABLE" />
++					<Add directory="Boost-1.32.0\include" />
++					<Add directory="Python24\include" />
++				</Compiler>
++				<Linker>
++					<Add option="/debug" />
++					<Add option="/INCREMENTAL:NO" />
++					<Add library="boost_python-vc71-mt-1_32" />
++					<Add library="winmm" />
++					<Add library="user32" />
++					<Add directory="Python24\libs" />
++					<Add directory="boost-1.32.0\libs\" />
++				</Linker>
++			</Target>
+ 		</Build>
++		<Unit filename="AI_Defines.h">
++			<Option compilerVar="CPP" />
++			<Option compile="0" />
++			<Option link="0" />
++			<Option target="Final Release|Win32" />
++			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
++		</Unit>
+ 		<Unit filename="CvArea.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvArea.h">
+ 			<Option compilerVar="CPP" />
+@@ -85,11 +126,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvArtFileMgr.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvArtFileMgr.h">
+ 			<Option compilerVar="CPP" />
+@@ -97,11 +140,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvCity.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvCity.h">
+ 			<Option compilerVar="CPP" />
+@@ -109,11 +154,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvCityAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvCityAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -121,11 +168,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLButtonPopup.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLButtonPopup.h">
+ 			<Option compilerVar="CPP" />
+@@ -133,6 +182,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLDataStreamIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -140,6 +190,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEngineIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -147,11 +198,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEntity.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEntity.h">
+ 			<Option compilerVar="CPP" />
+@@ -159,6 +212,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEntityIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -166,6 +220,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEventReporterIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -173,6 +228,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLFAStarIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -180,6 +236,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLFlagEntityIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -187,6 +244,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLIniParserIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -194,6 +252,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLInterfaceIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -201,6 +260,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLPlotBuilderIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -208,11 +268,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLPython.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLPythonIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -220,6 +282,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLSymbolIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -227,6 +290,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLUtilityIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -234,11 +298,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLWidgetData.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLWidgetData.h">
+ 			<Option compilerVar="CPP" />
+@@ -246,6 +312,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDLLXMLIFaceBase.h">
+ 			<Option compilerVar="CPP" />
+@@ -253,11 +320,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDeal.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDeal.h">
+ 			<Option compilerVar="CPP" />
+@@ -265,6 +334,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDefines.h">
+ 			<Option compilerVar="CPP" />
+@@ -272,11 +342,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDiploParameters.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvDiploParameters.h">
+ 			<Option compilerVar="CPP" />
+@@ -284,6 +356,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvEnums.h">
+ 			<Option compilerVar="CPP" />
+@@ -291,11 +364,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvFractal.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvFractal.h">
+ 			<Option compilerVar="CPP" />
+@@ -303,11 +378,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGame.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGame.h">
+ 			<Option compilerVar="CPP" />
+@@ -315,11 +392,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -327,11 +406,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreDLL.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreDLL.h">
+ 			<Option compilerVar="CPP" />
+@@ -339,6 +420,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreDLLDefNew.h">
+ 			<Option compilerVar="CPP" />
+@@ -346,6 +428,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreDLLUndefNew.h">
+ 			<Option compilerVar="CPP" />
+@@ -353,11 +436,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreUtils.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreUtils.h">
+ 			<Option compilerVar="CPP" />
+@@ -365,11 +450,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameTextMgr.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGameTextMgr.h">
+ 			<Option compilerVar="CPP" />
+@@ -377,11 +464,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGlobals.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvGlobals.h">
+ 			<Option compilerVar="CPP" />
+@@ -389,11 +478,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvHallOfFameInfo.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvHallOfFameInfo.h">
+ 			<Option compilerVar="CPP" />
+@@ -401,11 +492,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInfoWater.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInfoWater.h">
+ 			<Option compilerVar="CPP" />
+@@ -413,11 +506,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInfos.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInfos.h">
+ 			<Option compilerVar="CPP" />
+@@ -425,11 +520,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInitCore.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvInitCore.h">
+ 			<Option compilerVar="CPP" />
+@@ -437,11 +534,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvMap.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvMap.h">
+ 			<Option compilerVar="CPP" />
+@@ -449,11 +548,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvMapGenerator.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvMapGenerator.h">
+ 			<Option compilerVar="CPP" />
+@@ -461,11 +562,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlayer.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlayer.h">
+ 			<Option compilerVar="CPP" />
+@@ -473,11 +576,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlayerAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlayerAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -485,11 +590,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlot.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlot.h">
+ 			<Option compilerVar="CPP" />
+@@ -497,11 +604,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlotGroup.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPlotGroup.h">
+ 			<Option compilerVar="CPP" />
+@@ -509,11 +618,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPopupInfo.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPopupInfo.h">
+ 			<Option compilerVar="CPP" />
+@@ -521,11 +632,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPopupReturn.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvPopupReturn.h">
+ 			<Option compilerVar="CPP" />
+@@ -533,11 +646,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvRandom.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvRandom.h">
+ 			<Option compilerVar="CPP" />
+@@ -545,11 +660,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvReplayInfo.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvReplayInfo.h">
+ 			<Option compilerVar="CPP" />
+@@ -557,11 +674,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvReplayMessage.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvReplayMessage.h">
+ 			<Option compilerVar="CPP" />
+@@ -569,11 +688,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroup.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroup.h">
+ 			<Option compilerVar="CPP" />
+@@ -581,11 +702,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroupAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroupAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -593,6 +716,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvString.h">
+ 			<Option compilerVar="CPP" />
+@@ -600,11 +724,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvStructs.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvStructs.h">
+ 			<Option compilerVar="CPP" />
+@@ -612,11 +738,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTalkingHeadMessage.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTalkingHeadMessage.h">
+ 			<Option compilerVar="CPP" />
+@@ -624,11 +752,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTeam.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTeam.h">
+ 			<Option compilerVar="CPP" />
+@@ -636,11 +766,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTeamAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvTeamAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -648,11 +780,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvUnit.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvUnit.h">
+ 			<Option compilerVar="CPP" />
+@@ -660,11 +794,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvUnitAI.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvUnitAI.h">
+ 			<Option compilerVar="CPP" />
+@@ -672,11 +808,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtility.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtility.h">
+ 			<Option compilerVar="CPP" />
+@@ -684,26 +822,31 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilityGet.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilityInit.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilitySet.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArea.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArea.h">
+ 			<Option compilerVar="CPP" />
+@@ -711,16 +854,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyAreaInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArgsList.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArgsList.h">
+ 			<Option compilerVar="CPP" />
+@@ -728,11 +874,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArtFileMgr.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArtFileMgr.h">
+ 			<Option compilerVar="CPP" />
+@@ -740,16 +888,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyArtFileMgrInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyCity.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyCity.h">
+ 			<Option compilerVar="CPP" />
+@@ -757,16 +908,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyCityInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyDeal.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyDeal.h">
+ 			<Option compilerVar="CPP" />
+@@ -774,16 +928,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyEnumsInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGame.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGame.h">
+ 			<Option compilerVar="CPP" />
+@@ -791,11 +948,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameCoreUtils.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameCoreUtils.h">
+ 			<Option compilerVar="CPP" />
+@@ -803,21 +962,25 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameCoreUtilsInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameTextMgr.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameTextMgr.h">
+ 			<Option compilerVar="CPP" />
+@@ -825,16 +988,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGameTextMgrInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContext.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContext.h">
+ 			<Option compilerVar="CPP" />
+@@ -842,31 +1008,37 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface2.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface3.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface4.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyHallOfFameInfo.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyHallOfFameInfo.h">
+ 			<Option compilerVar="CPP" />
+@@ -874,31 +1046,37 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyHallOfFameInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface2.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface3.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMap.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMap.h">
+ 			<Option compilerVar="CPP" />
+@@ -906,11 +1084,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMapGenerator.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMapGenerator.h">
+ 			<Option compilerVar="CPP" />
+@@ -918,21 +1098,25 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMapGeneratorInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyMapInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlayer.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlayer.h">
+ 			<Option compilerVar="CPP" />
+@@ -940,16 +1124,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlayerInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlot.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlot.h">
+ 			<Option compilerVar="CPP" />
+@@ -957,21 +1144,25 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyPlotInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyRandomInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyReplayInfo.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyReplayInfo.h">
+ 			<Option compilerVar="CPP" />
+@@ -979,11 +1170,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CySelectionGroup.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CySelectionGroup.h">
+ 			<Option compilerVar="CPP" />
+@@ -991,21 +1184,25 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CySelectionGroupInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyStructsInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyTeam.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyTeam.h">
+ 			<Option compilerVar="CPP" />
+@@ -1013,16 +1210,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyTeamInterface.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyUnit.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyUnit.h">
+ 			<Option compilerVar="CPP" />
+@@ -1030,16 +1230,19 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="CyUnitInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="FAssert.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="FAssert.h">
+ 			<Option compilerVar="CPP" />
+@@ -1047,11 +1250,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="FDialogTemplate.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="FDialogTemplate.h">
+ 			<Option compilerVar="CPP" />
+@@ -1059,6 +1264,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="FProfiler.h">
+ 			<Option compilerVar="CPP" />
+@@ -1066,6 +1272,7 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="LinkedList.h">
+ 			<Option compilerVar="CPP" />
+@@ -1073,11 +1280,13 @@
+ 			<Option link="0" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Unit filename="_precompile.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
+ 		</Unit>
+ 		<Extensions />
+ 	</Project>
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@71
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@72
+@@ -180,6 +180,8 @@
+ 			m_aaiMemoryCount[iI][iJ] = 0;
+ 		}
+ 	}
++	
++	m_iStrategyHash = 0;
+ }
+ 
+ 
+@@ -992,74 +994,83 @@
+ {
+ 	CvCity* pNearestCity;
+ 	bool bRaze;
++	int iRazeValue;
++	int iI;
+ 
+ 	if (canRaze(pCity))
+ 	{
++	    iRazeValue = 0;
+ 		if (GC.getGameINLINE().getElapsedGameTurns() > 20)
+ 		{
+ 			if (getNumCities() > 4)
+ 			{
+ 				if (!(pCity->isHolyCity()) && !(pCity->hasActiveWorldWonder()))
+ 				{
+-					bRaze = false;
+-
+-					if (!bRaze)
++                    if (pCity->getPreviousOwner() != BARBARIAN_PLAYER)
++                    {
++                        pNearestCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
++
++                        if (pNearestCity == NULL)
++                        {
++                            if (pCity->getPreviousOwner() != NO_PLAYER)
++                            {
++                                if (GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).countNumCitiesByArea(pCity->area()) > 3)
++                                {
++                                    bRaze = true;
++                                    iRazeValue += 30;
++                                }
++                            }
++                        }
++                        else
++                        {
++                            int iDistance = plotDistance(pCity->getX_INLINE(), pCity->getY_INLINE(), pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
++                            if ( iDistance > 12)
++                            {
++                                iRazeValue += iDistance * 2;
++                            }
++                        }
++                    }
++
++
++                    if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
++                    {
++                        if (AI_isFinancialTrouble())
++                        {
++                            iRazeValue += (70 - 15 * pCity->getPopulation());
++                        }
++                    }                    
++                    
++                    if (getStateReligion() != NO_RELIGION)
++                    {
++                        if (pCity->isHasReligion(getStateReligion()))
++                        {
++                            iRazeValue -= 50;                            
++                        }
++                    }
++                    
++                    if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
++                    {
++                        if (pCity->getPreviousOwner() != BARBARIAN_PLAYER)
++                        {
++                            iRazeValue += GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb();
++                        }
++                    }
++					
++					if (iRazeValue > 0)
+ 					{
+-						if (pCity->getPreviousOwner() != BARBARIAN_PLAYER)
+-						{
+-							pNearestCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), NO_PLAYER, getTeam(), true, false, NO_TEAM, NO_DIRECTION, pCity);
+-
+-							if (pNearestCity == NULL)
+-							{
+-								if (pCity->getPreviousOwner() != NO_PLAYER)
+-								{
+-									if (GET_TEAM(GET_PLAYER(pCity->getPreviousOwner()).getTeam()).countNumCitiesByArea(pCity->area()) > 3)
+-									{
+-										bRaze = true;
+-									}
+-								}
+-							}
+-							else
+-							{
+-								if (plotDistance(pCity->getX_INLINE(), pCity->getY_INLINE(), pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE()) > 9)
+-								{
+-									bRaze = true;
+-								}
+-							}
+-						}
+-					}
+-
+-					if (!bRaze)
+-					{
+-						if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+-						{
+-							if (AI_isFinancialTrouble())
+-							{
+-								if (pCity->getPopulation() < 4)
+-								{
+-									bRaze = true;
+-								}
+-							}
+-						}
+-					}
+-
+-					if (!bRaze)
+-					{
+-						if (pCity->area()->getCitiesPerPlayer(getID()) > 0)
+-						{
+-							if (pCity->getPreviousOwner() != BARBARIAN_PLAYER)
+-							{
+-								if (GC.getGameINLINE().getSorenRandNum(100, "AI Raze City") < GC.getLeaderHeadInfo(getPersonalityType()).getRazeCityProb())
+-								{
+-									bRaze = true;
+-								}
+-							}
+-						}
+-					}
+-
+-					if (bRaze)
+-					{
+-						pCity->doTask(TASK_RAZE);
++					    for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
++					    {
++                            if (hasTrait((TraitTypes)iI))
++                            {
++                                iRazeValue *= (100 - (GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier()));
++                                iRazeValue /= 100;
++                            }
++					    }
++
++                        if (GC.getGameINLINE().getSorenRandNum(100, "AI Raze City") < iRazeValue)
++                        {
++                            pCity->doTask(TASK_RAZE);
++                        }
+ 					}
+ 				}
+ 			}
+@@ -2042,7 +2053,10 @@
+ 
+ 	if (iBorderDanger > 0)
+ 	{
+-	    iCount += iBorderDanger;
++	    if (!isHuman())
++	    {
++            iCount += iBorderDanger;
++	    }
+ 	}
+ 
+ 	return iCount;
+@@ -8804,7 +8818,8 @@
+             iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceChange(COMMERCE_CULTURE) * 2);
+             iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 10);
+             iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 30);
+-            iValue += ((GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE) * 4) / max(1, (1 + (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)))));
++            iValue += ((GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE) * 6) / max(1, (1 + (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)))));
++            iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
+         }
+     }
+ 
+@@ -8813,7 +8828,7 @@
+     iNonsense += getCapitalCity()->getX();
+     iNonsense += getCapitalCity()->getY();
+ 
+-    iValue += (iNonsense % 7);
++    iValue += (iNonsense % 8);
+ 
+     if (iValue < 10)
+     {
+@@ -8831,6 +8846,85 @@
+ }
+ 
+ 
++//bool CvPlayerAI::AI_isDoStrategy(int iStrategy)
++//{
++//    return (iStrategy & AI_getStrategyHash());
++//}
++//
++//int CvPlayerAI::AI_getStrategyHash()
++//{
++//    if ((m_iStrategyHash != 0) && (m_iStrategyHashCacheTurn == GC.getGameINLINE().getGameTurn()))
++//    {
++//        return m_iStrategyHash;        
++//    }
++//    
++//    int iI, iJ;
++//    UnitTypes eLoopUnit;
++//    
++//    m_iStrategyHash = AI_DEFAULT_STRATEGY;
++//    m_iStrategyHashCacheTurn = GC.getGameINLINE().getGameTurn();
++//    
++//    if (getCapitalCity() == NULL)
++//    {
++//        return m_iStrategyHash;
++//    }
++//        
++//    
++//    int iNonsense = 0;
++//    iNonsense += getCapitalCity()->getX();
++//    iNonsense += getCapitalCity()->getY();
++//    
++//    int iCurrentEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
++//    
++//    if (iCurrentEra <= (1+(iNonsense%2)))
++//	{
++//	    int iDagger = 0;
++//	    iDagger += 4000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++//	    
++//        for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++//        {
++//            eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++//
++//            if (eLoopUnit != NO_UNIT)
++//            {
++//                if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
++//                {
++//                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
++//                    {
++//                        iDagger += 50;
++//                    }
++//                    else
++//                    {
++//                        if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
++//                        {
++//                            if (GetTeam()->isHasTech(GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
++//                            {
++//                                iDagger += 40;
++//                            }
++//                            else
++//                            {
++//                                iDagger += 20;
++//                            }
++//                        }
++//                    }
++//                    
++//                    for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++//                    {
++//                        BonusTypes eBonus = (BonusTypes)iJ;
++//                        if (eBonus != NO_BONUS)
++//                        {
++//                            
++//                            
++//                            
++//                        }
++//                        
++//                        
++//                    }
++//                }
++//            }
++//        }
++//	}    
++//}
+ 
+ 
+ //
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@71
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@72
+@@ -222,6 +222,10 @@
+ 	void AI_doCommerce();
+ 
+ 	int AI_getCultureVictoryStage();
++	
++	bool AI_isDoStrategy(int iStrategy);
++	
++	
+ 
+ 	// for serialization
+   virtual void read(FDataStreamBase* pStream);
+@@ -235,6 +239,9 @@
+ 	int m_iAttackOddsChange;
+ 	int m_iCivicTimer;
+ 	int m_iReligionTimer;
++	
++	int m_iStrategyHash;
++	int m_iStrategyHashCacheTurn;
+ 
+ 	int *m_aiNumTrainAIUnits;
+ 	int *m_aiNumAIUnits;
+@@ -258,6 +265,8 @@
+ 	void AI_doCivics();
+ 	void AI_doReligion();
+ 	void AI_doDiplo();
++	
++	int AI_getStrategyHash();
+ 
+ };
+ 
+

@@ -1,0 +1,704 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 578
+# Author: jdog5000
+# Date: 2010-06-15T05:16:03.647791Z
+# Coverage: full
+# Message:
+#   1.01c
+#   
+#   Fixed a couple bugs
+#   A couple little tweaks
+# Changed paths (12):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@577
++++ /trunk/CvGameCoreDLL/CvCity.cpp@578
+@@ -11275,6 +11275,15 @@
+ 				changeOverflowProduction(iOverflow, getProductionModifier(eTrainUnit));
+ 			}
+ 			setUnitProduction(eTrainUnit, 0);
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                           EmperorFool         */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++			setUnitProductionTime(eTrainUnit, 0);
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 
+ 			// * Limited which production modifiers affect gold from production overflow. 1/3
+ 			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
+@@ -11379,6 +11388,15 @@
+ 				changeOverflowProduction(iOverflow, getProductionModifier(eConstructBuilding));
+ 			}
+ 			setBuildingProduction(eConstructBuilding, 0);
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                           EmperorFool         */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++			setBuildingProductionTime(eConstructBuilding, 0);
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 
+ 			// * Limited which production modifiers affect gold from production overflow. 2/3
+ 			iLostProduction *= getBaseYieldRateModifier(YIELD_PRODUCTION);
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@577
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@578
+@@ -1890,7 +1890,7 @@
+ 	}
+     
+ 	//essential economic builds
+-	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold, (bLandWar ? 50 : -1)))
++	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold, (bLandWar ? 40 : -1)))
+ 	{
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose iEconomyFlags 1", getName().GetCString());
+ 		return;
+@@ -2091,7 +2091,7 @@
+ 						
+ 					if ((iAttackSea < ((1 + 2 * iTransports) / iDivisor)))
+ 					{
+-						if (AI_chooseUnit(UNITAI_ATTACK_SEA, bFinancialTrouble ? 20 : 50))
++						if (AI_chooseUnit(UNITAI_ATTACK_SEA, (iUnitCostPercentage < iMaxUnitSpending) ? 50 : 20))
+ 						{
+ 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 12);
+ 							return;
+@@ -2101,7 +2101,7 @@
+ 				
+ 				if (iUnitsToTransport > iTransportCapacity)
+ 				{
+-					if ((iUnitCostPercentage < iMaxUnitSpending + 5) || (2*iUnitsToTransport > 3*iTransportCapacity))
++					if ((iUnitCostPercentage < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
+ 					{
+ 						if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 						{
+@@ -9873,13 +9873,17 @@
+ {
+ 	int iProb;
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      05/29/10                                jdog5000      */
+ /*                                                                                              */
+ /* City AI, Barbarian AI                                                                        */
+ /************************************************************************************************/
+ 	iProb = (GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + AI_experienceWeight());
+ 
+ 	if (!isBarbarian() && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++	{
++		iProb /= 2;
++	}
++	else if( GET_TEAM(getTeam()).getHasMetCivCount(false) == 0 )
+ 	{
+ 		iProb /= 2;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@577
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@578
+@@ -2713,6 +2713,20 @@
+ 
+ 						szBuffer.append(NEWLINE);
+ 						szBuffer.append(gDLL->getText("TXT_KEY_ACTION_REMOVE_FEATURE", GC.getFeatureInfo(pMissionPlot->getFeatureType()).getTextKeyWide()));
++
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                           EmperorFool         */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++						if (eImprovement == NO_IMPROVEMENT && pMissionPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pMissionPlot->getImprovementType()).getFeatureMakesValid(pMissionPlot->getFeatureType()))
++						{
++							szBuffer.append(NEWLINE);
++							szBuffer.append(gDLL->getText("TXT_KEY_ACTION_WILL_DESTROY_IMP", GC.getImprovementInfo(pMissionPlot->getImprovementType()).getTextKeyWide()));
++						}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 					}
+ 
+ 				}
+@@ -4530,7 +4544,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.50+");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.60");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+@@ -4543,7 +4557,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v1.01b");
++	szTempBuffer.Format(L"%S", "Better BTS AI v1.01c");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@577
++++ /trunk/CvGameCoreDLL/CvGame.cpp@578
+@@ -5747,9 +5747,22 @@
+ 			{
+ 				kTeam.setTurnActive(true);
+ 				FAssert(getNumGameTurnActive() == kTeam.getAliveCount());
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                       snarko & jdog5000       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++/* original bts code
+ 			}
+ 
+ 			break;
++*/
++				// Break only after first found alive player
++				break;
++			}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 		}
+ 	}
+ 	else
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@577
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@578
+@@ -3711,6 +3711,23 @@
+ 			szString.append(gDLL->getText("TXT_KEY_PLOT_DAMAGE", iDamage));
+ 			szString.append(CvWString::format( ENDCOLR));
+ 		}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/02/10                           LunarMongoose       */
++/*                                                                                               */
++/* User interface                                                                                */
++/*************************************************************************************************/
++		// Mongoose FeatureDamageFix
++		else if (iDamage < 0)
++		{
++			szString.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_POSITIVE_TEXT")));
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_PLOT_DAMAGE", iDamage));
++			szString.append(CvWString::format( ENDCOLR));
++		}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
++
+ 	}
+ }
+ 
+@@ -8433,12 +8450,20 @@
+ 
+ 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); ++iI)
+ 		{
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                           EmperorFool         */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++			// EF: show "Requires Hospital" if "Requires Hospital (x/5)" requirement has been met
++			bool bShowedPrereq = false;
+ 			if (ePlayer == NO_PLAYER && kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI) > 0)
+ 			{
+ 				eLoopBuilding = (BuildingTypes)GC.getBuildingClassInfo((BuildingClassTypes)iI).getDefaultBuildingIndex();
+ 				szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS_NO_CITY", GC.getBuildingInfo(eLoopBuilding).getTextKeyWide(), kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI)).c_str());
+ 
+ 				szBuffer.append(szTempBuffer);
++				bShowedPrereq = true;
+ 			}
+ 			else if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI)) > 0)
+ 			{
+@@ -8458,10 +8483,12 @@
+ 						}
+ 
+ 						szBuffer.append(szTempBuffer);
++						bShowedPrereq = true;
+ 					}
+ 				}
+ 			}
+-			else if (kBuilding.isBuildingClassNeededInCity(iI))
++			
++			if (!bShowedPrereq && kBuilding.isBuildingClassNeededInCity(iI))
+ 			{
+ 				if (NO_PLAYER != ePlayer)
+ 				{
+@@ -8481,6 +8508,9 @@
+ 					}
+ 				}
+ 			}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 		}
+ 
+ 		if (kBuilding.isStateReligion())
+@@ -9567,6 +9597,8 @@
+ 
+ void CvGameTextMgr::setYieldChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, const int* piYieldChange, bool bPercent, bool bNewLine)
+ {
++	PROFILE_FUNC();
++
+ 	CvWString szTempBuffer;
+ 	bool bStarted;
+ 	int iI;
+@@ -11699,6 +11731,25 @@
+ 		szBuffer.append(gDLL->getText("TXT_KEY_TERRAIN_DEFENSE_MODIFIER", feature.getDefenseModifier()));
+ 	}
+ 
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/02/10                           LunarMongoose       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++	// Mongoose FeatureDamageFix
++	if (feature.getTurnDamage() > 0)
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_TERRAIN_TURN_DAMAGE", feature.getTurnDamage()));
++	}
++	else if (feature.getTurnDamage() < 0)
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_TERRAIN_TURN_HEALING", -feature.getTurnDamage()));
++	}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
++
++
+ 	if (feature.isAddsFreshWater())
+ 	{
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FEATURE_ADDS_FRESH_WATER"));
+@@ -15109,7 +15160,19 @@
+ 
+ 	// set bonus symbols
+ 	int bonusBaseID = iCurSymbolID;
+-	++iCurSymbolID;
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/02/10                           LunarMongoose       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++/* original bts code
++			++iCurSymbolID;
++*/
++			// Mongoose GameFontFix
++			// removes an erroneous extra increment command that was breaking GameFont.tga files when using exactly 49 or 74 resource types in a mod
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 	for (int i = 0; i < GC.getNumBonusInfos(); i++)
+ 	{
+ 		int bonusID = bonusBaseID + GC.getBonusInfo((BonusTypes) i).getArtInfo()->getFontButtonIndex();
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@577
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@578
+@@ -1678,6 +1678,8 @@
+ 	{
+ 	    iRazeValue = 0;
+ 		int iCloseness = pCity->AI_playerCloseness(getID());
++
++		//BBAI TODO: Raze city enemy needs for cultural victory unless we greatly over power them, also raze pointless holy cities
+ 
+ 		if ( (pCity->isHolyCity()) || (pCity->hasActiveWorldWonder()))
+ 		{
+@@ -3268,7 +3270,7 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/16/10                     Mongoose & jdog5000      */
++/* BETTER_BTS_AI_MOD                      06/14/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -3280,6 +3282,10 @@
+ 		{
+ 			iValue += 3;
+ 
++			if (GET_PLAYER(pCity->getOwnerINLINE()).getStateReligion() == iI)
++			{
++				iValue += 2;
++			}
+ 			if( getStateReligion() == iI )
+ 			{
+ 				iValue += 4;
+@@ -6053,16 +6059,16 @@
+ 
+ 		iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
+ 
+-		if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/12/10                                jdog5000      */
++/*                                                                                              */
++/* Bugfix, Victory Strategy AI                                                                  */
++/************************************************************************************************/
++		if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam(), true))
+ 		{
+ 			iPercent += 40;
+ 		}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/24/10                                jdog5000      */
+-/*                                                                                              */
+-/* Victory Strategy AI                                                                          */
+-/************************************************************************************************/
+ 		if( AI_isDoStrategy(AI_VICTORY_CONQUEST3) )
+ 		{
+ 			iPercent = std::min( 120, (3 * iPercent)/2 );
+@@ -7360,10 +7366,18 @@
+ 
+ 		iThreshold *= 2;
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/12/10                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy AI                                                                                 */
++/************************************************************************************************/
+ 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_isLandTarget(getTeam()))
+ 		{
+ 			iThreshold *= 3;
+ 		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 		iThreshold *= (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPower(false) + 100);
+ 		iThreshold /= (GET_TEAM(getTeam()).getPower(false) + 100);
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@577
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@578
+@@ -6229,7 +6229,21 @@
+ 		}
+ 	}
+ 
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/02/10                     Afforess & jdog5000       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++/* original bts code
+ 	return iYield;
++*/
++	// Improvement cannot actually produce negative yield
++	int iCurrYield = calculateNatureYield(eYield, (ePlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(ePlayer).getTeam(), bOptimal);
++
++	return std::max( -iCurrYield, iYield );
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ }
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@577
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@578
+@@ -4234,7 +4234,8 @@
+ /*                                                                                              */
+ /* Unit AI                                                                                      */
+ /************************************************************************************************/
+-	FAssert(isHuman() || getHeadUnit()->isCargo() || eNewValue != ACTIVITY_SLEEP);
++	// For debugging activities, but can cause crashes very occasionally times
++	//FAssert(isHuman() || getHeadUnit()->isCargo() || eNewValue != ACTIVITY_SLEEP);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@577
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@578
+@@ -341,7 +341,7 @@
+ /* Unit AI                                                                                      */
+ /************************************************************************************************/
+ 			// AI should never put units to sleep, how does this ever happen?
+-			FAssert( getHeadUnit()->isCargo() || getActivityType() != ACTIVITY_SLEEP );
++			//FAssert( getHeadUnit()->isCargo() || getActivityType() != ACTIVITY_SLEEP );
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@577
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@578
+@@ -872,45 +872,47 @@
+ 	return false;
+ }
+ 
+-
+-bool CvTeamAI::AI_isLandTarget(TeamTypes eTeam) const
+-{
+-	if (!AI_hasCitiesInPrimaryArea(eTeam))
+-	{
+-		return false;
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/21/10                                jdog5000      */
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/12/10                         Fuyu & jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
++bool CvTeamAI::AI_isLandTarget(TeamTypes eTeam, bool bNeighborsOnly) const
++{
++	if (!AI_hasCitiesInPrimaryArea(eTeam))
++	{
++		return false;
++	}
++
+ 	// If shared capital area is largely unclaimed, then we can reach over land
+-	for( int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++ )
+-	{
+-		if( GET_PLAYER((PlayerTypes)iPlayer).getTeam() == getID() && GET_PLAYER((PlayerTypes)iPlayer).getNumCities() > 0 )
+-		{
+-			CvCity* pCapital = GET_PLAYER((PlayerTypes)iPlayer).getCapitalCity();
+-			if( pCapital != NULL )
+-			{
+-				if( GET_TEAM(eTeam).AI_isPrimaryArea(pCapital->area()) )
+-				{
+-					if( 2*pCapital->area()->getNumOwnedTiles() < pCapital->area()->getNumTiles() )
+-					{
+-						return true;
+-					}
+-				}
+-			}
+-		}
++	int iModifier = 100;
++
++	if( !bNeighborsOnly )
++	{
++		for( int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++ )
++		{
++			if( GET_PLAYER((PlayerTypes)iPlayer).getTeam() == getID() && GET_PLAYER((PlayerTypes)iPlayer).getNumCities() > 0 )
++			{
++				CvCity* pCapital = GET_PLAYER((PlayerTypes)iPlayer).getCapitalCity();
++				if( pCapital != NULL )
++				{
++					if( GET_TEAM(eTeam).AI_isPrimaryArea(pCapital->area()) )
++					{
++						iModifier *= pCapital->area()->getNumOwnedTiles();
++						iModifier /= pCapital->area()->getNumTiles();
++					}
++				}
++			}
++		}
++	}
++
++	if (AI_calculateAdjacentLandPlots(eTeam) < range((8 * (iModifier - 40))/40, 0, 8))
++	{
++		return false;
+ 	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-	if (AI_calculateAdjacentLandPlots(eTeam) < 8)
+-	{
+-		return false;
+-	}
+ 
+ 	return true;
+ }
+@@ -2024,10 +2026,18 @@
+ 		}
+ 		else
+ 		{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/12/10                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy AI                                                                                 */
++/************************************************************************************************/
+ 			if (!GET_TEAM(eTeam).AI_isLandTarget(getID()))
+ 			{
+ 				iMasterPower /= 2;
+ 			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		}
+ 
+ 
+@@ -4433,7 +4443,7 @@
+ 							}
+ 						}
+ 
+-						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110) || (GET_TEAM((TeamTypes)iI).AI_getLowestVictoryCountdown() >= 0) )
++						if ( (bAreaValid && (iEnemyPowerPercent < 140)) || (!bShareValid && (iEnemyPowerPercent < 110)) || (GET_TEAM((TeamTypes)iI).AI_getLowestVictoryCountdown() >= 0) )
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+@@ -4780,7 +4790,7 @@
+ 
+ 														if( iValue > 0 && gTeamLogLevel >= 2 )
+ 														{
+-															logBBAI("      Team %d (%S) considering starting TOTAL war with team %d with value %d on pass %d with %d adjacent plots", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue, iPass, AI_calculateAdjacentLandPlots((TeamTypes)iI) );
++															logBBAI("      Team %d (%S) considering starting TOTAL warplan with team %d with value %d on pass %d with %d adjacent plots", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue, iPass, AI_calculateAdjacentLandPlots((TeamTypes)iI) );
+ 														}
+ 
+ 														if (iValue > iBestValue)
+@@ -4802,7 +4812,7 @@
+ 					{
+ 						if( gTeamLogLevel >= 1 )
+ 						{
+-							logBBAI("    Team %d (%S) starting TOTAL war preparations against team %d on pass %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam, iPass );
++							logBBAI("    Team %d (%S) starting TOTAL warplan preparations against team %d on pass %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam, iPass );
+ 						}
+ 
+ 						AI_setWarPlan(eBestTeam, (iDaggerCount > 0) ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL);
+@@ -4852,7 +4862,7 @@
+ 
+ 												if( iValue > 0 && gTeamLogLevel >= 2 )
+ 												{
+-													logBBAI("      Team %d (%S) considering starting LIMITED war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
++													logBBAI("      Team %d (%S) considering starting LIMITED warplan with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
+ 												}
+ 
+ 												if (iValue > iBestValue)
+@@ -4874,7 +4884,7 @@
+ 				{
+ 					if( gTeamLogLevel >= 1 )
+ 					{
+-						logBBAI("    Team %d (%S) starting LIMITED war preparations against team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam );
++						logBBAI("    Team %d (%S) starting LIMITED warplan preparations against team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam );
+ 					}
+ 
+ 					AI_setWarPlan(eBestTeam, (iDaggerCount > 0) ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED);
+@@ -4934,7 +4944,7 @@
+ 
+ 													if( iValue > 0 && gTeamLogLevel >= 2 )
+ 													{
+-														logBBAI("      Team %d (%S) considering starting DOGPILE war with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
++														logBBAI("      Team %d (%S) considering starting DOGPILE warplan with team %d with value %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), iI, iValue );
+ 													}
+ 
+ 													if (iValue > iBestValue)
+@@ -4957,7 +4967,7 @@
+ 				{
+ 					if( gTeamLogLevel >= 1 )
+ 					{
+-						logBBAI("  Team %d (%S) starting DOGPILE war preparations with team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam );
++						logBBAI("  Team %d (%S) starting DOGPILE warplan preparations with team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eBestTeam );
+ 					}
+ 					AI_setWarPlan(eBestTeam, WARPLAN_DOGPILE);
+ 				}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@577
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@578
+@@ -73,7 +73,15 @@
+ /************************************************************************************************/
+ 
+ 	bool AI_isWarPossible() const;
+-	bool AI_isLandTarget(TeamTypes eTeam) const;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/12/10                         Fuyu & jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
++	bool AI_isLandTarget(TeamTypes eTeam, bool bNeighborsOnly = false) const;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	bool AI_isAllyLandTarget(TeamTypes eTeam) const;
+ 	bool AI_shareWar(TeamTypes eTeam) const;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@577
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@578
+@@ -2648,7 +2648,7 @@
+ 			if (bAttack)
+ 			{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      06/14/10                                jdog5000      */
+ /*                                                                                              */
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+@@ -2663,8 +2663,21 @@
+ 				//	}
+ 				//}
+ 				// modified
+-				if (!pPlot->hasDefender(true, NO_PLAYER, getOwnerINLINE(), this, true))
+-						return false;
++				if( combatLimit() < 100 )
++				{
++					CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
++					if (NULL != pDefender)
++					{
++						if (!canAttack(*pDefender))
++						{
++							return false;
++						}
++					}
++				}
++				else if (!pPlot->hasDefender(true, NO_PLAYER, getOwnerINLINE(), this, true))
++				{
++					return false;
++				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -3682,6 +3695,20 @@
+ 		return false;
+ 	}
+ 
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/10/10                           LunarMongoose       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++	// Mongoose FeatureDamageFix
++	if (healTurns(pPlot) == MAX_INT)
++	{
++		return false;
++	}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
++
+ 	if (healRate(pPlot) <= 0)
+ 	{
+ 		return false;
+@@ -3819,6 +3846,21 @@
+ 	}
+ 
+ 	iHeal = healRate(pPlot);
++
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                       06/02/10                           LunarMongoose       */
++/*                                                                                               */
++/* Bugfix                                                                                        */
++/*************************************************************************************************/
++	// Mongoose FeatureDamageFix
++	FeatureTypes eFeature = pPlot->getFeatureType();
++	if (eFeature != NO_FEATURE)
++	{
++		iHeal -= GC.getFeatureInfo(eFeature).getTurnDamage();
++	}
++/*************************************************************************************************/
++/* UNOFFICIAL_PATCH                         END                                                  */
++/*************************************************************************************************/
+ 
+ 	if (iHeal > 0)
+ 	{
+

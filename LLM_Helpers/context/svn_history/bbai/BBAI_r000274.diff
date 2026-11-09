@@ -1,0 +1,225 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 274
+# Author: iustus
+# Date: 2007-01-17T02:41:26.348344Z
+# Coverage: full
+# Message:
+#   sped up checking for goody plots for explorers, it will always pick the closest goody if no units are headed there
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@273
++++ /trunk/CvGameCoreDLL/CvUnit.h@274
+@@ -651,6 +651,7 @@
+ 	virtual void AI_setUnitAIType(UnitAITypes eNewValue) = 0;
+     virtual int AI_sacrificeValue(const CvPlot* pPlot) const = 0;
+ 	virtual CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL) = 0;
++	virtual CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@273
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@274
+@@ -8361,66 +8361,62 @@
+ 	return false;
+ }
+ 
+-
+-// Returns true if a mission was pushed...
+-bool CvUnitAI::AI_goody(int iRange)
++CvPlot* CvUnitAI::AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-//	CvPlot* pAdjacentPlot;
+-	CvPlot* pBestPlot;
+-	int iSearchRange;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iDX, iDY;
+-//	int iI;
+-
+-	if (isBarbarian())
+-	{
+-		return false;
+-	}
+-
+-	iSearchRange = AI_searchRange(iRange);
+-
+-	iBestValue = 0;
+-	pBestPlot = NULL;
+-
+-	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+-	{
+-		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+-		{
+-			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (AI_plotValid(pLoopPlot))
++	PlayerTypes ePlayer = getOwnerINLINE();
++	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
++	TeamTypes eTeam = kPlayer.getTeam();
++	CvSelectionGroup* pGroup = getGroup();
++
++	int iSearchRange = AI_searchRange(iRange);
++
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestGoodyPlot = NULL;
++
++	int iArea = pStartPlot->getArea();
++
++	// search in expanding range for a goody, stop after going 1 range further than the first one we find
++	int iStartX = pStartPlot->getX_INLINE();
++	int iStartY = pStartPlot->getY_INLINE();
++	int iFoundGoodyRange = MAX_INT;
++	for (int iGoodyRange = 1; (iGoodyRange - 1) <= iFoundGoodyRange && iGoodyRange <= iSearchRange; iGoodyRange++)
++	{
++		// search every plot at this range for a goody, pick the best one
++		int iGoodyDX, iGoodyDY;
++		for (int iIndex = 0; rangeIndexToXY(iGoodyRange, iIndex, iGoodyDX, iGoodyDY); iIndex++)
++		{
++			// is the plot on the same area?
++			CvPlot* pCheckPlot = plotXY(iStartX, iStartY, iGoodyDX, iGoodyDY);
++			if (pCheckPlot != NULL && pCheckPlot->getArea() == iArea)
++			{
++				// is there a goody?
++				if (pCheckPlot->isRevealedGoody(eTeam))
+ 				{
+-					if (pLoopPlot->isRevealedGoody(getTeam()))
++					bool bIsVisibleEnemy = pCheckPlot->isVisibleEnemyUnit(ePlayer);
++					int iAttackOdds = (bIsVisibleEnemy) ? pGroup->AI_attackOdds(pCheckPlot, /*bPotentialEnemy*/ false) : 128;
++					
++					// consider it if there is no enemy or if attack odds more than 85%
++					if (!bIsVisibleEnemy || (iAttackOdds > 85))
+ 					{
+-						bool bIsVisibleEnemy = pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE());
+-						int iAttackOdds = (bIsVisibleEnemy) ? getGroup()->AI_attackOdds(pLoopPlot, /*bPotentialEnemy*/ false) : 128;
++						FAssert(!atPlot(pCheckPlot));
+ 						
+-						if (!bIsVisibleEnemy || (iAttackOdds > 85))
++						// can we get there?
++						int iPathTurns;
++						if (pGroup->generatePath(pStartPlot, pCheckPlot, 0, true, &iPathTurns))
+ 						{
+-							if (!atPlot(pLoopPlot) && generatePath(pLoopPlot, 0, true, &iPathTurns))
++							iFoundGoodyRange = iGoodyRange;
++
++							int iUnitsHeadedToGoody = kPlayer.AI_plotTargetMissionAIs(pCheckPlot, MISSIONAI_EXPLORE, pGroup, 0);
++						
++							int iValue = 200000 / ((iPathTurns + 1) * (iUnitsHeadedToGoody + 1));
++							if (iValue > iBestValue || (iValue > 0 && iValue == iBestValue && GC.getGameINLINE().getSorenRandNum(2, "AI_getBestGoodyPlot")))
+ 							{
+-								if (iPathTurns <= iRange)
+-								{
+-									iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "AI Goody"));
+-
+-									iValue /= (iPathTurns + 1);
+-									
+-									iValue *= 128;
+-									iValue /= iAttackOdds;
+-
+-									if (iValue > iBestValue)
+-									{
+-										iBestValue = iValue;
+-										pBestPlot = getPathEndTurnPlot();
+-									}
+-								}
++								iBestValue = iValue;
++								pBestPlot = getPathEndTurnPlot();
++								pBestGoodyPlot = pCheckPlot;
+ 							}
+ 						}
+ 					}
+@@ -8429,10 +8425,26 @@
+ 		}
+ 	}
+ 
+-	if (pBestPlot != NULL)
++	if (pThisTurnPlot != NULL)
++	{
++		*pThisTurnPlot = pBestPlot;
++	}
++
++	return pBestGoodyPlot;
++}
++
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_goody(int iRange)
++{
++	PROFILE_FUNC();
++
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestGoodyPlot = AI_getBestGoodyPlot(plot(), iRange, &pBestPlot);
++
++	if ((pBestPlot != NULL) && (pBestGoodyPlot != NULL))
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+-		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_EXPLORE, pBestGoodyPlot);
+ 		return true;
+ 	}
+ 
+@@ -8807,38 +8819,7 @@
+ 				//		bool bFoundGoody = false;
+ 				//		if (iAreaNeededExplorers == 0 && iAreaExporers == 0)
+ 				//		{
+-				//			// search in expanding range for a goody
+-				//			int iLoopPlotX = pLoopPlot->getX_INLINE();
+-				//			int iLoopPlotY = pLoopPlot->getY_INLINE();
+-				//			for (int iGoodyRange = 1; !bFoundGoody && iGoodyRange <= 5; iGoodyRange++)
+-				//			{
+-				//				// search every plot at this range for a goody, pick the best one
+-				//				int iGoodyDX, iGoodyDY;
+-				//				for (int iIndex = 0; rangeIndexToXY(iGoodyRange, iIndex, iGoodyDX, iGoodyDY); iIndex++)
+-				//				{
+-				//					// is the plot on the same area?
+-				//					CvPlot* pCheckPlot = plotXY(iLoopPlotX, iLoopPlotY, iGoodyDX, iGoodyDY);
+-				//					if (pCheckPlot != NULL && pCheckPlot->getArea() == pArea->getID())
+-				//					{
+-				//						// is there a goody?
+-				//						if (pCheckPlot->isRevealedGoody(eTeam))
+-				//						{
+-				//							// can we get there?
+-				//							int iPathTurns;
+-				//							if (getGroup()->generatePath(pLoopPlot, pCheckPlot, MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns))
+-				//							{
+-				//								bFoundGoody = true;
+-				//								int iTempValue = 200000 / (iPathTurns + 1);
+-				//								if (iTempValue > iValue)
+-				//								{
+-				//									iValue = iTempValue;
+-				//									pExplorePlot = pCheckPlot;
+-				//								}
+-				//							}
+-				//						}
+-				//					}
+-				//				}
+-				//			}
++				//			pExplorePlot = pCargoUnit->AI_getBestGoodyPlot(pLoopPlot, 5);
+ 				//		}
+ 				//	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@273
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@274
+@@ -45,6 +45,7 @@
+ 	int AI_sacrificeValue(const CvPlot* pPlot) const;
+ 	
+ 	CvPlot* AI_getBestExplorePlot(int iRange, CvPlot** pThisTurnPlot = NULL);
++	CvPlot* AI_getBestGoodyPlot(CvPlot* pStartPlot, int iRange, CvPlot** pThisTurnPlot = NULL);
+ 
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+

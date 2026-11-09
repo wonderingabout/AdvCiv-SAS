@@ -1,0 +1,51 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 31
+# Author: blakeciv
+# Date: 2006-11-06T02:37:05.707347Z
+# Coverage: full
+# Message:
+#   Tweaks to pillaging logic to avoid pillaging the main target city.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@30
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@31
+@@ -6988,7 +6988,7 @@
+ 
+ 							iValue *= 1000;
+ 
+-							iValue /= (iPathTurns + 1);
++							iValue /= (iPathTurns + 2);
+ 
+ 							if (iValue > iBestValue)
+ 							{
+@@ -7420,7 +7420,7 @@
+ 		{
+ 			if (!(pLoopPlot->isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
+ 			{
+-				if (canPillage(pLoopPlot))
++				if (!(pLoopPlot->getWorkingCity() == area()->getTargetCity(getOwnerINLINE())) && canPillage(pLoopPlot))
+ 				{
+ 					if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 					{
+@@ -7491,7 +7491,7 @@
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+@@ -7499,7 +7499,7 @@
+ 				{
+ 					if (!(pLoopPlot->isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
+ 					{
+-						if (canPillage(pLoopPlot))
++						if (!(pLoopPlot->getWorkingCity() == area()->getTargetCity(getOwnerINLINE())) && canPillage(pLoopPlot))
+ 						{
+ 							if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 							{
+

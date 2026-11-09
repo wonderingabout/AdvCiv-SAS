@@ -1,0 +1,1844 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 61
+# Author: blakeciv
+# Date: 2006-11-11T03:49:13.649743Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@60
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@61
+@@ -8,134 +8,8 @@
+ 		<Option compiler="msvctk" />
+ 		<Option virtualFolders="" />
+ 		<Build>
+-			<Target title="Debug|Win32">
+-				<Option output="..\Warlords\Assets\CvGameCoreDLL_DEBUG.dll" prefix_auto="1" extension_auto="1" />
+-				<Option object_output="Debug" />
+-				<Option type="3" />
+-				<Option compiler="msvctk" />
+-				<Option createDefFile="1" />
+-				<Option createStaticLib="1" />
+-				<Compiler>
+-					<Add option="/DWIN32" />
+-					<Add option="/D_DEBUG" />
+-					<Add option="/D_WINDOWS" />
+-					<Add option="/D_USRDLL" />
+-					<Add option="/DCVGAMECOREDLL_EXPORTS" />
+-					<Add option="/W3" />
+-					<Add option="/O0" />
+-					<Add option="/MDd" />
+-					<Add option="EHsc" />
+-					<Add option="/GR" />
+-					<Add directory="Boost-1.32.0\include" />
+-					<Add directory="Python24\include" />
+-				</Compiler>
+-				<Linker>
+-					<Add option="/debug" />
+-					<Add option="/pdb:Debug\CvGameCoreDLL_DEBUG.pdb" />
+-					<Add library="boost_python-vc71-mt-gd-1_32" />
+-					<Add library="winmm" />
+-					<Add directory="Python24\libs" />
+-					<Add directory="boost-1.32.0\libs\" />
+-				</Linker>
+-			</Target>
+-			<Target title="Release|Win32">
+-				<Option output="..\Warlords\Assets\CvGameCoreDLL_RELEASE.dll" prefix_auto="1" extension_auto="1" />
+-				<Option object_output="Release" />
+-				<Option type="3" />
+-				<Option compiler="msvctk" />
+-				<Option createDefFile="1" />
+-				<Option createStaticLib="1" />
+-				<Compiler>
+-					<Add option="/DWIN32" />
+-					<Add option="/DNDEBUG" />
+-					<Add option="/D_WINDOWS" />
+-					<Add option="/D_USRDLL" />
+-					<Add option="/DCVGAMECOREDLL_EXPORTS" />
+-					<Add option="/W3" />
+-					<Add option="/Zi" />
+-					<Add option="/O2" />
+-					<Add option="/MD" />
+-					<Add option="EHsc" />
+-					<Add option="/GR" />
+-					<Add directory="Boost-1.32.0\include" />
+-					<Add directory="Python24\include" />
+-				</Compiler>
+-				<Linker>
+-					<Add option="/debug" />
+-					<Add option="/INCREMENTAL:NO" />
+-					<Add option="/pdb:Release\CvGameCoreDLL_RELEASE.pdb" />
+-					<Add library="boost_python-vc71-mt-1_32" />
+-					<Add library="winmm" />
+-					<Add directory="Python24\libs" />
+-					<Add directory="boost-1.32.0\libs\" />
+-				</Linker>
+-			</Target>
+-			<Target title="Release FxsMemory|Win32">
+-				<Option output="..\Warlords\Assets\CvGameCoreDLL_RELEASE_MEM.dll" prefix_auto="1" extension_auto="1" />
+-				<Option object_output="Release FxsMemory|Win32" />
+-				<Option type="3" />
+-				<Option compiler="msvctk" />
+-				<Option createDefFile="1" />
+-				<Option createStaticLib="1" />
+-				<Compiler>
+-					<Add option="/DWIN32" />
+-					<Add option="/DNDEBUG" />
+-					<Add option="/D_WINDOWS" />
+-					<Add option="/D_USRDLL" />
+-					<Add option="/DCVGAMECOREDLL_EXPORTS" />
+-					<Add option="/DUSE_MEMMANAGER" />
+-					<Add option="/W3" />
+-					<Add option="/Zi" />
+-					<Add option="/O2" />
+-					<Add option="/MD" />
+-					<Add option="EHsc" />
+-					<Add option="/GR" />
+-					<Add directory="Boost-1.32.0\include" />
+-					<Add directory="Python24\include" />
+-				</Compiler>
+-				<Linker>
+-					<Add option="/debug" />
+-					<Add option="/INCREMENTAL:NO" />
+-					<Add option="/pdb:Release FxsMemory|Win32\CvGameCoreDLL_RELEASE_MEM.pdb" />
+-					<Add library="boost_python-vc71-mt-1_32" />
+-					<Add library="winmm" />
+-					<Add directory="Python24\libs" />
+-					<Add directory="boost-1.32.0\libs\" />
+-				</Linker>
+-			</Target>
+-			<Target title="Debug FxsMemory|Win32">
+-				<Option output="..\Warlords\Assets\CvGameCoreDLL_DEBUG_MEM.dll" prefix_auto="1" extension_auto="1" />
+-				<Option object_output="Debug FxsMemory|Win32" />
+-				<Option type="3" />
+-				<Option compiler="msvctk" />
+-				<Option createDefFile="1" />
+-				<Option createStaticLib="1" />
+-				<Compiler>
+-					<Add option="/DWIN32" />
+-					<Add option="/D_DEBUG" />
+-					<Add option="/D_WINDOWS" />
+-					<Add option="/D_USRDLL" />
+-					<Add option="/DCVGAMECOREDLL_EXPORTS" />
+-					<Add option="/DUSE_MEMMANAGER" />
+-					<Add option="/W3" />
+-					<Add option="/O0" />
+-					<Add option="/MDd" />
+-					<Add option="EHsc" />
+-					<Add option="/GR" />
+-					<Add directory="Boost-1.32.0\include" />
+-					<Add directory="Python24\include" />
+-				</Compiler>
+-				<Linker>
+-					<Add option="/debug" />
+-					<Add option="/pdb:Debug FxsMemory|Win32\CvGameCoreDLL_DEBUG_MEM.pdb" />
+-					<Add library="boost_python-vc71-mt-gd-1_32" />
+-					<Add library="winmm" />
+-					<Add directory="Python24\libs" />
+-					<Add directory="boost-1.32.0\libs\" />
+-				</Linker>
+-			</Target>
+ 			<Target title="Final Release|Win32">
+-				<Option output="F:\Documents and Settings\Grater1\My Documents\My Games\Warlords\CustomAssets\CvGameCoreDLL.dll" prefix_auto="1" extension_auto="1" />
++				<Option output="..\Assets\CvGameCoreDLL.dll" prefix_auto="1" extension_auto="1" />
+ 				<Option object_output="FinalReleaseWin32" />
+ 				<Option type="3" />
+ 				<Option compiler="msvctk" />
+@@ -167,7 +41,7 @@
+ 				</Linker>
+ 			</Target>
+ 			<Target title="Final Release|Win32|Asserts">
+-				<Option output="F:\Documents and Settings\Grater1\My Documents\My Games\Warlords\CustomAssets\CvGameCoreDLL.dll" prefix_auto="1" extension_auto="1" />
++				<Option output="..\Assets\CvGameCoreDLL.dll" prefix_auto="1" extension_auto="1" />
+ 				<Option object_output="FinalReleaseWin32Asserts" />
+ 				<Option type="3" />
+ 				<Option compiler="msvctk" />
+@@ -202,10 +76,6 @@
+ 		</Build>
+ 		<Unit filename="CvArea.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -213,19 +83,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvArtFileMgr.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -233,19 +95,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvCity.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -253,19 +107,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvCityAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -273,19 +119,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDLLButtonPopup.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -293,10 +131,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -304,10 +138,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -315,19 +145,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDLLEntity.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -335,10 +157,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -346,10 +164,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -357,10 +171,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -368,10 +178,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -379,10 +185,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -390,10 +192,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -401,10 +199,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -412,19 +206,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDLLPython.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -432,10 +218,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -443,10 +225,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -454,19 +232,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDLLWidgetData.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -474,10 +244,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -485,19 +251,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDeal.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -505,10 +263,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -516,19 +270,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvDiploParameters.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -536,10 +282,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -547,19 +289,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvFractal.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -567,19 +301,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGame.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -587,19 +313,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGameAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -607,19 +325,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreDLL.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -627,10 +337,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -638,10 +344,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -649,19 +351,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGameCoreUtils.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -669,19 +363,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGameTextMgr.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -689,19 +375,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvGlobals.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -709,19 +387,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvHallOfFameInfo.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -729,19 +399,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvInfoWater.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -749,19 +411,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvInfos.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -769,19 +423,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvInitCore.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -789,19 +435,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvMap.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -809,19 +447,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvMapGenerator.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -829,19 +459,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPlayer.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -849,19 +471,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPlayerAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -869,19 +483,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPlot.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -889,19 +495,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPlotGroup.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -909,19 +507,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPopupInfo.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -929,19 +519,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvPopupReturn.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -949,19 +531,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvRandom.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -969,19 +543,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvReplayInfo.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -989,19 +555,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvReplayMessage.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1009,19 +567,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroup.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1029,19 +579,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvSelectionGroupAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1049,10 +591,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1060,19 +598,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvStructs.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1080,19 +610,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvTalkingHeadMessage.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1100,19 +622,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvTeam.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1120,19 +634,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvTeamAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1140,19 +646,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvUnit.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1160,19 +658,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvUnitAI.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1180,19 +670,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtility.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1200,46 +682,26 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilityGet.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilityInit.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CvXMLLoadUtilitySet.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyArea.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1247,28 +709,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyAreaInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyArgsList.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1276,19 +726,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyArtFileMgr.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1296,28 +738,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyArtFileMgrInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyCity.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1325,28 +755,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyCityInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyDeal.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1354,28 +772,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyEnumsInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGame.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1383,19 +789,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGameCoreUtils.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1403,37 +801,21 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGameCoreUtilsInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGameInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGameTextMgr.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1441,28 +823,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGameTextMgrInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContext.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1470,55 +840,31 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface2.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface3.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyGlobalContextInterface4.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyHallOfFameInfo.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1526,55 +872,31 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyHallOfFameInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface2.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyInfoInterface3.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyMap.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1582,19 +904,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyMapGenerator.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1602,37 +916,21 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyMapGeneratorInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyMapInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyPlayer.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1640,28 +938,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyPlayerInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyPlot.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1669,37 +955,21 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyPlotInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyRandomInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyReplayInfo.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1707,19 +977,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CySelectionGroup.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1727,37 +989,21 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CySelectionGroupInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyStructsInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyTeam.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1765,28 +1011,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyTeamInterface.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyUnit.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1794,28 +1028,16 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="CyUnitInterface1.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="FAssert.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1823,19 +1045,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="FDialogTemplate.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1843,10 +1057,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1854,10 +1064,6 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+@@ -1865,19 +1071,11 @@
+ 			<Option compilerVar="CPP" />
+ 			<Option compile="0" />
+ 			<Option link="0" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+ 		<Unit filename="_precompile.cpp">
+ 			<Option compilerVar="CPP" />
+-			<Option target="Debug|Win32" />
+-			<Option target="Release|Win32" />
+-			<Option target="Release FxsMemory|Win32" />
+-			<Option target="Debug FxsMemory|Win32" />
+ 			<Option target="Final Release|Win32" />
+ 			<Option target="Final Release|Win32|Asserts" />
+ 		</Unit>
+

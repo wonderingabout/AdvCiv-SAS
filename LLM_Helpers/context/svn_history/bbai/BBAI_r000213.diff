@@ -1,0 +1,111 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 213
+# Author: blakeciv
+# Date: 2006-12-19T16:31:17.077231Z
+# Coverage: full
+# Message:
+#   Returned the "AverageMultipliers" stuff to working as advertised.... (normalizing the output is done elsewhere)
+#   Modified the chance to build wonders to make it generally more likely...
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@212
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@213
+@@ -2261,7 +2261,7 @@
+ 
+ 							if (isWorldWonderClass((BuildingClassTypes)iI))
+ 							{
+-							    int iMultiplier = 50 + getProductionModifier(eLoopBuilding);
++							    int iMultiplier = 100 + getProductionModifier(eLoopBuilding);
+ 								if (iProductionRank <= min(3, ((GET_PLAYER(getOwnerINLINE()).getNumCities() + 2) / 3)))
+ 								{
+ 									if (bAsync)
+@@ -2282,8 +2282,10 @@
+ 									DEBUGLOG("[+%d]", iTempValue);
+ #endif
+ 
+-									iValue += (iTempValue * 2) / 3;
++									iValue += iTempValue;
+ 								}
++								iTurnsLeft *= 150;
++								iTurnsLeft /= (100 + iMultiplier);
+ 							}
+ 
+ 							if (bAsync)
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@212
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@213
+@@ -10379,15 +10379,15 @@
+ 
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+-		m_aiAverageYieldMultiplier[iI] = 100;		
++		m_aiAverageYieldMultiplier[iI] = 0;		
+ 	}
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+-		m_aiAverageCommerceMultiplier[iI] = 100;		
+-	}
+-	m_iAverageGreatPeopleMultiplier = 100;
++		m_aiAverageCommerceMultiplier[iI] = 0;		
++	}
++	m_iAverageGreatPeopleMultiplier = 0;
+ 	
+-	iTotalPopulation = 1;
++	iTotalPopulation = 0;
+ 	
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+@@ -10408,19 +10408,34 @@
+ 			m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
+ 		}
+ 	}	
+-
+-	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+-	{
+-		m_aiAverageYieldMultiplier[iI] /= iTotalPopulation;
+-		FAssert(m_aiAverageYieldMultiplier[iI] > 0);
+-	}
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-	{
+-		m_aiAverageCommerceMultiplier[iI] /= iTotalPopulation;	
+-		FAssert(m_aiAverageCommerceMultiplier[iI] > 0);	
+-	}
+-	m_iAverageGreatPeopleMultiplier /= iTotalPopulation;
+-	FAssert(m_iAverageGreatPeopleMultiplier > 0);
++	
++	if (iTotalPopulation > 0)
++	{
++		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
++			m_aiAverageYieldMultiplier[iI] /= iTotalPopulation;
++			FAssert(m_aiAverageYieldMultiplier[iI] > 0);
++		}
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_aiAverageCommerceMultiplier[iI] /= iTotalPopulation;	
++			FAssert(m_aiAverageCommerceMultiplier[iI] > 0);	
++		}
++		m_iAverageGreatPeopleMultiplier /= iTotalPopulation;
++		FAssert(m_iAverageGreatPeopleMultiplier > 0);
++	}
++	else
++	{
++		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
++			m_aiAverageYieldMultiplier[iI] = 100;
++		}
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_aiAverageCommerceMultiplier[iI] = 100;
++		}
++		m_iAverageGreatPeopleMultiplier = 100;
++	}
+ 
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+ }
+

@@ -1,0 +1,160 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 124
+# Author: iustus
+# Date: 2006-11-27T02:10:41.978362Z
+# Coverage: full
+# Message:
+#   cached cities in area, this was already in vanilla, caught it in the merge
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@123
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@124
+@@ -751,7 +751,7 @@
+ 
+ 	if (bDanger)
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (area()->getCitiesPerPlayer(getOwnerINLINE()) + 2))
++		if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
+ 		{
+ 			if (AI_chooseUnit(UNITAI_ATTACK))
+ 			{
+@@ -830,7 +830,7 @@
+ 			{
+ 				if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
+ 				{
+-					if ((GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) + GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK)) < (AI_neededDefenders() + area()->getCitiesPerPlayer(getOwnerINLINE())))
++					if ((GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) + GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_ATTACK)) < (AI_neededDefenders() + iNumCitiesInArea))
+ 					{
+ 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 						{
+@@ -1304,7 +1304,6 @@
+ 	bool bDanger;
+ 	int iHasMetCount;
+ 	int iMilitaryWeight;
+-	int iAreaCities;
+ 	int iCoastalCities;
+ 	int iBestValue;
+ 	int iI;
+@@ -1328,7 +1327,7 @@
+ 
+ 	iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 	iMilitaryWeight = GET_PLAYER(getOwnerINLINE()).AI_militaryWeight(area());
+-	iAreaCities = area()->getCitiesPerPlayer(getOwnerINLINE());
++	iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 	if (pWaterArea != NULL)
+ 	{
+ 		iCoastalCities = GET_PLAYER(getOwnerINLINE()).countNumCoastalCitiesByArea(pWaterArea);
+@@ -1348,9 +1347,9 @@
+ 
+ 	aiUnitAIVal[UNITAI_ATTACK] += ((iMilitaryWeight / ((bWarPlan || bLandWar || bAssault) ? 7 : 12)) + ((bPrimaryArea && bWarPossible) ? 2 : 0) + 1);
+ 
+-	aiUnitAIVal[UNITAI_CITY_DEFENSE] += (iAreaCities + 1);
+-	aiUnitAIVal[UNITAI_CITY_COUNTER] += ((5 * (iAreaCities + 1)) / 8);
+-	aiUnitAIVal[UNITAI_CITY_SPECIAL] += ((iAreaCities + 1) / 2);
++	aiUnitAIVal[UNITAI_CITY_DEFENSE] += (iNumCitiesInArea + 1);
++	aiUnitAIVal[UNITAI_CITY_COUNTER] += ((5 * (iNumCitiesInArea + 1)) / 8);
++	aiUnitAIVal[UNITAI_CITY_SPECIAL] += ((iNumCitiesInArea + 1) / 2);
+ 
+ 	if (bWarPossible)
+ 	{
+@@ -1855,7 +1854,7 @@
+ 	int iTempValue;
+ 	int iPass;
+ 	int iI, iJ;
+-	int iNumCities;
++	int iNumCities, iNumCitiesInArea;
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+@@ -1875,6 +1874,8 @@
+ 	FAssert(iAngryPopulation >= 0);
+ 	iBadHealth = max(0, -(healthRate(/*bNoAngry*/ true, 1)));
+ 	iNumCities = kOwner.getNumCities();
++	iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
++
+ 	
+ 	int aiYieldRank[NUM_YIELD_TYPES];
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -1981,7 +1982,7 @@
+ 				}
+ 
+ 				iValue += (min(kBuilding.getHappiness(), iAngryPopulation) * 10);
+-				iValue += (kBuilding.getAreaHappiness() * area()->getCitiesPerPlayer(getOwnerINLINE()) * 8);
++				iValue += (kBuilding.getAreaHappiness() * iNumCitiesInArea * 8);
+ 				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);
+ 
+ 				iValue += (min(-(((kBuilding.getWarWearinessModifier() * kOwner.getWarWearinessPercentAnger()) / 100) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")), iAngryPopulation) * 8);
+@@ -2036,7 +2037,7 @@
+ 				}
+ 
+ 				iValue += (min(kBuilding.getHealth(), iBadHealth) * 8);
+-				iValue += (kBuilding.getAreaHealth() * area()->getCitiesPerPlayer(getOwnerINLINE()) * 6);
++				iValue += (kBuilding.getAreaHealth() * iNumCitiesInArea * 6);
+ 				iValue += (kBuilding.getGlobalHealth() * iNumCities * 6);
+ 
+ 				for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+@@ -2097,7 +2098,7 @@
+ 			{
+ 				if (kBuilding.isAreaCleanPower())
+ 				{
+-					iValue += (area()->getCitiesPerPlayer(getOwnerINLINE()) * 10); // XXX count cities without clean power???
++					iValue += (iNumCitiesInArea * 10); // XXX count cities without clean power???
+ 				}
+ 
+ 				if (kBuilding.getDomesticGreatGeneralRateModifier() != 0)
+@@ -2107,13 +2108,13 @@
+ 
+ 				if (kBuilding.isAreaBorderObstacle())
+ 				{
+-					iValue += (area()->getCitiesPerPlayer(getOwnerINLINE()));
++					iValue += (iNumCitiesInArea);
+ 				}
+ 
+ 				if (kBuilding.isGovernmentCenter())
+ 				{
+ 					FAssert(!(kBuilding.isCapital()));
+-					iValue += (calculateDistanceMaintenance() * area()->getCitiesPerPlayer(getOwnerINLINE()));
++					iValue += (calculateDistanceMaintenance() * iNumCitiesInArea);
+ 				}
+ 
+ 				if (kBuilding.isMapCentering())
+@@ -2186,7 +2187,7 @@
+ 				iValue += (-(kBuilding.getNukeModifier()) / ((iHasMetCount > 0) ? 10 : 20));
+ 
+ 				iValue += (kBuilding.getFreeSpecialist() * 16);
+-				iValue += (kBuilding.getAreaFreeSpecialist() * area()->getCitiesPerPlayer(getOwnerINLINE()) * 12);
++				iValue += (kBuilding.getAreaFreeSpecialist() * iNumCitiesInArea * 12);
+ 				iValue += (kBuilding.getGlobalFreeSpecialist() * iNumCities * 12);
+ 
+ 				iValue += ((kBuilding.getWorkerSpeedModifier() * kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
+@@ -2278,7 +2279,7 @@
+ 					{
+ 						if (kOwner.AI_totalAreaUnitAIs(area(), ((UnitAITypes)(GC.getUnitInfo((UnitTypes)iI).getDefaultUnitAIType()))) == 0)
+ 						{
+-							iValue += area()->getCitiesPerPlayer(getOwnerINLINE());
++							iValue += iNumCitiesInArea;
+ 						}
+ 
+ 						iValue++;
+@@ -2289,7 +2290,7 @@
+ 						    //encouragement to get some minimal ability to train special units
+ 						    if (bCulturalVictory1 || isHolyCity(eReligion) || isCapital())
+ 						    {
+-						        iValue += (2 + area()->getCitiesPerPlayer(getOwnerINLINE()));
++						        iValue += (2 + iNumCitiesInArea);
+                             }
+ 						}
+ 					}
+@@ -2353,7 +2354,7 @@
+ 					iTempValue += (kBuilding.getYieldChange(iI) * 6);
+ 					iTempValue += ((kBuilding.getYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI)) / 10);
+ 					iTempValue += ((kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI)) / ((bProvidesPower || isPower()) ? 12 : 15));
+-					iTempValue += ((kBuilding.getAreaYieldModifier(iI) * area()->getCitiesPerPlayer(getOwnerINLINE())) / 3);
++					iTempValue += ((kBuilding.getAreaYieldModifier(iI) * iNumCitiesInArea) / 3);
+ 					iTempValue += ((kBuilding.getGlobalYieldModifier(iI) * iNumCities) / 3);
+ 
+ 					if (bProvidesPower && !isPower())
+

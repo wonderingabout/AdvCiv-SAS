@@ -1,0 +1,34 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 583
+# Author: jdog5000
+# Date: 2010-06-28T06:49:39.283478Z
+# Coverage: full
+# Message:
+#   Little tweak
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@582
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@583
+@@ -15082,13 +15082,13 @@
+ 				{
+ 					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 					{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+ 						if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0)
+ 						{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      06/27/10                                jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
+ 							if (!atPlot(pLoopPlot) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange)))
+ 							{
+ /************************************************************************************************/
+

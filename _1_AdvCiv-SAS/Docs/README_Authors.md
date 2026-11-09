@@ -42,7 +42,8 @@ Here are a short info about the authors (as for LLMs, all may not be listed as s
 [Grok AI](#grok-ai)\
 [Kimi AI](#kimi-ai)\
 &emsp;[K2](#k2)\
-&emsp;[K2.5](#k25)
+&emsp;[K2.5](#k25)\
+[Model credit timeline](#model-credit-timeline)
 
 ## me, wonderingabout
 
@@ -261,3 +262,7 @@ I tested Kimi K2 and it looks very fun! Although i barely tested it yet to have 
 ### K2.5
 
 Look solid at least seems to be advertised as such; i tested it for example to make ai-generated more wiki like and the result is decent and quite good thanks.
+
+## Model credit timeline
+
+See the [model credit timeline](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#model-credit-timeline) in the Source Analysis guide, which lists each credited model with its first commit and counts.

@@ -1,0 +1,248 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 460
+# Author: jdog5000
+# Date: 2009-06-12T20:26:56.472876Z
+# Coverage: full
+# Message:
+#   Version 0.77
+#   
+#   For BTS 3.19
+# Changed paths (7):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   M /trunk/Better BTS AI/Assets/Python/Screens/CvInfoScreen.py
+#   M /trunk/Better BTS AI/Assets/Python/Screens/CvMainInterface.py
+#   A /trunk/Better BTS AI/Better BTS AI sources for 0.77.zip
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+#   A /trunk/Better BTS AI/unofficial patch list.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Assets/Python/Screens/CvInfoScreen.py
+--- /trunk/Better BTS AI/Assets/Python/Screens/CvInfoScreen.py@459
++++ /trunk/Better BTS AI/Assets/Python/Screens/CvInfoScreen.py@460
+@@ -537,7 +537,7 @@
+ 		
+ 		iDemographicsMission = -1
+ 		# See if Espionage allows graph to be shown for each player
+-		if not (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE)):
++		if not (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or gc.getGame().isDebugMode()):
+ 			for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
+ 				if (gc.getEspionageMissionInfo(iMissionLoop).isSeeDemographics()):
+ 					iDemographicsMission = iMissionLoop
+
+Index: /trunk/Better BTS AI/Assets/Python/Screens/CvMainInterface.py
+--- /trunk/Better BTS AI/Assets/Python/Screens/CvMainInterface.py@459
++++ /trunk/Better BTS AI/Assets/Python/Screens/CvMainInterface.py@460
+@@ -1766,12 +1766,11 @@
+ 					researchCost = gc.getTeam(gc.getPlayer(ePlayer).getTeam()).getResearchCost(gc.getPlayer(ePlayer).getCurrentResearch())
+ 					researchRate = gc.getPlayer(ePlayer).calculateResearchRate(-1)
+ 					
+-					iFirst = float(researchProgress + overflowResearch) / float(researchCost)
+-					screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_STORED, iFirst )
+-					if ( iFirst == 1 ):
+-						screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_RATE, ( float(researchRate) / float(researchCost) ) )
++					screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_STORED, float(researchProgress + overflowResearch) / researchCost )
++					if ( researchCost >  researchProgress + overflowResearch):
++						screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_RATE, float(researchRate) / (researchCost - researchProgress - overflowResearch))
+ 					else:
+-						screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_RATE, ( ( float(researchRate) / float(researchCost) ) ) / ( 1 - iFirst ) )
++						screen.setBarPercentage( "ResearchBar", InfoBarTypes.INFOBAR_RATE, 0.0 )
+ 
+ 					screen.show( "ResearchBar" )
+ 					
+@@ -1989,21 +1988,21 @@
+ 					else:
+ 						iExtraFood = pHeadSelectedCity.getFood()
+ 					iFirst = float(iDeltaFood) / float(pHeadSelectedCity.growthThreshold())
+-					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_STORED, iFirst )
++					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_STORED, float(iDeltaFood) / pHeadSelectedCity.growthThreshold() )
+ 					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE, 0.0 )
+-					if ( iFirst == 1 ):
+-						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA, ( float(iExtraFood) / float(pHeadSelectedCity.growthThreshold()) ) )
++					if ( pHeadSelectedCity.growthThreshold() > iDeltaFood):
++						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA, float(iExtraFood) / (pHeadSelectedCity.growthThreshold() - iDeltaFood) )
+ 					else:
+-						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA, ( ( float(iExtraFood) / float(pHeadSelectedCity.growthThreshold()) ) ) / ( 1 - iFirst ) )
++						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA, 0.0)
+ 					
+ 				else:
+ 
+ 					iFirst = float(pHeadSelectedCity.getFood()) / float(pHeadSelectedCity.growthThreshold())
+-					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_STORED, iFirst )
+-					if ( iFirst == 1 ):
+-						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE, ( float(iFoodDifference) / float(pHeadSelectedCity.growthThreshold()) ) )
++					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_STORED, float(pHeadSelectedCity.getFood()) / pHeadSelectedCity.growthThreshold() )
++					if ( pHeadSelectedCity.growthThreshold() >  pHeadSelectedCity.getFood()):
++						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE, float(iFoodDifference) / (pHeadSelectedCity.growthThreshold() - pHeadSelectedCity.getFood()) )
+ 					else:
+-						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE, ( ( float(iFoodDifference) / float(pHeadSelectedCity.growthThreshold()) ) ) / ( 1 - iFirst ) )
++						screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE, 0.0 )
+ 					screen.setBarPercentage( "PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA, 0.0 )
+ 					
+ 				screen.show( "PopulationBar" )
+@@ -2043,18 +2042,17 @@
+ 
+ 				if (not(pHeadSelectedCity.isProductionProcess())):
+ 				
+-					iFirst = ((float(pHeadSelectedCity.getProduction())) / (float(pHeadSelectedCity.getProductionNeeded())))
+-					screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_STORED, iFirst )
+-					if ( iFirst == 1 ):
+-						iSecond = ( ((float(iProductionDiffNoFood)) / (float(pHeadSelectedCity.getProductionNeeded()))) )
++					iNeeded = pHeadSelectedCity.getProductionNeeded()
++					iStored = pHeadSelectedCity.getProduction()
++					screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_STORED, float(iStored) / iNeeded )
++					if iNeeded > iStored:
++						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE, float(iProductionDiffNoFood) / (iNeeded - iStored) )
+ 					else:
+-						iSecond = ( ((float(iProductionDiffNoFood)) / (float(pHeadSelectedCity.getProductionNeeded()))) ) / ( 1 - iFirst )
+-					screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE, iSecond )
+-					if ( iFirst + iSecond == 1 ):
+-						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA, ( ((float(iProductionDiffJustFood)) / (float(pHeadSelectedCity.getProductionNeeded()))) ) )
++						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE, 0.0 )
++					if iNeeded > iStored + iProductionDiffNoFood:
++						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA, float(iProductionDiffJustFood) / (iNeeded - iStored - iProductionDiffNoFood) )
+ 					else:
+-						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA, ( ( ((float(iProductionDiffJustFood)) / (float(pHeadSelectedCity.getProductionNeeded()))) ) ) / ( 1 - ( iFirst + iSecond ) ) )
+-
++						screen.setBarPercentage( "ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA, 0.0)
+ 					screen.show( "ProductionBar" )
+ 
+ 				iCount = 0
+@@ -2412,19 +2410,18 @@
+ 				screen.setLabel( "NationalityText", "Background", szBuffer, CvUtil.FONT_CENTER_JUSTIFY, 125, yResolution - 210, -0.3, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				screen.setHitTest( "NationalityText", HitTestTypes.HITTEST_NOHIT )
+ 				screen.show( "NationalityText" )
+-				iRemainder = 0
++				iRemainder = 100
+ 				iWhichBar = 0
+ 				for h in range( gc.getMAX_PLAYERS() ):
+ 					if ( gc.getPlayer(h).isAlive() ):
+-						fPercent = pHeadSelectedCity.plot().calculateCulturePercent(h)
+-						if ( fPercent != 0 ):
+-							fPercent = fPercent / 100.0
++						iPercent = pHeadSelectedCity.plot().calculateCulturePercent(h)
++						if ( iPercent > 0 ):
+ 							screen.setStackedBarColorsRGB( "NationalityBar", iWhichBar, gc.getPlayer(h).getPlayerTextColorR(), gc.getPlayer(h).getPlayerTextColorG(), gc.getPlayer(h).getPlayerTextColorB(), gc.getPlayer(h).getPlayerTextColorA() )
+-							if ( iRemainder == 1 ):
+-								screen.setBarPercentage( "NationalityBar", iWhichBar, fPercent )
++							if ( iRemainder <= 0):
++								screen.setBarPercentage( "NationalityBar", iWhichBar, 0.0 )
+ 							else:
+-								screen.setBarPercentage( "NationalityBar", iWhichBar, fPercent / ( 1 - iRemainder ) )
+-							iRemainder += fPercent
++								screen.setBarPercentage( "NationalityBar", iWhichBar, float(iPercent) / iRemainder)
++							iRemainder -= iPercent
+ 							iWhichBar += 1
+ 				screen.show( "NationalityBar" )
+ 
+@@ -3140,6 +3137,18 @@
+ 	
+ 	def update(self, fDelta):
+ 		return
+-
+-
+-
++	
++	def forward(self):
++		if (not CyInterface().isFocused() or CyInterface().isCityScreenUp()):
++			if (CyInterface().isCitySelection()):
++				CyGame().doControl(ControlTypes.CONTROL_NEXTCITY)
++			else:
++				CyGame().doControl(ControlTypes.CONTROL_NEXTUNIT)
++		
++	def back(self):
++		if (not CyInterface().isFocused() or CyInterface().isCityScreenUp()):
++			if (CyInterface().isCitySelection()):
++				CyGame().doControl(ControlTypes.CONTROL_PREVCITY)
++			else:
++				CyGame().doControl(ControlTypes.CONTROL_PREVUNIT)
++
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.77.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@459
++++ /trunk/Better BTS AI/readme.txt@460
+@@ -1,7 +1,7 @@
+ Installation Instructions
+ _________________________
+ 
+-Better BTS AI requires Civ4: Beyond the Sword patched to 3.17.  There are two ways to use Better BTS AI:
++Better BTS AI requires Civ4: Beyond the Sword patched to 3.19.  There are two ways to use Better BTS AI:
+ 
+ 1	As a mod.  Place the Better BTS AI folder which contains this readme and the Assets folder in "C:\Program Files\Firaxis Games\Sid Meier's Civilization 4\Beyond the Sword\Mods\".  You can then load Better BTS AI as a mod in the normal way or set BTS to autoload Better BTS AI in "\My Games\Beyond the Sword\CivilizationIV.ini".  This method maintains compatibility for online play but the changes in Better BTS AI will only apply when the mod is running (not in other mods, Firaxis scenarios).  [B]Recommended if[/B] you want to easily go back to standard BTS or play online.
+ 
+@@ -31,7 +31,7 @@
+ Ctrl+Shift+L    ChangePlayer    Open popup to switch which player the human controls.
+ 
+ 
+-Better BTS AI v0.76 Changelog
++Better BTS AI v0.77 Changelog
+ _________________________
+ 
+ Bugfix
+@@ -70,6 +70,8 @@
+ - Fixed bug (introduced) allowing tactical nukes to do AUTOMATE_EXPLORE, leading to crash if selected
+ - Improved handling of splitting of splitting stacks of units under a variety of circumstances to more robustly avoid potential infinite loops ("Waiting for ...").  Applies mainly to mods, particularly those using Revolution.
+ - Fixed potential crash bug in looking up AI_unitValue for UNITAI_MISSIONARY units without passing a valid CvArea*
++- Fixed bug in CvPlayerAI::AI_isFinancialTrouble, CvCityAI::AI_updateBestBuild, and CvPlayerAI::AI_getMinFoundValue where spending gpt for resources reduced calculation of expenses
++- Kept hammer overflow fix from Unofficial Patch instead of using broken 3.19 code
+ 
+ War strategy AI
+ - Modified how closeness is used for determining who to attack, different settings for regular and Aggressive AI
+@@ -327,6 +329,3 @@
+ - Updated ChangePlayer SDK pieces to fully redraw units
+ - Brought over war decision debug output from Warlords version of Better AI, updated for BTS logic
+ - In debug mode the game places colored circles on the map for the plots where civ's want to build cities (you have to change which unit you have selected to get them to show initially or update after a turn)
+-
+-
+-Better BTS AI also includes Dresden & Solver's unofficial 3.17 patch version 0.21.
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@459
++++ /trunk/Better BTS AI/todo and ideas.txt@460
+@@ -62,6 +62,7 @@
+ - Pick state religion logic
+ - Switch state religions in Golden Age?
+ - Less willing to make peace when about to capture city, more willing when have threatened cities
++- Double check bug fix in CvPlayerAI::AI_civicTrade
+ 
+ General AI:
+ - XML option for tech beelining length
+
+Index: /trunk/Better BTS AI/unofficial patch list.txt
+--- /dev/null
++++ /trunk/Better BTS AI/unofficial patch list.txt@460
+@@ -0,0 +1,27 @@
++CvUnitAI::AI_paradrop - bug with valuation of terrain bonuses causing paradrops to avoid bonuses in some circumstances when intention is clearly to encourage landing on bonuses and pillaging
++
++CvUnitAI::AI_settleMove - bug when settler cannot reach a city site in an area (blocked by mountains, other player).  Causes settler to wait infinitely in city instead of loading into transport.
++
++CvTeamAI::AI_doWar - should use bFinancesProLimitedWar for limited war calc instead of max war version
++
++CvPlayerAI::AI_calculateUnitAIViability - Incorrect integer used so function return is meaningless, blocks AI logic for building privateers
++
++CvPlayerAI::AI_isFinancialTrouble, CvCityAI::AI_updateBestBuild, and CvPlayerAI::AI_getMinFoundValue - bug in calculating expenses when AI has negative gold per turn
++
++CvPlayerAI::AI_getTotalFloatingDefendersNeeded - poor decision by AI if it has captured one or two cities on someone else's continent, it will minimally defend its new cities
++
++CvPlayerAI::AI_getStrategyHash - counts destroyers as mobile anti-air
++
++CvPlayerAI::AI_doDiplo - when team is sneak attack ready but hasn't declared war, AI may still demand tribute. If other team accepts, it blocks war declaration for 10 turns but AI doesn't react.
++
++CvPlayerAI::AI_bestPlotEspionage - relevant weights are 0, +- 50, +- 100, so comparison for Agg AI should be < 51 instead of < 50
++
++CvPlayerAI::AI_civicTrade - don't block trade if new option civic is better than old in terms of unhappiness
++
++CvPlayerAI::AI_commerceWeight - Governors don't do smart things when human player sets culture slider to 100%
++
++isPotentialEnemy in CvGameCoreUtils - bug leading to AI launching invasions when unable to declare war, troops eventually get bounced when war is declared
++
++CvGame::addPlayer - Don't invalidate color choice for added civ if it's taken by this player slot
++
++CvCityAI::AI_cityThreat - bug when running crush strategy, wrong int is divided
+

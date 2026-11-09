@@ -1,0 +1,32 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 313
+# Author: iustus
+# Date: 2007-01-28T02:04:36.848309Z
+# Coverage: full
+# Message:
+#   haste makes waste! fixing last checkin
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@312
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@313
+@@ -835,7 +835,7 @@
+ 	if (GC.getLogging())
+ 	{
+ 		TCHAR szOut[1024];
+-		sprintf(szOut, "%S(%S)[%d]: fp=%d, lw=%d, as=%d, dw=%d, pa=%d, da=%d, pr=%d, nm=%d, cp=%d, "
++		sprintf(szOut, "%S(%S)[%d]: fp=%d, lw=%d, as=%d, dw=%d, pa=%d, da=%d, pr=%d, cp=%d, "
+ 			"ca=%d, ic=%d, bc=%d, cr=%d, cv=%d, bu=%d, ag=%d, ucp=%d, ew=%d, nw=%d, bgr=%d, brr=%d, wp=%d\n\n", 
+ 			getName(),
+ 			kPlayer.getName(),
+@@ -848,7 +848,6 @@
+ 			bFinancialTrouble,
+ 			bDanger,
+ 			iProductionRank,
+-			iNeededMissionaries,
+ 			iCulturePressure,
+ 
+ 			iNumCitiesInArea,
+

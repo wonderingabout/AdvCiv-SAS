@@ -1,0 +1,3244 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 238
+# Author: iustus
+# Date: 2007-01-02T05:52:17.351179Z
+# Coverage: full
+# Message:
+#   merge from trunk, revs 232-237
+# Changed paths (16):
+#   M /branches/vanilla/CvGameCoreDLL/AI_Defines.h
+#   M /branches/vanilla/CvGameCoreDLL/CvCity.h
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvGameAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeam.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.h
+
+Index: /branches/vanilla/CvGameCoreDLL/AI_Defines.h
+--- /branches/vanilla/CvGameCoreDLL/AI_Defines.h@237
++++ /branches/vanilla/CvGameCoreDLL/AI_Defines.h@238
+@@ -1,5 +1,7 @@
+ #ifndef AI_DEFINES_H
+ #define AI_DEFINES_H
++
++#define DEFAULT_PLAYER_CLOSENESS 6
+ 
+ #define AI_DEFAULT_STRATEGY             (0x00000001)
+ #define AI_STRATEGY_DAGGER              (0x00000002)
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCity.h
+--- /branches/vanilla/CvGameCoreDLL/CvCity.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvCity.h@238
+@@ -761,6 +761,8 @@
+ 	virtual int AI_calculateWaterWorldPercent() = 0;
+ 	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
+ 	virtual int AI_yieldMultiplier(YieldTypes eYield) = 0;
++	virtual int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance = 7) = 0;
++	virtual int AI_cityThreat() = 0;
+ 
+ protected:
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@238
+@@ -34,6 +34,8 @@
+ #define BUILDINGFOCUS_BIGCULTURE            (1 << 12)
+ #define BUILDINGFOCUS_WORLDWONDER           (1 << 13)
+ #define BUILDINGFOCUS_DOMAINSEA				(1 << 14)
++#define BUILDINGFOCUS_WONDEROK				(1 << 15)
++
+ 
+ // for testing only
+ #ifndef FINAL_RELEASE
+@@ -93,6 +95,7 @@
+ {
+ 	m_bForceEmphasizeCulture = false;
+ 	m_aiSpecialYieldMultiplier = new int[NUM_YIELD_TYPES];
++	m_aiPlayerCloseness = new int[MAX_PLAYERS];
+ 
+ 	m_pbEmphasize = NULL;
+ 
+@@ -103,6 +106,8 @@
+ CvCityAI::~CvCityAI()
+ {
+ 	AI_uninit();
++	SAFE_DELETE_ARRAY(m_aiSpecialYieldMultiplier);
++	SAFE_DELETE_ARRAY(m_aiPlayerCloseness);
+ }
+ 
+ 
+@@ -166,6 +171,12 @@
+ 	{
+ 		m_aiSpecialYieldMultiplier[iI] = 0;
+ 	}
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		m_aiPlayerCloseness[iI] = 0;
++	}
++	m_iCachePlayerClosenessTurn = -1;
++	m_iCachePlayerClosenessDistance = -1;
+ 
+ 	FAssertMsg(m_pbEmphasize == NULL, "m_pbEmphasize not NULL!!!");
+ 	FAssertMsg(GC.getNumEmphasizeInfos() > 0,  "GC.getNumEmphasizeInfos() is not greater than zero but an array is being allocated in CvCityAI::AI_reset");
+@@ -468,7 +479,13 @@
+ 		aiYields[iI] = GET_PLAYER(getOwnerINLINE()).specialistYield(eSpecialist, ((YieldTypes)iI));
+ 	}
+ 	
+-	aiYields[YIELD_PRODUCTION] /= iCultureModifier;
++//	if (AI_specialYieldMultiplier(YIELD_PRODUCTION) < 25)
++//	{
++//		if (aiYields[YIELD_PRODUCTION] > 0)
++//		{
++//			aiYields[YIELD_PRODUCTION] /= iCultureModifier;
++//		}
++//	}
+ 
+ 	iValue = AI_yieldValue(aiYields, bAvoidGrowth, bRemove);
+ 	
+@@ -693,6 +710,12 @@
+ 			{
+ 				return;
+ 		}
++			
++			//if we are killing our growth to train this, then finish it.
++			if (!bDanger && isFoodProduction())
++			{
++				return;
++		}
+ 		}
+ 
+ 		clearOrderQueue();
+@@ -730,7 +753,7 @@
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+-	bool bSpecialCultureCity = false; //be very careful about setting this.
++	bool bImportantCity = false; //be very careful about setting this.
+ 	bool bBigCultureCity = false;
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+@@ -753,7 +776,7 @@
+ 				// if we do not have enough cities, then the highest culture city will not get special attention
+ 				if (iCultureRateRank > 1 || (kPlayer.getNumCities() > (iCulturalVictoryNumCultureCities + 1)))
+ 				{
+-					bSpecialCultureCity = true;
++					bImportantCity = true;
+             }
+         }
+ 	}
+@@ -832,7 +855,7 @@
+     
+     //do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+-    if ((iExistingWorkers == 0) && isCapital())
++    if (!bDanger && (iExistingWorkers == 0) && isCapital())
+     {
+ 	if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+ 		(getPopulation() > 3))
+@@ -851,6 +874,11 @@
+ 		}
+     }
+ 	
++    if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 5, 33))
++    {
++    	return;
++    }
++	
+ 
+ 	if (isHuman())
+ 	{
+@@ -889,8 +917,20 @@
+ 			}
+ 		}
+ 	}
+-
+-	if (!(iExistingWorkers == 0) && !bSpecialCultureCity)
++	
++	
++	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
++ 	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
++	
++	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
++	{
++		if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
++		{
++			return;
++		}
++	}
++
++	if (!(iExistingWorkers == 0) && !bImportantCity)
+ 	{
+         if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+ 		{
+@@ -900,6 +940,27 @@
+ 			}
+ 		}
+ 	}
++	
++	    //do a check for one tile island type thing?
++    //this can be overridden by "wait and grow more"
++    if (bDanger && (iExistingWorkers == 0) && isCapital())
++    {
++	if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
++		(getPopulation() > 3))
++    	{
++			if (AI_chooseUnit(UNITAI_WORKER))
++			{
++				return;
++			}
++    	}
++		if (AI_neededSeaWorkers() > 0)
++		{
++			if (AI_chooseUnit(UNITAI_WORKER_SEA))
++			{
++				return;
++			}
++		}
++    }
+ 
+ 	if (pWaterArea != NULL)
+ 	{
+@@ -919,20 +980,20 @@
+ 	{
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+-			AI_chooseBuilding(BUILDINGFOCUS_CULTURE);
++			AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30);
+ 		}
+ 	}
+ 	
+ 	//this is needed to build the cathedrals quickly
+ 	//also very good for giving cultural cities first dibs on wonders
+-	//kind of a bug but with bSpecialCultureCity set it'll cause important cities
++	//kind of a bug but with bImportantCity set it'll cause important cities
+ 	//to snap up wonders - this wasn't intended logic but it works well and I
+ 	//don't see the need to add a cultural victory check.
+-    if (bSpecialCultureCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
++    if (bImportantCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
+     {
+         if (iCultureRateRank == iCulturalVictoryNumCultureCities)
+         {
+-            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE, 40))
++            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, 40))
+             {
+                 return;
+             }
+@@ -940,7 +1001,7 @@
+         
+         else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 , "AI Build up Culture") < iCultureRateRank)
+         {
+-            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE, 40))
++            if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE | BUILDINGFOCUS_WONDEROK, 40))
+             {
+                 return;
+             }
+@@ -959,7 +1020,7 @@
+         }
+ 
+ 	// don't build frivilious things if this is an imporant city unless we at war
+-    if (!bSpecialCultureCity || bLandWar || bAssault)
++    if (!bImportantCity || bLandWar || bAssault)
+     {
+         if (bPrimaryArea)
+         {
+@@ -1135,10 +1196,22 @@
+         	}
+         }
+         
+-        if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
++        if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60))
+         {
+                 return;
+             }
++        
++        //oppurunistic wonder build
++        if (!bDanger)
++        {
++        	int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++        	iWonderTime /= 5;
++        	iWonderTime += 8;
++			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
++			{
++				return;
++			}
++        }
+ 
+         if (!bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+@@ -1146,8 +1219,8 @@
+             {
+ 
+                 int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
+-                if (((kPlayer.getNumCities() == 1) && iBestFoundValue > 2000)
+-                	|| ((kPlayer.getNumCities() >= 2) && iBestFoundValue > 4000))
++                if (((kPlayer.getNumCities() == 1) && iBestFoundValue > 1000)
++                	|| ((kPlayer.getNumCities() >= 2) && iBestFoundValue > 2500))
+                 {
+ 					if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+ 					{
+@@ -1155,7 +1228,7 @@
+ 						{
+ 							return;
+ 						}
+-					}                	
++                }
+                 }
+ 				if (iWaterPercent > 50 && !bLandWar)
+                 {
+@@ -1171,6 +1244,17 @@
+                 }
+ 						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 20);
+                     }
++                }
++                int iPillagerCount = (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_PILLAGE));
++                if (iPillagerCount <= ((iNumCitiesInArea + 1) / 2))
++                {
++                	if (GC.getGameINLINE().getSorenRandNum(iPillagerCount + 2, "AI Dagger Choose Pillager") == 0)
++                	{
++						if (AI_chooseUnit(UNITAI_PILLAGE))
++						{
++							return;							
++						}
++                	}
+                 }
+                 
+                 if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
+@@ -1198,51 +1282,8 @@
+ 	}
+ 
+  	// don't build frivilious things if this is an imporant city
+-    if (!bSpecialCultureCity)
++    if (!bImportantCity)
+     {
+-		if (iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+-        {
+-            int iWonderRand = 8 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+-        
+-			// increase chance of going for an early wonder
+-			if (GC.getGameINLINE().getElapsedGameTurns() < 100 && iNumCitiesInArea > 1)
+-        {
+-				iWonderRand *= 35;
+-				iWonderRand /= 100;
+-			}
+-			else if (iNumCitiesInArea >= 3)
+-			{
+-				iWonderRand *= 30;
+-				iWonderRand /= 100;
+-			}
+-			else
+-			{
+-				iWonderRand *= 25;
+-				iWonderRand /= 100;
+-			}
+-            
+-			int iWonderRoll = GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand");
+-            
+-            if (iWonderRoll < iWonderRand)
+-            {
+-                int iWonderMaxTurns = 20 + ((iWonderRand - iWonderRoll) * 2);
+-				
+-				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
+-                {
+-#ifdef DEBUG_CITY_BUILDS
+-				DEBUGLOG("%S: picked wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
+-					iWonderRoll, iWonderRand);
+-#endif
+-                    return;
+-                }
+-
+-#ifdef DEBUG_CITY_BUILDS
+-				DEBUGLOG("%S: failed to find wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
+-					iWonderRoll, iWonderRand);
+-#endif
+-            }
+-        }
+-        
+         if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+         {
+             if (AI_chooseBuilding(0, 8))
+@@ -1271,6 +1312,8 @@
+                                 return;
+                             }
+                         }
++                        
++                        
+ 
+                         if (AI_chooseUnit(UNITAI_SETTLE))
+                         {
+@@ -1345,6 +1388,50 @@
+ 			}
+ 		}
+ 	}
++	
++	if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
++		&& (getPopulation() > 3))
++	{
++		int iWonderRand = 8 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++		
++		// increase chance of going for an early wonder
++		if (GC.getGameINLINE().getElapsedGameTurns() < 100 && iNumCitiesInArea > 1)
++		{
++			iWonderRand *= 35;
++			iWonderRand /= 100;
++		}
++		else if (iNumCitiesInArea >= 3)
++		{
++			iWonderRand *= 30;
++			iWonderRand /= 100;
++		}
++		else
++		{
++			iWonderRand *= 25;
++			iWonderRand /= 100;
++		}
++		
++		int iWonderRoll = GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand");
++		
++		if (iWonderRoll < iWonderRand)
++		{
++			int iWonderMaxTurns = 20 + ((iWonderRand - iWonderRoll) * 2);
++			
++			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
++			{
++#ifdef DEBUG_CITY_BUILDS
++			DEBUGLOG("%S: picked wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
++				iWonderRoll, iWonderRand);
++#endif
++			   return;
++			}
++
++#ifdef DEBUG_CITY_BUILDS
++			DEBUGLOG("%S: failed to find wonder of %d normalized turns (%d/%d)\n", getName().GetCString(), iWonderMaxTurns, 
++				iWonderRoll, iWonderRand);
++#endif
++		}
++	}
+ 
+ 	if (!isBarbarian())
+ 	{
+@@ -1395,17 +1482,9 @@
+ 		}
+ 	}
+ 
+-	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 20))
++	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20, 4))
+ 	{
+ 		return;
+-	}
+-
+-	if (getBaseYieldRate(YIELD_PRODUCTION) >= 8)
+-	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20))
+-		{
+-			return;
+-		}
+ 	}
+ 
+ 	if (iProductionRank <= ((kPlayer.getNumCities() / 3) + 1))
+@@ -1439,98 +1518,113 @@
+             }
+ 	    }
+ 	}
++	
++
++	int iEconomyFlags = 0;
++	iEconomyFlags |= BUILDINGFOCUS_GOLD;
++	iEconomyFlags |= BUILDINGFOCUS_RESEARCH;
++	iEconomyFlags |= BUILDINGFOCUS_MAINTENANCE;
++	iEconomyFlags |= BUILDINGFOCUS_HAPPY;
++	iEconomyFlags |= BUILDINGFOCUS_HEALTHY;
++	iEconomyFlags |= BUILDINGFOCUS_SPECIALIST;
++	
++	//20 means 5g or ~2 happiness...
++	if (AI_chooseBuilding(iEconomyFlags, 15, 20))
++	{
++				return;
++			}
+ 
+ 
+ 	if (!bLandWar)
+-	{
+-		if (bFinancialTrouble && iBaseGoldRate >= 12)
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + kPlayer.getCommercePercent(COMMERCE_GOLD)))
++		{
++		if (AI_chooseBuilding(iEconomyFlags, 40, 8))
+ 			{
+ 				return;
+ 			}
+-		}
+-
+-		if (getMaintenance() >= (bFinancialTrouble ? 6 : 8))
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 40))
++
++		
++		
++//		if (bFinancialTrouble && iBaseGoldRate >= 12)
++//		{
++//			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + kPlayer.getCommercePercent(COMMERCE_GOLD)))
++//			{
++//				return;
++//			}
++//		}
++//
++//		if (getMaintenance() >= (bFinancialTrouble ? 6 : 8))
++//		{
++//			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 40))
++//			{
++//				return;
++//			}
++//		}
++//
++//		if (angryPopulation(1) > 0)
++//		{
++//			if (AI_chooseBuilding(BUILDINGFOCUS_HAPPY, 40))
++//			{
++//				return;
++//			}
++//		}
++//
++//		if (healthRate(/*bNoAngry*/ true, 1) < 0)
++//		{
++//			if (AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 40))
++//			{
++//				return;
++//			}
++//		}
++//
++//
++//		if (getMaintenance() >= (bFinancialTrouble ? 4 : 6))
++//		{
++//			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 60))
++//			{
++//				return;
++//			}
++//		}
++
++		if (iCulturePressure > 50)
++		{
++			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 60))
+ 			{
+ 				return;
+ 			}
+ 		}
+ 
+-		if (angryPopulation(1) > 0)
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_HAPPY, 40))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (healthRate(/*bNoAngry*/ true, 1) < 0)
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 40))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (!AI_foodAvailable(2))
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (getMaintenance() >= (bFinancialTrouble ? 4 : 6))
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 60))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (iCulturePressure > 50)
+-		{
+-			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 60))
+-			{
+-				return;
+-			}
+-		}
+-
+-		if (GC.getDefineINT("DEFAULT_SPECIALIST") != NO_SPECIALIST)
+-		{
+-			if (getSpecialistCount((SpecialistTypes)(GC.getDefineINT("DEFAULT_SPECIALIST"))) > 0)
+-			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_SPECIALIST, 60))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-
+-		if (bFinancialTrouble || (iBaseGoldRate > 25))
+-		{
+-			if (iBaseGoldRate >= 12)
+-			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 30 + iBaseGoldRate))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-
+-		if (!(kPlayer.AI_avoidScience()))
+-		{
+-			if (iBaseResearchRate >= 12)
+-			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_RESEARCH, 30 + iBaseResearchRate))
+-				{
+-					return;
+-				}
+-			}
+-		}
++//		if (GC.getDefineINT("DEFAULT_SPECIALIST") != NO_SPECIALIST)
++//		{
++//			if (getSpecialistCount((SpecialistTypes)(GC.getDefineINT("DEFAULT_SPECIALIST"))) > 0)
++//			{
++//				if (AI_chooseBuilding(BUILDINGFOCUS_SPECIALIST, 60))
++//				{
++//					return;
++//				}
++//			}
++//		}
++//
++//		if (bFinancialTrouble || (iBaseGoldRate > 25))
++//		{
++//			if (iBaseGoldRate >= 12)
++//			{
++//				if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 30 + iBaseGoldRate))
++//				{
++//					return;
++//				}
++//			}
++//		}
++//
++//		if (!(kPlayer.AI_avoidScience()))
++//		{
++//			if (iBaseResearchRate >= 12)
++//			{
++//				if (AI_chooseBuilding(BUILDINGFOCUS_RESEARCH, 30 + iBaseResearchRate))
++//				{
++//					return;
++//				}
++//			}
++//		}
+ 
+ 		if (!bDanger)
+ 		{
+@@ -1573,18 +1667,17 @@
+ 
+ 		if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+ 		{
+-			if (!bFinancialTrouble)
+-			{
+-				if (bPrimaryArea && (kPlayer.findBestFoundValue() > 0))
+-				{
++
++			if (bPrimaryArea && (kPlayer.findBestFoundValue() > (bFinancialTrouble ? 2000 : 0)))
++			{
+ 					if (AI_chooseUnit(UNITAI_SETTLE))
+ 					{
+ 						return;
+ 					}
+-				}
+-			}
+-		}
+-	}
++
++				}
++			}
++		}
+ 
+ 	if (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1))
+ 	{
+@@ -2171,6 +2264,11 @@
+ 
+ BuildingTypes CvCityAI::AI_bestBuilding(int iFocusFlags, int iMaxTurns, bool bAsync, AdvisorTypes eIgnoreAdvisor)
+ {
++	return AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, bAsync, eIgnoreAdvisor, 0);
++}
++
++BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns, bool bAsync, AdvisorTypes eIgnoreAdvisor, int iMinThreshold)
++{
+ 	BuildingTypes eLoopBuilding;
+ 	BuildingTypes eBestBuilding;
+ 	bool bAreaAlone;
+@@ -2207,11 +2305,18 @@
+ 			if ((eLoopBuilding != NO_BUILDING) &&
+ 			(!isProductionAutomated() || !(isWorldWonderClass((BuildingClassTypes)iI) || isNationalWonderClass((BuildingClassTypes)iI))))
+ 			{
++				//don't build wonders?
++				if (((iFocusFlags == 0) || (iFocusFlags & BUILDINGFOCUS_WONDEROK) || (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)) || 
++					!(isWorldWonderClass((BuildingClassTypes)iI) || 
++					 isTeamWonderClass((BuildingClassTypes)iI) || 
++					  isNationalWonderClass((BuildingClassTypes)iI) ||
++					   isLimitedWonderClass((BuildingClassTypes)iI)))
++				{
+ 				if ((eIgnoreAdvisor == NO_ADVISOR) || (GC.getBuildingInfo(eLoopBuilding).getAdvisorType() != eIgnoreAdvisor))
+ 				{
+ 					if (canConstruct(eLoopBuilding))
+ 					{
+-						iValue = AI_buildingValue(eLoopBuilding, iFocusFlags);
++							iValue = AI_buildingValueThreshold(eLoopBuilding, iFocusFlags, iMinThreshold);
+ 
+ 						if (GC.getBuildingInfo(eLoopBuilding).getFreeBuilding() != NO_BUILDING)
+ 						{
+@@ -2264,9 +2369,9 @@
+ 										iTempValue *= 2;
+ 									}
+ 
+-#ifdef DEBUG_CITY_BUILDS
++	#ifdef DEBUG_CITY_BUILDS
+ 									DEBUGLOG("[+%d]", iTempValue);
+-#endif
++	#endif
+ 
+ 									iValue += iTempValue;
+ 									}
+@@ -2323,6 +2428,7 @@
+ 			}
+ 		}
+ 	}
++	}
+ 
+ #ifdef DEBUG_CITY_BUILDS
+ 	DEBUGLOG("\n");
+@@ -2332,9 +2438,14 @@
+ }
+ 
+ 
++int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags)
++{
++	return AI_buildingValueThreshold(eBuilding, iFocusFlags, 0);
++}
++
+ // XXX should some of these count cities, buildings, etc. based on teams (because wonders are shared...)
+ // XXX in general, this function needs to be more sensitive to what makes this city unique (more likely to build airports if there already is a harbor...)
+-int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags)
++int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags, int iThreshold)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -2394,7 +2505,7 @@
+ 	bool bCulturalVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1);
+ 	bool bCulturalVictory2 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+-
++	
+ 	bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 
+ 	if (kBuilding.isCapital())
+@@ -2448,13 +2559,10 @@
+ 		        {
+                     if (aiYieldRank[YIELD_PRODUCTION] <= 2)
+                     {
+-                        if (getProductionModifier(eBuilding) > 49)
+-                        {
+                             iValue++;
+                         }
+                     }
+ 		        }
+-		    }
+ 		    
+ 			if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || (iPass > 0))
+ 			{
+@@ -2483,11 +2591,11 @@
+ 						}
+ 					}
+ 				}
+-				iValue += iBestHappy * 20;
++				iValue += iBestHappy * 10;
+ 
+ 				if (kBuilding.isNoUnhappiness())
+ 				{
+-					iValue += ((iAngryPopulation + getPopulation()) * 10);
++					iValue += ((iAngryPopulation * 10) + getPopulation());
+ 				}
+ 
+ 				iValue += (min(kBuilding.getHappiness(), iAngryPopulation) * 10);
+@@ -2544,9 +2652,9 @@
+ 					iValue += (min(-(getBuildingBadHealth()), iBadHealth) * 6);
+ 				}
+ 
+-				iValue += (min(kBuilding.getHealth(), iBadHealth) * 8);
+-				iValue += (kBuilding.getAreaHealth() * iNumCitiesInArea * 6);
+-				iValue += (kBuilding.getGlobalHealth() * iNumCities * 6);
++				iValue += (min(kBuilding.getHealth(), iBadHealth) * 6);
++				iValue += (kBuilding.getAreaHealth() * iNumCitiesInArea * 4);
++				iValue += (kBuilding.getGlobalHealth() * iNumCities * 4);
+ 
+ 				for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 				{
+@@ -2559,7 +2667,7 @@
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_EXPERIENCE) || (iPass > 0))
+ 			{
+-				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 10 : 5));
++				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 12 : 6));
+ 
+ 				for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 				{
+@@ -2597,7 +2705,7 @@
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_MAINTENANCE) || (iFocusFlags & BUILDINGFOCUS_GOLD) || (iPass > 0))
+ 			{
+-				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 8);
++				iTempValue = ((iBaseMaintenance - ((iBaseMaintenance * max(0, (kBuilding.getMaintenanceModifier() + 100))) / 100)) * 4);
+ 				if (bFinancialTrouble)
+ 				{
+ 					iTempValue *= 2;
+@@ -2614,7 +2722,7 @@
+ 					{
+ 						iTempValue = AI_specialistValue(((SpecialistTypes)iI), false, false);
+ 
+-						iTempValue *= (50 + (10 * kBuilding.getSpecialistCount(iI)));
++						iTempValue *= (20 + (40 * kBuilding.getSpecialistCount(iI)));
+ 						iTempValue /= 100;
+ 
+ 						iValue += (iTempValue / 100);
+@@ -2724,7 +2832,7 @@
+ 							// if one of the top 3 production cities, give a big boost
+ 							if (aiYieldRank[YIELD_PRODUCTION] <= (2 + iLimitedWonderLimit))
+ 							{
+-									iValue += (2 * iMilitaryProductionModifier) / (2 + aiYieldRank[YIELD_PRODUCTION]);
++								iValue += (2 * iMilitaryProductionModifier) / (2 + aiYieldRank[YIELD_PRODUCTION]);
+ 							}
+ 						}
+ 						// otherwise, any of the top half of cities will do
+@@ -2855,14 +2963,13 @@
+ 										if (bCulturalVictory3)
+ 										{
+ 											iValue += iLoopBuildingCultureModifier * 2;
++										}
++									}
++								}
++							}
+ 						}
+ 					}
+ 				}
+-			}
+-						}
+-					}
+-				}
+-
+ 			}
+ 
+ 			if (iPass > 0)
+@@ -2929,10 +3036,7 @@
+ 			{
+ 				if (iFocusFlags & BUILDINGFOCUS_FOOD)
+ 				{
+-					if (iFoodDifference > 0)
+-					{
+-						iValue += kBuilding.getFoodKept();
+-					}
++					iValue += kBuilding.getFoodKept();
+ 
+ 					if (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 					{
+@@ -2951,8 +3055,8 @@
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_PRODUCTION)
+ 				{
+-					iTempValue = ((kBuilding.getYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 10);
+-					iTempValue += ((kBuilding.getPowerYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / ((bProvidesPower || isPower()) ? 12 : 15));
++					iTempValue = ((kBuilding.getYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 20);
++					iTempValue += ((kBuilding.getPowerYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / ((bProvidesPower || isPower()) ? 24 : 30));
+ 
+ 					if (bProvidesPower && !isPower())
+ 					{
+@@ -2964,7 +3068,7 @@
+ 					if (bIsLimitedWonder && (aiYieldRank[iI] > (3 + iLimitedWonderLimit)))
+ 					{
+ 						iTempValue *= -1;
+-				}
++					}
+ 
+ 					iValue += iTempValue;
+ 				}
+@@ -2979,7 +3083,7 @@
+ 						iTempValue *= 2;
+ 					}
+ 					
+-					iTempValue /= 1000;
++					iTempValue /= 3000;
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
+ 					// we do _not_ want to build this here (unless the value was small anyway)
+@@ -3046,12 +3150,12 @@
+ 
+ 								// if its limited and the limit is less than the number we need in culture cities, do not build here
+ 								if (bIsLimitedWonder && (iLimitedWonderLimit <= iCulturalVictoryNumCultureCities))
+-					{
++								{
+ 									bHaveEnough = false;
+ 								}
+ 
+ 								for (iJ = 0; bHaveEnough && iJ < GC.getNumBuildingClassInfos(); iJ++)
+-					    {
++								{
+ 									// count excess the number of prereq buildings which do not have this building built for yet
+ 									int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eBuilding, (BuildingClassTypes) iJ, -iCountBuilt);
+ 									
+@@ -3059,7 +3163,7 @@
+ 									if (iPrereqBuildings > 0 && kOwner.getBuildingClassCount((BuildingClassTypes) iJ) <  iPrereqBuildings)
+ 									{
+ 										bHaveEnough = false;
+-					        }
++									}
+ 								}
+ 
+ 								// if we have enough and our rank is close to the top, then possibly build here too
+@@ -3068,11 +3172,11 @@
+ 									iCommerceMultiplierValue /= 12;
+ 								}
+ 								// otherwise, we really do not want to build this here
+-					        else
+-					        {
++								else
++								{
+ 									iCommerceMultiplierValue /= 30;
+-					        }
+-					    }
++								}
++							}
+ 						}
+ 					    else
+ 					    {
+@@ -3161,7 +3265,7 @@
+ 			{
+ 				if (iFocusFlags & BUILDINGFOCUS_GOLD)
+ 				{
+-					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 15);
++					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_GOLD) * getBaseCommerceRate(COMMERCE_GOLD)) / 40);
+ 
+ 					if (bFinancialTrouble)
+ 					{
+@@ -3180,22 +3284,22 @@
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_RESEARCH)
+ 				{
+-					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) * getBaseCommerceRate(COMMERCE_RESEARCH)) / 15);
++					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) * getBaseCommerceRate(COMMERCE_RESEARCH)) / 40);
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
+ 					// we do _not_ want to build this here (unless the value was small anyway)
+ 					if (bIsLimitedWonder && (aiCommerceRank[COMMERCE_RESEARCH] > (3 + iLimitedWonderLimit)))
+ 					{
+ 						iTempValue *= -1;
+-				}
++					}
+ 
+ 					iValue += iTempValue;
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_CULTURE)
+ 				{
+-					iTempValue = (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 4);
+-					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 4);
++					iTempValue = (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 3);
++					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 3);
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, 
+ 					// do not count the culture value
+@@ -3203,9 +3307,10 @@
+ 					if (bIsLimitedWonder && (aiCommerceRank[COMMERCE_CULTURE] > (3 + iLimitedWonderLimit)))
+ 					{
+ 						iTempValue  = 0;
+-				}
++					}
+ 
+ 					iValue += iTempValue;
++				}
+ 				
+                 if (iFocusFlags & BUILDINGFOCUS_BIGCULTURE)
+ 				{
+@@ -3222,6 +3327,13 @@
+ 					iValue += iTempValue;
+ 				}
+ 			}
++			
++			if ((iThreshold > 0) && (iPass == 0))
++			{
++				if (iValue < iThreshold)
++				{
++					iValue = 0;
++				}
+ 			}
+ 
+ 			if (iPass > 0)
+@@ -3514,9 +3626,11 @@
+ 
+ int CvCityAI::AI_neededDefenders()
+ {
++	PROFILE_FUNC();
+ 	int iDefenders;
+ 	bool bOffenseWar = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 	bool bDefenseWar = ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE));
++	int iNumCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
+ 	
+ 
+ 	if (!(GET_TEAM(getTeam()).AI_isWarPossible()))
+@@ -3526,35 +3640,48 @@
+ 
+ 	iDefenders = 1;
+ 
+-	iDefenders += max(0, ((getPopulation() - 2) / 7));
+-
+-	if (isCapital() && (GET_PLAYER(getOwnerINLINE()).getNumCities() > 2))
++	if ((iNumCities > 1))
+ 	{
+ 		iDefenders++;
+ 	}
+-
+-	if (bOffenseWar)
++	
++	iDefenders += AI_neededFloatingDefenders();
++	
++	
++	/*
++
++	int iI = 3;
++	while (iI <= (iNumCities + max(0, (getPopulation()) - 5)))
+ 	{
+ 		iDefenders++;
+-	}
++		iI += ((iI / 2) + 3);
++	}
++
++//	if (bOffenseWar)
++//	{
++//		iDefenders++;
++//	}
++	
++	iDefenders = min(iDefenders, 1 + (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra()) / 2);
+ 	
+ 	if (bDefenseWar)
+ 	{
+-		iDefenders ++;
++		if (!plot()->isHills())
++		{
++			iDefenders++;
++		}
+ 		if (hasActiveWorldWonder())
+ 		{
+ 			iDefenders++;
+ 		}
+-		if (isCapital())
+-		{
+-			iDefenders++;
+-		}
+-	}
++	}
++	
++	
+ 	
+ 	if (bDefenseWar || bOffenseWar)
+ 	{
+ 		iDefenders += (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) + 1) / 2;
+-	}
++	}*/
+ 
+ 	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+ 	{
+@@ -3574,32 +3701,51 @@
+ 			}
+ 		}
+ 	}		
+-
+-	int iGameTurnAcquired = getGameTurnAcquired();
+-	if (iGameTurnAcquired != getGameTurnFounded())
++/*
++//	int iGameTurnAcquired = getGameTurnAcquired();
++//	if (iGameTurnAcquired != getGameTurnFounded())
++//	{
++//		iDefenders++;
++//		
++////		int iGameTurn = GC.getGameINLINE().getGameTurn();
++////		if (iGameTurnAcquired > (iGameTurn - 30))
++////		{
++////			iDefenders += (iGameTurnAcquired - (iGameTurn - 30)) / 10;
++////		}
++//	}
++
++	if (isOccupation())
++	{
++		iDefenders ++;
++	}
++
++	if (GC.getGameINLINE().getMaxCityElimination() > 0)
+ 	{
+ 		iDefenders++;
+-		
+-		int iGameTurn = GC.getGameINLINE().getGameTurn();
+-		if (iGameTurnAcquired > (iGameTurn - 30))
+-		{
+-			iDefenders += (iGameTurnAcquired - (iGameTurn - 30)) / 10;
+-		}
+-	}
+-
+-	if (isOccupation())
+-	{
+-		iDefenders += 2;
+-	}
+-
+-	if (GC.getGameINLINE().getMaxCityElimination() > 0)
+-	{
+-		iDefenders++;
+-	}
+-
++	}
++*/
+ 	return iDefenders;
+ }
+ 
++int CvCityAI::AI_neededFloatingDefenders()
++{
++	int iDefenders = 0;
++	
++	int iFloatingDefenders = GET_PLAYER(getOwnerINLINE()).AI_getTotalFloatingDefendersNeeded(area());
++	
++	int iTotalThreat = max(1, GET_PLAYER(getOwnerINLINE()).AI_getTotalAreaCityThreat(area()));
++	
++	
++	
++	iFloatingDefenders *= AI_cityThreat();
++	iFloatingDefenders += (iTotalThreat / 2);
++	iFloatingDefenders /= iTotalThreat;
++	
++	iDefenders += iFloatingDefenders;
++	
++	return iDefenders;
++	
++}
+ 
+ int CvCityAI::AI_neededAirDefenders()
+ {
+@@ -4104,8 +4250,6 @@
+         bChop = ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_MASSING));
+     }
+ 
+-
+-
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		m_aiBestBuildValue[iI] = 0;
+@@ -4202,7 +4346,7 @@
+ 
+ 	FAssert(!isHuman() || isProductionAutomated());
+ 
+-	if (!bForce || (getProduction() == 0))
++	if ((getProduction() == 0) && !bForce)
+ 	{
+ 		return;
+ 	}
+@@ -4526,12 +4670,14 @@
+ 					hurry((HurryTypes)iI);
+ 					break;					
+ 				}
+-				if (AI_countGoodTiles((healthRate(0) == 0), false, 90) <= (getPopulation() - iHurryPopulation))
++				if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
+ 				{
+ 					hurry((HurryTypes)iI);
+ 					break;					
+ 				}
+ 			}
++			if (AI_countGoodTiles((healthRate(0) == 0), false, 100) <= (getPopulation() - iHurryPopulation))
++			{
+ 			if (getProductionTurnsLeft() > iMinTurns)
+ 			{
+ 				bWait = isHuman();
+@@ -4606,6 +4752,7 @@
+ 			}
+ 		}
+ 	}
++	}
+ }
+ 
+ 
+@@ -4699,7 +4846,9 @@
+ 				bEmphasize = true;
+ 			}
+ 		}
+-
++		
++		if (AI_specialYieldMultiplier(YIELD_PRODUCTION) < 50)
++		{
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_COMMERCE) > 0)
+ 		{
+ 			if (bFirstTech)
+@@ -4727,9 +4876,10 @@
+ 				{
+ 				    if (!bCultureVictory || iCultureRateRank > (iCulturalVictoryNumCultureCities + 1))
+ 				    {
+-					bEmphasize = true;
+-				}
+-			}
++							bEmphasize = true;
++						}
++					}
++				}
+ 		}
+ 		}
+ 
+@@ -4806,12 +4956,55 @@
+ 	return false;
+ }
+ 
+-
+-bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns)
++bool CvCityAI::AI_chooseFloatingDefender(int iTotalNeededDefenders)
++{
++ 	int iCount;
++ 	
++	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COLLATERAL);
++	if (iCount <= (iTotalNeededDefenders / 4))
++	{
++		if (AI_chooseUnit(UNITAI_COLLATERAL))
++		{
++			return true;
++		}
++	}
++	iTotalNeededDefenders -= iCount;
++	
++	
++	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_CITY_COUNTER);
++	if (iCount < (iTotalNeededDefenders / 3))
++	{
++		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
++		{
++			return true;
++		}
++	}
++	iTotalNeededDefenders -= iCount;
++	
++	iCount = GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_COUNTER);
++	if (iCount < (iTotalNeededDefenders / 2))
++	{
++		if (AI_chooseUnit(UNITAI_COUNTER))
++		{
++			return true;
++		}
++	}
++	iTotalNeededDefenders -= iCount;
++	
++	if (AI_chooseUnit(UNITAI_RESERVE))
++	{
++		return true;
++	}
++	
++	return false;
++}
++
++
++bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold)
+ {
+ 	BuildingTypes eBestBuilding;
+ 
+-	eBestBuilding = AI_bestBuilding(iFocusFlags, iMaxTurns);
++	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
+ 
+ 	if (eBestBuilding != NO_BUILDING)
+ 	{
+@@ -5652,8 +5845,8 @@
+ 	// if food is production, the count it
+ 	int adjustedYIELD_PRODUCTION = (((bFoodIsProduction) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
+ 
+-	// value production medium(14 was 15)
+-	iProductionValue += (adjustedYIELD_PRODUCTION * 14);
++	// value production medium(15)
++	iProductionValue += (adjustedYIELD_PRODUCTION * 15);
+ 	
+ 	// value commerce low(5 was 4)
+ 
+@@ -5915,6 +6108,13 @@
+ 	{
+ 		aiYields[iI] = pPlot->getYield((YieldTypes)iI);
+ 	}
++	
++	//all things being equal, prefer extra yield.
++	//note that the return of AI_yieldValue is multiplied by 100
++	//hence these numbers are only large enough to act as tiebreakers.
++	iValue += aiYields[YIELD_FOOD] * 100;
++	iValue += aiYields[YIELD_PRODUCTION] * 55;
++	iValue += aiYields[YIELD_COMMERCE] * 40;
+ 
+ 	eCurrentImprovement = pPlot->getImprovementType();
+ 
+@@ -5960,10 +6160,10 @@
+ 
+ 	if ((eCurrentImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
+ 	{
+-		iValue += 100;
+-
+-		iValue += pPlot->getUpgradeProgress() * 5;
+-
++		iValue += 50;
++
++		iValue += pPlot->getUpgradeProgress();
++		
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_isCommercePlot(pPlot))
+ 		{
+ 			iValue += 200;
+@@ -6004,6 +6204,7 @@
+ 	CvCity* pCity;
+ 	int aiFinalYields[NUM_YIELD_TYPES];
+ 	int aiDiffYields[NUM_YIELD_TYPES];
++	int aiBestDiffYields[NUM_YIELD_TYPES];
+ 	ImprovementTypes eImprovement;
+ 	ImprovementTypes eFinalImprovement;
+ 	BuildTypes eBuild;
+@@ -6250,6 +6451,7 @@
+ 				iValue += (aiTempYields[YIELD_PRODUCTION] * 6);
+ 				iValue += (aiTempYields[YIELD_COMMERCE] * 4);
+ 
++
+ 				if (iValue > 0)
+ 				{
+ 					if (eBonus != NO_BONUS)
+@@ -6261,12 +6463,8 @@
+ 								iValue += (GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus) * 10);
+ 								iValue += 200;
+ 							}
+-							else
+-							{
+-								iValue -= 60;
+ 							}
+ 						}
+-					}
+ 					else
+ 					{
+ 						for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+@@ -6317,6 +6515,11 @@
+ 							iValue *= iFoodPriority;
+ 							iValue /= 100;							
+ 						}
++						if (iCommercePriority > 100)
++						{
++							iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 4);
++							iValue /= 100;
++					}
+ 					}
+ 					else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 					{
+@@ -6415,14 +6618,19 @@
+ 					{
+ 						iBestValue = iValue;
+ 						eBestBuild = eBestTempBuild;
+-					}
+-				}
+-			}
+-		}
++						
++						for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++						{
++							aiBestDiffYields[iJ] = aiDiffYields[iJ];
++					}
++				}
++			}
++		}
++	}
+ 	}
+ 
+     //clear jungle
+-	if (eBestBuild == NO_BUILD)
++	//if (eBestBuild == NO_BUILD)
+ 	{
+ 		if (pPlot->getFeatureType() != NO_FEATURE)
+ 		{
+@@ -6439,12 +6647,13 @@
+ 						{
+ 							if (GET_PLAYER(getOwnerINLINE()).canBuild(pPlot, eBuild))
+ 							{
+-								iValue = 10000;
+-
+-								iValue += (pPlot->getFeatureProduction(eBuild, getTeam(), &pCity) * 100);
++								iValue = 100;
++								iValue += (pPlot->getFeatureProduction(eBuild, getTeam(), &pCity) * 10);
++								iValue += ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() * -healthRate(false, 1)));
+ 								FAssert(pCity == this);
+-
+-								iValue /= (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 1);
++								
++								iValue *= 500;
++								iValue /= (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 100);
+ 
+ 								// XXX feature production???
+ 								if (bHasBonusImprovement)
+@@ -6453,7 +6662,7 @@
+ 									iValue += 500;
+ 								}
+ 
+-								if (iValue > iBestValue)
++								if ((iValue > iBestValue) || ((iValue > 0) && (eBestBuild == NO_BUILD)))
+ 								{
+ 									iBestValue = iValue;
+ 									eBestBuild = eBuild;
+@@ -6485,24 +6694,24 @@
+ 
+                         if (iValue > 0)
+                         {
+-                            int iHippyFactor = ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() * max(0, -healthRate(false, 6))));
++                            int iHippyFactor = ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() * -healthRate(false, 5)));
+                             FAssert(iHippyFactor >= 0);
+                             iHippyFactor += (pPlot->isBeingWorked() ? 300 : 0);
+ 
+-                            iValue *= (4 - (iHippyFactor / 100));
+-                            iValue /= 4;
++                            iValue *= (400 - iHippyFactor);
++                            iValue /= 400;
+                             iValue = max(0, iValue);
+                             
++
++                            if (iValue > 0)
++                            {
+                             if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+                             {
+                                 iValue += 20;
+                                 iValue *= 2;
+                             }
+-
+-                            if (iValue > 0)
+-                            {
+-                                iValue *= 400;
+-                                iValue /= max(1, (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 1));
++                                iValue *= 500;
++                                iValue /= max(1, (GC.getBuildInfo(eBuild).getFeatureTime(pPlot->getFeatureType()) + 100));
+ 
+                                 if (iValue > iBestValue)
+                                 {
+@@ -6525,21 +6734,21 @@
+ 
+         if (eRoute != eOldRoute)
+         {
++        	int iTempValue = 0;
+             if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+             {
+-                
+                 if ((eOldRoute == NO_ROUTE) || (GC.getRouteInfo(eRoute).getValue() > GC.getRouteInfo(eOldRoute).getValue()))
+                 {
+-                    int iTempValue = 0;
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_FOOD)) * 100);
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_PRODUCTION)) * 60);
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_COMMERCE)) * 40);
+-                    
++                }
+                     //road up bonuses if sort of bored.
+                     if ((eOldRoute == NO_ROUTE) && (eBonus != NO_BONUS))
+                     {
+                         iTempValue += (pPlot->isConnectedToCapital() ? 10 : 30);
+                     }
++            }
+                     
+                     if (iTempValue > 0)
+                     {
+@@ -6554,7 +6763,7 @@
+                                     iValue = iTempValue * 5 * 300;
+                                     iValue /= GC.getBuildInfo(eBuild).getTime();
+ 
+-                                    if (iValue > iBestValue)
++							if ((iValue > iBestValue) || ((iValue > 0) && (eBestBuild == NO_BUILD)))
+                                     {
+                                         iBestValue = iValue;
+                                         eBestBuild = eBuild;
+@@ -6563,17 +6772,25 @@
+                             }
+                         }
+                     }
+-                    
+                 }
+             }
+-        }
+-    }
+ 
+ 
+ 
+ 	if (eBestBuild != NO_BUILD)
+ 	{
+ 		FAssertMsg(iBestValue > 0, "iBestValue is expected to be greater than 0");
++		
++		//Now modify the priority for this build.
++		if (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++		{
++			if (GC.getBuildInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT)
++			{
++				iBestValue += (iBestValue * aiBestDiffYields[YIELD_COMMERCE]) / 4;
++				iBestValue = max(1, iBestValue);
++			}
++			
++		}
+ 
+ 		if (piBestValue != NULL)
+ 		{
+@@ -7154,6 +7371,13 @@
+ 		iMultiplier += (getMilitaryProductionModifier() / 2);
+ 	}
+ 	
++	if (eYield == YIELD_COMMERCE)
++	{
++		iMultiplier += (getCommerceRateModifier(COMMERCE_RESEARCH) * 60) / 100;
++		iMultiplier += (getCommerceRateModifier(COMMERCE_GOLD) * 35) / 100;
++		iMultiplier += (getCommerceRateModifier(COMMERCE_CULTURE) * 15) / 100;
++	}
++	
+ 	return iMultiplier;	
+ }
+ //this should be called before doing governor stuff.
+@@ -7175,7 +7399,8 @@
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+ 		}
+ 		if ((GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER) ||
+-			(GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER))
++			(GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_SETTLE))
++		
+ 		{
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;			
+ 		}
+@@ -7201,8 +7426,11 @@
+ 			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+ 		{
+ 			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 10;
++			if (!GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++			{
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 40;
+ 		}
++	}
+ 	}
+ }
+ 
+@@ -7257,6 +7485,131 @@
+     
+ }
+ 
++int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
++{
++	FAssert(GET_PLAYER(eIndex).isAlive());
++	FAssert(eIndex != getID());
++	
++	if ((m_iCachePlayerClosenessTurn != GC.getGame().getGameTurn())
++		|| (m_iCachePlayerClosenessDistance != iMaxDistance))
++	{
++		AI_cachePlayerCloseness(iMaxDistance);
++	}
++	
++	return m_aiPlayerCloseness[eIndex];	
++}
++
++void CvCityAI::AI_cachePlayerCloseness(int iMaxDistance)
++{
++	CvCity* pLoopCity;
++	int iI;
++	int iLoop;
++	int iValue;
++	int iTempValue;
++	int iBestValue;
++	
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive() && 
++			((GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))))
++		{
++			iValue = 0;
++			iBestValue = 0;
++			for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
++			{
++				int iDistance = stepDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
++				if (area() != pLoopCity->area())
++				{
++					iDistance += 1;
++					iDistance /= 2;
++				}
++				if (iDistance <= iMaxDistance)
++				{
++					iTempValue = 20 + pLoopCity->getPopulation() * 2;
++					iTempValue *= (1 + (iMaxDistance - iDistance));
++					iTempValue /= (1 + iMaxDistance);
++					
++					//reduce for small islands.
++					int iAreaCityCount = pLoopCity->area()->getNumCities();
++					iTempValue *= min(iAreaCityCount, 5);
++					iTempValue /= 5;
++					if (iAreaCityCount < 3)
++					{
++						iTempValue /= 2;
++					}
++					
++					if (pLoopCity->isBarbarian())
++					{
++						iTempValue /= 4;
++					}
++					
++					iValue += iTempValue;					
++					iBestValue = max(iBestValue, iTempValue);
++				}
++			}
++			m_aiPlayerCloseness[iI] = (iBestValue + iValue / 4);
++		}
++	}
++	
++	m_iCachePlayerClosenessTurn = GC.getGame().getGameTurn();	
++	m_iCachePlayerClosenessDistance = iMaxDistance;
++}
++
++int CvCityAI::AI_cityThreat()
++{
++	PROFILE_FUNC();
++	int iValue = 0;
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if ((iI != getOwner()) && GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			int iTempValue = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS);
++			if (iTempValue > 0)
++			{
++				if (atWar(getTeam(), GET_PLAYER((PlayerTypes)iI).getTeam()))
++				{
++					iTempValue *= 300;
++				}
++				else
++				{
++					switch (GET_PLAYER(getOwnerINLINE()).AI_getAttitude((PlayerTypes)iI))
++					{
++					case ATTITUDE_FURIOUS:
++						iTempValue *= 180;
++						break;
++
++					case ATTITUDE_ANNOYED:
++						iTempValue *= 130;
++						break;
++
++					case ATTITUDE_CAUTIOUS:
++						iTempValue *= 100;
++						break;
++
++					case ATTITUDE_PLEASED:
++						iTempValue *= 50;
++						break;
++
++					case ATTITUDE_FRIENDLY:
++						iTempValue *= 20;
++						break;
++
++					default:
++						FAssert(false);
++						break;
++					}
++				}
++				iTempValue /= 100;
++				iValue += iTempValue;
++			}
++		}
++	}
++	
++	iValue += GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3, false);
++	
++	return iValue;
++}
++
+ //
+ //
+ //
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@238
+@@ -34,7 +34,10 @@
+ 	DllExport UnitTypes AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR);
+ 
+ 	DllExport BuildingTypes AI_bestBuilding(int iFocusFlags = 0, int iMaxTurns = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR);
++	BuildingTypes AI_bestBuildingThreshold(int iFocusFlags = 0, int iMaxTurns = 0, bool bAsync = false, AdvisorTypes eIgnoreAdvisor = NO_ADVISOR, int iMinThreshold = 0);
++	
+ 	DllExport int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0);
++	int AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0);
+ 
+ 	DllExport ProjectTypes AI_bestProject();
+ 	DllExport int AI_projectValue(ProjectTypes eProject);
+@@ -52,6 +55,7 @@
+ 
+ 	DllExport int AI_neededDefenders();
+ 	DllExport int AI_neededAirDefenders();
++	int AI_neededFloatingDefenders();
+ 
+ 	DllExport int AI_getEmphasizeAvoidGrowthCount();
+ 	DllExport bool AI_isEmphasizeAvoidGrowth();
+@@ -101,6 +105,9 @@
+     
+     int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+ 
++	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
++	int AI_cityThreat();
++	
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+ 
+@@ -126,6 +133,11 @@
+ 	
+ 	int m_iCityRoleFlags;
+ 	int* m_aiSpecialYieldMultiplier;
++	
++	int m_iCachePlayerClosenessTurn;
++	int m_iCachePlayerClosenessDistance;
++	int* m_aiPlayerCloseness;
++	
+ 
+ 	void AI_doDraft(bool bForce = false);
+ 	void AI_doHurry(bool bForce = false);
+@@ -138,7 +150,8 @@
+ 
+ 	bool AI_chooseUnit(UnitAITypes eUnitAI = NO_UNITAI);
+ 	bool AI_chooseDefender();
+-	bool AI_chooseBuilding(int iFocusFlags = 0, int iMaxTurns = MAX_INT);
++	bool AI_chooseFloatingDefender(int iTotalNeededDefenders);
++	bool AI_chooseBuilding(int iFocusFlags = 0, int iMaxTurns = MAX_INT, int iMinThreshold = 0);
+ 	bool AI_chooseProject();
+ 	bool AI_chooseProcess(CommerceTypes eCommerceType = NO_COMMERCE);
+ 
+@@ -165,6 +178,8 @@
+ 	void AI_stealPlots();
+ 	
+ 	int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield);
++	
++	void AI_cachePlayerCloseness(int iMaxDistance);
+ 
+ 	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
+ 	friend CvExtraSaveData;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGameAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvGameAI.cpp@238
+@@ -112,7 +112,7 @@
+ 	{
+ 		iValue *= GC.getUnitInfo(eUnit).getCombat();
+ 
+-		iValue *= ((((GC.getUnitInfo(eUnit).getFirstStrikes() * 2) + GC.getUnitInfo(eUnit).getChanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++		iValue *= ((((GC.getUnitInfo(eUnit).getFirstStrikes() * 2) + GC.getUnitInfo(eUnit).getChanceFirstStrikes()) * (GC.getDefineINT("COMBAT_DAMAGE") / 5)) + 100);
+ 		iValue /= 100;
+ 	}
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@238
+@@ -1494,6 +1494,7 @@
+ 	BonusTypes eBonus;
+ 	bool bShift;
+ 	bool bAlt;
++	bool bCtrl;
+ 	bool bFound;
+ 	int iDefenseModifier;
+ 	int iYield;
+@@ -1501,6 +1502,44 @@
+ 
+ 	bShift = gDLL->shiftKey();
+ 	bAlt = gDLL->altKey();
++	bCtrl = gDLL->ctrlKey();
++	
++	if (bCtrl && (gDLL->getChtLvl() > 0))
++	{
++		CvCity* pPlotCity = pPlot->getPlotCity();
++		if (pPlotCity != NULL)
++		{
++			szTempBuffer.Format(L"\nDefenders H/N (%d / %d)", GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefenders(pPlotCity->area()), GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefendersNeeded(pPlotCity->area()));
++			szString+=szTempBuffer;
++			int iHostileUnits = GET_PLAYER(pPlotCity->getOwner()).AI_countNumAreaHostileUnits(pPlotCity->area());
++			if (iHostileUnits > 0)
++			{
++				szTempBuffer.Format(L"\nHostiles = %d", iHostileUnits);
++				szString+=szTempBuffer;
++			}
++			
++			szTempBuffer.Format(L"\nThreat C/P (%d / %d)", pPlotCity->AI_cityThreat(), GET_PLAYER(pPlotCity->getOwner()).AI_getTotalAreaCityThreat(pPlotCity->area()));
++			szString+=szTempBuffer;
++			
++
++			szTempBuffer.Format(L"\n\nCloseness:");
++			szString+=szTempBuffer;
++			
++			for (int iI = 0; iI < MAX_PLAYERS; iI++)
++			{
++				if ((iI != pPlotCity->getOwner()) && GET_PLAYER((PlayerTypes)iI).isAlive())
++				{
++					int iCloseness = pPlotCity->AI_playerCloseness((PlayerTypes)iI, 7);
++					if (iCloseness != 0)
++					{
++						szTempBuffer.Format(L"\n%s(7) : %d (%d, %d)", GET_PLAYER((PlayerTypes)iI).getName(), iCloseness, GET_PLAYER(pPlotCity->getOwner()).AI_playerCloseness((PlayerTypes)iI, 7), GET_TEAM(pPlotCity->getTeam()).AI_teamCloseness(GET_PLAYER((PlayerTypes)iI).getTeam(), 7));
++						szString+=szTempBuffer;
++					}
++				}
++			}
++		}
++		return;	
++	}
+ 
+ 
+ 	if (bShift && !bAlt && (gDLL->getChtLvl() > 0))
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@238
+@@ -854,10 +854,15 @@
+ bool CvPlayer::startingPlotWithinRange(CvPlot* pPlot, PlayerTypes ePlayer, int iRange, int iPass)
+ {
+ 	PROFILE_FUNC();
++	
++	//XXX changes to AI_foundValue (which are far more flexible) make this function 
++	//    redundant but it is still called from Python. 
++	//    The Python scripts should probably be rewritten.
++	return false;
+ 
+ 	CvPlot* pStartingPlot;
+ 
+-	iRange -= iPass;
++	iRange -= (1 + iPass * 2);
+ 
+ 	if (pPlot->getMinOriginalStartDist() == -1)
+ 	{
+@@ -900,7 +905,7 @@
+ 	return false;
+ }
+ 
+-int CvPlayer::startingPlotClosenessPenalty(CvPlot* pPlot, PlayerTypes ePlayer, int iRange)
++int CvPlayer::startingPlotDistanceFactor(CvPlot* pPlot, PlayerTypes ePlayer, int iRange)
+ {
+ 	PROFILE_FUNC();
+ 	
+@@ -908,54 +913,42 @@
+ 
+ 	CvPlot* pStartingPlot;
+ 	
+-	int iValue = 10000;
+-
+-	if (pPlot->getMinOriginalStartDist() == -1)
+-	{
+-		return 100;
+-	}
++	int iValue = 100;
++
++//	if (pPlot->getMinOriginalStartDist() == -1)
++//	{
++//		return 100;
++//	}
+ 
+ 	pStartingPlot = getStartingPlot();
+ 
+ 	if (pStartingPlot != NULL)
+ 	{
+-		{
+-			if (GC.getGameINLINE().isTeamGame())
+-			{
+-				if (GET_PLAYER(ePlayer).getTeam() == getTeam())
+-				{
+-					iRange *= GC.getDefineINT("OWN_TEAM_STARTING_MODIFIER");
+-					iRange /= 100;
+-				}
+-				else
+-				{
+-					iRange *= GC.getDefineINT("RIVAL_TEAM_STARTING_MODIFIER");
+-					iRange /= 100;
+-				}
+-			}
+-
+-            int iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE());
+-            if (pStartingPlot->getArea() != pPlot->getArea())
+-            {
+-            	iDistance *= 5;            	
+-            	iDistance /= 3;
+-            }
+-			if (iDistance <= iRange)
+-			{
+-			    iValue *= iDistance;
+-			    iValue /= (iRange + 1);
+-			    
+-                iValue *= (iDistance + (iRange / 2));
+-			    iValue /= (iRange + 1 + (iRange / 2));
+-			}
+-			if (iDistance <= (CITY_PLOTS_RADIUS * 2))
+-			{
+-				iValue /= 2;
+-			}
+-		}
+-	}
+-
+-    iValue /= 100;
++		if (GC.getGameINLINE().isTeamGame())
++		{
++			if (GET_PLAYER(ePlayer).getTeam() == getTeam())
++			{
++				iRange *= GC.getDefineINT("OWN_TEAM_STARTING_MODIFIER");
++				iRange /= 100;
++			}
++			else
++			{
++				iRange *= GC.getDefineINT("RIVAL_TEAM_STARTING_MODIFIER");
++				iRange /= 100;
++			}
++		}
++
++		int iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE());
++		if (pStartingPlot->getArea() != pPlot->getArea())
++		{
++			iDistance *= 4;            	
++			iDistance /= 3;
++		}
++
++		iValue *= iDistance;
++		iValue /= iRange ;
++
++	}
+     
+ 	return max(1, iValue);
+ 
+@@ -1045,9 +1038,9 @@
+ 	int iBestValue;
+ 	int iRange;
+ 	int iPass;
+-	int iI, iJ;
+-
+-	AI_updateFoundValues(true);
++	int iI;
++
++	AI_updateFoundValues(true);//this sets all plots found values to -1
+ 
+ 	iBestArea = findStartingArea();
+ 
+@@ -1065,25 +1058,8 @@
+ 
+ 			if ((iBestArea == -1) || (pLoopPlot->getArea() == iBestArea))
+ 			{
++				//the distance factor is now done inside foundValue
+ 				iValue = pLoopPlot->getFoundValue(getID());
+-				
+-				int iMaxClosePenalty = 100;
+-				
+-                for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-                {
+-                    if (GET_PLAYER((PlayerTypes)iJ).isAlive())
+-                    {
+-                        if (iJ != getID())
+-                        {
+-                            int iClosenessPenalty = GET_PLAYER((PlayerTypes)iJ).startingPlotClosenessPenalty(pLoopPlot, getID(), iRange);
+-                            iMaxClosePenalty = min(iClosenessPenalty, iMaxClosePenalty);
+-                            iValue *= iClosenessPenalty;
+-                            iValue /= 100;
+-                        }
+-                    }
+-                }
+-                iValue *= iMaxClosePenalty;
+-                iValue /= 100;
+ 
+ 				if (iValue > iBestValue)
+ 				{
+@@ -1101,6 +1077,11 @@
+ 		if (pBestPlot != NULL)
+ 		{
+ 			break;
++		}
++		
++		if (iPass > 0)
++		{
++			FAssertMsg(false,"CvPlayer::findStartingPlot - stuck in an infinite loop?");
+ 		}
+ 
+ 		if (iPass > GC.getMapINLINE().maxPlotDistance())
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.h@238
+@@ -51,7 +51,7 @@
+ 
+ 	int startingPlotRange();																																									// Exposed to Python
+ 	bool startingPlotWithinRange(CvPlot* pPlot, PlayerTypes ePlayer, int iRange, int iPass);									// Exposed to Python
+-	int startingPlotClosenessPenalty(CvPlot* pPlot, PlayerTypes ePlayer, int iRange);
++	int startingPlotDistanceFactor(CvPlot* pPlot, PlayerTypes ePlayer, int iRange);
+ 	
+ 	int findStartingArea();
+ 	CvPlot* findStartingPlot();
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@238
+@@ -1871,18 +1871,18 @@
+ 		            {
+ 		                iWaterCount++;
+ 		            }
+-		        }		        
++		        }
+ 		    }
+ 		}
+ 		iWaterCount /= 2;
+ 		
+ 		int iLandCount = (NUM_CITY_PLOTS - iWaterCount);
+ 		
+-		if (iLandCount < 12)
++		if (iLandCount < (NUM_CITY_PLOTS / 2))
+ 		{
+ 		    //discourage very water-heavy starts.
+ 		    iValue *= 1 + iLandCount;
+-		    iValue /= 13;
++		    iValue /= (1 + (NUM_CITY_PLOTS / 2));
+ 		}
+ 	}
+ 
+@@ -1901,6 +1901,43 @@
+ 		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
++			int iMinDistanceFactor = MAX_INT;
++			int iMinRange = startingPlotRange();
++			
++			for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++			{
++				if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++				{
++					if (iJ != getID())
++					{
++						int iClosenessFactor = GET_PLAYER((PlayerTypes)iJ).startingPlotDistanceFactor(pPlot, getID(), iMinRange);
++						iMinDistanceFactor = min(iClosenessFactor, iMinDistanceFactor);
++						
++//						if (iClosenessFactor < 100)
++//						{
++//							iValue *= iClosenessFactor;
++//							iValue /= 100;
++//						}
++					}
++				}
++			}
++			
++			if (iMinDistanceFactor > 100)
++			{
++				//give a maximum boost of 25% for somewhat distant locations, don't go overboard.
++				iMinDistanceFactor = min(150, iMinDistanceFactor);
++				iValue *= (100 + iMinDistanceFactor);				
++				iValue /= 200;				
++			}
++			else if (iMinDistanceFactor < 100)
++			{
++				//this is too close so penalize quite heavily
++				iValue *= iMinDistanceFactor;
++				iValue *= iMinDistanceFactor;
++				iValue /= 10000;
++			}
++			
++			
+             if (pPlot->getBonusType() != NO_BONUS)
+             {
+                 iValue /= 2;
+@@ -2090,20 +2127,21 @@
+ 
+ 	if (pCity->hasActiveWorldWonder())
+ 	{
++		iValue += 1 + pCity->getNumWorldWonders();
++	}
++
++	if (pCity->isHolyCity())
++	{
+ 		iValue += 2;
+ 	}
+ 
+-	if (pCity->isHolyCity())
+-	{
+-		iValue += 2;
+-	}
+-
+ 	if (pCity->isEverOwned(getID()))
+ 	{
+ 		iValue += 3;
+ 	}
+ 
+ 	iValue += AI_adjacentPotentialAttackers(pCity->plot());
++	
+ 
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+@@ -4893,7 +4931,7 @@
+ 			}
+ 		}
+ 		
+-		iGoldWeight = iHumanDealWeight > iAIDealWeight;
++		iGoldWeight = iHumanDealWeight - iAIDealWeight;
+ 
+ 		if (iGoldWeight > 0)
+ 		{
+@@ -5935,6 +5973,7 @@
+ 	int iNeededMissionaries;
+ 	int iCombatValue;
+ 	int iValue;
++	int iTempValue;
+ 	int iI;
+ 
+ 	FAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
+@@ -6334,12 +6373,21 @@
+ 		break;
+ 
+ 	case UNITAI_ATTACK_CITY:
+-		iValue += iCombatValue;
++		iTempValue = ((iCombatValue * iCombatValue) / 100) + (iCombatValue / 2);
++		iValue += iTempValue;
++		if (GC.getUnitInfo(eUnit).isNoDefensiveBonus())
++		{
++			iValue -= iTempValue / 2;
++		}
++		if (GC.getUnitInfo(eUnit).isFirstStrikeImmune())
++		{
++			iValue += (iTempValue * 8) / 100;
++		}		
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 100);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 200);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 2);
+-		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 50);
+-		iValue += (GC.getUnitInfo(eUnit).getBombardRate() * 16);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 400);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 4);
++		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 100);
++		iValue += (iCombatValue * GC.getUnitInfo(eUnit).getBombardRate() * 4);
+ 		break;
+ 
+ 	case UNITAI_COLLATERAL:
+@@ -6347,6 +6395,7 @@
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getCollateralDamage()) / 50);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getMoves()) / 4);
+ 		iValue += ((iCombatValue * GC.getUnitInfo(eUnit).getWithdrawalProbability()) / 25);
++		iValue -= ((iCombatValue * GC.getUnitInfo(eUnit).getCityAttackModifier()) / 200);
+ 		break;
+ 
+ 	case UNITAI_PILLAGE:
+@@ -10032,6 +10081,109 @@
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+ }
+ 
++int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
++{
++	PROFILE_FUNC();
++	CvCity* pLoopCity;
++	int iLoop;
++	int iValue;
++	
++	FAssert(GET_PLAYER(eIndex).isAlive());
++	FAssert(eIndex != getID());
++	
++	iValue = 0;
++	for (pLoopCity = GET_PLAYER(eIndex).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eIndex).nextCity(&iLoop))
++	{
++		iValue += pLoopCity->AI_playerCloseness(eIndex, iMaxDistance);
++	}
++	
++	return iValue;
++}
++
++
++int CvPlayerAI::AI_getTotalAreaCityThreat(CvArea* pArea)
++{
++	PROFILE_FUNC();
++	CvCity* pLoopCity;
++	int iLoop;
++	int iValue;
++	
++	iValue = 0;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		if (pLoopCity->getArea() == pArea->getID())
++		{
++			iValue += pLoopCity->AI_cityThreat();
++		}
++	}
++	return iValue;
++}
++
++int CvPlayerAI::AI_countNumAreaHostileUnits(CvArea* pArea, bool bLand, bool bWater)
++{
++	PROFILE_FUNC();
++	CvPlot* pLoopPlot;
++	int iCount;
++	int iI;
++
++	iCount = 0;
++
++	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	{
++		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		if (pLoopPlot->area() == pArea)
++		{
++			if ((pLoopPlot->getOwnerINLINE() == getID()) || pLoopPlot->isAdjacentPlayer(getID()))
++			{
++				iCount += pLoopPlot->getNumVisibleEnemyDefenders(getID());
++			}
++		}
++	}
++	return iCount;
++}
++
++//this doesn't include the minimal one or two garrison units in each city.
++int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea)
++{
++	PROFILE_FUNC();
++	int iDefenders;
++	
++	iDefenders = 1 + (getCurrentEra() * pArea->getCitiesPerPlayer(getID()));
++	
++	if (AI_getTotalAreaCityThreat(pArea) == 0)
++	{
++		iDefenders /= 2;
++	}
++	
++	if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++	{
++		iDefenders *= 2;
++	}
++	else if (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
++	{
++		iDefenders *= 2;
++		iDefenders /= 3;		
++	}
++		
++	iDefenders = max(iDefenders, AI_countNumAreaHostileUnits(pArea));
++	
++	return iDefenders;
++}
++
++int CvPlayerAI::AI_getTotalFloatingDefenders(CvArea* pArea)
++{
++	PROFILE_FUNC();
++	int iCount = 0;
++
++	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COLLATERAL);
++	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_RESERVE);
++	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
++	iCount += max(0, (AI_totalAreaUnitAIs(pArea, UNITAI_CITY_DEFENSE) - (pArea->getCitiesPerPlayer(getID()) * 2)));
++	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_COUNTER);
++	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_SPECIAL);
++	return iCount;
++}
++	
+ //
+ // read object from a stream
+ // used during load
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@238
+@@ -243,6 +243,18 @@
+ 	int AI_averageGreatPeopleMultiplier();
+ 	int AI_averageCommerceExchange(CommerceTypes eCommerce);
+ 	
++	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
++	
++	int AI_getTotalCityThreat();
++	int AI_getTotalFloatingDefenseNeeded();
++	
++	
++	int AI_getTotalAreaCityThreat(CvArea* pArea);
++	int AI_countNumAreaHostileUnits(CvArea* pArea, bool bLand = true, bool bWater = false);
++	int AI_getTotalFloatingDefendersNeeded(CvArea* pArea);
++	int AI_getTotalFloatingDefenders(CvArea* pArea);
++
++	
+   	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+
+Index: /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvSelectionGroupAI.cpp@238
+@@ -505,9 +505,9 @@
+ 			case UNITAI_ANIMAL:
+ 			case UNITAI_SETTLE:
+ 			case UNITAI_WORKER:
++				break;
++				
+ 			case UNITAI_ATTACK:
+-                break;
+-
+ 			case UNITAI_ATTACK_CITY:
+ 				return true;
+ 				break;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeam.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeam.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvTeam.cpp@238
+@@ -900,7 +900,7 @@
+ 		{
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+-				if (GET_TEAM(eTeam).AI_isSneakAttackPreparing((TeamTypes)iI))
++				if (GET_TEAM(eTeam).AI_isChosenWar((TeamTypes)iI))
+ 				{
+ 					GET_TEAM(eTeam).AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
+ 				}
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@238
+@@ -846,6 +846,13 @@
+ 	iValue = AI_calculatePlotWarValue(eTeam);
+ 
+ 	iValue += (3 * AI_calculateCapitalProximity(eTeam)) / ((iValue > 0) ? 2 : 3);
++	
++	int iClosenessValue = AI_teamCloseness(eTeam, DEFAULT_PLAYER_CLOSENESS);
++	if (iClosenessValue == 0)
++	{
++		iValue /= 4;
++	}
++	iValue += iClosenessValue / 4;
+ 
+ 	switch (AI_getAttitude(eTeam))
+ 	{
+@@ -2044,6 +2051,38 @@
+ 			}
+ 		}
+ 	}
++}
++
++//if this number is over 0 the teams are "close"
++//this may be expensive to run, kinda O(N^2)...
++int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance) const
++{
++	PROFILE_FUNC();
++	int iI, iJ;
++	
++	FAssert(eIndex != getID());
++	int iValue = 0;
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			{
++				for (iJ = 0; iJ < MAX_PLAYERS; iJ++)
++				{
++					if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++					{
++						if (GET_PLAYER((PlayerTypes)iJ).getTeam() == eIndex)
++						{
++							iValue += GET_PLAYER((PlayerTypes)iI).AI_playerCloseness((PlayerTypes)iJ, iMaxDistance);
++						}
++					}
++				}	
++			}
++		}
++	}
++	
++	return iValue;	
+ }
+ 
+ 
+@@ -2701,7 +2740,7 @@
+ 		int iMaxWarRand = AI_maxWarRand();
+ 	    int iLimitedWarRand = AI_limitedWarRand();
+ 	    int iDogpileWarRand = AI_dogpileWarRand();
+-		
++	    
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+ 		if ((iFinancialTroubleCount - iDaggerCount) >= max(1, getNumMembers() / 2 ))
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.h@238
+@@ -135,6 +135,8 @@
+ 	bool AI_isSneakAttackPreparing(TeamTypes eIndex);
+ 	bool AI_isSneakAttackReady(TeamTypes eIndex);
+ 	void AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue);
++	
++	int AI_teamCloseness(TeamTypes eIndex, int iMaxDistance) const;
+ 
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@237
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@238
+@@ -24,6 +24,7 @@
+ #define FOUND_RANGE				(6)
+ 
+ //#define DEBUG_WAR_ACTIONS
++//this line changed so i can add another commit message :P
+ 
+ // Public Functions...
+ 
+@@ -776,7 +777,8 @@
+ {
+ 	return ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+ 		      (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+-					(AI_getUnitAIType() == UNITAI_CITY_SPECIAL));
++					(AI_getUnitAIType() == UNITAI_CITY_SPECIAL) ||
++						(AI_getUnitAIType() == UNITAI_RESERVE));
+ }
+ 
+ 
+@@ -1403,10 +1405,10 @@
+ 			}
+ 		}
+ 
+-//		if (AI_pillageRange(1))
+-//		{
+-//			return;
+-//		}
++		if (AI_pillageRange(1, 20))
++		{
++			return;
++		}
+ 
+ 		if (AI_heal(50, 3))
+ 		{
+@@ -1423,10 +1425,10 @@
+ 			return;
+ 		}
+ 
+-//		if (AI_pillageRange(3))
+-//		{
+-//			return;
+-//		}
++		if (AI_pillageRange(3, 20))
++		{
++			return;
++		}
+ 
+ 		if (AI_goody(3))
+ 		{
+@@ -1594,11 +1596,20 @@
+ 	}
+ 
+ 
++	//stack attack
++	if (getGroup()->getNumUnits() > 1)
++	{
++		if (AI_stackAttackCity(1, 250, true))
++		{
++			return;
++		}
++	}
++	
+ 	if (AI_bombardCity())
+ 	{
+ 		return;
+ 	}
+-
++	
+ 	//stack attack
+ 	if (getGroup()->getNumUnits() > 1)
+ 	{
+@@ -1863,6 +1874,11 @@
+ 			return;
+ 		}
+ 	}
++	
++	if (AI_pillageRange(3, 11))
++	{
++		return;
++	}
+ 
+ 	if (AI_pillageRange(1))
+ 	{
+@@ -1882,11 +1898,6 @@
+ 		return;
+ 	}
+ 
+-	if (AI_pillageRange(3))
+-	{
+-		return;
+-	}
+-
+ 	if (!atWar(getTeam(), plot()->getTeam()))
+ 	{
+ 		if (AI_heal())
+@@ -1902,7 +1913,7 @@
+ 
+ 	if ((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || atWar(getTeam(), plot()->getTeam()))
+ 	{
+-		if (AI_pillage())
++		if (AI_pillage(20))
+ 		{
+ 			return;
+ 		}
+@@ -1947,6 +1958,11 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	if (AI_leaveAttack(2, 55, 180))
++	{
++		return;
++	}
++	
+ 	if (AI_guardCity(true))
+ 	{
+ 		return;
+@@ -2134,6 +2150,8 @@
+ {
+ 	PROFILE_FUNC();
+ 	
++	
++	
+ #ifdef NO_WAY_THIS_IS_DEFINED
+ 	// debugging
+ 	if (true)
+@@ -2148,6 +2166,10 @@
+ 	}
+ #endif
+ 
++	if (AI_leaveAttack(2, 70, 225))
++	{
++		return;
++	}
+ 
+ 	if (AI_chokeDefend())
+ 	{
+@@ -2163,6 +2185,7 @@
+ 	{
+ 		return;
+ 	}
++	
+ 
+ 	if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 2, /*bAllowRegrouping*/ true))
+ 	{
+@@ -2231,6 +2254,11 @@
+ 
+ 	CvCity* pCity;
+ 
++	if (AI_leaveAttack(2, 55, 200))
++	{
++		return;
++	}
++	
+ 	if (AI_chokeDefend())
+ 	{
+ 		return;
+@@ -4002,6 +4030,7 @@
+ {
+ 	int iValue;
+ 	int iTemp;
++	int iExtra;
+ 	int iI;
+ 
+ 	iValue = 0;
+@@ -4090,10 +4119,14 @@
+ 		}
+ 	}
+ 
+-	if (GC.getPromotionInfo(ePromotion).isImmuneToFirstStrikes())
+-	{
+-		if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+-			  (AI_getUnitAIType() == UNITAI_ATTACK_CITY))
++	if (GC.getPromotionInfo(ePromotion).isImmuneToFirstStrikes() 
++		&& !immuneToFirstStrikes())
++	{
++		if ((AI_getUnitAIType() == UNITAI_ATTACK_CITY))
++		{
++			iValue += 12;			
++		}
++		else if ((AI_getUnitAIType() == UNITAI_ATTACK))
+ 		{
+ 			iValue += 8;
+ 		}
+@@ -4104,7 +4137,8 @@
+ 	}
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getVisibilityChange();
+-	if (AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
++	if ((AI_getUnitAIType() == UNITAI_EXPLORE_SEA) || 
++		(AI_getUnitAIType() == UNITAI_EXPLORE))
+ 	{
+ 		iValue += (iTemp * 40);
+ 	}
+@@ -4172,43 +4206,60 @@
+ 		iValue += (iTemp * 4);
+ 	}
+ 
+-	iTemp = GC.getPromotionInfo(ePromotion).getWithdrawalChange() + withdrawalProbability();
+-	if ((AI_getUnitAIType() == UNITAI_COLLATERAL) ||
++	iTemp = GC.getPromotionInfo(ePromotion).getWithdrawalChange();
++	if (iTemp != 0)
++	{
++		iExtra = (GC.getUnitInfo(getUnitType()).getWithdrawalProbability() + (getExtraWithdrawal() * 4));
++		iTemp *= (100 + iExtra);
++		iTemp /= 100;
++		if ((AI_getUnitAIType() == UNITAI_ATTACK_CITY))
++		{
++			iValue += (iTemp * 4) / 3;
++		}
++		else if ((AI_getUnitAIType() == UNITAI_COLLATERAL) ||
+ 		  (AI_getUnitAIType() == UNITAI_RESERVE) ||
+ 		  (AI_getUnitAIType() == UNITAI_RESERVE_SEA))
+ 	{
++			iValue += iTemp * 1;
++	}
++	else
++	{
++		iValue += (iTemp / 4);
++	}
++	}
++
++	iTemp = GC.getPromotionInfo(ePromotion).getCollateralDamageChange();
++	if (iTemp != 0)
++	{
++		iExtra = (getExtraCollateralDamage());//collateral has no strong synergy (not like retreat)
++		iTemp *= (100 + iExtra);
++		iTemp /= 100;
++		
++	if (AI_getUnitAIType() == UNITAI_COLLATERAL)
++	{
++			iValue += (iTemp * 1);
++	}
++	else if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
++	{
++			iValue += ((iTemp * 2) / 3);
++	}
++	else
++	{
++		iValue += (iTemp / 8);
++	}
++	}
++
++	iTemp = GC.getPromotionInfo(ePromotion).getBombardRateChange();
++	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
++	{
+ 		iValue += (iTemp * 1);
+ 	}
+ 	else
+ 	{
+-		iValue += (iTemp / 4);
+-	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getCollateralDamageChange() + collateralDamage();
+-	if (AI_getUnitAIType() == UNITAI_COLLATERAL)
+-	{
+-		iValue += (iTemp * 2);
+-	}
+-	else if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+-	{
+-		iValue += (iTemp * 1);
+-	}
+-	else
+-	{
+ 		iValue += (iTemp / 8);
+ 	}
+ 
+-	iTemp = GC.getPromotionInfo(ePromotion).getBombardRateChange() + bombardRate();
+-	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+-	{
+-		iValue += (iTemp * 1);
+-	}
+-	else
+-	{
+-		iValue += (iTemp / 8);
+-	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getEnemyHealChange() + getExtraEnemyHeal();
++	iTemp = GC.getPromotionInfo(ePromotion).getEnemyHealChange();	
+ 	if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+ 		  (AI_getUnitAIType() == UNITAI_ATTACK_SEA))
+ 	{
+@@ -4219,7 +4270,7 @@
+ 		iValue += (iTemp / 8);
+ 	}
+ 
+-	iTemp = GC.getPromotionInfo(ePromotion).getNeutralHealChange() + getExtraNeutralHeal();
++	iTemp = GC.getPromotionInfo(ePromotion).getNeutralHealChange();
+ 	iValue += (iTemp / 8);
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getFriendlyHealChange();
+@@ -4238,6 +4289,11 @@
+     if (getDamage() > 0)
+     {
+         iTemp = GC.getPromotionInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
++        iExtra = getSameTileHeal();
++        
++        iTemp *= (100 + iExtra * 5);
++        iTemp /= 100;
++        
+         if (iTemp > 0)
+         {
+             if (healRate(plot()) < iTemp)
+@@ -4250,7 +4306,10 @@
+             }
+         }
+ 
+-        iTemp = GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + getAdjacentTileHeal();
++        iTemp = GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange();
++        iExtra = getAdjacentTileHeal();
++        iTemp *= (100 + iExtra * 5);
++        iTemp /= 100;
+         if (getSameTileHeal() >= iTemp)
+         {
+             iValue += (iTemp * ((getGroup()->getNumUnits() > 9) ? 4 : 2));
+@@ -4263,6 +4322,8 @@
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCombatPercent();
+ 	if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
++		(AI_getUnitAIType() == UNITAI_COUNTER) ||
++		(AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+ 		  (AI_getUnitAIType() == UNITAI_ATTACK_SEA) ||
+ 		  (AI_getUnitAIType() == UNITAI_RESERVE_SEA) ||
+ 			(AI_getUnitAIType() == UNITAI_ESCORT_SEA) ||
+@@ -4275,34 +4336,52 @@
+ 		iValue += (iTemp * 1);
+ 	}
+ 
+-	iTemp = GC.getPromotionInfo(ePromotion).getCityAttackPercent() + getExtraCityAttackPercent();
++	iTemp = GC.getPromotionInfo(ePromotion).getCityAttackPercent();
++	if (iTemp != 0)
++	{
++		iExtra = (GC.getUnitInfo(getUnitType()).getCityAttackModifier() + (getExtraCityAttackPercent() * 2));
++		iTemp *= (100 + iExtra);
++		iTemp /= 100;
+ 	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+ 	{
+ 		iValue += (iTemp * 1);
+ 	}
+-	else if (AI_getUnitAIType() == UNITAI_ATTACK)
+-	{
+-		iValue += (iTemp / 10);
+-	}
+-	else if (AI_getUnitAIType() != UNITAI_CITY_DEFENSE)
+-	{
+-		iValue += (iTemp / 20);
+-	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getCityDefensePercent() + getExtraCityDefensePercent();
++		else 
++	{
++			iValue -= iTemp / 4;
++	}
++	}
++
++	iTemp = GC.getPromotionInfo(ePromotion).getCityDefensePercent();
++	if (iTemp != 0)
++	{
+ 	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+ 		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+ 	{
+-		iValue += (iTemp * 2);
++			iExtra = GC.getUnitInfo(getUnitType()).getCityDefenseModifier() + (getExtraCityDefensePercent() * 2);
++			iValue += ((iTemp * (100 + iExtra)) / 100);
+ 	}
+ 	else
+ 	{
+ 		iValue += (iTemp / 4);
+ 	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getHillsDefensePercent() + getExtraHillsDefensePercent();
+-	if (AI_getUnitAIType() == UNITAI_COUNTER)
+-	{
++	}
++
++	iTemp = GC.getPromotionInfo(ePromotion).getHillsDefensePercent();
++	if (iTemp != 0)
++	{
++		iExtra = (GC.getUnitInfo(getUnitType()).getHillsDefenseModifier() + (getExtraHillsDefensePercent() * 2)); 
++		iTemp *= (100 + iExtra);
++		iTemp /= 100;
++		if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
++		{
++			if (plot()->isCity() && plot()->isHills())
++			{
++				iValue += (iTemp * 4) / 3;
++			}
++		}
++		else if (AI_getUnitAIType() == UNITAI_COUNTER)
++		{
+ 	    if (plot()->isHills())
+ 	    {
+             iValue += (iTemp / 4);
+@@ -4316,10 +4395,16 @@
+ 	{
+ 		iValue += (iTemp / 16);
+ 	}
++	}
+ 
+ 	for (iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+ 	{
+-		iTemp = GC.getPromotionInfo(ePromotion).getTerrainDefensePercent(iI) + getExtraTerrainDefensePercent((TerrainTypes)iI);
++		iTemp = GC.getPromotionInfo(ePromotion).getTerrainDefensePercent(iI);
++		if (iTemp != 0)
++		{
++			iExtra =  getExtraTerrainDefensePercent((TerrainTypes)iI);
++			iTemp *= (100 + iExtra);
++			iTemp /= 100;
+ 		if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 		{
+ 		    if (plot()->getTerrainType() == (TerrainTypes)iI)
+@@ -4335,6 +4420,7 @@
+ 		{
+ 			iValue += (iTemp / 16);
+ 		}
++		}
+ 
+ 		if (GC.getPromotionInfo(ePromotion).getTerrainDoubleMove(iI))
+ 		{
+@@ -4355,7 +4441,13 @@
+ 
+ 	for (iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+ 	{
+-		iTemp = GC.getPromotionInfo(ePromotion).getFeatureDefensePercent(iI) + getExtraFeatureDefensePercent((FeatureTypes)iI);
++		iTemp = GC.getPromotionInfo(ePromotion).getFeatureDefensePercent(iI);;
++		if (iTemp != 0)
++		{
++			iExtra = getExtraFeatureDefensePercent((FeatureTypes)iI);
++			iTemp *= (100 + iExtra * 2);
++			iTemp /= 100;
++			
+ 		if (!noDefensiveBonus())
+ 		{
+ 			if (AI_getUnitAIType() == UNITAI_COUNTER)
+@@ -4373,6 +4465,7 @@
+ 			{
+ 				iValue += (iTemp / 16);
+ 			}
++		}
+ 		}
+ 
+ 		if (GC.getPromotionInfo(ePromotion).getFeatureDoubleMove(iI))
+@@ -4420,13 +4513,13 @@
+ 			}
+ 			else
+ 			{
+-                iValue = 30;
++                iCombatWeight = 30;
+ 			}
+ 		}
+         else
+         {
+             //fighting other kinds
+-            if (unitCombatModifier((UnitCombatTypes)iI) > 0)
++            if (unitCombatModifier((UnitCombatTypes)iI) > 10)
+             {
+                 iCombatWeight = 70;//"spearman takes formation"
+             }
+@@ -4437,12 +4530,17 @@
+         }
+ 		if ((AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_CITY_COUNTER))
+ 		{
+-		    iValue += (iTemp * iCombatWeight) / 100;
++		    iValue += (iTemp * iCombatWeight) / 75;
+ 
+ 		}
+ 		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+ 			       (AI_getUnitAIType() == UNITAI_RESERVE))
+ 		{
++			iValue += (iTemp * iCombatWeight) / 100;
++		}
++		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
++			       (AI_getUnitAIType() == UNITAI_RESERVE))
++		{
+ 			iValue += (iTemp * iCombatWeight) / 150;
+ 		}
+ 		else
+@@ -4453,7 +4551,9 @@
+ 
+ 	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 	{
+-		iTemp = ((int)((GC.getPromotionInfo(ePromotion).getDomainModifierPercent(iI) + getExtraDomainModifier((DomainTypes)iI)) * 100.0f));
++		//WTF? why float and cast to int?
++		//iTemp = ((int)((GC.getPromotionInfo(ePromotion).getDomainModifierPercent(iI) + getExtraDomainModifier((DomainTypes)iI)) * 100.0f));
++		iTemp = GC.getPromotionInfo(ePromotion).getDomainModifierPercent(iI);
+ 		if (AI_getUnitAIType() == UNITAI_COUNTER)
+ 		{
+ 			iValue += (iTemp * 1);
+@@ -5729,13 +5829,12 @@
+ 	}	
+ 
+ 	bRetreat = false;
+-
+-	iMaxPath = min(iMaxPath, 2);
+ 	
+     if (getGroup()->getNumUnits() == 1)
+ 	{
+ 	    if (getDamage() > 0)
+         {
++        	
+             if (plot()->isCity() || (healTurns(plot()) <= iMaxPath))
+             {
+                 if (!(isAlwaysHeal()))
+@@ -5747,6 +5846,8 @@
+         }
+         return false;
+ 	}
++	
++	iMaxPath = min(iMaxPath, 2);
+ 
+ 	pEntityNode = getGroup()->headUnitNode();
+ 
+@@ -7435,6 +7536,14 @@
+ 								iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
+ 
+ 								iValue *= 1000;
++								
++								if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++								{
++									if (pLoopCity->calculateCulturePercent(getOwner()) < 75)
++									{
++										iValue /= 2;
++									}
++								}
+ 
+ 								iValue /= (4 + iPathTurns*iPathTurns);
+ 
+@@ -7824,6 +7933,89 @@
+ 	return false;
+ }
+ 
++bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThreshold)
++{
++	CvPlot* pLoopPlot;
++	CvPlot* pBestPlot;
++	CvCity* pCity;
++	int iSearchRange;
++	int iPathTurns;
++	int iValue;
++	int iBestValue;
++	int iDX, iDY;
++
++	FAssert(canMove());
++
++	iSearchRange = iRange;
++	
++	iBestValue = 0;
++	pBestPlot = NULL;
++	
++	
++	pCity = plot()->getPlotCity();
++	
++	if ((pCity != NULL) && (pCity->getOwner() == getOwner()))
++	{
++    	int iOurStrength = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, true, false);
++    	int iEnemyStrength = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), iRange, false, false);
++		if (iEnemyStrength > 0)
++		{
++    		if (((iOurStrength * 100) / iEnemyStrength) >= iStrengthThreshold)
++    		{
++    			return false;    		    		
++    		}
++    		if (plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE()) <= getGroup()->getNumUnits())
++    		{
++    			return false;    		
++    		}
++		}
++	}
++
++	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
++	{
++		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
++		{
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot != NULL)
++			{
++				if (AI_plotValid(pLoopPlot))
++				{
++					if (pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE()) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++					{
++						if (!atPlot(pLoopPlot) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange)))
++						{
++							if (pLoopPlot->getNumVisibleEnemyDefenders(getOwnerINLINE()) > 0)
++							{
++								iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
++
++								if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
++								{
++									if (iValue > iBestValue)
++									{
++										iBestValue = iValue;
++										pBestPlot = getPathEndTurnPlot();
++										FAssert(!atPlot(pBestPlot));
++									}
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if (pBestPlot != NULL)
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0);
++		return true;
++	}
++
++	return false;
++	
++}
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_blockade()
+@@ -8020,7 +8212,7 @@
+ 
+ 
+ // Returns true if a mission was pushed...
+-bool CvUnitAI::AI_pillage()
++bool CvUnitAI::AI_pillage(int iBonusValueThreshold)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -8098,7 +8290,7 @@
+ 
+ 
+ // Returns true if a mission was pushed...
+-bool CvUnitAI::AI_pillageRange(int iRange)
++bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -9424,6 +9616,7 @@
+ 	int iBestValue;
+ 	int iBestTempBuildValue;
+ 	int iI, iJ;
++	bool bBestBuildIsRoute;
+ 
+ 	bool bCanRoute;
+ 	bool bIsConnected;
+@@ -9442,6 +9635,8 @@
+ 		{
+ 			if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) // XXX team???
+ 			{
++				
++				
+ 				eNonObsoleteBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+ 
+ 				if (eNonObsoleteBonus != NO_BONUS)
+@@ -9509,44 +9704,13 @@
+                                 }
+                             }
+                         }
+-
+-                        if (eBestTempBuild == NO_BUILD && !bIsConnected && bCanRoute)
++                        if (eBestTempBuild == NO_BUILD)
+                         {
+-                            for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+-                            {
+-                                eBuild = ((BuildTypes)iJ);
+-                                if (GC.getBuildInfo(eBuild).getRoute() != NO_ROUTE)
+-                                {
+-                                    if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
+-                                    {
+-                                        if (!pLoopPlot->isRoute())
+-                                        {
+-                                            if (canBuild(pLoopPlot, eBuild))
+-                                            {
+-                                                iValue = 2000;
+-
+-                                                iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);
+-
+-                                                if (iValue < iBestTempBuildValue)
+-                                                {
+-                                                    iBestTempBuildValue = iValue;
+-                                                    eBestTempBuild = eBuild;
++                        	bDoImprove = false;
+                                                 }
+-                                            }
+-                                        }
+-                                    }
+-                                }
+-                            }
+-                        }
+-
+-                        if (eBestTempBuild != NO_BUILD)
++
++                        if ((eBestTempBuild != NO_BUILD) || (bCanRoute && !bIsConnected))
+                         {
+-                            //if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+-                            {
+-                                if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
+-                                {
+-                                    if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
+-                                    {
+                                         iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
+                                         
+                                         if (bDoImprove)
+@@ -9562,7 +9726,13 @@
+                                         {
+                                             iValue *= 2;
+                                         }
+-
++							
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
++                        	{
++								if (bDoImprove)
++								{
++									if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
++									{
+                                         if (iValue > iMinValue)
+                                         {
+                                             iValue *= 1000;
+@@ -9579,10 +9749,28 @@
+                                                 iBestValue = iValue;
+                                                 eBestBuild = eBestTempBuild;
+                                                 pBestPlot = pLoopPlot;
++												bBestBuildIsRoute = false;
+                                             }
+                                         }
+                                     }
+                                 }
++								else
++								{
++									FAssert(bCanRoute && !bIsConnected);
++									eImprovement = pLoopPlot->getImprovementType();
++									if ((eImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus)))
++									{
++										if (generatePath(pLoopPlot, MOVE_SAFE_TERRITORY, true, &iPathTurns))
++										{
++											iValue *= 1000;
++											iValue /= (iPathTurns + 1);
++											
++											if (iValue > iBestValue)
++											{
++												iBestValue = iValue;
++												eBestBuild = NO_BUILD;
++												pBestPlot = pLoopPlot;
++												bBestBuildIsRoute = true;
+                             }
+                         }
+                     }
+@@ -9590,16 +9778,38 @@
+ 			}
+ 		}
+ 	}
++				}
++			}
++		}
++	}
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+-		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
++		if (eBestBuild != NO_BUILD)
++		{
++			FAssertMsg(!bBestBuildIsRoute, "BestBuild should not be a route");
+ 		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+ 
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BUILD, pBestPlot);
+ 		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, 0, (getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
+ 
+ 		return true;
++	}
++		else if (bBestBuildIsRoute)
++		{
++			if (AI_connectPlot(pBestPlot))
++			{
++				return true;
++			}
++			else
++			{
++				FAssertMsg(false, "Expected that a route could be built to eBestPlot");
++			}
++		}
++		else
++		{
++			FAssert(false);
++		}
+ 	}
+ 
+ 	return false;
+@@ -10720,13 +10930,14 @@
+ }
+ 
+ 
+-int CvUnitAI::AI_pillageValue(CvPlot* pPlot)
++int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ {
+ 	CvPlot* pAdjacentPlot;
+ 	ImprovementTypes eImprovement;
+ 	BonusTypes eNonObsoleteBonus;
+ 	int iValue;
+ 	int iTempValue;
++	int iBonusValue;
+ 	int iI;
+ 
+ 	FAssert(canPillage(pPlot) || canAirBombAt(plot(), pPlot->getX_INLINE(), pPlot->getY_INLINE()) || (getCargo() > 0));
+@@ -10735,6 +10946,25 @@
+ 	{
+ 		return 0;
+ 	}
++	
++	iBonusValue = 0;
++	eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(pPlot->getTeam());
++	if (eNonObsoleteBonus != NO_BONUS)
++	{
++		iBonusValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus));
++	}
++	
++	if (iBonusValueThreshold > 0)
++	{
++		if (eNonObsoleteBonus == NO_BONUS)
++		{
++			return 0;
++		}
++		else if (iBonusValue < iBonusValueThreshold)
++		{
++			return 0;
++		}
++	}
+ 
+ 	iValue = 0;
+ 
+@@ -10743,6 +10973,10 @@
+ 		if (pPlot->isRoute())
+ 		{
+ 			iValue++;
++			if (eNonObsoleteBonus != NO_BONUS)
++			{
++				iValue += iBonusValue * 4;
++			}
+ 
+ 			for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 			{
+@@ -10790,13 +11024,11 @@
+ 			iValue += GC.getImprovementInfo(eImprovement).getPillageGold();
+ 		}
+ 
+-		eNonObsoleteBonus = pPlot->getNonObsoleteBonusType(pPlot->getTeam());
+-
+ 		if (eNonObsoleteBonus != NO_BONUS)
+ 		{
+ 			if (GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eNonObsoleteBonus))
+ 			{
+-				iTempValue = (GET_PLAYER(pPlot->getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus) * 4);
++				iTempValue = iBonusValue * 4;
+ 
+ 				if (pPlot->isConnectedToCapital() && (pPlot->getPlotGroupConnectedBonus(pPlot->getOwnerINLINE(), eNonObsoleteBonus) == 1))
+ 				{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.h@237
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.h@238
+@@ -129,10 +129,11 @@
+ 	bool AI_bombardCity();
+ 	bool AI_cityAttack(int iRange, int iOddsThreshold, bool bFollow = false);
+ 	bool AI_anyAttack(int iRange, int iOddsThreshold, int iMinStack = 0, bool bFollow = false);
++	bool AI_leaveAttack(int iRange, int iThreshold, int iStrengthThreshold);
+ 	bool AI_blockade();
+ 	bool AI_seaBombardRange(int iMaxRange);
+-	bool AI_pillage();
+-	bool AI_pillageRange(int iRange);
++	bool AI_pillage(int iBonusValueThreshold = 0);
++	bool AI_pillageRange(int iRange, int iBonusValueThreshold = 0);
+ 	bool AI_found();
+ 	bool AI_foundRange(int iRange, bool bFollow = false);
+ 	bool AI_assaultSeaTransport();
+@@ -165,7 +166,7 @@
+ 	bool AI_potentialEnemy(TeamTypes eTeam);
+ 
+ 	bool AI_defendPlot(CvPlot* pPlot);
+-	int AI_pillageValue(CvPlot* pPlot);
++	int AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold = 0);
+ 	int AI_nukeValue(CvCity* pCity);
+ 
+ 	int AI_searchRange(int iRange);
+

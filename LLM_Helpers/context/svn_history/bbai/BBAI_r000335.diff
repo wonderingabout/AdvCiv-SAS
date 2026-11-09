@@ -1,0 +1,633 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 335
+# Author: iustus
+# Date: 2007-01-31T23:50:44.282412Z
+# Coverage: full
+# Message:
+#   AI_travelToUpgradeCity added to CvUnitAI, all units which currently fogbust will now travel back home to get upgraded when an upgrade is available. Other unit types do not currently call this function, but they could
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@334
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@335
+@@ -5191,8 +5191,6 @@
+ 
+ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ {
+-	CvCity* pCity;
+-
+ 	if (eUnit == NO_UNIT)
+ 	{
+ 		return false;
+@@ -5203,27 +5201,117 @@
+ 		return false;
+ 	}
+ 
+-	if (GC.getCivilizationInfo(GET_PLAYER(getOwnerINLINE()).getCivilizationType()).getCivilizationUnits(GC.getUnitInfo(eUnit).getUnitClassType()) != eUnit)
+-	{
+-		return false;
+-	}
+-
+ 	if (plot()->getTeam() != getTeam())
+ 	{
+ 		return false;
+ 	}
+-
+-	if (!upgradeAvailable(getUnitType(), ((UnitClassTypes)(GC.getUnitInfo(eUnit).getUnitClassType()))))
+-	{
+-		return false;
+-	}
+-
++	
+ 	if (!bTestVisible)
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).getGold() < upgradePrice(eUnit))
+ 		{
+ 			return false;
+ 		}
++	}
++
++	if (hasUpgrade(eUnit))
++	{
++		return true;
++	}
++
++	return false;
++}
++
++// has upgrade is used to determine if an upgrade is possible,
++// it specifically does not check whether the unit can move, whether the current plot is owned, enough gold
++// those are checked in canUpgrade()
++// does not search all cities, only checks the closest one
++bool CvUnit::hasUpgrade(bool bSearch) const
++{
++	return (getUpgradeCity(bSearch) != NULL);
++}
++
++// has upgrade is used to determine if an upgrade is possible,
++// it specifically does not check whether the unit can move, whether the current plot is owned, enough gold
++// those are checked in canUpgrade()
++// does not search all cities, only checks the closest one
++bool CvUnit::hasUpgrade(UnitTypes eUnit, bool bSearch) const
++{
++	return (getUpgradeCity(eUnit, bSearch) != NULL);
++}
++
++// finds the 'best' city which has a valid upgrade for the unit,
++// it specifically does not check whether the unit can move, or if the player has enough gold to upgrade
++// those are checked in canUpgrade()
++// if bSearch is true, it will check every city, if not, it will only check the closest valid city
++// NULL result means the upgrade is not possible
++CvCity* CvUnit::getUpgradeCity(bool bSearch) const
++{
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	UnitAITypes eUnitAI = AI_getUnitAIType();
++	CvArea* pArea = area();
++
++	int iCurrentValue = kPlayer.AI_unitValue(getUnitType(), eUnitAI, pArea);
++
++	int iBestSearchValue = MAX_INT;
++	CvCity* pBestUpgradeCity = NULL;
++	
++	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++	{
++		int iNewValue = kPlayer.AI_unitValue(((UnitTypes)iI), eUnitAI, pArea);
++		if (iNewValue > iCurrentValue)
++		{
++			int iSearchValue;
++			CvCity* pUpgradeCity = getUpgradeCity((UnitTypes)iI, bSearch, &iSearchValue);
++			if (pUpgradeCity != NULL)
++			{
++				// if not searching or close enough, then this match will do
++				if (!bSearch || iSearchValue < 16)
++				{
++					return pUpgradeCity;
++				}
++				
++				if (iSearchValue < iBestSearchValue)
++				{
++					iBestSearchValue = iSearchValue;
++					pBestUpgradeCity = pUpgradeCity;
++				}
++			}
++		}
++	}
++
++	return pBestUpgradeCity;
++}
++
++// finds the 'best' city which has a valid upgrade for the unit, to eUnit type
++// it specifically does not check whether the unit can move, or if the player has enough gold to upgrade
++// those are checked in canUpgrade()
++// if bSearch is true, it will check every city, if not, it will only check the closest valid city
++// if iSearchValue non NULL, then on return it will be the city's proximity value, lower is better
++// NULL result means the upgrade is not possible
++CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue) const
++{
++	if (eUnit == NO_UNIT)
++	{
++		return false;
++	}
++	
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	CvUnitInfo& kUnitInfo = GC.getUnitInfo(eUnit);
++
++	if (GC.getCivilizationInfo(kPlayer.getCivilizationType()).getCivilizationUnits(kUnitInfo.getUnitClassType()) != eUnit)
++	{
++		return false;
++	}
++
++	if (!upgradeAvailable(getUnitType(), ((UnitClassTypes)(kUnitInfo.getUnitClassType()))))
++	{
++		return false;
++	}
++
++	if (kUnitInfo.getCargoSpace() < getCargo())
++	{
++		return false;
+ 	}
+ 
+ 	CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
+@@ -5234,42 +5322,120 @@
+ 
+ 		if (pLoopUnit->getTransportUnit() == this)
+ 		{
+-			if (GC.getUnitInfo(eUnit).getSpecialCargo() != NO_SPECIALUNIT)
+-			{
+-				if (GC.getUnitInfo(eUnit).getSpecialCargo() != pLoopUnit->getSpecialUnitType())
++			if (kUnitInfo.getSpecialCargo() != NO_SPECIALUNIT)
++			{
++				if (kUnitInfo.getSpecialCargo() != pLoopUnit->getSpecialUnitType())
+ 				{
+ 					return false;
+ 				}
+ 			}
+ 
+-			if (GC.getUnitInfo(eUnit).getDomainCargo() != NO_DOMAIN)
+-			{
+-				if (GC.getUnitInfo(eUnit).getDomainCargo() != pLoopUnit->getDomainType())
++			if (kUnitInfo.getDomainCargo() != NO_DOMAIN)
++			{
++				if (kUnitInfo.getDomainCargo() != pLoopUnit->getDomainType())
+ 				{
+ 					return false;
+ 				}
+ 			}
+ 		}
+ 	}
+-
+-	if (GC.getUnitInfo(eUnit).getCargoSpace() < getCargo())
+-	{
+-		return false;
+-	}
+-
+-	pCity = GC.getMapINLINE().findCity(getX_INLINE(), getY_INLINE(), NO_PLAYER, getTeam(), true, (getDomainType() == DOMAIN_SEA));
+-
+-	if (pCity != NULL)
+-	{
+-		if (pCity->canTrain(eUnit))
+-		{
+-			return true;
+-		}
+-	}
+-
+-	return false;
+-}
+-
++	
++	// sea units must be built on the coast
++	bool bCoastalOnly = (getDomainType() == DOMAIN_SEA);
++
++	// results
++	int iBestValue = MAX_INT;
++	CvCity* pBestCity = NULL;
++		
++	// if search is true, check every city for our team
++	if (bSearch)
++	{
++		// air units can travel any distance
++		bool bIgnoreDistance = (getDomainType() == DOMAIN_AIR);
++
++		TeamTypes eTeam = getTeam();
++		int iArea = getArea();
++		int iX = getX_INLINE(), iY = getY_INLINE();
++
++		// check every player on our team's cities
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			// is this player on our team?
++			CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
++			if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == eTeam)
++			{
++				int iLoop;
++				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
++				{
++					// if coastal only, then make sure we are coast
++					CvArea* pWaterArea = NULL;
++					if (!bCoastalOnly || ((pWaterArea = pLoopCity->waterArea()) != NULL && !pWaterArea->isLake()))
++					{
++						// can this city tran this unit?
++						if (pLoopCity->canTrain(eUnit))
++						{
++							// if we do not care about distance, then the first match will do
++							if (bIgnoreDistance)
++							{
++								// if we do not care about distance, then return 1 for value
++								if (iSearchValue != NULL)
++								{
++									*iSearchValue = 1;
++								}
++
++								return pLoopCity;
++							}
++
++							int iValue = plotDistance(iX, iY, pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
++
++							// if not same area, not as good (lower numbers are better)
++							if (iArea != pLoopCity->getArea() && (!bCoastalOnly || iArea != pWaterArea->getID()))
++							{
++								iValue *= 16;
++							}
++
++							// if we cannot path there, not as good (lower numbers are better)
++							if (!generatePath(pLoopCity->plot(), 0, true))
++							{
++								iValue *= 16;
++							}
++
++							if (iValue < iBestValue)
++							{
++								iBestValue = iValue;
++								pBestCity = pLoopCity;
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++	else
++	{
++		// find the closest city
++		CvCity* pClosestCity = GC.getMapINLINE().findCity(getX_INLINE(), getY_INLINE(), NO_PLAYER, getTeam(), true, bCoastalOnly);
++		if (pClosestCity != NULL)
++		{
++			// if we can train, then return this city (otherwise it will return NULL)
++			if (pClosestCity->canTrain(eUnit))
++			{
++				// did not search, always return 1 for search value
++				iBestValue = 1;
++
++				pBestCity = pClosestCity;
++			}
++		}
++	}
++
++	// return the best value, if non-NULL
++	if (iSearchValue != NULL)
++	{
++		*iSearchValue = iBestValue;
++	}
++
++	return pBestCity;
++}
+ 
+ void CvUnit::upgrade(UnitTypes eUnit)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@334
++++ /trunk/CvGameCoreDLL/CvUnit.h@335
+@@ -225,6 +225,10 @@
+ 	DllExport int upgradePrice(UnitTypes eUnit) const;																											// Exposed to Python
+ 	bool upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount = 0) const;					// Exposed to Python
+ 	DllExport bool canUpgrade(UnitTypes eUnit, bool bTestVisible = false) const;														// Exposed to Python
++	bool hasUpgrade(bool bSearch = false) const;
++	bool hasUpgrade(UnitTypes eUnit, bool bSearch = false) const;
++	CvCity* getUpgradeCity(bool bSearch = false) const;
++	CvCity* getUpgradeCity(UnitTypes eUnit, bool bSearch = false, int* iSearchValue = NULL) const;
+ 	void upgrade(UnitTypes eUnit);
+ 
+ 	HandicapTypes getHandicapType() const;																// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@334
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@335
+@@ -451,29 +451,30 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	UnitTypes eBestUnit;
+-	int iValue;
+-	int iBestValue;
+-	int iPass;
+-	int iI;
+-
+ 	FAssertMsg(!isHuman(), "isHuman did not return false as expected");
+ 	FAssertMsg(AI_getUnitAIType() != NO_UNITAI, "AI_getUnitAIType() is not expected to be equal with NO_UNITAI");
+ 
+-	for (iPass = 0; iPass < 2; iPass++)
+-	{
+-		iBestValue = 0;
+-		eBestUnit = NO_UNIT;
+-
+-		for (iI = 0; iI < GC.getNumUnitInfos(); iI++)
+-		{
+-			if ((iPass == 0) ? GC.getUnitInfo((UnitTypes)iI).getUnitAIType(AI_getUnitAIType()) : (GET_PLAYER(getOwnerINLINE()).AI_unitValue(((UnitTypes)iI), AI_getUnitAIType(), area()) > 0))
+-			{
+-				if (GET_PLAYER(getOwnerINLINE()).AI_unitValue(((UnitTypes)iI), AI_getUnitAIType(), area()) > GET_PLAYER(getOwnerINLINE()).AI_unitValue(getUnitType(), AI_getUnitAIType(), area()))
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	UnitAITypes eUnitAI = AI_getUnitAIType();
++	CvArea* pArea = area();
++
++	int iCurrentValue = kPlayer.AI_unitValue(getUnitType(), eUnitAI, pArea);
++	
++	for (int iPass = 0; iPass < 2; iPass++)
++	{
++		int iBestValue = 0;
++		UnitTypes eBestUnit = NO_UNIT;
++
++		for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++		{
++			if ((iPass > 0) || GC.getUnitInfo((UnitTypes)iI).getUnitAIType(AI_getUnitAIType()))
++			{
++				int iNewValue = kPlayer.AI_unitValue(((UnitTypes)iI), eUnitAI, pArea);
++				if ((iPass == 0 || iNewValue > 0) && iNewValue > iCurrentValue)
+ 				{
+ 					if (canUpgrade((UnitTypes)iI))
+ 					{
+-						iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "AI Upgrade"));
++						int iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "AI Upgrade"));
+ 
+ 						if (iValue > iBestValue)
+ 						{
+@@ -1629,6 +1630,11 @@
+ 			return;
+ 		}
+ 
++		if (AI_travelToUpgradeCity())
++		{
++			return;
++		}
++
+ 		if (AI_fogbust())
+ 		{
+ 			return;
+@@ -2063,6 +2069,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_travelToUpgradeCity())
++	{
++		return;
++	}
++
+ 	if (AI_fogbust())
+ 	{
+ 		return;
+@@ -2532,6 +2543,14 @@
+ 	if (bCanAttackOrPillage)
+ 	{
+ 		if (AI_pillage())
++		{
++			return;
++		}
++	}
++
++	if (!isHuman())
++	{
++		if (AI_travelToUpgradeCity())
+ 		{
+ 			return;
+ 		}
+@@ -3400,6 +3419,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_travelToUpgradeCity())
++	{
++		return;
++	}
++
+ 	if (AI_fogbust())
+ 	{
+ 		return;
+@@ -3468,6 +3492,11 @@
+ 	}
+ 
+ 	if (AI_protect(40))
++	{
++		return;
++	}
++
++	if (AI_travelToUpgradeCity())
+ 	{
+ 		return;
+ 	}
+@@ -3602,6 +3631,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_travelToUpgradeCity())
++	{
++		return;
++	}
++
+ 	if (AI_fogbust())
+ 	{
+ 		return;
+@@ -3675,6 +3709,14 @@
+ 	if (bCanAttackOrPillage)
+ 	{
+ 		if (AI_pillage())
++		{
++			return;
++		}
++	}
++
++	if (!isHuman())
++	{
++		if (AI_travelToUpgradeCity())
+ 		{
+ 			return;
+ 		}
+@@ -4013,6 +4055,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_travelToUpgradeCity())
++	{
++		return;
++	}
++
+ 	if (AI_fogbust())
+ 	{
+ 		return;
+@@ -4082,6 +4129,11 @@
+ 		return;
+ 	}
+ 
++	if (AI_travelToUpgradeCity())
++	{
++		return;
++	}
++
+ 	if (AI_airFogbust())
+ 	{
+ 		return;
+@@ -4142,6 +4194,11 @@
+ 			}
+ 		}
+ 
++		if (AI_travelToUpgradeCity())
++		{
++			return;
++		}
++
+ 		if (AI_airFogbust())
+ 		{
+ 			return;
+@@ -4193,6 +4250,11 @@
+ 				return;
+ 			}
+ 
++			if (AI_travelToUpgradeCity())
++			{
++				return;
++			}
++
+ 			if (AI_airFogbust())
+ 			{
+ 				return;
+@@ -4226,6 +4288,14 @@
+ 	if (AI_airExplore())
+ 	{
+ 		return;
++	}
++
++	if (!isHuman())
++	{
++		if (AI_travelToUpgradeCity())
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (AI_airFogbust())
+@@ -12032,6 +12102,98 @@
+ 
+ 
+ // Returns true if a mission was pushed...
++bool CvUnitAI::AI_travelToUpgradeCity()
++{
++	// is there a city which can upgrade us?
++	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true);
++	if (pUpgradeCity != NULL)
++	{
++		// cache some stuff
++		CvPlot* pPlot = plot();
++		bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
++		bool bCanAirliftUnit = (getDomainType() == DOMAIN_LAND);
++		bool bShouldSkipToUpgrade = (getDomainType() != DOMAIN_AIR);
++
++		// if we at the upgrade city, stop, wait to get upgraded
++		if (pUpgradeCity->plot() == pPlot)
++		{
++			if (!bShouldSkipToUpgrade)
++			{
++				return false;
++			}
++			
++			getGroup()->pushMission(MISSION_SKIP);
++			return true;
++		}
++
++		// find the closest city
++		CvCity* pClosestCity = pPlot->getPlotCity();
++		bool bAtClosestCity = (pClosestCity != NULL);
++		if (pClosestCity == NULL)
++		{
++			pClosestCity = pPlot->getWorkingCity();
++		}
++		if (pClosestCity == NULL)
++		{
++			pClosestCity = GC.getMapINLINE().findCity(getX_INLINE(), getY_INLINE(), NO_PLAYER, getTeam(), true, bSeaUnit);
++		}
++
++		// can we path to the upgrade city?
++		int iUpgradeCityPathTurns;
++		bool bCanPathToUpgradeCity = generatePath(pUpgradeCity->plot(), 0, true, &iUpgradeCityPathTurns);
++		CvPlot* pThisTurnPlot = getPathEndTurnPlot();
++		
++		// if we close to upgrade city, head there 
++		if (bCanPathToUpgradeCity && (pClosestCity == pUpgradeCity || iUpgradeCityPathTurns < 4))
++		{
++			getGroup()->pushMission(MISSION_MOVE_TO, pThisTurnPlot->getX_INLINE(), pThisTurnPlot->getY_INLINE());
++			return true;
++		}
++		
++		// check for better airlift choice
++		if (bCanAirliftUnit && pClosestCity->getMaxAirlift() > 0)
++		{
++			// if we at the closest city, then do the airlift, or wait
++			if (bAtClosestCity)
++			{
++				// can we do the airlift this turn?
++				if (canAirliftAt(pClosestCity->plot(), pUpgradeCity->getX_INLINE(), pUpgradeCity->getY_INLINE()))
++				{
++					getGroup()->pushMission(MISSION_AIRLIFT, pUpgradeCity->getX_INLINE(), pUpgradeCity->getY_INLINE());
++					return true;
++				}
++				// wait to do it next turn
++				else
++				{
++					getGroup()->pushMission(MISSION_SKIP);
++					return true;
++				}
++			}
++			
++			int iClosestCityPathTurns;
++			bool bCanPathToClosestCity = generatePath(pClosestCity->plot(), 0, true, &iClosestCityPathTurns);
++			
++			// is the closest city closer pathing? If so, move toward closest city
++			if (bCanPathToClosestCity && iClosestCityPathTurns < iUpgradeCityPathTurns)
++			{
++				pThisTurnPlot = getPathEndTurnPlot();
++				getGroup()->pushMission(MISSION_MOVE_TO, pThisTurnPlot->getX_INLINE(), pThisTurnPlot->getY_INLINE());
++				return true;
++			}
++		}
++		
++		// did not have better airlift choice, go ahead and path to the upgrade city
++		if (bCanPathToUpgradeCity)
++		{
++			getGroup()->pushMission(MISSION_MOVE_TO, pThisTurnPlot->getX_INLINE(), pThisTurnPlot->getY_INLINE());
++			return true;
++		}
++	}
++
++	return false;
++}
++
++// Returns true if a mission was pushed...
+ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bAirlift, int iMaxPath)
+ {
+ 	PROFILE_FUNC();
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@334
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@335
+@@ -169,6 +169,7 @@
+ 	bool AI_connectCity();
+ 	bool AI_routeCity();
+ 	bool AI_routeTerritory(bool bImprovementOnly = false);
++	bool AI_travelToUpgradeCity();
+ 	bool AI_retreatToCity(bool bPrimary = false, bool bAirlift = false, int iMaxPath = MAX_INT);
+ 	bool AI_pickup(UnitAITypes eUnitAI);
+ 	bool AI_airOffensiveCity();
+

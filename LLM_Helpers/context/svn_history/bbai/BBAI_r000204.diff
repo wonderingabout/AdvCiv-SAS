@@ -1,0 +1,355 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 204
+# Author: blakeciv
+# Date: 2006-12-19T01:18:52.271630Z
+# Coverage: full
+# Message:
+#   More City Specialization stuff. CvCityAI::AI_specialYieldMultiplier can be used to assign extra value for anything... like building workboats or wonders or stuff... maybe we should cache this later.
+#   Reduced dependency on Emphasize buttons. Phase these out for the AI eventually.
+#   Fixed a couple of crash bugs, the zero pop one in averages (resolved) and the one reported on poly.
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@203
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@204
+@@ -94,6 +94,7 @@
+ 	m_aiEmphasizeYieldCount = new int[NUM_YIELD_TYPES];
+ 	m_aiEmphasizeCommerceCount = new int[NUM_COMMERCE_TYPES];
+ 	m_bForceEmphasizeCulture = false;
++	m_aiSpecialYieldMultiplier = new int[NUM_YIELD_TYPES];
+ 
+ 	m_pbEmphasize = NULL;
+ 
+@@ -140,6 +141,7 @@
+ 	m_iEmphasizeGreatPeopleCount = 0;
+ 	m_bForceEmphasizeCulture = false;
+ 
++
+ 	m_bAssignWorkDirty = false;
+ 	m_bChooseProductionDirty = false;
+ 
+@@ -163,6 +165,11 @@
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		m_aeBestBuild[iI] = NO_BUILD;
++	}
++	
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		m_aiSpecialYieldMultiplier[iI] = 0;
+ 	}
+ 
+ 	FAssertMsg(m_pbEmphasize == NULL, "m_pbEmphasize not NULL!!!");
+@@ -522,6 +529,10 @@
+ 					{
+ 						iTempValue *= (2 * (105 - iCulturePercent));
+ 						iTempValue /= 100;
++					}
++					if (iCulturePercent > 95)
++					{
++						iTempValue = 0;						
+ 					}
+ 			    }
+ 			}
+@@ -4647,15 +4658,16 @@
+ 		}
+ 	}
+ 
+-	bGrow = (0 == angryPopulation(bPopRush ? 0 : 1));
+-	
+-	if (bGrow)
+-	{
+-	    if (AI_countGoodTiles(iBadHealth <= 0, true) == 0)
+-	    {
+-	        bGrow = false;
+-	    }
+-	}
++//	bGrow = (0 == angryPopulation(bPopRush ? 0 : 1));
++//	
++//	if (bGrow)
++//	{
++//	    if (AI_countGoodTiles(iBadHealth <= 0, true, 100) == 0)
++//	    {
++//	        bGrow = false;
++//	    }
++//	}
++	bGrow = false;
+ 
+ 	bUrgentBuild = AI_isDanger();
+ 	if (!bUrgentBuild)
+@@ -4663,11 +4675,11 @@
+ 		ProjectTypes eProductionProject = getProductionProject();
+ 		bUrgentBuild = (eProductionProject != NO_PROJECT && AI_projectValue(eProductionProject) > 0);
+ 	}
+-	if (!bUrgentBuild)
+-	{
+-		BuildingTypes eProductionBuilding = getProductionBuilding();
+-		bUrgentBuild = (eProductionBuilding != NO_BUILDING && isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())));
+-	}
++//	if (!bUrgentBuild)
++//	{
++//		BuildingTypes eProductionBuilding = getProductionBuilding();
++//		bUrgentBuild = (eProductionBuilding != NO_BUILDING && isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())));
++//	}
+ 	if (!bUrgentBuild)
+ 	{
+ 		UnitTypes eProductionUnit = getProductionUnit();
+@@ -5366,7 +5378,7 @@
+ 	int iI;
+ 	int iModifier;
+ 	
+-	int iExtraProductionModifier = 100;
++	int iExtraProductionModifier = 0;
+ 	int iBaseProductionModifier = 100;
+ 	
+ 	int iCommerceYields[NUM_COMMERCE_TYPES];
+@@ -5701,14 +5713,14 @@
+ 		//and such while preventing an "out to lunch smoking weed" scenario with
+ 		//unusually high transient production modifiers.
+ 		//Other yields don't have transient bonuses in quite the same way.
+-		iProductionValue *= 100;
++		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
+ 		iProductionValue *= iBaseProductionModifier;
+ 		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+ 		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 		iValue += iProductionValue;
+ 	}
+ 	
+-	iCommerceValue *= 100;
++	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
+ 	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+ 	iValue += iCommerceValue;
+ 	
+@@ -6959,6 +6971,7 @@
+ 
+ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ {
++	PROFILE_FUNC();
+ 	int iI;
+ 	
+ 	int iMultiplier = getBaseYieldRateModifier(eYield);
+@@ -6982,6 +6995,57 @@
+ 	}
+ 	
+ 	return iMultiplier;	
++}
++
++int CvCityAI::AI_specialYieldMultiplier(YieldTypes eYield)
++{
++	PROFILE_FUNC();
++	int iMultiplier = 0;
++
++	if (eYield == YIELD_PRODUCTION)
++	{
++		UnitAITypes eProductionUnitAI = getProductionUnitAI();
++		if (eProductionUnitAI != NO_UNITAI)
++		{
++			if (eProductionUnitAI == UNITAI_WORKER_SEA)
++			{
++				iMultiplier += 100;				
++			}
++		}
++		
++		BuildingTypes eProductionBuilding = getProductionBuilding();
++		if (eProductionBuilding != NO_BUILDING)
++		{
++			if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())))
++			{
++				iMultiplier += 50;				
++			}
++		}
++	}
++	else if (eYield == YIELD_COMMERCE)
++	{
++		UnitAITypes eProductionUnitAI = getProductionUnitAI();
++		if (eProductionUnitAI != NO_UNITAI)
++		{
++			if (eProductionUnitAI == UNITAI_WORKER_SEA)
++			{
++				iMultiplier -= 60;				
++			}
++		}
++		
++		BuildingTypes eProductionBuilding = getProductionBuilding();
++		if (eProductionBuilding != NO_BUILDING)
++		{
++			if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())))
++			{
++				iMultiplier -= 25;				
++			}
++		}
++	}
++	
++	
++	return iMultiplier;	
++	
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@203
++++ /trunk/CvGameCoreDLL/CvCityAI.h@204
+@@ -96,6 +96,7 @@
+     int AI_getCityImportance(bool bEconomy, bool bMilitary);
+     
+     int AI_yieldMultiplier(YieldTypes eYield);
++    int AI_specialYieldMultiplier(YieldTypes eYield);
+     
+     int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+ 
+@@ -123,6 +124,7 @@
+ 	bool* m_pbEmphasize;
+ 	
+ 	int m_iCityRoleFlags;
++	int* m_aiSpecialYieldMultiplier;
+ 
+ 	void AI_doDraft(bool bForce = false);
+ 	void AI_doHurry(bool bForce = false);
+@@ -162,7 +164,6 @@
+ 	
+ 	int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield);
+ 
+-	
+ 	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
+ 	friend CvExtraSaveData;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@203
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@204
+@@ -2130,7 +2130,20 @@
+ 					int iHammer = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 					int iCommerce = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+ 					
+-					szString += CvWString::format(L"\n(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
++					szString += CvWString::format(L"\nPlayer:(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
++					
++					iFood = pCity->AI_yieldMultiplier(YIELD_FOOD);
++					iHammer = pCity->AI_yieldMultiplier(YIELD_PRODUCTION);
++					iCommerce = pCity->AI_yieldMultiplier(YIELD_COMMERCE);
++					
++					szString += CvWString::format(L"\nCityBa:(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
++					
++					iFood = pCityAI->AI_specialYieldMultiplier(YIELD_FOOD);
++					iHammer = pCityAI->AI_specialYieldMultiplier(YIELD_PRODUCTION);
++					iCommerce = pCityAI->AI_specialYieldMultiplier(YIELD_COMMERCE);
++					
++					szString += CvWString::format(L"\nCitySp:(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
++					
+ 				}
+ 			}
+ 			else
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@203
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@204
+@@ -214,7 +214,7 @@
+ 		m_aiAverageCommerceMultiplier[iI] = 0;
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
+-	m_iAveragesCacheTurn = 0;
++	m_iAveragesCacheTurn = -1;
+ 	
+ 	m_iStrategyHash = 0;
+ 	
+@@ -10342,6 +10342,7 @@
+ 		AI_calculateAverages();
+ 	}
+ 	
++	FAssert(m_aiAverageYieldMultiplier[eYield] > 0);
+ 	return m_aiAverageYieldMultiplier[eYield];
+ }
+ 
+@@ -10378,15 +10379,15 @@
+ 
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+-		m_aiAverageYieldMultiplier[iI] = 0;		
++		m_aiAverageYieldMultiplier[iI] = 100;		
+ 	}
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+-		m_aiAverageCommerceMultiplier[iI] = 0;		
+-	}
+-	m_iAverageGreatPeopleMultiplier = 0;
++		m_aiAverageCommerceMultiplier[iI] = 100;		
++	}
++	m_iAverageGreatPeopleMultiplier = 100;
+ 	
+-	iTotalPopulation = 0;
++	iTotalPopulation = 1;
+ 	
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+@@ -10406,23 +10407,20 @@
+ 		}
+ 			m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
+ 		}
+-	}
+-	
+-	if (iTotalPopulation > 0)
+-	{
+-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+-		{
+-			m_aiAverageYieldMultiplier[iI] /= iTotalPopulation;
+-			FAssert(m_aiAverageYieldMultiplier[iI] > 0);
+-		}
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-		{
+-			m_aiAverageCommerceMultiplier[iI] /= iTotalPopulation;	
+-			FAssert(m_aiAverageCommerceMultiplier[iI] > 0);	
+-		}
+-		m_iAverageGreatPeopleMultiplier /= iTotalPopulation;
+-		FAssert(m_iAverageGreatPeopleMultiplier > 0);
+-	}
++	}	
++
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		m_aiAverageYieldMultiplier[iI] /= iTotalPopulation;
++		FAssert(m_aiAverageYieldMultiplier[iI] > 0);
++	}
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		m_aiAverageCommerceMultiplier[iI] /= iTotalPopulation;	
++		FAssert(m_aiAverageCommerceMultiplier[iI] > 0);	
++	}
++	m_iAverageGreatPeopleMultiplier /= iTotalPopulation;
++	FAssert(m_iAverageGreatPeopleMultiplier > 0);
+ 
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@203
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@204
+@@ -952,6 +952,7 @@
+ 
+ bool CvPlot::isConnectedTo(const CvCity* pCity) const
+ {
++	FAssert(isOwned());
+ 	return ((getPlotGroup(getOwnerINLINE()) == pCity->plotGroup(getOwnerINLINE())) || (getPlotGroup(pCity->getOwnerINLINE()) == pCity->plotGroup(pCity->getOwnerINLINE())));
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@203
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@204
+@@ -9249,7 +9249,7 @@
+ 
+ 	FAssert(canBuildRoute());
+ 
+-	if (!(pPlot->isVisibleEnemyUnit(getOwnerINLINE())))
++	if ((pPlot->getOwnerINLINE() == getOwnerINLINE()) && (!(pPlot->isVisibleEnemyUnit(getOwnerINLINE()))))
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pPlot, MISSIONAI_BUILD, getGroup(), iRange) == 0)
+ 		{
+

@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 199
+# Author: iustus
+# Date: 2006-12-18T16:40:39.637010Z
+# Coverage: full
+# Message:
+#   fixed crash bug, as seen in using Ethnically Diverse Units mod, but really it should have been crashing all over the place
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvExtraSaveData.cpp
+--- /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@198
++++ /trunk/CvGameCoreDLL/CvExtraSaveData.cpp@199
+@@ -503,7 +503,7 @@
+ 		for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
+ 		{
+ 			// zero team data for team
+-			m_teamDataCount[0] = 0;
++			m_teamDataCount[iTeamIndex] = 0;
+ 			// have team write out its data
+ 			GET_TEAM((TeamTypes)iTeamIndex).writeExtraSaveData(*this);
+ 		}
+@@ -512,7 +512,7 @@
+ 		for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
+ 		{
+ 			// zero player data for team
+-			m_playerDataCount[0] = 0;
++			m_playerDataCount[iPlayerIndex] = 0;
+ 			// have player write out its data
+ 			GET_PLAYER((PlayerTypes)iPlayerIndex).writeExtraSaveData(*this);
+ 		}
+

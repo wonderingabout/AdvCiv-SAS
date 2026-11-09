@@ -1,0 +1,84 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 155
+# Author: iustus
+# Date: 2006-12-08T07:43:57.780615Z
+# Coverage: full
+# Message:
+#   stack attack fix for quick move case (big enough re-work that needs more testing)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@154
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@155
+@@ -143,19 +143,25 @@
+ 
+ 	bDead = false;
+ 	
+-	bool bGroupAttacked = false;
+-
+-	// if we want to force the group to attack, force another attack
+-	if (m_bGroupAttack)
+-	{
+-		m_bGroupAttack = false;
+-		
+-		bGroupAttacked = groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK);
+-	}
+-	
+-	if (!bGroupAttacked)
+-	{
+-		while (readyToMove())
++	while (m_bGroupAttack || readyToMove())
++	{
++		iTempHack++;
++		if (iTempHack > 100)
++		{
++			FAssert(false);
++			pHeadUnit->finishMoves();
++			break;
++		}
++
++		// if we want to force the group to attack, force another attack
++		if (m_bGroupAttack)
++		{
++			m_bGroupAttack = false;
++			
++			bool bGroupAttacked = groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK);
++		}
++		// else pick AI action
++		else
+ 		{
+ 			pHeadUnit = getHeadUnit();
+ 
+@@ -164,23 +170,15 @@
+ 				break;
+ 			}
+ 
+-			iTempHack++;
+-			if (iTempHack > 100)
+-			{
+-				FAssert(false);
+-				pHeadUnit->finishMoves();
+-				break;
+-			}
+-
+ 			resetPath();
+ 
+ 			pHeadUnit->AI_update();
+-
+-			if (doDelayedDeath())
+-			{
+-				bDead = true;
+-				break;
+-			}
++		}
++
++		if (doDelayedDeath())
++		{
++			bDead = true;
++			break;
+ 		}
+ 	}
+ 
+

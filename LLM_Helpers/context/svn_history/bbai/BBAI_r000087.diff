@@ -1,0 +1,604 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 87
+# Author: iustus
+# Date: 2006-11-17T08:33:37.170495Z
+# Coverage: full
+# Message:
+#   CvSelectionGroup::mergeIntoGroup written, used in CvUnit::AI_groupMergeRange
+#   CvUnit::AI_groupMergeRange also now searches from the inside out (this technique can now be used elsewhere)
+#   
+#   some debug asserts added in the last checkin removed
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@86
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@87
+@@ -13,8 +13,6 @@
+ #include "CvInfos.h"
+ #include "CvGlobals.h"
+ #include "FProfiler.h"
+-//#include "Math.h"
+-
+ 
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+@@ -29,84 +27,6 @@
+ #define PATH_STEP_WEIGHT											(2)
+ #define PATH_STRAIGHT_WEIGHT									(1)
+ 
+-// fast_sqrt from Wilco Dijkstra: mailto:[email redacted]
+-// only works for 32 bit numbers (so if int is larger, or signed, it needs to be changed
+-#define sqrt_iter1(N)			\
+-	tryN = root + (1 << (N));	\
+-	if (n >= tryN << (N))		\
+-	{   n -= tryN << (N);		\
+-		root |= 2 << (N);		\
+-	}
+-
+-int fast_sqrt (int number)
+-{
+-	if (number <= 0)
+-		return 0;
+-	
+-	unsigned int root = 0, n = number, tryN;
+-	sqrt_iter1 (15);	sqrt_iter1 (14);	sqrt_iter1 (13);	sqrt_iter1 (12);
+-	sqrt_iter1 (11);	sqrt_iter1 (10);	sqrt_iter1 ( 9);	sqrt_iter1 ( 8);
+-	sqrt_iter1 ( 7);	sqrt_iter1 ( 6);	sqrt_iter1 ( 5);	sqrt_iter1 ( 4);
+-	sqrt_iter1 ( 3);	sqrt_iter1 ( 2);	sqrt_iter1 ( 1);	sqrt_iter1 ( 0);
+-	return root >> 1;
+-}
+-
+-int plotRangeIndexToRange(int iIndex)
+-{
+-	//for (int diameter = 1; diameter < MAX_INT; diameter+= 2)
+-	//{
+-	//	if (iIndex < (diameter*diameter))
+-	//		return (diameter/2);
+-	//}
+-
+-	return ((fast_sqrt(iIndex)+1)/2);
+-}
+-
+-int plotRangeIndexX(int iIndex)
+-{
+-	// if index is in the range for city plots, then use that cached value
+-	if (false && iIndex < NUM_CITY_PLOTS)
+-		return GC.getCityPlotX()[iIndex];
+-	else 
+-	{
+-		int iRange = plotRangeIndexToRange(iIndex);
+-		int iX = 0;
+-
+-		//  if we filling in the missing corners
+-		if (false && iIndex < NUM_CITY_PLOTS + 4)
+-		{
+-			iX = CITY_PLOTS_RADIUS * (1 + (((iIndex - NUM_CITY_PLOTS) % 2) * (-2)));
+-		}
+-		else
+-		{
+-			iX = 0;
+-		}
+-
+-		return iX;
+-	}
+-}
+-
+-int plotRangeIndexY(int iIndex)
+-{
+-	if (iIndex < NUM_CITY_PLOTS)
+-		return GC.getCityPlotY()[iIndex];
+-	else
+-	{
+-
+-	}
+-
+-	return 0;
+-}
+-
+-int maxPlotRangeIndexAtRange(int iRange)
+-{
+-	return 0;
+-}
+-
+-CvPlot* plotRangeIndex(int iX, int iY, int iIndex)
+-{
+-	return GC.getMapINLINE().plotINLINE(iX + plotRangeIndexX(iIndex), iY + plotRangeIndexY(iIndex));
+-}
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@86
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@87
+@@ -257,6 +257,69 @@
+ 	return directionXY(dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()), dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
+ }
+ 
++inline void rangeIndexToXY(const int iRange, const int iIndex, int &iDX, int &iDY)
++{
++	//for (int iIndex = 0; iIndex < iPlotsAtThisRange; iIndex++)
++
++	iDX = 0;
++	iDY = 0;
++	
++	// set index
++	if (iRange > 0)
++	{
++		int iDiameter = (iRange * 2) + 1;
++		int iCheck = iIndex;
++		
++		// top row
++		iCheck -= iDiameter;
++		if (iCheck < 0)
++		{
++			iDX = iCheck + iRange + 1;
++			iDY = -iRange;
++		}
++		else
++		{
++			// bottom row
++			iCheck -= iDiameter;
++			if (iCheck < 0)
++			{
++				iDX = iCheck + iRange + 1;
++				iDY = iRange;
++			}
++			else
++			{
++				// the columns are 2 shorter, so we do not count the same plot twice
++				iDiameter -= 2;
++				
++				// left column
++				iCheck -= iDiameter;
++				if (iCheck < 0)
++				{
++					iDX = -iRange;
++					iDY = iCheck + iRange;
++				}
++				else
++				{
++					// right column
++					iCheck -= iDiameter;
++					if (iCheck < 0)
++					{
++						iDX = iRange;
++						iDY = iCheck + iRange;
++					}
++					else
++					{
++						FAssertMsg(true, "bad index to rangeIndexToXY");
++					}
++
++				}
++
++			}
++		}
++	}
++}
++
++
+ #ifdef FASSERT_ENABLE
+ inline int ShortenID(int iID)
+ {
+@@ -278,10 +341,6 @@
+ #define ShortenID(x)
+ #define DEBUGLOG(x)
+ #endif
+-
+-int plotRangeIndexToRange(int iIndex);
+-int maxPlotRangeIndexAtRange(int iRange);
+-CvPlot* plotRangeIndex(int iX, int iY, int iIndex);
+ 
+ DllExport CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+ DllExport int plotCityXY(int iDX, int iDY);																									// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@86
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@87
+@@ -1738,13 +1738,8 @@
+ 			bool bAvoidGrowth = pCity->AI_avoidGrowth();
+ 			bool bIgnoreGrowth = pCityAI->AI_ignoreGrowth();
+ 
+-			// debugging
+-			if (false)
+-			{
+-				setYieldValueString(szString, 0, false);
+-			}
+ 			// if we over the city, then do an array of all the plots
+-			else if (pPlot->getPlotCity() != NULL)
++			if (pPlot->getPlotCity() != NULL)
+ 			{
+ 				// check avoid growth
+ 				if (bAvoidGrowth || bIgnoreGrowth)
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@86
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@87
+@@ -2249,42 +2249,6 @@
+ 
+ 	gDLL->getEventReporterIFace()->beginPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
+ 	
+-#ifdef FASSERT_ENABLE
+-	if (true)
+-	{
+-		CLLNode<int>* pCurrUnitNode = headGroupCycleNode();
+-		while (pCurrUnitNode != NULL)
+-		{
+-			CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
+-			FAssertMsg(pLoopSelectionGroup != NULL, "selection group node with NULL selection group");
+-			
+-			// debugging
+-			if (pLoopSelectionGroup != NULL)
+-			{
+-				CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
+-
+-				//FAssertMsg(pHeadUnit != NULL, "(SaveFile) selection group with no units");
+-				
+-				if (true)
+-				{
+-					CLLNode<IDInfo>* pUnitNode = pLoopSelectionGroup->headUnitNode();
+-					
+-					while (pUnitNode != NULL)
+-					{
+-						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						
+-						FAssertMsg(pLoopUnit != NULL, "unit in selection group does not exist");
+-						
+-						pUnitNode = pLoopSelectionGroup->nextUnitNode(pUnitNode);
+-					}
+-				}
+-			}
+-
+-			pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
+-		}
+-	}
+-#endif
+-
+ 	doUpdateCacheOnTurn();
+ 
+ 	GC.getGameINLINE().verifyDeals();
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@86
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@87
+@@ -915,24 +915,6 @@
+ 					pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
+ 					FAssertMsg(pLoopSelectionGroup != NULL, "selection group node with NULL selection group");
+ 					
+-#ifdef FASSERT_ENABLE
+-					// debugging
+-					if (pLoopSelectionGroup != NULL)
+-					{
+-						CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
+-
+-						CLLNode<IDInfo>* pUnitNode = pLoopSelectionGroup->headUnitNode();
+-						while (pUnitNode != NULL)
+-						{
+-							CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-							
+-							FAssertMsg(pLoopUnit != NULL, "unit in selection group does not exist");
+-							
+-							pUnitNode = pLoopSelectionGroup->nextUnitNode(pUnitNode);
+-						}
+-					}
+-#endif
+-
+ 					if (AI_movementPriority(pLoopSelectionGroup) <= iValue)
+ 					{
+ 						finalGroupCycle.insertAtEnd(pCurrUnitNode->m_data);
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@86
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@87
+@@ -251,8 +251,6 @@
+ 
+ 	if (getNumUnits() == 0)
+ 	{
+-		DEBUGLOG("Removing empty group(%d)\n", ShortenID(m_iID));
+-
+ 		kill();
+ 		return true;
+ 	}
+@@ -3086,6 +3084,20 @@
+ 	return m_units.getLength();
+ }
+ 
++void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected, bool bRejoin)
++{
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++		
++		if (pLoopUnit != NULL)
++			pLoopUnit->joinGroup(pSelectionGroup, bRemoveSelected, bRejoin);
++	}
++}
++
++
+ //------------------------------------------------------------------------------------------------
+ // FUNCTION:    CvSelectionGroup::getUnitIndex
+ //! \brief      Returns the index of the given unit in the selection group
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@86
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@87
+@@ -130,6 +130,7 @@
+ 	DllExport void clearUnits();
+ 	DllExport bool addUnit(CvUnit* pUnit);
+ 	void removeUnit(CvUnit* pUnit);
++	void mergeIntoGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected = false, bool bRejoin = true);
+ 	DllExport CLLNode<IDInfo>* deleteUnitNode(CLLNode<IDInfo>* pNode);
+ 	DllExport CLLNode<IDInfo>* nextUnitNode(CLLNode<IDInfo>* pNode) const;
+ 	DllExport int getNumUnits() const;																												// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@86
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@87
+@@ -6831,19 +6831,6 @@
+ 
+ 	if ((pSelectionGroup != pOldSelectionGroup) || (pOldSelectionGroup == NULL))
+ 	{
+-		//// is the unit already in a group, and the destination will be a newly created group?
+-		//if (pOldSelectionGroup != NULL && pSelectionGroup == NULL && bRejoin)
+-		//{
+-		//	// does our current group only have one unit?
+-		//	if (pOldSelectionGroup->getNumUnits() == 1)
+-		//	{
+-		//		FAssertMsg(false, "Spliting a unit off from a group that is already size 1");
+-		//		
+-		//		// do nothing, we already are in a size one group, no need to make a new one and delete the old one
+-		//		return;
+-		//	}
+-		//}
+-		
+ 		pPlot = plot();
+ 
+ 		if (pSelectionGroup != NULL)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@86
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@87
+@@ -4602,13 +4602,10 @@
+ 	return false;
+ }
+ 
+-bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iRange, bool bBiggerOnly, bool bAllowRegrouping)
++bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBiggerOnly, bool bAllowRegrouping)
+ {
+ 	PROFILE_FUNC();
+ 
+-    CLLNode<IDInfo>* pUnitNode;
+-	CvPlot* pLoopPlot;
+-	
+     if (!bAllowRegrouping)
+ 	{
+ 		if (getGroup()->getNumUnits() > 1)
+@@ -4616,14 +4613,9 @@
+ 			return false;
+ 		}
+ 	}
+-
+-	// going to tie off the way city plots are numbered, to look from the center out
+-	// this means that the max range is two
+-	FAssertMsg(iRange <= 2, "AI_groupMergeRange has a max range of 2");
+ 	
+ 	// cached values
+ 	CvPlot* pPlot = plot();
+-	CvArea*	pArea = pPlot->area();
+ 	CvSelectionGroup* pGroup = getGroup();
+ 	int iX = pPlot->getX_INLINE(), iY = pPlot->getY_INLINE();
+ 	
+@@ -4631,120 +4623,65 @@
+ 	CvUnit* pBestUnit = NULL;
+ 	int iBestValue = MAX_INT;
+ 	int iBestRange = -1;
+-
+-	//for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-	//{
+-	//	int iRange = (iI % 1) + (iI % 9);
+-	//	
+-	//	if (iRange > iBestRange)
+-	//		break;
+-
+-	//	pLoopPlot = plotCity(iX, iY, iI);
+-	//	if (pLoopPlot != NULL && pLoopPlot->area() == pArea)
+-	//	{
+-	//		pUnitNode = pLoopPlot->headUnitNode();
+-	//		while (pUnitNode != NULL)
+-	//		{
+-	//		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-	//		pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-
+-	//		CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-	//		if ((pLoopUnit != this) && (pLoopGroup != pGroup))
+-	//		{
+-	//		if (pLoopUnit->isGroupHead())
+-	//		{
+-	//		if (!(pLoopUnit->isCargo()))
+-	//		{
+-	//			if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+-	//			{
+-	//				if (canJoinGroup(pLoopUnit->plot(), pLoopGroup))
+-	//				{
+-	//					if (((pLoopGroup->AI_getMissionAIType()) != MISSIONAI_GROUP))
+-	//					{
+-	//						if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
+-	//						{
+-	//							int iPathTurns;
+-	//							if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
+-	//							{
+-	//								if (iPathTurns <= (iRange + 2))
+-	//								{
+-	//									int iValue = iPathTurns;
+-
+-	//									if (iValue < iBestValue)
+-	//									{
+-	//										iBestValue = iValue;
+-	//										pBestUnit = pLoopUnit;
+-	//									}
+-	//								}
+-	//							}
+-	//						}
+-	//					}
+-	//				}
+-	//			}
+-	//		}
+-	//		}
+-	//		}
+-	//		}
+-	//		}
+-	//	}
+-	//}
+-
+-    for (int iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (int iDY = -(iRange); iDY <= iRange; iDY++)
+-		{
+-			pLoopPlot = plotXY(plot()->getX_INLINE(), plot()->getY_INLINE(), iDX, iDY);
+-
+-			if (pLoopPlot != NULL)
+-			{
+-				if (pLoopPlot->area() == pArea)
++	
++	// iterator
++	int iPlotsAtThisRange = 1;
++	for (int iRange = 0; iRange <= iMaxRange && iBestValue == MAX_INT; iRange++)
++	{
++		for (int iIndex = 0; iIndex < iPlotsAtThisRange; iIndex++)
++		{
++			int iDX = 0, iDY = 0;
++			rangeIndexToXY(iRange, iIndex, iDX, iDY);
++			
++			CvPlot* pLoopPlot = plotXY(plot()->getX_INLINE(), plot()->getY_INLINE(), iDX, iDY);
++			if (pLoopPlot != NULL && pLoopPlot->getArea() == pPlot->getArea())
++			{
++				CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++				while (pUnitNode != NULL)
+ 				{
+-					pUnitNode = pLoopPlot->headUnitNode();
+-					while (pUnitNode != NULL)
++					CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++					
++					CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
++					if ((pLoopUnit != this) && (pLoopGroup != pGroup) && (pLoopGroup->AI_getMissionAIType() != MISSIONAI_GROUP))
+ 					{
+-						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-
+-						CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-                        if ((pLoopUnit != this) && (pLoopGroup != pGroup))
+-                        {
+-                            if (pLoopUnit->isGroupHead())
+-                            {
+-                                if (!(pLoopUnit->isCargo()))
+-                                {
+-                                    if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+-                                    {
+-                                        if (canJoinGroup(pLoopUnit->plot(), pLoopGroup))
+-                                        {
+-                                            if (((pLoopGroup->AI_getMissionAIType()) != MISSIONAI_GROUP))
+-                                            {
+-                                                if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
+-                                                {
+-                                                    int iPathTurns;
+-													if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
+-                                                    {
+-                                                        if (iPathTurns <= (iRange + 2))
+-                                                        {
+-                                                            int iValue = iPathTurns;
+-
+-                                                            if (iValue < iBestValue)
+-                                                            {
+-                                                                iBestValue = iValue;
+-                                                                pBestUnit = pLoopUnit;
+-                                                            }
+-                                                        }
+-                                                    }
+-                                                }
+-                                            }
+-                                        }
+-                                    }
+-                                }
+-                            }
+-                        }
+-                    }
+-                }
+-			}
+-		}
++						if (pLoopUnit->isGroupHead() && !(pLoopUnit->isCargo()))
++						{
++							if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++							{
++								if (canJoinGroup(pPlot, pLoopGroup))
++								{
++									if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
++									{
++										int iPathTurns;
++										if (generatePath(pPlot, 0, true, &iPathTurns))
++										{
++											if (iPathTurns <= (iMaxRange + 2))
++											{
++												int iValue = iPathTurns;
++
++												if (iValue < iBestValue)
++												{
++													iBestValue = iValue;
++													pBestUnit = pLoopUnit;
++												}
++											}
++										}
++									}
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++		
++		// special case the 0 range, so the math works out
++		if (iRange == 0)
++			iPlotsAtThisRange = 0;
++
++		// at each higher range, there are 8 more plots
++		iPlotsAtThisRange += 8; 		
+ 	}
+ 
+ 	if (pBestUnit != NULL)
+@@ -4758,18 +4695,18 @@
+ 				CvSelectionGroup* pCurrentGroup = getGroup();
+ 				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+ 				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
+-				DEBUGLOG("AI_groupMergeRange:%S(%d) leaving group(%d) [size %d%s] to merge into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++				DEBUGLOG("AI_groupMergeRange:%S(%d)'s group(%d) [size %d%s] merging into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+ 					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+ 					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+ 					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ 
+-			joinGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
++			pGroup->mergeIntoGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
+ 			return true;
+ 		}
+ 		else
+ 		{
+-			getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
++			pGroup->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+ 			return true;
+ 		}
+ 	}
+

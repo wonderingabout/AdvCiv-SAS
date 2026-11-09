@@ -1,0 +1,138 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 527
+# Author: jdog5000
+# Date: 2010-02-25T07:19:20.055048Z
+# Coverage: full
+# Message:
+#   0.90c
+#   
+#   Fix load WBS with non-Final_Release DLL crash bug
+#   Improvements in unit upgrade budgeting
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@526
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@527
+@@ -4526,7 +4526,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.90b");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90c");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@526
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@527
+@@ -13226,10 +13226,26 @@
+ 		}
+ 		int iTech = player.getTechScore();
+ 		int iMaxTech = GC.getGameINLINE().getMaxTech();
+-		int iTechScore = (GC.getDefineINT("SCORE_TECH_FACTOR") * iTech) / iMaxTech;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++		int iTechScore = 0;
++		if( iMaxTech > 0 )
++		{
++			iTechScore = (GC.getDefineINT("SCORE_TECH_FACTOR") * iTech) / iMaxTech;
++		}
+ 		int iWonders = player.getWondersScore();
+ 		int iMaxWonders = GC.getGameINLINE().getMaxWonders();
+-		int iWondersScore = (GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders) / iMaxWonders;
++		int iWondersScore = 0;
++		if( iMaxWonders > 0 )
++		{
++			iWondersScore = (GC.getDefineINT("SCORE_WONDER_FACTOR") * iWonders) / iMaxWonders;
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		int iTotalScore = iPopScore + iLandScore + iTechScore + iWondersScore;
+ 		int iVictoryScore = player.calculateScore(true, true);
+ 		if (iTotalScore == player.calculateScore())
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@526
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@527
+@@ -522,17 +522,17 @@
+ 		return;
+ 	}
+ 
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						9/15/08			jdog5000		*/
+-/* 																			*/
+-/* 	Gold AI																	*/
+-/********************************************************************************/
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* Gold AI                                                                                      */
++/************************************************************************************************/
+ 	bool bAnyWar = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+ 	int iStartingGold = getGold();
+ 	int iTargetGold = AI_goldTarget();
+ 	int iUpgradeBudget = (AI_goldToUpgradeAllUnits() / (bAnyWar ? 1 : 2));
+ 
+-	iUpgradeBudget = std::min(iUpgradeBudget, iStartingGold - (iTargetGold - iUpgradeBudget));
++	iUpgradeBudget = std::min(iUpgradeBudget, iStartingGold - ((iTargetGold > iUpgradeBudget) ? (iTargetGold - iUpgradeBudget) : iStartingGold/2));
+ 
+ 	if( AI_isFinancialTrouble() )
+ 	{
+@@ -543,9 +543,9 @@
+ 	iUpgradeBudget = std::max(iUpgradeBudget,1);
+ 
+ 	bool bUnderBudget = true;
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	CvPlot* pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+@@ -3905,7 +3905,18 @@
+ {
+ 	int iGold = 0;
+ 
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/24/10                                jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                      */
++/************************************************************************************************/
++/* original bts code
+ 	if (GC.getGameINLINE().getElapsedGameTurns() >= 40)
++*/
++	if (GC.getGameINLINE().getElapsedGameTurns() >= 40 || getNumCities() > 3)
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 	{
+ 		int iMultiplier = 0;
+ 		iMultiplier += GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@526
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@527
+@@ -7342,7 +7342,9 @@
+ /************************************************************************************************/
+ 	if( gUnitLogLevel > 2 )
+ 	{
+-		logBBAI("    %S spends %d to upgrade %S to %S", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString());
++		CvWString szString;
++		getUnitAIString(szString, AI_getUnitAIType());
++		logBBAI("    %S spends %d to upgrade %S to %S, unit AI %S", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString(), szString.GetCString());
+ 	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+

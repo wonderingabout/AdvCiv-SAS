@@ -1,0 +1,340 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 396
+# Author: jdog5000
+# Date: 2008-10-26T06:41:55.780481Z
+# Coverage: full
+# Message:
+#   0.40 revision M
+#   
+#   Small coding changes
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@395
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@396
+@@ -692,7 +692,13 @@
+ 	CvArea* pArea = area();
+ 	pWaterArea = waterArea();
+ 	bool bMaybeWaterArea = false;
+-	
++
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
++	/**																				*/
++	/**		City AI																	*/
++	/********************************************************************************/
++	/* original BTS code
+ 	if (pWaterArea != NULL)
+ 	{
+ 		bMaybeWaterArea = true;
+@@ -701,6 +707,23 @@
+ 			pWaterArea = NULL;
+ 		}
+ 	}
++	*/
++	bool bWaterDanger = false;
++    
++	if (pWaterArea != NULL)
++	{
++		bMaybeWaterArea = true;
++		if (!GET_TEAM(getTeam()).AI_isWaterAreaRelevant(pWaterArea))
++		{
++			pWaterArea = NULL;
++		}
++
++		bWaterDanger = kPlayer.AI_getWaterDanger(plot(), 4) > 0;
++	}
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/	
++
+ 
+ 	bWasFoodProduction = isFoodProduction();
+ 	bHasMetHuman = GET_TEAM(getTeam()).hasMetHuman();
+@@ -836,65 +859,13 @@
+ 	}
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						10/14/08			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						10/25/08			jdog5000	*/
+ /**																				*/
+ /**		Barbarian AI															*/
+ /********************************************************************************/
+-/* original BTS code
+-	// if we just captured this city, dont build a unit first
+-	if (isOccupation())
+-*/
+-	// if we just captured this city, dont build a unit first
+-	// unless we're a barbarian
+-	if (isOccupation() && !isBarbarian())
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
+-	{
+-		// pick granary or lighthouse, any duration
+-		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
+-		{
+-			return;
+-		}
+-
+-		// try picking forge, etc, any duration
+-		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION))
+-		{
+-			return;
+-		}
+-		
+-		// just pick any building, any duration
+-		if (AI_chooseBuilding())
+-		{
+-			return;
+-		}
+-	}
+-
+-	if (plot()->getNumDefenders(getOwnerINLINE()) == 0) // XXX check for other team's units?
+-	{
+-		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-		{
+-			return;
+-		}
+-
+-		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
+-		{
+-			return;
+-		}
+-
+-		if (AI_chooseUnit(UNITAI_CITY_SPECIAL))
+-		{
+-			return;
+-		}
+-
+-		if (AI_chooseUnit(UNITAI_ATTACK))
+-		{
+-			return;
+-		}
+-	}
+-	
+-	// -------------------- BBAI Notes -------------------------
+-	// Barbarian city build priorities
++	// This has been moved up ~2 blocks to before the occupation logic
++	// Those pieces don't really apply for barbarians or are already handled here
++	/* original BTS code
+ 	if (isBarbarian())
+ 	{
+ 		if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
+@@ -993,6 +964,154 @@
+ 		
+ 		return;
+ 	}
++	*/
++	// -------------------- BBAI Notes -------------------------
++	// Barbarian city build priorities
++	if (isBarbarian())
++	{
++		if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
++		{
++			if (AI_chooseDefender())
++			{
++				return;
++			}
++
++			if (AI_chooseUnit(UNITAI_ATTACK))
++			{
++				return;
++			}
++		}
++		
++		if (!bDanger && (iNeededWorkers > 0) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
++		{
++			if (AI_chooseUnit(UNITAI_WORKER))
++			{
++				return;
++			}			
++		}
++
++		if (!bDanger && !bWaterDanger && (iNeededSeaWorkers > 0))
++		{
++			if (AI_chooseUnit(UNITAI_WORKER_SEA))
++			{
++				return;
++			}
++		}
++		
++		bChooseUnit = false;
++		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") > AI_buildUnitProb())
++		{
++			
++			int iBarbarianFlags = 0;
++			iBarbarianFlags |= BUILDINGFOCUS_FOOD;
++			iBarbarianFlags |= BUILDINGFOCUS_PRODUCTION;
++			iBarbarianFlags |= BUILDINGFOCUS_EXPERIENCE;
++			
++			if (AI_chooseBuilding(iBarbarianFlags))
++			{
++				return;
++			}
++			
++			if (AI_chooseBuilding())
++			{
++				return;
++			}
++		}
++		
++		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_ASSAULT_SEA, -1, getOwnerINLINE()) > 0)
++		{
++			if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++			{
++				return;
++			}
++		}
++		
++		if ((pWaterArea != NULL) && (iWaterPercent > 30))
++		{
++			if (GC.getGameINLINE().getSorenRandNum(2, "AI Coast Raiders!") == 0)
++			{
++				if (kPlayer.AI_getNumAIUnits(UNITAI_ASSAULT_SEA) <= (1 + kPlayer.getNumCities() / 2))
++				{
++					if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
++					{
++						return;
++					}
++				}
++			}
++			if (GC.getGameINLINE().getSorenRandNum(110, "AI arrrr!") < (iWaterPercent + 10))
++			{
++				if (kPlayer.AI_getNumAIUnits(UNITAI_PIRATE_SEA) <= kPlayer.getNumCities())
++				{
++					if (AI_chooseUnit(UNITAI_PIRATE_SEA))
++					{
++						return;
++					}
++				}
++				
++				if (kPlayer.AI_totalAreaUnitAIs(pWaterArea, UNITAI_ATTACK_SEA) < iNumCitiesInArea)
++				{
++					if (AI_chooseUnit(UNITAI_ATTACK_SEA))
++					{
++						return;
++					}
++				}
++			}
++		}
++		
++		if (AI_chooseUnit())
++		{
++			return;
++		}
++		
++		return;
++	}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
++	if (isOccupation())
++	{
++		// pick granary or lighthouse, any duration
++		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
++		{
++			return;
++		}
++
++		// try picking forge, etc, any duration
++		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION))
++		{
++			return;
++		}
++		
++		// just pick any building, any duration
++		if (AI_chooseBuilding())
++		{
++			return;
++		}
++	}
++
++	if (plot()->getNumDefenders(getOwnerINLINE()) == 0) // XXX check for other team's units?
++	{
++		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++		{
++			return;
++		}
++
++		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
++		{
++			return;
++		}
++
++		if (AI_chooseUnit(UNITAI_CITY_SPECIAL))
++		{
++			return;
++		}
++
++		if (AI_chooseUnit(UNITAI_ATTACK))
++		{
++			return;
++		}
++	}
+     
+ 	if (((iTargetCulturePerTurn > 0) || (getPopulation() > 5)) && (getCommerceRate(COMMERCE_CULTURE) == 0))
+ 	{
+@@ -1013,8 +1132,20 @@
+ 			}
+ 			bChooseWorker = true;
+ 		}
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
++		/**																				*/
++		/**		City AI																	*/
++		/********************************************************************************/
++		/* original BTS code
+ 		if ((iNeededSeaWorkers > 0) && (getPopulation() < 3))
+ 		{
++		*/
++		if (!bWaterDanger && (iNeededSeaWorkers > 0) && (getPopulation() < 3))
++		{
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD						END								*/
++		/********************************************************************************/
+ 			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 			{
+ 				return;
+@@ -1062,7 +1193,7 @@
+     	}
+     }
+     /********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/20/08		jdog5000		*/
++	/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
+ 	/**																				*/
+ 	/**		City AI																	*/
+ 	/********************************************************************************/
+@@ -1075,10 +1206,8 @@
+ 				|| (pWaterArea != NULL && bPrimaryArea && kPlayer.AI_countNumAreaHostileUnits(pWaterArea, true, false, false, false) > 0))
+ 
+ 	*/
+-	bool bWaterDanger = false;
+     if (bMaybeWaterArea)
+ 	{
+-		bWaterDanger = kPlayer.AI_getWaterDanger(plot(), 4) > 0;
+ 		if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < 3)
+ 		{
+ 			if ((bMaybeWaterArea && bWaterDanger)
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@395
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@396
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40L");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40M");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+

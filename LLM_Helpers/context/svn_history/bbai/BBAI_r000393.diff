@@ -1,0 +1,443 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 393
+# Author: jdog5000
+# Date: 2008-10-19T06:02:26.806147Z
+# Coverage: full
+# Message:
+#   0.40 revision k
+#   
+#   Fighters now always move before bombers
+#   Improvements to defensive plane siteing
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@392
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@393
+@@ -823,6 +823,8 @@
+ 		AI_assignWorkingPlots();
+ 	}
+ 	
++	// -------------------- BBAI Notes -------------------------
++	// Special circumstances
+ 	
+     // if we need to pop borders, then do that immediately if we have drama and can do it
+ 	if ((iTargetCulturePerTurn > 0) && (getCultureLevel() <= (CultureLevelTypes) 1))
+@@ -833,8 +835,21 @@
+         }
+ 	}
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						10/14/08			jdog5000	*/
++/**																				*/
++/**		Barbarian AI															*/
++/********************************************************************************/
++/* original BTS code
+ 	// if we just captured this city, dont build a unit first
+ 	if (isOccupation())
++*/
++	// if we just captured this city, dont build a unit first
++	// unless we're a barbarian
++	if (isOccupation() && !isBarbarian())
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 	{
+ 		// pick granary or lighthouse, any duration
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
+@@ -878,6 +893,8 @@
+ 		}
+ 	}
+ 	
++	// -------------------- BBAI Notes -------------------------
++	// Barbarian city build priorities
+ 	if (isBarbarian())
+ 	{
+ 		if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
+@@ -1034,7 +1051,9 @@
+ 			}
+ 		}
+ 	}
+-    	
++    
++	// -------------------- BBAI Notes -------------------------
++	// Minimal attack force, both land and sea
+     if (bDanger && kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK) < 2)
+     {
+     	if (AI_chooseUnit(UNITAI_ATTACK))
+@@ -1084,9 +1103,11 @@
+ 					}
+ 				}
+ 			}
+-	}
++		}
+ 	}
+     
++	// -------------------- BBAI Notes -------------------------
++	// Top normal priorities
+     if ((getDomainFreeExperience(DOMAIN_LAND) == 0) && (getYieldRate(YIELD_PRODUCTION) > 4))
+     {
+     	if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, (kPlayer.getCurrentEra() > 1) ? 0 : 7, 33))
+@@ -1142,6 +1163,8 @@
+ 	floatingDefenderTypes.push_back(std::make_pair(UNITAI_RESERVE, 100));
+ 	floatingDefenderTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 100));
+ 	
++	// BBAI Notes: could make cities which give experience more likely to fill holes here
++	// Also, if in land war this is a higher priority
+ 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+ 		if (AI_chooseLeastRepresentedUnit(floatingDefenderTypes))
+@@ -4522,7 +4545,7 @@
+ }
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD							9/19/08		jdog5000		*/
++/**		BETTER_BTS_AI_MOD						10/17/08		jdog5000		*/
+ /**																				*/
+ /**		Air AI																	*/
+ /********************************************************************************/
+@@ -4534,7 +4557,7 @@
+ 	return ((plot()->plotCount(PUF_canAirDefend, -1, -1, getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR) + iExtra) >= AI_neededAirDefenders()); // XXX check for other team's units?
+ }
+ */
+-//
++// Function now answers question of whether city has enough ready air defense, no longer just counts fighters
+ bool CvCityAI::AI_isAirDefended(bool bCountLand, int iExtra)
+ {
+ 	PROFILE_FUNC();
+@@ -4558,16 +4581,25 @@
+ 				if( pLoopUnit->getDomainType() == DOMAIN_AIR )
+ 				{
+ 					// can find units which are already air patrolling using group activity
+-					if( pLoopUnit->getDamage() == 0 && !pLoopUnit->hasMoved() )
+-					{
+-						if( pLoopUnit->AI_getUnitAIType() == UNITAI_DEFENSE_AIR )
+-						{
+-							iAirIntercept += pLoopUnit->currInterceptionProbability();
+-						}
+-						else
+-						{
+-							iAirIntercept += pLoopUnit->currInterceptionProbability()/3;
+-						}
++					if( pLoopUnit->getGroup()->getActivityType() == ACTIVITY_INTERCEPT )
++					{
++						iAirIntercept += pLoopUnit->currInterceptionProbability();
++					}
++					else
++					{
++						// Count air units which can air patrol
++						if( pLoopUnit->getDamage() == 0 && !pLoopUnit->hasMoved() )
++						{
++							if( pLoopUnit->AI_getUnitAIType() == UNITAI_DEFENSE_AIR )
++							{
++								iAirIntercept += pLoopUnit->currInterceptionProbability();
++							}
++							else
++							{
++								iAirIntercept += pLoopUnit->currInterceptionProbability()/3;
++							}
++						}
++
+ 					}
+ 				}
+ 				else if( pLoopUnit->getDomainType() == DOMAIN_LAND )
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@392
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@393
+@@ -3523,7 +3523,7 @@
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40i");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40k");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@392
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@393
+@@ -3036,6 +3036,12 @@
+ 		pLoopSelectionGroup->doDelayedDeath();
+ 	}
+ 
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						10/17/08		jdog5000		*/
++	/**																				*/
++	/**		Air AI																	*/
++	/********************************************************************************/
++	/*
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+@@ -3077,6 +3083,62 @@
+ 			}
+ 		}
+ 	}
++	*/
++	// Force fighters to move before bombers, they're much better at taking on enemy fighters
++	for (int iPass = 0; iPass < 5; iPass++)
++	{
++		for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++		{
++			switch (pLoopSelectionGroup->getDomainType())
++			{
++			case DOMAIN_AIR:
++				if ( ::getUnit(pLoopSelectionGroup->headUnitNode()->m_data)->canAirDefend() )
++				{
++					if(iPass == 1)
++					{
++						pLoopSelectionGroup->doTurn();
++					}
++				}
++				else
++				{
++					if(iPass == 2)
++					{
++						pLoopSelectionGroup->doTurn();
++					}
++				}
++				break;
++			case DOMAIN_SEA:
++				if (iPass == 3)
++				{
++					pLoopSelectionGroup->doTurn();
++				}
++				break;
++			case DOMAIN_LAND:
++				if (iPass == 4)
++				{
++					pLoopSelectionGroup->doTurn();
++				}
++				break;
++			case DOMAIN_IMMOBILE:
++				if (iPass == 0)
++				{
++					pLoopSelectionGroup->doTurn();
++				}
++				break;
++			case NO_DOMAIN:
++				FAssertMsg(NULL == pLoopSelectionGroup->getHeadUnit(), "Unit with no Domain");
++			default:
++				if (iPass == 4)
++				{
++					pLoopSelectionGroup->doTurn();
++				}
++				break;
++			}
++		}
++	}
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 
+ 	if (getID() == GC.getGameINLINE().getActivePlayer())
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@392
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@393
+@@ -9703,6 +9703,36 @@
+ 	return (iMaxUnits - countNumAirUnits(eTeam));
+ }
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						10/17/08		jdog5000		*/
++/**																				*/
++/**		Air AI																	*/
++/********************************************************************************/
++int CvPlot::countAirInterceptorsActive(TeamTypes eTeam) const
++{
++	int iCount = 0;
++
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if (DOMAIN_AIR == pLoopUnit->getDomainType() && !pLoopUnit->isCargo() && pLoopUnit->getTeam() == eTeam)
++		{
++			if( pLoopUnit->getGroup()->getActivityType() == ACTIVITY_INTERCEPT )
++			{
++				iCount += 1;
++			}
++		}
++	}
++
++	return iCount;
++}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
+ 
+ bool CvPlot::isEspionageCounterSpy(TeamTypes eTeam) const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@392
++++ /trunk/CvGameCoreDLL/CvPlot.h@393
+@@ -354,6 +354,15 @@
+ 
+ 	DllExport int countNumAirUnits(TeamTypes eTeam) const;																					// Exposed to Python
+ 	int airUnitSpaceAvailable(TeamTypes eTeam) const;
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						10/17/08		jdog5000		*/
++	/**																				*/
++	/**		Air AI																	*/
++	/********************************************************************************/
++	int countAirInterceptorsActive(TeamTypes eTeam) const;
++	/********************************************************************************/
++	/**		BETTER_BTS_AI_MOD						END								*/
++	/********************************************************************************/
+ 
+ 	int getFoundValue(PlayerTypes eIndex);																															// Exposed to Python
+ 	bool isBestAdjacentFound(PlayerTypes eIndex);																												// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@392
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@393
+@@ -6249,7 +6249,7 @@
+ 				// Consider adding extra defenders
+ 				if( collateralDamage() == 0 && (!pCity->AI_isAirDefended(false,-2)) )
+ 				{
+-					if( GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0 || currInterceptionProbability() > 100 )
++					if( GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0 )
+ 					{
+ 						getGroup()->pushMission(MISSION_AIRPATROL);
+ 						return;
+@@ -6290,7 +6290,7 @@
+ 	}
+ 	
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						9/21/08		Solver & jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/17/08	Solver & jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -6360,14 +6360,23 @@
+ 
+ 	if( canAirDefend() )
+ 	{
++		// Check for whether city needs this unit for base air defenses
++		int iBaseAirDefenders = 0;
++
++		if( iEnemyOffense > 0 )
++		{
++			iBaseAirDefenders++;
++		}
++
+ 		if( pCity != NULL )
+ 		{
+-			// Check for whether city needs this unit to air defend
+-			if( !(pCity->AI_isAirDefended(true,0)) )
+-			{
+-				getGroup()->pushMission(MISSION_AIRPATROL);
+-				return;
+-			}
++			iBaseAirDefenders += pCity->AI_neededAirDefenders()/2;
++		}
++		
++		if( plot()->countAirInterceptorsActive(getTeam()) < iBaseAirDefenders )
++		{
++			getGroup()->pushMission(MISSION_AIRPATROL);
++			return;
+ 		}
+ 	}
+ 
+@@ -6390,7 +6399,7 @@
+ 				// Consider adding extra defenders
+ 				if( !(pCity->AI_isAirDefended(false,-1)) )
+ 				{
+-					if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0) || currInterceptionProbability() > 100)
++					if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0))
+ 					{
+ 						getGroup()->pushMission(MISSION_AIRPATROL);
+ 						return;
+@@ -6399,7 +6408,7 @@
+ 			}
+ 			else
+ 			{
+-				if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0) || currInterceptionProbability() > 100)
++				if ((GC.getGameINLINE().getSorenRandNum((bOffensive ? 3 : 2), "AI Air Defense Move") == 0))
+ 				{
+ 					getGroup()->pushMission(MISSION_AIRPATROL);
+ 					return;
+@@ -6424,13 +6433,13 @@
+ 	{
+ 		if ((GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") > 0))
+ 		{
+-			// Support offensive units
++			// Clear out any enemy fighters, support offensive units
+ 			if (AI_airBombDefenses())
+ 			{
+ 				return;
+ 			}
+ 
+-			if (GC.getGameINLINE().getSorenRandNum(bOffensive ? 3 : 2, "AI Air Defense Move") == 0)
++			if (GC.getGameINLINE().getSorenRandNum(3, "AI Air Defense Move") == 0)
+ 			{
+ 				// Hit enemy land stacks near our cities
+ 				if (AI_defensiveAirStrike())
+@@ -16233,7 +16242,7 @@
+ 	FAssert(canAirDefend());
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						10/14/08			jdog5000	*/
+ 	/**																				*/
+ 	/**		Air AI																	*/
+ 	/********************************************************************************/
+@@ -16278,9 +16287,16 @@
+ 	{
+ 		if (canAirDefend(pLoopCity->plot()))
+ 		{
+-			if (!(pLoopCity->AI_isAirDefended(false,0)))
+-			{
+-				if (!atPlot(pLoopCity->plot()) && canMoveInto(pLoopCity->plot()))
++			if (atPlot(pLoopCity->plot()) || canMoveInto(pLoopCity->plot()))
++			{
++				int iExistingAirDefenders = pLoopCity->plot()->plotCount(PUF_canAirDefend, -1, -1, pLoopCity->getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR);
++				if( atPlot(pLoopCity->plot()) )
++				{
++					iExistingAirDefenders -= 1;
++				}
++				int iNeedAirDefenders = pLoopCity->AI_neededAirDefenders();
++			
++				if ( iNeedAirDefenders > iExistingAirDefenders )
+ 				{
+ 					iValue = pLoopCity->getPopulation() + pLoopCity->AI_cityThreat();
+ 
+@@ -16289,15 +16305,15 @@
+ 				
+ 					iValue *= 100;
+ 
+-					// Reduce value of endangered city
++					// Increase value of cities needing air defense more
++					iValue *= std::max(1, 3 + iNeedAirDefenders - iExistingAirDefenders);
++
++					// Reduce value of endangered city, it may be too late to help
+ 					if (3*iEnemyOffense > iOurDefense)
+ 					{
+ 						iValue *= iOurDefense;
+ 						iValue /= std::max(1,3*iEnemyOffense);
+ 					}
+-
+-					// Increase value of cities needing air defense more
+-					iValue *= (4 + pLoopCity->AI_neededAirDefenders() - pLoopCity->plot()->plotCount(PUF_canAirDefend, -1, -1, pLoopCity->getOwnerINLINE(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR));
+ 
+ 					if (iValue > iBestValue)
+ 					{
+

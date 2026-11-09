@@ -1,0 +1,47 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 303
+# Author: blakeciv
+# Date: 2007-01-27T01:04:12.176449Z
+# Coverage: full
+# Message:
+#   Dagger now takes a threshold and only up to 2str from a UU is counted.
+#   (This commit causes no changes in normal gameplay)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@302
++++ /trunk/CvGameCoreDLL/AI_Defines.h@303
+@@ -2,6 +2,7 @@
+ #define AI_DEFINES_H
+ 
+ #define DEFAULT_PLAYER_CLOSENESS 6
++#define AI_DAGGER_THRESHOLD			100  //higher is a lower chance
+ 
+ #define AI_DEFAULT_STRATEGY             (1 << 0)
+ #define AI_STRATEGY_DAGGER              (1 << 1)
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@302
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@303
+@@ -10225,7 +10225,7 @@
+                         
+                         int iUUStr = GC.getUnitInfo(eLoopUnit).getCombat();
+                         int iNormalStr = GC.getUnitInfo((UnitTypes)(GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex())).getCombat();
+-                        iDagger += 20 * max(0, (iUUStr - iNormalStr));
++                        iDagger += 20 * range((iUUStr - iNormalStr), 0, 2);
+ 						if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+                         {
+                             iDagger += 20;
+@@ -10305,7 +10305,7 @@
+             iDagger += (iAttackUnitCount > 0) ? 40 : 20;
+         }
+         
+-        if (iDagger >= 100)
++        if (iDagger >= AI_DAGGER_THRESHOLD)
+         {
+             m_iStrategyHash |= AI_STRATEGY_DAGGER;            
+         }
+

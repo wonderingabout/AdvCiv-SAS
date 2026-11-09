@@ -1,0 +1,422 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 317
+# Author: iustus
+# Date: 2007-01-29T01:47:02.356442Z
+# Coverage: full
+# Message:
+#   fix seabombard bug (caused temphack infinite loop)
+#   groupAttacks now try not to split the group, picking a unit other than the head when it makes sense
+#   groups are not split even when AI_isForceSeparate is true when in the middle of a group attack (group split later)
+#   joinGroup: force separate is only set to true when the new group head has a different unitAI than the old group head
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@316
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@317
+@@ -953,7 +953,11 @@
+ 
+ 			if (pLoopSelectionGroup->AI_isForceSeparate())
+ 			{
+-				pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
++				// do not split groups that are in the midst of attacking
++				if (pLoopSelectionGroup->isForceUpdate() || !pLoopSelectionGroup->AI_isGroupAttack())
++				{
++					pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
++				}
+ 			}
+ 		}
+ 
+@@ -7152,7 +7156,6 @@
+ 	return iCount;
+ }
+ 
+-
+ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup, int iRange)
+ {
+ 	int iClosestTargetRange;
+@@ -7245,6 +7248,35 @@
+ 							iCount += pLoopSelectionGroup->getNumUnits();
+ 						}
+ 					}
++				}
++			}
++		}
++	}
++
++	return iCount;
++}
++
++int CvPlayerAI::AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup)
++{
++	PROFILE_FUNC();
++
++	FAssert(pPlot != NULL);
++	
++	int iCount = 0;
++
++	int iLoop;
++	for(CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	{
++		if (pLoopSelectionGroup != pSkipSelectionGroup)
++		{
++			MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
++			if (eMissionAI == NO_MISSIONAI || eMissionAI == eGroupMissionAI)
++			{
++				CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
++				if (pMissionPlot != NULL && pMissionPlot == pPlot)
++				{
++					iCount += pLoopSelectionGroup->getNumUnits();
++					pLoopSelectionGroup->setActivityType(ACTIVITY_AWAKE);
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@316
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@317
+@@ -163,6 +163,7 @@
+ 	int AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMissionAI, int iMissionAICount, int& iClosestTargetRange, CvSelectionGroup* pSkipSelectionGroup = NULL, int iRange = 0);
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL);
++	int AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL);
+ 
+ 	CivicTypes AI_bestCivic(CivicOptionTypes eCivicOption);
+ 	int AI_civicValue(CivicTypes eCivic);
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@316
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@317
+@@ -2549,17 +2549,8 @@
+ 					while (true)
+ 					{
+ 						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds, false, bNoBlitz);
+-
+ 						if (pBestAttackUnit == NULL)
+ 						{
+-						    // Blake added this long ago, we do not need it any more (causes crash bug for human under some cases)
+-							// caused because groupMove can separate the group, which can cause the mission queue to be cleared 
+-							// when it is expected to be non-NULL
+-							/*if (!atWar(getTeam(), pDestPlot->getTeam()))
+-						    {
+-						        groupMove(pDestPlot, false);
+-						    }*/
+-						    
+ 							break;
+ 						}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@316
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@317
+@@ -185,6 +185,7 @@
+ 	virtual int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const = 0;
+ 	virtual void AI_queueGroupAttack(int iX, int iY) = 0;
+ 	virtual void AI_cancelGroupAttack() = 0;
++	virtual bool AI_isGroupAttack() = 0;
+ 
+ 	virtual bool AI_isControlled() = 0;
+ 	virtual bool AI_isDeclareWar(const CvPlot* pPlot = NULL) = 0;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@316
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@317
+@@ -212,6 +212,14 @@
+ 			bDead = true;
+ 			break;
+ 		}
++
++		// if no longer group attacking, and force separate is true, then bail, decide what to do after group is split up
++		// (UnitAI of head unit may have changed)
++		if (!m_bGroupAttack && AI_isForceSeparate())
++		{
++			AI_separate();	// pointers could become invalid...
++			return false;
++		}
+ 	}
+ 
+ 	if (!bDead)
+@@ -307,6 +315,8 @@
+ 
+ 	pUnitNode = headUnitNode();
+ 
++	bool bIsHuman = (pUnitNode != NULL) ? GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwnerINLINE()).isHuman() : true;
++			
+ 	while (pUnitNode != NULL)
+ 	{
+ 		pLoopUnit = ::getUnit(pUnitNode->m_data);
+@@ -351,7 +361,8 @@
+ 							}
+ 						}
+ 
+-						if (iValue > iBestValue)
++						// if non-human, prefer the last unit that has the best value (so as to avoid splitting the group)
++						if (iValue > iBestValue || (!bIsHuman && iValue > 0 && iValue == iBestValue))
+ 						{
+ 							iBestValue = iValue;
+ 							iBestOdds = iOdds;
+@@ -369,20 +380,13 @@
+ 
+ CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+ {
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	CvUnit* pBestUnit;
+-	int iValue;
+-	int iBestValue;
+-
+-	iBestValue = 0;
+-	pBestUnit = NULL;
+-
+-	pUnitNode = headUnitNode();
+-
++	int iBestValue = 0;
++	CvUnit* pBestUnit = NULL;
++
++	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 	while (pUnitNode != NULL)
+ 	{
+-		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 		if (!pLoopUnit->isDead())
+@@ -408,10 +412,11 @@
+ 				{
+ 					if (bForce || pLoopUnit->canMoveInto(pPlot, true))
+ 					{
+-                        iValue = pLoopUnit->AI_sacrificeValue(pPlot);
++                        int iValue = pLoopUnit->AI_sacrificeValue(pPlot);
+ 						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+ 
+-						if (iValue > iBestValue)
++						// we want to pick the last unit of highest value, so pick the last unit with a good value
++						if (iValue >= iBestValue)
+ 						{
+ 							iBestValue = iValue;
+ 							pBestUnit = pLoopUnit;
+@@ -502,9 +507,14 @@
+ 	m_iGroupAttackY = iY;
+ }
+ 
+-void CvSelectionGroupAI::AI_cancelGroupAttack()
++inline void CvSelectionGroupAI::AI_cancelGroupAttack()
+ {
+ 	m_bGroupAttack = false;
++}
++
++inline bool CvSelectionGroupAI::AI_isGroupAttack()
++{
++	return m_bGroupAttack;
+ }
+ 
+ bool CvSelectionGroupAI::AI_isControlled()
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@316
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@317
+@@ -29,6 +29,7 @@
+ 	int AI_sumStrength(const CvPlot* pAttackedPlot = NULL, DomainTypes eDomainType = NO_DOMAIN, bool bCheckCanAttack = false, bool bCheckCanMove = false) const;
+ 	void AI_queueGroupAttack(int iX, int iY);
+ 	void AI_cancelGroupAttack();
++	bool AI_isGroupAttack();
+ 
+ 	bool AI_isControlled();
+ 	bool AI_isDeclareWar(const CvPlot* pPlot = NULL);
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@316
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@317
+@@ -3414,29 +3414,30 @@
+ 
+ CvCity* CvUnit::bombardTarget(const CvPlot* pPlot) const
+ {
+-	CvCity* pLoopCity;
+-	CvCity* pBestCity;
+-	CvPlot* pLoopPlot;
+-	int iValue;
+-	int iBestValue;
+-	int iI;
+-
+-	iBestValue = MAX_INT;
+-	pBestCity = NULL;
+-
+-	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-	{
+-		pLoopPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(), ((DirectionTypes)iI));
++	TeamTypes eTeam = getTeam();
++	
++	int iBestValue = MAX_INT;
++	CvCity* pBestCity = NULL;
++
++	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		CvPlot* pLoopPlot = plotDirection(pPlot->getX_INLINE(), pPlot->getY_INLINE(), ((DirectionTypes)iI));
+ 
+ 		if (pLoopPlot != NULL)
+ 		{
+-			pLoopCity = pLoopPlot->getPlotCity();
++			CvCity* pLoopCity = pLoopPlot->getPlotCity();
+ 
+ 			if (pLoopCity != NULL)
+ 			{
+-				if (pLoopCity->isBombardable(getTeam()))
++				if (pLoopCity->isBombardable(eTeam))
+ 				{
+-					iValue = pLoopCity->getDefenseDamage();
++					int iValue = pLoopCity->getDefenseDamage();
++
++					// always prefer cities we are at war with
++					if (atWar(eTeam, pLoopCity->getTeam()))
++					{
++						iValue *= 128;
++					}
+ 
+ 					if (iValue < iBestValue)
+ 					{
+@@ -6894,18 +6895,29 @@
+ 		{
+ 			if (pOldSelectionGroup != NULL)
+ 			{
++				bool bWasHead = false;
+ 				if (!isHuman())
+ 				{
+ 					if (pOldSelectionGroup->getNumUnits() > 1)
+ 					{
+ 						if (pOldSelectionGroup->getHeadUnit() == this)
+ 						{
+-							pOldSelectionGroup->AI_makeForceSeparate();
++							bWasHead = true;
+ 						}
+ 					}
+ 				}
+ 
+ 				pOldSelectionGroup->removeUnit(this);
++
++				// if we were the head, if the head unitAI changed, then force the group to separate (non-humans)
++				if (bWasHead)
++				{
++					FAssert(pOldSelectionGroup->getHeadUnit() != NULL);
++					if (pOldSelectionGroup->getHeadUnit()->AI_getUnitAIType() != AI_getUnitAIType())
++					{
++						pOldSelectionGroup->AI_makeForceSeparate();
++					}
++				}
+ 			}
+ 
+ 			if ((pNewSelectionGroup != NULL) && pNewSelectionGroup->addUnit(this))
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@316
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@317
+@@ -9798,24 +9798,33 @@
+ 	PROFILE_FUNC();
+ 	
+ 	// cached values
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	TeamTypes eTeam = kPlayer.getTeam();
+ 	CvPlot* pPlot = plot();
+ 	CvSelectionGroup* pGroup = getGroup();
+ 	int iX = pPlot->getX_INLINE(), iY = pPlot->getY_INLINE();
+ 	
+ 	// can any unit in this group bombard?
+-	bool bHasBombardUnits = false;
++	bool bHasBombardUnit = false;
++	bool bBombardUnitCanBombardNow = false;
+ 	CLLNode<IDInfo>* pUnitNode = pGroup->headUnitNode();
+-	while (pUnitNode != NULL && !bHasBombardUnits)
++	while (pUnitNode != NULL && !bBombardUnitCanBombardNow)
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = pGroup->nextUnitNode(pUnitNode);
+ 
+ 		if (pLoopUnit->bombardRate() > 0)
+ 		{
+-			bHasBombardUnits = true;
+-		}
+-	}
+-	if (!bHasBombardUnits)
++			bHasBombardUnit = true;
++
++			if (pLoopUnit->canMove() && !pLoopUnit->isMadeAttack())
++			{
++				bBombardUnitCanBombardNow = true;
++			}
++		}
++	}
++
++	if (!bHasBombardUnit)
+ 	{
+ 		return false;
+ 	}
+@@ -9835,14 +9844,15 @@
+ 			if (pLoopPlot != NULL)
+ 			{
+ 				CvCity* pBombardCity = bombardTarget(pLoopPlot);
+-				if (pBombardCity != NULL && pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
++
++				if (pBombardCity != NULL && atWar(eTeam, pBombardCity->getTeam()) && pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
+ 				{
+ 					int iPathTurns;
+ 					if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 					{
+ 						int iValue = 1;
+ 						
+-						iValue += (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pBombardCity->plot(), MISSIONAI_ASSAULT, pGroup, 2) * 3);
++						iValue += (kPlayer.AI_plotTargetMissionAIs(pBombardCity->plot(), MISSIONAI_ASSAULT, pGroup, 2) * 3);
+ 
+ 						iValue *= 1000;
+ 
+@@ -9859,18 +9869,28 @@
+ 			}
+ 		}
+ 	}
+-
++	
+ 	if ((pBestPlot != NULL) && (pBestBombardPlot != NULL))
+ 	{
+ 		if (atPlot(pBestBombardPlot))
+ 		{
+-			if (pGroup->canBombard(pBestBombardPlot))
+-			{
+-				getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false, NO_MISSIONAI, pBestBombardPlot);
+-			}
++			// if we are at the plot from which to bombard, and we have a unit that can bombard this turn, do it
++			if (bBombardUnitCanBombardNow && pGroup->canBombard(pBestBombardPlot))
++			{
++				getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false, MISSIONAI_BLOCKADE, pBestBombardPlot);
++
++				// if city bombarded enough, wake up any units that were waiting to bombard this city
++				CvCity* pBombardCity = bombardTarget(pBestBombardPlot);
++				FAssert(pBombardCity != NULL);
++				if (pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
++				{
++					kPlayer.AI_wakePlotTargetMissionAIs(pBestBombardPlot, MISSIONAI_BLOCKADE, getGroup());
++				}
++			}
++			// otherwise, skip until next turn, when we will surely bombard
+ 			else
+ 			{
+-				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, NO_MISSIONAI, pBestBombardPlot);
++				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_BLOCKADE, pBestBombardPlot);
+ 			}
+ 
+ 			return true;
+@@ -9878,7 +9898,7 @@
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, NO_MISSIONAI, pBestBombardPlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BLOCKADE, pBestBombardPlot);
+ 			return true;
+ 		}
+ 	}
+

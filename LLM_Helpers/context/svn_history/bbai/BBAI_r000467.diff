@@ -1,0 +1,29 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 467
+# Author: jdog5000
+# Date: 2009-06-17T04:08:42.610650Z
+# Coverage: full
+# Message:
+#   0.78C
+#   
+#   One last comment
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@466
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@467
+@@ -7962,6 +7962,7 @@
+ /* original BTS code
+ 	if (getCivicPercentAnger(eCivic) > 0)
+ */
++	// getCivicPercentAnger(eCivic) > 0 means that you will get unhappiness if you aren't running eCivic ...
+ 	if ( getCivicPercentAnger(eCivic) < getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) )
+ /*************************************************************************************************/
+ /** UNOFFICIAL_PATCH                        END                                                  */
+

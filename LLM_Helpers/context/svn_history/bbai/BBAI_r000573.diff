@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 573
+# Author: jdog5000
+# Date: 2010-05-17T18:12:20.004366Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@572
++++ /trunk/CvGameCoreDLL/CvCity.cpp@573
+@@ -4994,10 +4994,11 @@
+ }
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       03/04/10                                jdog5000      */
++/* UNOFFICIAL_PATCH                       03/04/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
++// From Mongoose SDK
+ int CvCity::getNumActiveWorldWonders() const
+ {
+ 	int iI;
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@572
++++ /trunk/CvGameCoreDLL/CvCity.h@573
+@@ -228,7 +228,7 @@
+ 	int getNumActiveBuilding(BuildingTypes eIndex) const;						// Exposed to Python
+ 	bool hasActiveWorldWonder() const;																			// Exposed to Python
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       03/04/10                                jdog5000      */
++/* UNOFFICIAL_PATCH                       03/04/10                     Mongoose & jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+

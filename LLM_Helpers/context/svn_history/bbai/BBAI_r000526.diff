@@ -1,0 +1,1633 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 526
+# Author: jdog5000
+# Date: 2010-02-25T00:59:14.847290Z
+# Coverage: full
+# Message:
+#   Added function from BUG for determining happy/health effects of buildings
+#   Rework building valuation for happy/healthy
+#   Upgrade logging
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@525
++++ /trunk/CvGameCoreDLL/CvCity.cpp@526
+@@ -6270,6 +6270,217 @@
+ 	}
+ }
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                            EmperorFool       */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++// BUG - Building Additional Happiness - start
++/*
++ * Returns the total additional happiness that adding one of the given buildings will provide
++ * and sets the good and bad levels individually.
++ *
++ * Doesn't reset iGood or iBad to zero.
++ * Doesn't check if the building can be constructed in this city.
++ */
++int CvCity::getAdditionalHappinessByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad) const
++{
++	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
++	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
++
++	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++	int iI;
++	int iStarting = iGood - iBad;
++	int iStartingBad = iBad;
++
++	// Basic
++	addGoodOrBad(kBuilding.getHappiness(), iGood, iBad);
++
++	// Building Class
++	addGoodOrBad(getBuildingHappyChange((BuildingClassTypes)kBuilding.getBuildingClassType()), iGood, iBad);
++
++	// Player Building
++	addGoodOrBad(GET_PLAYER(getOwnerINLINE()).getExtraBuildingHappiness(eBuilding), iGood, iBad);
++
++	// Area
++	addGoodOrBad(kBuilding.getAreaHappiness(), iGood, iBad);
++
++	// Religion
++	if (kBuilding.getReligionType() != NO_RELIGION && kBuilding.getReligionType() == GET_PLAYER(getOwnerINLINE()).getStateReligion())
++	{
++		iGood += kBuilding.getStateReligionHappiness();
++	}
++
++	// Bonus
++	for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	{
++		if ((hasBonus((BonusTypes)iI) || kBuilding.getFreeBonus() == iI) && kBuilding.getNoBonus() != iI)
++		{
++			addGoodOrBad(kBuilding.getBonusHappinessChanges(iI), iGood, iBad);
++		}
++	}
++
++	// Commerce
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		addGoodOrBad(kBuilding.getCommerceHappiness(iI) * GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes)iI) / 100, iGood, iBad);
++	}
++
++	// War Weariness Modifier
++	if (kBuilding.getWarWearinessModifier() != 0)
++	{
++		int iBaseAngerPercent = 0;
++
++		iBaseAngerPercent += getOvercrowdingPercentAnger();
++		iBaseAngerPercent += getNoMilitaryPercentAnger();
++		iBaseAngerPercent += getCulturePercentAnger();
++		iBaseAngerPercent += getReligionPercentAnger();
++		iBaseAngerPercent += getHurryPercentAnger();
++		iBaseAngerPercent += getConscriptPercentAnger();
++		iBaseAngerPercent += getDefyResolutionPercentAnger();
++		for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
++		{
++			iBaseAngerPercent += GET_PLAYER(getOwnerINLINE()).getCivicPercentAnger((CivicTypes)iI);
++		}
++
++		int iCurrentAngerPercent = iBaseAngerPercent + getWarWearinessPercentAnger();
++		int iCurrentUnhappiness = iCurrentAngerPercent * getPopulation() / GC.getPERCENT_ANGER_DIVISOR();
++
++		int iNewWarAngerPercent = GET_PLAYER(getOwnerINLINE()).getWarWearinessPercentAnger();
++		iNewWarAngerPercent *= std::max(0, (kBuilding.getWarWearinessModifier() + getWarWearinessModifier() + GET_PLAYER(getOwnerINLINE()).getWarWearinessModifier() + 100));
++		iNewWarAngerPercent /= 100;
++		int iNewAngerPercent = iBaseAngerPercent + iNewWarAngerPercent;
++		int iNewUnhappiness = iNewAngerPercent * getPopulation() / GC.getPERCENT_ANGER_DIVISOR();
++
++		iBad += iNewUnhappiness - iCurrentUnhappiness;
++	}
++
++	// No Unhappiness
++	if (kBuilding.isNoUnhappiness())
++	{
++		// override extra unhappiness and completely negate all existing unhappiness
++		iBad = iStartingBad - unhappyLevel();
++	}
++
++	return iGood - iBad - iStarting;
++}
++
++/*
++ * Returns the total additional health that adding one of the given buildings will provide
++ * and sets the good and bad levels individually.
++ *
++ * Doesn't reset iGood or iBad to zero.
++ * Doesn't check if the building can be constructed in this city.
++ */
++int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad) const
++{
++	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
++	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
++
++	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++	int iI;
++	int iStarting = iGood - iBad;
++	int iStartingBad = iBad;
++
++	// Basic
++	addGoodOrBad(kBuilding.getHealth(), iGood, iBad);
++
++	// Building Class
++	addGoodOrBad(getBuildingHealthChange((BuildingClassTypes)kBuilding.getBuildingClassType()), iGood, iBad);
++
++	// Player Building
++	addGoodOrBad(GET_PLAYER(getOwnerINLINE()).getExtraBuildingHealth(eBuilding), iGood, iBad);
++
++	// Area
++	addGoodOrBad(kBuilding.getAreaHealth(), iGood, iBad);
++
++	// No Unhealthiness from Buildings
++	if (isBuildingOnlyHealthy())
++	{
++		// undo bad from this building
++		iBad = iStartingBad;
++	}
++	if (kBuilding.isBuildingOnlyHealthy())
++	{
++		// undo bad from this and all existing buildings
++		iBad = iStartingBad + totalBadBuildingHealth();
++	}
++
++	// Bonus
++	for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	{
++		if ((hasBonus((BonusTypes)iI) || kBuilding.getFreeBonus() == iI) && kBuilding.getNoBonus() != iI)
++		{
++			addGoodOrBad(kBuilding.getBonusHealthChanges(iI), iGood, iBad);
++		}
++	}
++
++	// Power
++	if (kBuilding.isPower() || kBuilding.isAreaCleanPower() || (kBuilding.getPowerBonus() != NO_BONUS && hasBonus((BonusTypes)kBuilding.getPowerBonus())))
++	{
++		// adding power
++		if (!isPower())
++		{
++			addGoodOrBad(GC.getDefineINT("POWER_HEALTH_CHANGE"), iGood, iBad);
++
++			// adding dirty power
++			if (kBuilding.isDirtyPower())
++			{
++				addGoodOrBad(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE"), iGood, iBad);
++			}
++		}
++		else
++		{
++			// replacing dirty power with clean power
++			if (isDirtyPower() && !kBuilding.isDirtyPower())
++			{
++				subtractGoodOrBad(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE"), iGood, iBad);
++			}
++		}
++	}
++
++	// No Unhealthiness from Population
++	if (kBuilding.isNoUnhealthyPopulation())
++	{
++		iBad -= getPopulation();
++	}
++
++	return iGood - iBad - iStarting;
++}
++
++/*
++ * Adds iValue to iGood if it is positive or its negative to iBad if it is negative.
++ */
++void addGoodOrBad(int iValue, int& iGood, int& iBad)
++{
++	if (iValue > 0)
++	{
++		iGood += iValue;
++	}
++	else if (iValue < 0)
++	{
++		iBad -= iValue;
++	}
++}
++
++/*
++ * Subtracts iValue from iGood if it is positive or its negative from iBad if it is negative.
++ */
++void subtractGoodOrBad(int iValue, int& iGood, int& iBad)
++{
++	if (iValue > 0)
++	{
++		iGood -= iValue;
++	}
++	else if (iValue < 0)
++	{
++		iBad += iValue;
++	}
++}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 
+ int CvCity::getExtraBuildingGoodHealth() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@525
++++ /trunk/CvGameCoreDLL/CvCity.h@526
+@@ -13,6 +13,18 @@
+ class CvArea;
+ class CvGenericBuilding;
+ class CvArtInfoBuilding;
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                            EmperorFool       */
++/*                                                                                              */
++/*                                                                                              */
++/************************************************************************************************/
++// From BUG
++void addGoodOrBad(int iValue, int& iGood, int& iBad);
++void subtractGoodOrBad(int iValue, int& iGood, int& iBad);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ class CvCity : public CvDLLEntity
+ {
+@@ -383,9 +395,32 @@
+ 	int getExtraBuildingBadHappiness() const;															// Exposed to Python
+ 	void updateExtraBuildingHappiness();
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                            EmperorFool       */
++/*                                                                                              */
++/*                                                                                              */
++/************************************************************************************************/
++// From BUG
++	int getAdditionalHappinessByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad) const;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 	int getExtraBuildingGoodHealth() const;														// Exposed to Python
+ 	int getExtraBuildingBadHealth() const;															// Exposed to Python
+ 	void updateExtraBuildingHealth();
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                            EmperorFool       */
++/*                                                                                              */
++/*                                                                                              */
++/************************************************************************************************/
++// From BUG
++	int getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, int& iBad) const;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 
+ 	int getFeatureGoodHappiness() const;																	// Exposed to Python
+ 	int getFeatureBadHappiness() const;																		// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@525
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@526
+@@ -1163,16 +1163,19 @@
+     
+ 	if (((iTargetCulturePerTurn > 0) || (getPopulation() > 5)) && (getCommerceRate(COMMERCE_CULTURE) == 0))
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
+-		{
+-			return;
++		if( !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
++		{
++			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
++			{
++				return;
++			}
+ 		}
+ 	}
+ 
+ 	// Early game worker logic
+ 	if( isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100)))
+ 	{
+-		if( !bDanger )
++		if( !bDanger && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+ 			if (!bWaterDanger && (iNeededSeaWorkers > 0) && (getPopulation() < 3))
+ 			{
+@@ -1269,7 +1272,7 @@
+ 
+ 			if ((getPopulation() > 3) && (getCommerceRate(COMMERCE_CULTURE) < 5))
+ 			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30 + iWarTroubleThreshold, 0, 50))
++				if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30, 0 + 3*iWarTroubleThreshold, 50))
+ 				{
+ 					return;
+ 				}
+@@ -1355,7 +1358,7 @@
+ 	
+ 	if (!bPrimaryArea)
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10 + iWarTroubleThreshold))
++		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 60, 10 + 2*iWarTroubleThreshold, 50))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 1", getName().GetCString());
+ 			return;
+@@ -1364,7 +1367,7 @@
+ 	
+ 	if (!bDanger && ((kPlayer.getCurrentEra() > (GC.getGame().getStartEra() + iProductionRank / 2))) || (kPlayer.getCurrentEra() > (GC.getNumEraInfos() / 2)))
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20, 15))
++		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1)))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 1", getName().GetCString());
+ 			return;	
+@@ -1451,7 +1454,7 @@
+     //this can be overridden by "wait and grow more"
+     if (bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > 0)))
+     {
+-		if( !(bDefenseWar && iWarSuccessRatio < -50) )
++		if( !(bDefenseWar && iWarSuccessRatio < -50) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+ 			if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+ 				(isCapital() && (getPopulation() > 3) && iNumCitiesInArea > 1))
+@@ -1622,6 +1625,7 @@
+ 	UnitTypes eBestSpreadUnit = NO_UNIT;
+ 	int iBestSpreadUnitValue = -1;
+ 	
++	if( !bDanger && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 	{
+ 		int iSpreadUnitRoll = (100 - iBuildUnitProb) / 3;
+ 		iSpreadUnitRoll += bLandWar ? 0 : 10;
+@@ -3373,27 +3377,37 @@
+ 	ReligionTypes eStateReligion = kOwner.getStateReligion();
+ 
+ 	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
+-	bool bProvidesPower = (kBuilding.isPower() || ((kBuilding.getPowerBonus() != NO_BONUS) && hasBonus((BonusTypes)(kBuilding.getPowerBonus()))));
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                        jdog5000 & Fuyu       */
++/*                                                                                              */
++/* City AI, Bugfix                                                                              */
++/************************************************************************************************/
+ 	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
++
+ 	int iFoodDifference = foodDifference(false);
+ 
+-	int iHappinessLevel = happyLevel() - unhappyLevel(1);
++	// Reduce reaction to espionage induced happy/health problems
++	int iHappinessLevel = happyLevel() - unhappyLevel(1) + getEspionageHappinessCounter()/2;
+ 	int iAngryPopulation = range(-iHappinessLevel, 0, (getPopulation() + 1));
+-	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, std::max(0, (iHappinessLevel + 1) / 2));
++	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, std::max(0, (iHappinessLevel + 1) / 2)) + getEspionageHealthCounter()/2;
+ 	int iBadHealth = std::max(0, -iHealthLevel);
+ 
+-	int iHappyModifier = (iHappinessLevel >= iHealthLevel && iHappinessLevel <= 6) ? 6 : 3;
+-	int iHealthModifier = (iHealthLevel > iHappinessLevel && iHealthLevel <= 4) ? 4 : 2;
++	int iHappyModifier = (iHappinessLevel <= iHealthLevel && iHappinessLevel <= 6) ? 6 : 3;
++	int iHealthModifier = (iHealthLevel < iHappinessLevel && iHealthLevel <= 4) ? 4 : 2;
+ 	if (iHappinessLevel >= 10)
+ 	{
+ 		iHappyModifier = 1;
+ 	}
+-	if (iHealthModifier >= 8)
++	if (iHealthLevel >= 8)
+ 	{
+ 		iHealthModifier = 0;
+ 	}
+-	
++
++	bool bProvidesPower = (kBuilding.isPower() || ((kBuilding.getPowerBonus() != NO_BONUS) && hasBonus((BonusTypes)(kBuilding.getPowerBonus()))) || kBuilding.isAreaCleanPower());
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 	int iTotalPopulation = kOwner.getTotalPopulation();
+ 	int iNumCities = kOwner.getNumCities();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+@@ -3518,66 +3532,54 @@
+ 				{
+ 					iValue += ((iAngryPopulation * 10) + getPopulation());
+ 				}
+-				
+-				int iBuildingHappiness = kBuilding.getHappiness();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/17/10                                Afforess      */
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                              jdog5000        */
+ /*                                                                                              */
+ /* City AI                                                                                      */
+ /************************************************************************************************/
+-				iBuildingHappiness += GET_PLAYER(getOwnerINLINE()).getExtraBuildingHappiness(eBuilding);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-				if (iBuildingHappiness != 0)
+-				{
+-					iValue += (std::min(iBuildingHappiness, iAngryPopulation) * 10) 
+-						+ (std::max(0, iBuildingHappiness - iAngryPopulation) * iHappyModifier);
+-				}
+-
+-				iValue += (kBuilding.getAreaHappiness() * iNumCitiesInArea * 8);
++				int iGood, iBad = 0;
++				int iBuildingActualHappiness = getAdditionalHappinessByBuilding(eBuilding,iGood,iBad);
++
++				if( iBuildingActualHappiness < 0 )
++				{
++					// Building causes net decrease in city happiness
++					iValue -= (-iBuildingActualHappiness + iAngryPopulation) * 6
++						+ (-iBuildingActualHappiness) * iHappyModifier;
++
++					// BBAI TODO: Check for potential shrink in population
++					
++				}
++				else if( iBuildingActualHappiness > 0 )
++				{
++					// Building causes net increase in city happiness
++					iValue += (std::min(iBuildingActualHappiness, iAngryPopulation) * 10) 
++						+ (std::max(0, iBuildingActualHappiness - iAngryPopulation) * iHappyModifier);
++				}
++
++				iValue += (-kBuilding.getHurryAngerModifier() * getHurryPercentAnger()) / 100;
++
++				for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++				{
++					iValue += (kBuilding.getCommerceHappiness(iI) * iHappyModifier) / 4;
++				}
++
++				int iWarWearinessModifer = kBuilding.getWarWearinessModifier();
++				if (iWarWearinessModifer != 0)
++				{
++					iValue += (-iWarWearinessModifer * iHappyModifier) / 16;
++				}
++
++				iValue += (kBuilding.getAreaHappiness() * (iNumCitiesInArea - 1) * 8);
+ 				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);
+ 
+ 				int iWarWearinessPercentAnger = kOwner.getWarWearinessPercentAnger();
+-				int iWarWearinessModifer = kBuilding.getWarWearinessModifier();
+-				if (iWarWearinessModifer > 0)
+-				{
+-					iValue += (std::min(-(((iWarWearinessModifer * iWarWearinessPercentAnger) / 100) / GC.getPERCENT_ANGER_DIVISOR()), iAngryPopulation) * 8);
+-					iValue += (-iWarWearinessModifer * iHappyModifier) / 16;
+-				}
+-				
+ 				int iGlobalWarWearinessModifer = kBuilding.getGlobalWarWearinessModifier();
+-				if (iGlobalWarWearinessModifer > 0)
++				if (iGlobalWarWearinessModifer != 0)
+ 				{
+ 					iValue += (-(((iGlobalWarWearinessModifer * iWarWearinessPercentAnger / 100) / GC.getPERCENT_ANGER_DIVISOR())) * iNumCities);
+ 					iValue += (-iGlobalWarWearinessModifer * iHappyModifier) / 16;
+ 				}
+ 
+-				iValue += (-kBuilding.getHurryAngerModifier() * getHurryPercentAnger()) / 100;
+-
+-				int iStateReligionHappiness = kBuilding.getStateReligionHappiness();
+-				if (kBuilding.getReligionType() == eStateReligion && iStateReligionHappiness != 0)
+-				{
+-					iValue += (std::min(iStateReligionHappiness, iAngryPopulation) * 8)
+-						+ (std::max(0, iStateReligionHappiness - iAngryPopulation) * iHappyModifier);
+-				}
+-
+-				for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-				{
+-					iValue += (std::min(((kBuilding.getCommerceHappiness(iI) * kOwner.getCommercePercent((CommerceTypes)iI)) / 100), iAngryPopulation) * 8);
+-					iValue += (kBuilding.getCommerceHappiness(iI) * iHappyModifier) / 4;
+-				}
+-
+-				for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-				{
+-					if (hasBonus((BonusTypes)iI))
+-					{
+-						int iBonusHappinessChange = kBuilding.getBonusHappinessChanges(iI);
+-						iValue += (std::min(iBonusHappinessChange, iAngryPopulation) * 8)
+-							+ (std::max(0, iBonusHappinessChange - iAngryPopulation) * iHappyModifier);
+-					}
+-				}
+-
+ 				for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 				{
+ 					if (kBuilding.getBuildingHappinessChanges(iI) != 0)
+@@ -3585,73 +3587,42 @@
+ 						iValue += (kBuilding.getBuildingHappinessChanges(iI) * kOwner.getBuildingClassCount((BuildingClassTypes)iI) * 8);
+ 					}
+ 				}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			}
+ 
+ 			if (((iFocusFlags & BUILDINGFOCUS_HEALTHY) || (iPass > 0)) && !isNoUnhealthyPopulation())
+ 			{
+-				if (bProvidesPower)
+-				{
+-					if (isDirtyPower() && !(kBuilding.isDirtyPower()))
+-					{
+-						iValue += (std::min(-(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE")), iBadHealth) * 8);
+-					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/17/10                      Afforess & jdog5000     */
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                          jdog5000 & Fuyu     */
+ /*                                                                                              */
+ /* City AI                                                                                      */
+ /************************************************************************************************/
+-					// Dirty Power is dirty, subtract value would have added above
+-					else if (kBuilding.isDirtyPower())
+-					{
+-						iValue -= (std::min(-(GC.getDefineINT("DIRTY_POWER_HEALTH_CHANGE")), iBadHealth) * 8);
+-					}
++				int iGood, iBad = 0;
++				int iBuildingActualHealth = getAdditionalHealthByBuilding(eBuilding,iGood,iBad);
++
++				if( iBuildingActualHealth < 0 )
++				{
++					// Building causes net decrease in city health
++					iValue -= (-iBuildingActualHealth + iBadHealth) * 6
++						+ (-iBuildingActualHealth) * iHealthModifier;
++
++					// BBAI TODO: Check for potential shrink in population
++					
++				}
++				else if( iBuildingActualHealth > 0 )
++				{
++					// Building causes net increase in city health
++					iValue += (std::min(iBuildingActualHealth, iBadHealth) * 10)
++						+ (std::max(0, iBuildingActualHealth - iBadHealth) * iHealthModifier);
++				}
++
++				iValue += (kBuilding.getAreaHealth() * (iNumCitiesInArea-1) * 4);
++				iValue += (kBuilding.getGlobalHealth() * iNumCities * 4);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-				}
+-
+-				if (kBuilding.isNoUnhealthyPopulation())
+-				{
+-					int iUnhealthyPopulation = unhealthyPopulation();
+-					iValue += (std::min(iUnhealthyPopulation, iBadHealth) * 12)
+-						+ (std::max(0, iUnhealthyPopulation - iBadHealth) * iHealthModifier);
+-				}
+-
+-				if (kBuilding.isBuildingOnlyHealthy())
+-				{
+-					int iBuildingBadHealth = -getBuildingBadHealth();
+-					iValue += (std::min(iBuildingBadHealth, iBadHealth) * 12)
+-						+ ((std::max(0, iBuildingBadHealth - iBadHealth) + 1) * iHealthModifier);
+-				}
+-
+-				int iBuildingHealth = kBuilding.getHealth();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/17/10                                Afforess      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
+-				iBuildingHealth += GET_PLAYER(getOwnerINLINE()).getExtraBuildingHealth(eBuilding);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-				if (iBuildingHealth != 0)
+-				{
+-					iValue += (std::min(iBuildingHealth, iBadHealth) * 12)
+-						+ (std::max(0, iBuildingHealth - iBadHealth) * iHealthModifier);
+-				}
+-
+-				iValue += (kBuilding.getAreaHealth() * iNumCitiesInArea * 4);
+-				iValue += (kBuilding.getGlobalHealth() * iNumCities * 4);
+-
+-				for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-				{
+-					if (hasBonus((BonusTypes)iI))
+-					{
+-						int iBonusHealthChange = kBuilding.getBonusHealthChanges(iI);
+-						iValue += (std::min(iBonusHealthChange, iBadHealth) * 12)
+-							+ (std::max(0, iBonusHealthChange - iBadHealth) * iHealthModifier);
+-					}
+-				}
+ 			}
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_EXPERIENCE) || (iPass > 0))
+@@ -3823,30 +3794,44 @@
+ 				{
+ 					iTempValue /= 3;
+ 				}
+-				
++
+ 
+ 				iValue += iTempValue;
+ 			}
+ 
+ 			if (iPass > 0)
+ 			{
+-				if (kBuilding.isAreaCleanPower())
+-				{
+-					iValue += (iNumCitiesInArea * 10); // XXX count cities without clean power???
+-				}
+-
+-				if (kBuilding.getDomesticGreatGeneralRateModifier() != 0)
+-				{
+-					iValue += (kBuilding.getDomesticGreatGeneralRateModifier() / 10);
+-				}
+-
+-				if (kBuilding.isAreaBorderObstacle())
+-				{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/07/10                       Afforess & jdog5000    */
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                       jdog5000 & Afforess    */
+ /*                                                                                              */
+ /* City AI                                                                                      */
+ /************************************************************************************************/
++				if (kBuilding.isAreaCleanPower() && !(area()->isCleanPower(getTeam())))
++				{
++					int iLoop;
++					for( CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop) )
++					{
++						if( pLoopCity->area() == area() )
++						{
++							if( pLoopCity->isDirtyPower() )
++							{
++								iValue += 12;
++							}
++							else if( !(pLoopCity->isPower()) )
++							{
++								iValue += 8;
++							}
++						}
++					}
++				}
++
++				if (kBuilding.getDomesticGreatGeneralRateModifier() != 0)
++				{
++					iValue += (kBuilding.getDomesticGreatGeneralRateModifier() / 10);
++				}
++
++				if (kBuilding.isAreaBorderObstacle() && !(area()->isBorderObstacle(getTeam())))
++				{
+ 					if( !GC.getGameINLINE().isOption(GAMEOPTION_NO_BARBARIANS) )
+ 					{
+ 						iValue += (iNumCitiesInArea);
+@@ -3856,10 +3841,10 @@
+ 							iValue += (iNumCitiesInArea);
+ 						}
+ 					}
++				}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-				}
+ 
+ 				if (kBuilding.isGovernmentCenter())
+ 				{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@525
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@526
+@@ -4526,7 +4526,7 @@
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.84b");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.90b");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@525
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@526
+@@ -7048,6 +7048,10 @@
+ 	iBestValue = 0;
+ 	eBestRoute = NO_ROUTE;
+ 
++	// BBAI TODO: Efficiency: Could cache this, decent savings on large maps
++	// Perhaps save best route type per player each turn, then just check that
++	// one first and only check others if can't do best.
++
+ 	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 	{
+ 		eRoute = ((RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute()));
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@525
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@526
+@@ -700,6 +700,22 @@
+ 	{
+ 		return;
+ 	}
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* AI Logging                                                                                   */
++/************************************************************************************************/
++	if( gPlayerLogLevel > 2 )
++	{
++		if( iStartingGold - getGold() > 0 )
++		{
++			logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
++		}
++	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       06/16/09                                jdog5000      */
+@@ -9352,23 +9368,40 @@
+ 			int iBombardValue = GC.getUnitInfo(eUnit).getBombardRate() * 4;
+ 			if (iBombardValue > 0)
+ 			{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* War strategy AI                                                                              */
++/************************************************************************************************/
++				// Army composition needs to scale with army size, bombard unit potency
++
+ 				//Percentage change
+ 				//Total Bombard == 0 : 600%
+ 				//Total Bombard == 100 : 200%
+ 				//Total Bombard == 200: 100%
+ 				//Total Bombard == 300: 50%
+ 				//Total Bombard == 400: 
+-				int iTotalBombardRate = AI_calculateTotalBombard(DOMAIN_LAND);
+-				if (iTotalBombardRate < 100)
+-				{
+-					iBombardValue *= 4 * (200 - iTotalBombardRate);
+-					iBombardValue /= 100;
++				int iTotalBombardValue = 4 * AI_calculateTotalBombard(DOMAIN_LAND);
++
++				int iNumBombardUnits = iTotalBombardValue / iBombardValue;
++				int iNumOffensiveUnits = AI_totalUnitAIs(UNITAI_ATTACK_CITY) + AI_totalUnitAIs(UNITAI_ATTACK) + AI_totalUnitAIs(UNITAI_COUNTER)/2;
++				int iAIDesiredBombardFraction = std::max( 10, GC.getDefineINT("BBAI_BOMBARD_ATTACK_STACK_FRACTION"));
++				int iActualBombardFraction = (100*iNumBombardUnits)/std::max(1, iNumOffensiveUnits);
++
++				if (iActualBombardFraction < iAIDesiredBombardFraction)
++				{
++					iBombardValue *= iAIDesiredBombardFraction + 20 * (iAIDesiredBombardFraction - iActualBombardFraction);
++					iBombardValue /= iAIDesiredBombardFraction;
+ 				}
+ 				else
+ 				{
+-					iBombardValue *= 100;
+-					iBombardValue /= std::min(400, iTotalBombardRate);
+-				}
++					iBombardValue *= iAIDesiredBombardFraction;
++					iBombardValue /= range(iActualBombardFraction,1,99);
++				}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 				iValue += iBombardValue;
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@525
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@526
+@@ -374,6 +374,8 @@
+ 
+ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz) const
+ {
++	PROFILE_FUNC();
++
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 	CvUnit* pBestUnit;
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@525
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@526
+@@ -26,6 +26,16 @@
+ #include "FProfiler.h"
+ #include "CvPopupInfo.h"
+ #include "CvArtFileMgr.h"
++
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* AI logging                                                                                   */
++/************************************************************************************************/
++#include "BetterBTSAI.h"
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ // Public Functions...
+ 
+@@ -7325,6 +7335,18 @@
+ 			pUpgradeUnit->setExperience(GC.getDefineINT("MAX_EXPERIENCE_AFTER_UPGRADE"));
+ 		}
+ 	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/24/10                                jdog5000      */
++/*                                                                                              */
++/* AI Logging                                                                                   */
++/************************************************************************************************/
++	if( gUnitLogLevel > 2 )
++	{
++		logBBAI("    %S spends %d to upgrade %S to %S", GET_PLAYER(getOwnerINLINE()).getCivilizationDescription(0), upgradePrice(eUnit), getName(0).GetCString(), pUpgradeUnit->getName(0).GetCString());
++	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@525
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@526
+@@ -2678,8 +2678,8 @@
+ 		//stack attack
+ 		if (getGroup()->getNumUnits() > 1)
+ 		{ 
+-			// BBAI TODO: 110 causes suicide sometimes ... 
+-			int iRatio = std::max( GC.getDefineINT("BBAI_ATTACK_CITY_STACK_RATIO"), 100 );
++			// BBAI TODO: What value here avoids suicides?
++			int iRatio = GC.getDefineINT("BBAI_ATTACK_CITY_STACK_RATIO");
+ 			if (AI_stackAttackCity(1, iRatio, true))
+ 			{
+ 				return;
+@@ -5361,18 +5361,17 @@
+ 	return;
+ }
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/23/10                                jdog5000      */
++/*                                                                                              */
++/* Pirate AI                                                                                    */
++/************************************************************************************************/
+ void CvUnitAI::AI_pirateSeaMove()
+ {
+ 	PROFILE_FUNC();
+ 
+ 	CvArea* pWaterArea;
+ 
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						7/3/08			jdog5000		*/
+-/* 																			*/
+-/* 	Naval AI																*/
+-/********************************************************************************/
+ 	// heal in defended, unthreatened forts and cities
+ 	if (plot()->isCity(true) && (GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(),0,true,false) > 0) && !(GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 2, false)) )
+ 	{
+@@ -5381,26 +5380,16 @@
+ 			return;
+ 		}
+ 	}
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
++
+ 	if (plot()->isOwned() && (plot()->getTeam() == getTeam()))
+ 	{
+-		if (AI_anyAttack(2, 30))
++		if (AI_anyAttack(2, 40))
+ 		{
+ 			return;			
+ 		}
+ 		
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
+-/*                                                                                              */
+-/* Pirate AI                                                                                    */
+-/************************************************************************************************/
+ 		//if (AI_protect(30))
+ 		if (AI_protect(40, 3))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		{
+ 			return;
+ 		}
+@@ -5408,25 +5397,11 @@
+ 
+ 		if (((AI_getBirthmark() / 8) % 2) == 0)
+ 		{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/03/09                                jdog5000      */
+-/*                                                                                              */
+-/* Pirate AI                                                                                    */
+-/************************************************************************************************/
+-/* original bts code
+-			if (AI_group(UNITAI_PIRATE_SEA, 1, 0))
+-			{
+-				return;
+-			}
+-*/
+ 			// Previously code actually blocked grouping
+ 			if (AI_group(UNITAI_PIRATE_SEA, -1, 1, -1, true, false, false, 8))
+ 			{
+ 				return;
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+ 	}
+ 	else
+@@ -5484,6 +5459,9 @@
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 
+ void CvUnitAI::AI_attackSeaMove()
+@@ -9662,7 +9640,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/14/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* Unit AI                                                                                      */
+ /************************************************************************************************/
+@@ -9704,6 +9682,16 @@
+ 	if (!AI_canGroupWithAIType(eUnitAI))
+ 	{
+ 		return false;
++	}
++
++	int iOurImpassableCount = 0;
++	CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++
++		iOurImpassableCount = std::max(iOurImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+ 	}
+ 
+ 	iBestValue = MAX_INT;
+@@ -9746,42 +9734,31 @@
+ 													{
+ 														if (!(pPlot->isVisibleEnemyUnit(this)))
+ 														{
++															if( iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
++															{
++																int iTheirImpassableCount = 0;
++																pUnitNode = pLoopGroup->headUnitNode();
++																while (pUnitNode != NULL)
++																{
++																	CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
++																	pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
++
++																	iTheirImpassableCount = std::max(iTheirImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
++																}
++
++																if( iOurImpassableCount != iTheirImpassableCount )
++																{
++																	continue;
++																}
++															}
++
+ 															if (generatePath(pPlot, 0, true, &iPathTurns))
+ 															{
+ 																if (iPathTurns <= iMaxPath)
+ 																{
+-																	int iOurImpassableCount = 0;
+-																	CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+-																	while (pUnitNode != NULL)
+-																	{
+-																		CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-																		pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+-
+-																		iOurImpassableCount = std::max(iOurImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+-																	}
+-
+-																	if( iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
+-																	{
+-																		int iTheirImpassableCount = 0;
+-																		pUnitNode = pLoopGroup->headUnitNode();
+-																		while (pUnitNode != NULL)
+-																		{
+-																			CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-																			pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
+-
+-																			iTheirImpassableCount = std::max(iTheirImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+-																		}
+-
+-																		if( iOurImpassableCount != iTheirImpassableCount )
+-																		{
+-																			continue;
+-																		}
+-																	}
+-
+ 																	iValue = 1000 * (iPathTurns + 1);
+ 																	iValue *= 4 + pLoopGroup->getCargo();
+ 																	iValue /= pLoopGroup->getNumUnits();
+-
+ 
+ 																	if (iValue < iBestValue)
+ 																	{
+@@ -13100,7 +13077,7 @@
+ 							// takes longer.  Therefore, check odds first.
+ 							iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
+ 
+-							if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
++							if ((iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold)) && (iValue*50 > iBestValue))
+ 							{
+ 								int iPathTurns;
+ 								if( generatePath(pLoopPlot, 0, true, &iPathTurns) )
+@@ -14227,10 +14204,9 @@
+ /* War Tactics AI                                                                               */
+ /************************************************************************************************/
+ 		// If we have reasonable odds, check for attacking without waiting for bombards
+-		if( iAttackOdds > std::max(1, GC.getDefineINT("BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS")) )
++		if( iAttackOdds > GC.getDefineINT("BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS") )
+ 		{
+ 			int iBase = GC.getDefineINT("BBAI_SKIP_BOMBARD_BASE_STACK_RATIO");
+-			iBase = ((iBase == 0) ? 300 : iBase);
+ 			int iComparison = getGroup()->AI_compareStacks(pBombardCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+ 			
+ 			// Big troop advantage plus pretty good starting odds, don't wait to allow reinforcements
+@@ -14240,7 +14216,6 @@
+ 			}
+ 
+ 			int iMin = GC.getDefineINT("BBAI_SKIP_BOMBARD_MIN_STACK_RATIO");
+-			iMin = ((iMin == 0) ? 140 : iMin);
+ 			// Bombard at least one turn to allow bombers/ships to get some shots in too
+ 			if( (getFortifyTurns() > 0) && (pBombardCity->getDefenseDamage() > ((GC.getMAX_CITY_DEFENSE_DAMAGE()) / 5)) )
+ 			{
+@@ -14383,10 +14358,19 @@
+ 				{
+ 					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
+ 					{
+-						if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++						if (pLoopPlot->getNumVisibleEnemyDefenders(this) >= iMinStack)
+ 						{
+-							if (pLoopPlot->getNumVisibleEnemyDefenders(this) >= iMinStack)
++							if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 							{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++ 
+ 								iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
+ 
+ 								if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
+@@ -14518,10 +14502,19 @@
+ 				{
+ 					if (pLoopPlot->isVisibleEnemyUnit(this) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 					{
+-						if (!atPlot(pLoopPlot) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange)))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++						if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0)
+ 						{
+-							if (pLoopPlot->getNumVisibleEnemyDefenders(this) > 0)
++							if (!atPlot(pLoopPlot) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange)))
+ 							{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++						
+ 								iValue = getGroup()->AI_attackOdds(pLoopPlot, true);
+ 
+ 								if (iValue >= AI_finalOddsThreshold(pLoopPlot, iOddsThreshold))
+@@ -15179,7 +15172,13 @@
+ 
+ 		if (AI_plotValid(pLoopPlot) && !(pLoopPlot->isBarbarian()))
+ 		{
+-			if (potentialWarAction(pLoopPlot))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
++/*                                                                                              */
++/* Unit AI, Efficiency                                                                          */
++/************************************************************************************************/
++			//if (potentialWarAction(pLoopPlot))
++			if( pLoopPlot->isOwned() && isEnemy(pLoopPlot->getTeam(),pLoopPlot) )
+ 			{
+ 			    CvCity * pWorkingCity = pLoopPlot->getWorkingCity();
+ 
+@@ -15191,34 +15190,39 @@
+                         {
+                             if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_PILLAGE, getGroup(), 1) == 0)
+                             {
+-                                if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+-                                {
+-                                    iValue = AI_pillageValue(pLoopPlot, iBonusValueThreshold);
+-
+-                                    iValue *= 1000;
+-
+-                                    iValue /= (iPathTurns + 1);
+-
+-									// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
+-									// (because declaring war will pop us some unknown distance away)
+-									if (!isEnemy(pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++								iValue = AI_pillageValue(pLoopPlot, iBonusValueThreshold);
++								iValue *= 1000;
++
++								// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
++								// (because declaring war will pop us some unknown distance away)
++								if (!isEnemy(pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++								{
++									iValue /= 10;
++								}
++
++								if( iValue > iBestValue )
++								{
++									if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 									{
+-										iValue /= 10;
++										iValue /= (iPathTurns + 1);
++
++										if (iValue > iBestValue)
++										{
++											iBestValue = iValue;
++											pBestPlot = getPathEndTurnPlot();
++											pBestPillagePlot = pLoopPlot;
++										}
+ 									}
+-
+-                                    if (iValue > iBestValue)
+-                                    {
+-                                        iBestValue = iValue;
+-                                        pBestPlot = getPathEndTurnPlot();
+-                                        pBestPillagePlot = pLoopPlot;
+-                                    }
+                                 }
+-                            }
++							}
+                         }
+                     }
+ 			    }
+ 			}
+ 		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	}
+ 
+ 	if ((pBestPlot != NULL) && (pBestPillagePlot != NULL))
+@@ -16909,7 +16913,18 @@
+ 
+ 								if (iPathTurns == 1)
+ 								{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/22/10                                jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 									iValue *= 2;
++*/
++									iCorpValue *= 2;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 								}
+ 
+ 								iCorpValue *= 1000;
+@@ -17022,15 +17037,22 @@
+ 			if (pLoopPlot->getOwnerINLINE() == eBestPlayer)
+ 			{
+ 				iValue = pLoopPlot->area()->getCitiesPerPlayer(eBestPlayer);
+-
+-				if (iValue > 0)
+-				{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/23/10                                jdog5000      */
++/*                                                                                              */
++/* Efficiency                                                                                   */
++/************************************************************************************************/
++				iValue *= 1000;
++
++				if (iValue > iBestValue)
++				{
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 					if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ATTACK_SPY, getGroup(), 4) == 0)
+ 					{
+ 						if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 						{
+-							iValue *= 1000;
+-
+ 							iValue /= (iPathTurns + 1);
+ 
+ 							if (iValue > iBestValue)
+@@ -17091,8 +17113,6 @@
+ 	int iDX, iDY;
+ 	int iI;
+ 
+-	// XXX maybe protect land troops?
+-
+ 	iMaxAirRange = 0;
+ 
+ 	std::vector<CvUnit*> aCargoUnits;
+@@ -17111,6 +17131,11 @@
+ 	pBestPlot = NULL;
+ 	pBestCarrierPlot = NULL;
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
++/*                                                                                              */
++/* Naval AI, War tactics, Efficiency                                                            */
++/************************************************************************************************/
+ 	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+@@ -17119,71 +17144,81 @@
+ 		{
+ 			if (pLoopPlot->isAdjacentToLand())
+ 			{
+-				iValue = 0;
+-
+-				for (iDX = -(iMaxAirRange); iDX <= iMaxAirRange; iDX++)
+-				{
+-					for (iDY = -(iMaxAirRange); iDY <= iMaxAirRange; iDY++)
++				if (!(pLoopPlot->isVisibleEnemyUnit(this)))
++				{
++					iValue = 0;
++
++					for (iDX = -(iMaxAirRange); iDX <= iMaxAirRange; iDX++)
+ 					{
+-						pLoopPlotAir = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iDX, iDY);
+-
+-						if (pLoopPlotAir != NULL)
++						for (iDY = -(iMaxAirRange); iDY <= iMaxAirRange; iDY++)
+ 						{
+-							if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pLoopPlotAir->getX_INLINE(), pLoopPlotAir->getY_INLINE()) <= iMaxAirRange)
++							pLoopPlotAir = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iDX, iDY);
++
++							if (pLoopPlotAir != NULL)
+ 							{
+-								if (!(pLoopPlotAir->isBarbarian()))
++								if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pLoopPlotAir->getX_INLINE(), pLoopPlotAir->getY_INLINE()) <= iMaxAirRange)
+ 								{
+-									if (potentialWarAction(pLoopPlotAir))
++									if (!(pLoopPlotAir->isBarbarian()))
+ 									{
+-										if (pLoopPlotAir->isCity())
++										if (potentialWarAction(pLoopPlotAir))
+ 										{
+-											iValue++;
+-										}
+-
+-										if (pLoopPlotAir->getImprovementType() != NO_IMPROVEMENT)
+-										{
+-											iValue ++;
++											if (pLoopPlotAir->isCity())
++											{
++												iValue += 3;
++
++												// BBAI: Support invasions
++												iValue += (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlotAir, MISSIONAI_ASSAULT, getGroup(), 2) * 6);
++											}
++
++											if (pLoopPlotAir->getImprovementType() != NO_IMPROVEMENT)
++											{
++												iValue += 2;
++											}
++
++											if (plotDistance(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), pLoopPlotAir->getX_INLINE(), pLoopPlotAir->getY_INLINE()) <= iMaxAirRange/2)
++											{
++												// BBAI: Support/air defense for land troops
++												iValue += pLoopPlotAir->plotCount(PUF_canDefend, -1, -1, getOwnerINLINE());
++											}
+ 										}
+ 									}
+ 								}
+ 							}
+ 						}
+ 					}
+-				}
+-
+-				if (iValue > 0)
+-				{
+-					if (!(pLoopPlot->isVisibleEnemyUnit(this)))
++
++					if( iValue > 0 )
+ 					{
+-						bool bStealth = (getInvisibleType() != NO_INVISIBLE);
+-						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_CARRIER, getGroup(), bStealth ? 5 : 3) <= (bStealth ? 0 : 3))
++						iValue *= 1000;
++
++						for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
+ 						{
+-							if (generatePath(pLoopPlot, 0, true, &iPathTurns))
++							CvPlot* pDirectionPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), (DirectionTypes)iDirection);
++							if (pDirectionPlot != NULL)
+ 							{
+-								iValue *= 1000;
+-								
+-								for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
++								if (pDirectionPlot->isCity() && isEnemy(pDirectionPlot->getTeam(), pLoopPlot))
+ 								{
+-									CvPlot* pDirectionPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), (DirectionTypes)iDirection);
+-									if (pDirectionPlot != NULL)
++									iValue /= 2;
++									break;
++								}
++							}
++						}
++
++						if (iValue > iBestValue)
++						{
++							bool bStealth = (getInvisibleType() != NO_INVISIBLE);
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_CARRIER, getGroup(), bStealth ? 5 : 3) <= (bStealth ? 0 : 3))
++							{
++								if (generatePath(pLoopPlot, 0, true, &iPathTurns))
++								{
++									iValue /= (iPathTurns + 1);
++
++									if (iValue > iBestValue)
+ 									{
+-										if (pDirectionPlot->isCity() && isEnemy(pDirectionPlot->getTeam(), pLoopPlot))
+-										{
+-											iValue /= 2;
+-											break;
+-										}
++										iBestValue = iValue;
++										pBestPlot = getPathEndTurnPlot();
++										pBestCarrierPlot = pLoopPlot;
+ 									}
+-								}
+-
+-								iValue += (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_ASSAULT, getGroup(), 2) * 2000);
+-
+-								iValue /= (iPathTurns + 1);
+-
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									pBestPlot = getPathEndTurnPlot();
+-									pBestCarrierPlot = pLoopPlot;
+ 								}
+ 							}
+ 						}
+@@ -17192,6 +17227,9 @@
+ 			}
+ 		}
+ 	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	if ((pBestPlot != NULL) && (pBestCarrierPlot != NULL))
+ 	{
+@@ -17572,7 +17610,7 @@
+ 		if (pLoopCity != pCity)
+ 		{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* Worker AI, Efficiency                                                                        */
+ /************************************************************************************************/
+@@ -17581,9 +17619,6 @@
+ 			{
+ 				continue;
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 			//iValue = pLoopCity->AI_totalBestBuildValue(area());
+ 			int iWorkersNeeded = pLoopCity->AI_getWorkersNeeded();
+@@ -17601,23 +17636,34 @@
+ 					FAssert(pPlot != NULL);
+ 					FAssert(eBuild != NO_BUILD);
+ 
+-					iValue *= 1000;
+-
+-					if (pLoopCity->isCapital())
++					if( AI_plotValid(pPlot) )
+ 					{
+-					    iValue *= 2;
++						iValue *= 1000;
++
++						if (pLoopCity->isCapital())
++						{
++							iValue *= 2;
++						}
++
++						if( iValue > iBestValue )
++						{
++							if( generatePath(pPlot, 0, true, &iPathTurns) )
++							{
++								iValue /= (iPathTurns + 1);
++
++								if (iValue > iBestValue)
++								{
++									iBestValue = iValue;
++									eBestBuild = eBuild;
++									pBestPlot = pPlot;
++									FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
++								}
++							}
++						}
+ 					}
+-
+-					generatePath(pPlot, 0, true, &iPathTurns);
+-					iValue /= (iPathTurns + 1);
+-
+-					if (iValue > iBestValue)
+-					{
+-						iBestValue = iValue;
+-						eBestBuild = eBuild;
+-						pBestPlot = pPlot;
+-						FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
+-					}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				}
+ 			}
+ 		}
+@@ -18534,7 +18580,7 @@
+ 		if (AI_plotValid(pLoopCity->plot()))
+ 		{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* Unit AI, Efficiency                                                                          */
+ /************************************************************************************************/
+@@ -18543,22 +18589,22 @@
+ 			{
+ 				continue;
+ 			}
++
++			pRouteToCity = pLoopCity->AI_getRouteToCity();
++
++			if (pRouteToCity != NULL)
++			{
++				if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
++				{
++					if (!(pRouteToCity->plot()->isVisibleEnemyUnit(this)))
++					{
++						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pRouteToCity->plot(), MISSIONAI_BUILD, getGroup()) == 0)
++						{
++							if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY, true))
++							{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-			pRouteToCity = pLoopCity->AI_getRouteToCity();
+-
+-			if (pRouteToCity != NULL)
+-			{
+-				if (!(pLoopCity->plot()->isVisibleEnemyUnit(this)))
+-				{
+-					if (generatePath(pLoopCity->plot(), MOVE_SAFE_TERRITORY, true))
+-					{
+-						if (!(pRouteToCity->plot()->isVisibleEnemyUnit(this)))
+-						{
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pRouteToCity->plot(), MISSIONAI_BUILD, getGroup()) == 0)
+-							{
+ 								if (generatePath(pRouteToCity->plot(), MOVE_SAFE_TERRITORY, true))
+ 								{
+ 									getGroup()->pushMission(MISSION_ROUTE_TO, pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), MOVE_SAFE_TERRITORY, false, false, MISSIONAI_BUILD, pRouteToCity->plot());
+@@ -19215,7 +19261,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/18/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* Naval AI                                                                                     */
+ /************************************************************************************************/
+@@ -19279,13 +19325,14 @@
+ 				continue;
+ 			}
+ 
++			// Units are stranded, attempt rescue
++
+ 			iCount = pLoopGroup->getNumUnits();
+ 			
+-			// Units are stranded, attempt rescue
+-			if ( atPlot(pLoopPlot) || GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pHeadUnit, MISSIONAI_PICKUP, getGroup()) < ((iCount + (cargoSpace() - 1)) / cargoSpace()))
++			if( 1000*iCount > iBestValue )
+ 			{
+ 				pPickupPlot = NULL;
+-				if( atPlot(pLoopPlot) || generatePath(pLoopPlot, 0, true, &iPathTurns) )
++				if( atPlot(pLoopPlot) || (AI_plotValid(pLoopPlot) && generatePath(pLoopPlot, 0, true, &iPathTurns)) )
+ 				{
+ 					pPickupPlot = pLoopPlot;
+ 				}
+@@ -19295,7 +19342,7 @@
+ 					{
+ 						pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iI));
+ 
+-						if (pAdjacentPlot != NULL)
++						if (pAdjacentPlot != NULL && AI_plotValid(pAdjacentPlot))
+ 						{
+ 							if( generatePath(pAdjacentPlot, 0, true, &iPathTurns) )
+ 							{
+@@ -19306,13 +19353,16 @@
+ 					}
+ 				}
+ 
+-				if( pPickupPlot != NULL )
+-				{
++				if( pPickupPlot != NULL && iPathTurns <= iMaxPath )
++				{
++					MissionAITypes eMissionAIType = MISSIONAI_PICKUP;
++					iCount -= GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pHeadUnit, &eMissionAIType, 1, getGroup(), iPathTurns) * cargoSpace();
++
+ 					iValue = 1000*iCount;
+ 
+ 					iValue /= (iPathTurns + 1);
+ 
+-					if (iValue > iBestValue && iPathTurns <= iMaxPath)
++					if (iValue > iBestValue)
+ 					{
+ 						iBestValue = iValue;
+ 						pBestUnit = pHeadUnit;
+@@ -20967,7 +21017,7 @@
+ 				if (canInfiltrate(pLoopCity->plot()))
+ 				{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* Unit AI, Efficiency                                                                          */
+ /************************************************************************************************/
+@@ -20976,13 +21026,13 @@
+ 					{
+ 						continue;
+ 					}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 					iValue = getEspionagePoints(pLoopCity->plot());
+ 					
+-					if (iValue > 0)
++					if (iValue > iBestValue)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 					{
+ 						if (generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+ 						{
+@@ -21452,6 +21502,7 @@
+ 			}			
+ 		}		
+ 	}
++
+ 	if (iWarCount > 1)
+ 	{
+ 		eTargetTeam = NO_TEAM;
+@@ -21461,7 +21512,7 @@
+ 	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 	{
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/19/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/22/10                                jdog5000      */
+ /*                                                                                              */
+ /* War tactics AI, Efficiency                                                                   */
+ /************************************************************************************************/
+@@ -21471,6 +21522,7 @@
+ 			// BBAI TODO: Need some knowledge of whether this is a good city to attack from ... only get that
+ 			// indirectly from threat.
+ 			iValue = pLoopCity->AI_cityThreat();
++
+ 			// Have attack stacks in assault areas move to coastal cities for faster loading
+ 			if( (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING) )
+ 			{
+@@ -21498,12 +21550,12 @@
+ 					iValue = iValue/8;
+ 				}
+ 			}
++
++			if (iValue*200 > iBestValue)
++			{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+-			if (iValue > 0)
+-			{
+ 				if (generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+ 				{
+ 					iValue *= 1000;
+

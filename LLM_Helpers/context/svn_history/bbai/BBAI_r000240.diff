@@ -1,0 +1,80 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 240
+# Author: blakeciv
+# Date: 2007-01-04T23:10:20.610148Z
+# Coverage: full
+# Message:
+#   Lag issue resolved by caching the NeededFloatingDefenders.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@239
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@240
+@@ -182,6 +182,9 @@
+ 	}
+ 	m_iCachePlayerClosenessTurn = -1;
+ 	m_iCachePlayerClosenessDistance = -1;
++	
++	m_iNeededFloatingDefenders = -1;
++	m_iNeededFloatingDefendersCacheTurn = -1;
+ 
+ 	FAssertMsg(m_pbEmphasize == NULL, "m_pbEmphasize not NULL!!!");
+ 	FAssertMsg(GC.getNumEmphasizeInfos() > 0,  "GC.getNumEmphasizeInfos() is not greater than zero but an array is being allocated in CvCityAI::AI_reset");
+@@ -3771,6 +3774,15 @@
+ 
+ int CvCityAI::AI_neededFloatingDefenders()
+ {
++	if (m_iNeededFloatingDefendersCacheTurn != GC.getGame().getGameTurn())
++	{
++		AI_updateNeededFloatingDefenders();
++	}
++	return m_iNeededFloatingDefenders;	
++}
++
++void CvCityAI::AI_updateNeededFloatingDefenders()
++{
+ 	int iDefenders = 0;
+ 	
+ 	int iFloatingDefenders = GET_PLAYER(getOwnerINLINE()).AI_getTotalFloatingDefendersNeeded(area());
+@@ -3782,11 +3794,10 @@
+ 	iFloatingDefenders *= AI_cityThreat();
+ 	iFloatingDefenders += (iTotalThreat / 2);
+ 	iFloatingDefenders /= iTotalThreat;
+-	
+-	iDefenders += iFloatingDefenders;
+-	
+-	return iDefenders;
+-	
++
++	
++	m_iNeededFloatingDefenders = iFloatingDefenders;
++	m_iNeededFloatingDefendersCacheTurn = GC.getGame().getGameTurn();
+ }
+ 
+ int CvCityAI::AI_neededAirDefenders()
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@239
++++ /trunk/CvGameCoreDLL/CvCityAI.h@240
+@@ -56,6 +56,7 @@
+ 	DllExport int AI_neededDefenders();
+ 	DllExport int AI_neededAirDefenders();
+ 	int AI_neededFloatingDefenders();
++	void AI_updateNeededFloatingDefenders();
+ 
+ 	DllExport int AI_getEmphasizeAvoidGrowthCount();
+ 	DllExport bool AI_isEmphasizeAvoidGrowth();
+@@ -138,6 +139,9 @@
+ 	int m_iCachePlayerClosenessDistance;
+ 	int* m_aiPlayerCloseness;
+ 	
++	int m_iNeededFloatingDefenders;
++	int m_iNeededFloatingDefendersCacheTurn;
++	
+ 
+ 	void AI_doDraft(bool bForce = false);
+ 	void AI_doHurry(bool bForce = false);
+

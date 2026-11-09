@@ -1,0 +1,68 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 291
+# Author: blakeciv
+# Date: 2007-01-24T20:04:12.954647Z
+# Coverage: full
+# Message:
+#   Changed the way warRand is used for TotalWar when the AI has an expensive army - in short, much more likely to attack.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@290
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@291
+@@ -3074,6 +3074,26 @@
+ 		}
+ 	}
+ 	
++	int iNumMembers = getNumMembers();
++	int iHighUnitSpendingPercent = 0;
++	int iLowUnitSpendingPercent = 0;
++	
++	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			{
++				int iUnitSpendingPercent = (GET_PLAYER((PlayerTypes)iI).calculateUnitCost() * 100) / max(1, GET_PLAYER((PlayerTypes)iI).calculatePreInflatedCosts());
++				iHighUnitSpendingPercent += (max(0, iUnitSpendingPercent - 7) / 2);
++				iLowUnitSpendingPercent += iUnitSpendingPercent;
++			}			
++		}
++	}
++	
++	iHighUnitSpendingPercent /= iNumMembers;
++	iLowUnitSpendingPercent /= iNumMembers;
++	
+ 	// if at war, check for making peace
+ 	if (getAtWarCount(true) > 0) // XXX
+ 	{
+@@ -3168,7 +3188,6 @@
+ 	    int iDogpileWarRand = AI_dogpileWarRand();
+ 	    
+ 	    int iNumVassals = getVassalCount();
+-	    int iNumMembers = getNumMembers();
+ 	    
+ 	    iMaxWarRand *= iNumMembers;
+ 	    iMaxWarRand /= (iNumMembers + iNumVassals);
+@@ -3178,6 +3197,8 @@
+ 	    
+ 	    iDogpileWarRand *= iNumMembers;
+ 	    iDogpileWarRand /= (iNumMembers + iNumVassals);
++	    
++	    int iWarRandThreshold = iHighUnitSpendingPercent;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -3239,7 +3260,7 @@
+ 			}
+ 
+ 			if ((bFinancesProMaxWar || !bFinancesOpposeWar) &&
+-				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") == 0))
++				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") >= iWarRandThreshold))
+ 			{
+ 				iNoWarRoll = GC.getGameINLINE().getSorenRandNum(100, "AI No War") - 0;
+ 				iNoWarRoll = range(iNoWarRoll + (bAggressive ? 10 : 0) + (bFinancesProMaxWar ? 10 : 0), 0, 99);
+

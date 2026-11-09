@@ -1,0 +1,4724 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 474
+# Author: jdog5000
+# Date: 2009-06-25T20:17:00.458878Z
+# Coverage: full
+# Message:
+#   Added files new in BTS 3.19
+# Changed paths (17):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   A /trunk/CvGameCoreDLL/CvDllPythonEvents.cpp
+#   A /trunk/CvGameCoreDLL/CvDllPythonEvents.h
+#   A /trunk/CvGameCoreDLL/CvDllTranslator.cpp
+#   A /trunk/CvGameCoreDLL/CvDllTranslator.h
+#   A /trunk/CvGameCoreDLL/CvEventReporter.cpp
+#   A /trunk/CvGameCoreDLL/CvEventReporter.h
+#   A /trunk/CvGameCoreDLL/CvMessageControl.cpp
+#   A /trunk/CvGameCoreDLL/CvMessageControl.h
+#   A /trunk/CvGameCoreDLL/CvMessageData.cpp
+#   A /trunk/CvGameCoreDLL/CvMessageData.h
+#   A /trunk/CvGameCoreDLL/CvStatistics.cpp
+#   A /trunk/CvGameCoreDLL/CvStatistics.h
+#   A /trunk/CvGameCoreDLL/CyMessageControl.cpp
+#   A /trunk/CvGameCoreDLL/CyMessageControl.h
+#   A /trunk/CvGameCoreDLL/CyMessageControlInterface.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDllPythonEvents.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvDllPythonEvents.cpp@474
+@@ -0,0 +1,1159 @@
++#include "CvGameCoreDLL.h"
++#include "CvDllPythonEvents.h"
++#include "CvDLLEngineIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CyArgsList.h"
++#include "CyUnit.h"
++#include "CyPlot.h"
++
++bool CvDllPythonEvents::preEvent()
++{
++	return gDLL->getPythonIFace()->isInitialized();
++}
++
++bool CvDllPythonEvents::postEvent(CyArgsList& eventData)
++{
++	eventData.add(GC.getGameINLINE().isDebugMode());
++	eventData.add(false);
++	eventData.add(gDLL->altKey());
++	eventData.add(gDLL->ctrlKey());
++	eventData.add(gDLL->shiftKey());
++	eventData.add(gDLL->getChtLvl() > 0);
++
++	long lResult = -1;
++	bool bOK = gDLL->getPythonIFace()->callFunction(PYEventModule, "onEvent", eventData.makeFunctionArgs(), &lResult);
++
++	return (bOK && lResult==1);
++}
++
++bool CvDllPythonEvents::reportKbdEvent(int evt, int key, int iCursorX, int iCursorY)
++{
++	if (preEvent())
++	{
++		NiPoint3 pt3Location;
++		CvPlot* pPlot = gDLL->getEngineIFace()->pickPlot(iCursorX, iCursorY, pt3Location);
++		CyArgsList eventData;
++		eventData.add("kbdEvent");
++		eventData.add(evt);
++		eventData.add(key);
++		eventData.add(iCursorX);
++		eventData.add(iCursorY);
++		eventData.add(pPlot ? pPlot->getX() : -1);
++		eventData.add(pPlot ? pPlot->getY() : -1);
++
++		return postEvent(eventData);
++	}
++	return false;
++}
++
++bool CvDllPythonEvents::reportMouseEvent(int evt, int iCursorX, int iCursorY, bool bInterfaceConsumed)
++{
++	if (preEvent())
++	{
++		NiPoint3 pt3Location;
++		CvPlot* pPlot = gDLL->getEngineIFace()->pickPlot(iCursorX, iCursorY, pt3Location);
++		CyArgsList eventData;
++		eventData.add("mouseEvent");				// add key to lookup python handler fxn
++		eventData.add(evt);
++		eventData.add(iCursorX);
++		eventData.add(iCursorY);
++		eventData.add(pPlot ? pPlot->getX() : -1);
++		eventData.add(pPlot ? pPlot->getY() : -1);
++		eventData.add(bInterfaceConsumed);
++
++		// add list of active screens
++		std::vector<int> screens;
++		gDLL->getInterfaceIFace()->getInterfaceScreenIdsForInput(screens);
++		eventData.add(screens.size() ? &screens[0] : NULL, screens.size());
++
++		return postEvent(eventData);
++	}
++	return false;
++}
++
++void CvDllPythonEvents::reportModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("ModNetMessage");				// add key to lookup python handler fxn
++		eventData.add(iData1);
++		eventData.add(iData2);
++		eventData.add(iData3);
++		eventData.add(iData4);
++		eventData.add(iData5);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportInit()
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("Init");				// add key to lookup python handler fxn
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportUpdate(float fDeltaTime)
++{
++	if (preEvent())
++	{
++		if(GC.getUSE_ON_UPDATE_CALLBACK())
++		{
++			CyArgsList eventData;
++			eventData.add("Update");				// add key to lookup python handler fxn
++			eventData.add(fDeltaTime);
++			postEvent(eventData);
++		}
++	}
++}
++
++void CvDllPythonEvents::reportUnInit()
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("UnInit");				// add key to lookup python handler fxn
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportGameStart()
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("GameStart");				// add key to lookup python handler fxn
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportGameEnd()
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("GameEnd");				// add key to lookup python handler fxn
++		postEvent(eventData);
++	}
++}
++
++
++void CvDllPythonEvents::reportWindowActivation(bool bActive)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("windowActivation");
++		eventData.add(bActive);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportBeginGameTurn(int iGameTurn)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("BeginGameTurn");				// add key to lookup python handler fxn
++		eventData.add(iGameTurn);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportEndGameTurn(int iGameTurn)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("EndGameTurn");				// add key to lookup python handler fxn
++		eventData.add(iGameTurn);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportBeginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("BeginPlayerTurn");				// add key to lookup python handler fxn
++		eventData.add(iGameTurn);
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportEndPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("EndPlayerTurn");				// add key to lookup python handler fxn
++		eventData.add(iGameTurn);
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportFirstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("firstContact");				// add key to lookup python handler fxn
++		eventData.add((int)eTeamID1);
++		eventData.add((int)eTeamID2);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportCombatResult(CvUnit* pWinner, CvUnit* pLoser)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("combatResult");				// add key to lookup python handler fxn
++
++		CyUnit* pCyWinner = new CyUnit(pWinner);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyWinner));
++
++		CyUnit* pCyLoser = new CyUnit(pLoser);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyLoser));
++
++		postEvent(eventData);
++		delete pCyLoser;
++		delete pCyWinner;
++	}
++}
++
++void CvDllPythonEvents::reportImprovementBuilt(int iImprovementType, int iX, int iY)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("improvementBuilt");				// add key to lookup python handler fxn
++		eventData.add(iImprovementType);
++		eventData.add(iX);
++		eventData.add(iY);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportImprovementDestroyed(int iImprovementType, int iPlayer, int iX, int iY)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("improvementDestroyed");				// add key to lookup python handler fxn
++		eventData.add(iImprovementType);
++		eventData.add(iPlayer);
++		eventData.add(iX);
++		eventData.add(iY);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportRouteBuilt(int iRouteType, int iX, int iY)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("routeBuilt");				// add key to lookup python handler fxn
++		eventData.add(iRouteType);
++		eventData.add(iX);
++		eventData.add(iY);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportChat(CvWString szString)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("chat");							// add key to lookup python handler fxn
++		eventData.add(szString);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportPlotRevealed(CvPlot *pPlot, TeamTypes eTeam)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("plotRevealed");						// add key to lookup python handler fxn
++
++		CyPlot* pCyPlot = new CyPlot(pPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++		eventData.add((int)eTeam);
++
++		postEvent(eventData);
++		delete pCyPlot;
++	}
++}
++
++void CvDllPythonEvents::reportPlotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFeature, CvCity* pCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("plotFeatureRemoved");						// add key to lookup python handler fxn
++
++		CyPlot* pCyPlot = new CyPlot(pPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++		CyCity* pCyCity= new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++		eventData.add((int)eFeature);
++
++		postEvent(eventData);
++		delete pCyPlot;
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportPlotPicked(CvPlot *pPlot)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("plotPicked");						// add key to lookup python handler fxn
++
++		CyPlot* pCyPlot = new CyPlot(pPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++
++		postEvent(eventData);
++		delete pCyPlot;
++	}
++}
++
++void CvDllPythonEvents::reportNukeExplosion(CvPlot *pPlot, CvUnit* pNukeUnit)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("nukeExplosion");						// add key to lookup python handler fxn
++
++		CyPlot* pCyPlot = new CyPlot(pPlot);
++		CyUnit* pCyUnit = new CyUnit(pNukeUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++
++		postEvent(eventData);
++		delete pCyPlot;
++		delete pCyUnit;
++	}
++}
++
++void CvDllPythonEvents::reportGotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("gotoPlotSet");						// add key to lookup python handler fxn
++
++		CyPlot* pCyPlot = new CyPlot(pPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++		eventData.add((int) ePlayer);
++
++		postEvent(eventData);
++		delete pCyPlot;
++	}
++}
++
++void CvDllPythonEvents::reportCityBuilt( CvCity *pCity )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityBuilt");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityRazed( CvCity *pCity, PlayerTypes ePlayer )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityRazed");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++		eventData.add((int)ePlayer);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityAcquired(PlayerTypes eOldOwner, PlayerTypes ePlayer, CvCity* pOldCity, bool bConquest, bool bTrade)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityAcquired");					// add key to lookup python handler fxn
++		eventData.add((int)eOldOwner);
++		eventData.add((int)ePlayer);
++
++		CyCity* pCyCity = new CyCity(pOldCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add(bConquest);
++		eventData.add(bTrade);
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityAcquiredAndKept(PlayerTypes ePlayer, CvCity* pOldCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityAcquiredAndKept");					// add key to lookup python handler fxn
++		eventData.add((int)ePlayer);
++
++		CyCity* pCyCity = new CyCity(pOldCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityLost(CvCity* pCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityLost");						// add key to lookup python handler fxn
++
++		CyCity* pyu = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportCultureExpansion( CvCity *pCity, PlayerTypes ePlayer )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cultureExpansion");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) ePlayer);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityGrowth( CvCity *pCity, PlayerTypes ePlayer )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityGrowth");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) ePlayer);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityProduction( CvCity *pCity, PlayerTypes ePlayer )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityDoTurn");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) ePlayer);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityBuildingUnit( CvCity *pCity, UnitTypes eUnitType )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityBuildingUnit");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) eUnitType);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityBuildingBuilding( CvCity *pCity, BuildingTypes eBuildingType )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityBuildingBuilding");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) eBuildingType);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityRename( CvCity *pCity )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityRename");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportCityHurry( CvCity *pCity, HurryTypes eHurry )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("cityHurry");						// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add((int) eHurry);
++
++		postEvent(eventData);
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportSelectionGroupPushMission(CvSelectionGroup* pSelectionGroup, MissionTypes eMission)
++{
++	if (NULL == pSelectionGroup)
++	{
++		return;
++	}
++
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("selectionGroupPushMission");						// add key to lookup python handler fxn
++		eventData.add(pSelectionGroup->getOwner());
++		eventData.add(eMission);
++		int iNumUnits = pSelectionGroup->getNumUnits();
++		eventData.add(iNumUnits);
++
++		int* aiUnitIds = new int[iNumUnits];
++		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
++		for (int i = 0; pUnitNode; i++)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode);
++			aiUnitIds[i] = pLoopUnit->getID();
++			FAssert(i < iNumUnits);
++		}
++
++		if (aiUnitIds)
++		{
++			eventData.add(aiUnitIds, iNumUnits);
++		}
++
++		postEvent(eventData);
++
++		delete aiUnitIds;
++	}
++}
++
++void CvDllPythonEvents::reportUnitMove(CvPlot* pPlot, CvUnit* pUnit, CvPlot* pOldPlot)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitMove");						// add key to lookup python handler fxn
++
++		CyPlot* py = new CyPlot(pPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
++
++		CyUnit* pyu = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		CyPlot* pyOld = new CyPlot(pOldPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyOld));
++
++		postEvent(eventData);
++
++		delete py;
++		delete pyu;
++		delete pyOld;
++	}
++}
++
++void CvDllPythonEvents::reportUnitSetXY(CvPlot* pPlot, CvUnit* pUnit)
++{
++	if (preEvent())
++	{
++		if(GC.getUSE_ON_UNIT_SET_XY_CALLBACK())
++		{
++			CyArgsList eventData;
++			eventData.add("unitSetXY");						// add key to lookup python handler fxn
++
++			CyPlot* py = new CyPlot(pPlot);
++			eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
++
++			CyUnit* pyu = new CyUnit(pUnit);
++			eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++			postEvent(eventData);
++
++			delete py;
++			delete pyu;
++		}
++	}
++}
++
++void CvDllPythonEvents::reportUnitCreated(CvUnit* pUnit)
++{
++	if (preEvent())
++	{
++		if(GC.getUSE_ON_UNIT_CREATED_CALLBACK())
++		{
++			CyArgsList eventData;
++			eventData.add("unitCreated");						// add key to lookup python handler fxn
++
++			CyUnit* pyu = new CyUnit(pUnit);
++			eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++			postEvent(eventData);
++			delete pyu;
++		}
++	}
++}
++
++void CvDllPythonEvents::reportUnitBuilt(CvCity *pCity, CvUnit* pUnit)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitBuilt");						// add key to lookup python handler fxn
++
++		CyCity* pyc = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyc));
++
++		CyUnit* pyu = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++
++		delete pyc;
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportUnitKilled(CvUnit* pUnit, PlayerTypes eAttacker)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitKilled");						// add key to lookup python handler fxn
++
++		CyUnit* pyu = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++		eventData.add((int)eAttacker);
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportUnitLost(CvUnit* pUnit)
++{
++	if (preEvent())
++	{
++		if(GC.getUSE_ON_UNIT_LOST_CALLBACK())
++		{
++			CyArgsList eventData;
++			eventData.add("unitLost");						// add key to lookup python handler fxn
++
++			CyUnit* pyu = new CyUnit(pUnit);
++			eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++			postEvent(eventData);
++			delete pyu;
++		}
++	}
++}
++
++void CvDllPythonEvents::reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitPromoted");						// add key to lookup python handler fxn
++
++		CyUnit* pyu = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++		eventData.add((int)ePromotion);
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportUnitSelected(CvUnit* pUnit)
++{
++	if (preEvent())
++	{
++		if(GC.getUSE_ON_UNIT_SELECTED_CALLBACK())
++		{
++			CyArgsList eventData;
++			eventData.add("unitSelected");						// add key to lookup python handler fxn
++
++			CyUnit* pyu = new CyUnit(pUnit);
++			eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++			postEvent(eventData);
++			delete pyu;
++		}
++	}
++}
++
++void CvDllPythonEvents::reportUnitRename(CvUnit *pUnit)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("UnitRename");						// add key to lookup python handler fxn
++
++		CyUnit* pCyUnit = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++
++		postEvent(eventData);
++		delete pCyUnit;
++	}
++}
++
++void CvDllPythonEvents::reportUnitPillage(CvUnit* pUnit, ImprovementTypes eImprovement, RouteTypes eRoute, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitPillage");						// add key to lookup python handler fxn
++
++		CyUnit* pCyUnit = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++		eventData.add((int) eImprovement);
++		eventData.add((int) eRoute);
++		eventData.add((int) ePlayer);
++
++		postEvent(eventData);
++		delete pCyUnit;
++	}
++}
++
++void CvDllPythonEvents::reportUnitSpreadReligionAttempt(CvUnit* pUnit, ReligionTypes eReligion, bool bSuccess)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitSpreadReligionAttempt");						// add key to lookup python handler fxn
++
++		CyUnit* pCyUnit = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++		eventData.add((int) eReligion);
++		eventData.add(bSuccess);
++
++		postEvent(eventData);
++		delete pCyUnit;
++	}
++}
++
++void CvDllPythonEvents::reportUnitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlayer, CvPlot* pPlotLocation)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitGifted");						// add key to lookup python handler fxn
++
++		CyUnit* pCyUnit = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++		eventData.add((int) eGiftingPlayer);
++		CyPlot* pCyPlot = new CyPlot(pPlotLocation);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
++
++		postEvent(eventData);
++		delete pCyUnit;
++		delete pCyPlot;
++	}
++}
++
++void CvDllPythonEvents::reportUnitBuildImprovement(CvUnit* pUnit, BuildTypes eBuild, bool bFinished)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("unitBuildImprovement");						// add key to lookup python handler fxn
++
++		CyUnit* pCyUnit = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
++		eventData.add((int) eBuild);
++		eventData.add(bFinished);
++
++		postEvent(eventData);
++		delete pCyUnit;
++	}
++}
++
++void CvDllPythonEvents::reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvUnit *pGoodyUnit, GoodyTypes eGoodyType)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("goodyReceived");						// add key to lookup python handler fxn
++
++		eventData.add((int)ePlayer);
++
++		CyPlot* py = new CyPlot(pGoodyPlot);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
++
++		CyUnit* pyu = new CyUnit(pGoodyUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		eventData.add((int) eGoodyType);
++
++		postEvent(eventData);
++
++		delete py;
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportGreatPersonBorn( CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("greatPersonBorn");						// add key to lookup python handler fxn
++
++		CyUnit* py = new CyUnit(pUnit);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
++
++		eventData.add((int)ePlayer);
++
++		CyCity* pyu = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++
++		delete py;
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportBuildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("buildingBuilt");					// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add(eBuilding);
++
++		postEvent(eventData);
++
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportProjectBuilt(CvCity *pCity, ProjectTypes eProject)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("projectBuilt");					// add key to lookup python handler fxn
++
++		CyCity* pCyCity = new CyCity(pCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
++
++		eventData.add(eProject);
++
++		postEvent(eventData);
++
++		delete pCyCity;
++	}
++}
++
++void CvDllPythonEvents::reportTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("techAcquired");					// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)eTeam);
++		eventData.add((int)ePlayer);
++		eventData.add(bAnnounce);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportTechSelected(TechTypes eTech, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("techSelected");					// add key to lookup python handler fxn
++		eventData.add((int)eTech);
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportReligionFounded(ReligionTypes eType, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("religionFounded");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportReligionSpread(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("religionSpread");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++
++		CyCity* pyu = new CyCity(pSpreadCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportReligionRemove(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("religionRemove");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++
++		CyCity* pyu = new CyCity(pSpreadCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportCorporationFounded(CorporationTypes eType, PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("corporationFounded");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportCorporationSpread(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("corporationSpread");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++
++		CyCity* pyu = new CyCity(pSpreadCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportCorporationRemove(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("corporationRemove");			// add key to lookup python handler fxn
++		eventData.add((int)eType);
++		eventData.add((int)ePlayer);
++
++		CyCity* pyu = new CyCity(pSpreadCity);
++		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
++
++		postEvent(eventData);
++		delete pyu;
++	}
++}
++
++void CvDllPythonEvents::reportGoldenAge(PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("goldenAge");			// add key to lookup python handler fxn
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportEndGoldenAge(PlayerTypes ePlayer)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("endGoldenAge");			// add key to lookup python handler fxn
++		eventData.add((int)ePlayer);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("changeWar");			// add key to lookup python handler fxn
++		eventData.add(bWar);
++		eventData.add((int)eTeam);
++		eventData.add((int)eOtherTeam);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportVictory(TeamTypes eNewWinner, VictoryTypes eNewVictory)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("victory");					// add key to lookup python handler fxn
++		eventData.add((int)eNewWinner);
++		eventData.add((int)eNewVictory);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("vassalState");					// add key to lookup python handler fxn
++		eventData.add((int)eMaster);
++		eventData.add((int)eVassal);
++		eventData.add(bVassal);
++
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportSetPlayerAlive( PlayerTypes ePlayerID, bool bNewValue )
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("setPlayerAlive");
++		eventData.add((int)ePlayerID);
++		eventData.add(bNewValue);
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportPlayerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("playerChangeStateReligion");			// add key to lookup python handler fxn
++
++		eventData.add((int)ePlayerID);
++		eventData.add((int)eNewReligion);
++		eventData.add((int)eOldReligion);
++
++		postEvent(eventData);
++	}
++}
++
++
++void CvDllPythonEvents::reportPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("playerGoldTrade");			// add key to lookup python handler fxn
++
++		eventData.add((int)eFromPlayer);
++		eventData.add((int)eToPlayer);
++		eventData.add(iAmount);
++
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::reportGenericEvent(const char* szEventName, void *pyArgs)
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add(szEventName);
++		eventData.add(pyArgs);		// generic args tuple
++		postEvent(eventData);
++	}
++}
++
++void CvDllPythonEvents::preSave()
++{
++	if (preEvent())
++	{
++		CyArgsList eventData;
++		eventData.add("OnPreSave");
++		postEvent(eventData);
++	}
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvDllPythonEvents.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvDllPythonEvents.h@474
+@@ -0,0 +1,106 @@
++#ifndef CIV4_DLL_PYTHON_EVENTS_H
++#define CIV4_DLL_PYTHON_EVENTS_H
++
++class CyArgsList;
++
++class CvDllPythonEvents
++{
++public:
++	void reportGenericEvent(const char* szEventName, void *pyArgs);
++	bool reportKbdEvent(int evt, int key, int iCursorX, int iCursorY);
++	bool reportMouseEvent(int evt, int iCursorX, int iCursorY, bool bInterfaceConsumed=false);												
++	void reportModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5);
++
++	void reportInit();
++	void reportUpdate(float fDeltaTime);
++	void reportUnInit();
++	void reportGameStart();
++	void reportGameEnd();
++	void reportWindowActivation(bool bActive);
++
++	void reportBeginGameTurn(int iGameTurn);
++	void reportEndGameTurn(int iGameTurn);
++
++	void reportBeginPlayerTurn(int iGameTurn, PlayerTypes);
++	void reportEndPlayerTurn(int iGameTurn, PlayerTypes);
++
++	void reportFirstContact(TeamTypes iTeamID1, TeamTypes iTeamID2);						
++	void reportCombatResult(CvUnit* pWinner, CvUnit* pLoser);					
++	void reportImprovementBuilt(int iImprovementType, int iX, int iY);	
++	void reportImprovementDestroyed(int iImprovementType, int iPlayer, int iX, int iY);	
++	void reportRouteBuilt(int iRouteType, int iX, int iY);	
++
++	void reportPlotRevealed(CvPlot *pPlot, TeamTypes eTeam);
++	void reportPlotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFeature, CvCity* pCity);
++	void reportPlotPicked(CvPlot *pPlot);
++	void reportNukeExplosion(CvPlot *pPlot, CvUnit* pNukeUnit);
++	void reportGotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer);
++
++	void reportCityBuilt(CvCity *pCity);
++	void reportCityRazed(CvCity *pCity, PlayerTypes ePlayer);
++	void reportCityAcquired(PlayerTypes eOldOwner, PlayerTypes ePlayer, CvCity* pOldCity, bool bConquest, bool bTrade);
++	void reportCityAcquiredAndKept(PlayerTypes ePlayer, CvCity* pCity);
++	void reportCityLost(CvCity *pCity);
++	void reportCultureExpansion(CvCity *pCity, PlayerTypes ePlayer);
++	void reportCityGrowth(CvCity *pCity, PlayerTypes ePlayer);
++	void reportCityProduction(CvCity *pCity, PlayerTypes ePlayer);
++	void reportCityBuildingUnit(CvCity *pCity, UnitTypes eUnitType);
++	void reportCityBuildingBuilding(CvCity *pCity, BuildingTypes eBuildingType);
++	void reportCityRename(CvCity *pCity);
++	void reportCityHurry(CvCity *pCity, HurryTypes eHurry);
++
++	void reportSelectionGroupPushMission(CvSelectionGroup* pSelectionGroup, MissionTypes eMission);
++
++	void reportUnitMove(CvPlot* pPlot, CvUnit* pUnit, CvPlot* pOldPlot);					
++	void reportUnitSetXY(CvPlot* pPlot, CvUnit* pUnit);					
++	void reportUnitCreated(CvUnit *pUnit);
++	void reportUnitBuilt(CvCity *pCity, CvUnit *pUnit);
++	void reportUnitKilled(CvUnit *pUnit, PlayerTypes eAttacker);			
++	void reportUnitLost(CvUnit *pUnit);
++	void reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromotion);
++	void reportUnitSelected(CvUnit *pUnit);
++	void reportUnitRename(CvUnit *pUnit);
++	void reportUnitPillage(CvUnit* pUnit, ImprovementTypes eImprovement, RouteTypes eRoute, PlayerTypes ePlayer);
++	void reportUnitSpreadReligionAttempt(CvUnit* pUnit, ReligionTypes eReligion, bool bSuccess);
++	void reportUnitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlayer, CvPlot* pPlotLocation);
++	void reportUnitBuildImprovement(CvUnit* pUnit, BuildTypes eBuild, bool bFinished);
++
++	void reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvUnit *pGoodyUnit, GoodyTypes eGoodyType);
++
++	void reportGreatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity);
++
++	void reportBuildingBuilt(CvCity *pCity, BuildingTypes eBuilding);
++	void reportProjectBuilt(CvCity *pCity, ProjectTypes eProject);
++
++	void reportTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce);
++	void reportTechSelected(TechTypes eTech, PlayerTypes ePlayer);
++
++	void reportReligionFounded(ReligionTypes eType, PlayerTypes ePlayer);
++	void reportReligionSpread(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++	void reportReligionRemove(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++
++	void reportCorporationFounded(CorporationTypes eType, PlayerTypes ePlayer);
++	void reportCorporationSpread(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++	void reportCorporationRemove(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++
++	void reportGoldenAge(PlayerTypes ePlayer);
++	void reportEndGoldenAge(PlayerTypes ePlayer);
++	void reportChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam);
++	void reportChat(CvWString szString);				
++	void reportVictory(TeamTypes eNewWinner, VictoryTypes eNewVictory);
++
++	void reportVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
++
++	void reportSetPlayerAlive(PlayerTypes ePlayerID, bool bNewValue);
++	void reportPlayerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion);
++	void reportPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
++
++	void preSave();
++
++private:
++	bool preEvent();
++	bool postEvent(CyArgsList& eventData);
++};
++
++#endif
++
+
+Index: /trunk/CvGameCoreDLL/CvDllTranslator.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvDllTranslator.cpp@474
+@@ -0,0 +1,140 @@
++#include "CvGameCoreDLL.h"
++#include "CvDllTranslator.h"
++
++void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTagStartOur, CvWString& szTagStartCT, CvWString& szTagStartColor, CvWString& szTagStartLink, CvWString& szTagEndLink, CvWString& szEndLinkReplacement, std::map<std::wstring, CvWString>& aIconMap, std::map<std::wstring, CvWString>& aColorMap)
++{
++	szTagStartIcon = L"[ICON_";
++	szTagStartOur = L"[OUR_";
++	szTagStartCT = L"[CT_";
++	szTagStartColor = L"[COLOR_";
++	szTagStartLink = L"[LINK";
++	szTagEndLink = L"[\\LINK";
++	szEndLinkReplacement = L"</link>";
++
++	//create icons map
++	aIconMap[L"[ICON_BULLET]"] = std::wstring(1, (wchar)gDLL->getSymbolID(BULLET_CHAR));
++	aIconMap[L"[ICON_HAPPY]"] = std::wstring(1, (wchar)gDLL->getSymbolID(HAPPY_CHAR));
++	aIconMap[L"[ICON_UNHAPPY]"] = std::wstring(1, (wchar)gDLL->getSymbolID(UNHAPPY_CHAR));
++	aIconMap[L"[ICON_HEALTHY]"] = std::wstring(1, (wchar)gDLL->getSymbolID(HEALTHY_CHAR));
++	aIconMap[L"[ICON_UNHEALTHY]"] = std::wstring(1, (wchar)gDLL->getSymbolID(UNHEALTHY_CHAR));
++	aIconMap[L"[ICON_STRENGTH]"] = std::wstring(1, (wchar)gDLL->getSymbolID(STRENGTH_CHAR));
++	aIconMap[L"[ICON_MOVES]"] = std::wstring(1, (wchar)gDLL->getSymbolID(MOVES_CHAR));
++	aIconMap[L"[ICON_RELIGION]"] = std::wstring(1, (wchar)gDLL->getSymbolID(RELIGION_CHAR));
++	aIconMap[L"[ICON_STAR]"] = std::wstring(1, (wchar)gDLL->getSymbolID(STAR_CHAR));
++	aIconMap[L"[ICON_SILVER_STAR]"] = std::wstring(1, (wchar)gDLL->getSymbolID(SILVER_STAR_CHAR));
++	aIconMap[L"[ICON_TRADE]"] = std::wstring(1, (wchar)gDLL->getSymbolID(TRADE_CHAR));
++	aIconMap[L"[ICON_DEFENSE]"] = std::wstring(1, (wchar)gDLL->getSymbolID(DEFENSE_CHAR));
++	aIconMap[L"[ICON_GREATPEOPLE]"] = std::wstring(1, (wchar)gDLL->getSymbolID(GREAT_PEOPLE_CHAR));
++	aIconMap[L"[ICON_BAD_GOLD]"] = std::wstring(1, (wchar)gDLL->getSymbolID(BAD_GOLD_CHAR));
++	aIconMap[L"[ICON_BAD_FOOD]"] = std::wstring(1, (wchar)gDLL->getSymbolID(BAD_FOOD_CHAR));
++	aIconMap[L"[ICON_EATENFOOD]"] = std::wstring(1, (wchar)gDLL->getSymbolID(EATEN_FOOD_CHAR));
++	aIconMap[L"[ICON_GOLDENAGE]"] = std::wstring(1, (wchar)gDLL->getSymbolID(GOLDEN_AGE_CHAR));
++	aIconMap[L"[ICON_ANGRYPOP]"] = std::wstring(1, (wchar)gDLL->getSymbolID(ANGRY_POP_CHAR));
++	aIconMap[L"[ICON_OPENBORDERS]"] = std::wstring(1, (wchar)gDLL->getSymbolID(OPEN_BORDERS_CHAR));
++	aIconMap[L"[ICON_DEFENSIVEPACT]"] = std::wstring(1, (wchar)gDLL->getSymbolID(DEFENSIVE_PACT_CHAR));
++	aIconMap[L"[ICON_MAP]"] = std::wstring(1, (wchar)gDLL->getSymbolID(MAP_CHAR));
++	aIconMap[L"[ICON_OCCUPATION]"] = std::wstring(1, (wchar)gDLL->getSymbolID(OCCUPATION_CHAR));
++	aIconMap[L"[ICON_POWER]"] = std::wstring(1, (wchar)gDLL->getSymbolID(POWER_CHAR));
++
++	aIconMap[L"[ICON_GOLD]"] = std::wstring(1, (wchar)GC.getCommerceInfo(COMMERCE_GOLD).getChar());
++	aIconMap[L"[ICON_RESEARCH]"] = std::wstring(1, (wchar)GC.getCommerceInfo(COMMERCE_RESEARCH).getChar());
++	aIconMap[L"[ICON_CULTURE]"] = std::wstring(1, (wchar)GC.getCommerceInfo(COMMERCE_CULTURE).getChar());
++	aIconMap[L"[ICON_ESPIONAGE]"] = std::wstring(1, (wchar)GC.getCommerceInfo(COMMERCE_ESPIONAGE).getChar());
++
++	aIconMap[L"[ICON_FOOD]"] = std::wstring(1, (wchar)GC.getYieldInfo(YIELD_FOOD).getChar());
++	aIconMap[L"[ICON_PRODUCTION]"] = std::wstring(1, (wchar)GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++	aIconMap[L"[ICON_COMMERCE]"] = std::wstring(1, (wchar)GC.getYieldInfo(YIELD_COMMERCE).getChar());
++
++	//create color map
++	aColorMap[L"[COLOR_REVERT]"] = CvWString(L"</color>");
++	for(int i=0; i < GC.getNumColorInfos(); i++)
++	{
++		const NiColorA& color = GC.getColorInfo((ColorTypes) i).getColor();
++		CvWString colorType(GC.getColorInfo((ColorTypes) i).getType());
++		CvWString wideColorType;
++		wideColorType.Format(L"[%s]", colorType.GetCString());
++		CvWString colorOut;
++		colorOut.Format(L"<color=%i,%i,%i,%i>", (int) (color.r * 255), (int) (color.g * 255), (int) (color.b * 255), (int) (color.a * 255));
++		aColorMap[wideColorType.GetCString()] = colorOut;
++	}
++}
++
++bool CvDllTranslator::replaceOur(const CvWString& szKey, int iForm, CvWString& szReplacement)
++{
++	CvPlayerAI& player = GET_PLAYER((PlayerTypes) gDLL->getDiplomacyPlayer());
++	if (szKey == L"[OUR_NAME")
++	{
++		szReplacement = player.getName(iForm);
++	}
++	else if (szKey == L"[OUR_EMPIRE")
++	{
++		szReplacement = player.getCivilizationDescription(iForm);
++	}
++	else if(szKey == L"[OUR_CIV_SHORT")
++	{
++		szReplacement = player.getCivilizationShortDescription(iForm);
++	}
++	else if(szKey == L"[OUR_CIV_ADJ")
++	{
++		szReplacement = player.getCivilizationAdjective(iForm);
++	}
++	else if(szKey == L"[OUR_STATE_RELIGION")
++	{
++		szReplacement = player.getStateReligionName(iForm);
++	}
++	else if(szKey == L"[OUR_BEST_UNIT")
++	{
++		szReplacement = player.getBestAttackUnitName(iForm);
++	}
++	else if(szKey == L"[OUR_WORST_ENEMY")
++	{
++		szReplacement = player.getWorstEnemyName();
++	}
++	else
++	{
++		FAssertMsg(false, "Unknown Diplomacy String");
++		return false;
++	}
++	return true;
++}
++
++bool CvDllTranslator::replaceCt(const CvWString& szKey, int iForm, CvWString& szReplacement)
++{
++	CvPlayerAI& player = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++	if (szKey == L"[CT_NAME")
++	{
++		szReplacement = player.getName(iForm);
++	}
++	else if (szKey == L"[CT_EMPIRE")
++	{
++		szReplacement = player.getCivilizationDescription(iForm);
++	}
++	else if(szKey == L"[CT_CIV_SHORT")
++	{
++		szReplacement = player.getCivilizationShortDescription(iForm);
++	}
++	else if(szKey == L"[CT_CIV_ADJ")
++	{
++		szReplacement = player.getCivilizationAdjective(iForm);
++	}
++	else if(szKey == L"[CT_STATE_RELIGION")
++	{
++		szReplacement = player.getStateReligionName(iForm);
++	}
++	else if(szKey == L"[CT_BEST_UNIT")
++	{
++		szReplacement = player.getBestAttackUnitName(iForm);
++	}
++	else if(szKey == L"[CT_WORST_ENEMY")
++	{
++		szReplacement = player.getWorstEnemyName();
++	}
++	else
++	{
++		FAssertMsg(false, "Unknown Diplomacy String");
++		return false;
++	}
++	return true;
++}
++
++
+
+Index: /trunk/CvGameCoreDLL/CvDllTranslator.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvDllTranslator.h@474
+@@ -0,0 +1,12 @@
++#ifndef CV_DLL_TRANSLATOR_H
++#define CV_DLL_TRANSLATOR_H
++
++class CvDllTranslator
++{
++public:
++	DllExport static void initializeTags(CvWString& szTagStartIcon, CvWString& szTagStartOur, CvWString& szTagStartCT, CvWString& szTagStartColor, CvWString& szTagStartLink, CvWString& szTagEndLink, CvWString& szEndLinkReplacement, std::map<std::wstring, CvWString>& aIconMap, std::map<std::wstring, CvWString>& aColorMap);
++	DllExport static bool replaceOur(const CvWString& szKey, int iForm, CvWString& szReplacement);
++	DllExport static bool replaceCt(const CvWString& szKey, int iForm, CvWString& szReplacement);
++};
++
++#endif
+
+Index: /trunk/CvGameCoreDLL/CvEventReporter.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvEventReporter.cpp@474
+@@ -0,0 +1,495 @@
++#include "CvGameCoreDLL.h"
++#include "CvEventReporter.h"
++#include "CvDllPythonEvents.h"
++#include "CvInitCore.h"
++
++//
++// static, singleton accessor
++//
++CvEventReporter& CvEventReporter::getInstance()
++{
++	static CvEventReporter gEventReporter;
++	return gEventReporter;
++}
++
++
++void CvEventReporter::resetStatistics()
++{
++	m_kStatistics.reset();
++}
++
++//
++// Returns true if the event is consumed by Python
++//
++bool CvEventReporter::mouseEvent(int evt, int iCursorX, int iCursorY, bool bInterfaceConsumed)
++{
++	return m_kPythonEventMgr.reportMouseEvent(evt, iCursorX, iCursorY, bInterfaceConsumed);
++}
++
++//
++// Returns true if the event is consumed by Python
++//
++bool CvEventReporter::kbdEvent(int evt, int key, int iCursorX, int iCursorY)
++{
++	return m_kPythonEventMgr.reportKbdEvent(evt, key, iCursorX, iCursorY);
++}
++
++void CvEventReporter::genericEvent(const char* szEventName, void *pyArgs)
++{
++	m_kPythonEventMgr.reportGenericEvent(szEventName, pyArgs);
++}
++
++
++void CvEventReporter::newGame()
++{
++	// This will only be called if statistics are being reported!
++	// Called at the launch of a game (new or loaded)
++
++	// Report initial stats for the game
++	m_kStatistics.setMapName( CvString(GC.getInitCore().getMapScriptName()).GetCString() );
++	m_kStatistics.setEra(GC.getInitCore().getEra());
++}
++
++void CvEventReporter::newPlayer(PlayerTypes ePlayer)
++{
++	// This will only be called if statistics are being reported!
++	// Called at the launch of a game (new or loaded)
++
++	// Report initial stats for this player
++	m_kStatistics.setLeader(ePlayer, GET_PLAYER(ePlayer).getLeaderType());
++}
++
++void CvEventReporter::reportModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5)
++{
++	m_kPythonEventMgr.reportModNetMessage(iData1, iData2, iData3, iData4, iData5);
++}
++
++void CvEventReporter::init()
++{
++	m_kPythonEventMgr.reportInit();
++}
++
++void CvEventReporter::update(float fDeltaTime)
++{
++	m_kPythonEventMgr.reportUpdate(fDeltaTime);
++}
++
++void CvEventReporter::unInit()
++{
++	m_kPythonEventMgr.reportUnInit();
++}
++
++void CvEventReporter::gameStart()
++{
++	m_kPythonEventMgr.reportGameStart();
++}
++
++void CvEventReporter::gameEnd()
++{
++	m_kPythonEventMgr.reportGameEnd();
++}
++
++void CvEventReporter::beginGameTurn(int iGameTurn)
++{
++	m_kPythonEventMgr.reportBeginGameTurn(iGameTurn);
++}
++
++void CvEventReporter::endGameTurn(int iGameTurn)
++{
++	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
++}
++
++void CvEventReporter::beginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportBeginPlayerTurn(iGameTurn, ePlayer);
++}
++
++void CvEventReporter::endPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportEndPlayerTurn(iGameTurn, ePlayer);
++}
++
++void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
++{
++	m_kPythonEventMgr.reportFirstContact(eTeamID1, eTeamID2);
++}
++
++void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
++{
++	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
++}
++
++void CvEventReporter::improvementBuilt(int iImprovementType, int iX, int iY)
++{
++	m_kPythonEventMgr.reportImprovementBuilt(iImprovementType, iX, iY);
++}
++
++void CvEventReporter::improvementDestroyed(int iImprovementType, int iPlayer, int iX, int iY)
++{
++	m_kPythonEventMgr.reportImprovementDestroyed(iImprovementType, iPlayer, iX, iY);
++}
++
++void CvEventReporter::routeBuilt(int iRouteType, int iX, int iY)
++{
++	m_kPythonEventMgr.reportRouteBuilt(iRouteType, iX, iY);
++}
++
++void CvEventReporter::plotRevealed(CvPlot *pPlot, TeamTypes eTeam)
++{
++	m_kPythonEventMgr.reportPlotRevealed(pPlot, eTeam);
++}
++
++void CvEventReporter::plotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFeature, CvCity* pCity)
++{
++	m_kPythonEventMgr.reportPlotFeatureRemoved(pPlot, eFeature, pCity);
++}
++
++void CvEventReporter::plotPicked(CvPlot *pPlot)
++{
++	m_kPythonEventMgr.reportPlotPicked(pPlot);
++}
++
++void CvEventReporter::nukeExplosion(CvPlot *pPlot, CvUnit* pNukeUnit)
++{
++	m_kPythonEventMgr.reportNukeExplosion(pPlot, pNukeUnit);
++}
++
++void CvEventReporter::gotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportGotoPlotSet(pPlot, ePlayer);
++}
++
++void CvEventReporter::cityBuilt( CvCity *pCity )
++{
++	m_kPythonEventMgr.reportCityBuilt(pCity);
++	m_kStatistics.cityBuilt(pCity);
++}
++
++void CvEventReporter::cityRazed( CvCity *pCity, PlayerTypes ePlayer )
++{
++	m_kPythonEventMgr.reportCityRazed(pCity, ePlayer);
++	m_kStatistics.cityRazed(pCity, ePlayer);
++}
++
++void CvEventReporter::cityAcquired(PlayerTypes eOldOwner, PlayerTypes iPlayer, CvCity* pCity, bool bConquest, bool bTrade)
++{
++	m_kPythonEventMgr.reportCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
++}
++
++void CvEventReporter::cityAcquiredAndKept(PlayerTypes iPlayer, CvCity* pCity)
++{
++	m_kPythonEventMgr.reportCityAcquiredAndKept(iPlayer, pCity);
++}
++
++void CvEventReporter::cityLost( CvCity *pCity)
++{
++	m_kPythonEventMgr.reportCityLost(pCity);
++}
++
++void CvEventReporter::cultureExpansion( CvCity *pCity, PlayerTypes ePlayer )
++{
++	m_kPythonEventMgr.reportCultureExpansion(pCity, ePlayer);
++}
++
++void CvEventReporter::cityGrowth(CvCity *pCity, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportCityGrowth(pCity, ePlayer);
++}
++
++void CvEventReporter::cityDoTurn( CvCity *pCity, PlayerTypes ePlayer )
++{
++	m_kPythonEventMgr.reportCityProduction(pCity, ePlayer);
++}
++
++void CvEventReporter::cityBuildingUnit(CvCity* pCity, UnitTypes eUnitType)
++{
++	m_kPythonEventMgr.reportCityBuildingUnit(pCity, eUnitType);
++}
++
++void CvEventReporter::cityBuildingBuilding(CvCity* pCity, BuildingTypes eBuildingType)
++{
++	m_kPythonEventMgr.reportCityBuildingBuilding(pCity, eBuildingType);
++}
++
++void CvEventReporter::cityRename(CvCity* pCity)
++{
++	m_kPythonEventMgr.reportCityRename(pCity);
++}
++
++void CvEventReporter::cityHurry(CvCity* pCity, HurryTypes eHurry)
++{
++	m_kPythonEventMgr.reportCityHurry(pCity, eHurry);
++}
++
++void CvEventReporter::selectionGroupPushMission(CvSelectionGroup* pSelectionGroup, MissionTypes eMission)
++{
++	m_kPythonEventMgr.reportSelectionGroupPushMission(pSelectionGroup, eMission);
++}
++
++void CvEventReporter::unitMove(CvPlot* pPlot, CvUnit* pUnit, CvPlot* pOldPlot)
++{
++	m_kPythonEventMgr.reportUnitMove(pPlot, pUnit, pOldPlot);
++}
++
++void CvEventReporter::unitSetXY(CvPlot* pPlot, CvUnit* pUnit)
++{
++	m_kPythonEventMgr.reportUnitSetXY(pPlot, pUnit);
++}
++
++void CvEventReporter::unitCreated(CvUnit *pUnit)
++{
++	m_kPythonEventMgr.reportUnitCreated(pUnit);
++}
++
++void CvEventReporter::unitBuilt(CvCity *pCity, CvUnit *pUnit)
++{
++	m_kPythonEventMgr.reportUnitBuilt(pCity, pUnit);
++	m_kStatistics.unitBuilt(pUnit);
++}
++
++void CvEventReporter::unitKilled(CvUnit *pUnit, PlayerTypes eAttacker )
++{
++	m_kPythonEventMgr.reportUnitKilled(pUnit, eAttacker);
++	m_kStatistics.unitKilled(pUnit, eAttacker);
++}
++
++void CvEventReporter::unitLost(CvUnit *pUnit)
++{
++	m_kPythonEventMgr.reportUnitLost(pUnit);
++}
++
++void CvEventReporter::unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion)
++{
++	m_kPythonEventMgr.reportUnitPromoted(pUnit, ePromotion);
++}
++
++void CvEventReporter::unitSelected( CvUnit *pUnit)
++{
++	m_kPythonEventMgr.reportUnitSelected(pUnit);
++}
++
++void CvEventReporter::unitRename(CvUnit* pUnit)
++{
++	m_kPythonEventMgr.reportUnitRename(pUnit);
++}
++
++void CvEventReporter::unitPillage(CvUnit* pUnit, ImprovementTypes eImprovement, RouteTypes eRoute, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportUnitPillage(pUnit, eImprovement, eRoute, ePlayer);
++}
++
++void CvEventReporter::unitSpreadReligionAttempt(CvUnit* pUnit, ReligionTypes eReligion, bool bSuccess)
++{
++	m_kPythonEventMgr.reportUnitSpreadReligionAttempt(pUnit, eReligion, bSuccess);
++}
++
++void CvEventReporter::unitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlayer, CvPlot* pPlotLocation)
++{
++	m_kPythonEventMgr.reportUnitGifted(pUnit, eGiftingPlayer, pPlotLocation);
++}
++
++void CvEventReporter::unitBuildImprovement(CvUnit* pUnit, BuildTypes eBuild, bool bFinished)
++{
++	m_kPythonEventMgr.reportUnitBuildImprovement(pUnit, eBuild, bFinished);
++}
++
++void CvEventReporter::goodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvUnit *pGoodyUnit, GoodyTypes eGoodyType)
++{
++	m_kPythonEventMgr.reportGoodyReceived(ePlayer, pGoodyPlot, pGoodyUnit, eGoodyType);
++}
++
++void CvEventReporter::greatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity)
++{
++	m_kPythonEventMgr.reportGreatPersonBorn( pUnit, ePlayer, pCity);
++	m_kStatistics.unitBuilt(pUnit);
++}
++
++void CvEventReporter::buildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
++{
++	m_kPythonEventMgr.reportBuildingBuilt(pCity, eBuilding);
++	m_kStatistics.buildingBuilt(pCity, eBuilding);
++}
++
++void CvEventReporter::projectBuilt(CvCity *pCity, ProjectTypes eProject)
++{
++	m_kPythonEventMgr.reportProjectBuilt(pCity, eProject);
++}
++
++void CvEventReporter::techAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce)
++{
++	m_kPythonEventMgr.reportTechAcquired(eType, eTeam, ePlayer, bAnnounce);
++}
++
++void CvEventReporter::techSelected(TechTypes eTech, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportTechSelected(eTech, ePlayer);
++}
++
++void CvEventReporter::religionFounded(ReligionTypes eType, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportReligionFounded(eType, ePlayer);
++	m_kStatistics.religionFounded(eType, ePlayer);
++}
++
++void CvEventReporter::religionSpread(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	m_kPythonEventMgr.reportReligionSpread(eType, ePlayer, pSpreadCity);
++}
++
++void CvEventReporter::religionRemove(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	m_kPythonEventMgr.reportReligionRemove(eType, ePlayer, pSpreadCity);
++}
++
++void CvEventReporter::corporationFounded(CorporationTypes eType, PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportCorporationFounded(eType, ePlayer);
++}
++
++void CvEventReporter::corporationSpread(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	m_kPythonEventMgr.reportCorporationSpread(eType, ePlayer, pSpreadCity);
++}
++
++void CvEventReporter::corporationRemove(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
++{
++	m_kPythonEventMgr.reportCorporationRemove(eType, ePlayer, pSpreadCity);
++}
++
++void CvEventReporter::goldenAge(PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportGoldenAge(ePlayer);
++	m_kStatistics.goldenAge(ePlayer);
++}
++
++void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
++{
++	m_kPythonEventMgr.reportEndGoldenAge(ePlayer);
++}
++
++void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
++{
++	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
++}
++
++void CvEventReporter::setPlayerAlive( PlayerTypes ePlayerID, bool bNewValue )
++{
++	m_kPythonEventMgr.reportSetPlayerAlive( ePlayerID, bNewValue );
++}
++
++void CvEventReporter::playerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion)
++{
++	m_kPythonEventMgr.reportPlayerChangeStateReligion(ePlayerID, eNewReligion, eOldReligion);
++}
++
++void CvEventReporter::playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount)
++{
++	m_kPythonEventMgr.reportPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
++}
++
++void CvEventReporter::chat(CvWString szString)
++{
++	m_kPythonEventMgr.reportChat(szString);
++}
++
++void CvEventReporter::victory(TeamTypes eWinner, VictoryTypes eVictory)
++{
++	m_kPythonEventMgr.reportVictory(eWinner, eVictory);
++	m_kStatistics.setVictory(eWinner, eVictory);
++
++	// Set all human player's final total time played
++	for (int i = 0; i < MAX_PLAYERS; ++i)
++	{
++		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
++		{
++			m_kStatistics.setTimePlayed((PlayerTypes)i, GET_PLAYER((PlayerTypes)i).getTotalTimePlayed());
++		}
++	}
++
++	// automatically report MP stats on victory
++	gDLL->reportStatistics();
++}
++
++void CvEventReporter::vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
++{
++	m_kPythonEventMgr.reportVassalState(eMaster, eVassal, bVassal);
++}
++
++void CvEventReporter::preSave()
++{
++	m_kPythonEventMgr.preSave();
++}
++
++void CvEventReporter::windowActivation(bool bActive)
++{
++	m_kPythonEventMgr.reportWindowActivation(bActive);
++}
++
++void CvEventReporter::getGameStatistics(std::vector<CvStatBase*>& aStats)
++{
++	aStats.clear();
++	aStats.push_back(new CvStatString("mapname", m_kStatistics.getMapName()));
++	aStats.push_back(new CvStatInt("era", m_kStatistics.getEra()));
++
++	// Report game params governing some server-side loops
++	aStats.push_back(new CvStatInt("numplayers", MAX_CIV_PLAYERS));
++	aStats.push_back(new CvStatInt("numunittypes", GC.getNumUnitInfos()));
++	aStats.push_back(new CvStatInt("numbuildingtypes", GC.getNumBuildingInfos()));
++	aStats.push_back(new CvStatInt("numreligiontypes", GC.getNumReligionInfos()));
++}
++
++void CvEventReporter::getPlayerStatistics(PlayerTypes ePlayer, std::vector<CvStatBase*>& aStats)
++{
++	aStats.clear();
++	CvPlayerRecord* pRecord = m_kStatistics.getPlayerRecord(ePlayer);
++	if (pRecord != NULL)
++	{
++		aStats.push_back(new CvStatInt("victorytype", pRecord->getVictory()));
++		aStats.push_back(new CvStatInt("timeplayed", pRecord->getMinutesPlayed()));
++		aStats.push_back(new CvStatInt("leader", pRecord->getLeader()-1));  // -1 because index 0 is barb
++		aStats.push_back(new CvStatInt("citiesbuilt", pRecord->getNumCitiesBuilt()));
++		aStats.push_back(new CvStatInt("citiesrazed", pRecord->getNumCitiesRazed()));
++		aStats.push_back(new CvStatInt("goldenages", pRecord->getNumGoldenAges()));
++
++
++		// Units by type
++		CvString strKey;
++		for (int j = 0; j < GC.getNumUnitInfos(); ++j)
++		{
++			strKey.format("unit_%d_built", j);
++			aStats.push_back(new CvStatInt(strKey, pRecord->getNumUnitsBuilt(j)));
++
++			strKey.format("unit_%d_killed", j);
++			aStats.push_back(new CvStatInt(strKey, pRecord->getNumUnitsKilled(j)));
++
++			strKey.format("unit_%d_lost", j);
++			aStats.push_back(new CvStatInt(strKey, pRecord->getNumUnitsWasKilled(j)));
++		}
++
++		// Buildings by type
++		for (int j = 0; j < GC.getNumBuildingInfos(); ++j)
++		{
++			strKey.format("building_%d_built", j);
++			aStats.push_back(new CvStatInt(strKey, pRecord->getNumBuildingsBuilt((BuildingTypes)j)));
++		}
++
++		// Religions by type
++		for (int j = 0; j < GC.getNumReligionInfos(); ++j)
++		{
++			strKey.format("religion_%d_founded", j);
++			aStats.push_back(new CvStatInt(strKey, pRecord->getReligionFounded((ReligionTypes)j)));
++		}
++	}
++}
++
++void CvEventReporter::readStatistics(FDataStreamBase* pStream)
++{
++	m_kStatistics.reset();
++	m_kStatistics.read(pStream);
++}
++void CvEventReporter::writeStatistics(FDataStreamBase* pStream)
++{
++	m_kStatistics.write(pStream);
++}
++
++
+
+Index: /trunk/CvGameCoreDLL/CvEventReporter.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvEventReporter.h@474
+@@ -0,0 +1,139 @@
++#pragma once
++
++#ifndef CvEventReporter_h
++#define CvEventReporter_h
++
++#include "CvStatistics.h"
++#include "CvDllPythonEvents.h"
++
++//
++// A singleton class which is used to track game events.
++// It will report events to python and the stats collector.
++//
++
++struct CvStatBase;
++struct TradeData;
++class CyDiplomacyTrade;
++class CvUnit;
++class CvCity;
++class CvPlot;
++class CvSelectionGroup;
++class CvEventReporter
++{
++	friend class CyStatistics;
++public:
++	DllExport static CvEventReporter& getInstance();		// singleton accessor
++	DllExport void resetStatistics();
++
++	DllExport bool mouseEvent(int evt, int iCursorX, int iCursorY, bool bInterfaceConsumed=false);												
++	DllExport bool kbdEvent(int evt, int key, int iCursorX, int iCursorY);
++	void genericEvent(const char* szEventName, void *pyArgs);
++
++	DllExport void newGame();
++	DllExport void newPlayer(PlayerTypes ePlayer);
++
++	DllExport void reportModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5);
++	
++	DllExport void init();
++	DllExport void update(float fDeltaTime);
++	DllExport void unInit();
++	DllExport void gameStart();
++	void gameEnd();
++	DllExport void windowActivation(bool bActive);
++
++	void beginGameTurn(int iGameTurn);
++	void endGameTurn(int iGameTurn);
++
++	void beginPlayerTurn(int iGameTurn, PlayerTypes);
++	void endPlayerTurn(int iGameTurn, PlayerTypes);
++
++	void firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2);						
++	void combatResult(CvUnit* pWinner, CvUnit* pLoser);					
++	void improvementBuilt(int iImprovementType, int iX, int iY);	
++	void improvementDestroyed(int iImprovementType, int iPlayer, int iX, int iY);	
++	void routeBuilt(int iRouteType, int iX, int iY);	
++	
++	void plotRevealed(CvPlot *pPlot, TeamTypes eTeam);
++	void plotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFeature, CvCity* pCity);
++	DllExport void plotPicked(CvPlot *pPlot);
++	void nukeExplosion(CvPlot *pPlot, CvUnit* pNukeUnit);
++	DllExport void gotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer);
++
++	void cityBuilt(CvCity *pCity);
++	void cityRazed(CvCity *pCity, PlayerTypes ePlayer);
++	void cityAcquired(PlayerTypes eOldOwner, PlayerTypes ePlayer, CvCity* pCity, bool bConquest, bool bTrade);
++	void cityAcquiredAndKept(PlayerTypes ePlayer, CvCity* pCity);
++	void cityLost(CvCity *pCity);
++	void cultureExpansion( CvCity *pCity, PlayerTypes ePlayer);
++	void cityGrowth(CvCity *pCity, PlayerTypes ePlayer);
++	void cityDoTurn(CvCity *pCity, PlayerTypes ePlayer);
++	void cityBuildingUnit(CvCity* pCity, UnitTypes eUnitType);
++	void cityBuildingBuilding(CvCity* pCity, BuildingTypes eBuildingType);
++	void cityRename(CvCity* pCity);
++	void cityHurry(CvCity* pCity, HurryTypes eHurry);
++
++	void selectionGroupPushMission(CvSelectionGroup* pSelectionGroup, MissionTypes eMission);
++
++	void unitMove(CvPlot* pPlot, CvUnit* pUnit, CvPlot* pOldPlot);					
++	void unitSetXY(CvPlot* pPlot, CvUnit* pUnit);					
++	void unitCreated(CvUnit *pUnit);
++	void unitBuilt(CvCity *pCity, CvUnit *pUnit);
++	void unitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
++	void unitLost(CvUnit *pUnit);
++	void unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion);
++	DllExport void unitSelected(CvUnit *pUnit);
++	void unitRename(CvUnit* pUnit);
++	void unitPillage(CvUnit* pUnit, ImprovementTypes eImprovement, RouteTypes eRoute, PlayerTypes ePlayer);
++	void unitSpreadReligionAttempt(CvUnit* pUnit, ReligionTypes eReligion, bool bSuccess);
++	void unitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlayer, CvPlot* pPlotLocation);
++	void unitBuildImprovement(CvUnit* pUnit, BuildTypes eBuild, bool bFinished);
++	
++	void goodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvUnit *pGoodyUnit, GoodyTypes eGoodyType);
++	
++	void greatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity );
++
++	void buildingBuilt(CvCity *pCity, BuildingTypes eBuilding);
++	void projectBuilt(CvCity *pCity, ProjectTypes eProject);
++
++	void techAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce);		
++	void techSelected(TechTypes eTech, PlayerTypes ePlayer);
++
++	void religionFounded(ReligionTypes eType, PlayerTypes ePlayer);
++	void religionSpread(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++	void religionRemove(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++
++	void corporationFounded(CorporationTypes eType, PlayerTypes ePlayer);
++	void corporationSpread(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++	void corporationRemove(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity);
++
++	void goldenAge(PlayerTypes ePlayer);
++	void endGoldenAge(PlayerTypes ePlayer);
++	void changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam);
++
++	void setPlayerAlive( PlayerTypes ePlayerID, bool bNewValue );
++	void playerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion);
++	void playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
++
++	DllExport void chat(CvWString szString);		
++
++	void victory(TeamTypes eWinner, VictoryTypes eVictory);
++
++	void vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
++
++	DllExport void preSave();
++
++	DllExport void getGameStatistics(std::vector<CvStatBase*>& aStats);
++	DllExport void getPlayerStatistics(PlayerTypes ePlayer, std::vector<CvStatBase*>& aStats);
++	DllExport void readStatistics(FDataStreamBase* pStream);
++	DllExport void writeStatistics(FDataStreamBase* pStream);
++
++private:
++	CvDllPythonEvents m_kPythonEventMgr;
++	CvStatistics m_kStatistics;
++};
++
++// helper
++#define EVENT_REPORTER CvEventReporter::getInstance()	
++
++#endif	// CvEventReporter_h
++
+
+Index: /trunk/CvGameCoreDLL/CvMessageControl.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvMessageControl.cpp@474
+@@ -0,0 +1,203 @@
++#include "CvGameCoreDLL.h"
++#include "CvMessageControl.h"
++#include "CvMessageData.h"
++#include "CvDLLUtilityIFaceBase.h"
++
++CvMessageControl& CvMessageControl::getInstance()
++{
++	static CvMessageControl m_sInstance;
++	return m_sInstance;
++}
++
++void CvMessageControl::sendExtendedGame()
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetExtendedGame(GC.getGameINLINE().getActivePlayer()));
++	}
++}
++
++void CvMessageControl::sendAutoMoves()
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetAutoMoves(GC.getGameINLINE().getActivePlayer()));
++	}
++}
++
++void CvMessageControl::sendTurnComplete()
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetTurnComplete(GC.getGameINLINE().getActivePlayer()));
++	}
++}
++
++void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetPushOrder(GC.getGameINLINE().getActivePlayer(), iCityID, eOrder, iData, bAlt, bShift, bCtrl));
++	}
++}
++
++void CvMessageControl::sendPopOrder(int iCity, int iNum)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetPopOrder(GC.getGameINLINE().getActivePlayer(), iCity, iNum));
++	}
++}
++
++void CvMessageControl::sendDoTask(int iCity, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetDoTask(GC.getGameINLINE().getActivePlayer(), iCity, eTask, iData1, iData2, bOption, bAlt, bShift, bCtrl));
++	}
++}
++
++void CvMessageControl::sendUpdateCivics(const std::vector<CivicTypes>& aeCivics)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetUpdateCivics(GC.getGameINLINE().getActivePlayer(), aeCivics));
++	}
++}
++
++void CvMessageControl::sendResearch(TechTypes eTech, int iDiscover, bool bShift)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetResearch(GC.getGameINLINE().getActivePlayer(), eTech, iDiscover, bShift));
++	}
++}
++
++void CvMessageControl::sendEspionageSpendingWeightChange(TeamTypes eTargetTeam, int iChange)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetEspionageChange(GC.getGameINLINE().getActivePlayer(), eTargetTeam, iChange));
++	}
++}
++
++void CvMessageControl::sendAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd)
++{
++	gDLL->sendMessageData(new CvNetAdvancedStartAction(eAction, ePlayer, iX, iY, iData, bAdd));
++}
++
++void CvMessageControl::sendModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5)
++{
++	gDLL->sendMessageData(new CvNetModNetMessage(iData1, iData2, iData3, iData4, iData5));
++}
++
++void CvMessageControl::sendConvert(ReligionTypes eReligion)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetConvert(GC.getGameINLINE().getActivePlayer(), eReligion));
++	}
++}
++
++void CvMessageControl::sendEmpireSplit(PlayerTypes ePlayer, int iAreaId)
++{
++	gDLL->sendMessageData(new CvNetEmpireSplit(ePlayer, iAreaId));
++}
++
++void CvMessageControl::sendFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion)
++{
++	gDLL->sendMessageData(new CvNetFoundReligion(ePlayer, eReligion, eSlotReligion));
++}
++
++void CvMessageControl::sendLaunch(PlayerTypes ePlayer, VictoryTypes eVictory)
++{
++	gDLL->sendMessageData(new CvNetLaunchSpaceship(ePlayer, eVictory));
++}
++
++void CvMessageControl::sendEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId)
++{
++	gDLL->sendMessageData(new CvNetEventTriggered(ePlayer, eEvent, iEventTriggeredId));
++}
++
++void CvMessageControl::sendJoinGroup(int iUnitID, int iHeadID)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetJoinGroup(GC.getGameINLINE().getActivePlayer(), iUnitID, iHeadID));
++	}
++}
++
++void CvMessageControl::sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetPushMission(GC.getGameINLINE().getActivePlayer(), iUnitID, eMission, iData1, iData2, iFlags, bShift));
++	}
++}
++
++void CvMessageControl::sendAutoMission(int iUnitID)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetAutoMission(GC.getGameINLINE().getActivePlayer(), iUnitID));
++	}
++}
++
++void CvMessageControl::sendDoCommand(int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetDoCommand(GC.getGameINLINE().getActivePlayer(), iUnitID, eCommand, iData1, iData2, bAlt));
++	}
++}
++
++void CvMessageControl::sendPercentChange(CommerceTypes eCommerce, int iChange)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetPercentChange(GC.getGameINLINE().getActivePlayer(), eCommerce, iChange));
++	}
++}
++
++void CvMessageControl::sendChangeVassal(TeamTypes eMasterTeam, bool bVassal, bool bCapitulated)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetChangeVassal(GC.getGameINLINE().getActivePlayer(), eMasterTeam, bVassal, bCapitulated));
++	}
++}
++
++void CvMessageControl::sendChooseElection(int iSelection, int iVoteId)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetChooseElection(GC.getGameINLINE().getActivePlayer(), iSelection, iVoteId));
++	}
++}
++
++void CvMessageControl::sendDiploVote(int iVoteId, PlayerVoteTypes eChoice)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetDiploVote(GC.getGameINLINE().getActivePlayer(), iVoteId, eChoice));
++	}
++}
++
++void CvMessageControl::sendChangeWar(TeamTypes eRivalTeam, bool bWar)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetChangeWar(GC.getGameINLINE().getActivePlayer(), eRivalTeam, bWar));
++	}
++}
++
++void CvMessageControl::sendPing(int iX, int iY)
++{
++	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
++	{
++		gDLL->sendMessageData(new CvNetPing(GC.getGameINLINE().getActivePlayer(), iX, iY));
++	}
++}
++
++
++
+
+Index: /trunk/CvGameCoreDLL/CvMessageControl.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvMessageControl.h@474
+@@ -0,0 +1,37 @@
++#ifndef CV_MESSAGE_CONTROL
++#define CV_MESSAGE_CONTROL
++
++class CvMessageControl
++{
++public:
++	DllExport static CvMessageControl& getInstance();
++	void sendExtendedGame();
++	void sendAutoMoves();
++	void sendTurnComplete();
++	void sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	void sendPopOrder(int iCity, int iNum);
++	DllExport void sendDoTask(int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
++	void sendUpdateCivics(const std::vector<CivicTypes>& aeCivics);
++	void sendResearch(TechTypes eTech, int iDiscover, bool bShift);
++	void sendEspionageSpendingWeightChange(TeamTypes eTargetTeam, int iChange);
++	DllExport void sendAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd);
++	void sendModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5);
++	void sendConvert(ReligionTypes eReligion);
++	void sendEmpireSplit(PlayerTypes ePlayer, int iAreaId);
++	void sendFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion);
++	DllExport void sendLaunch(PlayerTypes ePlayer, VictoryTypes eVictory);
++	void sendEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId);
++	DllExport void sendJoinGroup(int iUnitID, int iHeadID);
++	void sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift);
++	void sendAutoMission(int iUnitID);
++	void sendDoCommand(int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
++	void sendPercentChange(CommerceTypes eCommerce, int iChange);
++	void sendChangeVassal(TeamTypes eMasterTeam, bool bVassal, bool bCapitulated);
++	void sendChooseElection(int iSelection, int iVoteId);
++	void sendDiploVote(int iVoteId, PlayerVoteTypes eChoice);
++	DllExport void sendChangeWar(TeamTypes eRivalTeam, bool bWar);
++	DllExport void sendPing(int iX, int iY);
++};
++
++
++#endif
+
+Index: /trunk/CvGameCoreDLL/CvMessageData.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvMessageData.cpp@474
+@@ -0,0 +1,1109 @@
++#include "CvGameCoreDLL.h"
++#include "CvMessageData.h"
++#include "FDataStreamBase.h"
++#include "CvDLLUtilityIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvEventReporter.h"
++
++CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
++{
++	switch (eType)
++	{
++	case GAMEMESSAGE_EXTENDED_GAME:
++		return new CvNetExtendedGame();
++	case GAMEMESSAGE_AUTO_MOVES:
++		return new CvNetAutoMoves();
++	case GAMEMESSAGE_TURN_COMPLETE:
++		return new CvNetTurnComplete();
++	case GAMEMESSAGE_PUSH_ORDER:
++		return new CvNetPushOrder();
++	case GAMEMESSAGE_POP_ORDER: 
++		return new CvNetPopOrder();
++	case GAMEMESSAGE_DO_TASK:
++		return new CvNetDoTask();
++	case GAMEMESSAGE_UPDATE_CIVICS: 
++		return new CvNetUpdateCivics();
++	case GAMEMESSAGE_RESEARCH: 
++		return new CvNetResearch();
++	case GAMEMESSAGE_ESPIONAGE_CHANGE: 
++		return new CvNetEspionageChange();
++	case GAMEMESSAGE_ADVANCED_START_ACTION:
++		return new CvNetAdvancedStartAction();
++	case GAMEMESSAGE_MOD_NET_MESSAGE: 
++		return new CvNetModNetMessage();
++	case GAMEMESSAGE_CONVERT: 
++		return new CvNetConvert();
++	case GAMEMESSAGE_EMPIRE_SPLIT: 
++		return new CvNetEmpireSplit();
++	case GAMEMESSAGE_FOUND_RELIGION: 
++		return new CvNetFoundReligion();
++	case GAMEMESSAGE_LAUNCH_SPACESHIP: 
++		return new CvNetLaunchSpaceship();
++	case GAMEMESSAGE_EVENT_TRIGGERED: 
++		return new CvNetEventTriggered();
++	case GAMEMESSAGE_JOIN_GROUP: 
++		return new CvNetJoinGroup();
++	case GAMEMESSAGE_PUSH_MISSION: 
++		return new CvNetPushMission();
++	case GAMEMESSAGE_AUTO_MISSION: 
++		return new CvNetAutoMission();
++	case GAMEMESSAGE_DO_COMMAND: 
++		return new CvNetDoCommand();
++	case GAMEMESSAGE_PERCENT_CHANGE: 
++		return new CvNetPercentChange();
++	case GAMEMESSAGE_CHANGE_VASSAL: 
++		return new CvNetChangeVassal();
++	case GAMEMESSAGE_CHOOSE_ELECTION: 
++		return new CvNetChooseElection();
++	case GAMEMESSAGE_DIPLO_VOTE: 
++		return new CvNetDiploVote();
++	case GAMEMESSAGE_CHANGE_WAR: 
++		return new CvNetChangeWar();
++	case GAMEMESSAGE_PING: 
++		return new CvNetPing();
++	default:
++		FAssertMsg(false, "Unknown message type");
++	}
++	return NULL;
++}
++
++CvMessageData::CvMessageData(GameMessageTypes eType) : m_eType(eType) 
++{ 
++}
++
++CvMessageData::~CvMessageData() 
++{ 
++}
++
++GameMessageTypes CvMessageData::getType() const
++{
++	return m_eType;
++}
++
++CvNetExtendedGame::CvNetExtendedGame(PlayerTypes ePlayer) : CvMessageData(GAMEMESSAGE_EXTENDED_GAME), m_ePlayer(ePlayer) 
++{ 
++}
++
++void CvNetExtendedGame::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Extended Game, %d", m_ePlayer);
++}
++
++void CvNetExtendedGame::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).makeExtendedGame();
++	}
++}
++
++void CvNetExtendedGame::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++}
++
++void CvNetExtendedGame::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++}
++
++CvNetAutoMoves::CvNetAutoMoves(PlayerTypes ePlayer) : CvMessageData(GAMEMESSAGE_AUTO_MOVES), m_ePlayer(ePlayer) 
++{ 
++}
++
++void CvNetAutoMoves::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Auto Moves, %d", m_ePlayer);
++}
++
++void CvNetAutoMoves::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).setAutoMoves(true);
++	}
++}
++
++void CvNetAutoMoves::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++}
++
++void CvNetAutoMoves::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++}
++
++CvNetTurnComplete::CvNetTurnComplete(PlayerTypes ePlayer) : CvMessageData(GAMEMESSAGE_TURN_COMPLETE), m_ePlayer(ePlayer) 
++{ 
++}
++
++void CvNetTurnComplete::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Turn Complete, %d", m_ePlayer);
++}
++
++void CvNetTurnComplete::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).setEndTurn(true);
++	}
++}
++
++void CvNetTurnComplete::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++}
++
++void CvNetTurnComplete::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++}
++
++CvNetPushOrder::CvNetPushOrder() : CvMessageData(GAMEMESSAGE_PUSH_ORDER), m_ePlayer(NO_PLAYER), m_iCityID(-1), m_eOrder(NO_ORDER), m_iData(-1), m_bAlt(false), m_bShift(false), m_bCtrl(false)
++{
++}
++
++CvNetPushOrder::CvNetPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl) : CvMessageData(GAMEMESSAGE_PUSH_ORDER), m_ePlayer(ePlayer), m_iCityID(iCityID), m_eOrder(eOrder), m_iData(iData), m_bAlt(bAlt), m_bShift(bShift), m_bCtrl(bCtrl)
++{
++}
++
++void CvNetPushOrder::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Pushing an order at the city, order is %d, data is %d", m_eOrder, m_iData);
++}
++
++void CvNetPushOrder::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
++		if (pCity != NULL)
++		{
++			pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
++		}
++
++		if (GC.getGameINLINE().getActivePlayer() == m_ePlayer)
++		{
++			gDLL->getInterfaceIFace()->updatePythonScreens();
++		}
++	}
++}
++
++void CvNetPushOrder::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iCityID);
++	pStream->Write(m_eOrder);
++	pStream->Write(m_iData);
++	pStream->Write(m_bAlt);
++	pStream->Write(m_bShift);
++	pStream->Write(m_bCtrl);
++}
++
++void CvNetPushOrder::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iCityID);
++	pStream->Read((int*)&m_eOrder);
++	pStream->Read(&m_iData);
++	pStream->Read(&m_bAlt);
++	pStream->Read(&m_bShift);
++	pStream->Read(&m_bCtrl);
++}
++
++CvNetPopOrder::CvNetPopOrder() : CvMessageData(GAMEMESSAGE_POP_ORDER), m_ePlayer(NO_PLAYER), m_iCityID(-1), m_iNum(0)
++{
++}
++
++CvNetPopOrder::CvNetPopOrder(PlayerTypes ePlayer, int iCityID, int iNum) : CvMessageData(GAMEMESSAGE_POP_ORDER), m_ePlayer(ePlayer), m_iCityID(iCityID), m_iNum(iNum)
++{
++}
++
++void CvNetPopOrder::Debug(char* szAddendum) 
++{	
++	sprintf(szAddendum, "Pop Order at City, city ID is %d", m_iCityID);	
++}
++
++void CvNetPopOrder::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
++		if (pCity != NULL)
++		{
++			pCity->popOrder(m_iNum);
++		}
++
++		if (GC.getGameINLINE().getActivePlayer() == m_ePlayer)
++		{
++			gDLL->getInterfaceIFace()->updatePythonScreens();
++		}
++	}
++}
++
++void CvNetPopOrder::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iCityID);
++	pStream->Write(m_iNum);
++}
++
++void CvNetPopOrder::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iCityID);
++	pStream->Read(&m_iNum);
++}
++
++CvNetDoTask::CvNetDoTask() : CvMessageData(GAMEMESSAGE_DO_TASK), m_ePlayer(NO_PLAYER), m_iCityID(-1), m_eTask(NO_TASK), m_iData1(-1), m_iData2(-1), m_bOption(false), m_bAlt(false), m_bShift(false), m_bCtrl(false)
++{
++}
++
++CvNetDoTask::CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl) : CvMessageData(GAMEMESSAGE_DO_TASK), m_ePlayer(ePlayer), m_iCityID(iCityID), m_eTask(eTask), m_iData1(iData1), m_iData2(iData2), m_bOption(bOption), m_bAlt(bAlt), m_bShift(bShift), m_bCtrl(bCtrl)
++{
++}
++
++void CvNetDoTask::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Do Task at City, city ID is %d", m_iCityID);
++}
++
++void CvNetDoTask::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
++		if (pCity != NULL)
++		{
++			pCity->doTask(m_eTask, m_iData1, m_iData2, m_bOption, m_bAlt, m_bShift, m_bCtrl);
++		}
++	}
++}
++
++void CvNetDoTask::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iCityID);
++	pStream->Write(m_eTask);
++	pStream->Write(m_iData1);
++	pStream->Write(m_iData2);
++	pStream->Write(m_bOption);
++	pStream->Write(m_bAlt);
++	pStream->Write(m_bShift);
++	pStream->Write(m_bCtrl);
++}
++
++void CvNetDoTask::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iCityID);
++	pStream->Read((int*)&m_eTask);
++	pStream->Read(&m_iData1);
++	pStream->Read(&m_iData2);
++	pStream->Read(&m_bOption);
++	pStream->Read(&m_bAlt);
++	pStream->Read(&m_bShift);
++	pStream->Read(&m_bCtrl);
++}
++
++CvNetUpdateCivics::CvNetUpdateCivics() : CvMessageData(GAMEMESSAGE_UPDATE_CIVICS), m_ePlayer(NO_PLAYER), m_aeCivics(GC.getNumCivicOptionInfos(), NO_CIVIC)
++{
++}
++
++CvNetUpdateCivics::CvNetUpdateCivics(PlayerTypes ePlayer, const std::vector<CivicTypes>& aeCivics) : CvMessageData(GAMEMESSAGE_UPDATE_CIVICS), m_ePlayer(ePlayer), m_aeCivics(aeCivics)
++{
++}
++
++
++void CvNetUpdateCivics::Debug(char* szAddendum)
++{
++	sprintf(szAddendum, "Update Civics, ePlayer is %d", (int)m_ePlayer);
++}
++
++void CvNetUpdateCivics::Execute()
++{
++	if (m_ePlayer != NO_PLAYER && !m_aeCivics.empty())
++	{
++		GET_PLAYER(m_ePlayer).revolution(&m_aeCivics[0]);
++	}
++}
++
++void CvNetUpdateCivics::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	for (int i = 0; i < GC.getNumCivicOptionInfos(); i++) 
++	{
++		pStream->Write(m_aeCivics[i]);
++	}
++}
++
++void CvNetUpdateCivics::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	for (int i = 0; i < GC.getNumCivicOptionInfos(); i++) 
++	{
++		pStream->Read((int*)&m_aeCivics[i]);
++	}
++}
++
++CvNetResearch::CvNetResearch() : CvMessageData(GAMEMESSAGE_RESEARCH), m_ePlayer(NO_PLAYER), m_iDiscover(-1), m_bShift(false), m_eTech(NO_TECH)
++{
++}
++
++CvNetResearch::CvNetResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift) : CvMessageData(GAMEMESSAGE_RESEARCH), m_ePlayer(ePlayer), m_iDiscover(iDiscover), m_bShift(bShift), m_eTech(eTech)
++{
++}
++
++void CvNetResearch::Debug(char* szAddendum) 
++{		
++	sprintf(szAddendum, "Research, %d",	m_eTech); 
++}
++
++void CvNetResearch::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvPlayer& kPlayer = GET_PLAYER(m_ePlayer);
++		if (m_iDiscover > 0)
++		{
++			GET_TEAM(kPlayer.getTeam()).setHasTech(m_eTech, true, m_ePlayer, true, true);
++
++			if (m_iDiscover > 1)
++			{
++				if (m_ePlayer == GC.getGameINLINE().getActivePlayer())
++				{
++					kPlayer.chooseTech(m_iDiscover - 1);
++				}
++			}
++		}
++		else
++		{
++			if (m_eTech == NO_TECH)
++			{
++				kPlayer.clearResearchQueue();
++			}
++			else if (kPlayer.canEverResearch(m_eTech))
++			{
++				if ((GET_TEAM(kPlayer.getTeam()).isHasTech(m_eTech) || kPlayer.isResearchingTech(m_eTech)) && !m_bShift)
++				{
++					kPlayer.clearResearchQueue();
++				}
++				kPlayer.pushResearch(m_eTech, !m_bShift);
++			}
++		}
++
++		if (GC.getGameINLINE().getActivePlayer() == m_ePlayer)
++		{
++			gDLL->getInterfaceIFace()->updatePythonScreens();
++		}
++	}
++}
++
++void CvNetResearch::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iDiscover);
++	pStream->Write(m_bShift);
++	pStream->Write(m_eTech);
++}
++
++void CvNetResearch::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iDiscover);
++	pStream->Read(&m_bShift);
++	pStream->Read((int*)&m_eTech);
++}
++
++CvNetEspionageChange::CvNetEspionageChange() : CvMessageData(GAMEMESSAGE_ESPIONAGE_CHANGE), m_ePlayer(NO_PLAYER), m_eTargetTeam(NO_TEAM), m_iChange(0)
++{
++}
++
++CvNetEspionageChange::CvNetEspionageChange(PlayerTypes ePlayer, TeamTypes eTargetTeam, int iChange) : CvMessageData(GAMEMESSAGE_ESPIONAGE_CHANGE), m_ePlayer(ePlayer), m_eTargetTeam(eTargetTeam), m_iChange(iChange)
++{
++}
++
++void CvNetEspionageChange::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "TargetTeam: %d, Espionage Change: %d", m_eTargetTeam, m_iChange); 
++}
++
++void CvNetEspionageChange::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).changeEspionageSpendingWeightAgainstTeam(m_eTargetTeam, m_iChange);
++	}
++}
++	
++void CvNetEspionageChange::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eTargetTeam);
++	pStream->Write(m_iChange);
++}
++
++void CvNetEspionageChange::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eTargetTeam);
++	pStream->Read(&m_iChange);
++}
++
++CvNetAdvancedStartAction::CvNetAdvancedStartAction(AdvancedStartActionTypes eAction, PlayerTypes ePlayer, int iX, int iY, int iData, bool bAdd) : CvMessageData(GAMEMESSAGE_ADVANCED_START_ACTION),
++	m_eAction(eAction),
++	m_ePlayer(ePlayer),
++	m_iX(iX),
++	m_iY(iY),
++	m_iData(iData),
++	m_bAdd(bAdd)
++{
++}
++
++void CvNetAdvancedStartAction::Debug(char* szAddendum) 
++{ 	
++	sprintf(szAddendum, "Non-simultaneous Advanced Start Action notification");	
++}
++
++void CvNetAdvancedStartAction::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		if (!gDLL->getInterfaceIFace()->isExitingToMainMenu())
++		{
++			GET_PLAYER(m_ePlayer).doAdvancedStartAction(m_eAction, m_iX, m_iY, m_iData, m_bAdd);
++		}
++	}
++}
++
++void CvNetAdvancedStartAction::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_eAction);
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iX);
++	pStream->Write(m_iY);
++	pStream->Write(m_iData);
++	pStream->Write(m_bAdd);
++}
++
++void CvNetAdvancedStartAction::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_eAction);
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iX);
++	pStream->Read(&m_iY);
++	pStream->Read(&m_iData);
++	pStream->Read(&m_bAdd);
++}
++
++CvNetModNetMessage::CvNetModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5) : CvMessageData(GAMEMESSAGE_MOD_NET_MESSAGE), m_iData1(iData1), m_iData2(iData2), m_iData3(iData3), m_iData4(iData4), m_iData5(iData5)
++{
++}
++
++void CvNetModNetMessage::Debug(char* szAddendum) 
++{ 	
++	sprintf(szAddendum, "Non-simultaneous ModNetMessage notification");	
++}
++
++void CvNetModNetMessage::Execute()
++{
++	CvEventReporter::getInstance().reportModNetMessage(m_iData1, m_iData2, m_iData3, m_iData4, m_iData5);
++}
++
++void CvNetModNetMessage::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_iData1);
++	pStream->Write(m_iData2);
++	pStream->Write(m_iData3);
++	pStream->Write(m_iData4);
++	pStream->Write(m_iData5);
++}
++
++void CvNetModNetMessage::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read(&m_iData1);
++	pStream->Read(&m_iData2);
++	pStream->Read(&m_iData3);
++	pStream->Read(&m_iData4);
++	pStream->Read(&m_iData5);
++}
++
++CvNetConvert::CvNetConvert(PlayerTypes ePlayer, ReligionTypes eReligion) : CvMessageData(GAMEMESSAGE_CONVERT), m_ePlayer(ePlayer), m_eReligion(eReligion)
++{
++}
++
++void CvNetConvert::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "Religion: %d", m_eReligion); 
++}
++
++void CvNetConvert::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).convert(m_eReligion);
++	}
++}
++
++void CvNetConvert::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eReligion);
++}
++
++void CvNetConvert::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eReligion);
++}
++
++CvNetEmpireSplit::CvNetEmpireSplit(PlayerTypes ePlayer, int iAreaId) : CvMessageData(GAMEMESSAGE_EMPIRE_SPLIT),
++	m_ePlayer(ePlayer),
++	m_iAreaId(iAreaId)
++{
++}
++
++void CvNetEmpireSplit::Debug(char* szAddendum) 
++{ 	
++	sprintf(szAddendum, "Non-simultaneous empire split notification");	
++}
++
++void CvNetEmpireSplit::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).splitEmpire(m_iAreaId);
++	}
++}
++
++void CvNetEmpireSplit::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iAreaId);
++}
++
++void CvNetEmpireSplit::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iAreaId);
++}
++
++CvNetFoundReligion::CvNetFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, ReligionTypes eSlotReligion) : CvMessageData(GAMEMESSAGE_FOUND_RELIGION),
++	m_ePlayer(ePlayer),
++	m_eReligion(eReligion),
++	m_eSlotReligion(eSlotReligion)
++{
++}
++
++void CvNetFoundReligion::Debug(char* szAddendum) 
++{ 	
++	sprintf(szAddendum, "Non-simultaneous found religion notification");	
++}
++
++void CvNetFoundReligion::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).foundReligion(m_eReligion, m_eSlotReligion, true);
++	}
++}
++
++void CvNetFoundReligion::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eReligion);
++	pStream->Write(m_eSlotReligion);
++}
++
++void CvNetFoundReligion::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eReligion);
++	pStream->Read((int*)&m_eSlotReligion);
++}
++
++CvNetLaunchSpaceship::CvNetLaunchSpaceship(PlayerTypes ePlayer, VictoryTypes eVictory) : CvMessageData(GAMEMESSAGE_LAUNCH_SPACESHIP),
++	m_ePlayer(ePlayer),
++	m_eVictory(eVictory)
++{
++}
++
++void CvNetLaunchSpaceship::Debug(char* szAddendum)
++{ 	
++	sprintf(szAddendum, "Non-simultaneous spaceship launch notification");	
++}
++
++void CvNetLaunchSpaceship::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).launch(m_eVictory);
++	}
++}
++
++void CvNetLaunchSpaceship::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eVictory);
++}
++
++void CvNetLaunchSpaceship::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eVictory);
++}
++
++CvNetEventTriggered::CvNetEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId) : CvMessageData(GAMEMESSAGE_EVENT_TRIGGERED),
++	m_ePlayer(ePlayer),
++	m_eEvent(eEvent),
++	m_iEventTriggeredId(iEventTriggeredId)
++{
++}
++
++void CvNetEventTriggered::Debug(char* szAddendum) 
++{ 	
++	sprintf(szAddendum, "Non-simultaneous event trigger notification");	
++}
++
++void CvNetEventTriggered::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).applyEvent(m_eEvent, m_iEventTriggeredId);
++	}
++}
++
++void CvNetEventTriggered::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eEvent);
++	pStream->Write(m_iEventTriggeredId);
++}
++
++void CvNetEventTriggered::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eEvent);
++	pStream->Read((int*)&m_iEventTriggeredId);
++}
++
++CvNetJoinGroup::CvNetJoinGroup() : CvMessageData(GAMEMESSAGE_JOIN_GROUP), m_ePlayer(NO_PLAYER), m_iUnitID(-1), m_iHeadID(-1)
++{
++}
++
++CvNetJoinGroup::CvNetJoinGroup(PlayerTypes ePlayer, int iUnitID, int iHeadID) : CvMessageData(GAMEMESSAGE_JOIN_GROUP), m_ePlayer(ePlayer), m_iUnitID(iUnitID), m_iHeadID(iHeadID)
++{
++}
++
++void CvNetJoinGroup::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "Join Group unit %d -> head unit %d", m_iUnitID, m_iHeadID); 
++}
++
++void CvNetJoinGroup::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
++		if (pUnit != NULL)
++		{
++			CvUnit* pHeadUnit = GET_PLAYER(m_ePlayer).getUnit(m_iHeadID);
++			if (pHeadUnit != NULL)
++			{
++				pUnit->joinGroup(pHeadUnit->getGroup());
++			}
++			else
++			{
++				pUnit->joinGroup(NULL);
++			}
++		}
++	}
++}
++
++void CvNetJoinGroup::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iUnitID);
++	pStream->Write(m_iHeadID);
++}
++
++void CvNetJoinGroup::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iUnitID);
++	pStream->Read(&m_iHeadID);
++}
++
++CvNetPushMission::CvNetPushMission() : CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(NO_PLAYER), m_iUnitID(-1), m_eMission(NO_MISSION), m_iData1(-1), m_iData2(-1), m_iFlags(0), m_bShift(false)
++{
++}
++
++CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift) : CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(ePlayer), m_iUnitID(iUnitID), m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_iFlags(iFlags), m_bShift(bShift)
++{
++}
++
++void CvNetPushMission::Debug(char* szAddendum) 
++{		
++	sprintf(szAddendum, "Do Mission, who is %d, unit ID is %d, mission is %S", m_ePlayer, m_iUnitID, GC.getMissionInfo(m_eMission).getDescription());
++}
++
++void CvNetPushMission::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
++		if (pUnit != NULL)
++		{
++			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
++			if (pSelectionGroup != NULL)
++			{
++				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift, true);
++			}
++		}
++	}
++}
++
++void CvNetPushMission::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iUnitID);
++	pStream->Write(m_eMission);
++	pStream->Write(m_iData1);
++	pStream->Write(m_iData2);
++	pStream->Write(m_iFlags);
++	pStream->Write(m_bShift);
++}
++
++void CvNetPushMission::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iUnitID);
++	pStream->Read((int*)&m_eMission);
++	pStream->Read(&m_iData1);
++	pStream->Read(&m_iData2);
++	pStream->Read(&m_iFlags);
++	pStream->Read(&m_bShift);
++}
++
++CvNetAutoMission::CvNetAutoMission() : CvMessageData(GAMEMESSAGE_AUTO_MISSION), m_ePlayer(NO_PLAYER), m_iUnitID(-1)
++{
++}
++
++CvNetAutoMission::CvNetAutoMission(PlayerTypes ePlayer, int iUnitID) : CvMessageData(GAMEMESSAGE_AUTO_MISSION), m_ePlayer(ePlayer), m_iUnitID(iUnitID)
++{
++}
++
++void CvNetAutoMission::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "Auto Mission, unit ID is %d",	m_iUnitID); 
++}
++
++void CvNetAutoMission::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
++		if (pUnit != NULL)
++		{
++			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
++			if (pSelectionGroup != NULL)
++			{
++				pSelectionGroup->autoMission();
++			}
++		}
++	}
++}
++
++void CvNetAutoMission::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iUnitID);
++}
++
++void CvNetAutoMission::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iUnitID);
++}
++
++CvNetDoCommand::CvNetDoCommand() : CvMessageData(GAMEMESSAGE_DO_COMMAND), m_ePlayer(NO_PLAYER), m_iUnitID(-1), m_eCommand(NO_COMMAND), m_iData1(-1), m_iData2(-1), m_bAlt(false) 
++{
++}
++
++CvNetDoCommand::CvNetDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt) : CvMessageData(GAMEMESSAGE_DO_COMMAND), m_ePlayer(ePlayer), m_iUnitID(iUnitID), m_eCommand(eCommand), m_iData1(iData1), m_iData2(iData2), m_bAlt(bAlt) 
++{
++}
++
++void CvNetDoCommand::Debug(char* szAddendum) 
++{
++	sprintf(szAddendum, "Do Command, who is %d, unit ID is %d, command is %d", m_ePlayer, m_iUnitID, m_eCommand);
++}
++
++void CvNetDoCommand::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
++		if (pUnit != NULL)
++		{
++			if (m_bAlt && GC.getCommandInfo(m_eCommand).getAll())
++			{
++				int iLoop;
++				for (CvUnit* pLoopUnit = GET_PLAYER(m_ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_ePlayer).nextUnit(&iLoop))
++				{
++					if (pLoopUnit->getUnitType() == pUnit->getUnitType())
++					{
++						pLoopUnit->doCommand(m_eCommand, m_iData1, m_iData2);
++					}
++				}
++			}
++			else
++			{
++				pUnit->doCommand(m_eCommand, m_iData1, m_iData2);
++			}
++		}
++	}
++}
++
++void CvNetDoCommand::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iUnitID);
++	pStream->Write(m_eCommand);
++	pStream->Write(m_iData1);
++	pStream->Write(m_iData2);
++	pStream->Write(m_bAlt);
++}
++
++void CvNetDoCommand::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iUnitID);
++	pStream->Read((int*)&m_eCommand);
++	pStream->Read(&m_iData1);
++	pStream->Read(&m_iData2);
++	pStream->Read(&m_bAlt);
++}
++
++CvNetPercentChange::CvNetPercentChange() : CvMessageData(GAMEMESSAGE_PERCENT_CHANGE), m_ePlayer(NO_PLAYER), m_iChange(0), m_eCommerce(NO_COMMERCE)
++{
++}
++
++CvNetPercentChange::CvNetPercentChange(PlayerTypes ePlayer, CommerceTypes eCommerce, int iChange) : CvMessageData(GAMEMESSAGE_PERCENT_CHANGE), m_ePlayer(ePlayer), m_iChange(iChange), m_eCommerce(eCommerce)
++{
++}
++
++void CvNetPercentChange::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "Commerce: %d, Percent Change: %d", m_eCommerce, m_iChange); 
++}
++
++void CvNetPercentChange::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		GET_PLAYER(m_ePlayer).changeCommercePercent(m_eCommerce, m_iChange);
++	}
++}
++
++void CvNetPercentChange::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iChange);
++	pStream->Write(m_eCommerce);
++}
++
++void CvNetPercentChange::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iChange);
++	pStream->Read((int*)&m_eCommerce);
++}
++
++CvNetChangeVassal::CvNetChangeVassal() : CvMessageData(GAMEMESSAGE_CHANGE_VASSAL), m_ePlayer(NO_PLAYER), m_eMasterTeam(NO_TEAM), m_bVassal(false), m_bCapitulated(false)
++{
++}
++
++CvNetChangeVassal::CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam, bool bVassal, bool bCapitulated) : CvMessageData(GAMEMESSAGE_CHANGE_VASSAL), m_ePlayer(ePlayer), m_eMasterTeam(eMasterTeam), m_bVassal(bVassal), m_bCapitulated(bCapitulated)
++{
++}
++
++void CvNetChangeVassal::Debug(char* szAddendum) 
++{	
++	sprintf(szAddendum, "Change Vassal, master team is %d", m_eMasterTeam);	
++}
++
++void CvNetChangeVassal::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		FAssert(GET_PLAYER(m_ePlayer).getTeam() != m_eMasterTeam);
++		GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).setVassal(m_eMasterTeam, m_bVassal, m_bCapitulated);
++	}
++}
++
++void CvNetChangeVassal::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eMasterTeam);
++	pStream->Write(m_bVassal);
++	pStream->Write(m_bCapitulated);
++}
++
++void CvNetChangeVassal::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eMasterTeam);
++	pStream->Read(&m_bVassal);
++	pStream->Read(&m_bCapitulated);
++}
++
++CvNetChooseElection::CvNetChooseElection() : CvMessageData(GAMEMESSAGE_CHOOSE_ELECTION), m_ePlayer(NO_PLAYER), m_iSelection(-1), m_iVoteId(-1)
++{
++}
++
++CvNetChooseElection::CvNetChooseElection(PlayerTypes ePlayer, int iSelection, int iVoteId) : CvMessageData(GAMEMESSAGE_CHOOSE_ELECTION), m_ePlayer(ePlayer), m_iSelection(iSelection), m_iVoteId(iVoteId)
++{
++}
++
++void CvNetChooseElection::Debug(char* szAddendum) 
++{	
++	sprintf(szAddendum, "Choose Election: %d", m_iSelection);	
++}
++
++void CvNetChooseElection::Execute()
++{
++	GC.getGameINLINE().setVoteChosen(m_iSelection, m_iVoteId);
++}
++
++void CvNetChooseElection::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iSelection);
++	pStream->Write(m_iVoteId);
++}
++
++void CvNetChooseElection::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iSelection);
++	pStream->Read(&m_iVoteId);
++}
++
++CvNetDiploVote::CvNetDiploVote() : CvMessageData(GAMEMESSAGE_DIPLO_VOTE), m_ePlayer(NO_PLAYER), m_iVoteId(-1), m_eChoice(NO_PLAYER_VOTE) 
++{
++}
++
++CvNetDiploVote::CvNetDiploVote(PlayerTypes ePlayer, int iVoteId, PlayerVoteTypes eChoice) : CvMessageData(GAMEMESSAGE_DIPLO_VOTE), m_ePlayer(ePlayer), m_iVoteId(iVoteId), m_eChoice(eChoice) 
++{
++}
++
++void CvNetDiploVote::Debug(char* szAddendum) 
++{	
++	sprintf(szAddendum, "Diplo Vote for %d; Choice is %d", m_iVoteId, m_eChoice);	
++}
++
++void CvNetDiploVote::Execute()
++{
++	GC.getGameINLINE().castVote(m_ePlayer, m_iVoteId, m_eChoice);
++}
++
++void CvNetDiploVote::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iVoteId);
++	pStream->Write(m_eChoice);
++}
++
++void CvNetDiploVote::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iVoteId);
++	pStream->Read((int*)&m_eChoice);
++}
++
++CvNetChangeWar::CvNetChangeWar() : CvMessageData(GAMEMESSAGE_CHANGE_WAR), m_ePlayer(NO_PLAYER), m_eRivalTeam(NO_TEAM), m_bWar(false)
++{
++}
++
++CvNetChangeWar::CvNetChangeWar(PlayerTypes ePlayer, TeamTypes eRivalTeam, bool bWar) : CvMessageData(GAMEMESSAGE_CHANGE_WAR), m_ePlayer(ePlayer), m_eRivalTeam(eRivalTeam), m_bWar(bWar)
++{
++}
++
++void CvNetChangeWar::Debug(char* szAddendum) 
++{	
++	sprintf(szAddendum, "Change War, rival team is %d", m_eRivalTeam);	
++}
++
++void CvNetChangeWar::Execute()
++{
++	if (m_ePlayer != NO_PLAYER)
++	{
++		FAssert(GET_PLAYER(m_ePlayer).getTeam() != m_eRivalTeam);
++		if (m_bWar)
++		{
++			GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).declareWar(m_eRivalTeam, false, NO_WARPLAN);
++
++			if (gDLL->isDiplomacy() && GET_PLAYER((PlayerTypes) gDLL->getDiplomacyPlayer()).getTeam() == m_eRivalTeam)
++			{
++				gDLL->endDiplomacy();
++			}
++		}
++		else
++		{
++			GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).makePeace(m_eRivalTeam);
++		}
++	}
++}
++
++void CvNetChangeWar::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_eRivalTeam);
++	pStream->Write(m_bWar);
++}
++
++void CvNetChangeWar::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read((int*)&m_eRivalTeam);
++	pStream->Read(&m_bWar);
++}
++
++CvNetPing::CvNetPing(PlayerTypes ePlayer, int iX, int iY) : CvMessageData(GAMEMESSAGE_PING), m_ePlayer(ePlayer), m_iX(iX), m_iY(iY) 
++{ 
++}
++
++void CvNetPing::Debug(char* szAddendum) 
++{ 
++	sprintf(szAddendum, "Ping message received");	
++}
++
++void CvNetPing::PutInBuffer(FDataStreamBase* pStream)
++{
++	pStream->Write(m_ePlayer);
++	pStream->Write(m_iX);
++	pStream->Write(m_iY);
++}
++
++void CvNetPing::SetFromBuffer(FDataStreamBase* pStream)
++{
++	pStream->Read((int*)&m_ePlayer);
++	pStream->Read(&m_iX);
++	pStream->Read(&m_iY);
++}
++
++void CvNetPing::Execute()
++{
++	if (GC.getGameINLINE().getActiveTeam() != NO_TEAM)
++	{
++		if (GET_PLAYER(m_ePlayer).getTeam() == GC.getGameINLINE().getActiveTeam() || GET_TEAM(GC.getGameINLINE().getActiveTeam()).isVassal(GET_PLAYER(m_ePlayer).getTeam()) || GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isVassal(GC.getGameINLINE().getActiveTeam()))
++		{
++			gDLL->getInterfaceIFace()->doPing(m_iX, m_iY, m_ePlayer);
++		}
++	}
++}
++
++
+
+Index: /trunk/CvGameCoreDLL/CvMessageData.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvMessageData.h@474
+@@ -0,0 +1,419 @@
++#ifndef CV_MESSAGE_DATA
++#define CV_MESSAGE_DATA
++
++class FDataStreamBase;
++
++class CvMessageData
++{
++public:
++	CvMessageData(GameMessageTypes eType);
++	virtual ~CvMessageData();
++	DllExport virtual void Debug(char* szAddendum) = 0;
++	DllExport virtual void Execute() = 0;
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream) = 0;
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream) = 0;
++
++	DllExport GameMessageTypes getType() const;
++
++	DllExport static CvMessageData* createMessage(GameMessageTypes eType);
++
++private:
++	GameMessageTypes m_eType;
++};
++
++class CvNetExtendedGame : public CvMessageData
++{
++public:
++	CvNetExtendedGame(PlayerTypes ePlayer = NO_PLAYER);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++};
++
++class CvNetAutoMoves : public CvMessageData
++{
++public:
++	CvNetAutoMoves(PlayerTypes ePlayer = NO_PLAYER);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++};
++
++class CvNetTurnComplete : public CvMessageData
++{
++public:
++	CvNetTurnComplete(PlayerTypes ePlayer = NO_PLAYER);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++};
++
++class CvNetPushOrder : public CvMessageData
++{
++public:
++	CvNetPushOrder();
++	CvNetPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iCityID;
++	OrderTypes m_eOrder;
++	int m_iData;
++	bool m_bAlt;
++	bool m_bShift;
++	bool m_bCtrl;
++};
++
++class CvNetPopOrder : public CvMessageData
++{
++public:
++	CvNetPopOrder();
++	CvNetPopOrder(PlayerTypes ePlayer, int iCityID, int iNum);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iCityID;
++	int m_iNum;
++};
++
++class CvNetDoTask : public CvMessageData
++{
++public:
++	CvNetDoTask();
++	CvNetDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iCityID;
++	TaskTypes m_eTask;
++	int m_iData1;
++	int m_iData2;
++	bool m_bOption;
++	bool m_bAlt;
++	bool m_bShift;
++	bool m_bCtrl;
++};
++
++class CvNetUpdateCivics : public CvMessageData
++{
++public:
++	CvNetUpdateCivics();
++	CvNetUpdateCivics(PlayerTypes ePlayer, const std::vector<CivicTypes>& aeCivics);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	std::vector<CivicTypes> m_aeCivics;
++};
++
++class CvNetResearch : public CvMessageData
++{
++public:
++	CvNetResearch();
++	CvNetResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iDiscover;
++	bool m_bShift;
++	TechTypes m_eTech;
++};
++
++class CvNetEspionageChange : public CvMessageData
++{
++public:
++	CvNetEspionageChange();
++	CvNetEspionageChange(PlayerTypes ePlayer, TeamTypes eTargetTeam, int iChange);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	TeamTypes m_eTargetTeam;
++	int m_iChange;
++};
++
++class CvNetAdvancedStartAction : public CvMessageData
++{
++public:
++	CvNetAdvancedStartAction(AdvancedStartActionTypes eAction = NO_ADVANCEDSTARTACTION, PlayerTypes ePlayer = NO_PLAYER, int iX = -1, int iY = -1, int iData = -1, bool bAdd = true);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	AdvancedStartActionTypes m_eAction;
++	PlayerTypes m_ePlayer;
++	int m_iX;
++	int m_iY;
++	int m_iData;
++	bool m_bAdd;
++}; 
++
++class CvNetModNetMessage : public CvMessageData
++{
++public:
++	CvNetModNetMessage(int iData1 = -1, int iData2 = -1, int iData3 = -1, int iData4 = -1, int iData5 = -1);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	int m_iData1;
++	int m_iData2;
++	int m_iData3;
++	int m_iData4;
++	int m_iData5;
++}; 
++
++//  Convert religions
++class CvNetConvert : public CvMessageData
++{
++public:
++	CvNetConvert(PlayerTypes ePlayer = NO_PLAYER, ReligionTypes eReligion = NO_RELIGION);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	ReligionTypes m_eReligion;
++};
++
++class CvNetEmpireSplit : public CvMessageData
++{
++public:
++	CvNetEmpireSplit(PlayerTypes ePlayer = NO_PLAYER, int iAreaId = -1);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iAreaId;
++}; 
++
++class CvNetFoundReligion : public CvMessageData
++{
++public:
++	CvNetFoundReligion(PlayerTypes ePlayer = NO_PLAYER, ReligionTypes eReligion = NO_RELIGION, ReligionTypes eSlotReligion = NO_RELIGION);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	ReligionTypes m_eReligion;
++	ReligionTypes m_eSlotReligion;
++}; 
++
++class CvNetLaunchSpaceship : public CvMessageData
++{
++public:
++	CvNetLaunchSpaceship(PlayerTypes ePlayer = NO_PLAYER, VictoryTypes eVictory = NO_VICTORY);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	VictoryTypes m_eVictory;
++}; 
++
++class CvNetEventTriggered : public CvMessageData
++{
++public:
++	CvNetEventTriggered(PlayerTypes ePlayer = NO_PLAYER, EventTypes eEvent = NO_EVENT, int iEventTriggeredId = -1);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	EventTypes m_eEvent;
++	int m_iEventTriggeredId;
++}; 
++
++class CvNetJoinGroup : public CvMessageData
++{
++public:
++	CvNetJoinGroup();
++	CvNetJoinGroup(PlayerTypes ePlayer, int iUnitID, int iHeadID);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iUnitID;
++	int m_iHeadID;
++};
++
++class CvNetPushMission : public CvMessageData
++{
++public:
++	CvNetPushMission();
++	CvNetPushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iUnitID;
++	MissionTypes m_eMission;
++	int m_iData1;
++	int m_iData2;
++	int m_iFlags;
++	bool m_bShift;
++};
++
++class CvNetAutoMission : public CvMessageData
++{
++public:
++	CvNetAutoMission();
++	CvNetAutoMission(PlayerTypes ePlayer, int iUnitID);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iUnitID;
++};
++
++class CvNetDoCommand : public CvMessageData
++{
++public:
++	CvNetDoCommand();
++	CvNetDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iUnitID;
++	CommandTypes m_eCommand;
++	int m_iData1;
++	int m_iData2;
++	bool m_bAlt;
++};
++
++class CvNetPercentChange : public CvMessageData
++{
++public:
++	CvNetPercentChange();
++	CvNetPercentChange(PlayerTypes ePlayer, CommerceTypes eCommerce, int iChange);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iChange;
++	CommerceTypes m_eCommerce;
++};
++
++class CvNetChangeVassal : public CvMessageData
++{
++public:
++	CvNetChangeVassal();
++	CvNetChangeVassal(PlayerTypes ePlayer, TeamTypes eMasterTeam, bool bVassal, bool bCapitulated);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	bool m_bVassal;
++	bool m_bCapitulated;
++	PlayerTypes m_ePlayer;
++	TeamTypes m_eMasterTeam;
++};
++
++class CvNetChooseElection : public CvMessageData
++{
++public:
++	CvNetChooseElection();
++	CvNetChooseElection(PlayerTypes ePlayer, int iSelection, int iVoteId);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iSelection;
++	int m_iVoteId;
++};
++
++class CvNetDiploVote : public CvMessageData
++{
++public:
++	CvNetDiploVote();
++	CvNetDiploVote(PlayerTypes ePlayer, int iVoteId, PlayerVoteTypes eChoice);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iVoteId;
++	PlayerVoteTypes m_eChoice;
++};
++
++class CvNetChangeWar : public CvMessageData
++{
++public:
++	CvNetChangeWar();
++	CvNetChangeWar(PlayerTypes ePlayer, TeamTypes eRivalTeam, bool bWar);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	bool m_bWar;
++	PlayerTypes m_ePlayer;
++	TeamTypes m_eRivalTeam;
++};
++
++class CvNetPing : public CvMessageData
++{
++public:
++	CvNetPing(PlayerTypes ePlayer = NO_PLAYER, int iX = 0, int iY = 0);
++	DllExport virtual void Debug(char* szAddendum);
++	DllExport virtual void Execute();
++	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
++	DllExport virtual void SetFromBuffer(FDataStreamBase* pStream);
++private:
++	PlayerTypes m_ePlayer;
++	int m_iX;
++	int m_iY;
++};
++
++
++
++#endif
+
+Index: /trunk/CvGameCoreDLL/CvStatistics.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvStatistics.cpp@474
+@@ -0,0 +1,485 @@
++#include "CvGameCoreDLL.h"
++#include "CvStatistics.h"
++#include "CvUnit.h"
++#include "CvCity.h"
++#include "CvGlobals.h"
++#include "CvGameAI.h"
++#include "CvPlayerAI.h"
++
++CvGameRecord::CvGameRecord()
++{
++	init();
++}
++
++CvGameRecord::~CvGameRecord()
++{
++	uninit();
++}
++
++void CvGameRecord::init()
++{
++	reset();
++}
++
++void CvGameRecord::uninit()
++{
++}
++
++void CvGameRecord::reset()
++{
++	uninit();
++
++	m_eEra = NO_ERA;
++
++	m_szMapName.clear();
++}
++
++void CvGameRecord::setMapName(const char * szMapName)
++{
++	m_szMapName = szMapName;
++}
++
++const CvString& CvGameRecord::getMapName() const
++{ 
++	return m_szMapName; 
++}
++
++void CvGameRecord::setEra( EraTypes eEra )
++{ 
++	m_eEra = eEra; 
++}
++
++EraTypes CvGameRecord::getEra() const
++{ 
++	return m_eEra; 
++}
++
++void CvGameRecord::read(FDataStreamBase* pStream)
++{
++	// reset before loading
++	reset();
++
++	uint uiFlag=0;
++	pStream->Read(&uiFlag);	// flags for expansion
++
++	pStream->Read((int*)&m_eEra);
++
++	pStream->ReadString(m_szMapName);
++}
++
++void CvGameRecord::write(FDataStreamBase* pStream)
++{
++	uint uiFlag=0;
++	pStream->Write(uiFlag);	// flags for expansion
++
++	pStream->Write(m_eEra);
++
++	pStream->WriteString(m_szMapName);
++}
++
++CvPlayerRecord::CvPlayerRecord()
++{
++	m_piNumUnitsBuilt = NULL;
++	m_piNumUnitsKilled = NULL;
++	m_piNumUnitsWasKilled = NULL;
++	m_piNumBuildingsBuilt = NULL;
++	m_pbReligionFounded = NULL;
++
++	init();
++}
++
++CvPlayerRecord::~CvPlayerRecord()
++{
++	uninit();
++}
++
++void CvPlayerRecord::init()
++{
++	reset();
++}
++
++void CvPlayerRecord::uninit()
++{
++	SAFE_DELETE_ARRAY(m_piNumUnitsBuilt);
++	SAFE_DELETE_ARRAY(m_piNumUnitsKilled);
++	SAFE_DELETE_ARRAY(m_piNumUnitsWasKilled);
++	SAFE_DELETE_ARRAY(m_piNumBuildingsBuilt);
++
++	SAFE_DELETE_ARRAY(m_pbReligionFounded);
++}
++
++void CvPlayerRecord::reset()
++{
++	uninit();
++
++	m_iID = -1;
++	m_iTime = 0;
++	
++	m_eVictory = NO_VICTORY;
++	m_eLeader = NO_LEADER;
++
++	m_piNumUnitsBuilt = new int[GC.getNumUnitInfos()];
++	m_piNumUnitsKilled = new int[GC.getNumUnitInfos()];
++	m_piNumUnitsWasKilled = new int[GC.getNumUnitInfos()];
++
++	m_piNumBuildingsBuilt = new int[GC.getNumBuildingInfos()];
++
++	m_pbReligionFounded = new bool[GC.getNumReligionInfos()];
++
++	int i;
++	for (i = 0; i < GC.getNumUnitInfos(); ++i)
++	{
++		m_piNumUnitsBuilt[i] = 0;
++		m_piNumUnitsKilled[i] = 0;
++		m_piNumUnitsWasKilled[i] = 0;
++	}
++	for (i = 0; i < GC.getNumBuildingInfos(); ++i)
++	{
++		m_piNumBuildingsBuilt[i] = 0;
++	}
++	for (i = 0; i < GC.getNumReligionInfos(); ++i)
++	{
++		m_pbReligionFounded[i] = false;
++	}
++
++	m_iNumCitiesBuilt = 0;
++	m_iNumCitiesRazed = 0;
++	m_iNumGoldenAges = 0;
++}
++
++void CvPlayerRecord::unitBuilt( CvUnit *pUnit )
++{
++	++m_piNumUnitsBuilt[pUnit->getUnitType()];
++}
++
++int CvPlayerRecord::getNumUnitsBuilt(int iUnitType) const
++{
++	return m_piNumUnitsBuilt[iUnitType];
++}
++
++void CvPlayerRecord::unitKilled( CvUnit * pUnit )
++{
++	++m_piNumUnitsKilled[pUnit->getUnitType()];
++}
++
++int CvPlayerRecord::getNumUnitsKilled(int iUnitType) const
++{
++	return m_piNumUnitsKilled[iUnitType];
++}
++
++void CvPlayerRecord::unitWasKilled( CvUnit * pUnit )
++{
++	++m_piNumUnitsWasKilled[pUnit->getUnitType()];
++}
++
++int CvPlayerRecord::getNumUnitsWasKilled(int iUnitType) const
++{
++	return m_piNumUnitsWasKilled[iUnitType];
++}
++
++void CvPlayerRecord::buildingBuilt( BuildingTypes eBuilding )
++{
++	++m_piNumBuildingsBuilt[(int)eBuilding];
++}
++
++int CvPlayerRecord::getNumBuildingsBuilt(BuildingTypes eBuilding) const
++{
++	return m_piNumBuildingsBuilt[(int)eBuilding];
++}
++
++void CvPlayerRecord::religionFounded( ReligionTypes eReligion )
++{
++	m_pbReligionFounded[(int)eReligion] = true;
++}
++
++bool CvPlayerRecord::getReligionFounded( ReligionTypes eReligion ) const
++{
++	return m_pbReligionFounded[(int)eReligion];
++}
++
++void CvPlayerRecord::setPlayerID( int iID )
++{ 
++	m_iID = iID; 
++}
++
++int CvPlayerRecord::getPlayerID() const
++{ 
++	return m_iID; 
++}
++
++void CvPlayerRecord::setVictory(VictoryTypes eVictory)
++{ 
++	m_eVictory = eVictory; 
++}
++
++int CvPlayerRecord::getVictory() const
++{ 
++	return m_eVictory; 
++}
++
++void CvPlayerRecord::setTimePlayed( int iTime )
++{ 
++	m_iTime = iTime; 
++}
++
++int CvPlayerRecord::getMinutesPlayed() const
++{ 
++	return m_iTime; 
++}
++
++void CvPlayerRecord::setLeader( LeaderHeadTypes eLeader )
++{ 
++	m_eLeader = eLeader; 
++}
++
++LeaderHeadTypes CvPlayerRecord::getLeader() const
++{ 
++	return m_eLeader; 
++}
++
++void CvPlayerRecord::cityBuilt()
++{ 
++	++m_iNumCitiesBuilt; 
++}
++
++int CvPlayerRecord::getNumCitiesBuilt() const
++{ 
++	return m_iNumCitiesBuilt; 
++}
++
++void CvPlayerRecord::cityRazed()
++{ 
++	++m_iNumCitiesRazed; 
++}
++
++int CvPlayerRecord::getNumCitiesRazed() const
++{ 
++	return m_iNumCitiesRazed; 
++}
++
++void CvPlayerRecord::goldenAge()
++{ 
++	++m_iNumGoldenAges; 
++}
++
++int CvPlayerRecord::getNumGoldenAges() const
++{ 
++	return m_iNumGoldenAges; 
++}
++
++void CvPlayerRecord::read(FDataStreamBase* pStream)
++{
++	// reset before loading
++	reset();
++
++	uint uiFlag=0;
++	pStream->Read(&uiFlag);	// flags for expansion
++
++	pStream->Read(&m_iID);
++	pStream->Read(&m_iTime);
++
++	pStream->Read((int*)&m_eVictory);
++	pStream->Read((int*)&m_eLeader);
++
++	pStream->Read(GC.getNumUnitInfos(), m_piNumUnitsBuilt);
++	pStream->Read(GC.getNumUnitInfos(), m_piNumUnitsKilled);
++	pStream->Read(GC.getNumUnitInfos(), m_piNumUnitsWasKilled);
++	pStream->Read(GC.getNumBuildingInfos(), m_piNumBuildingsBuilt);
++	pStream->Read(GC.getNumReligionInfos(), m_pbReligionFounded);
++
++	pStream->Read(&m_iNumCitiesBuilt);
++	pStream->Read(&m_iNumCitiesRazed);
++	pStream->Read(&m_iNumGoldenAges);
++}
++
++void CvPlayerRecord::write(FDataStreamBase* pStream)
++{
++	uint uiFlag=0;
++	pStream->Write(uiFlag);	// flags for expansion
++
++	pStream->Write(m_iID);
++	pStream->Write(m_iTime);
++
++	pStream->Write(m_eVictory);
++	pStream->Write(m_eLeader);
++
++	pStream->Write(GC.getNumUnitInfos(), m_piNumUnitsBuilt);
++	pStream->Write(GC.getNumUnitInfos(), m_piNumUnitsKilled);
++	pStream->Write(GC.getNumUnitInfos(), m_piNumUnitsWasKilled);
++	pStream->Write(GC.getNumBuildingInfos(), m_piNumBuildingsBuilt);
++	pStream->Write(GC.getNumReligionInfos(), m_pbReligionFounded);
++
++	pStream->Write(m_iNumCitiesBuilt);
++	pStream->Write(m_iNumCitiesRazed);
++	pStream->Write(m_iNumGoldenAges);
++}
++
++////////////////////////////////////////////////////////////////////
++// CvStatistics
++///////////////////////////////////////////////////////////////////
++
++CvStatistics::~CvStatistics() 
++{ 
++	uninit();	
++}
++
++//
++// Initialization
++//
++void CvStatistics::init()
++{
++	reset();
++}
++void CvStatistics::uninit()
++{
++	for(int i=0;i<(int)m_PlayerRecords.size();i++)
++	{
++		SAFE_DELETE(m_PlayerRecords[i]);	// free memory - MT
++	}
++	m_PlayerRecords.clear();
++}
++void CvStatistics::reset()
++{
++	uninit();
++}
++
++// 
++// Setting game-specific stats
++//
++void CvStatistics::setMapName(const char * szMapName)
++{
++	m_GameRecord.setMapName(szMapName);
++}
++void CvStatistics::setEra(EraTypes eEra)
++{
++	m_GameRecord.setEra(eEra);
++}
++
++// 
++// Setting player-specific stats
++//
++void CvStatistics::setVictory( TeamTypes eWinner, VictoryTypes eVictory )
++{
++	// Report a victory for all players on this team...
++	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
++	{
++		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
++		{
++			// DAN: They could be eliminated and still watching the game and get a win!
++			// How to prevent this?
++			if ( (GET_PLAYER((PlayerTypes)i).isHuman()) && (GET_PLAYER((PlayerTypes)i).getTeam() == eWinner) )
++			{
++				// If this guy is still alive and on the winning team, record the victory
++				getPlayerRecord(i)->setVictory(eVictory);
++			}
++			else
++			{
++				// Record the loss
++				getPlayerRecord(i)->setVictory(NO_VICTORY);
++			}
++		}
++	}
++}
++void CvStatistics::setTimePlayed( PlayerTypes ePlayer, int iTime )
++{
++	getPlayerRecord((int)ePlayer)->setTimePlayed(iTime);
++}
++void CvStatistics::setLeader( PlayerTypes ePlayer, LeaderHeadTypes eLeader )
++{
++	getPlayerRecord((int)ePlayer)->setLeader(eLeader);
++}
++
++// 
++// Player-specific stat events
++//
++void CvStatistics::unitBuilt( CvUnit *pUnit )
++{
++	getPlayerRecord( pUnit->getOwner() )->unitBuilt( pUnit );
++}
++void CvStatistics::unitKilled( CvUnit *pUnit, PlayerTypes eAttacker )
++{
++	getPlayerRecord( eAttacker )->unitKilled( pUnit );
++	getPlayerRecord( pUnit->getOwner() )->unitWasKilled( pUnit );
++}
++void CvStatistics::cityBuilt( CvCity *pCity )
++{
++	getPlayerRecord( pCity->getOwner() )->cityBuilt();
++}
++void CvStatistics::cityRazed( CvCity * pCity, PlayerTypes ePlayer )
++{
++	getPlayerRecord( ePlayer )->cityRazed();
++}
++void CvStatistics::buildingBuilt( CvCity *pCity, BuildingTypes eBuilding )
++{
++	getPlayerRecord( pCity->getOwner() )->buildingBuilt(eBuilding);
++}
++void CvStatistics::religionFounded( ReligionTypes eReligion, PlayerTypes eFounder )
++{
++	getPlayerRecord( eFounder )->religionFounded(eReligion);
++}
++void CvStatistics::goldenAge( PlayerTypes ePlayer )
++{
++	getPlayerRecord( ePlayer )->goldenAge();
++}
++
++void CvStatistics::read(FDataStreamBase* pStream)
++{
++	// Read game data into record
++	m_GameRecord.read(pStream);
++
++	// Read player data into records
++	for (int i = 0; i < MAX_PLAYERS; ++i)
++	{
++		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
++		{
++			getPlayerRecord(i)->read(pStream);
++		}
++	}
++}
++
++void CvStatistics::write(FDataStreamBase* pStream)
++{
++	// Write game data into record
++	m_GameRecord.write(pStream);
++
++	// Write player data into records
++	for (int i = 0; i < MAX_PLAYERS; ++i)
++	{
++		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
++		{
++			getPlayerRecord(i)->write(pStream);
++		}
++	}
++}
++
++// 
++// Player record accessor
++//
++CvPlayerRecord *CvStatistics::getPlayerRecord(int iIndex)
++{
++	FAssert(iIndex >= 0);
++	FAssert(iIndex < MAX_PLAYERS);
++
++	if ( iIndex >= (int)m_PlayerRecords.size() || m_PlayerRecords[iIndex] == NULL )
++	{
++		CvPlayerRecord *pRecord = new CvPlayerRecord;
++
++		pRecord->init();
++		pRecord->setPlayerID( iIndex );
++		m_PlayerRecords.resize(iIndex + 1, NULL);
++		m_PlayerRecords[iIndex] = pRecord;
++	}
++
++	return m_PlayerRecords[iIndex];
++}
++
++const char* CvStatistics::getMapName() const
++{
++	return m_GameRecord.getMapName().GetCString();
++}
++
++EraTypes CvStatistics::getEra() const
++{
++	return m_GameRecord.getEra();
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvStatistics.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CvStatistics.h@474
+@@ -0,0 +1,175 @@
++#pragma once
++
++#ifndef _CVSTATISTICS_H_
++#define _CVSTATISTICS_H_
++
++//#include "CvEnums.h"
++
++class CvCity;
++class CvUnit;
++
++//
++// game stats record
++//
++class CvGameRecord
++{
++	friend class CvStatistics;
++public:
++	void init();
++	void uninit();
++	void reset();
++
++	// Map played
++	void setMapName( const char * szMapName );
++	const CvString& getMapName( void ) const;
++
++	// Era played
++	void setEra( EraTypes eEra );
++	EraTypes getEra( void ) const;
++
++	// for serialization
++	virtual void read(FDataStreamBase* pStream);
++	virtual void write(FDataStreamBase* pStream);
++		
++private:
++	CvGameRecord();								// no one can create one of these except CvStatistics
++	~CvGameRecord();					// no one can destroy one of these except CvStatistics
++				
++	EraTypes m_eEra;
++
++	CvString m_szMapName;							
++};
++
++
++//
++// player stats record
++//
++class CvPlayerRecord
++{
++friend class CvStatistics;
++public:
++	void init();
++	void uninit();
++	void reset();
++
++	// ID
++	void setPlayerID( int iID );
++	DllExport int getPlayerID( void ) const;
++
++	// Outcome
++	void setVictory(VictoryTypes eVictory);
++	DllExport int getVictory() const;
++
++	// Length of time player lasted in game
++	void setTimePlayed( int iTime );
++	DllExport int getMinutesPlayed() const;
++
++	// Leader/Civ played
++	void setLeader( LeaderHeadTypes eLeader );
++	DllExport LeaderHeadTypes getLeader() const;
++
++	// Num units built
++	void unitBuilt( CvUnit *pUnit );
++	DllExport int getNumUnitsBuilt(int iUnitType) const;
++
++	// Num units we killed
++	void unitKilled( CvUnit *pUnit );
++	DllExport int getNumUnitsKilled( int iUnitType ) const;
++
++	// Num units we had killed
++	void unitWasKilled( CvUnit *pUnit );
++	DllExport int getNumUnitsWasKilled( int iUnitType ) const;
++
++	// Num cities built
++	void cityBuilt();
++	DllExport int getNumCitiesBuilt() const;
++
++	// Num cities razed
++	void cityRazed();
++	DllExport int getNumCitiesRazed() const;
++
++	// Num buildings built
++	void buildingBuilt( BuildingTypes eBuilding );
++	DllExport int getNumBuildingsBuilt( BuildingTypes eBuilding ) const;
++
++	// Religion founded
++	void religionFounded( ReligionTypes eReligion );
++	DllExport bool getReligionFounded( ReligionTypes eReligion ) const;
++
++	// Num Golden Ages
++	void goldenAge();
++	DllExport int getNumGoldenAges() const;
++
++	// for serialization
++	virtual void read(FDataStreamBase* pStream);
++	virtual void write(FDataStreamBase* pStream);
++		
++private:
++	CvPlayerRecord();								// no one can create one of these except CvStatistics
++	~CvPlayerRecord();						// no one can destroy one of these except CvStatistics
++
++	int m_iID;
++	int m_iTime;
++
++	VictoryTypes m_eVictory;
++	LeaderHeadTypes m_eLeader;
++
++	int * m_piNumUnitsBuilt;				//	# of total units built
++	int * m_piNumUnitsKilled;				//  # of total units we killed
++	int * m_piNumUnitsWasKilled;			//  # of total units we had killed
++	int * m_piNumBuildingsBuilt;			//  # of total buildings we built
++
++	bool * m_pbReligionFounded;				//  which religions we founded
++
++	int m_iNumCitiesBuilt;								//	# of cities we have built
++	int m_iNumCitiesRazed;								//	# of cities we have razed
++	int m_iNumGoldenAges;									//  # of golden ages we have begun
++};
++
++//
++// stats manager class
++//
++class CvStatistics
++{
++public:
++	~CvStatistics();
++
++	void init();
++	void uninit();
++	void reset();
++
++	// Game stat updates
++	void setMapName(const char * szMapName);
++	void setEra(EraTypes eEra);
++
++	// Player stat updates
++	void setVictory( TeamTypes eWinner, VictoryTypes eVictory );
++	void setTimePlayed( PlayerTypes ePlayer, int iTime );
++	void setLeader( PlayerTypes ePlayer, LeaderHeadTypes eLeader );
++
++	// Player stat events
++	void unitBuilt( CvUnit *pUnit );
++	void unitKilled( CvUnit *pUnit, PlayerTypes eAttacker );
++	void cityBuilt( CvCity * pCity );
++	void cityRazed( CvCity * pCity, PlayerTypes ePlayer );
++	void buildingBuilt( CvCity *pCity, BuildingTypes eBuilding );
++	void religionFounded( ReligionTypes eReligion, PlayerTypes eFounder );
++	void goldenAge( PlayerTypes ePlayer );
++
++	DllExport CvPlayerRecord* getPlayerRecord( int iIndex );
++
++	const char* getMapName() const;
++	EraTypes getEra() const;
++
++	// for serialization
++	virtual void read(FDataStreamBase* pStream);
++	virtual void write(FDataStreamBase* pStream);
++
++private:
++	CvGameRecord m_GameRecord;									// The one game record
++	std::vector<CvPlayerRecord*> m_PlayerRecords;					//	The player Records
++};
++
++
++#endif
++
+
+Index: /trunk/CvGameCoreDLL/CyMessageControl.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CyMessageControl.cpp@474
+@@ -0,0 +1,81 @@
++#include "CvGameCoreDLL.h"
++#include "CyMessageControl.h"
++#include "CvMessageControl.h"
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLUtilityIFaceBase.h"
++
++void CyMessageControl::sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
++{
++	CvMessageControl::getInstance().sendPushOrder(iCityID, (OrderTypes) eOrder, iData, bAlt, bShift, bCtrl);
++}
++
++void CyMessageControl::sendDoTask(int iCity, int eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
++{
++	CvMessageControl::getInstance().sendDoTask(iCity, (TaskTypes) eTask, iData1, iData2, bOption, bAlt, bShift, bCtrl);
++}
++
++void CyMessageControl::sendTurnComplete()
++{
++	CvMessageControl::getInstance().sendTurnComplete();
++}
++
++void CyMessageControl::sendUpdateCivics(boost::python::list& iCivics)
++{
++	int *PYiCivics = NULL;		//	do not delete this memory
++	gDLL->getPythonIFace()->putSeqInArray(iCivics.ptr(), &PYiCivics);
++	std::vector<CivicTypes> aiCivics;
++	for (int i = 0; i < GC.getNumCivicOptionInfos(); ++i)
++	{
++		aiCivics.push_back((CivicTypes) PYiCivics[i]);
++	}
++	CvMessageControl::getInstance().sendUpdateCivics(aiCivics);
++	delete PYiCivics;
++}
++
++void CyMessageControl::sendConvert(int  iReligion)
++{
++	CvMessageControl::getInstance().sendConvert( (ReligionTypes) iReligion);
++}
++
++void CyMessageControl::sendEmpireSplit(int /*PlayerTypes*/ ePlayer, int iAreaId)
++{
++	CvMessageControl::getInstance().sendEmpireSplit((PlayerTypes) ePlayer, iAreaId);
++}
++
++void CyMessageControl::sendResearch( int eTech, bool bShift)
++{
++	CvMessageControl::getInstance().sendResearch((TechTypes)eTech, -1, bShift);
++}
++
++void CyMessageControl::sendPlayerOption(int /*PlayerOptionTypes*/ eOption, bool bValue)
++{
++	gDLL->sendPlayerOption((PlayerOptionTypes) eOption, bValue);
++}
++
++void CyMessageControl::sendEspionageSpendingWeightChange(int /*TeamTypes*/ eTargetTeam, int iChange)
++{
++	CvMessageControl::getInstance().sendEspionageSpendingWeightChange((TeamTypes) eTargetTeam, iChange);
++}
++
++void CyMessageControl::sendAdvancedStartAction(int /*AdvancedStartActionTypes*/ eAction, int /*PlayerTypes*/ ePlayer, int iX, int iY, int iData, bool bAdd)
++{
++	CvMessageControl::getInstance().sendAdvancedStartAction((AdvancedStartActionTypes) eAction, (PlayerTypes) ePlayer, iX, iY, iData, bAdd);
++}
++
++void CyMessageControl::sendModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5)
++{
++	CvMessageControl::getInstance().sendModNetMessage(iData1, iData2, iData3, iData4, iData5);
++}
++
++//
++// return true if succeeded
++//
++int CyMessageControl::GetFirstBadConnection()
++{
++	return gDLL->getFirstBadConnection();
++}
++
++int CyMessageControl::GetConnState(int iPlayer)
++{
++	return gDLL->getConnState((PlayerTypes)iPlayer);
++}
+
+Index: /trunk/CvGameCoreDLL/CyMessageControl.h
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CyMessageControl.h@474
+@@ -0,0 +1,31 @@
++#pragma once
++
++#ifndef _CYMESSAGECONTROL_H
++#define _CYMESSAGECONTROL_H
++
++#include <boost/python/list.hpp>
++#include <boost/python/tuple.hpp>
++namespace python = boost::python;
++
++class CyMessageControl
++{
++public:
++	void sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	void sendDoTask(int iCity, int eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
++	void sendTurnComplete();
++	void sendUpdateCivics(boost::python::list& iCivics);
++	void sendResearch(int eTech, bool bShift);
++	void sendPlayerOption (int /*PlayerOptionTypes*/ eOption, bool bValue);
++	void sendEspionageSpendingWeightChange (int /*TeamTypes*/ eTargetTeam, int iChange);
++	void sendAdvancedStartAction	(int /*AdvancedStartActionTypes*/ eAction, int /*PlayerTypes*/ ePlayer, int iX, int iY, int iData, bool bAdd);
++	void sendModNetMessage(int iData1, int iData2, int iData3, int iData4, int iData5);
++	void sendConvert( int /*ReligionTypes*/ iReligion );
++	void sendEmpireSplit(int /*PlayerTypes*/ ePlayer, int iAreaId);
++
++	//	Helper function to determine the first bad connection...
++	int GetFirstBadConnection();
++	int GetConnState(int iPlayer);
++};
++
++#endif // _CYMESSAGECONTROL_H
++
+
+Index: /trunk/CvGameCoreDLL/CyMessageControlInterface.cpp
+--- /dev/null
++++ /trunk/CvGameCoreDLL/CyMessageControlInterface.cpp@474
+@@ -0,0 +1,25 @@
++#include "CvGameCoreDLL.h"
++#include "CyMessageControl.h"
++
++//
++// published python interface for CyMessageControl
++//
++
++void CyMessageControlInterface()
++{
++	python::class_<CyMessageControl>("CyMessageControl")
++		.def("sendPushOrder", &CyMessageControl::sendPushOrder, "void (int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)")
++		.def("sendDoTask", &CyMessageControl::sendDoTask, "void (int iCity, int eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)")
++		.def("sendTurnComplete", &CyMessageControl::sendTurnComplete, "void () - allows you to force a turn to end")
++		.def("sendUpdateCivics", &CyMessageControl::sendUpdateCivics, "void (list iCivics)")
++		.def("sendResearch", &CyMessageControl::sendResearch, "void (int eTech, bool bShift)")
++		.def("sendPlayerOption", &CyMessageControl::sendPlayerOption, "void (int /*PlayerOptionTypes*/ eOption, bool bValue)")
++		.def("sendEspionageSpendingWeightChange", &CyMessageControl::sendEspionageSpendingWeightChange, "void (int /*TeamTypes*/ eTargetTeam, int iChange)")
++		.def("sendAdvancedStartAction", &CyMessageControl::sendAdvancedStartAction, "void (int /*AdvancedStartActionTypes*/ eAction, int /*PlayerTypes*/ ePlayer, int iX, int iY, int iData, bool bAdd)")
++		.def("sendModNetMessage", &CyMessageControl::sendModNetMessage, "void (int iData1, int iData2, int iData3, int iData4, int iData5) - This is a NetMessage designed specifically for modders to use to make their mods Multiplayer friendly, eliminating Out-of-Sync errors. Check out 'onModNetMessage()' in CvEventManager for the callback")
++		.def("sendConvert", &CyMessageControl::sendConvert, "void ( int /*ReligionTypes*/ iReligion )")
++		.def("sendEmpireSplit", &CyMessageControl::sendEmpireSplit, "void (int /*PlayerTypes*/ ePlayer, int iAreaId)")
++		.def("GetFirstBadConnection", &CyMessageControl::GetFirstBadConnection, "int ()")
++		.def("GetConnState", &CyMessageControl::GetConnState, "int (int iPlayer)")
++	;
++}
+

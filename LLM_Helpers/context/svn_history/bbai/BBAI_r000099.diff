@@ -1,0 +1,93 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 99
+# Author: iustus
+# Date: 2006-11-18T17:55:33.482719Z
+# Coverage: full
+# Message:
+#   DEBUG_AI_UPDATE_GROUPS: fixed a string type error and added some more logging
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@98
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@99
+@@ -6914,7 +6914,7 @@
+ 				{
+ 					szOldGroupString.Format(L"left group(%d) [size %d%s] to join", 
+ 						ShortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
+-						pOldSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++						pOldSelectionGroup->AI_isForceSeparate() ? L",WILL_SEPARATE" : L"");
+ 				}
+ 				else
+ 					szOldGroupString.Format(L"joining");
+@@ -6925,15 +6925,15 @@
+ 					CvWString szUnitString;
+ 					if (pHeadUnit != NULL)
+ 					{
+-						CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-						szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++						CvWString szHeadUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++						szUnitString.Format(L"%s(%d)", szHeadUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
+ 					}
+ 					else
+ 						szUnitString.Format(L"--no unit--");
+ 
+ 					szNewGroupString.Format(L"%s's group(%d) [size %d%s]", szUnitString.GetCString(),
+ 						ShortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
+-						pNewSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++						pNewSelectionGroup->AI_isForceSeparate() ? L",WILL_SEPARATE" : L"");
+ 				}
+ 				else
+ 					szNewGroupString.Format(L"--no group--");
+@@ -7368,8 +7368,19 @@
+ 	{
+ 		if (hasCargo())
+ 		{
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				DEBUGLOG("setXY:%S(%d) group(%d) [size %d%s] moving cargo units\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++#endif
++
++
+ 			pUnitNode = pOldPlot->headUnitNode();
+-
+ 			while (pUnitNode != NULL)
+ 			{
+ 				pLoopUnit = ::getUnit(pUnitNode->m_data);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@98
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@99
+@@ -5658,11 +5658,20 @@
+ 
+ 		for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
+ 		{
+-			//FAssert(aeDamagedUnits[iI] != this); 
+-			// note, removing the head unit from a group will force the group to be completely set if non-human
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				DEBUGLOG("AI_heal:%S(%d) leaving group(%d) [size %d%s] to heal solo\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++#endif
++			// note, removing the head unit from a group will force the group to be completely split if non-human
+ 			aeDamagedUnits[iI]->joinGroup(NULL);
+ 			aeDamagedUnits[iI]->getGroup()->pushMission(MISSION_SKIP);
+-			iHurtUnitCount--;	    
++			iHurtUnitCount--;
+ 		}
+ 	}
+ 	
+

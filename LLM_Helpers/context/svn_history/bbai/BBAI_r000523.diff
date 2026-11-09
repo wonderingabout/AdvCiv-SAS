@@ -1,0 +1,2229 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 523
+# Author: jdog5000
+# Date: 2010-02-21T20:19:21.463428Z
+# Coverage: full
+# Message:
+#   Add lead from behind mod
+# Changed paths (20):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvGlobals.cpp
+#   M /trunk/CvGameCoreDLL/CvGlobals.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+#   M /trunk/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+#   M /trunk/CvGameCoreDLL/CyInfoInterface2.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@522
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@523
+@@ -1227,7 +1227,7 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGameAI.cpp
+--- /trunk/CvGameCoreDLL/CvGameAI.cpp@522
++++ /trunk/CvGameCoreDLL/CvGameAI.cpp@523
+@@ -86,7 +86,12 @@
+ 	{
+ 		iValue *= GC.getUnitInfo(eUnit).getCombat();
+ 
+-		iValue *= ((((GC.getUnitInfo(eUnit).getFirstStrikes() * 2) + GC.getUnitInfo(eUnit).getChanceFirstStrikes()) * (GC.getDefineINT("COMBAT_DAMAGE") / 5)) + 100);
++		// UncutDragon
++		// original
++		//iValue *= ((((GC.getUnitInfo(eUnit).getFirstStrikes() * 2) + GC.getUnitInfo(eUnit).getChanceFirstStrikes()) * (GC.getDefineINT("COMBAT_DAMAGE") / 5)) + 100);
++		// modified
++		iValue *= ((((GC.getUnitInfo(eUnit).getFirstStrikes() * 2) + GC.getUnitInfo(eUnit).getChanceFirstStrikes()) * (GC.getCOMBAT_DAMAGE() / 5)) + 100);
++		// /UncutDragon
+ 		iValue /= 100;
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@522
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@523
+@@ -646,12 +646,22 @@
+ 	FAssert((iAttackerStrength + iDefenderStrength) > 0);
+ 	FAssert((iAttackerFirepower + iDefenderFirepower) > 0);
+ 
+-	iDefenderOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
++	// UncutDragon
++	// original
++	//iDefenderOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
++	// modified
++	iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
++	// /UncutDragon
+ 	if (iDefenderOdds == 0)
+ 	{
+ 		return 1000;
+ 	}
+-	iAttackerOdds = GC.getDefineINT("COMBAT_DIE_SIDES") - iDefenderOdds;	
++	// UncutDragon
++	// original
++	//iAttackerOdds = GC.getDefineINT("COMBAT_DIE_SIDES") - iDefenderOdds;	
++	// modified
++	iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;	
++	// /UncutDragon
+ 	if (iAttackerOdds == 0)
+ 	{
+ 		return 0;
+@@ -662,8 +672,14 @@
+ 	// calculate damage done in one round
+ 	//////
+ 
+-	iDamageToAttacker = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
+-	iDamageToDefender = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
++	// UncutDragon
++	// original
++	//iDamageToAttacker = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
++	//iDamageToDefender = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
++	// modified
++	iDamageToAttacker = std::max(1,((GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
++	iDamageToDefender = std::max(1,((GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
++	// /UncutDragon
+ 
+ 	// calculate needed rounds.
+ 	// Needed rounds = round_up(health/damage)
+@@ -685,6 +701,11 @@
+ 
+ 	iDefenderLowFS = (pAttacker->immuneToFirstStrikes()) ? 0 : pDefender->firstStrikes();
+ 	iDefenderHighFS = (pAttacker->immuneToFirstStrikes()) ? 0 : (pDefender->firstStrikes() + pDefender->chanceFirstStrikes());
++
++	// UncutDragon
++	if (GC.getLFBEnable())
++		return UDgetCombatOdds(iAttackerLowFS, iAttackerHighFS, iDefenderLowFS, iDefenderHighFS, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++	// /UncutDragon
+ 
+ 	// For every possible first strike event, calculate the odds of combat.
+ 	// Then, add these to the total, weighted to the chance of that first 
+@@ -719,7 +740,12 @@
+ 					// this needs to be in floating point math
+ 					//////
+ 
+-					fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
++					// UncutDragon
++					// original
++					//fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
++					// modified
++					fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
++					// /UncutDragon
+ 
+ 					// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+ 					//////
+@@ -744,7 +770,12 @@
+ 							// this needs to be in floating point math
+ 							//////
+ 
+-							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
++							// UncutDragon
++							// original
++							//fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
++							// modified
++							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
++							// /UncutDragon
+ 						}
+ 					}
+ 
+@@ -783,7 +814,12 @@
+ 						// this needs to be in floating point math
+ 						//////
+ 
+-						fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
++						// UncutDragon
++						// original
++						//fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
++						// modified
++						fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
++						// /UncutDragon
+ 
+ 						// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+ 						//////
+@@ -803,7 +839,12 @@
+ 							// this needs to be in floating point math
+ 							//////
+ 
+-							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
++							// UncutDragon
++							// original
++							//fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
++							// modified
++							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
++							// /UncutDragon
+ 						}
+ 
+ 						// Multiply these together, round them properly, and add 
+@@ -2477,3 +2518,319 @@
+ 	}
+ }
+ 
++// UncutDragon
++typedef std::vector<int> UDoddsAttOdds;
++typedef std::vector<UDoddsAttOdds> UDoddsDefRounds;
++typedef std::vector<UDoddsDefRounds> UDoddsAttRounds;
++typedef std::vector<UDoddsAttRounds> UDoddsFirstStrike;
++int UDlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
++int UDlookupCombatOdds(UDoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
++int UDlookupCombatOdds(UDoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
++int UDcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
++
++const int UD_ODDS_INTERVAL_SIZE = 16;
++const int UD_ODDS_EXTRA_ACCURACY = 32;
++UDoddsFirstStrike pOddsCacheFSPos;
++UDoddsFirstStrike pOddsCacheFSNeg;
++
++// gets the combat odds using precomputed attacker/defender values instead of unit pointers
++int UDgetCombatOdds(int iAttackerLowFS,	int iAttackerHighFS, int iDefenderLowFS, int iDefenderHighFS, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	int iDefenderOdds;
++	bool bFlip = false;
++	int iFirstStrikes;
++	int iI;
++	int iJ;
++	int iOdds = 0;
++
++	// Essentially, this means we're attacking with a seige engine and the defender is already at or below the max combat limit
++	// We're not allowed to attack regardless, since we can't do any damage - just return 100%
++	if (iNeededRoundsAttacker == 0)
++		return 1000;
++	// Because the best defender code calls us from the defender's perspective, we also need to check 'defender' rounds zero
++	if (iNeededRoundsDefender == 0)
++		return 0;
++
++	// If attacker has better than even chance to hit, we just flip it and calculate defender's chance to win
++	// This reduces how much we cache considerably (by half just from the fact we're only dealing with half the odds
++	// - but additionally, iNeededRounds'Defender' is guaranteed to stay low - at most 5 with standard settings).
++	iDefenderOdds = GC.getCOMBAT_DIE_SIDES() - iAttackerOdds;	
++	if (iAttackerOdds > iDefenderOdds)
++		bFlip = true;
++
++	// This is basically the two outside loops at the end of the standard getCombatOdds
++	// We just call our cache lookup in the middle (flipped if necessary) instead of the actual computation
++	for (iI = iAttackerLowFS; iI < iAttackerHighFS + 1; iI++)
++	{
++		for (iJ = iDefenderLowFS; iJ < iDefenderHighFS + 1; iJ++)
++		{
++			iFirstStrikes = iI - iJ;
++			if (bFlip)
++				iOdds += UDlookupCombatOdds(-iFirstStrikes, iNeededRoundsDefender, iNeededRoundsAttacker, iDefenderOdds);
++			else
++				iOdds += UDlookupCombatOdds(iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++		}
++	}
++
++	// Odds are a straight average of all the FS combinations (since all are equally possible)
++	iOdds /= ((iAttackerHighFS - iAttackerLowFS + 1) * (iDefenderHighFS - iDefenderLowFS + 1));
++
++	// Now that we have the final odds, we can remove the extra accuracy, rounding off
++	iOdds = (iOdds + (UD_ODDS_EXTRA_ACCURACY/2)) / UD_ODDS_EXTRA_ACCURACY;
++
++	// If we flipped the perspective in the computation/lookup, need to flip it back now
++	if (bFlip)
++		iOdds = 1000 - iOdds;
++
++	return iOdds;
++}
++
++// lookup the combat odds in the cache for a specific sub-result
++int UDlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	int iOdds = 0;
++
++	// We actually maintain two caches - one for positive first strikes (plus zero), and one for negative
++	// This just makes the indices (and growing the array as needed) easy
++	if (iFirstStrikes < 0)
++		iOdds = UDlookupCombatOdds(&pOddsCacheFSNeg, (-iFirstStrikes)-1, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++	else
++		iOdds = UDlookupCombatOdds(&pOddsCacheFSPos, iFirstStrikes, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++
++	return iOdds;
++}
++
++int UDlookupCombatOdds(UDoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	// Grow the arrays as needed
++	// First dimension is the first strikes
++	int iInsert = iFSIndex - (int)(*pOdds).size() + 1;
++	if (iInsert > 0)
++	{
++		UDoddsAttRounds pAdd;
++		(*pOdds).insert((*pOdds).end(), iInsert, pAdd);
++	}
++
++	// Second dimension is the attacker rounds (starting at 1)
++	UDoddsAttRounds* pAttRounds = &((*pOdds)[iFSIndex]);
++	iInsert = iNeededRoundsAttacker - (int)(*pAttRounds).size();
++	if (iInsert > 0)
++	{
++		UDoddsDefRounds pAdd;
++		(*pAttRounds).insert((*pAttRounds).end(), iInsert, pAdd);
++	}
++
++	// Third dimension is the defender rounds (starting at 1)
++	UDoddsDefRounds* pDefRounds = &((*pAttRounds)[iNeededRoundsAttacker-1]);
++	iInsert = iNeededRoundsDefender - (int)(*pDefRounds).size();
++	if (iInsert > 0)
++	{
++		UDoddsAttOdds pAdd;
++		(*pDefRounds).insert((*pDefRounds).end(), iInsert, pAdd);
++	}
++
++	// Fourth (last) dimension is the odds index (odds/16)
++	UDoddsAttOdds* pAttOdds = &((*pDefRounds)[iNeededRoundsDefender-1]);
++
++	// Round down to the nearest interval
++	int iMinOddsIndex = iAttackerOdds / UD_ODDS_INTERVAL_SIZE;
++	int iMinOddsValue = iMinOddsIndex * UD_ODDS_INTERVAL_SIZE;
++
++	// Lookup the odds for the rounded down value
++	int iOdds = UDlookupCombatOdds(pAttOdds, iMinOddsIndex, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iMinOddsValue);
++
++	// If we happened to hit an interval exactly, we're done
++	if (iMinOddsValue < iAttackerOdds)
++	{
++		// 'Round up' to the nearest interval - we don't actually need to compute it, we know
++		// it's one more than the rounded down interval
++		int iMaxOddsIndex = iMinOddsIndex+1;
++		int iMaxOddsValue = iMinOddsValue+UD_ODDS_INTERVAL_SIZE;
++
++		// Lookup the odds for the rounded up value
++		int iMaxOdds = UDlookupCombatOdds(pAttOdds, iMaxOddsIndex, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iMaxOddsValue);
++		
++		// Do a simple weighted average on the two odds
++		iOdds += (((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds)) / UD_ODDS_INTERVAL_SIZE);
++	}
++
++	return iOdds;
++}
++
++int UDlookupCombatOdds(UDoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	int iNotComputed = -1;
++
++	// Index 0 -> AttackerOdds 0 -> no chance to win
++	if (iOddsIndex == 0)
++		return 0;
++
++	// We don't store all possible indices, just what we need/use
++	// So use position 0 to keep track of what index we start with
++	int iFirstIndex = iOddsIndex;
++	if ((*pOdds).size() == 0)
++		(*pOdds).push_back(iFirstIndex);
++	else
++		iFirstIndex = (*pOdds)[0];
++
++	int iRealIndex = iOddsIndex - iFirstIndex + 1;
++
++	// Index is before the start of our array
++	int iInsert = -iRealIndex+1;
++	if (iInsert > 0)
++	{
++		(*pOdds).insert((*pOdds).begin()+1, iInsert, iNotComputed);
++		iFirstIndex -= iInsert;
++		iRealIndex = 1;
++		(*pOdds)[0] = iFirstIndex;
++	}
++
++	// Index is past the end of our array
++	iInsert = iRealIndex - (int)(*pOdds).size() + 1;
++	if (iInsert > 0)
++		(*pOdds).insert((*pOdds).end(), iInsert, iNotComputed);
++
++	// Retrieve the odds from the array
++	int iOdds = (*pOdds)[iRealIndex];
++
++	// Odds aren't cached yet - need to actually calculate them
++	if (iOdds == iNotComputed)
++	{
++		iOdds = UDcalculateCombatOdds(iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++		(*pOdds)[iRealIndex] = iOdds;
++	}
++
++	return iOdds;
++}
++
++// Perform the actual odds calculation (basically identical to the default algorithm, except that we retain a little more accuracy)
++int UDcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	float fOddsEvent;
++	float fOddsAfterEvent;
++	int iMaxRounds = iNeededRoundsAttacker + iNeededRoundsDefender - 1;
++	int iOdds = 0;
++	int iI3;
++	int iI4;
++
++	// This part is basically the inside of the outer two loops at the end of the standard getCombatOdds
++	if (iFirstStrikes > 0)
++	{
++		// Attacker gets more or equal first strikes than defender
++
++		// For every possible first strike getting hit, calculate both
++		// the chance of that event happening, as well as the rest of 
++		// the chance assuming the event has happened. Multiply these 
++		// together to get the total chance (Bayes rule). 
++		// iI3 counts the number of successful first strikes
++		//////
++
++		for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
++		{
++			// event: iI3 first strikes hit the defender
++
++			// calculate chance of iI3 first strikes hitting: fOddsEvent
++			// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k)) 
++			// this needs to be in floating point math
++			//////
++
++			fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
++
++			// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++			//////
++
++			if (iI3 >= iNeededRoundsAttacker)
++			{
++				fOddsAfterEvent = 1;
++			}
++			else
++			{
++				fOddsAfterEvent = 0;
++
++				// odds for _at_least_ (iNeededRoundsAttacker - iI3) (the remaining hits 
++				// the attacker needs to make) out of (iMaxRounds - iI3) (the left over 
++				// rounds) is the sum of each _exact_ draw
++				//////
++
++				for (iI4 = (iNeededRoundsAttacker - iI3); iI4 < (iMaxRounds - iI3 + 1); iI4++)
++				{
++					// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++					// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k)) 
++					// this needs to be in floating point math
++					//////
++
++					fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
++				}
++			}
++
++			// Multiply these together, round them properly, and add 
++			// the result to the total iOdds
++			//////
++
++			iOdds += ((int)((1000.0 * fOddsEvent * fOddsAfterEvent * (float)UD_ODDS_EXTRA_ACCURACY) + 0.5));
++		}
++	}
++	else // (iI < iJ)
++	{
++		// Attacker gets less first strikes than defender
++		int iDefenderOdds = GC.getCOMBAT_DIE_SIDES() - iAttackerOdds;
++		iFirstStrikes *= -1;
++
++		// For every possible first strike getting hit, calculate both
++		// the chance of that event happening, as well as the rest of 
++		// the chance assuming the event has happened. Multiply these 
++		// together to get the total chance (Bayes rule). 
++		// iI3 counts the number of successful first strikes
++		//////
++
++		for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
++		{
++			// event: iI3 first strikes hit the defender
++
++			// First of all, check if the attacker is still alive.
++			// Otherwise, no further calculations need to occur 
++			/////
++
++			if (iI3 < iNeededRoundsDefender)
++			{
++				// calculate chance of iI3 first strikes hitting: fOddsEvent
++				// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k)) 
++				// this needs to be in floating point math
++				//////
++
++				fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * std::pow((((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * std::pow((1.0f - (((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
++
++				// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++				//////
++
++				fOddsAfterEvent = 0;
++
++				// odds for _at_least_ iNeededRoundsAttacker (the remaining hits 
++				// the attacker needs to make) out of (iMaxRounds - iI3) (the left over 
++				// rounds) is the sum of each _exact_ draw
++				//////
++
++				for (iI4 = iNeededRoundsAttacker; iI4 < (iMaxRounds - iI3 + 1); iI4++)
++				{
++
++					// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++					// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k)) 
++					// this needs to be in floating point math
++					//////
++
++					fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
++				}
++
++				// Multiply these together, round them properly, and add 
++				// the result to the total iOdds
++				//////
++
++				iOdds += ((int)((1000.0 * fOddsEvent * fOddsAfterEvent * (float)UD_ODDS_EXTRA_ACCURACY)+0.5));
++			}
++		}				
++	}
++
++	return iOdds;
++}
++// /UncutDragon
++
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@522
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@523
+@@ -374,5 +374,9 @@
+ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI);
+ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI);
+ 
++// UncutDragon
++int UDgetCombatOdds(int iAttackerLowFS,	int iAttackerHighFS, int iDefenderLowFS, int iDefenderHighFS, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
++// /UncutDragon
++
+ #endif
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@522
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@523
+@@ -12365,7 +12365,7 @@
+ 		if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != kThisPlayer.getTeam() && iTeam != kOtherPlayer.getTeam())
+ 		{
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       09/28/09                 Emperor Fool & jdog5000      */
++/* UNOFFICIAL_PATCH                       09/28/09                  EmperorFool & jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGlobals.cpp
+--- /trunk/CvGameCoreDLL/CvGlobals.cpp@522
++++ /trunk/CvGameCoreDLL/CvGlobals.cpp@523
+@@ -214,6 +214,19 @@
+ m_iUSE_ON_UNIT_LOST_CALLBACK(0),
+ m_paHints(NULL),
+ m_paMainMenus(NULL)
++// UncutDragon
++// Lead from Behind flags
++,m_bLFBEnable(false)
++,m_iLFBBasedOnGeneral(1)
++,m_iLFBBasedOnExperience(1)
++,m_iLFBBasedOnLimited(1)
++,m_iLFBBasedOnHealer(1)
++,m_iLFBBasedOnAverage(1)
++,m_bLFBUseSlidingScale(true)
++,m_bLFBUseCombatOdds(true)
++,m_iCOMBAT_DIE_SIDES(-1)
++,m_iCOMBAT_DAMAGE(-1)
++// /UncutDragon
+ {
+ }
+ 
+@@ -2655,6 +2668,20 @@
+ 	m_iUSE_ON_UPDATE_CALLBACK = getDefineINT("USE_ON_UPDATE_CALLBACK");
+ 	m_iUSE_ON_UNIT_CREATED_CALLBACK = getDefineINT("USE_ON_UNIT_CREATED_CALLBACK");
+ 	m_iUSE_ON_UNIT_LOST_CALLBACK = getDefineINT("USE_ON_UNIT_LOST_CALLBACK");
++
++	// UncutDragon
++	// Lead from Behind flags
++	m_bLFBEnable = !(getDefineINT("LFB_ENABLE") == 0);
++	m_iLFBBasedOnGeneral = getDefineINT("LFB_BASEDONGENERAL");
++	m_iLFBBasedOnExperience = getDefineINT("LFB_BASEDONEXPERIENCE");
++	m_iLFBBasedOnLimited = getDefineINT("LFB_BASEDONLIMITED");
++	m_iLFBBasedOnHealer = getDefineINT("LFB_BASEDONHEALER");
++	m_iLFBBasedOnAverage = std::max(1, (m_iLFBBasedOnGeneral+m_iLFBBasedOnLimited+m_iLFBBasedOnHealer+(5*m_iLFBBasedOnExperience)+3)/4);
++	m_bLFBUseSlidingScale = !(getDefineINT("LFB_USESLIDINGSCALE") == 0);
++	m_bLFBUseCombatOdds = !(getDefineINT("LFB_USECOMBATODDS") == 0);
++	m_iCOMBAT_DIE_SIDES = getDefineINT("COMBAT_DIE_SIDES");
++	m_iCOMBAT_DAMAGE = getDefineINT("COMBAT_DAMAGE");
++	// /UncutDragon
+ }
+ 
+ int CvGlobals::getDefineINT( const char * szName ) const
+@@ -3580,3 +3607,56 @@
+ void CvGlobals::setPlotGroupFinder(FAStar* pVal) { m_plotGroupFinder = pVal; }
+ CvDLLUtilityIFaceBase* CvGlobals::getDLLIFaceNonInl() { return m_pDLL; }
+ 
++// UncutDragon
++// Lead from Behind flags
++bool CvGlobals::getLFBEnable()
++{
++	return m_bLFBEnable;
++}
++
++int CvGlobals::getLFBBasedOnGeneral()
++{
++	return m_iLFBBasedOnGeneral;
++}
++
++int CvGlobals::getLFBBasedOnExperience()
++{
++	return m_iLFBBasedOnExperience;
++}
++
++int CvGlobals::getLFBBasedOnLimited()
++{
++	return m_iLFBBasedOnLimited;
++}
++
++int CvGlobals::getLFBBasedOnHealer()
++{
++	return m_iLFBBasedOnHealer;
++}
++
++int CvGlobals::getLFBBasedOnAverage()
++{
++	return m_iLFBBasedOnAverage;
++}
++
++bool CvGlobals::getLFBUseSlidingScale()
++{
++	return m_bLFBUseSlidingScale;
++}
++
++bool CvGlobals::getLFBUseCombatOdds()
++{
++	return m_bLFBUseCombatOdds;
++}
++
++int CvGlobals::getCOMBAT_DIE_SIDES()
++{
++	return m_iCOMBAT_DIE_SIDES;
++}
++
++int CvGlobals::getCOMBAT_DAMAGE()
++{
++	return m_iCOMBAT_DAMAGE;
++}
++// /UncutDragon
++
+
+Index: /trunk/CvGameCoreDLL/CvGlobals.h
+--- /trunk/CvGameCoreDLL/CvGlobals.h@522
++++ /trunk/CvGameCoreDLL/CvGlobals.h@523
+@@ -1189,6 +1189,33 @@
+ 
+ 	FProfiler* m_Profiler;		// profiler
+ 	CvString m_szDllProfileText;
++
++	// UncutDragon
++	// Lead from Behind flags
++public:
++	bool getLFBEnable();
++	int getLFBBasedOnGeneral();
++	int getLFBBasedOnExperience();
++	int getLFBBasedOnLimited();
++	int getLFBBasedOnHealer();
++	int getLFBBasedOnAverage();
++	bool getLFBUseSlidingScale();
++	bool getLFBUseCombatOdds();
++	int getCOMBAT_DIE_SIDES();
++	int getCOMBAT_DAMAGE();
++
++protected:
++	bool m_bLFBEnable;
++	int m_iLFBBasedOnGeneral;
++	int m_iLFBBasedOnExperience;
++	int m_iLFBBasedOnLimited;
++	int m_iLFBBasedOnHealer;
++	int m_iLFBBasedOnAverage;
++	bool m_bLFBUseSlidingScale;
++	bool m_bLFBUseCombatOdds;
++	int m_iCOMBAT_DIE_SIDES;
++	int m_iCOMBAT_DAMAGE;
++	// /UncutDragon
+ };
+ 
+ extern CvGlobals gGlobals;	// for debugging
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@522
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@523
+@@ -112,7 +112,7 @@
+ /************************************************************************************************/
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -796,7 +796,7 @@
+ /************************************************************************************************/
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -3885,7 +3885,7 @@
+ 	return false;
+ }
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -3906,7 +3906,7 @@
+ void CvPlayer::chooseTech(int iDiscover, CvWString szText, bool bFront)
+ {
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -5979,15 +5979,17 @@
+ 	}
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/04/09                    EmperorFool & jdog5000    */
++/* UNOFFICIAL_PATCH                       02/16/10                    EmperorFool & jdog5000    */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+ 	// EF: canFoundCitiesOnWater callback handling was incorrect and ignored isWater() if it returned true
+-	if (!bValid && pPlot->isWater())
++	if (pPlot->isWater())
+ 	{
+ 		if(GC.getUSE_CAN_FOUND_CITIES_ON_WATER_CALLBACK())
+ 		{
++			bValid = false;
++
+ 			CyArgsList argsList2;
+ 			argsList2.add(iX);
+ 			argsList2.add(iY);
+@@ -6871,7 +6873,18 @@
+ 		{
+ 			if (pLoopCity->getNumRealBuilding(eBuilding) > 0)
+ 			{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/16/10                          EmperorFool         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 				pLoopCity->setNumRealBuilding(eBuilding, 0);
++*/
++				pLoopCity->setNumRealBuilding(eBuilding, pLoopCity->getNumRealBuilding(eBuilding) - 1);
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 				break;
+ 			}
+ 		}
+@@ -7855,14 +7868,14 @@
+ 	PROFILE_FUNC();
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/05/09                                jdog5000      */
++/* UNOFFICIAL_PATCH                       02/16/10                                jdog5000      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+ 	// Circumvents second crash bug in simultaneous turns MP games
+ 	if( eCivic == NO_CIVIC )
+ 	{
+-		return 1;
++		return true;
+ 	}
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@522
++++ /trunk/CvGameCoreDLL/CvPlayer.h@523
+@@ -161,7 +161,7 @@
+ 	DllExport bool hasBusyUnit() const;
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+@@ -1229,7 +1229,7 @@
+ /************************************************************************************************/
+ 
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                            Emperor Fool      */
++/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+ /*                                                                                              */
+ /* Bugfix                                                                                       */
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@522
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@523
+@@ -12717,8 +12717,6 @@
+ 	{
+ 		iThreshold += 13;
+ 	}
+-
+-	// BBAI TODO:  Other factors?  Roll back???
+ 
+ 	int iCurValue;
+ 	int iBestValue;
+@@ -13522,8 +13520,23 @@
+ 										{
+ 											if (AI_getContactTimer(((PlayerTypes)iI), CONTACT_ASK_FOR_HELP) == 0)
+ 											{
+-												// BBAI TODO: Check more often if far behind
+-												if (GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_ASK_FOR_HELP), "AI Diplo Ask For Help") == 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/12/10                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++												int iRand = GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_ASK_FOR_HELP);
++												int iTechPerc = GET_TEAM(getTeam()).getBestKnownTechScorePercent();
++												if( iTechPerc < 90 )
++												{
++													iRand *= std::max(1, iTechPerc - 60);
++													iRand /= 30;
++												}
++
++												if (GC.getGameINLINE().getSorenRandNum(iRand, "AI Diplo Ask For Help") == 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 												{
+ 													iBestValue = 0;
+ 													eBestReceiveTech = NO_TECH;
+@@ -13832,8 +13845,23 @@
+ 									{
+ 										if (AI_getContactTimer(((PlayerTypes)iI), CONTACT_TRADE_TECH) == 0)
+ 										{
+-											// BBAI TODO: Check more often if behind
+-											if (GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_TRADE_TECH), "AI Diplo Trade Tech") == 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/12/10                                jdog5000      */
++/*                                                                                              */
++/* Diplomacy                                                                                    */
++/************************************************************************************************/
++											int iRand = GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_ASK_FOR_HELP);
++											int iTechPerc = GET_TEAM(getTeam()).getBestKnownTechScorePercent();
++											if( iTechPerc < 90 )
++											{
++												iRand *= std::max(1, iTechPerc - 60);
++												iRand /= 30;
++											}
++						
++											if (GC.getGameINLINE().getSorenRandNum(iRand, "AI Diplo Trade Tech") == 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 											{
+ 												iBestValue = 0;
+ 												eBestReceiveTech = NO_TECH;
+@@ -16694,7 +16722,18 @@
+ 
+ 		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/14/10                        denev & jdog5000      */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 			if ((GET_TEAM((TeamTypes)iI).isAlive()) && (iI != getID()))
++*/
++			if ((GET_TEAM((TeamTypes)iI).isAlive()) && (iI != getTeam()))
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 			{
+ 				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 				{
+@@ -16717,9 +16756,22 @@
+ 					
+ 					if ((GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_DOGPILE) && (GET_TEAM(getTeam()).AI_getWarPlanStateCounter((TeamTypes)iI) < 20))
+ 					{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/14/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 						for (iJ = 0; iJ < MAX_TEAMS; iJ++)
+ 						{
+ 							if ((iJ != iI) && iJ != getID())
++*/
++						for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
++						{
++							if ((iJ != iI) && iJ != getTeam() && GET_TEAM((TeamTypes)iJ).isAlive())
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 							{
+ 								if ((atWar((TeamTypes)iI, (TeamTypes)iJ)) && !GET_TEAM((TeamTypes)iI).isAVassal())
+ 								{
+@@ -16745,7 +16797,18 @@
+ 		
+ 		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/14/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 			if ((GET_TEAM((TeamTypes)iI).isAlive()) && (iI != getID()))
++*/
++			if ((GET_TEAM((TeamTypes)iI).isAlive()) && (iI != getTeam()))
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 			{
+ 				CvTeamAI& kOtherTeam = GET_TEAM((TeamTypes)iI);
+ 				iTheirVictoryCountdown = std::min(iTheirVictoryCountdown, kOtherTeam.AI_getLowestVictoryCountdown());
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@522
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@523
+@@ -477,7 +477,7 @@
+ 				if (GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes) iI).getTechReveal())))
+ 				{
+ /************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       10/22/09                                jdog5000      */
++/* UNOFFICIAL_PATCH                       02/16/10                                jdog5000      */
+ /*                                                                                              */
+ /* Gamespeed scaling                                                                            */
+ /************************************************************************************************/
+@@ -488,11 +488,12 @@
+ 						{
+ */
+ 					int iOdds = GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(iI);
+-					iOdds *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
+-					iOdds /= 100;
+-
++					
+ 					if( iOdds > 0 )
+ 					{
++						iOdds *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
++						iOdds /= 100;
++
+ 						if( GC.getGameINLINE().getSorenRandNum(iOdds, "Bonus Discovery") == 0)
+ 						{
+ /************************************************************************************************/
+@@ -2532,6 +2533,9 @@
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 	CvUnit* pBestUnit;
++	// UncutDragon
++	int iBestUnitRank = -1;
++	// /UncutDragon
+ 
+ 	pBestUnit = NULL;
+ 
+@@ -2554,7 +2558,12 @@
+ 						{
+ 							if ((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->airCombatLimit()))
+ 							{
+-								if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
++								// UncutDragon
++								// original
++								//if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
++								// modified (added extra parameter)
++								if (pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker, &iBestUnitRank))
++								// /UncutDragon
+ 								{
+ 									pBestUnit = pLoopUnit;
+ 								}
+@@ -10278,4 +10287,45 @@
+ 	return (GET_PLAYER(ePlayer).getCurrentEra() > GC.getNumEraInfos() / 2);
+ }
+ 
+-
++// UncutDragon
++bool CvPlot::hasDefender(bool bCheckCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove) const
++{
++	CLLNode<IDInfo>* pUnitNode;
++	CvUnit* pLoopUnit;
++
++	pUnitNode = headUnitNode();
++	while (pUnitNode != NULL)
++	{
++		pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = nextUnitNode(pUnitNode);
++
++		if ((eOwner == NO_PLAYER) || (pLoopUnit->getOwnerINLINE() == eOwner))
++		{
++			if ((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
++			{
++				if (!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwnerINLINE()).getTeam(), this)))
++				{
++					if (!bTestPotentialEnemy || (eAttackingPlayer == NO_PLAYER) ||  pLoopUnit->isPotentialEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isPotentialEnemy(GET_PLAYER(pLoopUnit->getOwnerINLINE()).getTeam(), this)))
++					{
++						if (!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
++						{
++							if ((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->airCombatLimit()))
++							{
++								if (!bCheckCanAttack || (pAttacker == NULL) || (pAttacker->canAttack(*pLoopUnit)))
++								{
++									// found a valid defender
++									return true;
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	// there are no defenders
++	return false;
++}
++// /UncutDragon
++
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@522
++++ /trunk/CvGameCoreDLL/CvPlot.h@523
+@@ -634,6 +634,11 @@
+ 
+ 	// added so under cheat mode we can access protected stuff
+ 	friend class CvGameTextMgr;
++
++	// UncutDragon
++public:
++	bool hasDefender(bool bCheckCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false) const;
++	// /UncutDragon
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@522
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@523
+@@ -3472,11 +3472,17 @@
+ 				if (pBestAttackUnit)
+ 				{
+ 					// if there are no defenders, do not attack
+-					CvUnit* pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true);
+-					if (NULL == pBestDefender)
+-					{
++					// UncutDragon
++					// original
++					//CvUnit* pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true);
++					//if (NULL == pBestDefender)
++					//{
++					//	return false;
++					//}
++					// modified
++					if (!pDestPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), pBestAttackUnit, true))
+ 						return false;
+-					}
++					// /UncutDragon
+ 
+ 					bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@522
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@523
+@@ -343,7 +343,12 @@
+ 
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 
+-	if (pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), NULL, !bPotentialEnemy, bPotentialEnemy) == NULL)
++	// UncutDragon
++	// original
++	//if (pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), NULL, !bPotentialEnemy, bPotentialEnemy) == NULL)
++	// modified
++	if (!pPlot->hasDefender(false, NO_PLAYER, getOwnerINLINE(), NULL, !bPotentialEnemy, bPotentialEnemy))
++	// /UncutDragon
+ 	{
+ 		return 100;
+ 	}
+@@ -407,29 +412,40 @@
+ 				{
+ 					if (bForce || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true, /*bDeclareWar*/ bPotentialEnemy))
+ 					{
+-						iOdds = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
+-						
+-						iValue = iOdds;
+-						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+-
+-						if (pLoopUnit->collateralDamage() > 0)
++						// UncutDragon
++						if (GC.getLFBEnable() && GC.getLFBUseCombatOdds())
+ 						{
+-							iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1), pLoopUnit->collateralDamageMaxUnits());
+-
+-							if (iPossibleTargets > 0)
++							pLoopUnit->UDgetBetterAttacker(&pBestUnit, pPlot, bPotentialEnemy, iBestOdds, iValue);
++						} 
++						else 
++						{
++						// /UncutDragon
++							iOdds = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
++							
++							iValue = iOdds;
++							FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
++	
++							if (pLoopUnit->collateralDamage() > 0)
+ 							{
+-								iValue *= (100 + ((pLoopUnit->collateralDamage() * iPossibleTargets) / 5));
+-								iValue /= 100;
++								iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1), pLoopUnit->collateralDamageMaxUnits());
++	
++								if (iPossibleTargets > 0)
++								{
++									iValue *= (100 + ((pLoopUnit->collateralDamage() * iPossibleTargets) / 5));
++									iValue /= 100;
++								}
+ 							}
++	
++							// if non-human, prefer the last unit that has the best value (so as to avoid splitting the group)
++							if (iValue > iBestValue || (!bIsHuman && iValue > 0 && iValue == iBestValue))
++							{
++								iBestValue = iValue;
++								iBestOdds = iOdds;
++								pBestUnit = pLoopUnit;
++							}
++						// UncutDragon
+ 						}
+-
+-						// if non-human, prefer the last unit that has the best value (so as to avoid splitting the group)
+-						if (iValue > iBestValue || (!bIsHuman && iValue > 0 && iValue == iBestValue))
+-						{
+-							iBestValue = iValue;
+-							iBestOdds = iOdds;
+-							pBestUnit = pLoopUnit;
+-						}
++						// /UncutDragon
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@522
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@523
+@@ -1149,7 +1149,12 @@
+ 
+ 	while (true)
+ 	{
+-		if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("COMBAT_DIE_SIDES"), "Combat") < iDefenderOdds)
++		// UncutDragon
++		// original
++		//if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("COMBAT_DIE_SIDES"), "Combat") < iDefenderOdds)
++		// modified
++		if (GC.getGameINLINE().getSorenRandNum(GC.getCOMBAT_DIE_SIDES(), "Combat") < iDefenderOdds)
++		// /UncutDragon
+ 		{
+ 			if (getCombatFirstStrikes() == 0)
+ 			{
+@@ -1806,7 +1811,12 @@
+ }
+ 
+ 
+-bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
++// UncutDragon
++// original
++//bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
++// modified (with extra parameter)
++bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const
++// /UncutDragon
+ {
+ 	int iOurDefense;
+ 	int iTheirDefense;
+@@ -1860,6 +1870,13 @@
+ 		}
+ 	}
+ 
++	// UncutDragon
++	// To cut down on changes to existing code, we just short-circuit the method
++	// and this point and call our own version instead
++	if (GC.getLFBEnable())
++		return UDisBetterDefenderThan(pDefender, pAttacker, pBestDefenderRank);
++	// /UncutDragon
++
+ 	iOurDefense = currCombatStr(plot(), pAttacker);
+ 	if (::isWorldUnitClass(getUnitClassType()))
+ 	{
+@@ -1884,13 +1901,23 @@
+ 	{
+ 		if (!(pAttacker->immuneToFirstStrikes()))
+ 		{
+-			iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// UncutDragon
++			// original
++			//iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// modified
++			iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
++			// /UncutDragon
+ 			iOurDefense /= 100;
+ 		}
+ 
+ 		if (immuneToFirstStrikes())
+ 		{
+-			iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// UncutDragon
++			// original
++			//iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// modified
++			iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
++			// /UncutDragon
+ 			iOurDefense /= 100;
+ 		}
+ 	}
+@@ -1929,13 +1956,23 @@
+ 	{
+ 		if (!(pAttacker->immuneToFirstStrikes()))
+ 		{
+-			iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// UncutDragon
++			// original
++			//iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// modified
++			iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
++			// /UncutDragon
+ 			iTheirDefense /= 100;
+ 		}
+ 
+ 		if (pDefender->immuneToFirstStrikes())
+ 		{
+-			iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// UncutDragon
++			// original
++			//iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
++			// modified
++			iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
++			// /UncutDragon
+ 			iTheirDefense /= 100;
+ 		}
+ 	}
+@@ -2586,14 +2623,20 @@
+ 
+ 			if (bAttack)
+ 			{
+-				CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
+-				if (NULL != pDefender)
+-				{
+-					if (!canAttack(*pDefender))
+-					{
++				// UncutDragon
++				// original
++				//CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, true);
++				//if (NULL != pDefender)
++				//{
++				//	if (!canAttack(*pDefender))
++				//	{
++				//		return false;
++				//	}
++				//}
++				// modified
++				if (!pPlot->hasDefender(true, NO_PLAYER, getOwnerINLINE(), this, true))
+ 						return false;
+-					}
+-				}
++				// /UncutDragon
+ 			}
+ 		}
+ 		else
+@@ -4679,7 +4722,12 @@
+ 
+ 	if (pPlot->isWater())
+ 	{
+-		CvUnit* pInterceptor = bestSeaPillageInterceptor(this, GC.getDefineINT("COMBAT_DIE_SIDES") / 2);
++		// UncutDragon
++		// original
++		//CvUnit* pInterceptor = bestSeaPillageInterceptor(this, GC.getDefineINT("COMBAT_DIE_SIDES") / 2);
++		// modified
++		CvUnit* pInterceptor = bestSeaPillageInterceptor(this, GC.getCOMBAT_DIE_SIDES() / 2);
++		// /UncutDragon
+ 		if (NULL != pInterceptor)
+ 		{
+ 			setMadeAttack(false);
+@@ -8503,6 +8551,9 @@
+ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ {
+ 	CvUnit* pBestUnit = NULL;
++	// UncutDragon
++	int pBestUnitRank = -1;
++	// /UncutDragon
+ 
+ 	for (int iDX = -1; iDX <= 1; ++iDX)
+ 	{
+@@ -8531,7 +8582,12 @@
+ 									{
+ 										if (ACTIVITY_PATROL == pLoopUnit->getGroup()->getActivityType())
+ 										{
+-											if (NULL == pBestUnit || pLoopUnit->isBetterDefenderThan(pBestUnit, this))
++											// UncutDragon
++											// orignal
++											//if (NULL == pBestUnit || pLoopUnit->isBetterDefenderThan(pBestUnit, this))
++											// modified (added extra parameter)
++											if (NULL == pBestUnit || pLoopUnit->isBetterDefenderThan(pBestUnit, this, &pBestUnitRank))
++											// /UncutDragon
+ 											{
+ 												if (getCombatOdds(pPillager, pLoopUnit) < iMinOdds)
+ 												{
+@@ -11952,7 +12008,12 @@
+ 
+ 							getDefenderCombatValues(*pLoopUnit, pPlot, iAttackerStrength, iAttackerFirepower, iFlankedDefenderOdds, iFlankedDefenderStrength, iAttackerDamage, iFlankedDefenderDamage);
+ 
+-							if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("COMBAT_DIE_SIDES"), "Flanking Combat") >= iDefenderOdds)
++							// UncutDragon
++							// original
++							//if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("COMBAT_DIE_SIDES"), "Flanking Combat") >= iDefenderOdds)
++							// modified
++							if (GC.getGameINLINE().getSorenRandNum(GC.getCOMBAT_DIE_SIDES(), "Flanking Combat") >= iDefenderOdds)
++							// /UncutDragon
+ 							{
+ 								int iCollateralDamage = (iFlankingStrength * iDefenderDamage) / 100;
+ 								int iUnitDamage = std::max(pLoopUnit->getDamage(), std::min(pLoopUnit->getDamage() + iCollateralDamage, collateralDamageLimit()));
+@@ -12582,27 +12643,48 @@
+ 	FAssert((iOurStrength + iTheirStrength) > 0);
+ 	FAssert((iOurFirepower + iTheirFirepower) > 0);
+ 
+-	iTheirOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iTheirStrength) / (iOurStrength + iTheirStrength));
++	// UncutDragon
++	// original
++	//iTheirOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iTheirStrength) / (iOurStrength + iTheirStrength));
++	// modified
++	iTheirOdds = ((GC.getCOMBAT_DIE_SIDES() * iTheirStrength) / (iOurStrength + iTheirStrength));
++	// /UncutDragon
+ 
+ 	if (kDefender.isBarbarian())
+ 	{
+ 		if (GET_PLAYER(getOwnerINLINE()).getWinsVsBarbs() < GC.getHandicapInfo(GET_PLAYER(getOwnerINLINE()).getHandicapType()).getFreeWinsVsBarbs())
+ 		{
+-			iTheirOdds = std::min((10 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iTheirOdds);
++			// UncutDragon
++			// original
++			//iTheirOdds = std::min((10 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iTheirOdds);
++			// modified
++			iTheirOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
++			// /UncutDragon
+ 		}
+ 	}
+ 	if (isBarbarian())
+ 	{
+ 		if (GET_PLAYER(kDefender.getOwnerINLINE()).getWinsVsBarbs() < GC.getHandicapInfo(GET_PLAYER(kDefender.getOwnerINLINE()).getHandicapType()).getFreeWinsVsBarbs())
+ 		{
+-			iTheirOdds =  std::max((90 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iTheirOdds);
++			// UncutDragon
++			// original
++			//iTheirOdds =  std::max((90 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iTheirOdds);
++			// modified
++			iTheirOdds =  std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
++			// /UncutDragon
+ 		}
+ 	}
+ 
+ 	int iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
+ 
+-	iOurDamage = std::max(1, ((GC.getDefineINT("COMBAT_DAMAGE") * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
+-	iTheirDamage = std::max(1, ((GC.getDefineINT("COMBAT_DAMAGE") * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// UncutDragon
++	// original
++	//iOurDamage = std::max(1, ((GC.getDefineINT("COMBAT_DAMAGE") * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
++	//iTheirDamage = std::max(1, ((GC.getDefineINT("COMBAT_DAMAGE") * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// modified
++	iOurDamage = std::max(1, ((GC.getCOMBAT_DAMAGE() * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
++	iTheirDamage = std::max(1, ((GC.getCOMBAT_DAMAGE() * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// /UncutDragon
+ }
+ 
+ int CvUnit::getTriggerValue(EventTriggerTypes eTrigger, const CvPlot* pPlot, bool bCheckPlot) const
+@@ -12974,3 +13056,236 @@
+ 	return iScriptId;
+ }
+ 
++// UncutDragon
++// Original isBetterDefenderThan call (without the extra parameter) - now just a pass-through
++bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
++{
++	return isBetterDefenderThan(pDefender, pAttacker, NULL);
++}
++
++// Modified version of best defender code (minus the initial boolean tests,
++// which we still check in the original method)
++bool CvUnit::UDisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const
++{
++	// We adjust ranking based on ratio of our adjusted strength compared to twice that of attacker
++	// Effect is if we're over twice as strong as attacker, we increase our ranking
++	// (more likely to be picked as defender) - otherwise, we reduce our ranking (less likely)
++
++	// Get our adjusted rankings based on combat odds
++	int iOurRanking = UDgetDefenderRank(pAttacker);
++	int iTheirRanking = -1;
++	if (pBestDefenderRank)
++		iTheirRanking = (*pBestDefenderRank);
++	if (iTheirRanking == -1)
++		iTheirRanking = pDefender->UDgetDefenderRank(pAttacker);
++
++	// In case of equal value, fall back on unit cycle order
++	if (iOurRanking == iTheirRanking)
++	{
++		if (isBeforeUnitCycle(this, pDefender))
++			iTheirRanking--;
++		else
++			iTheirRanking++;
++	}
++
++	// Retain the basic rank (before value adjustment) for the best defender
++	if (pBestDefenderRank)
++		if (iOurRanking > iTheirRanking)
++			(*pBestDefenderRank) = iOurRanking;
++
++	return (iOurRanking > iTheirRanking);
++}
++
++// Get the (adjusted) odds of attacker winning to use in deciding best attacker
++int CvUnit::UDgetAttackerRank(const CvUnit* pDefender, int& iUnadjustedRank) const
++{
++	if (pDefender)
++	{
++		iUnadjustedRank = 1000 - pDefender->UDgetDefenderOdds(this);
++	} else {
++		// No defender ... just use strength, but try to make it a number out of 1000
++		iUnadjustedRank = currCombatStr(NULL, NULL) / 5;
++	}
++	int iRank = UDgetValueAdjustedOdds(iUnadjustedRank);
++
++	return iRank;
++}
++
++// Get the (adjusted) odds of defender winning to use in deciding best defender
++int CvUnit::UDgetDefenderRank(const CvUnit* pAttacker) const
++{
++	int iRank = UDgetDefenderOdds(pAttacker);
++	iRank = UDgetValueAdjustedOdds(iRank);
++
++	return iRank;
++}
++
++// Get the unadjusted odds of defender winning (used for both best defender and best attacker)
++int CvUnit::UDgetDefenderOdds(const CvUnit* pAttacker) const
++{
++	// Check if we have a valid attacker
++	bool bUseAttacker = false;
++	int iAttStrength = 0;
++	if (pAttacker)
++		iAttStrength = pAttacker->currCombatStr(NULL, NULL);
++	if (iAttStrength > 0)
++		bUseAttacker = true;
++
++	int iDefense = 0;
++
++	if (bUseAttacker && GC.getLFBUseCombatOdds())
++	{
++		// We start with straight combat odds
++		iDefense = UDgetDefenderCombatOdds(pAttacker);
++	} else {
++		// Lacking a real opponent (or if combat odds turned off) fall back on just using strength
++		iDefense = currCombatStr(plot(), pAttacker);
++		if (bUseAttacker)
++		{
++			// Similiar to the standard method, except I reduced the affect (cut it in half) handle attacker
++			// and defender together (instead of applying one on top of the other) and substract the
++			// attacker first strikes (instead of adding attacker first strikes when defender is immune)
++			int iFirstStrikes = 0;
++
++			if (!pAttacker->immuneToFirstStrikes())
++				iFirstStrikes += (firstStrikes() * 2) + chanceFirstStrikes();
++			if (!immuneToFirstStrikes())
++				iFirstStrikes -= ((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes());
++
++			if (iFirstStrikes != 0)
++			{
++				// With COMBAT_DAMAGE=20, this makes each first strike worth 8% (and each chance worth 4%)
++				iDefense *= ((iFirstStrikes * GC.getCOMBAT_DAMAGE() / 5) + 100);
++				iDefense /= 100;
++			}
++
++			// Make it a number out of 1000, taking attacker into consideration
++			iDefense = (iDefense * 1000) / (iDefense + iAttStrength);			
++		}
++	}
++
++	if (hasCargo())
++	{
++		// This part is taken directly from the standard method
++		// Reduces value if a unit is carrying other units
++		int iAssetValue = std::max(1, getUnitInfo().getAssetValue());
++		int iCargoAssetValue = 0;
++		std::vector<CvUnit*> aCargoUnits;
++		getCargoUnits(aCargoUnits);
++		for (uint i = 0; i < aCargoUnits.size(); ++i)
++		{
++			iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
++		}
++		iDefense = iDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
++	}
++
++	return iDefense;
++}
++
++// Take the unadjusted odds and adjust them based on unit value
++int CvUnit::UDgetValueAdjustedOdds(int iOdds) const
++{
++	// Adjust odds based on value
++	int iValue = UDgetRelativeValueRating();
++	int iAdjustment = -250;
++	if (GC.getLFBUseSlidingScale())
++		iAdjustment = (iOdds - 990);
++	int iRank = iOdds + 1000 + ((iAdjustment * iValue) / GC.getLFBBasedOnAverage());
++
++	return iRank;
++}
++
++// Method to evaluate the value of a unit relative to another
++int CvUnit::UDgetRelativeValueRating() const
++{
++	int iValueRating = 0;
++
++	// Check if led by a Great General
++	if (GC.getLFBBasedOnGeneral() > 0)
++		if (NO_UNIT != getLeaderUnitType())
++			iValueRating += GC.getLFBBasedOnGeneral();
++
++	// Assign experience value in tiers
++	if (GC.getLFBBasedOnExperience() > 0)
++	{
++		int iTier = 10;
++		while (getExperience() >= iTier)
++		{
++			iValueRating += GC.getLFBBasedOnExperience();
++			iTier *= 2;
++		}
++	}
++
++	// Check if unit is limited in how many can exist
++	if (GC.getLFBBasedOnLimited() > 0)
++		if (isLimitedUnitClass(getUnitClassType()))
++			iValueRating += GC.getLFBBasedOnLimited();
++
++	// Check if unit has ability to heal
++	if (GC.getLFBBasedOnHealer() > 0)
++		if (getSameTileHeal() > 0)
++			iValueRating += GC.getLFBBasedOnHealer();
++
++	return iValueRating;
++}
++
++int CvUnit::UDgetDefenderCombatOdds(const CvUnit* pAttacker) const
++{
++	int iAttackerStrength;
++	int iAttackerFirepower;
++	int iDefenderStrength;
++	int iDefenderFirepower;
++	int iDefenderOdds;
++	int iStrengthFactor;
++	int iDamageToAttacker;
++	int iDamageToDefender;
++	int iNeededRoundsAttacker;
++	int iNeededRoundsDefender;
++	int iAttackerLowFS;
++	int iAttackerHighFS;
++	int iDefenderLowFS;
++	int iDefenderHighFS;
++	int iDefenderHitLimit;
++
++	iAttackerStrength = pAttacker->currCombatStr(NULL, NULL);
++	iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
++
++	iDefenderStrength = currCombatStr(plot(), pAttacker);
++	iDefenderFirepower = currFirepower(plot(), pAttacker);
++
++	FAssert((iAttackerStrength + iDefenderStrength) > 0);
++	FAssert((iAttackerFirepower + iDefenderFirepower) > 0);
++
++	iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
++	iStrengthFactor = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
++
++	// calculate damage done in one round
++	//////
++
++	iDamageToAttacker = std::max(1,((GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
++	iDamageToDefender = std::max(1,((GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
++
++	// calculate needed rounds.
++	// Needed rounds = round_up(health/damage)
++	//////
++
++	iDefenderHitLimit = maxHitPoints() - pAttacker->combatLimit();
++
++	iNeededRoundsAttacker = (std::max(0, currHitPoints() - iDefenderHitLimit) + iDamageToDefender - 1 ) / iDamageToDefender;
++	iNeededRoundsDefender = (pAttacker->currHitPoints() + iDamageToAttacker - 1 ) / iDamageToAttacker;
++
++	// calculate possible first strikes distribution.
++	// We can't use the getCombatFirstStrikes() function (only one result,
++	// no distribution), so we need to mimic it.
++	//////
++
++	iAttackerLowFS = (immuneToFirstStrikes()) ? 0 : pAttacker->firstStrikes();
++	iAttackerHighFS = (immuneToFirstStrikes()) ? 0 : (pAttacker->firstStrikes() + pAttacker->chanceFirstStrikes());
++
++	iDefenderLowFS = (pAttacker->immuneToFirstStrikes()) ? 0 : firstStrikes();
++	iDefenderHighFS = (pAttacker->immuneToFirstStrikes()) ? 0 : (firstStrikes() + chanceFirstStrikes());
++
++	return UDgetCombatOdds(iDefenderLowFS, iDefenderHighFS, iAttackerLowFS, iAttackerHighFS, iNeededRoundsDefender, iNeededRoundsAttacker, iDefenderOdds);
++}
++// /UncutDragon
++
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@522
++++ /trunk/CvGameCoreDLL/CvUnit.h@523
+@@ -885,6 +885,20 @@
+ 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, CvBattleDefinition& kBattle);
+ 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
+ 	void checkRemoveSelectionAfterAttack();
++
++	// UncutDragon
++public:
++	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
++	virtual void UDgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const = 0;
++	int UDgetAttackerRank(const CvUnit* pDefender, int& iUnadjustedRank) const;
++	int UDgetDefenderRank(const CvUnit* pAttacker) const;
++protected:
++	int UDgetDefenderOdds(const CvUnit* pAttacker) const;
++	int UDgetValueAdjustedOdds(int iOdds) const;
++	int UDgetRelativeValueRating() const;
++	bool UDisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
++	int UDgetDefenderCombatOdds(const CvUnit* pAttacker) const;
++	// /UncutDragon
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@522
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@523
+@@ -752,6 +752,18 @@
+ 		return 100;
+ 	}
+ 
++	// UncutDragon
++	if (GC.getLFBEnable() && GC.getLFBUseCombatOdds())
++	{
++		// Combat odds are out of 1000 - we need odds out of 100
++		CvUnit* pThis = (CvUnit*)this;
++		int iOdds = (getCombatOdds(pThis, pDefender) + 5) / 10;
++		iOdds += GET_PLAYER(getOwnerINLINE()).AI_getAttackOddsChange();
++
++		return std::max(1, std::min(iOdds, 99));
++	}
++	// /UncutDragon
++
+ 	iOurStrength = ((getDomainType() == DOMAIN_AIR) ? airCurrCombatStr(NULL) : currCombatStr(NULL, NULL));
+ 	iOurFirepower = ((getDomainType() == DOMAIN_AIR) ? iOurStrength : currFirepower(NULL, NULL));
+ 
+@@ -775,8 +787,14 @@
+ 
+ 	iStrengthFactor = ((iOurFirepower + iTheirFirepower + 1) / 2);
+ 
+-	iDamageToUs = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
+-	iDamageToThem = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// UncutDragon
++	// original
++	//iDamageToUs = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
++	//iDamageToThem = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// modified
++	iDamageToUs = std::max(1,((GC.getCOMBAT_DAMAGE() * (iTheirFirepower + iStrengthFactor)) / (iOurFirepower + iStrengthFactor)));
++	iDamageToThem = std::max(1,((GC.getCOMBAT_DAMAGE() * (iOurFirepower + iStrengthFactor)) / (iTheirFirepower + iStrengthFactor)));
++	// /UncutDragon
+ 
+ 	iHitLimitThem = pDefender->maxHitPoints() - combatLimit();
+ 
+@@ -1114,6 +1132,17 @@
+ 			iValue /= 100;
+ 		}
+ 	}
++
++	// UncutDragon
++	if (GC.getLFBEnable())
++	{
++		// Reduce the value of sacrificing 'valuable' units - based on great general, limited, healer, experience
++		iValue *= 100;
++		int iRating = UDgetRelativeValueRating();
++		if (iRating > 0)
++			iValue /= (iRating * 100 / GC.getLFBBasedOnAverage());
++	}
++	// /UncutDragon
+ 
+     return iValue;
+ }
+@@ -4912,7 +4941,7 @@
+ 					{
+ 						return;
+ 					}
+-				}				
++				}
+ 				else if (GC.getGame().getSorenRandNum(100, "AI Spy Skip Turn") > 5)
+ 				{
+ 					// don't get stuck forever
+@@ -6317,7 +6346,11 @@
+ 	return;
+ }
+ 
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/07/10                                jdog5000      */
++/*                                                                                              */
++/* Naval AI                                                                                     */
++/************************************************************************************************/
+ void CvUnitAI::AI_assaultSeaMove()
+ {
+ 	PROFILE_FUNC();
+@@ -6325,12 +6358,6 @@
+ 	FAssert(AI_getUnitAIType() == UNITAI_ASSAULT_SEA);
+ 
+ 	bool bEmpty = !getGroup()->hasCargo();
+-
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						11/30/08	Solver & jdog5000	*/
+-/* 																			*/
+-/* 	Naval AI																*/
+-/********************************************************************************/
+ 	bool bFull = (getGroup()->AI_isFull() && (getGroup()->getCargo() > 0));
+ 
+ 	if (plot()->isCity(true))
+@@ -6382,15 +6409,7 @@
+ 			}
+ 		}
+ 	}
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
+-
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						08/15/09			jdog5000	*/
+-/* 																			*/
+-/* 	Naval AI																*/
+-/********************************************************************************/
++
+ 	if (bEmpty)
+ 	{
+ 		if (AI_anyAttack(1, 65))
+@@ -6627,7 +6646,7 @@
+ 		{
+ 			if ( iCargo > 0 )
+ 			{
+-				if (AI_group(UNITAI_ASSAULT_SEA))
++				if (AI_group(UNITAI_ASSAULT_SEA,-1,-1,-1,/*bIgnoreFaster*/true,false,false,/*iMaxPath*/5,false,/*bCargoOnly*/true,false,MISSIONAI_ASSAULT))
+ 				{
+ 					return;
+ 				}
+@@ -6646,17 +6665,9 @@
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	
+ 	if (!bIsCity)
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/18/09                                jdog5000      */
+-/*                                                                                              */
+-/* Naval AI, bugfix                                                                             */
+-/************************************************************************************************/
+ 		if( iCargo >= iTargetInvasionSize )
+ 		{
+ 			bAttack = true;
+@@ -6763,16 +6774,8 @@
+ 				}
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Barbarian AI                                                                                 */
+-/************************************************************************************************/
++	}
++
+ 	if (bIsBarbarian)
+ 	{
+ 		if (getGroup()->isFull() || iCargo > iTargetInvasionSize)
+@@ -6812,18 +6815,10 @@
+ 
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		}
+ 	}
+ 	else
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/26/09                                jdog5000      */
+-/*                                                                                              */
+-/* Naval AI                                                                                     */
+-/************************************************************************************************/
+ 		if (bAttack || bReinforce)
+ 		{
+ 			if( bIsCity )
+@@ -6839,6 +6834,8 @@
+ 			}
+ 
+ 			FAssert(getGroup()->hasCargo());
++
++			//BBAI TODO: Check that group has escorts, otherwise usually wait
+ 
+ 			if( bAttack )
+ 			{
+@@ -6892,50 +6889,17 @@
+ 				return;
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-	}
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/11/09                                jdog5000      */
+-/*                                                                                              */
+-/* Naval AI                                                                                     */
+-/************************************************************************************************/
+-/* original bts code
+-	if (bFull)
+-	{
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, -1, -1, true))
++	}
++
++	if ((bFull || bReinforce) && !bAttack)
++	{
++		// Group with nearby transports with units on board
++		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ -1, -1, true, false, false, 2, false, true, false, MISSIONAI_ASSAULT))
+ 		{
+ 			return;
+ 		}
+-	}
+-	else
+-	{
+-		if (AI_pickup(UNITAI_ATTACK_CITY))
+-		{
+-			return;
+-		}
+-
+-		if (AI_pickup(UNITAI_ATTACK))
+-		{
+-			return;
+-		}
+-		
+-		if (AI_pickup(UNITAI_COUNTER))
+-		{
+-			return;
+-		}
+-*/
+-	if ((bFull || bReinforce) && !bAttack)
+-	{
+-		// Group with nearby transports with units on board
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ -1, -1, true, false, false, 2, false, true, false))
+-		{
+-			return;
+-		}
+-
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, -1, -1, true))
++
++		if (AI_group(UNITAI_ASSAULT_SEA, -1, -1, -1, true, false, false, 10, false, true, false, MISSIONAI_ASSAULT))
+ 		{
+ 			return;
+ 		}
+@@ -6991,25 +6955,8 @@
+ 				}
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-	}
+-		
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
+-/*                                                                                              */
+-/* Naval AI                                                                                     */
+-/************************************************************************************************/
+-/* original bts code
+-	// if we are in a city, and at/preparing land war, and we have cargo, unload, even if full, since AI_assaultSeaTransport already had its chance
+-	if (bIsCity && bLandWar && getGroup()->hasCargo())
+-	{
+-		getGroup()->unloadAll();
+-		getGroup()->pushMission(MISSION_SKIP);
+-		return;
+-	}
+-*/
++	}
++
+ 	if (bIsCity && bLandWar && getGroup()->hasCargo())
+ 	{
+ 		// Enemy units in this player's territory
+@@ -7020,9 +6967,6 @@
+ 			return;
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	
+ 	if (AI_retreatToCity(true))
+ 	{
+@@ -7042,6 +6986,9 @@
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 
+ void CvUnitAI::AI_settlerSeaMove()
+@@ -9707,7 +9654,7 @@
+ /************************************************************************************************/
+ // Added new options to aid transport grouping
+ // Returns true if a group was joined or a mission was pushed...
+-bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping, bool bWithCargoOnly, bool bInCityOnly)
++bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping, bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -9781,49 +9728,52 @@
+ 											{
+ 												if( !bInCityOnly || pLoopUnit->plot()->isCity() )
+ 												{
+-													if (!(pPlot->isVisibleEnemyUnit(this)))
++													if( (eIgnoreMissionAIType == NO_MISSIONAI) || (eIgnoreMissionAIType != pLoopUnit->getGroup()->AI_getMissionAIType()) )
+ 													{
+-														if (generatePath(pPlot, 0, true, &iPathTurns))
++														if (!(pPlot->isVisibleEnemyUnit(this)))
+ 														{
+-															if (iPathTurns <= iMaxPath)
++															if (generatePath(pPlot, 0, true, &iPathTurns))
+ 															{
+-																int iOurImpassableCount = 0;
+-																CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+-																while (pUnitNode != NULL)
++																if (iPathTurns <= iMaxPath)
+ 																{
+-																	CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-																	pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+-
+-																	iOurImpassableCount = std::max(iOurImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+-																}
+-
+-																if( iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
+-																{
+-																	int iTheirImpassableCount = 0;
+-																	pUnitNode = pLoopGroup->headUnitNode();
++																	int iOurImpassableCount = 0;
++																	CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+ 																	while (pUnitNode != NULL)
+ 																	{
+ 																		CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-																		pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
+-
+-																		iTheirImpassableCount = std::max(iTheirImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
++																		pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++
++																		iOurImpassableCount = std::max(iOurImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+ 																	}
+ 
+-																	if( iOurImpassableCount != iTheirImpassableCount )
++																	if( iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
+ 																	{
+-																		continue;
++																		int iTheirImpassableCount = 0;
++																		pUnitNode = pLoopGroup->headUnitNode();
++																		while (pUnitNode != NULL)
++																		{
++																			CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
++																			pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
++
++																			iTheirImpassableCount = std::max(iTheirImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
++																		}
++
++																		if( iOurImpassableCount != iTheirImpassableCount )
++																		{
++																			continue;
++																		}
+ 																	}
+-																}
+-
+-																iValue = 1000 * (iPathTurns + 1);
+-																iValue *= 4 + pLoopGroup->getCargo();
+-																iValue /= pLoopGroup->getNumUnits();
+-
+-
+-																if (iValue < iBestValue)
+-																{
+-																	iBestValue = iValue;
+-																	pBestUnit = pLoopUnit;
++
++																	iValue = 1000 * (iPathTurns + 1);
++																	iValue *= 4 + pLoopGroup->getCargo();
++																	iValue /= pLoopGroup->getNumUnits();
++
++
++																	if (iValue < iBestValue)
++																	{
++																		iBestValue = iValue;
++																		pBestUnit = pLoopUnit;
++																	}
+ 																}
+ 															}
+ 														}
+@@ -15930,6 +15880,35 @@
+ 	{
+ 		FAssert(!(pBestPlot->isImpassable()));
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/11/10                                jdog5000      */
++/*                                                                                              */
++/* War tactics AI                                                                               */
++/************************************************************************************************/
++		// Cancel missions of all those coming to join departing transport
++		CvSelectionGroup* pLoopGroup = NULL;
++		int iLoop = 0;
++		CvPlayer& kPlayer = GET_PLAYER(getOwnerINLINE());
++
++		for(pLoopGroup = kPlayer.firstSelectionGroup(&iLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iLoop))
++		{
++			if( pLoopGroup != getGroup() )
++			{
++				if( pLoopGroup->AI_getMissionAIType() == MISSIONAI_GROUP && pLoopGroup->getHeadUnitAI() == AI_getUnitAIType() )
++				{
++					CvUnit* pMissionUnit = pLoopGroup->AI_getMissionAIUnit();
++
++					if( pMissionUnit != NULL && pMissionUnit->getGroup() == getGroup() )
++					{
++						pLoopGroup->clearMissionQueue();
++					}
++				}
++			}
++		}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 		if ((pBestPlot == pBestAssaultPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestAssaultPlot))
+@@ -15977,7 +15956,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/01/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/07/10                                jdog5000      */
+ /*                                                                                              */
+ /* Naval AI, Efficiency                                                                         */
+ /************************************************************************************************/
+@@ -16137,14 +16116,16 @@
+ 														for (uint i = 0; i < aGroupCargo.size(); ++i)
+ 														{
+ 															CvUnit* pAttacker = aGroupCargo[i];
+-															if( iVisibleEnemyDefenders > 0 )
++															// UncutDragon
++															// original
++															//CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, true);
++															//if (pDefender == NULL || !pAttacker->canAttack(*pDefender))
++															// modified
++															if (!pLoopPlot->hasDefender(true, NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, true))
++															// /UncutDragon
+ 															{
+-																CvUnit* pDefender = pLoopPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, true);
+-																if (pDefender == NULL || !pAttacker->canAttack(*pDefender))
+-																{
+-																	bCanCargoAllUnload = false;
+-																	break;
+-																}
++																bCanCargoAllUnload = false;
++																break;
+ 															}
+ 															else if( pLoopPlot->isCity() && !(pLoopPlot->isVisible(getTeam(),false)) )
+ 															{
+@@ -16372,6 +16353,27 @@
+ 	{
+ 		FAssert(!(pBestPlot->isImpassable()));
+ 
++		// Cancel missions of all those coming to join departing transport
++		CvSelectionGroup* pLoopGroup = NULL;
++		int iLoop = 0;
++		CvPlayer& kPlayer = GET_PLAYER(getOwnerINLINE());
++
++		for(pLoopGroup = kPlayer.firstSelectionGroup(&iLoop); pLoopGroup != NULL; pLoopGroup = kPlayer.nextSelectionGroup(&iLoop))
++		{
++			if( pLoopGroup != getGroup() )
++			{
++				if( pLoopGroup->AI_getMissionAIType() == MISSIONAI_GROUP && pLoopGroup->getHeadUnitAI() == AI_getUnitAIType() )
++				{
++					CvUnit* pMissionUnit = pLoopGroup->AI_getMissionAIUnit();
++
++					if( pMissionUnit != NULL && pMissionUnit->getGroup() == getGroup() )
++					{
++						pLoopGroup->clearMissionQueue();
++					}
++				}
++			}
++		}
++
+ 		if ((pBestPlot == pBestAssaultPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestAssaultPlot))
+@@ -16398,7 +16400,6 @@
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-
+ 
+ 
+ // Returns true if a mission was pushed...
+@@ -22806,3 +22807,53 @@
+ 
+ // Private Functions...
+ 
++// UncutDragon
++void CvUnitAI::UDgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const
++{
++	CvUnit* pThis = (CvUnit*)this;
++	CvUnit* pAttacker = (*ppAttacker);
++	CvUnit* pDefender;
++	int iOdds;
++	int iValue;
++	int iAIOdds;
++
++	pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, !bPotentialEnemy, bPotentialEnemy);
++	iValue = UDgetAttackerRank(pDefender, iOdds);
++
++	// Combat odds are out of 1000, but the AI routines need odds out of 100, and when called from AI_getBestGroupAttacker
++	// we return this value. Note that I'm not entirely sure if/how that return value is actually used ... but just in case I
++	// want to make sure I'm returning something consistent with what was there before
++	iAIOdds = (iOdds + 5) / 10;
++	iAIOdds += GET_PLAYER(getOwnerINLINE()).AI_getAttackOddsChange();
++	iAIOdds = std::max(1, std::min(iAIOdds, 99));
++
++	if (collateralDamage() > 0)
++	{
++		int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(pThis) - 1), collateralDamageMaxUnits());
++
++		if (iPossibleTargets > 0)
++		{
++			iValue *= (100 + ((collateralDamage() * iPossibleTargets) / 5));
++			iValue /= 100;
++		}
++	}
++
++	// Nothing to compare against - we're obviously better
++	if (!pAttacker)
++	{
++		(*ppAttacker) = pThis;
++		iAIAttackOdds = iAIOdds;
++		iAttackerValue = iValue;
++		return;
++	}
++
++	// Compare our adjusted value with the current best
++	if (iValue >= iAttackerValue)
++	{
++		(*ppAttacker) = pThis;
++		iAIAttackOdds = iAIOdds;
++		iAttackerValue = iValue;
++	}
++}
++// /UncutDragon
++
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@522
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@523
+@@ -112,7 +112,7 @@
+ 	bool AI_shadow(UnitAITypes eUnitAI, int iMax = -1, int iMaxRatio = -1, bool bWithCargoOnly = true);
+ */
+ 	bool AI_shadow(UnitAITypes eUnitAI, int iMax = -1, int iMaxRatio = -1, bool bWithCargoOnly = true, bool bOutsideCityOnly = false, int iMaxPath = MAX_INT);
+-	bool AI_group(UnitAITypes eUnitAI, int iMaxGroup = -1, int iMaxOwnUnitAI = -1, int iMinUnitAI = -1, bool bIgnoreFaster = false, bool bIgnoreOwnUnitType = false, bool bStackOfDoom = false, int iMaxPath = MAX_INT, bool bAllowRegrouping = false, bool bWithCargoOnly = false, bool bInCityOnly = false);
++	bool AI_group(UnitAITypes eUnitAI, int iMaxGroup = -1, int iMaxOwnUnitAI = -1, int iMinUnitAI = -1, bool bIgnoreFaster = false, bool bIgnoreOwnUnitType = false, bool bStackOfDoom = false, int iMaxPath = MAX_INT, bool bAllowRegrouping = false, bool bWithCargoOnly = false, bool bInCityOnly = false, MissionAITypes eIgnoreMissionAIType = NO_MISSIONAI);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -315,6 +315,10 @@
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+ 
++	// UncutDragon
++public:
++	void UDgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const;
++	// /UncutDragon
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+--- /trunk/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp@522
++++ /trunk/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp@523
+@@ -196,6 +196,13 @@
+ 		return false;
+ 	}
+ 
++	// UncutDragon
++	if (!ReadGlobalDefines("xml\\UncutDragon_GlobalDefines.xml", cache))
++	{
++		//return false;
++	}
++	// /UncutDragon
++
+ 	if (gDLL->isModularXMLLoading())
+ 	{
+ 		std::vector<CvString> aszFiles;
+
+Index: /trunk/CvGameCoreDLL/CyInfoInterface2.cpp
+--- /trunk/CvGameCoreDLL/CyInfoInterface2.cpp@522
++++ /trunk/CvGameCoreDLL/CyInfoInterface2.cpp@523
+@@ -273,7 +273,18 @@
+ 		.def("getUpgradeTime", &CvImprovementInfo::getUpgradeTime, "int ()")
+ 		.def("getAirBombDefense", &CvImprovementInfo::getAirBombDefense, "int ()")
+ 		.def("getDefenseModifier", &CvImprovementInfo::getDefenseModifier, "int ()")
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       02/12/10                             jdog5000         */
++/*                                                                                              */
++/* Bugfix                                                                                       */
++/************************************************************************************************/
++/* original bts code
+ 		.def("getHappiness", &CvImprovementInfo::getDefenseModifier, "int ()")
++*/
++		.def("getHappiness", &CvImprovementInfo::getHappiness, "int ()")
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 		.def("getPillageGold", &CvImprovementInfo::getPillageGold, "int ()")
+ 		.def("getImprovementPillage", &CvImprovementInfo::getImprovementPillage, "int ()")
+ 		.def("getImprovementUpgrade", &CvImprovementInfo::getImprovementUpgrade, "int ()")
+

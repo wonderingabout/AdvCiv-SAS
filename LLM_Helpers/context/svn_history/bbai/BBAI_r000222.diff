@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 222
+# Author: iustus
+# Date: 2006-12-21T14:55:01.264387Z
+# Coverage: full
+# Message:
+#   removed #define for release build
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@221
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@222
+@@ -63,7 +63,7 @@
+ };
+ #endif
+ 
+-#define DEBUG_CITY_BUILDS
++//#define DEBUG_CITY_BUILDS
+ #ifdef DEBUG_CITY_BUILDS
+ inline void getBuildingFocusString(CvWString& szString, int iFocusFlags)
+ {
+

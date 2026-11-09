@@ -1,0 +1,144 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 512
+# Author: jdog5000
+# Date: 2009-11-15T09:12:24.639884Z
+# Coverage: full
+# Message:
+#   Fixed extra missionary construction
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@511
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@512
+@@ -3948,8 +3948,12 @@
+ 	return iPrice;
+ }
+ 
+-
+-int CvPlayer::countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion) const
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
++/*                                                                                              */
++/* General AI                                                                                   */
++/************************************************************************************************/
++int CvPlayer::countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, bool bIncludeTraining) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3970,10 +3974,27 @@
+ 		}
+ 	}
+ 
++	if( bIncludeTraining )
++	{
++		CvCity* pLoopCity;
++		for( pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop) )
++		{
++			UnitTypes eUnit = pLoopCity->getProductionUnit();
++
++			if( eUnit != NO_UNIT )
++			{
++				if(GC.getUnitInfo(eUnit).getReligionSpreads(eReligion) > 0)
++				{
++					iCount++;
++				}
++			}
++		}
++	}
++
+ 	return iCount;
+ }
+ 
+-int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorporation) const
++int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorporation, bool bIncludeTraining) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3990,9 +4011,28 @@
+ 		}
+ 	}
+ 
++	if( bIncludeTraining )
++	{
++		CvCity* pLoopCity;
++		for( pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop) )
++		{
++			UnitTypes eUnit = pLoopCity->getProductionUnit();
++
++			if( eUnit != NO_UNIT )
++			{
++				if(GC.getUnitInfo(eUnit).getCorporationSpreads(eCorporation) > 0)
++				{
++					iCount++;
++				}
++			}
++		}
++	}
++
+ 	return iCount;
+ }
+-
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ int CvPlayer::countNumCoastalCities() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@511
++++ /trunk/CvGameCoreDLL/CvPlayer.h@512
+@@ -168,8 +168,16 @@
+ 
+ 	int upgradeAllPrice(UnitTypes eUpgradeUnit, UnitTypes eFromUnit);
+ 
+-	int countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion) const;														// Exposed to Python
+-	int countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorporation) const;														// Exposed to Python
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
++/*                                                                                              */
++/* General AI                                                                                   */
++/************************************************************************************************/
++	int countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, bool bIncludeTraining = false) const;														// Exposed to Python
++	int countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorporation, bool bIncludeTraining = false) const;														// Exposed to Python
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	int countNumCoastalCities() const;																																		// Exposed to Python
+ 	int countNumCoastalCitiesByArea(CvArea* pArea) const;																									// Exposed to Python
+ 	int countTotalCulture() const;																																				// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@511
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@512
+@@ -10000,7 +10000,7 @@
+ 	}
+ 	else
+ 	{
+-		iOurCitiesHave = pArea->countHasReligion(eReligion, getID());
++		iOurCitiesHave = pArea->countHasReligion(eReligion, getID()) + countReligionSpreadUnits(pArea, eReligion,true);
+ 		iOurCitiesCount = pArea->getCitiesPerPlayer(getID());
+ 	}
+ 	
+@@ -10119,7 +10119,15 @@
+ 	}
+ 	else
+ 	{
+-		iOurCitiesHave = pArea->countHasCorporation(eCorporation, getID());
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++		iOurCitiesHave = pArea->countHasCorporation(eCorporation, getID()) + countCorporationSpreadUnits(pArea,eCorporation,true);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 		iOurCitiesCount = pArea->getCitiesPerPlayer(getID());
+ 	}
+ 	
+

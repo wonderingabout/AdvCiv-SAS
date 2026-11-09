@@ -1,0 +1,119 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 163
+# Author: iustus
+# Date: 2006-12-11T02:45:48.962056Z
+# Coverage: full
+# Message:
+#   more found info under chipotle, there is something strange going on with found values which was causing a lot of confusion. Found values are only recalculated once per turn, not when new tiles are revealed. They do not seem to be calculated correctly on the first turn (are they possibly pre-normalization?), which is why the circles display strangely. The _real_ value from the plot is actually displayed now, with the values if we recalculated immediately in parenthesis. The blue circles now always correspond with the found values we show under chiptole.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.h
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@162
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@163
+@@ -1662,8 +1662,13 @@
+ 				}
+ 			}
+ 		}
+-
+-		szTempBuffer.Format(L"\nFound Value: %d, %d", GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1 , true), GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1 , false));
++		
++		PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
++		int iActualFoundValue = pPlot->m_aiFoundValue[eActivePlayer];
++		int iCalcFoundValue = GET_PLAYER(eActivePlayer).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
++		int iStartingFoundValue = GET_PLAYER(eActivePlayer).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++
++		szTempBuffer.Format(L"\nFound Value: %d, (%d, %d)", iActualFoundValue, iCalcFoundValue, iStartingFoundValue);
+ 		szString+=szTempBuffer;
+ 
+ 		CvCity* pWorkingCity = pPlot->getWorkingCity();
+@@ -1761,21 +1766,60 @@
+             }
+ 	    }
+ 
++		szTempBuffer.Format(L"\nFound Values:");
++		szString+=szTempBuffer;
+         for (iI = 0; iI < MAX_PLAYERS; iI++)
+         {
+-            if (GET_PLAYER((PlayerTypes)iI).isAlive())
++            PlayerTypes ePlayer = (PlayerTypes)iI;
++			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
++			
++			if (kPlayer.isAlive())
+             {
+-                int iFoundValue = (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pPlot->getX_INLINE(),pPlot->getY_INLINE()));
+-                if (iFoundValue > 0)
+-                {
+-                    szTempBuffer.Format(L"\n%s Found Value = %d", GET_PLAYER((PlayerTypes)iI).getName(), iFoundValue);
+-                    szString+=szTempBuffer;
+-    
+-                    int iDeadlockCount = GET_PLAYER((PlayerTypes)iI).AI_countDeadlockedBonuses(pPlot);
+-                    szTempBuffer.Format(L"\n %d Deadlocked Bonuses", iDeadlockCount);
+-                    szString+=szTempBuffer;
+-                }
+-            }
++				int iActualFoundValue = pPlot->m_aiFoundValue[iI];
++
++				szString+=NEWLINE;
++				
++				bool bIsRevealed = pPlot->isRevealed(kPlayer.getTeam(), false);
++
++				if (!bIsRevealed)
++				{
++					szTempBuffer.Format(L"(");
++					szString+=szTempBuffer;
++				}
++
++				szTempBuffer.Format(L"%s:%d", kPlayer.getName(), iActualFoundValue);
++				szString+=szTempBuffer;
++
++				if (!bIsRevealed)
++				{
++					szTempBuffer.Format(L")");
++					szString+=szTempBuffer;
++				}
++
++				int iCalcFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
++				int iStartingFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++				if (iCalcFoundValue > 0 || iStartingFoundValue > 0)
++				{
++					szTempBuffer.Format(L" (%d,%ds)", iCalcFoundValue, iStartingFoundValue);
++					szString+=szTempBuffer;
++				}
++
++				int iDeadlockCount = kPlayer.AI_countDeadlockedBonuses(pPlot);
++				if (iDeadlockCount > 0)
++				{
++					szTempBuffer.Format(L", d=%d", iDeadlockCount);
++					szString+=szTempBuffer;
++				}
++
++				int iBestAreaFoundValue = pPlot->area()->getBestFoundValue(ePlayer);
++				if (iBestAreaFoundValue > 0)
++				{
++					int iBestFoundValue = kPlayer.findBestFoundValue();
++
++					szTempBuffer.Format(L"\n  Area Best = %d, Best = %d", iBestAreaFoundValue, iBestFoundValue);
++					szString+=szTempBuffer;
++				}	
++			}
+         }
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+
+Index: /trunk/CvGameCoreDLL/CvPlot.h
+--- /trunk/CvGameCoreDLL/CvPlot.h@162
++++ /trunk/CvGameCoreDLL/CvPlot.h@163
+@@ -521,6 +521,9 @@
+ 	
+ 	// let CvExtraSaveData read m_aiFoundValue directly
+ 	friend CvExtraSaveData;
++
++	// added so under cheat mode we can access protected stuff
++	friend class CvGameTextMgr;
+ };
+ 
+ #endif
+

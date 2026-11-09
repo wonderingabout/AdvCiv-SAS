@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 318
+# Author: iustus
+# Date: 2007-01-29T02:44:48.262563Z
+# Coverage: full
+# Message:
+#   handle fogbusting bug where sea unit is next to another sea plot, but it is not reachable
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@317
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@318
+@@ -7665,8 +7665,16 @@
+ 					// consider this as our best choice
+ 					if ((!bOurTerritoryInRange && iValue > 0) || iFogbustingChange > 0 || iEnemyPlots > 0)
+ 					{
+-						if (canMoveInto(pAdjacentPlot, /*bAttack*/ false, /*bDeclareWar*/ false, /*bIgnoreLoad*/ true))
++						int iPathTurns = 0;
++						if (canMoveInto(pAdjacentPlot, /*bAttack*/ false, /*bDeclareWar*/ false, /*bIgnoreLoad*/ true) &&
++							generatePath(pAdjacentPlot, 0, true, &iPathTurns))
+ 						{
++							// sea units might have to path around land, to avoid long distance shuffling, devalue these
++							if (iPathTurns > 3)
++							{
++								iValue /= 3;
++							}
++
+ 							// if there is an enemy in our fogbusting area, move to the best defensive bonus
+ 							if (iEnemyPlots > 0)
+ 							{
+

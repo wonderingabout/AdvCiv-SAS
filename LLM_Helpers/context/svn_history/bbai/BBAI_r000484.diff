@@ -1,0 +1,83 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 484
+# Author: jdog5000
+# Date: 2009-08-31T23:42:57.043677Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@483
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@484
+@@ -4441,7 +4441,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81F");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81G");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@483
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@484
+@@ -85,11 +85,9 @@
+ 			CharacterSet="2">
+ 			<Tool
+ 				Name="VCCLCompilerTool"
+-				Optimization="1"
++				Optimization="2"
+ 				GlobalOptimizations="TRUE"
+-				InlineFunctionExpansion="2"
+ 				EnableIntrinsicFunctions="TRUE"
+-				FavorSizeOrSpeed="1"
+ 				OmitFramePointers="TRUE"
+ 				OptimizeForProcessor="3"
+ 				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
+@@ -154,9 +152,7 @@
+ 				Name="VCCLCompilerTool"
+ 				Optimization="2"
+ 				GlobalOptimizations="TRUE"
+-				InlineFunctionExpansion="2"
+ 				EnableIntrinsicFunctions="TRUE"
+-				FavorSizeOrSpeed="0"
+ 				OmitFramePointers="TRUE"
+ 				OptimizeForProcessor="3"
+ 				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
+@@ -166,7 +162,6 @@
+ 				RuntimeLibrary="2"
+ 				BufferSecurityCheck="FALSE"
+ 				EnableFunctionLevelLinking="TRUE"
+-				EnableEnhancedInstructionSet="0"
+ 				RuntimeTypeInfo="TRUE"
+ 				UsePrecompiledHeader="3"
+ 				PrecompiledHeaderThrough="CvGameCoreDLL.h"
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@483
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@484
+@@ -5106,7 +5106,7 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      08/10/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -5914,7 +5914,7 @@
+ /********************************************************************************/
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						06/02/09			jdog5000	*/
++/**		BETTER_BTS_AI_MOD						08/15/09			jdog5000	*/
+ /**																				*/
+ /**		Naval AI																*/
+ /********************************************************************************/
+

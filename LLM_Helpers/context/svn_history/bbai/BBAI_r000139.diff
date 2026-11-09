@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 139
+# Author: iustus
+# Date: 2006-12-01T19:45:58.729434Z
+# Coverage: full
+# Message:
+#   turned on some defines for debugging when building debug exe. 
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@138
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@139
+@@ -339,7 +339,7 @@
+ 				Optimization="0"
+ 				OptimizeForProcessor="3"
+ 				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
+-				PreprocessorDefinitions="WIN32;NDEBUG;FASSERT_ENABLE;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS"
++				PreprocessorDefinitions="WIN32;NDEBUG;FASSERT_ENABLE;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;DEBUG_WAR_ACTIONS;DEBUG_CITY_BUILDS"
+ 				MinimalRebuild="FALSE"
+ 				ExceptionHandling="TRUE"
+ 				BasicRuntimeChecks="3"
+

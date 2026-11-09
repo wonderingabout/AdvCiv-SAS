@@ -1,0 +1,54 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 169
+# Author: iustus
+# Date: 2006-12-11T18:17:38.916706Z
+# Coverage: full
+# Message:
+#   AI_bestTech - removed factor for valuing the revealing of a bonus based on how common a bonus it was. (might later use the XML to determine how common it is)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@168
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@169
+@@ -2978,22 +2978,22 @@
+ 										int iRevealValue = 200;
+ 										iRevealValue += (AI_bonusVal((BonusTypes)iJ) * 50);
+ 										
+-										int iBonusCount = GC.getMapINLINE().getNumBonuses((BonusTypes)iJ);
+-										
+-										// weight based on how common the resource is (rare bonuses likely are not close)
+-										iRevealValue *= iBonusCount;
+-										iRevealValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
+-										
+-										// devalue water bonuses based on our coastal cities
+-										int iBonusCountOnLand = GC.getMapINLINE().getNumBonusesOnLand((BonusTypes)iJ);
+-										
+-										// are there bonuses on the water?
+-										if (iBonusCount > iBonusCountOnLand)
+-										{
+-											// (value * land%) + (value * water% * coastalcity%)
+-											iRevealValue = ((iRevealValue * iBonusCountOnLand) / iBonusCount) +
+-												((iRevealValue * (iBonusCount - iBonusCountOnLand) * iCoastalCities) / (iBonusCount * iCityCount));
+-										}
++										//int iBonusCount = GC.getMapINLINE().getNumBonuses((BonusTypes)iJ);
++										//
++										//// weight based on how common the resource is (rare bonuses likely are not close)
++										//iRevealValue *= iBonusCount;
++										//iRevealValue /= GC.getMapINLINE().numPlotsINLINE() / 512;
++										//
++										//// devalue water bonuses based on our coastal cities
++										//int iBonusCountOnLand = GC.getMapINLINE().getNumBonusesOnLand((BonusTypes)iJ);
++										//
++										//// are there bonuses on the water?
++										//if (iBonusCount > iBonusCountOnLand)
++										//{
++										//	// (value * land%) + (value * water% * coastalcity%)
++										//	iRevealValue = ((iRevealValue * iBonusCountOnLand) / iBonusCount) +
++										//		((iRevealValue * (iBonusCount - iBonusCountOnLand) * iCoastalCities) / (iBonusCount * iCityCount));
++										//}
+ 
+ 										iValue += iRevealValue;
+ 									}
+

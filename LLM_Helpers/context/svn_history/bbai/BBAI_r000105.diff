@@ -1,0 +1,306 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 105
+# Author: blakeciv
+# Date: 2006-11-21T13:43:16.397664Z
+# Coverage: full
+# Message:
+#   Fixed emphasize usage.
+#   Attempted (failed) to fix problems with working inferior tiles.
+#   Holding down alt (even when non-cheat mode) reveals if the mod is active.
+#   Fixed some crashes to do with sacrifice value.
+#   Tweaked Promotion valuing (needs testing)
+#   Other random changes to unit AI's.
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@104
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@105
+@@ -3563,7 +3563,7 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_PRODUCTION) > 0)
+ 		{
+-			if (!bFirstTech || bUrgentBuild)
++			if (bUrgentBuild)
+ 			{
+ 				bEmphasize = true;
+ 			}
+@@ -3571,7 +3571,7 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_COMMERCE) > 0)
+ 		{
+-			if (!bUrgentBuild)
++			if (bFirstTech)
+ 			{
+ 				bEmphasize = true;
+ 			}
+@@ -4209,7 +4209,7 @@
+ 			// if we not human, allow us to starve to half full if avoiding growth
+ 			if (!isHuman())
+ 			{
+-				iFoodPerTurn += max(0, (iFoodLevel - (iFoodToGrow / 2)));
++				iFoodPerTurn += max(0, (iFoodLevel - max(1, (iFoodToGrow / 8))));
+ 			}
+ 		}
+ 		
+@@ -4404,6 +4404,20 @@
+ 		// value the part of our commerce that goes to research medium (20)
+ 		iValue += (iYieldResearch * 20);
+ 	}
++	
++	//Sanity Perserving Factor
++	{
++	    if (bFoodIsProduction)
++	    {
++	        iValue += adjustedYIELD_PRODUCTION * 2;
++	    }
++	    else
++	    {
++	        iValue += aiYields[YIELD_FOOD] * 3;
++	        iValue += aiYields[YIELD_PRODUCTION] * 2;
++	    }
++        iValue += aiYields[YIELD_COMMERCE] * 1;
++	}	        
+ 
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@104
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@105
+@@ -1579,6 +1579,11 @@
+ 	bAlt = gDLL->altKey();
+ 
+ 
++    if (bAlt)
++    {
++        szTempBuffer.Format(L"=== Blakes AI ===");
++		szString+=szTempBuffer;
++    }
+ 	if (bShift && !bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+ 		szString+=(GC.getTerrainInfo(pPlot->getTerrainType()).getDescription());
+@@ -8723,6 +8728,7 @@
+ 
+ 	int iModProduction = iFoodProduction + (iBaseModifier * iBaseProduction) / 100;
+ 
++    //asserts on processes
+ 	FAssertMsg(iModProduction == city.getCurrentProductionDifference(false, true), "Modified Production does not match actual value");
+ 
+ 	szBuffer += gDLL->getText("TXT_KEY_MISC_HELP_PROD_FINAL_YIELD", iModProduction) + NEWLINE;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@104
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@105
+@@ -2367,7 +2367,7 @@
+ 	bool bStack;
+ 	bool bAttack;
+ 
+-	if (true)
++	if (getDomainType() != DOMAIN_AIR)
+ 	{
+ 	    return AI_groupSmartAttack(iX, iY, iFlags);
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@104
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@105
+@@ -636,7 +636,11 @@
+ 						iAttackOdds = pBestAttackUnit->AI_attackOdds(pDestPlot, false);
+ 						if (iAttackOdds < 68)
+ 						{
+-						    pBestAttackUnit = AI_getBestGroupSacrifice(pDestPlot, false, false, bNoBlitz);
++						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false, bNoBlitz);
++						    if (pBestSacrifice != NULL)
++						    {
++                                pBestAttackUnit = pBestSacrifice;
++						    }
+ 						}
+ 
+ 						bAttack = true;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@104
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@105
+@@ -4197,7 +4197,7 @@
+ 	}
+ 	else
+ 	{
+-		iValue += (iTemp / 4);
++		iValue += (iTemp / 10);
+ 	}
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCityDefensePercent() + getExtraCityDefensePercent();
+@@ -4377,29 +4377,62 @@
+ 		}
+ 	}
+ 
++    int iOtherCombat = 0; 
++    int iSameCombat = 0;
++    
++    for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++    {
++        if ((UnitCombatTypes)iI == getUnitCombatType())
++        {
++            iSameCombat += unitCombatModifier((UnitCombatTypes)iI);
++        }
++        else
++        {
++            iOtherCombat += unitCombatModifier((UnitCombatTypes)iI);
++        }
++    }
++
+ 	for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 	{
+ 		iTemp = GC.getPromotionInfo(ePromotion).getUnitCombatModifierPercent(iI);
+-		if (AI_getUnitAIType() == UNITAI_COUNTER)
+-		{
+-			if (getExtraUnitCombatModifier((UnitCombatTypes)iI) <= 0)
+-			{
+-			    iValue += iTemp / 2;			    
+-			}
+-			else
+-			{
+-			    iTemp *= 100 + (2 * getExtraUnitCombatModifier((UnitCombatTypes)iI));
+-			    iValue += iTemp / 100;
+-			}
++		int iCombatWeight = 0;
++        //Fighting their own kind
++        if ((UnitCombatTypes)iI == getUnitCombatType())
++        {
++            if (iSameCombat >= iOtherCombat)
++            {
++                iCombatWeight = 70;//"axeman takes formation"
++            }
++            else
++            {
++                iValue = 30;
++            }
++        }
++        else
++        {
++            //fighting other kinds
++            if (unitCombatModifier((UnitCombatTypes)iI) > 0)
++            {
++                iCombatWeight = 70;//"spearman takes formation"
++            }
++            else
++            {
++                iCombatWeight = 30;
++            }
++        }
++		if ((AI_getUnitAIType() == UNITAI_COUNTER) || (AI_getUnitAIType() == UNITAI_CITY_COUNTER))
++		{
++		    iValue += (iTemp * iCombatWeight) / 100;
++
+ 		}
+ 		else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
+ 			       (AI_getUnitAIType() == UNITAI_RESERVE))
+ 		{
+-			iValue += (iTemp / 2);
++			iValue += (iTemp * iCombatWeight) / 150;
+ 		}
+ 		else
+ 		{
+-			iValue += (iTemp / 8);
++			iValue += (iTemp * iCombatWeight) / 400;
+ 		}
+ 	}
+ 
+@@ -7328,14 +7361,19 @@
+ 
+ 							if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
+ 							{
+-								iValue += (10 * -(GC.getRIVER_ATTACK_MODIFIER()));
++								iValue += (12 * -(GC.getRIVER_ATTACK_MODIFIER()));
+ 							}
++							
++                            if (!atWar(getTeam(), pAdjacentPlot->getTeam()))
++                            {
++                                iValue += 100;                                
++							}
+ 
+ 							iValue = max(1, iValue);
+ 
+ 							iValue *= 1000;
+ 
+-							iValue /= (iPathTurns + 2);
++							iValue /= (iPathTurns + 1);
+ 
+ 							if (iValue > iBestValue)
+ 							{
+@@ -10796,6 +10834,8 @@
+ 	return false;
+ }
+ 
++//bolsters the culture of the weakest city.
++//returns true if a mission is pushed.
+ bool CvUnitAI::AI_artistCultureVictoryMove()
+ {
+     bool bGreatWork = false;
+@@ -10809,7 +10849,7 @@
+     if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+     {
+         //Great Work
+-        bool bGreatWork = true;
++        bGreatWork = true;
+     }
+     
+     //Find the culture victory type
+@@ -10909,29 +10949,29 @@
+ 	    return false;
+ 	}
+ 
++
++    if (atPlot(pBestPlot))
+     {
+-		if (atPlot(pBestPlot))
+-		{
+-		    if (bGreatWork)
+-		    {
+-                getGroup()->pushMission(MISSION_GREAT_WORK);
+-                return true;
+-		    }
+-		    if (bJoin)
+-		    {
+-                getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+-		        return true;
+-		    }
+-		    FAssert(false);
+-		    return false;		    
+-		}
+-		else
+-		{
+-			FAssert(!atPlot(pBestPlot));
+-            getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++        if (bGreatWork)
++        {
++            getGroup()->pushMission(MISSION_GREAT_WORK);
+             return true;
+-		}
+-	}
++        }
++        if (bJoin)
++        {
++            getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
++            return true;
++        }
++        FAssert(false);
++        return false;		    
++    }
++    else
++    {
++        FAssert(!atPlot(pBestPlot));
++        getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++        return true;
++    }
++
+ 
+ 	return false;
+ }    
+

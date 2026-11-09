@@ -1,0 +1,61 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 345
+# Author: iustus
+# Date: 2007-02-08T01:21:45.392599Z
+# Coverage: full
+# Message:
+#   eliminates the assert when you bribe someone into war
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@344
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@345
+@@ -747,15 +747,36 @@
+ 		break;
+ 
+ 	case TRADE_WAR:
+-		GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).declareWar(((TeamTypes)trade.m_iData), true);
+-
+-		for (iI = 0; iI < MAX_PLAYERS; iI++)
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).getTeam() == ((TeamTypes)trade.m_iData))
+-				{
+-					GET_PLAYER((PlayerTypes)iI).AI_changeMemoryCount(eToPlayer, MEMORY_HIRED_WAR_ALLY, 1);
++		// creating scope for some variables
++		{
++			TeamTypes eFromTeam = GET_PLAYER(eFromPlayer).getTeam();
++			CvTeamAI& kFromTeam = GET_TEAM(eFromTeam);
++			TeamTypes eDataTeam = (TeamTypes) trade.m_iData;
++
++			// set the warplan prior to declareWar(), to avoid the assert
++			if (kFromTeam.AI_getWarPlan(eDataTeam) == NO_WARPLAN)
++			{
++				if (GET_TEAM(eDataTeam).getAtWarCount(true) == 0)
++				{
++					kFromTeam.AI_setWarPlan(eDataTeam, WARPLAN_LIMITED);
++				}
++				else
++				{
++					kFromTeam.AI_setWarPlan(eDataTeam, WARPLAN_DOGPILE);
++				}
++			}
++			
++			// actually declare war
++			kFromTeam.declareWar(eDataTeam, true);
++
++			for (iI = 0; iI < MAX_PLAYERS; iI++)
++			{
++				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++				{
++					if (GET_PLAYER((PlayerTypes)iI).getTeam() == eDataTeam)
++					{
++						GET_PLAYER((PlayerTypes)iI).AI_changeMemoryCount(eToPlayer, MEMORY_HIRED_WAR_ALLY, 1);
++					}
+ 				}
+ 			}
+ 		}
+

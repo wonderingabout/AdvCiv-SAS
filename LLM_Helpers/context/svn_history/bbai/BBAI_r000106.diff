@@ -1,0 +1,70 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 106
+# Author: iustus
+# Date: 2006-11-22T00:21:35.364383Z
+# Coverage: full
+# Message:
+#   Added some extra info in cheat mode about the leader (head) of a group with alt down
+#   Moved the "Holding down alt (even when non-cheat mode) reveals if the mod is active." info to be alt over the player name to show the score breakdown, this is less obtrusive. Also changed the name to be "Better AI" rather than "Blake's AI".
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@105
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@106
+@@ -520,9 +520,17 @@
+ 	}
+     if (bAlt && (gDLL->getChtLvl() > 0))
+     {
+-        CvSelectionGroup* eGroup = pUnit->getGroup();
+-		szTempBuffer.Format(L"\nGroup(%d), %d units", eGroup->getID(), eGroup->getNumUnits());
+-        szString += szTempBuffer;
++		CvSelectionGroup* eGroup = pUnit->getGroup();
++		if (eGroup != NULL)
++		{
++			if (pUnit->isGroupHead())
++				szString += CvWString::format(L"\nLeading ");
++			else
++				szString += CvWString::format(L"\n");
++
++			szTempBuffer.Format(L"Group(%d), %d units", eGroup->getID(), eGroup->getNumUnits());
++			szString += szTempBuffer;
++		}
+     }
+ 
+ 	if (!bOneLine)
+@@ -1579,11 +1587,6 @@
+ 	bAlt = gDLL->altKey();
+ 
+ 
+-    if (bAlt)
+-    {
+-        szTempBuffer.Format(L"=== Blakes AI ===");
+-		szString+=szTempBuffer;
+-    }
+ 	if (bShift && !bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+ 		szString+=(GC.getTerrainInfo(pPlot->getTerrainType()).getDescription());
+@@ -9457,6 +9460,11 @@
+ 
+ void CvGameTextMgr::setScoreHelp(CvWString &szString, PlayerTypes ePlayer)
+ {
++    if (gDLL->altKey())
++    {
++		szString = CvWString::format(L"=== Better AI ===\n");
++    }
++
+ 	if (NO_PLAYER != ePlayer)
+ 	{
+ 		CvPlayer& player = GET_PLAYER(ePlayer);
+@@ -9477,7 +9485,7 @@
+ 		int iVictoryScore = player.calculateScore(true, true);
+ 		if (iTotalScore == player.calculateScore())
+ 		{
+-			szString = gDLL->getText("TXT_KEY_SCORE_BREAKDOWN",
++			szString += gDLL->getText("TXT_KEY_SCORE_BREAKDOWN",
+ 				iPopScore, iPop, iMaxPop,
+ 				iLandScore, iLand, iMaxLand,
+ 				iTechScore, iTech, iMaxTech,
+

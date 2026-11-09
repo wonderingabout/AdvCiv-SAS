@@ -1,0 +1,58 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 431
+# Author: jdog5000
+# Date: 2009-01-22T03:58:13.530993Z
+# Coverage: full
+# Message:
+#   Fixed compilation issues
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@430
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@431
+@@ -643,6 +643,9 @@
+ 
+ 										if (canTradeItem((PlayerTypes)iI, item, true))
+ 										{
++											// BBAI TODO:  canTradeItem checks whether we are willing to surrender,
++											// need a check for whether enemy wants to accept our surrender or wants to press
++											// for complete conquest
+ 											ourList.clear();
+ 											theirList.clear();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@430
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@431
+@@ -5879,7 +5879,8 @@
+ 			}
+ 			else if (plot()->getTeam() == getTeam())
+ 			{
+-				if( (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired()) > 10 )
++				CvCity* pCity = plot()->getPlotCity();
++				if( pCity != NULL && (GC.getGameINLINE().getGameTurn() - pCity->getGameTurnAcquired()) > 10 )
+ 				{
+ 					// Not attacking, no cargo so release any escorts, attack ships, etc and split transports
+ 					getGroup()->AI_makeForceSeparate();
+@@ -5912,7 +5913,7 @@
+ 		{
+ 			
+ 			CvPlot* pAdjacentPlot = NULL;
+-			for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 			{
+ 				pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
+ 				if( iCargo > 0 )
+@@ -5920,7 +5921,7 @@
+ 					CvCity* pAdjacentCity = pAdjacentPlot->getPlotCity();
+ 					if( pAdjacentCity != NULL && pAdjacentCity->getOwner() == getOwnerINLINE() && pAdjacentCity->getPreviousOwner() != NO_PLAYER )
+ 					{
+-						if( (GC.getGameINLINE() - pAdjacentCity->getGameTurnAcquired()) < 5 )
++						if( (GC.getGameINLINE().getGameTurn() - pAdjacentCity->getGameTurnAcquired()) < 5 )
+ 						{
+ 							// If just captured city and we have cargo, dump units in city
+ 							getGroup()->pushMission(MISSION_MOVE_TO, pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE(), 0, false, false, MISSIONAI_ASSAULT, pAdjacentPlot);
+

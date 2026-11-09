@@ -1,0 +1,227 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 88
+# Author: iustus
+# Date: 2006-11-17T08:44:42.834980Z
+# Coverage: full
+# Message:
+#   Removed all the DEBUGLOG calls that were being used to see what was going on with the neverending turn
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@87
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@88
+@@ -327,7 +327,6 @@
+ }
+ 
+ inline void DEBUGLOG(const char* format, ...)
+-//#define DEBUGLOG(format, ...)					
+ {
+ 	char temp[256];
+ 	sprintf(temp, "");
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@87
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@88
+@@ -11059,11 +11059,8 @@
+ void CvPlayer::deleteSelectionGroup(int iID)
+ {
+ 	bool bRemoved = m_selectionGroups.removeAt(iID);
+-	if (!bRemoved)
+-	{
+-		DEBUGLOG("deleteSelectionGroup failed, could not find group (%d)\n", ShortenID(iID));
+-	}
+-
++	
++	FAssertMsg(bRemoved, "could not find group, delete failed");
+ }
+ 
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@87
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@88
+@@ -929,16 +929,7 @@
+ 				iValue++;
+ 			}
+ 
+-			// debugging
+-			if (true)
+-			{
+-				DEBUGLOG("AI_unitUpdate: (%d = %d) groups\n", iTempGroupLength, finalGroupCycle.getLength());
+-			}
+-
+ 			pCurrUnitNode = finalGroupCycle.head();
+-
+-
+-            
+ 			while (pCurrUnitNode != NULL)
+ 			{
+ 				if (getSelectionGroup(pCurrUnitNode->m_data)->AI_update())
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@87
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@88
+@@ -8,7 +8,6 @@
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvGameCoreUtils.h"
+ #include "FProfiler.h"
+-#include "CVInfos.h"
+ 
+ // Public Functions...
+ 
+@@ -57,12 +56,6 @@
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+ 	CvUnit* pLoopUnit;
+-
+-	// debugging
+-	if (true)
+-	{
+-		DEBUGLOG("AI_separate(%d) [size %d]\n", ShortenID(m_iID), getNumUnits());
+-	}
+ 
+ 	pEntityNode = headUnitNode();
+ 
+@@ -97,25 +90,6 @@
+ 	if (getNumUnits() == 0)
+ 	{
+ 		return false;
+-	}
+-
+-	// debugging
+-	if (true)
+-	{
+-		pHeadUnit = getHeadUnit();
+-		CvWString szUnitString;
+-		if (pHeadUnit != NULL)
+-		{
+-			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
+-		}
+-		else
+-			szUnitString.Format(L"--no unit--");
+-
+-		DEBUGLOG("AI_update: group(%d), lead by %S [size %d%s%s]\n", 
+-			ShortenID(getID()), szUnitString.GetCString(), getNumUnits(), 
+-			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+-			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+ 
+ 	if (isForceUpdate())
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@87
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@88
+@@ -6901,44 +6901,6 @@
+ 			{
+ 				gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
+ 			}
+-
+-			// debugging
+-			if (true)
+-			{
+-				CvWString szOldGroupString;
+-				CvWString szNewGroupString;
+-				if (pOldSelectionGroup != NULL)
+-				{
+-					szOldGroupString.Format(L"left group(%d) [size %d%s] to join", 
+-						ShortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
+-						pOldSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+-				}
+-				else
+-					szOldGroupString.Format(L"joining");
+-
+-				if (pNewSelectionGroup != NULL)
+-				{
+-					CvUnit* pHeadUnit = pNewSelectionGroup->getHeadUnit();
+-					CvWString szUnitString;
+-					if (pHeadUnit != NULL)
+-					{
+-						CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
+-						szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
+-					}
+-					else
+-						szUnitString.Format(L"--no unit--");
+-
+-					szNewGroupString.Format(L"%s's group(%d) [size %d%s]", szUnitString.GetCString(),
+-						ShortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
+-						pNewSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+-				}
+-				else
+-					szNewGroupString.Format(L"--no group--");
+-
+-				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				DEBUGLOG("%S(%d) %S %S\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					szOldGroupString.GetCString(), szNewGroupString.GetCString());
+-			}
+ 		}
+ 
+ 		if (bRemoveSelected)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@87
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@88
+@@ -4576,19 +4576,6 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
+-			// debugging
+-			if (true)
+-			{
+-				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
+-				CvSelectionGroup* pCurrentGroup = getGroup();
+-				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
+-				DEBUGLOG("AI_group:%S(%d) leaving group(%d) [size %d%s] to switch into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+-					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+-					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+-			}
+-
+ 			joinGroup(pBestUnit->getGroup());
+ 			return true;
+ 		}
+@@ -4688,19 +4675,6 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
+-			// debugging
+-			if (true)
+-			{
+-				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
+-				CvSelectionGroup* pCurrentGroup = getGroup();
+-				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
+-				DEBUGLOG("AI_groupMergeRange:%S(%d)'s group(%d) [size %d%s] merging into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
+-					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
+-					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+-			}
+-
+ 			pGroup->mergeIntoGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
+ 			return true;
+ 		}
+@@ -9528,15 +9502,6 @@
+ 					{
+ 						if (!(pCity->plot()->isVisibleEnemyUnit(getOwnerINLINE())))
+ 						{
+-							// debugging
+-							if (true)
+-							{
+-								CvSelectionGroup* pCurrentGroup = getGroup();
+-								CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
+-								DEBUGLOG("AI_retreatToCity:%S(%d) already in city, will skip. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
+-									ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+-							}
+-
+ 							getGroup()->pushMission(MISSION_SKIP);
+ 							return true;
+ 						}
+

@@ -1,0 +1,56 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 77
+# Author: iustus
+# Date: 2006-11-15T04:09:25.383250Z
+# Coverage: full
+# Message:
+#   Governor fix, some cases lower food was scoring higher (because of the rate of change modifier, it now works right) Also fixed a problem where it was not correctly using the current population to see how badly we want to grow. I am curious to see if food is valued too high overall now.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@76
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@77
+@@ -4193,7 +4193,7 @@
+ 					
+ 					// adjust iFoodPerTurn assuming that we work this plot plus plots all equal to iConsumtionPerPop
+ 					// that way it is our guesstimate of how much excess food we will have
+-					iFoodPerTurn += aiYields[YIELD_FOOD] + ((iExtraPopulation > 1) ? ((iExtraPopulation - 1) * iConsumtionPerPop) : 0);
++					iFoodPerTurn += ((iExtraPopulation > 1) ? ((iExtraPopulation - 1) * iConsumtionPerPop) : 0);
+ 					
+ 					// we have less than 10 extra happy, do some checks to see if we can increase it
+ 					if (iHappinessLevel < 10)
+@@ -4209,9 +4209,10 @@
+ 						const int kMaxHappyIncrease = 2;
+ 
+ 						// if happy is large enough so that it will be over zero after we do the checks
+-						if ((iHappinessLevel + kMaxHappyIncrease) > 0 && iFoodPerTurn > 0)
+-						{
+-							int iApproxTurnsToGrow = (iFoodPerTurn > 0) ? ((iFoodToGrow - iFoodLevel) / iFoodPerTurn) : MAX_INT;
++						int iNewFoodPerTurn = iFoodPerTurn + aiYields[YIELD_FOOD];
++						if ((iHappinessLevel + kMaxHappyIncrease) > 0 && iNewFoodPerTurn > 0)
++						{
++							int iApproxTurnsToGrow = (iFoodPerTurn > 0) ? ((iFoodToGrow - iFoodLevel) / iNewFoodPerTurn) : MAX_INT;
+ 
+ 							// do we have hurry anger?
+ 							int iHurryAngerTimer = getHurryAngerTimer();
+@@ -4297,12 +4298,12 @@
+ 						int iFactorEmp = 2 + (AI_isEmphasizeYield(YIELD_FOOD) ? 1 : 0);
+ 						iTempValue *= iFactorEmp;
+ 
+-						// (range 11-50) - exclusively growing is less important in big cities
+-						int	iFactorPopulation = 11 + min(0, 39 - iPopulation);
++						// (range 76-100) - exclusively growing is less important in big cities
++						int	iFactorPopulation = 75 + max(0, 25 - max(0, iPopulation - 10));
+ 						iTempValue *= iFactorPopulation;
+-						iTempValue /= 100;
+-
+-						// (range 0-375) * yield
++						iTempValue /= 800;
++
++						// (range 0-93) * yield
+ 						iValue += iTempValue;
+ 					}
+ 				}
+

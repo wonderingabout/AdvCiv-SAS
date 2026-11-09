@@ -1,0 +1,229 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 73
+# Author: blakeciv
+# Date: 2006-11-14T07:53:45.174528Z
+# Coverage: full
+# Message:
+#   Player strategy stuff.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@72
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@73
+@@ -8846,85 +8846,121 @@
+ }
+ 
+ 
+-//bool CvPlayerAI::AI_isDoStrategy(int iStrategy)
+-//{
+-//    return (iStrategy & AI_getStrategyHash());
+-//}
+-//
+-//int CvPlayerAI::AI_getStrategyHash()
+-//{
+-//    if ((m_iStrategyHash != 0) && (m_iStrategyHashCacheTurn == GC.getGameINLINE().getGameTurn()))
+-//    {
+-//        return m_iStrategyHash;        
+-//    }
+-//    
+-//    int iI, iJ;
+-//    UnitTypes eLoopUnit;
+-//    
+-//    m_iStrategyHash = AI_DEFAULT_STRATEGY;
+-//    m_iStrategyHashCacheTurn = GC.getGameINLINE().getGameTurn();
+-//    
+-//    if (getCapitalCity() == NULL)
+-//    {
+-//        return m_iStrategyHash;
+-//    }
+-//        
+-//    
+-//    int iNonsense = 0;
+-//    iNonsense += getCapitalCity()->getX();
+-//    iNonsense += getCapitalCity()->getY();
+-//    
+-//    int iCurrentEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
+-//    
+-//    if (iCurrentEra <= (1+(iNonsense%2)))
+-//	{
+-//	    int iDagger = 0;
+-//	    iDagger += 4000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+-//	    
+-//        for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+-//        {
+-//            eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+-//
+-//            if (eLoopUnit != NO_UNIT)
+-//            {
+-//                if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
+-//                {
+-//                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
+-//                    {
+-//                        iDagger += 50;
+-//                    }
+-//                    else
+-//                    {
+-//                        if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
+-//                        {
+-//                            if (GetTeam()->isHasTech(GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
+-//                            {
+-//                                iDagger += 40;
+-//                            }
+-//                            else
+-//                            {
+-//                                iDagger += 20;
+-//                            }
+-//                        }
+-//                    }
+-//                    
+-//                    for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+-//                    {
+-//                        BonusTypes eBonus = (BonusTypes)iJ;
+-//                        if (eBonus != NO_BONUS)
+-//                        {
+-//                            
+-//                            
+-//                            
+-//                        }
+-//                        
+-//                        
+-//                    }
+-//                }
+-//            }
+-//        }
+-//	}    
+-//}
++bool CvPlayerAI::AI_isDoStrategy(int iStrategy)
++{
++    return (iStrategy & AI_getStrategyHash());
++}
++
++int CvPlayerAI::AI_getStrategyHash()
++{
++    if ((m_iStrategyHash != 0) && (m_iStrategyHashCacheTurn == GC.getGameINLINE().getGameTurn()))
++    {
++        return m_iStrategyHash;        
++    }
++    
++    int iI, iJ, iK;
++    UnitTypes eLoopUnit;
++    
++    m_iStrategyHash = AI_DEFAULT_STRATEGY;
++    m_iStrategyHashCacheTurn = GC.getGameINLINE().getGameTurn();
++    
++    if (getCapitalCity() == NULL)
++    {
++        return m_iStrategyHash;
++    }
++        
++    
++    int iNonsense = 0;
++    iNonsense += getCapitalCity()->getX();
++    iNonsense += getCapitalCity()->getY();
++    
++    int iCurrentEra = getCurrentEra();
++    
++    if (iCurrentEra <= (1+(iNonsense%2)))
++	{
++	    int iDagger = 0;
++	    iDagger += 5000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
++	    
++        for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++        {
++            eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++            if (eLoopUnit != NO_UNIT)
++            {
++                if ((GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)))
++                {
++                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == NO_TECH)
++                    {
++                        iDagger += 50;
++                    }
++                    else
++                    {
++                        if (GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() <= (iCurrentEra + 1))
++                        {
++                            if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getUnitInfo(eLoopUnit).getPrereqAndTech()))
++                            {
++                                iDagger += 50;
++                            }
++                            else
++                            {
++                                iDagger += 25;
++                            }
++                            
++                            bool bNeedsAndBonus = false;
++                            int iOrBonusCount = 0;
++                            int iOrBonusHave = 0;
++                            
++                            for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++                            {
++                                BonusTypes eBonus = (BonusTypes)iJ;
++                                if (eBonus != NO_BONUS)
++                                {
++                                    if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
++                                    {
++                                        if (getNumTradeableBonuses(eBonus) == 0)
++                                        {
++                                            bNeedsAndBonus = true;
++                                        }
++                                    }
++
++                                    for (iK = 0; iK < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iK++)
++                                    {
++                                        if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iK) == eBonus)
++                                        {
++                                            iOrBonusCount++;
++                                            if (getNumTradeableBonuses(eBonus) > 0)
++                                            {
++                                                iOrBonusHave++;
++                                            }
++                                        }
++                                    } 
++                                }  
++                            }
++                            
++                            iDagger += 20;
++                            if (bNeedsAndBonus)
++                            {
++                                iDagger -= 20;
++                            }
++                            if ((iOrBonusCount > 0) && (iOrBonusHave == 0))
++                            {
++                                iDagger -= 20;
++                            }
++                        }
++                    }
++                }
++            }
++        }
++        
++        iDagger += ((iNonsense % 8) * 10);
++        
++        if (iDagger > 100)
++        {
++            m_iStrategyHash |= AI_STRATEGY_DAGGER;            
++        }        
++	} 
++	return m_iStrategyHash;   
++}
+ 
+ 
+ //
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@72
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@73
+@@ -4,6 +4,7 @@
+ #define CIV4_PLAYER_AI_H
+ 
+ #include "CvPlayer.h"
++#include "AI_defines.h"
+ 
+ class CvPlayerAI : public CvPlayer
+ {
+

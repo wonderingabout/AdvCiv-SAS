@@ -1,0 +1,435 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 515
+# Author: jdog5000
+# Date: 2010-01-08T06:30:17.513681Z
+# Coverage: full
+# Message:
+#   0.83e
+#   
+#   Fix overzealous steal treasury
+#   Couple other fixes from forum
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@514
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@515
+@@ -3817,7 +3817,23 @@
+ 
+ 				if (kBuilding.isAreaBorderObstacle())
+ 				{
+-					iValue += (iNumCitiesInArea);
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/07/10                       Afforess & jdog5000    */
++/*                                                                                              */
++/* City AI                                                                                      */
++/************************************************************************************************/
++					if( !GC.getGameINLINE().isOption(GAMEOPTION_NO_BARBARIANS) )
++					{
++						iValue += (iNumCitiesInArea);
++
++						if(GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS))
++						{
++							iValue += (iNumCitiesInArea);
++						}
++					}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 				}
+ 
+ 				if (kBuilding.isGovernmentCenter())
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@514
++++ /trunk/CvGameCoreDLL/CvCityAI.h@515
+@@ -53,16 +53,16 @@
+ 
+ 	bool AI_isDefended(int iExtra = 0);
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD							9/19/08		jdog5000		*/
+-/* 																			*/
+-/* 	Air AI																	*/
++/* 	BETTER_BTS_AI_MOD							9/19/08		jdog5000		    */
++/* 																			    */
++/* 	Air AI																	    */
+ /********************************************************************************/
+ /* original BTS code
+ 	bool AI_isAirDefended(int iExtra = 0);
+ */
+ 	bool AI_isAirDefended(bool bCountLand = false, int iExtra = 0);
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
++/* 	BETTER_BTS_AI_MOD						END								    */
+ /********************************************************************************/
+ 	bool AI_isDanger();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@514
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@515
+@@ -2531,7 +2531,58 @@
+ 				szString.append(CvWString::format(L"\n %s = %d", GC.getCivicInfo((CivicTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_civicValue((CivicTypes)iI)));			
+ 			}
+ */
+-			if( bAlt )
++			if( bShift && !bAlt)
++			{
++				int* paiBonusClassRevealed;
++				int* paiBonusClassUnrevealed;
++				int* paiBonusClassHave;
++				
++				paiBonusClassRevealed = new int[GC.getNumBonusClassInfos()];
++				paiBonusClassUnrevealed = new int[GC.getNumBonusClassInfos()];
++				paiBonusClassHave = new int[GC.getNumBonusClassInfos()];
++				
++				for (int iI = 0; iI < GC.getNumBonusClassInfos(); iI++)
++				{
++					paiBonusClassRevealed[iI] = 0;
++					paiBonusClassUnrevealed[iI] = 0;
++					paiBonusClassHave[iI] = 0;	    
++				}
++				
++				for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++				{
++					TechTypes eRevealTech = (TechTypes)GC.getBonusInfo((BonusTypes)iI).getTechReveal();
++					BonusClassTypes eBonusClass = (BonusClassTypes)GC.getBonusInfo((BonusTypes)iI).getBonusClassType();
++					if (eRevealTech != NO_TECH)
++					{
++						if ((GET_TEAM(pPlot->getTeam()).isHasTech(eRevealTech)))
++						{
++							paiBonusClassRevealed[eBonusClass]++;
++						}
++						else
++						{
++							paiBonusClassUnrevealed[eBonusClass]++;
++						}
++
++						if (GET_PLAYER(pPlot->getOwner()).getNumAvailableBonuses((BonusTypes)iI) > 0)
++						{
++							paiBonusClassHave[eBonusClass]++;                
++						}
++						else if (GET_PLAYER(pPlot->getOwner()).countOwnedBonuses((BonusTypes)iI) > 0)
++						{
++							paiBonusClassHave[eBonusClass]++;
++						}
++					}
++				}
++
++				for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
++				{
++					if( GET_PLAYER(pPlot->getOwner()).canResearch((TechTypes)iI) )
++					{
++						szString.append(CvWString::format(L"\n %s = %d", GC.getTechInfo((TechTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_techValue((TechTypes)iI, 1, false, false, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
++					}
++				}
++			}
++			else if( bAlt && !bShift )
+ 			{
+ 				if( pPlot->isHasPathToEnemyCity(pPlot->getTeam()) )
+ 				{
+@@ -2563,13 +2614,48 @@
+ 					
+ 				}
+ 			}
++			else if( bShift && bAlt )
++			{
++				for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
++				{
++					szString.append(CvWString::format(L"\n %s = %d", GC.getCivicInfo((CivicTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_civicValue((CivicTypes)iI)));			
++				}
++			}
+ 			else 
+ 			{
+-				for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
+-				{
+-					if( pPlot->getNumUnits() == 0 )
++				std::vector<UnitAITypes> vecUnitAIs;
++
++				if( pPlot->getFeatureType() != NO_FEATURE )
++				{
++					szString.append(CvWString::format(L"Defense unit AIs:\n"));
++					vecUnitAIs.push_back(UNITAI_CITY_DEFENSE);
++					vecUnitAIs.push_back(UNITAI_COUNTER);
++					vecUnitAIs.push_back(UNITAI_CITY_COUNTER);
++				}
++				else
++				{
++					szString.append(CvWString::format(L"Attack unit AIs:\n"));
++					vecUnitAIs.push_back(UNITAI_ATTACK);
++					vecUnitAIs.push_back(UNITAI_ATTACK_CITY);
++					vecUnitAIs.push_back(UNITAI_COUNTER);
++				}
++
++				for( uint iI = 0; iI < vecUnitAIs.size(); iI++ )
++				{
++					CvWString szTempString;
++					getUnitAIString(szTempString, vecUnitAIs[iI]);
++					szString.append(CvWString::format(L"\n  %s  ", szTempString.GetCString()));
++					for( int iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++ )
+ 					{
+-						szString.append(CvWString::format(L"\n %s = %d", GC.getCivicInfo((CivicTypes)iI).getDescription(), GET_PLAYER(pPlot->getOwner()).AI_civicValue((CivicTypes)iI)));			
++						UnitTypes eUnit = (UnitTypes)GC.getCivilizationInfo(GET_PLAYER(pPlot->getOwner()).getCivilizationType()).getCivilizationUnits((UnitClassTypes)iJ);
++						if( eUnit != NO_UNIT && GET_PLAYER(pPlot->getOwner()).canTrain(eUnit) )
++						{
++							int iValue = GET_PLAYER(pPlot->getOwner()).AI_unitValue(eUnit, vecUnitAIs[iI], pPlot->area());
++							if( iValue > 0 )
++							{
++								szString.append(CvWString::format(L"\n %s = %d", GC.getUnitInfo(eUnit).getDescription(), iValue));
++							}
++						}
+ 					}
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@514
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@515
+@@ -8956,13 +8956,21 @@
+ 			break;
+ 
+ 		case UNITAI_EXPLORE:
+-			if (GC.getUnitInfo(eUnit).getCombat() > 0)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/09/09                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++			if (GC.getUnitInfo(eUnit).getCombat() > 0 && !(GC.getUnitInfo(eUnit).isNoRevealMap()))
+ 			{
+ 				if (0 == AI_unitImpassableCount(eUnit))
+ 				{
+ 					bValid = true;
+ 				}
+ 			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			break;
+ 
+ 		case UNITAI_MISSIONARY:
+@@ -9068,10 +9076,18 @@
+ 			break;
+ 
+ 		case UNITAI_EXPLORE_SEA:
+-			if (GC.getUnitInfo(eUnit).getCargoSpace() <= 1)
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      12/09/09                                jdog5000      */
++/*                                                                                              */
++/* Unit AI                                                                                      */
++/************************************************************************************************/
++			if (GC.getUnitInfo(eUnit).getCargoSpace() <= 1 && !(GC.getUnitInfo(eUnit).isNoRevealMap()))
+ 			{
+ 				bValid = true;
+ 			}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 			break;
+ 
+ 		case UNITAI_ASSAULT_SEA:
+@@ -9247,8 +9263,8 @@
+ 				//Total Bombard == 300: 50%
+ 				//Total Bombard == 400: 
+ 				int iTotalBombardRate = AI_calculateTotalBombard(DOMAIN_LAND);
+-					if (iTotalBombardRate < 100)
+-					{
++				if (iTotalBombardRate < 100)
++				{
+ 					iBombardValue *= 4 * (200 - iTotalBombardRate);
+ 					iBombardValue /= 100;
+ 				}
+@@ -9513,7 +9529,7 @@
+ 			{
+ 				iValue /= 2;
+ 			}
+-		iValue /= (1 + AI_unitImpassableCount(eUnit));
++			iValue /= (1 + AI_unitImpassableCount(eUnit));
+ 		}
+ 		break;
+ 
+@@ -11157,6 +11173,11 @@
+ 	return iValue;
+ }
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/07/10                                jdog5000      */
++/*                                                                                              */
++/* Espionage AI                                                                                 */
++/************************************************************************************************/
+ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerTypes& eTargetPlayer, CvPlot*& pPlot, int& iData) const
+ {
+ 	//ooookay what missions are possible
+@@ -11167,16 +11188,8 @@
+ 	iData = -1;
+ 
+ 	EspionageMissionTypes eBestMission = NO_ESPIONAGEMISSION;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/23/09                                jdog5000      */
+-/*                                                                                              */
+-/* Espionage AI                                                                                 */
+-/************************************************************************************************/					
+ 	//int iBestValue = 0;
+-	int iBestValue = 10;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	int iBestValue = 20;
+ 	
+ 	if (pSpyPlot->isOwned())
+ 	{
+@@ -11368,6 +11381,9 @@
+ 	
+ 	return eBestMission;
+ }
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      10/23/09                                jdog5000      */
+@@ -11529,8 +11545,13 @@
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
+ 	{
+-		int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;;
+-		iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));
++		if( pPlot != NULL && pPlot->getPlotCity() != NULL )
++		{
++			int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;;
++			iGoldStolen *= pPlot->getPlotCity()->getPopulation();
++			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));
++		}
+ 	}
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getCounterespionageNumTurns() > 0)
+@@ -16848,7 +16869,14 @@
+ 
+ 		if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0)
+ 		{
+-			iTempValue += 3;
++			if( GET_TEAM(getTeam()).getBestKnownTechScorePercent() < 85 )
++			{
++				iTempValue += 5;
++			}
++			else
++			{
++				iTempValue += 3;
++			}
+ 		}
+ 		
+ 		iTempValue += (100 - AI_getEspionageWeight()) / 10;
+@@ -18920,22 +18948,22 @@
+ 		UnitTypes eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 		if (eLoopUnit != NO_UNIT)
+ 		{
+-		if (GC.getUnitInfo(eLoopUnit).getDomainType() == eDomain)
+-		{
+-			int iBombardRate = GC.getUnitInfo(eLoopUnit).getBombardRate();
+-			
+-			if (iBombardRate > 0)
+-			{
+-				iTotalBombard += iBombardRate * getUnitClassCount((UnitClassTypes)iI);
+-			}
+-			
+-			int iBombRate = GC.getUnitInfo(eLoopUnit).getBombRate();
+-			if (iBombRate > 0)
+-			{
+-				iTotalBombard += iBombRate * getUnitClassCount((UnitClassTypes)iI);
+-			}
+-		}
+-	}
++			if (GC.getUnitInfo(eLoopUnit).getDomainType() == eDomain)
++			{
++				int iBombardRate = GC.getUnitInfo(eLoopUnit).getBombardRate();
++				
++				if (iBombardRate > 0)
++				{
++					iTotalBombard += iBombardRate * getUnitClassCount((UnitClassTypes)iI);
++				}
++				
++				int iBombRate = GC.getUnitInfo(eLoopUnit).getBombRate();
++				if (iBombRate > 0)
++				{
++					iTotalBombard += iBombRate * getUnitClassCount((UnitClassTypes)iI);
++				}
++			}
++		}
+ 	}
+ 	
+ 	return iTotalBombard;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@514
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@515
+@@ -4912,7 +4912,7 @@
+ 					{
+ 						return;
+ 					}
+-				}
++				}				
+ 				else if (GC.getGame().getSorenRandNum(100, "AI Spy Skip Turn") > 5)
+ 				{
+ 					// don't get stuck forever
+@@ -4935,8 +4935,7 @@
+ 	{
+ 		if (kTeam.getAnyWarPlanCount(true) == 0)
+ 		{
+-			// BBAI TODO: Go steal techs, mess with other players
+-			if( GC.getGame().getSorenRandNum(10, "AI Spy pillage improvement") > 0)
++			if( GC.getGame().getSorenRandNum(10, "AI Spy defense") > 0)
+ 			{
+ 				if (AI_guardSpy(0))
+ 				{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@514
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@515
+@@ -231,15 +231,15 @@
+ 	bool AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI = -1, bool bStealthOnly = false);
+ 	bool AI_airStrike();
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						9/26/08				jdog5000	*/
+-/* 																			*/
+-/* 	Air AI																	*/
++/* 	BETTER_BTS_AI_MOD						9/26/08				jdog5000	    */
++/* 																			    */
++/* 	Air AI																	    */
+ /********************************************************************************/
+ 	int AI_airOffenseBaseValue( CvPlot* pPlot );
+ 	bool AI_defensiveAirStrike();
+ 	bool AI_defendBaseAirStrike();
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
++/* 	BETTER_BTS_AI_MOD						END								    */
+ /********************************************************************************/
+ 	bool AI_airBombPlots();
+ 	bool AI_airBombDefenses();	
+@@ -261,15 +261,15 @@
+ 	bool AI_infiltrate();
+ 	bool AI_reconSpy(int iRange);
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/08/09                                jdog5000       */
+-/*                                                                                               */
+-/* Espionage AI                                                                                  */
++/* BETTER_BTS_AI_MOD                      10/20/09                                jdog5000      */
++/*                                                                                              */
++/* Espionage AI                                                                                 */
+ /************************************************************************************************/
+ 	bool AI_revoltCitySpy();
+ 	bool AI_bonusOffenseSpy(int iMaxPath);
+ 	bool AI_cityOffenseSpy(int iRange, CvCity* pSkipCity = NULL);
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                   */
++/* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 	bool AI_espionageSpy();
+ 	bool AI_moveToStagingCity();
+

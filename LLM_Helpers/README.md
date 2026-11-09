@@ -98,6 +98,9 @@ Always review diffs before committing generated source changes.
       - [Full-refresh example](#full-refresh-example)
     - [Notes (light_source ZIP)](#notes-light_source-zip)
   - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
+  - [`svn_history_to_diffs.py`](#svn_history_to_diffspy)
+  - [`svn_history_verify.py`](#svn_history_verifypy)
+  - [`history_lineage_tables.py`](#history_lineage_tablespy)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
@@ -1822,6 +1825,65 @@ From the repository root:
 ```bash
 python LLM_Helpers/refresh_commit_diffs.py
 python LLM_Helpers/refresh_commit_diffs.py --dry-run
+```
+
+### `svn_history_to_diffs.py`
+
+Exports a Subversion repository's history as one greppable diff per revision, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt`, in the spirit of `commit_diffs/`. It is written for any repository, so nothing in it is specific to Better BTS AI.
+
+- Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+- It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
+- How it talks to the server:
+  - The log is a WebDAV `REPORT` request sent to the repository root. It returns each revision's author, date, message, changed paths and copy origins.
+  - Each file version is a plain `GET` of `<root>!svn/bc/<revision>/<path>`, and the script compares the versions itself with `difflib`.
+- Pitfalls found while building it:
+  - A `REPORT` with no revision range returned only the latest revision from SourceForge, so the script reads the latest revision first and then requests the full span.
+  - A file edited inside a folder copied in that same revision does not exist at its new path one revision earlier, so its diff is taken against the copy source.
+  - A CRLF conversion would look like a whole-file rewrite, so line endings are normalized and such a file reports `No text change`.
+- Each revision file records its source, author, date, coverage, full message and changed paths, including `(from <path>@<revision>)` copy origins.
+  - Coverage is `full`, `partial` (some text was left out) or `summary-only`.
+  - Binary files are listed without contents and do not lower coverage. Paths matching `--summarize` and files over the limits do, as they are real text left out. The default limits match `commit_diffs/`.
+  - Check what a run omitted before trusting the limits: with the defaults, Better BTS AI's r379 left out seven core files such as `CvPlayer.cpp` and `CvPlayerAI.cpp`, in the revision that first shows AI Auto Play. Raising the limits added about 10 MB and restored them.
+  - Email-shaped addresses are redacted.
+- Interrupted runs resume: existing revision files are kept, failures are listed and the indexes are only written once every revision succeeded. `--force` re-renders existing files.
+  - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
+- To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
+- Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
+- Verified on the Better BTS AI export (2026-11-09): replaying every stored patch from the first revision reproduced 11 core files of the r597 tree line for line, such as `CvPlayer.cpp` (65 revisions) and `CvCityAI.cpp` (201).
+  - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
+
+The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
+
+```bash
+python -u LLM_Helpers/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
+```
+
+### `svn_history_verify.py`
+
+Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a real checkout: it rebuilds each file from nothing by replaying its stored patches in order, then compares the result line by line.
+
+- It follows copy origins back through `PATH_HISTORY_INDEX.txt`, including files that were born inside a copied folder.
+- A patch that does not apply, or a rebuilt file that differs, is a failure. Files with omitted or binary history are reported as not rebuildable rather than counted as matches.
+- Give `--repo-path` without a leading slash: Git Bash rewrites `/trunk/...` into a Windows path, which would silently match no files.
+
+```bash
+python LLM_Helpers/svn_history_verify.py --out LLM_Helpers/context/svn_history/bbai --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+```
+
+### `history_lineage_tables.py`
+
+Generates the tables of the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#history-lineage) section from Git, `commit_diffs/` and the SVN export: projects, authors, products named in commit titles and model credits. The hand-written base-game table is left alone.
+
+- Caution: the model tables are only a general indication of each model's contribution, and the real picture may be quite different.
+  - Credits can be reworded, moved or omitted, which can bring retired models back. A mention can also merely refer to a model.
+  - Names are inconsistent, with typos, `Claude AI` versus `Claude code`, `Thinking` used on and off, and `?` where a model was unsure. See the [caution in the guide](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#model-credit-timeline).
+- Without options it prints the tables; `--write` replaces them in the guide. Prose stays untouched, so update the as-of date there if the corpus moved.
+- Run [`refresh_commit_diffs.py`](#refresh_commit_diffspy) first, as the counts come from that corpus.
+- `Last new credit` is the last commit that added more lines ending in a credit than it removed, so a comment moved or reworded within one commit does not count as new.
+  - Only the last-named model of a credit counts, because credits are appended, and test fixtures are skipped. Before this, the 2026-10-10 reflow commit made GPT-5.3-Codex look active months after its last real work (April 2026).
+
+```bash
+python LLM_Helpers/history_lineage_tables.py --write
 ```
 
 ## Workflow rule for timeline tuning

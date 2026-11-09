@@ -1,0 +1,35 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 276
+# Author: iustus
+# Date: 2007-01-20T20:47:28.185450Z
+# Coverage: full
+# Message:
+#   fixed infinite loop potential in juggle citizens (as reported on CFC)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@275
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@276
+@@ -5441,7 +5441,8 @@
+ 						{
+ 							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ false, bIgnoreGrowth);
+ 
+-							if (iValue < iLowestStandardValue)
++							// use <= so that we pick the last one that is lowest, to avoid infinite loop with AI_addBestCitizen
++							if (iValue <= iLowestStandardValue)
+ 							{
+ 								iLowestStandardValue = iValue;
+ 								iWorstStandardPlot = iI;
+@@ -5452,7 +5453,8 @@
+ 						{
+ 							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ true, bIgnoreGrowth);
+ 
+-							if (iValue < iLowestIgnoreFoodValue)
++							// use <= so that we pick the last one that is lowest, to avoid infinite loop with AI_addBestCitizen
++							if (iValue <= iLowestIgnoreFoodValue)
+ 							{
+ 								iLowestIgnoreFoodValue = iValue;
+ 								iWorstIgnoreFoodPlot = iI;
+

@@ -1,0 +1,118 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 64
+# Author: iustus
+# Date: 2006-11-11T07:35:38.920365Z
+# Coverage: full
+# Message:
+#   governor tweaks: 
+#   -fixed previous bug in captured cities where specialists enormously overvalued
+#   -emp commerce also emp gold (so will pick merchant specialists)
+#   -specialists are no longer valued using AI_potentialPlot on their yield values
+#   
+#   added back the AI_compareStacks call in chipolte mode (now that crash gone for zero str stacks)
+#   
+#   removed some chaff from CvSelectionGroupAI.cpp (unused variables that were checked in previously)
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@63
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@64
+@@ -318,8 +318,10 @@
+ 			iCommerce = ((iCommerce * getTotalCommerceRateModifier((CommerceTypes)iI)) / 100);
+ 
+ 			iTempValue = (iCommerce * 4);
+-
+-			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
++			
++			if (AI_isEmphasizeCommerce((CommerceTypes)iI) ||
++				// since the UI does not let you specify emp gold, let emp commerce include gold 
++				((CommerceTypes)iI == COMMERCE_GOLD && AI_isEmphasizeYield(YIELD_COMMERCE)))
+ 			{
+ 				iTempValue += (iCommerce * 16);
+ 			}
+@@ -327,6 +329,7 @@
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 			{
+                 iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
++				iTempValue /= 100;
+ 			}
+ 
+ 			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+@@ -4134,14 +4137,6 @@
+ 		iValue += (aiYields[YIELD_COMMERCE] * 16);
+ 	}
+ 
+-	if (!AI_isEmphasizeYield(YIELD_FOOD) || isFoodProduction())
+-	{
+-		if (!AI_potentialPlot(piYields))
+-		{
+-			iValue /= 16;
+-		}
+-	}
+-
+ 	return iValue;
+ }
+ 
+@@ -4179,8 +4174,15 @@
+ 			}
+ 		}
+ 	}
+-
+-	iValue += (AI_yieldValue(aiYields, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth) * 100);
++	
++	int iYieldValue = (AI_yieldValue(aiYields, bAvoidGrowth, bRemove, bIgnoreFood, bIgnoreGrowth) * 100);
++	// unless we are emph food (and also food not production)
++	if (!(AI_isEmphasizeYield(YIELD_FOOD) && !isFoodProduction()))
++		// if this plot is super bad (less than 2 food and less than combined 2 prod/commerce
++		if (!AI_potentialPlot(aiYields))
++			// undervalue it even more!
++			iYieldValue /= 16;
++	iValue += iYieldValue;
+ 
+ 	if (eCurrentImprovement != NO_IMPROVEMENT)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@63
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@64
+@@ -1511,12 +1511,12 @@
+ 				szString += NEWLINE + gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints());
+ 			}
+ 
+-//			if (gDLL->getChtLvl() > 0)
+-//			{
+-//				szTempBuffer.Format(L"\nStack Compare Value = %d",
+-//                    gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, false));
+-//				szString+=szTempBuffer;
+-//			}
++			if (gDLL->getChtLvl() > 0)
++			{
++				szTempBuffer.Format(L"\nStack Compare Value = %d",
++					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, false));
++				szString+=szTempBuffer;
++			}
+ 
+ 			szString+=gDLL->getText("TXT_KEY_COLOR_REVERT");
+ 
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@63
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@64
+@@ -212,12 +212,9 @@
+ 	int iPossibleTargets;
+ 	int iValue;
+ 	int iBestValue;
+-	int iBestAttackOdds;
+ 
+ 	iBestValue = 0;
+-	iBestAttackOdds = 0;
+ 	pBestUnit = NULL;
+-
+ 
+ 	pUnitNode = headUnitNode();
+ 
+

@@ -1,0 +1,140 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 102
+# Author: iustus
+# Date: 2006-11-18T20:21:19.887055Z
+# Coverage: full
+# Message:
+#   Fixed infinite looping bug with AI_heal. We now push a heal mission when we want to heal. AI_group will not join groups which have a heal activity. Every turn, when normally resetting group activities (CvSelectionGroup::doTurn), if we are isAutomated(), we reactivate groups which are set to heal, damaged or not. Previously, automated groups would never push heal missions. Now they can, knowing it will be cleared at the beginning of the next turn.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@101
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@102
+@@ -98,7 +98,6 @@
+ 
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+-	bool bHurt;
+ 	int iWaitTurns;
+ 	int iBestWaitTurns;
+ 
+@@ -106,10 +105,10 @@
+ 
+ 	if (getNumUnits() > 0)
+ 	{
+-		bHurt = false;
+-
++		bool bHurt = false;
++		
++		// do unit's turns (checking for damage)
+ 		pUnitNode = headUnitNode();
+-
+ 		while (pUnitNode != NULL)
+ 		{
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+@@ -122,10 +121,14 @@
+ 				bHurt = true;
+ 			}
+ 		}
+-
+-		if ((getActivityType() == ACTIVITY_HOLD) ||
+-			  ((getActivityType() == ACTIVITY_HEAL) && !bHurt) ||
+-			  ((getActivityType() == ACTIVITY_SENTRY) && (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 1) > 0)))
++		
++		// wake unit if skipped last turn 
++		//		or healing and automated or no longer hurt (automated healing is one turn at a time)
++		//		or on sentry and there is danger
++		int eActivityType = getActivityType();
++		if ((eActivityType == ACTIVITY_HOLD) ||
++			((eActivityType == ACTIVITY_HEAL) && (AI_isControlled() || !bHurt)) ||
++			((eActivityType == ACTIVITY_SENTRY) && (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 1) > 0)))
+ 		{
+ 			setActivityType(ACTIVITY_AWAKE);
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@101
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@102
+@@ -1519,10 +1519,13 @@
+ {
+ 	PROFILE_FUNC();
+ 	
++	// force heal if we in our own city and damaged
++	// can we remove this or call AI_heal here?
+ 	if ((getGroup()->getNumUnits() == 1) && (getDamage() > 0) && 
+         plot()->getOwnerINLINE() == getOwnerINLINE() && plot()->isCity())
+     {
+-        getGroup()->pushMission(MISSION_SKIP);
++        getGroup()->pushMission(MISSION_HEAL);
++		return;
+     }
+ 	
+ //    if (!getGroup()->getMissionType() == MISSION_MOVE_TO)
+@@ -4538,7 +4541,10 @@
+ 						    if (!atWar(pPlot->getTeam(), getTeam()))
+ 						    {
+ 								CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-								if (canJoinGroup(pPlot, pLoopGroup))
++
++								// do not attempt to join groups which are healing this turn
++								// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
++								if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && canJoinGroup(pPlot, pLoopGroup))
+                                 {
+                                     if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+                                     {
+@@ -4560,7 +4566,7 @@
+ 
+                                                                     if (iValue < iBestValue)
+                                                                     {
+-                                                                        iBestValue = iValue;
++																		iBestValue = iValue;
+                                                                         pBestUnit = pLoopUnit;
+                                                                     }
+                                                                 }
+@@ -5597,7 +5603,7 @@
+             {
+                 if (!(isAlwaysHeal()))
+                 {
+-                    getGroup()->pushMission(MISSION_SKIP);
++                    getGroup()->pushMission(MISSION_HEAL);
+                     return true;
+                 }
+             }
+@@ -5652,6 +5658,7 @@
+ 	    return false;
+ 	}
+ 	
++	bool bPushedMission = false;
+     if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+ 		FAssertMsg(((int) aeDamagedUnits.size()) <= iHurtUnitCount, "damaged units array is larger than our hurt unit count");
+@@ -5668,9 +5675,14 @@
+ 					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
+ 			}
+ #endif
++			CvUnit* pUnitToHeal = aeDamagedUnits[iI];
++			pUnitToHeal->joinGroup(NULL);
++			pUnitToHeal->getGroup()->pushMission(MISSION_HEAL);
++
+ 			// note, removing the head unit from a group will force the group to be completely split if non-human
+-			aeDamagedUnits[iI]->joinGroup(NULL);
+-			aeDamagedUnits[iI]->getGroup()->pushMission(MISSION_SKIP);
++			if (pUnitToHeal == this)
++				bPushedMission = true;
++
+ 			iHurtUnitCount--;
+ 		}
+ 	}
+@@ -5690,7 +5702,7 @@
+ 		}
+ 	}
+ 	
+-	return false;
++	return bPushedMission;
+ }
+ 
+ 
+

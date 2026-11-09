@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 293
+# Author: blakeciv
+# Date: 2007-01-25T10:15:43.029772Z
+# Coverage: full
+# Message:
+#   Removed bogus ignore-food shuffle. I honestly think it works better this way.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@292
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@293
+@@ -5284,7 +5284,7 @@
+ 	// one at a time, remove the worst citizen, then add the best citizen
+ 	// until we add back the same one we removed
+ 	bool bCompletedStandardChecks = false;
+-	bool bCompletedIgnoreFoodChecks = false;
++	bool bCompletedIgnoreFoodChecks = true;
+ 	while (!bCompletedStandardChecks || !bCompletedIgnoreFoodChecks)
+ 	{
+ 		int iLowestStandardValue = MAX_INT;
+

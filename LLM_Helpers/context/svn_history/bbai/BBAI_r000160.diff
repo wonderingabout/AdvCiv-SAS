@@ -1,0 +1,101 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 160
+# Author: blakeciv
+# Date: 2006-12-10T15:34:28.010154Z
+# Coverage: full
+# Message:
+#   Added new save data files to Code::Blocks project.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@159
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.cbp@160
+@@ -366,6 +366,20 @@
+ 			<Option target="Final Release|Win32|Asserts" />
+ 			<Option target="Release|Win32" />
+ 		</Unit>
++		<Unit filename="CvExtraSaveData.cpp">
++			<Option compilerVar="CPP" />
++			<Option target="Final Release|Win32" />
++			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
++		</Unit>
++		<Unit filename="CvExtraSaveData.h">
++			<Option compilerVar="CPP" />
++			<Option compile="0" />
++			<Option link="0" />
++			<Option target="Final Release|Win32" />
++			<Option target="Final Release|Win32|Asserts" />
++			<Option target="Release|Win32" />
++		</Unit>
+ 		<Unit filename="CvFractal.cpp">
+ 			<Option compilerVar="CPP" />
+ 			<Option target="Final Release|Win32" />
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@159
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@160
+@@ -1927,6 +1927,9 @@
+ 		{
+ 		    int iTotalDist = 0;
+ 		    int iTotalCount = 0;
++		    int iMinDist = MAX_INT;
++		    int iMinStartDist = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
++		    int iClosePenalty = 1000;
+             for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+             {
+                 if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -1934,24 +1937,39 @@
+                     CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+ 
+                     if (pStartingPlot != NULL)
+-                    {		
++                    {
+                         int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
+                         iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
+-                        
+-                        if (iDist > 8)
+-                        {
+-                            iDist = 4 + ((iDist + 1) / 2);
+-                        }
++                        iDist = min(iDist, iMinStartDist * 2);
+                         iTotalDist += iDist;
+                         iTotalCount++;
++                        
++                        iMinDist = min(iDist, iMinDist);
++                        
++                        iClosePenalty *= min(iDist, iMinStartDist);
++                        iClosePenalty /= iMinStartDist;
+                     }
+                 }
+             }
+             
+-            //maybe this could be normalized by map size better or something. 
+-            //is the effect too strong?
+-            iValue *= (10 + iTotalDist);
+-            iValue /= (10 + 10 * iTotalCount);
++            //This generally encourages distant starts
++            iValue *= (iMinStartDist + iTotalDist);
++            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
++            
++            //This specifically pushes apart close starts
++            iValue *= iClosePenalty;
++            iValue /= 1000;
++            
++            //further decimate the value for very close starts.
++            if (iMinDist < 5)
++            {
++                iValue /= 10;
++            }
++            
++            if (pPlot->getBonusType() != NO_BONUS)
++            {
++                iValue /= 2;                
++            }
+ 		}
+ 	}
+ 
+

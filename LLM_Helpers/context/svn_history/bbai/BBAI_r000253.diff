@@ -1,0 +1,28 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 253
+# Author: iustus
+# Date: 2007-01-08T22:00:47.590892Z
+# Coverage: full
+# Message:
+#   fixed Blake's typo from last commit
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@252
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@253
+@@ -9919,10 +9919,10 @@
+ 	if ((GET_TEAM(getTeam()).isAVassal()) && (getNumCities() > 5))
+ 	{
+ 		int iReligionCount = countTotalHasReligion();
+-		if (((iReligionCount() * 100) / getNumCities()) > 250)
++		if (((iReligionCount * 100) / getNumCities()) > 250)
+ 		{
+ 			iValue += 1;
+-			iValue += ((2 * countTotalHasReligion()) + 1) / getNumCities();
++			iValue += ((2 * iReligionCount) + 1) / getNumCities();
+ 		}
+ 	}
+ 
+

@@ -1,0 +1,240 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 435
+# Author: jdog5000
+# Date: 2009-01-28T07:40:20.162311Z
+# Coverage: full
+# Message:
+#   0.60N
+#   
+#   Final tweaks for 0.60
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@434
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@435
+@@ -4251,7 +4251,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.60M");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.60N");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@434
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@435
+@@ -1513,7 +1513,7 @@
+ 					{
+ 						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+ 						{
+-							iCost *= 3;
++							iCost *= 2;
+ 						}
+ 						else
+ 						{
+@@ -1538,7 +1538,8 @@
+ 					{
+ 						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+ 						{
+-							iCost *= 2;
++							iCost *= 3;
++							iCost /= 2;
+ 						}
+ 						else
+ 						{
+@@ -1576,7 +1577,7 @@
+ 					{
+ 						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+ 						{
+-							iCost *= 3;
++							iCost *= 2;
+ 						}
+ 						else
+ 						{
+@@ -1601,7 +1602,8 @@
+ 					{
+ 						if (pToPlot->isOwned() && ((GET_TEAM(pSelectionGroup->getHeadTeam()).AI_getWarPlan(pToPlot->getTeam()) != NO_WARPLAN) || (pToPlot->getTeam() != pLoopUnit->getTeam() && pLoopUnit->isAlwaysHostile(pToPlot))))
+ 						{
+-							iCost *= 2;
++							iCost *= 3;
++							iCost /= 2;
+ 						}
+ 						else
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@434
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@435
+@@ -5821,20 +5821,22 @@
+ 				}
+ 			}
+ 		}
+-
+-		if ( (eAreaAIType == AREAAI_ASSAULT) )
+-		{
+-			if( iCargo >= iTargetInvasionSize )
+-			{
+-				bAttack = true;
+-			}
+-		}
+-		
+-		if( (eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST) )
+-		{
+-			if( (bFull && iCargo > cargoSpace()) || (iCargo >= iTargetReinforcementSize) )
+-			{
+-				bReinforce = true;
++		else
++		{
++			if ( (eAreaAIType == AREAAI_ASSAULT) )
++			{
++				if( iCargo >= iTargetInvasionSize )
++				{
++					bAttack = true;
++				}
++			}
++			
++			if( (eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST) )
++			{
++				if( (bFull && iCargo > cargoSpace()) || (iCargo >= iTargetReinforcementSize) )
++				{
++					bReinforce = true;
++				}
+ 			}
+ 		}
+ 
+@@ -6065,11 +6067,11 @@
+ 	else
+ 	{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/13/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/26/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+-		if (bAttack)
++		if (bAttack || bReinforce)
+ 		{
+ 			if( bIsCity )
+ 			{
+@@ -6084,34 +6086,32 @@
+ 			}
+ 
+ 			FAssert(getGroup()->hasCargo());
+-			if (AI_assaultSeaTransport())
+-			{
+-				return;
+-			}
+-		}
+-
+-		// If not enough troops for own invasion, 
+-		if( bReinforce )
+-		{
+-			if( bIsCity )
+-			{
+-				getGroup()->AI_seperateEmptyTransports();
+-			}
+-
+-			if( !(getGroup()->hasCargo()) )
+-			{
+-				// this unit was empty group leader
+-				getGroup()->pushMission(MISSION_SKIP);
+-				return;
+-			}
+-
+-			FAssert(getGroup()->hasCargo());
+-			if (AI_assaultSeaReinforce())
+-			{
+-				return;
+-			}
+-
+-			
++
++			if( bAttack )
++			{
++				if( bReinforce && (AI_getBirthmark()%2 == 0) )
++				{
++					if (AI_assaultSeaReinforce())
++					{
++						return;
++					}
++					bReinforce = false;
++				}
++
++				if (AI_assaultSeaTransport())
++				{
++					return;
++				}
++			}
++
++			// If not enough troops for own invasion, 
++			if( bReinforce )
++			{
++				if (AI_assaultSeaReinforce())
++				{
++					return;
++				}	
++			}
+ 		}
+ 
+ 		if( bNoWarPlans && (iCargo >= iTargetReinforcementSize) )
+@@ -14587,15 +14587,18 @@
+ 										iValue += 1000;
+ 										iValue += (GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pCity->plot()) * 200);
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/25/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/26/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+ 										// Continue attacking in area we have already captured cities
+ 										if( pCity->area()->getCitiesPerPlayer(getOwnerINLINE()) > 0 )
+ 										{
+-											iValue *= 3;
+-											iValue /= 2;
++											if( pCity->AI_playerCloseness(getOwnerINLINE()) > 5 ) 
++											{
++												iValue *= 3;
++												iValue /= 2;
++											}
+ 										}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+@@ -17596,7 +17599,22 @@
+ 										{
+ 											iBestValue = iValue;
+ 											pBestPlot = getPathEndTurnPlot();
+-											FAssert(!atPlot(pBestPlot));
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      01/27/08                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++											// Not sure what can go wrong here, it seems somehow m_iData1 (moves) was set to 0
++											// for first node in path so m_iData2 (turns) incremented
++											if( atPlot(pBestPlot) )
++											{
++												FAssert(false);
++												pBestPlot = getGroup()->getPathFirstPlot();
++												FAssert(!atPlot(pBestPlot));
++											}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 										}
+ 									}
+ 								}
+

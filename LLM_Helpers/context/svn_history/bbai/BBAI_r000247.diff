@@ -1,0 +1,733 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 247
+# Author: iustus
+# Date: 2007-01-07T02:01:42.556892Z
+# Coverage: full
+# Message:
+#   more diverse units can start war when it is a limited war (pillage, blockade, airbombs, sea attack, carriers)
+# Changed paths (10):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@246
++++ /trunk/CvGameCoreDLL/CvCity.cpp@247
+@@ -6322,7 +6322,7 @@
+ 
+ bool CvCity::isBombardable(TeamTypes eTeam) const
+ {
+-	if (!atWar(eTeam, getTeam()))
++	if (!atWar(getTeam(), eTeam) && !GET_TEAM(getTeam()).AI_isSneakAttackPreparing(eTeam))
+ 	{
+ 		return false;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@246
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@247
+@@ -1170,7 +1170,7 @@
+ 						{
+ 							if (pLoopUnit2->isGroupHead())
+ 							{
+-								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar() || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR))))
++								if (pLoopUnit2->getGroup()->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR))))
+ 								{
+ 									bValid = true;
+ 									break;
+@@ -1190,7 +1190,7 @@
+ 		}
+ 		else
+ 		{
+-			if (!(pSelectionGroup->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar() || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR)))))
++			if (!(pSelectionGroup->canMoveOrAttackInto(pToPlot, (pSelectionGroup->AI_isDeclareWar(pToPlot) || (gDLL->getFAStarIFace()->GetInfo(finder) & MOVE_DECLARE_WAR)))))
+ 			{
+ 				return FALSE;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@246
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@247
+@@ -2416,24 +2416,25 @@
+ 
+ 
+ // Returns true if group was bumped...
+-bool CvSelectionGroup::groupDeclareWar(CvPlot* pPlot)
+-{
+-	int iNumUnits;
+-
+-	if (!AI_isDeclareWar())
++bool CvSelectionGroup::groupDeclareWar(CvPlot* pPlot, bool bForce)
++{
++	CvTeamAI& kTeam = GET_TEAM(getTeam());
++	TeamTypes ePlotTeam = pPlot->getTeam();
++	
++	if (!AI_isDeclareWar(pPlot))
+ 	{
+ 		return false;
+ 	}
+ 
+-	iNumUnits = getNumUnits();
+-
+-	if (!canEnterArea(pPlot->getTeam(), pPlot->area(), true))
+-	{
+-		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(getTeam()).AI_isSneakAttackReady(pPlot->getTeam()))
+-		{
+-			if (GET_TEAM(getTeam()).canDeclareWar(pPlot->getTeam()))
+-			{
+-				GET_TEAM(getTeam()).declareWar(pPlot->getTeam(), true);
++	int iNumUnits = getNumUnits();
++
++	if (bForce || !canEnterArea(ePlotTeam, pPlot->area(), true))
++	{
++		if (ePlotTeam != NO_TEAM && kTeam.AI_isSneakAttackReady(ePlotTeam))
++		{
++			if (kTeam.canDeclareWar(ePlotTeam))
++			{
++				kTeam.declareWar(ePlotTeam, true);
+ 			}
+ 		}
+ 	}
+@@ -2606,8 +2607,15 @@
+ 			return false;
+ 		}
+ 	}
+-
+-	if (groupDeclareWar(pPathPlot))
++	
++	bool bForce = false;
++	MissionAITypes eMissionAI = AI_getMissionAIType();
++	if (eMissionAI == MISSIONAI_BLOCKADE || eMissionAI == MISSIONAI_PILLAGE)
++	{
++		bForce = true;
++	}
++
++	if (groupDeclareWar(pPathPlot, bForce))
+ 	{
+ 		return false;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@246
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@247
+@@ -83,7 +83,7 @@
+ 
+ 	RouteTypes getBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL);	// Exposed to Python
+ 
+-	bool groupDeclareWar(CvPlot* pPlot);
++	bool groupDeclareWar(CvPlot* pPlot, bool bForce = false);
+ 	bool groupAttack(int iX, int iY, int iFlags);
+ 	void groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit = NULL);
+ 	bool groupPathTo(int iX, int iY, int iFlags);
+@@ -177,7 +177,7 @@
+ 	virtual void AI_cancelGroupAttack() = 0;
+ 
+ 	virtual bool AI_isControlled() = 0;
+-	virtual bool AI_isDeclareWar() = 0;
++	virtual bool AI_isDeclareWar(const CvPlot* pPlot = NULL) = 0;
+ 	virtual CvPlot* AI_getMissionAIPlot() = 0;
+ 	virtual bool AI_isForceSeparate() = 0;
+ 	virtual void AI_makeForceSeparate() = 0;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@246
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@247
+@@ -5,6 +5,7 @@
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+ #include "CvPlot.h"
++#include "CvTeamAI.h"
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvGameCoreUtils.h"
+ #include "FProfiler.h"
+@@ -509,10 +510,8 @@
+ }
+ 
+ 
+-bool CvSelectionGroupAI::AI_isDeclareWar()
+-{
+-	CvUnit* pHeadUnit;
+-
++bool CvSelectionGroupAI::AI_isDeclareWar(const CvPlot* pPlot)
++{
+ 	FAssert(getHeadUnit() != NULL);
+ 
+ 	if (isHuman())
+@@ -521,7 +520,21 @@
+ 	}
+ 	else
+ 	{
+-		pHeadUnit = getHeadUnit();
++		bool bLimitedWar = false;
++		if (pPlot != NULL)
++		{
++			TeamTypes ePlotTeam = pPlot->getTeam();
++			if (ePlotTeam != NO_TEAM)
++			{
++				WarPlanTypes eWarplan = GET_TEAM(getTeam()).AI_getWarPlan(ePlotTeam);
++				if (eWarplan == WARPLAN_LIMITED || eWarplan == WARPLAN_PREPARING_LIMITED)
++				{
++					bLimitedWar = true;
++				}
++			}
++		}
++
++		CvUnit* pHeadUnit = getHeadUnit();
+ 
+ 		if (pHeadUnit != NULL)
+ 		{
+@@ -542,6 +555,12 @@
+ 			case UNITAI_PILLAGE:
+ 			case UNITAI_RESERVE:
+ 			case UNITAI_COUNTER:
++				if (bLimitedWar)
++				{
++					return true;
++				}
++				break;
++
+ 			case UNITAI_CITY_DEFENSE:
+ 			case UNITAI_CITY_COUNTER:
+ 			case UNITAI_CITY_SPECIAL:
+@@ -559,12 +578,13 @@
+ 				break;
+ 
+ 			case UNITAI_ATTACK_SEA:
+-//				return true;
+-				break;
+-
+ 			case UNITAI_RESERVE_SEA:
+ 			case UNITAI_ESCORT_SEA:
+ 			case UNITAI_EXPLORE_SEA:
++				if (bLimitedWar)
++				{
++					return true;
++				}
+ 				break;
+ 
+ 			case UNITAI_ASSAULT_SEA:
+@@ -574,10 +594,16 @@
+ 			case UNITAI_SETTLER_SEA:
+ 			case UNITAI_MISSIONARY_SEA:
+ 			case UNITAI_SPY_SEA:
++			case UNITAI_DEFENSE_AIR:
++				break;
++
+ 			case UNITAI_CARRIER_SEA:
+ 			case UNITAI_ATTACK_AIR:
+-			case UNITAI_DEFENSE_AIR:
+ 			case UNITAI_CARRIER_AIR:
++				if (bLimitedWar)
++				{
++					return true;
++				}
+ 				break;
+ 
+ 			default:
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@246
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.h@247
+@@ -31,7 +31,7 @@
+ 	void AI_cancelGroupAttack();
+ 
+ 	bool AI_isControlled();
+-	bool AI_isDeclareWar();
++	bool AI_isDeclareWar(const CvPlot* pPlot = NULL);
+ 
+ 	CvPlot* AI_getMissionAIPlot();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@246
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@247
+@@ -2056,7 +2056,7 @@
+ 			{
+ 				if (GET_TEAM(getTeam()).AI_isSneakAttackReady(ePlotTeam))
+ 				{
+-					if (!(getGroup()->AI_isDeclareWar()))
++					if (!(getGroup()->AI_isDeclareWar(pPlot)))
+ 					{
+ 						return false;
+ 					}
+@@ -3286,7 +3286,7 @@
+ 
+ 	if (pTargetPlot->isOwned())
+ 	{
+-		if (!atWar(pTargetPlot->getTeam(), getTeam()))
++		if (!potentialWarAction(pTargetPlot))
+ 		{
+ 			return false;
+ 		}
+@@ -3335,6 +3335,16 @@
+ 	}
+ 
+ 	pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
++
++	if (!atWar(pPlot->getTeam(), getTeam()))
++	{
++		getGroup()->groupDeclareWar(pPlot, true);
++	}
++
++	if (!atWar(pPlot->getTeam(), getTeam()))
++	{
++		return false;
++	}
+ 
+ 	if (interceptTest(pPlot))
+ 	{
+@@ -3470,18 +3480,24 @@
+ 
+ bool CvUnit::bombard()
+ {
+-	CvCity* pBombardCity;
+-	CvPlot* pPlot;
+-	CvWString szBuffer;
+-
+-	if (!canBombard(plot()))
+-	{
+-		return false;
+-	}
+-
+-	pPlot = plot();
+-
+-	pBombardCity = bombardTarget(pPlot);
++	CvPlot* pPlot = plot();
++
++	if (!canBombard(pPlot))
++	{
++		return false;
++	}
++
++	if (!atWar(getTeam(), pPlot->getTeam()))
++	{
++		getGroup()->groupDeclareWar(pPlot, true);
++	}
++
++	if (!atWar(getTeam(), pPlot->getTeam()))
++	{
++		return false;
++	}
++
++	CvCity* pBombardCity = bombardTarget(pPlot);
+ 	FAssertMsg(pBombardCity != NULL, "BombardCity is not assigned a valid value");
+ 
+ 	int iBombardModifier = 0;
+@@ -3495,7 +3511,7 @@
+ 	setMadeAttack(true);
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+-	szBuffer = gDLL->getText("TXT_KEY_MISC_DEFENSES_IN_CITY_REDUCED_TO", pBombardCity->getNameKey(), pBombardCity->getDefenseModifier(false), GET_PLAYER(getOwnerINLINE()).getNameKey());
++	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DEFENSES_IN_CITY_REDUCED_TO", pBombardCity->getNameKey(), pBombardCity->getDefenseModifier(false), GET_PLAYER(getOwnerINLINE()).getNameKey());
+ 	gDLL->getInterfaceIFace()->addMessage(pBombardCity->getOwnerINLINE(), false, GC.getDefineINT("EVENT_MESSAGE_TIME"), szBuffer, "AS2D_BOMBARDED", MESSAGE_TYPE_INFO, GC.getUnitInfo(getUnitType()).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pBombardCity->getX_INLINE(), pBombardCity->getY_INLINE(), true, true);
+ 
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_REDUCE_CITY_DEFENSES", getNameKey(), pBombardCity->getNameKey(), pBombardCity->getDefenseModifier(false));
+@@ -3546,7 +3562,7 @@
+ 
+ 	if (pPlot->isOwned())
+ 	{
+-		if (!atWar(pPlot->getTeam(), getTeam()))
++		if (!potentialWarAction(pPlot))
+ 		{
+ 			if ((pPlot->getImprovementType() == NO_IMPROVEMENT) || (pPlot->getOwnerINLINE() != getOwnerINLINE()))
+ 			{
+@@ -3566,19 +3582,30 @@
+ 
+ bool CvUnit::pillage()
+ {
+-	CvPlot* pPlot;
+ 	CvWString szBuffer;
+ 	int iPillageGold;
+ 	long lPillageGold;
+ 	ImprovementTypes eTempImprovement = NO_IMPROVEMENT;
+ 	RouteTypes eTempRoute = NO_ROUTE;
+ 
+-	if (!canPillage(plot()))
+-	{
+-		return false;
+-	}
+-
+-	pPlot = plot();
++	CvPlot* pPlot = plot();
++
++	if (!canPillage(pPlot))
++	{
++		return false;
++	}
++
++	if (pPlot->isOwned())
++	{
++		// we should not be calling this without declaring war first, so do not declare war here
++		if (!atWar(getTeam(), pPlot->getTeam()))
++		{
++			if ((pPlot->getImprovementType() == NO_IMPROVEMENT) || (pPlot->getOwnerINLINE() != getOwnerINLINE()))
++			{
++				return false;
++			}
++		}
++	}
+ 
+ 	if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+ 	{
+@@ -8970,7 +8997,29 @@
+ 		return max(1, (((GC.getUnitInfo(getUnitType()).getGroupSize() * (maxHitPoints() - iDamage)) + (maxHitPoints() / ((GC.getUnitInfo(getUnitType()).getGroupSize() * 2) + 1))) / maxHitPoints()));
+ 	}
+ }
+-
++// returns true if unit can initiate a war action with plot (possibly by declaring war)
++bool CvUnit::potentialWarAction(const CvPlot* pPlot) const
++{
++	TeamTypes ePlotTeam = pPlot->getTeam();
++	TeamTypes eUnitTeam = getTeam();
++	
++	if (ePlotTeam == NO_TEAM)
++	{
++		return false;
++	}
++
++	if (atWar(eUnitTeam, ePlotTeam))
++	{
++		return true;
++	}
++	
++	if (getGroup()->AI_isDeclareWar(pPlot) && GET_TEAM(eUnitTeam).AI_getWarPlan(ePlotTeam) != NO_WARPLAN)
++	{
++		return true;
++	}
++
++	return false;
++}
+ 
+ void CvUnit::read(FDataStreamBase* pStream)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvUnit.h
+--- /trunk/CvGameCoreDLL/CvUnit.h@246
++++ /trunk/CvGameCoreDLL/CvUnit.h@247
+@@ -629,6 +629,8 @@
+ 	int getSubUnitsAlive(int iDamage) const;
+ 
+ 	bool isTargetOf(const CvUnit& attacker) const;
++
++	bool potentialWarAction(const CvPlot* pPlot) const;
+ 
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@246
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@247
+@@ -7814,7 +7814,7 @@
+ 
+ 	if (pTargetCity != NULL)
+ 	{
+-		if (AI_potentialEnemy(pTargetCity->getTeam()))
++		if (AI_potentialEnemy(pTargetCity->getTeam(), pTargetCity->plot()))
+ 		{
+ 			if (!atPlot(pTargetCity->plot()) && generatePath(pTargetCity->plot(), 0, true))
+ 			{
+@@ -7829,33 +7829,30 @@
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			{
+-				if (AI_potentialEnemy(GET_PLAYER((PlayerTypes)iI).getTeam()))
++				for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+ 				{
+-					for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
++					if (AI_plotValid(pLoopCity->plot()) && AI_potentialEnemy(GET_PLAYER((PlayerTypes)iI).getTeam(), pLoopCity->plot()))
+ 					{
+-						if (AI_plotValid(pLoopCity->plot()))
++						if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+ 						{
+-							if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
++							iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
++
++							iValue *= 1000;
++							
++							if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+ 							{
+-								iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
+-
+-								iValue *= 1000;
+-								
+-								if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++								if (pLoopCity->calculateCulturePercent(getOwner()) < 75)
+ 								{
+-									if (pLoopCity->calculateCulturePercent(getOwner()) < 75)
+-									{
+-										iValue /= 2;
+-									}
++									iValue /= 2;
+ 								}
+-
+-								iValue /= (4 + iPathTurns*iPathTurns);
+-
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									pBestCity = pLoopCity;
+-								}
++							}
++
++							iValue /= (4 + iPathTurns*iPathTurns);
++
++							if (iValue > iBestValue)
++							{
++								iBestValue = iValue;
++								pBestCity = pLoopCity;
+ 							}
+ 						}
+ 					}
+@@ -8131,7 +8128,7 @@
+ 				{
+ 					if (pLoopPlot->isCity() || (pLoopPlot->isCity(true) && pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 					{
+-						if (AI_potentialEnemy(pLoopPlot->getTeam()))
++						if (AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 						{
+ 							if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 							{
+@@ -8202,7 +8199,7 @@
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+ 				{
+-					if (pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE()) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++					if (pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE()) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 					{
+ 						if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 						{
+@@ -8285,7 +8282,7 @@
+ 			{
+ 				if (AI_plotValid(pLoopPlot))
+ 				{
+-					if (pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE()) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam())))
++					if (pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE()) || (pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot)))
+ 					{
+ 						if (!atPlot(pLoopPlot) && (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange)))
+ 						{
+@@ -8345,7 +8342,7 @@
+ 
+ 		if (AI_plotValid(pLoopPlot))
+ 		{
+-			if (atWar(getTeam(), pLoopPlot->getTeam()))
++			if (potentialWarAction(pLoopPlot))
+ 			{
+ 				pCity = pLoopPlot->getWorkingCity();
+ 
+@@ -8355,8 +8352,6 @@
+ 					{
+ 						if (!(pCity->isBarbarian()))
+ 						{
+-							FAssert(atWar(getTeam(), pCity->getTeam()));
+-
+ 							if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 							{
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BLOCKADE, getGroup(), 2) == 0)
+@@ -8379,6 +8374,13 @@
+ 										iValue *= 1000;
+ 
+ 										iValue /= (iPathTurns + 1);
++
++										// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
++										// (because declaring war will pop us some unknown distance away)
++										if (!atWar(getTeam(), pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++										{
++											iValue /= 10;
++										}
+ 
+ 										if (iValue > iBestValue)
+ 										{
+@@ -8398,6 +8400,11 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestBlockadePlot != NULL))
+ 	{
++		if (atPlot(pBestBlockadePlot) && !atWar(getTeam(), pBestBlockadePlot->getTeam()))
++		{
++			getGroup()->groupDeclareWar(pBestBlockadePlot, true);
++		}
++		
+ 		if (atPlot(pBestBlockadePlot))
+ 		{
+ 			if (canBombard(plot()))
+@@ -8536,15 +8543,14 @@
+ 	{
+ 		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if (AI_plotValid(pLoopPlot))
+-		{
+-			if (!(pLoopPlot->isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
++		if (AI_plotValid(pLoopPlot) && !(pLoopPlot->isBarbarian()))
++		{
++			if (potentialWarAction(pLoopPlot))
+ 			{
+ 			    CvCity * pWorkingCity = pLoopPlot->getWorkingCity();
+ 
+ 			    if (pWorkingCity != NULL)
+ 			    {
+-			        FAssert(atWar(getTeam(), pWorkingCity->getTeam()));
+                     if (!(pWorkingCity == area()->getTargetCity(getOwnerINLINE())) && canPillage(pLoopPlot))
+                     {
+                         if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+@@ -8558,6 +8564,13 @@
+                                     iValue *= 1000;
+ 
+                                     iValue /= (iPathTurns + 1);
++
++									// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
++									// (because declaring war will pop us some unknown distance away)
++									if (!atWar(getTeam(), pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++									{
++										iValue /= 10;
++									}
+ 
+                                     if (iValue > iBestValue)
+                                     {
+@@ -8576,10 +8589,20 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestPillagePlot != NULL))
+ 	{
++		if (atPlot(pBestPillagePlot) && !atWar(getTeam(), pBestPillagePlot->getTeam()))
++		{
++			//getGroup()->groupDeclareWar(pBestPillagePlot, true);
++			// rather than declare war, just find something else to do, since we may already be deep in enemy territory
++			return false;
++		}
++		
+ 		if (atPlot(pBestPillagePlot))
+ 		{
+-			getGroup()->pushMission(MISSION_PILLAGE, -1, -1, 0, false, false, MISSIONAI_PILLAGE, pBestPillagePlot);
+-			return true;
++			if (atWar(getTeam(), pBestPillagePlot->getTeam()))
++			{
++				getGroup()->pushMission(MISSION_PILLAGE, -1, -1, 0, false, false, MISSIONAI_PILLAGE, pBestPillagePlot);
++				return true;
++			}
+ 		}
+ 		else
+ 		{
+@@ -8621,15 +8644,14 @@
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+-				if (AI_plotValid(pLoopPlot))
++				if (AI_plotValid(pLoopPlot) && !(pLoopPlot->isBarbarian()))
+ 				{
+-					if (!(pLoopPlot->isBarbarian()) && atWar(getTeam(), pLoopPlot->getTeam()))
++					if (potentialWarAction(pLoopPlot))
+ 					{
+                         CvCity * pWorkingCity = pLoopPlot->getWorkingCity();
+ 
+                         if (pWorkingCity != NULL)
+                         {
+-                            FAssert(atWar(getTeam(), pWorkingCity->getTeam()));
+                             if (!(pWorkingCity == area()->getTargetCity(getOwnerINLINE())) && canPillage(pLoopPlot))
+                             {
+                                 if (!(pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+@@ -8650,6 +8672,13 @@
+                                                 iValue *= 1000;
+ 
+                                                 iValue /= (iPathTurns + 1);
++
++												// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
++												// (because declaring war will pop us some unknown distance away)
++												if (!atWar(getTeam(), pLoopPlot->getTeam()) && plot()->getTeam() == pLoopPlot->getTeam())
++												{
++													iValue /= 10;
++												}
+ 
+                                                 if (iValue > iBestValue)
+                                                 {
+@@ -8671,10 +8700,20 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestPillagePlot != NULL))
+ 	{
++		if (atPlot(pBestPillagePlot) && !atWar(getTeam(), pBestPillagePlot->getTeam()))
++		{
++			//getGroup()->groupDeclareWar(pBestPillagePlot, true);
++			// rather than declare war, just find something else to do, since we may already be deep in enemy territory
++			return false;
++		}
++		
+ 		if (atPlot(pBestPillagePlot))
+ 		{
+-			getGroup()->pushMission(MISSION_PILLAGE, -1, -1, 0, false, false, MISSIONAI_PILLAGE, pBestPillagePlot);
+-			return true;
++			if (atWar(getTeam(), pBestPillagePlot->getTeam()))
++			{
++				getGroup()->pushMission(MISSION_PILLAGE, -1, -1, 0, false, false, MISSIONAI_PILLAGE, pBestPillagePlot);
++				return true;
++			}
+ 		}
+ 		else
+ 		{
+@@ -9470,7 +9509,7 @@
+ 							{
+ 								if (!(pLoopPlotAir->isBarbarian()))
+ 								{
+-									if (atWar(getTeam(), pLoopPlotAir->getTeam()))
++									if (potentialWarAction(pLoopPlotAir))
+ 									{
+ 										if (pLoopPlotAir->isCity())
+ 										{
+@@ -10825,7 +10864,7 @@
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+@@ -11188,7 +11227,7 @@
+ 			{
+ 				if (pAdjacentPlot1->isCity())
+ 				{
+-					if (AI_potentialEnemy(pAdjacentPlot1->getTeam()))
++					if (AI_potentialEnemy(pAdjacentPlot1->getTeam(), pAdjacentPlot1))
+ 					{
+ 						for (iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+ 						{
+@@ -11233,9 +11272,9 @@
+ 
+ 
+ // Returns true if the unit has found a potential enemy...
+-bool CvUnitAI::AI_potentialEnemy(TeamTypes eTeam)
+-{
+-	if (getGroup()->AI_isDeclareWar())
++bool CvUnitAI::AI_potentialEnemy(TeamTypes eTeam, const CvPlot* pPlot)
++{
++	if (getGroup()->AI_isDeclareWar(pPlot))
+ 	{
+ 		return isPotentialEnemy(getTeam(), eTeam);
+ 	}
+@@ -11594,7 +11633,7 @@
+ 				{
+ 					if (pLoopPlot->isCity() || (pLoopPlot->isCity(true) && pLoopPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+ 					{
+-						if (AI_potentialEnemy(pLoopPlot->getTeam()))
++						if (AI_potentialEnemy(pLoopPlot->getTeam(), pLoopPlot))
+ 						{
+ 							if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, /*bAttack*/ true, /*bDeclareWar*/ true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 							{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@246
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@247
+@@ -166,7 +166,7 @@
+ 
+ 	bool AI_followBombard();
+ 
+-	bool AI_potentialEnemy(TeamTypes eTeam);
++	bool AI_potentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL);
+ 
+ 	bool AI_defendPlot(CvPlot* pPlot);
+ 	int AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold = 0);
+

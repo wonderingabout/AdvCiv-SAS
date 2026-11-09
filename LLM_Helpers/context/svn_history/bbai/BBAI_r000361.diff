@@ -1,0 +1,61 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 361
+# Author: iustus
+# Date: 2007-02-13T00:20:01.238884Z
+# Coverage: full
+# Message:
+#   fixed crash in AI_travelToUpgradeCity when there is no closest city with a valid path
+#   removed asserts on impassible for sea units, subs can move there, as could potentially units in a mod (the get path call will fail in the cases where a unit cannot move there)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@360
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@361
+@@ -10765,8 +10765,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestAssaultPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestAssaultPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestAssaultPlot))
+@@ -10872,8 +10870,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestFoundPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestFoundPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestFoundPlot->getX_INLINE(), pBestFoundPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestFoundPlot))
+@@ -11037,8 +11033,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestSpreadPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestSpreadPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestSpreadPlot->getX_INLINE(), pBestSpreadPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestSpreadPlot))
+@@ -11152,8 +11146,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestSpyPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestSpyPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestSpyPlot->getX_INLINE(), pBestSpyPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestSpyPlot))
+@@ -12185,7 +12177,7 @@
+ 		}
+ 		
+ 		// check for better airlift choice
+-		if (bCanAirliftUnit && pClosestCity->getMaxAirlift() > 0)
++		if (bCanAirliftUnit && pClosestCity != NULL && pClosestCity->getMaxAirlift() > 0)
+ 		{
+ 			// if we at the closest city, then do the airlift, or wait
+ 			if (bAtClosestCity)
+

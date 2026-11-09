@@ -1,0 +1,41 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 173
+# Author: blakeciv
+# Date: 2006-12-12T04:01:38.992622Z
+# Coverage: full
+# Message:
+#   Reduced the "rush bonus panic" at low city counts.
+#   Minor tweak to bonus value.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@172
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@173
+@@ -2881,12 +2881,13 @@
+ 												{
+ 													iBonusValue *= AI_bonusVal((BonusTypes) iK);
+ 												}
+-
++												
+ 												for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
+ 												{
+ 													iTempValue = 0;
+ 
+ 													iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
++													iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 200);
+ 
+ 													// land food bonuses are more valueble
+ 													if (iL == YIELD_FOOD && !kImprovement.isWater())
+@@ -3019,6 +3020,9 @@
+                                             iMultiplier *= (paiBonusClassRevealed[eBonusClass] + 1);
+                                             iMultiplier /= ((paiBonusClassHave[eBonusClass] * iBonusClassTotal) + 1);
+ 										}
++										
++										iMultiplier *= min(3, getNumCities());
++										iMultiplier /= 3;
+ 										
+ 										iRevealValue *= 100 + iMultiplier;
+ 										iRevealValue /= 100;
+

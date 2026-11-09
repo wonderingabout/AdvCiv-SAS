@@ -1,0 +1,119 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 174
+# Author: blakeciv
+# Date: 2006-12-12T05:08:28.150520Z
+# Coverage: full
+# Message:
+#   Minor tweaks to worker AI.
+#   AI will attack with smaller stacks in earlier eras.
+#   Removed dumb stuff I comitted by accident :P.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@173
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@174
+@@ -2143,10 +2143,6 @@
+ 			{
+ 				szString += gDLL->getText("TXT_KEY_PLOT_REQUIRES_ROUTE");
+ 			}
+-			
+-            szTempBuffer.Format(L"\n-%s-", GC.getBonusClassInfo((BonusClassTypes)GC.getBonusInfo(pPlot->getBonusType()).getBonusClassType()).getTextKeyWide());
+-            szString+=szTempBuffer;
+-			
+ 		}
+ 
+ 		eImprovement = pPlot->getRevealedImprovementType(GC.getGameINLINE().getActiveTeam(), true);
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@173
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@174
+@@ -5757,7 +5757,7 @@
+ 	CvPlot* pAdjacentPlot;
+ 	int iI;
+ 
+-	if (getFoundValue(eIndex) == 0)
++	if (GET_PLAYER(eIndex).AI_foundValue(getX_INLINE(), getY_INLINE()) == 0)
+ 	{
+ 		return false;
+ 	}
+@@ -5768,7 +5768,7 @@
+ 	{
+ 		pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
+ 
+-		if (pAdjacentPlot != NULL)
++		if ((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(GET_PLAYER(eIndex).getTeam(), false))
+ 		{
+ 			//if (pAdjacentPlot->getFoundValue(eIndex) >= getFoundValue(eIndex))
+ 			if (GET_PLAYER(eIndex).AI_foundValue(pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE()) > iPlotValue)
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@173
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@174
+@@ -981,6 +981,7 @@
+ 
+ 	bCanRoute = canBuildRoute();
+ 	bNextCity = false;
++	int iI;
+ 
+ 	// XXX could be trouble...
+ 	if (plot()->getOwnerINLINE() != getOwnerINLINE())
+@@ -1051,6 +1052,45 @@
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+ 		pCity = plot()->getWorkingCity();
++	}
++	if (pCity != NULL)
++	{
++		bool bMoreBuilds = false;
++		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		{
++			CvPlot* pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++			if ((iI != CITY_HOME_PLOT) && (pLoopPlot != NULL))
++			{
++				if (pLoopPlot->getWorkingCity() == pCity)
++				{
++					if (pLoopPlot->isBeingWorked())
++					{
++						if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
++						{
++							if (pCity->AI_getBestBuildValue(iI) > 0)
++							{
++								ImprovementTypes eImprovement;
++								eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes)pCity->AI_getBestBuild(iI)).getImprovement();
++								if (eImprovement != NO_IMPROVEMENT)
++								{
++									bMoreBuilds = true;
++									break;
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++		
++		if (bMoreBuilds)
++		{
++			if (AI_improveCity(pCity))
++			{
++				return;
++			}
++		}
++		
+ 	}
+ 
+ 	if ((pCity == NULL) || (pCity->countNumImprovedPlots() > (pCity->getPopulation()+1)))
+@@ -10785,7 +10825,7 @@
+ 
+ int CvUnitAI::AI_stackOfDoomExtra()
+ {
+-	return ((AI_getBirthmark() % 7) + 2);
++	return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra() * 2)) + 2);
+ }
+ 
+ bool CvUnitAI::AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow)
+

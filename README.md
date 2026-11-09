@@ -233,6 +233,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Runtime status and history](/README.md#runtime-status-and-history)\
 [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis)\
 &emsp;[Light-source analysis](/README.md#light-source-analysis)\
+&emsp;[Searchable commit diffs](/README.md#searchable-commit-diffs)\
 &emsp;[Historical source archaeology](/README.md#historical-source-archaeology)\
 &emsp;[C++ File Audit Album](/README.md#c-file-audit-album)\
 &emsp;[Focused source and data reviews](/README.md#focused-source-and-data-reviews)\
@@ -1906,7 +1907,17 @@ Complete status/exit JSON and a history excerpt are shown in the [Logging Invent
 
 ### Light-source analysis
 
-The compact [light-source ZIP](/README.md#light-source-zip) lets external LLMs review the current source, supporting docs/data, repository state and selected historical context without the full installation or `.git` directory. Current AdvCiv-SAS source and Git remain authoritative; Base AdvCiv, K-Mod 1.46, tracked lineage, map references and Civ4CE answer different comparison questions.
+The compact [light-source ZIP](/README.md#light-source-zip) lets external LLMs review the current source, supporting docs/data, repository state and selected historical context without the full installation or `.git` directory.
+
+Current AdvCiv-SAS source and Git remain authoritative. The [comparison-source guide](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#comparison-sources) explains when to consult local references such as Base AdvCiv, K-Mod, Better BTS AI and Civ4CE.
+
+### Searchable commit diffs
+
+The light-source ZIP prompted the original patch export for external review. The same corpus also lives locally under `LLM_Helpers/context/commit_diffs/`, where Codex, other agents and developers can grep what changed in the code, even when the commit message never names the function, define or log field you are looking for.
+
+Use `INDEX.txt` to find a commit's patch and `PATH_HISTORY_INDEX.txt` to narrow the search to revisions touching a file.
+
+Generate or refresh it from Git with `python LLM_Helpers/refresh_commit_diffs.py` whenever you need it locally. Git ignores the generated files because they can be regenerated from history and the corpus grows as commits are added. [Generation instructions](/LLM_Helpers/README.md#refresh_commit_diffspy)
 
 ### Historical source archaeology
 

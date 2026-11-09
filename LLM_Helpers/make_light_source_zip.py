@@ -88,6 +88,9 @@ COMMIT_DIFF_CONTEXT_DIR = "LLM_Helpers/context/commit_diffs"
 # <!-- custom: Include current map references and resumable source analyses in the light ZIP, but do not duplicate their imported/generated history inside generated historical patches. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MAP_REFERENCE_DIR = "LLM_Helpers/context/mapscript_refs"
 SOURCE_ANALYSIS_DIR = "_1_AdvCiv-SAS/Docs/Source_Analysis"
+# <!-- custom: Ordinary tree selection includes older mods' SVN history in the ZIP like mapscript_refs, but its patches must not reappear inside our own commit diffs.
+# Not part of LEGACY_COMMIT_DIFF_EXCLUDED_PATHS, so the commit-diff cache key stays valid: no cached commit touches this path. (Claude code Opus 5.5) -->
+SVN_HISTORY_DIR = "LLM_Helpers/context/svn_history"
 # <!-- custom: Exclude both former and canonical context paths so the relocation commit itself cannot inject hundreds of megabytes of generated/imported context into future historical patches.
 # Existing immutable-SHA cache entries remain valid because canonical paths did not exist in those commits. (GPT-5.6-Sol) -->
 LEGACY_COMMIT_DIFF_EXCLUDED_PATHS = (
@@ -98,6 +101,7 @@ LEGACY_COMMIT_DIFF_EXCLUDED_PATHS = (
 COMMIT_DIFF_EXCLUDED_PATHS = (
     f"{COMMIT_DIFF_CONTEXT_DIR}/**",
     f"{MAP_REFERENCE_DIR}/**",
+    f"{SVN_HISTORY_DIR}/**",
     *LEGACY_COMMIT_DIFF_EXCLUDED_PATHS,
 )
 COMMIT_DIFF_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
@@ -2141,6 +2145,9 @@ def build_snapshot_context_readme() -> str:
         f"\n../{COMMIT_DIFF_CONTEXT_DIR}/PATH_HISTORY_INDEX.txt\n"
         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
         "  diffs touched it. Use it to narrow investigation before opening the matching commit diff files.\n"
+        f"\n../{SVN_HISTORY_DIR}/<project>/INDEX.txt + PATH_HISTORY_INDEX.txt + <label>_r<revision>.diff\n"
+        "  One greppable diff per SVN revision for older mods outside our Git ancestry, such as Better BTS AI, with\n"
+        "  revision, author, date, full message and copy origins. Use it for origins older than K-Mod's first snapshot.\n"
         "\npending_upstream/INDEX.txt + GIT_LOG.txt + PATH_HISTORY_INDEX.txt + UPSTREAM_REFS.txt + <sequence>_<short-sha>.diff\n"
         "  Separate fetched-but-unmerged base-AdvCiv context. During an active merge, exact MERGE_HEAD is authoritative.\n"
         "  Outside a merge, all locally fetched release-like refs are considered and their HEAD-external commits are\n"

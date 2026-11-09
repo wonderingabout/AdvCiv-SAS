@@ -1,0 +1,83 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 34
+# Author: blakeciv
+# Date: 2006-11-06T07:40:40.607949Z
+# Coverage: full
+# Message:
+#   Tweaked missionary training priority and fixed a bug with autoworkers and target city size in the end game.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@33
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@34
+@@ -737,6 +737,30 @@
+ 		}
+ 	}
+ 
++    if (!bDanger)
++	{
++	    if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < 20)
++	    {
++            for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++            {
++                if (isHasReligion((ReligionTypes)iI))
++                {
++                    iNeededMissionaries = GET_PLAYER(getOwnerINLINE()).AI_neededMissionaries(area(), ((ReligionTypes)iI));
++                    if (iNeededMissionaries > 0)
++                    {
++                        if (iNeededMissionaries > GET_PLAYER(getOwnerINLINE()).countReligionSpreadUnits(area(), ((ReligionTypes)iI)))
++                        {
++                            if (AI_chooseUnit(UNITAI_MISSIONARY))
++                            {
++                                return;
++                            }
++                        }
++                    }
++                }
++            }
++	    }
++	}
++
+ 	if (!bLandWar)
+ 	{
+ 		if (getMaintenance() >= 8)
+@@ -923,28 +947,6 @@
+ 					if (AI_chooseUnit(UNITAI_ESCORT_SEA))
+ 					{
+ 						return;
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if (!bDanger)
+-	{
+-		if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Missionary") < ((bLandWar) ? 5 : 20))
+-		{
+-			for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+-			{
+-				iNeededMissionaries = GET_PLAYER(getOwnerINLINE()).AI_neededMissionaries(area(), ((ReligionTypes)iI));
+-
+-				if (iNeededMissionaries > 0)
+-				{
+-					if (iNeededMissionaries > GET_PLAYER(getOwnerINLINE()).countReligionSpreadUnits(area(), ((ReligionTypes)iI)))
+-					{
+-						if (AI_chooseUnit(UNITAI_MISSIONARY))
+-						{
+-							return;
+-						}
+ 					}
+ 				}
+ 			}
+@@ -2790,6 +2792,7 @@
+ 
+ 	int iTargetSize = min(iGoodTileCount, getPopulation()+(happyLevel()-unhappyLevel()));
+ 	iTargetSize = min(iTargetSize, getPopulation()+(healthRate()));
++	iTargetSize = min(iTargetSize, NUM_CITY_PLOTS - 1);
+ 
+ 	if (iBonusFoodDiff < 3)
+ 	{
+

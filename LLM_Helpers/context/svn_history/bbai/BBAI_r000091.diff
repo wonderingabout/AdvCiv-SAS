@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 91
+# Author: blakeciv
+# Date: 2006-11-17T18:28:29.197213Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@90
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@91
+@@ -1540,7 +1540,7 @@
+ 	}
+ 
+ 
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, false))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true))
+     {
+         return;
+     }
+@@ -1570,7 +1570,7 @@
+ 		return;
+ 	}
+ 	
+-    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, false))
++    if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true))
+     {
+         return;
+     }
+@@ -10785,6 +10785,8 @@
+ 
+ 	pBestCity = NULL;
+ 	
++	iBestValue = 0;
++	
+ 	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+ 	{
+ 		if (AI_plotValid(pLoopCity->plot()))
+

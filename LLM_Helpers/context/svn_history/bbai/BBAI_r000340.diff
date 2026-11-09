@@ -1,0 +1,174 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 340
+# Author: blakeciv
+# Date: 2007-02-04T21:48:45.376172Z
+# Coverage: full
+# Message:
+#   Fixed settler/galley issues.
+#   Tweaked build governor to fix issue with small cities.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@339
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@340
+@@ -991,7 +991,7 @@
+ 	else
+ 	{
+ 		//minimal defense.
+-		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == 0)
++		if (plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) <= plot()->plotCount(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()))
+ 		{
+ 			if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+ 			{
+@@ -1358,6 +1358,21 @@
+ 				}
+             }
+         }
++	}
++	
++	//build a damn settler you clown!
++	if (isCapital() && GET_PLAYER(getOwnerINLINE()).getNumCities() == 1)
++	{
++		if ((getGameTurnFounded() - GC.getGame().getStartTurn()) < 5)
++		{
++			if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
++			{
++				if (AI_chooseUnit(UNITAI_SETTLE))
++				{
++					return;
++				}
++			}
++		}
+ 	}
+ 
+  	// don't build frivilious things if this is an imporant city
+@@ -7074,6 +7089,7 @@
+ 
+ 	bDanger = AI_isDanger();
+ 
++
+ 	// only clear the dirty bit if we actually do a check, multiple items might be queued
+ 	AI_setChooseProductionDirty(false);
+ 
+@@ -7082,6 +7098,16 @@
+ 	bWasFoodProduction = isFoodProduction();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
++	int iMinValueDivisor = 1;
++	if (getPopulation() < 3)
++	{
++		iMinValueDivisor = 3;
++	}
++	else if (getPopulation() < 7)
++	{
++		iMinValueDivisor = 2;
++	}
++	
+ 	
+ 	clearOrderQueue();
+ 
+@@ -7138,7 +7164,7 @@
+         }
+     }
+     
+-	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 30, 10))
++	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 30, 10 / iMinValueDivisor))
+     {
+         return;
+     }
+@@ -7168,7 +7194,7 @@
+ 	iEconomyFlags |= BUILDINGFOCUS_SPECIALIST;
+ 	
+ 	//20 means 5g or ~2 happiness...
+-	if (AI_chooseBuilding(iEconomyFlags, 20, 20))
++	if (AI_chooseBuilding(iEconomyFlags, 20, 20 / iMinValueDivisor))
+ 	{
+ 		return;
+ 	}
+@@ -7195,12 +7221,12 @@
+         }
+     }
+     
+-	if (AI_chooseBuilding(iEconomyFlags, 40, 15))
++	if (AI_chooseBuilding(iEconomyFlags, 40, 15 / iMinValueDivisor))
+ 	{
+ 		return;
+ 	}
+ 	
+-	if (AI_chooseBuilding(iEconomyFlags | BUILDINGFOCUS_CULTURE, 10, 10))
++	if (AI_chooseBuilding(iEconomyFlags | BUILDINGFOCUS_CULTURE, 10, 10 / iMinValueDivisor))
+ 	{
+ 		return;
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@339
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@340
+@@ -26,7 +26,7 @@
+ #define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+-#define FOUND_RANGE				(6)
++#define FOUND_RANGE				(7)
+ 
+ //#define DEBUG_WAR_ACTIONS
+ //this line changed so i can add another commit message :P
+@@ -978,11 +978,25 @@
+ 		}
+ 	}
+ 
+-	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+-	{
+-		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
+-		{
+-			return;
++	int iAreaBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
++	
++	int iOtherBestFoundValue = 0;
++	//Compare found values.
++	CvArea* pLoopArea;
++	int iLoop;
++	for(pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
++	{
++		iOtherBestFoundValue = max(iOtherBestFoundValue, pLoopArea->getBestFoundValue(getOwnerINLINE()));		
++	}
++	
++	if ((iOtherBestFoundValue * 100) > (iAreaBestFoundValue * 125))
++	{
++		if (plot()->getOwnerINLINE() == getOwnerINLINE())
++		{
++			if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI, -1, -1, -1, 0, MOVE_SAFE_TERRITORY))
++			{
++				return;
++			}
+ 		}
+ 	}
+ 
+@@ -1006,7 +1020,7 @@
+ 		}
+ 	}
+ 
+-	if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
++	if (iAreaBestFoundValue > 0)
+ 	{
+ 		if (AI_foundRange(FOUND_RANGE))
+ 		{
+@@ -2106,6 +2120,14 @@
+ 	if (AI_leaveAttack(2, 55, 130))
+ 	{
+ 		return;
++	}
++	
++	if (plot()->getOwnerINLINE() == getOwnerINLINE())
++	{
++		if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE, -1, -1, 1, -1, MOVE_SAFE_TERRITORY))
++		{
++			return;
++		}
+ 	}
+ 	
+ 	if (AI_guardCity(true))
+

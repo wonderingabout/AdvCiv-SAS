@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 308
+# Author: iustus
+# Date: 2007-01-27T19:17:11.851554Z
+# Coverage: full
+# Message:
+#   fixed chipotle text bug, unitID displayed for missions was wrong
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@307
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@308
+@@ -1078,7 +1078,7 @@
+ 						// mission unit
+ 						szString += L"\n to ";
+ 						szString += CvWString::format(SETCOLR L"%s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), pMissionUnit->getName().GetCString());
+-						szString += CvWString::format(L"(%d) G:%d", shortenID(shortenID(pMissionUnit->getID())), shortenID(pMissionUnit->getGroupID()));
++						szString += CvWString::format(L"(%d) G:%d", shortenID(pMissionUnit->getID()), shortenID(pMissionUnit->getGroupID()));
+ 						getUnitAIString(szTempString, pMissionUnit->AI_getUnitAIType());
+ 						szString += CvWString::format(SETCOLR L" %s" ENDCOLR, GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorR(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorG(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorB(), GET_PLAYER(pMissionUnit->getOwnerINLINE()).getPlayerTextColorA(), szTempString.GetCString());
+ 					}
+

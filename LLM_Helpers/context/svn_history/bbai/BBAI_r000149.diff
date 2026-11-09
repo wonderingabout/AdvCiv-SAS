@@ -1,0 +1,68 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 149
+# Author: iustus
+# Date: 2006-12-06T11:55:48.395654Z
+# Coverage: full
+# Message:
+#   fixed typo, pLoopPlot was uninitialized in this loop
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@148
++++ /trunk/CvGameCoreDLL/CvGame.cpp@149
+@@ -1586,28 +1586,30 @@
+ 				int iWaterCount = 0;
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+-                    if (pLoopPlot != NULL)
+-                    {
+-                        if (pLoopPlot != pStartingPlot)
+-                        {
+-                            iWaterCount++;
+-                            if (pLoopPlot->isWater())
+-                            {
+-                                if (pLoopPlot->getBonusType() != NO_BONUS)
+-                                {
+-                                    if (pLoopPlot->isAdjacentToLand())
+-                                    {
+-                                        iCoastFoodCount++;
+-                                    }
+-                                    else
+-                                    {
+-                                        iOceanFoodCount++;                                        
+-                                    }
+-                                }
+-                            }
+-                        }
+-                    }
+-				}
++					pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++					if (pLoopPlot != NULL)
++					{
++						if (pLoopPlot != pStartingPlot)
++						{
++							iWaterCount++;
++							if (pLoopPlot->isWater())
++							{
++								if (pLoopPlot->getBonusType() != NO_BONUS)
++								{
++									if (pLoopPlot->isAdjacentToLand())
++									{
++										iCoastFoodCount++;
++									}
++									else
++									{
++										iOceanFoodCount++;                                        
++									}
++								}
++							}
++						}
++					}
++				}
++				
+ 				if (iWaterCount > NUM_CITY_PLOTS / 2)
+ 				{
+ 				    bLandBias = true;
+

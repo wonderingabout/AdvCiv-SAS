@@ -1,0 +1,27 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 331
+# Author: iustus
+# Date: 2007-01-30T19:24:53.600586Z
+# Coverage: full
+# Message:
+#   sea bombard crash fix
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@330
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@331
+@@ -10137,9 +10137,8 @@
+ 				getGroup()->pushMission(MISSION_BOMBARD, -1, -1, 0, false, false, MISSIONAI_BLOCKADE, pBestBombardPlot);
+ 
+ 				// if city bombarded enough, wake up any units that were waiting to bombard this city
+-				CvCity* pBombardCity = bombardTarget(pBestBombardPlot);
+-				FAssert(pBombardCity != NULL);
+-				if (pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
++				CvCity* pBombardCity = bombardTarget(pBestBombardPlot); // is NULL if city cannot be bombarded any more
++				if (pBombardCity == NULL || pBombardCity->getDefenseDamage() < ((GC.getMAX_CITY_DEFENSE_DAMAGE()*5)/6))
+ 				{
+ 					kPlayer.AI_wakePlotTargetMissionAIs(pBestBombardPlot, MISSIONAI_BLOCKADE, getGroup());
+ 				}
+

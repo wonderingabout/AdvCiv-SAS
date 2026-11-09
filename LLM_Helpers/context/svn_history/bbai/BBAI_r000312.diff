@@ -1,0 +1,229 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 312
+# Author: iustus
+# Date: 2007-01-28T01:53:01.482045Z
+# Coverage: full
+# Message:
+#   out of sync logging, to track down oos errors
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@311
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@312
+@@ -40,6 +40,7 @@
+ // for testing only
+ #ifndef FINAL_RELEASE
+ #define TESTING_EXTRA_SAVE_DATA
++#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ // our own version number on our extra data
+@@ -829,6 +830,43 @@
+ 	bChooseUnit = false;
+ 	
+ 	int iWaterPercent = AI_calculateWaterWorldPercent();
++	
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		TCHAR szOut[1024];
++		sprintf(szOut, "%S(%S)[%d]: fp=%d, lw=%d, as=%d, dw=%d, pa=%d, da=%d, pr=%d, nm=%d, cp=%d, "
++			"ca=%d, ic=%d, bc=%d, cr=%d, cv=%d, bu=%d, ag=%d, ucp=%d, ew=%d, nw=%d, bgr=%d, brr=%d, wp=%d\n\n", 
++			getName(),
++			kPlayer.getName(),
++			GC.getGameINLINE().getTurnSlice(),
++			bWasFoodProduction,
++			bLandWar,
++			bAssault,
++			bDefenseWar,
++			bPrimaryArea,
++			bFinancialTrouble,
++			bDanger,
++			iProductionRank,
++			iNeededMissionaries,
++			iCulturePressure,
++
++			iNumCitiesInArea,
++			bImportantCity,
++			bBigCultureCity,
++			iCultureRateRank ,
++			iCulturalVictoryNumCultureCities,
++			bGetBetterUnits,
++			bAggressiveAI,
++			iUnitCostPercentage,
++			iExistingWorkers,
++			iNeededWorkers,
++			iBaseGoldRate,
++			iBaseResearchRate,
++			iWaterPercent);
++		gDLL->messageControlLog(szOut);
++	}
++#endif
+ 	
+ 	clearOrderQueue();
+ 
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@311
++++ /trunk/CvGameCoreDLL/CvGame.cpp@312
+@@ -29,6 +29,12 @@
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLEventReporterIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
++
++// for testing only
++#ifndef FINAL_RELEASE
++#define DEBUG_OUT_OF_SYNCS
++#endif
++
+ 
+ // Public Functions...
+ 
+@@ -7971,6 +7977,143 @@
+ 		}
+ 	}
+ 
++#ifdef DEBUG_OUT_OF_SYNCS
++	if (GC.getLogging())
++	{
++		TCHAR szOut[1024];
++		sprintf(szOut, "SyncChecksum = %d on %d\n", iValue, GC.getGameINLINE().getTurnSlice());
++		gDLL->messageControlLog(szOut);
++
++		sprintf(szOut, "m=%d, s=%d, c=%d, p=%d, d=%d, o=%d, a=%d\n", 
++			getMapRand().getSeed(),
++			getSorenRand().getSeed(),
++			getNumCities(),
++			getTotalPopulation(),
++			getNumDeals(),
++			GC.getMapINLINE().getOwnedPlots(),
++			GC.getMapINLINE().getNumAreas());
++		gDLL->messageControlLog(szOut);
++
++		sprintf(szOut, "m=%d, s=%d, c=%d, p=%d, d=%d, o=%d, a=%d\n", 
++			getMapRand().getSeed(),
++			getSorenRand().getSeed(),
++			getNumCities(),
++			getTotalPopulation(),
++			getNumDeals(),
++			GC.getMapINLINE().getOwnedPlots(),
++			GC.getMapINLINE().getNumAreas());
++		gDLL->messageControlLog(szOut);
++
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			if (GET_PLAYER((PlayerTypes)iI).isEverAlive())
++			{
++				sprintf(szOut, "%S: s=%d, p=%d, L=%d, g=%d, a=%d, pw=%d, c=%d, u=%d, sg=%d\n", 
++					GET_PLAYER((PlayerTypes)iI).getName(),
++					getPlayerScore((PlayerTypes)iI),
++					GET_PLAYER((PlayerTypes)iI).getTotalPopulation(),
++					GET_PLAYER((PlayerTypes)iI).getTotalLand(),
++					GET_PLAYER((PlayerTypes)iI).getGold(),
++					GET_PLAYER((PlayerTypes)iI).getAssets(),
++					GET_PLAYER((PlayerTypes)iI).getPower(),
++					GET_PLAYER((PlayerTypes)iI).getNumCities(),
++					GET_PLAYER((PlayerTypes)iI).getNumUnits(),
++					GET_PLAYER((PlayerTypes)iI).getNumSelectionGroups());
++				gDLL->messageControlLog(szOut);
++
++				sprintf(szOut, " yield: f=%d, p=%d, c=%d; commerce: g=%d, r=%d, c=%d\n", 
++					GET_PLAYER((PlayerTypes)iI).calculateTotalYield(YIELD_FOOD),
++					GET_PLAYER((PlayerTypes)iI).calculateTotalYield(YIELD_PRODUCTION),
++					GET_PLAYER((PlayerTypes)iI).calculateTotalYield(YIELD_COMMERCE),
++					GET_PLAYER((PlayerTypes)iI).getCommerceRate(COMMERCE_GOLD),
++					GET_PLAYER((PlayerTypes)iI).getCommerceRate(COMMERCE_RESEARCH),
++					GET_PLAYER((PlayerTypes)iI).getCommerceRate(COMMERCE_CULTURE));
++				gDLL->messageControlLog(szOut);
++
++				sprintf(szOut, " bonuses: ");
++				gDLL->messageControlLog(szOut);
++				for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++				{
++					int iAvailableBonuses = GET_PLAYER((PlayerTypes)iI).getNumAvailableBonuses((BonusTypes)iJ);
++					int iBonusImport = GET_PLAYER((PlayerTypes)iI).getBonusImport((BonusTypes)iJ);
++					int iBonusExport = GET_PLAYER((PlayerTypes)iI).getBonusExport((BonusTypes)iJ);
++
++					if (iAvailableBonuses != 0 || iBonusImport != 0 || iBonusExport != 0)
++					{
++						sprintf(szOut, "%S: f=%d, p=%d, c=%d; ", GC.getBonusInfo((BonusTypes)iJ).getDescription(), iAvailableBonuses, iBonusImport, iBonusExport);
++						gDLL->messageControlLog(szOut);
++					}
++				}
++
++				sprintf(szOut, "\n imrovements: ");
++				gDLL->messageControlLog(szOut);
++				for (iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
++				{
++					int iImprovementCount = GET_PLAYER((PlayerTypes)iI).getImprovementCount((ImprovementTypes)iJ);
++					if (iImprovementCount != 0)
++					{
++						sprintf(szOut, "%S=%d, ", GC.getImprovementInfo((ImprovementTypes)iJ).getDescription(), iImprovementCount);
++						gDLL->messageControlLog(szOut);
++					}
++				}
++
++				sprintf(szOut, "\n buildings: ");
++				gDLL->messageControlLog(szOut);
++				for (iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
++				{
++					int iBuildingCount = GET_PLAYER((PlayerTypes)iI).getBuildingClassCountPlusMaking((BuildingClassTypes)iJ);
++					if (iBuildingCount != 0)
++					{
++						sprintf(szOut, "%S=%d, ", GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDescription(), iBuildingCount);
++						gDLL->messageControlLog(szOut);
++					}
++				}
++
++				sprintf(szOut, "\n unitclasses: ");
++				gDLL->messageControlLog(szOut);
++				for (iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
++				{
++					int iUnitCount = GET_PLAYER((PlayerTypes)iI).getUnitClassCountPlusMaking((UnitClassTypes)iJ);
++					if (iUnitCount != 0)
++					{
++						sprintf(szOut, "%S=%d, ", GC.getUnitClassInfo((UnitClassTypes)iJ).getDescription(), iUnitCount);
++						gDLL->messageControlLog(szOut);
++					}
++				}
++
++				sprintf(szOut, "\n unitais: ");
++				gDLL->messageControlLog(szOut);
++				for (iJ = 0; iJ < NUM_UNITAI_TYPES; iJ++)
++				{
++					int iUnitAICount = GET_PLAYER((PlayerTypes)iI).AI_totalUnitAIs((UnitAITypes)iJ);
++					if (iUnitAICount != 0)
++					{
++						sprintf(szOut, "%S=%d, ", GC.getUnitAIInfo((UnitAITypes)iJ).getDescription(), iUnitAICount);
++						gDLL->messageControlLog(szOut);
++					}
++				}
++
++				sprintf(szOut, "\n units: ");
++				gDLL->messageControlLog(szOut);
++				for (pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
++				{
++					sprintf(szOut, "%S(%d,%d), d=%d, %dexp, l=%d; ", 
++						pLoopUnit->getName().GetCString(),
++						pLoopUnit->getX_INLINE(),
++						pLoopUnit->getY_INLINE(),
++						pLoopUnit->getDamage(),
++						pLoopUnit->getExperience(),
++						pLoopUnit->getLevel());
++					gDLL->messageControlLog(szOut);
++				}
++				
++				sprintf(szOut, "\n\n");
++				gDLL->messageControlLog(szOut);
++			}
++		}
++	}
++#endif
++
+ 	return iValue;
+ }
+ 
+

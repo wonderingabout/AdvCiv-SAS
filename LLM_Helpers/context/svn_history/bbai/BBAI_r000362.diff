@@ -1,0 +1,666 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 362
+# Author: iustus
+# Date: 2007-02-13T00:36:30.399608Z
+# Coverage: full
+# Message:
+#   merge from trunk revs 356-361
+# Changed paths (5):
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@361
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@362
+@@ -508,9 +508,25 @@
+ 	CvGovernorWork governorWork;
+ 	AI_initializeGovernorWork(governorWork, m_governorCitizens, /*bDoForced*/ true);
+ 
+-	// adjust assignable, so food calculations know what to do
+-	governorWork.iPopulationAssignable  = -1;
+-	governorWork.iFreeSpecialistsAssignable  = 0;
++	// ensure that we do not remove the ignore specialist, by marking it forced
++	if (eIgnoreSpecialist != NO_SPECIALIST)
++	{
++		for (CvCitizensIterator it = m_governorCitizens.begin(); it != m_governorCitizens.end(); ++it)
++		{
++			// is this our ignore specialist? 
++			CvGovernorCitizen* pCitizen = getCitizen(it);
++			if (pCitizen->bIsSpecialist && pCitizen->iIndex == eIgnoreSpecialist)
++			{
++				// set forced to the current value
++				int iForcedDelta = (pCitizen->iCount - pCitizen->iForcedCount);
++				pCitizen->iForcedCount += iForcedDelta;
++				governorWork.iTotalForcedSpecialists += iForcedDelta;
++
++				// finished (only one of each specialist)
++				break;
++			}
++		}
++	}
+ 
+ 	// remove one citizen
+ 	int iChangeCount = AI_workLessCitizens(governorWork, m_governorCitizens, 1);
+@@ -532,6 +548,7 @@
+ 
+ 	// counters to keep track what needs to be done
+ 	governorWork.iWorkablePopulation = getPopulation() - angryPopulation();
++	governorWork.iWorkablePlots = 0;
+ 	governorWork.iTotalFreeSpecialists = totalFreeSpecialists();
+ 	governorWork.iWorkingPlots = 0;
+ 	governorWork.iWorkingSpecialists = 0;
+@@ -564,6 +581,8 @@
+ 		else
+ 		{
+ 			governorWork.iWorkingPlots += pCitizen->iCount;
++			
++			governorWork.iWorkablePlots += pCitizen->iMax;
+ 		}
+ 	}
+ 
+@@ -829,22 +848,22 @@
+ 	
+ 	// is our food difference too low? (shoot for min of iConsumtionPerPop if we want to grow, and at least zero so we dont starve)
+ 	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-	int iMinDifference = (!isFoodProduction() && (governorValues.bGrowPastHappy || governorValues.iHappyLevel > 0)) ? iConsumtionPerPop : 0;
+-	if (iFoodDifference < iMinDifference)
++	bool bEncourageGrowth = (!isFoodProduction() && (governorWork.iWorkablePlots > governorWork.iWorkingPlots) && (governorValues.bGrowPastHappy || governorValues.iHappyLevel > 0)) ? true : false;
++	if (iFoodDifference < 0 || bEncourageGrowth)
+ 	{
+ 		int iMaxFood = AI_countMaximumCitizenFood(governorWork, governorCitizens);
+ 
+ 		// can we avoid starvation by working the highest food possible? (if so continue, if not, do not bother)
+-		if ((iMaxFood - iFoodConsumption) >= 0)
++		if ((iMaxFood - iFoodConsumption) >= 0 && iMaxFood > iCurrentFood)
+ 		{
+ 			// most of the time, 1 pass should be sufficient, never do more than one pass unless starving
+ 			int iPass = 0;
+-			while (iFoodDifference < iMinDifference && ++iPass < 16)
++			while ((iFoodDifference < 0 || bEncourageGrowth) && ++iPass < 16)
+ 			{
+ 				FAssert(iPass < 3);
+ 				if (iPass > 1)
+ 				{
+-					iMinDifference = 0;
++					bEncourageGrowth = false;
+ 				}
+ 			
+ 				// search iterator will be the first citizen with a higher value than our first swap
+@@ -857,9 +876,9 @@
+ 				
+ 				// start from the best citizen, working downward (list is sorted worst to best, so do in reverse order)
+ 				// looking for a citizen that is not worked, we will then search for a better citizen that is less food to swap
+-				for (CvCitizensReverseIterator ir = governorCitizens.rbegin(); iFoodDifference < iMinDifference && ir != governorCitizens.rend(); ++ir)
+-				{
+-					iTotalChangeCount += swapHigherFoodCitizen(ir, iFoodDifference, iMinDifference, iLowestFood, irLowestFood, governorWork, governorCitizens);
++				for (CvCitizensReverseIterator ir = governorCitizens.rbegin(); (bEncourageGrowth || iFoodDifference < 0) && ir != governorCitizens.rend(); ++ir)
++				{
++					iTotalChangeCount += swapHigherFoodCitizen(ir, iFoodDifference, bEncourageGrowth, iLowestFood, irLowestFood, governorWork, governorCitizens);
+ 				}
+ 			}
+ 		}
+@@ -868,7 +887,25 @@
+ 	return iTotalChangeCount;
+ }
+ 
+-int CvCityAI::swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens)
++inline bool isCitizenValueCloseEnough(int iFoodDifference, int iLowerCitizenValue, int iHigherCitizenValue, int iFoodChange)
++{
++	bool bCloseEnough = false;
++	
++	if (iFoodChange > 0)
++	{
++		bCloseEnough = (iFoodDifference < 0);
++		if (!bCloseEnough)
++		{
++			int iMaxPercentage = max(1, 10 - iFoodDifference);
++			iMaxPercentage = (iMaxPercentage * iMaxPercentage) / max(2, 5 - iFoodChange);
++			bCloseEnough = (iHigherCitizenValue <= (iLowerCitizenValue * (100 + iMaxPercentage)) / 100);
++		}
++	}
++
++	return bCloseEnough;
++}
++
++int CvCityAI::swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, bool bEncourageGrowth, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -900,14 +937,11 @@
+ 	int iMoveCount = (iCanChangeMax - iCanChangeCount);
+ 	if (iFood > 0 && iFood > iLowestFood && iMoveCount > 0)
+ 	{
+-		// if we are not starving, then set a cap on how much of a worse citizen we will use
+-		int iMaxValue = (iFoodDifference >= 0) ? ((getCitizenValue(ir) * 135) / 100) : MAX_INT;
+-		
+ 		// remove points to the citizen we will remove one (or more) of
+ 		CvCitizensReverseIterator irRemove = governorCitizens.rend();
+ 		
+ 		// if we are one greater than the lowest food, start with the cached lowest food
+-		if ((iFood == iLowestFood + 1) && getCitizenValue(irLowestFood) <= iMaxValue)
++		if ((iFood == iLowestFood + 1) && isCitizenValueCloseEnough(iFoodDifference, getCitizenValue(ir), getCitizenValue(irLowestFood), 1))
+ 		{
+ 			irRemove = irLowestFood;
+ 		}
+@@ -919,7 +953,7 @@
+ 		FAssert(irSearch != governorCitizens.rbegin());
+ 
+ 		// while we still have more of this one we can potentially work, and not done searching
+-		while (iFoodDifference < iMinDifference && iMoveCount > 0 && irSearch != governorCitizens.rbegin())
++		while ((iFoodDifference < 0 || bEncourageGrowth) && iMoveCount > 0 && irSearch != governorCitizens.rbegin())
+ 		{
+ 			// search for the worst citizen we are working that has less food
+ 			if (irRemove == governorCitizens.rend())
+@@ -931,12 +965,6 @@
+ 					// first decrement, then check to see whether we are at the beginning, if so, this is the last one to check
+ 					bDone = (--irSearch == governorCitizens.rbegin());
+ 
+-					// if the value is too high, then stop (only will happen when not starving)
+-					if (getCitizenValue(irSearch) > iMaxValue)
+-					{
+-						break;
+-					}
+-					
+ 					CvGovernorCitizen* pSearchCitizen = getCitizen(irSearch);
+ 
+ 					iCount = pSearchCitizen->iCount;
+@@ -946,8 +974,9 @@
+ 					if (iCanChangeCount > 0)
+ 					{
+ 						int iSearchFood = pSearchCitizen->iFood;
++						
+ 						// is this one low enough food? then we done
+-						if (iSearchFood < iFood)
++						if (isCitizenValueCloseEnough(iFoodDifference, getCitizenValue(ir), getCitizenValue(irSearch), iFood - iSearchFood))
+ 						{
+ 							irRemove = irSearch;
+ 							break;
+@@ -1021,7 +1050,7 @@
+ 				}
+ 
+ 				// check to see if there is a more valueble, lower food one than the one we just swapped, to swap for that one
+-				int iRecursiveChangeCount = swapHigherFoodCitizen(irRemove, iFoodDifference, iMinDifference, iLowestFood, irLowestFood, governorWork, governorCitizens);
++				int iRecursiveChangeCount = swapHigherFoodCitizen(irRemove, iFoodDifference, bEncourageGrowth, iLowestFood, irLowestFood, governorWork, governorCitizens);
+ 				
+ 				// the change count is the max of the two counts (so we do not count a double swap as two)
+ 				iTotalChangeCount += max(iChangeCount, iRecursiveChangeCount);
+@@ -1058,7 +1087,8 @@
+ 		bool bFoundCitizen = false;
+ 		CvCitizensReverseIterator irCitizen;
+ 		int iCitizenFood = -1;
+-		int iCitizenThreshold = MAX_INT;
++		int iOriginalCitizenFood = -1;
++		int iOriginalCitizenValue = 0;
+ 		bool bIsRemove = false;
+ 
+ 		// start from the best citizen, working downward (list is sorted worst to best, so do in reverse order)
+@@ -1079,21 +1109,14 @@
+ 				{
+ 					bFoundCitizen = true;
+ 					irCitizen = ir;
+-					iCitizenFood = iFood;
+-					iCitizenThreshold = ((getCitizenValue(irCitizen) * 100) / 135);
++					iOriginalCitizenFood = iCitizenFood = iFood;
++					iOriginalCitizenValue = getCitizenValue(irCitizen);
+ 					bIsRemove = (pCitizen->iInitialCount > pCitizen->iCount);
+ 				}
+ 			}
+ 			// found the changed one, now look for higher food (lower value) one
+-			else if (iFood > iCitizenFood)
+-			{
+-				// if we have reached values too low, then bail, we done
+-				int iMinValue = (iFoodDifference >= 0) ? iCitizenThreshold : MAX_INT;
+-				if (getCitizenValue(ir) < iMinValue)
+-				{
+-					break;
+-				}
+-
++			else if (iFood > iCitizenFood && isCitizenValueCloseEnough(iFoodDifference, getCitizenValue(ir), iOriginalCitizenValue, iFood - iOriginalCitizenFood))
++			{
+ 				// can we swap this one
+ 				if (bIsRemove ? (pCitizen->iCount > max(pCitizen->iInitialCount, pCitizen->iForcedCount)) : (pCitizen->iCount < pCitizen->iMax))
+ 				{
+@@ -1254,7 +1277,10 @@
+ 	bool bEmphasizeProduction = AI_isEmphasizeYield(YIELD_PRODUCTION);
+ 	bool bFoodIsProduction = isFoodProduction();
+ 	bool bCanPopRush = kPlayer.canPopRush();
++	bool bIsNoUnhappiness = isNoUnhappiness();
++
+ 	int iNumCities = kPlayer.getNumCities();
++	int iPopulation = getPopulation();
+ 	
+ 	// calculate modifiers
+ 	int iExtraProductionModifier = 0;
+@@ -1279,29 +1305,26 @@
+ 	governorValues.yieldModifiers.iGPPRate = getTotalGreatPeopleRateModifier();
+ 	governorValues.yieldModifiers.iBonusExperience = 100;
+ 	
+-	// set initial yield values, based on constant weights
+-	const int iFoodWeight = 100;
+-	const int iProductionWeight = 65;
+-	const int iCommerceWeight = 40;
++	// set initial yield values, based on constant weights (default any new types to commerce weight)
+ 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+ 	{
+-		governorValues.yieldValues.aiYield[iYield] = 1;
+-	}
+-	governorValues.yieldValues.aiYield[YIELD_FOOD] = iFoodWeight;
+-	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] = iProductionWeight;
+-	governorValues.yieldValues.aiYield[YIELD_COMMERCE] = iCommerceWeight;
++		governorValues.yieldValues.aiYield[iYield] = iGovernor_CommerceWeight;
++	}
++	governorValues.yieldValues.aiYield[YIELD_FOOD] = iGovernor_FoodWeight;
++	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] = iGovernor_ProductionWeight;
++	governorValues.yieldValues.aiYield[YIELD_COMMERCE] = iGovernor_CommerceWeight;
+ 
+ 	for (int iCommerce = 0; iCommerce < NUM_COMMERCE_TYPES; iCommerce++)
+ 	{
+-		governorValues.yieldValues.aiCommerce[iCommerce] = iCommerceWeight;
+-	}
+-
+-	governorValues.yieldValues.iGPPRate = iCommerceWeight / 2;
++		governorValues.yieldValues.aiCommerce[iCommerce] = iGovernor_CommerceWeight;
++	}
++
++	governorValues.yieldValues.iGPPRate = iGovernor_CommerceWeight / 2;
+ 	governorValues.yieldValues.iBonusExperience = 2;
+ 	
+ 	// now do the real work, modifying these values based on the situation
+ 	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
+-	int iHappyLevel = (isNoUnhappiness() ? max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
++	int iHappyLevel = (bIsNoUnhappiness ? max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+ 	
+ 	governorValues.iHappyLevel = iHappyLevel;
+ 	governorValues.bGrowPastHappy = false;
+@@ -1312,7 +1335,7 @@
+ 		// if emphasizing food, value food high in all cases, no need to do other checks
+ 		if (bEmphasizeFood)
+ 		{
+-			governorValues.yieldValues.aiYield[YIELD_FOOD] *= 16;
++			governorValues.yieldValues.aiYield[YIELD_FOOD] *= iGovernor_EmphasizeMultiplier;
+ 			governorValues.bGrowPastHappy = true;
+ 		}
+ 		// food value: if food isnt production, then adjust for growth
+@@ -1330,10 +1353,33 @@
+ 				int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 				int iFoodToGrow = max(1, (growthThreshold() * (100 - getMaxFoodKeptPercent())) / 100);
+ 
++				// if unhealthy, value food less
++				if (iHealthLevel < 0)
++				{
++					governorValues.yieldValues.aiYield[YIELD_FOOD] *= (iHealthLevel < -4) ? 60 : 80;
++					governorValues.yieldValues.aiYield[YIELD_FOOD] /= 100;
++				}
++
++				// if we smallish, and have room to grow, value food more, adjusted by unhealth
++				if (iHappyLevel > 0 && iPopulation < 15)
++				{
++					bool bUnhealthy = (iHealthLevel < 0);
++					governorValues.yieldValues.aiYield[YIELD_FOOD] += (iGovernor_FoodWeight * (bUnhealthy ? 4 : 5)) / 8;
++				}
++				
++				// if we are at or above the happy cap, value food less (50% if exactly at cap, 30% if over cap)
++				if (iHappyLevel <= 0)
++				{
++					int iAdjustment = ((iHappyLevel == 0) ? 5 : 3);
++					governorValues.yieldValues.aiYield[YIELD_FOOD] *= iAdjustment;
++					governorValues.yieldValues.aiYield[YIELD_FOOD] /= 10;
++				}
++
+ 				// if we can pop rush, value food more
+ 				if (bCanPopRush)
+ 				{
+ 					int iBestProductionPerPopulation = 0;
++					int iHurryPopulation = 0;
+ 					for (int iHurry = 0; iHurry < GC.getNumHurryInfos(); iHurry++)
+ 					{
+ 						if (kPlayer.getHurryCount((HurryTypes) iHurry) > 0)
+@@ -1342,18 +1388,27 @@
+ 							if (iProductionPerPopulation > iBestProductionPerPopulation)
+ 							{
+ 								iBestProductionPerPopulation = iProductionPerPopulation;
++								iHurryPopulation = hurryPopulation((HurryTypes) iHurry);
+ 							}
+ 						}
+ 					}
+-
+-					int iSlaveryValue = (2 * iProductionWeight * iBestProductionPerPopulation) / (iFoodToGrow * iConsumtionPerPop);
++					
++					// productionWeight * (slaveryProductionPerPop/foodToGrowOnePop) * (percentageCostToRushCurrentBuild) * (4 or 2)
++					int iSlaveryValue = iGovernor_ProductionWeight * iBestProductionPerPopulation * getHurryCostModifier(/*bIgnoreNew*/ true);
++					iSlaveryValue *= bIsNoUnhappiness ? 4 : 2;
++					iSlaveryValue /= (iFoodToGrow * 100 * iConsumtionPerPop);
++					
++					// if we have to grow too much to actually use slavery on this build, then value slavery bonus much less
++					int iExtraPopNeeded = max(0, (iHurryPopulation * 2) - iPopulation);
++					iSlaveryValue /= max(1, iExtraPopNeeded - 5); 
++
+ 					if (bEmphasizeProduction)
+ 					{
+-						iSlaveryValue *= 16;
++						iSlaveryValue *= iGovernor_EmphasizeMultiplier;
+ 					}
+ 
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] += iSlaveryValue;
+-					governorValues.bGrowPastHappy = true;
++					governorValues.bGrowPastHappy = (iSlaveryValue > (iGovernor_FoodWeight / 8));
+ 				}
+ 
+ 				// if we can draft, value food more
+@@ -1364,33 +1419,13 @@
+ 				{
+ 					int iConscriptProduction = kPlayer.getProductionNeeded(eConscriptUnit);
+ 					int iConscriptPopulation = getConscriptPopulation();
+-					int iConscriptValue = iProductionWeight * iConscriptProduction * max(iMaxConscript * 3, iNumCities);
+-					iConscriptValue /= iConscriptPopulation * iFoodToGrow * iConsumtionPerPop * iMaxConscript;
++					int iConscriptValue = iGovernor_ProductionWeight * iConscriptProduction;
++					iConscriptValue *= bIsNoUnhappiness ? 3 : range(iNumCities, 1, 12);
++					iConscriptValue /= iConscriptPopulation * iFoodToGrow * iConsumtionPerPop;
++					iConscriptValue /= bIsNoUnhappiness ? 1 : (iMaxConscript * 2);
+ 					
+ 					governorValues.yieldValues.aiYield[YIELD_FOOD] += iConscriptValue;
+ 					governorValues.bGrowPastHappy = ((iHappyLevel + iConscriptPopulation) > 0);
+-				}
+-
+-				// if we are at or above the happy cap, value food less (30%-50% if not grow past, 70%-90% if grow past)
+-				if (iHappyLevel <= 0)
+-				{
+-					int iAdjustment = ((iHappyLevel == 0) ? 5 : 3) + (governorValues.bGrowPastHappy ? 4 : 0);
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] *= iAdjustment;
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] /= 10;
+-				}
+-
+-				// if we have room to grow, value food more, adjusted by unhealth
+-				if (iHappyLevel > 0)
+-				{
+-					bool bUnhealthy = (iHealthLevel < 0);
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] += (iFoodWeight * (bUnhealthy ? 4 : 5)) / 8;
+-				}
+-				
+-				// if unhealthy, value food less
+-				if (iHealthLevel < 0)
+-				{
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] *= (iHealthLevel < -4) ? 60 : 80;
+-					governorValues.yieldValues.aiYield[YIELD_FOOD] /= 100;
+ 				}
+ 			}
+ 		}
+@@ -1415,7 +1450,7 @@
+ 	
+ 	if (bEmphasizeProduction)
+ 	{
+-		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 16;
++		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= iGovernor_EmphasizeMultiplier;
+ 	}
+ 
+ 	governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= kPlayer.AI_averageYieldMultiplier(YIELD_PRODUCTION);
+@@ -1423,10 +1458,6 @@
+ 	// if food is production, then food is worth the same as production
+ 	if (bFoodIsProduction)
+ 	{
+-		// value production slightly more (over commerce), so we can finish this build and get back to growing
+-		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] *= 100;
+-		governorValues.yieldValues.aiYield[YIELD_PRODUCTION] /= 65;
+-
+ 		governorValues.yieldValues.aiYield[YIELD_FOOD] = governorValues.yieldValues.aiYield[YIELD_PRODUCTION];
+ 	}
+ 	
+@@ -1474,7 +1505,7 @@
+ 		bool bEmphasizeThisCommerce = AI_isEmphasizeCommerce((CommerceTypes) iCommerce);
+ 		if (bEmphasizeCommerce || bEmphasizeThisCommerce)
+ 		{
+-			governorValues.yieldValues.aiCommerce[iCommerce] *= (bEmphasizeCommerce && bEmphasizeThisCommerce) ? 24 : 16;
++			governorValues.yieldValues.aiCommerce[iCommerce] *= (bEmphasizeCommerce && bEmphasizeThisCommerce) ? ((3 * iGovernor_EmphasizeMultiplier) / 2) : iGovernor_EmphasizeMultiplier;
+ 		}
+ 
+ 		governorValues.yieldValues.aiCommerce[iCommerce] *= kPlayer.AI_commerceWeight((CommerceTypes) iCommerce);
+@@ -1487,7 +1518,7 @@
+ 
+ 	if (AI_isEmphasizeGreatPeople())
+ 	{
+-		governorValues.yieldValues.iGPPRate *= 16;
++		governorValues.yieldValues.iGPPRate *= iGovernor_EmphasizeMultiplier;
+ 	}
+ 
+ 	// if non-human, value based on this cities progress toward a GPP
+@@ -1692,7 +1723,7 @@
+ 	CvCompleteYield completeYield;
+ 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+ 	{
+-		// value food in a non-linear fasion unless food is production (first 2 60%, 2nd two 100%, all after that 130%)
++		// value food in a non-linear fasion unless food is production (first 2 85%, 2nd two 100%, all after that 115%)
+ 		if (iYield == YIELD_FOOD && !isFoodProduction())
+ 		{
+ 			int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+@@ -1702,7 +1733,7 @@
+ 			int iMiddleTier = min(iFoodYield - iLowestTier, iConsumtionPerPop);
+ 			int iHighestTier = max(0, iFoodYield - iMiddleTier - iLowestTier);
+ 
+-			completeYield.aiYield[YIELD_FOOD] = (iLowestTier * 60) + (iMiddleTier * 100) + (iHighestTier * 130);
++			completeYield.aiYield[YIELD_FOOD] = (iLowestTier * 85) + (iMiddleTier * 100) + (iHighestTier * 115);
+ 		}
+ 		else
+ 		{
+@@ -1997,9 +2028,14 @@
+ 	std::set<int> differentPlots;
+ 	std::set<int> differentSpecialists;
+ 
++	bool bIsFoodProduction = isFoodProduction();
++
+ 	// compare
+ 	int iDifferentPlots = 0;
+ 	int iDifferentSpecialists = 0;
++	int iFoodDifference = 0;
++	int iProductionDelta = 0;
++	int iCommerceDelta = 0;
+ 	for (CvCitizensIterator it = m_governorCitizens.begin(); it != m_governorCitizens.end(); ++it)
+ 	{
+ 		CvGovernorCitizen* pCitizen = getCitizen(it);
+@@ -2020,8 +2056,17 @@
+ 		// plot
+ 		else
+ 		{
+-			if (isWorkingPlot(pCitizen->iIndex) != (pCitizen->iCount > 0 || pCitizen->iFreeCount > 0))
+-			{
++			int iPlotDelta = (pCitizen->iCount + pCitizen->iFreeCount) - (isWorkingPlot(pCitizen->iIndex) ? 1 : 0);
++			if (iPlotDelta != 0)
++			{
++				CvPlot* pPlot = getCityIndexPlot(pCitizen->iIndex);
++				if (pPlot != NULL)
++				{
++					iFoodDifference += bIsFoodProduction ? 0 : (iPlotDelta * pPlot->getYield(YIELD_FOOD));
++					iProductionDelta += iPlotDelta * ((bIsFoodProduction ? pPlot->getYield(YIELD_FOOD) : 0) + pPlot->getYield(YIELD_PRODUCTION));
++					iCommerceDelta += iPlotDelta * pPlot->getYield(YIELD_COMMERCE);
++				}
++				
+ 				if (m_lastDifferentPlots.find(pCitizen->iIndex) == m_lastDifferentPlots.end())
+ 				{
+ 					iDifferentPlots++;
+@@ -2036,8 +2081,8 @@
+ 	m_lastDifferentSpecialists = differentSpecialists;
+ 
+ 	TCHAR szAssertMessage[1024];
+-	sprintf(szAssertMessage, "%S assigned different plots (%d) and/or specialists (%d)", getName().GetCString(), iDifferentPlots, iDifferentSpecialists);
+-	FAssertMsg((iDifferentPlots == 0) && (iDifferentSpecialists == 0), szAssertMessage);
++	sprintf(szAssertMessage, "%S assigned different plots (%d) [%d,%d,%d] and/or specialists (%d)", getName().GetCString(), iDifferentPlots, iFoodDifference, iProductionDelta, iCommerceDelta, iDifferentSpecialists);
++	FAssertMsg((iDifferentPlots == 0 || (iFoodDifference == 0 && iProductionDelta == 0 && iCommerceDelta == 0)) && (iDifferentSpecialists == 0), szAssertMessage);
+ 
+ #endif	// FASSERT_ENABLE
+ }
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@361
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@362
+@@ -23,6 +23,11 @@
+ #ifdef NEW_CITY_GOVERNOR
+ #include <map>
+ 
++const int iGovernor_FoodWeight = 80;
++const int iGovernor_ProductionWeight = 65;
++const int iGovernor_CommerceWeight = 40;
++const int iGovernor_EmphasizeMultiplier = 3;
++
+ struct CvCompleteYield
+ {
+ 	int aiYield[NUM_YIELD_TYPES];
+@@ -60,6 +65,7 @@
+ struct CvGovernorWork
+ {
+ 	int iWorkablePopulation;
++	int iWorkablePlots;
+ 	int iTotalFreeSpecialists;
+ 	int iWorkingPlots;
+ 	int iWorkingSpecialists;
+@@ -274,7 +280,7 @@
+ 	int AI_workLessCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, int iCountToRemove);
+ 
+ 	int AI_foodAdjustCitizens(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues);
+-	int swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, int iMinDifference, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
++	int swapHigherFoodCitizen(CvCitizensReverseIterator ir, int& iFoodDifference, bool bEncourageGrowth, int& iLowestFood, CvCitizensReverseIterator& irLowestFood, CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens);
+ 	bool AI_foodAdjustChangedCitizen(CvGovernorWork &governorWork, CvSortedCitizens& governorCitizens, CvGovernorValues& governorValues);
+ 
+ 	int AI_countCitizenFood(CvSortedCitizens& governorCitizens);
+
+Index: /branches/vanilla/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvDLLWidgetData.cpp@361
++++ /branches/vanilla/CvGameCoreDLL/CvDLLWidgetData.cpp@362
+@@ -2810,15 +2810,15 @@
+ 					int iOtherValue = kTeam.AI_endWarVal(eLoopTeam);
+ 					int iTheirValue = kLoopTeam.AI_endWarVal(eTeam);
+ 					
+-					szBuffer += CvWString::format(SETCOLR L" %s " ENDCOLR SETCOLR L"(%d)" ENDCOLR SETCOLR L" with %s " ENDCOLR  SETCOLR L"(%d)\n" ENDCOLR, 
++					szBuffer += CvWString::format(SETCOLR L" %s " ENDCOLR SETCOLR L"(%d, %d)" ENDCOLR SETCOLR L" with %s " ENDCOLR  SETCOLR L"(%d, %d)\n" ENDCOLR, 
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+ 						szWarplan.GetCString(),
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+-						iOtherValue, 
++						iOtherValue, kTeam.AI_getWarSuccess(eLoopTeam),
+ 						TEXT_COLOR((iOtherValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+ 						kLoopTeam.getName().GetCString(),
+ 						TEXT_COLOR((iTheirValue < iOtherValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
+-						iTheirValue);
++						iTheirValue, kLoopTeam.AI_getWarSuccess(eTeam));
+ 				}
+ 			}
+ 		}
+@@ -2902,7 +2902,30 @@
+ 			}
+ 		}
+ 
+-	    // if random in this range is 0, we go to war of this type (so lower numbers are higher probablity)
++		// calculate unit spending for use in iTotalWarRandThreshold
++		int iNumMembers = kTeam.getNumMembers();
++		int iHighUnitSpendingPercent = 0;
++
++		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iI);
++			if (kPlayer.isAlive())
++			{
++				if (kPlayer.getTeam() == eTeam)
++				{
++					int iUnitSpendingPercent = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
++					iHighUnitSpendingPercent += (max(0, iUnitSpendingPercent - 7) / 2);
++				}			
++			}
++		}
++
++		iHighUnitSpendingPercent /= iNumMembers;
++
++		// calculate war threshold
++		int iTotalWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++		iTotalWarRandThreshold /= 3;
++
++		// if random in this range is 0, we go to war of this type (so lower numbers are higher probablity)
+ 		// average of everyone on our team
+ 		int iMaxWarRand = kTeam.AI_maxWarRand();
+ 	    int iLimitedWarRand = kTeam.AI_limitedWarRand();
+@@ -3140,8 +3163,8 @@
+ 
+ 						if (bFirst)
+ 						{
+-							float fMaxWarPercentage = fOverallWarPercentage / iMaxWarRand;
+-							szBuffer += CvWString::format(SETCOLR L"%.2f%% Total War:\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), fMaxWarPercentage);
++							float fMaxWarPercentage = (fOverallWarPercentage * (iTotalWarRandThreshold + 1)) / iMaxWarRand;
++							szBuffer += CvWString::format(SETCOLR L"%.2f%% [%d/%d] Total War:\n" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"), fMaxWarPercentage, (iTotalWarRandThreshold + 1), iMaxWarRand);
+ 							bFirst = false;
+ 						}
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@361
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@362
+@@ -2829,8 +2829,8 @@
+ 	    int iLimitedWarRand = AI_limitedWarRand();
+ 	    int iDogpileWarRand = AI_dogpileWarRand();
+ 	    
+-	    int iWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
+-	    iWarRandThreshold /= 3;
++	    int iTotalWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++	    iTotalWarRandThreshold /= 3;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -2895,7 +2895,7 @@
+ 			}
+ 
+ 			if ((bFinancesProMaxWar || !bFinancesOpposeWar) &&
+-				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") >= iWarRandThreshold))
++				(GC.getGameINLINE().getSorenRandNum(iMaxWarRand, "AI Maximum War") <= iTotalWarRandThreshold))
+ 			{
+ 				iNoWarRoll = GC.getGameINLINE().getSorenRandNum(100, "AI No War") - 0;
+ 				iNoWarRoll = range(iNoWarRoll + (bAggressive ? 10 : 0) + (bFinancesProMaxWar ? 10 : 0), 0, 99);
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@361
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@362
+@@ -10495,8 +10495,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestAssaultPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestAssaultPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestAssaultPlot->getX_INLINE(), pBestAssaultPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestAssaultPlot))
+@@ -10602,8 +10600,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestFoundPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestFoundPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestFoundPlot->getX_INLINE(), pBestFoundPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestFoundPlot))
+@@ -10767,8 +10763,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestSpreadPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestSpreadPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestSpreadPlot->getX_INLINE(), pBestSpreadPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestSpreadPlot))
+@@ -10882,8 +10876,6 @@
+ 
+ 	if ((pBestPlot != NULL) && (pBestSpyPlot != NULL))
+ 	{
+-		FAssert(!(pBestPlot->isImpassable()));
+-
+ 		if ((pBestPlot == pBestSpyPlot) || (stepDistance(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), pBestSpyPlot->getX_INLINE(), pBestSpyPlot->getY_INLINE()) == 1))
+ 		{
+ 			if (atPlot(pBestSpyPlot))
+@@ -11913,7 +11905,7 @@
+ 		}
+ 		
+ 		// check for better airlift choice
+-		if (bCanAirliftUnit && pClosestCity->getMaxAirlift() > 0)
++		if (bCanAirliftUnit && pClosestCity != NULL && pClosestCity->getMaxAirlift() > 0)
+ 		{
+ 			// if we at the closest city, then do the airlift, or wait
+ 			if (bAtClosestCity)
+

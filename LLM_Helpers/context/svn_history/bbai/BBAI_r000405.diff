@@ -1,0 +1,733 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 405
+# Author: jdog5000
+# Date: 2008-12-03T07:26:44.102879Z
+# Coverage: full
+# Message:
+#   Note: has not been thoroughly tested
+#   
+#   First functional code for picking up units stranded on small islands
+#   Weak attack sea units will now attempt to break a blockade if they strongly outnumber the attackers
+#   Improvements to city production decisions
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@404
++++ /trunk/CvGameCoreDLL/CvCity.cpp@405
+@@ -5012,6 +5012,27 @@
+ 
+ 	return NULL;
+ }
++
++bool CvCity::isBlockaded() const
++{
++	int iI;
++	CvPlot* pAdjacentPlot;
++
++	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++	{
++		pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
++
++		if (pAdjacentPlot != NULL)
++		{
++			if( pAdjacentPlot->getBlockadedCount(getTeam()) > 0 )
++			{
++				return true;
++			}
++		}
++	}
++
++	return false;
++}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@404
++++ /trunk/CvGameCoreDLL/CvCity.h@405
+@@ -245,12 +245,13 @@
+ 	DllExport CvArea* area() const;																						// Exposed to Python
+ 	CvArea* waterArea() const;																			// Exposed to Python
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	CvArea* secondWaterArea() const;
+ 	CvArea* sharedWaterArea(CvCity* pCity) const;
++	bool isBlockaded() const;
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@404
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@405
+@@ -1459,6 +1459,15 @@
+ 
+ 	int iSpreadUnitThreshold = 1000;
+ 	iSpreadUnitThreshold += bLandWar ? 1000 : 0;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	iSpreadUnitThreshold += 300*plot()->plotCount(PUF_isUnitAIType, UNITAI_MISSIONARY, -1, getOwnerINLINE());
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	UnitTypes eBestSpreadUnit = NO_UNIT;
+ 	int iBestSpreadUnitValue = -1;
+@@ -1706,7 +1715,7 @@
+ /**                                                                                              */
+ /** City AI                                                                                      */
+ /*************************************************************************************************/
+-	// Revamped logic for building for invasions
++	// Revamped logic for production for invasions
+     if (iUnitCostPercentage < (iMaxUnitSpending + 10))
+ 	{
+ 		if (NULL != pWaterArea)
+@@ -1715,9 +1724,12 @@
+ 			if( !bAssault )
+ 			{
+ 				// If on offensive and can't reach enemy cities from here, act like using AREAAI_ASSAULT
+-				if( (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) && plot()->isHasPathToEnemyCity(getTeam()) )
+-				{
+-					bAssault = true;
++				if( (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) && (GET_TEAM(getTeam()).getAtWarCount(true) > 0) )
++				{
++					if( !plot()->isHasPathToEnemyCity(getTeam()) )
++					{
++						bAssault = true;
++					}
+ 				}
+ 			}
+ 		}
+@@ -1731,7 +1743,7 @@
+ 			}
+ 			else
+ 			{
+-				kPlayer.AI_bestAreaUnitAIValue(UNITAI_ASSAULT_SEA, pArea, &eBestAssaultUnit);
++				kPlayer.AI_bestCityUnitAIValue(UNITAI_ASSAULT_SEA, NULL, &eBestAssaultUnit);
+ 			}
+ 			
+ 			int iBestSeaAssaultCapacity = 0;
+@@ -1754,9 +1766,9 @@
+ 			{
+ 				iTransportsAtSea = kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA)/2;
+ 			}
+-			int iTransportCapacity = iBestSeaAssaultCapacity*(iLocalTransports + (bPrimaryArea ? iTransportsAtSea/2 : iTransportsAtSea/5));
++			int iTransportCapacity = iBestSeaAssaultCapacity*(iLocalTransports + (bPrimaryArea ? iTransportsAtSea : iTransportsAtSea/4));
+ 			int iTransports = iLocalTransports + iTransportsAtSea;
+-			
++
+ 			if (NULL != pWaterArea)
+ 			{
+ 				int iEscorts = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ESCORT_SEA);
+@@ -1768,12 +1780,15 @@
+ 				//training so many ships on the assumption that those out at sea
+ 				//will return...
+ 				
+-				if ((iEscorts < ((1 + 2 * iTransports) / 3)) && (GC.getGame().getSorenRandNum(2, "AI train escort sea") == 0))
+-				{
+-					if (AI_chooseUnit(UNITAI_ESCORT_SEA))
+-					{
+-						AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
+-						return;
++				if ((iEscorts < ((1 + 2 * iTransports) / 3)))
++				{
++					if( (GC.getGame().getSorenRandNum((bFinancialTrouble ? 4 : 2), "AI train escort sea") == 0))
++					{
++						if (AI_chooseUnit(UNITAI_ESCORT_SEA))
++						{
++							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
++							return;
++						}
+ 					}
+ 				}
+ 			
+@@ -1786,18 +1801,21 @@
+ 						int iAttackSea = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK_SEA);
+ 						iAttackSea += kPlayer.AI_totalAreaUnitAIs(pWaterArea, UNITAI_ATTACK_SEA);
+ 							
+-						if ((iAttackSea < ((1 + 2 * iTransports) / 2)) && (GC.getGame().getSorenRandNum(2, "AI train attack sea") == 0))
+-						{
+-							if (AI_chooseUnit(UNITAI_ATTACK_SEA))
++						if ((iAttackSea < ((1 + 2 * iTransports) / 2)))
++						{
++							if( (GC.getGame().getSorenRandNum((bFinancialTrouble ? 4 : 2), "AI train attack sea") == 0))
+ 							{
+-								AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
+-								return;
++								if (AI_chooseUnit(UNITAI_ATTACK_SEA))
++								{
++									AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA);
++									return;
++								}
+ 							}
+ 						}
+ 					}
+ 				}
+ 				
+-				if (iUnitsToTransport > (iTransports * iBestSeaAssaultCapacity))
++				if (iUnitsToTransport > (iTransportCapacity))
+ 				{
+ 					if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 					{
+@@ -1832,7 +1850,7 @@
+ 				iTrainInvaderChance /= (bAssaultAssist ? 2 : 1);
+ 				iTrainInvaderChance /= (bImportantCity ? 2 : 1);
+ 	        	
+-				if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Offense Unit") < iTrainInvaderChance )
++				if (GC.getGameINLINE().getSorenRandNum(100, "AI Invader Offense Unit") < iTrainInvaderChance )
+ 				{
+ 					if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20))
+ 					{
+@@ -1853,7 +1871,7 @@
+ 						return;
+ 					}
+ 				}
+-			}
++			}			
+ 
+ 			if (iUnitCostPercentage < (iMaxUnitSpending))
+ 			{
+@@ -1878,7 +1896,7 @@
+ 				if (iCarriers > 0 && !bImportantCity)
+ 				{
+ 					UnitTypes eBestCarrierUnit = NO_UNIT;  
+-					kPlayer.AI_bestAreaUnitAIValue(UNITAI_CARRIER_SEA, pArea, &eBestCarrierUnit);
++					kPlayer.AI_bestCityUnitAIValue(UNITAI_CARRIER_SEA, NULL, &eBestCarrierUnit);
+ 					if (eBestCarrierUnit != NO_UNIT)
+ 					{
+ 						FAssert(GC.getUnitInfo(eBestCarrierUnit).getDomainCargo() == DOMAIN_AIR);
+@@ -1906,7 +1924,7 @@
+ 					if( (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1)) && (GC.getGame().getSorenRandNum(2, "AI train missile air") == 0) )
+ 					{
+ 						UnitTypes eBestMissileCarrierUnit = NO_UNIT;  
+-						kPlayer.AI_bestAreaUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, pArea, &eBestMissileCarrierUnit);
++						kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, NULL, &eBestMissileCarrierUnit);
+ 						if (eBestMissileCarrierUnit != NO_UNIT)
+ 						{
+ 							FAssert(GC.getUnitInfo(eBestMissileCarrierUnit).getDomainCargo() == DOMAIN_AIR);
+@@ -1993,6 +2011,24 @@
+ 					return;
+ 				}
+ 			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++			// Additional check for air defenses
++			int iFightersHave = kPlayer.AI_getNumAIUnits(UNITAI_DEFENSE_AIR);
++
++			if( 4*iFightersHave < iAircraftNeed )
++			{
++				if (AI_chooseUnit(UNITAI_DEFENSE_AIR))
++				{
++					return;
++				}
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 	}
+ 	
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@404
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@405
+@@ -2857,6 +2857,11 @@
+ 
+ 	FAssert(eAttackerTeam != NO_TEAM);
+ 
++	if( (eVictim != NO_PLAYER) && (area()->getCitiesPerPlayer(eVictim) == 0) )
++	{
++		return false;
++	}
++
+ 	// Imitate instatiation of irrigated finder, pIrrigatedFinder
+ 	// Can't mimic step finder initialization because it requires creation from the exe
+ 	FAStar* pTeamStepFinder = gDLL->getFAStarIFace()->create();
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@404
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@405
+@@ -1494,6 +1494,80 @@
+ 					pTargetUnit = GET_PLAYER((PlayerTypes)headMissionQueueNode()->m_data.iData1).getUnit(headMissionQueueNode()->m_data.iData2);
+ 					if (pTargetUnit != NULL)
+ 					{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++						if( AI_getMissionAIType() == MISSIONAI_PICKUP )
++						{
++							CvPlot* pPickupPlot = NULL;
++							CvPlot* pAdjacentPlot = NULL;
++							int iPathTurns;
++							int iBestPathTurns = MAX_INT;
++
++							if( generatePath(plot(), pTargetUnit->plot(), 0, false, &iPathTurns) )
++							{
++								pPickupPlot = pTargetUnit->plot();
++							}
++							else
++							{
++								for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++								{
++									pAdjacentPlot = plotDirection(pTargetUnit->plot()->getX_INLINE(), pTargetUnit->plot()->getY_INLINE(), ((DirectionTypes)iI));
++
++									if (pAdjacentPlot != NULL)
++									{
++										if( plot() == pAdjacentPlot )
++										{
++											pPickupPlot = plot();
++											break;
++										}
++
++										if( generatePath(plot(),pAdjacentPlot, 0, true, &iPathTurns) )
++										{
++											if( iPathTurns < iBestPathTurns )
++											{
++												pPickupPlot = pAdjacentPlot;
++												iBestPathTurns = iPathTurns;
++											}
++										}
++									}
++								}
++							}
++
++							if( pPickupPlot != NULL )
++							{
++								if( pPickupPlot == plot() )
++								{
++									// wait for units to board
++									bAction = false;
++
++									// TODO: Loop over all transport units in group
++									pTargetUnit->getGroup()->setRemoteTransportUnit(getHeadUnit());
++								}
++								else
++								{
++									if (groupPathTo(pPickupPlot->getX_INLINE(), pPickupPlot->getY_INLINE(), headMissionQueueNode()->m_data.iFlags))
++									{
++										bAction = true;
++									}
++									else
++									{
++										bDone = true;
++									}
++								}
++							}
++							else
++							{
++								bDone = true;
++							}
++							break;
++						}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 						if (AI_getMissionAIType() != MISSIONAI_SHADOW && AI_getMissionAIType() != MISSIONAI_GROUP)
+ 						{
+ 							if (!plot()->isOwned() || plot()->getOwnerINLINE() == getOwnerINLINE())
+@@ -3364,6 +3438,99 @@
+ 	}
+ }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++void CvSelectionGroup::setRemoteTransportUnit(CvUnit* pTransportUnit)
++{
++	// if we are loading
++	if (pTransportUnit != NULL)
++	{
++		CvUnit* pHeadUnit = getHeadUnit();
++		FAssertMsg(pHeadUnit != NULL, "non-zero group without head unit");
++		
++		int iCargoSpaceAvailable = pTransportUnit->cargoSpaceAvailable(pHeadUnit->getSpecialUnitType(), pHeadUnit->getDomainType());
++		
++		// if no space at all, give up
++		if (iCargoSpaceAvailable < 1)
++		{
++			return;
++		}
++
++		// if there is space, but not enough to fit whole group, then split us, and set on the new group
++		if (iCargoSpaceAvailable < getNumUnits())
++		{
++			CvSelectionGroup* pSplitGroup = splitGroup(iCargoSpaceAvailable);
++			if (pSplitGroup != NULL)
++			{
++				pSplitGroup->setRemoteTransportUnit(pTransportUnit);
++			}
++			return;
++		}
++		
++		FAssertMsg(iCargoSpaceAvailable >= getNumUnits(), "cargo size too small");
++		
++		CvPlot* pPlot = plot();
++
++		// setTransportUnit removes the unit from the current group (at least currently), so we have to be careful in the loop here
++		// so, loop until we do not load one
++		bool bLoadedOne;
++		do
++		{
++			bLoadedOne = false;
++
++			// loop over all the units, finding one to load
++			CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++			while (pUnitNode != NULL && !bLoadedOne)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pPlot->nextUnitNode(pUnitNode);
++				
++				// just in case implementation of setTransportUnit changes, check to make sure this unit is not already loaded
++				if (pLoopUnit != NULL && pLoopUnit->getTransportUnit() != pTransportUnit)
++				{
++					// if there is room, load the unit and stop the loop (since setTransportUnit ungroups this unit currently)
++					bool bSpaceAvailable = pTransportUnit->cargoSpaceAvailable(pLoopUnit->getSpecialUnitType(), pLoopUnit->getDomainType());
++					if (bSpaceAvailable)
++					{
++						pLoopUnit->setXY(pTransportUnit->getX_INLINE(),pTransportUnit->getY_INLINE());
++
++						if( pLoopUnit->getTransportUnit() != pTransportUnit ) 
++						{
++							pLoopUnit->setTransportUnit(pTransportUnit);
++						}
++
++						bLoadedOne = true;
++					}
++				}
++			}
++		}
++		while (bLoadedOne);
++	}
++	// otherwise we are unloading
++	else
++	{
++		// loop over all the units, unloading them
++		CLLNode<IDInfo>* pUnitNode = headUnitNode();
++		while (pUnitNode != NULL)
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			pUnitNode = nextUnitNode(pUnitNode);
++			
++			if (pLoopUnit != NULL)
++			{
++				// unload unit
++				pLoopUnit->setTransportUnit(NULL);
++			}
++		}
++	}
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 
+ bool CvSelectionGroup::isAmphibPlot(const CvPlot* pPlot) const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@404
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@405
+@@ -101,6 +101,15 @@
+ 	bool groupRoadTo(int iX, int iY, int iFlags);
+ 	bool groupBuild(BuildTypes eBuild);
+ 	void setTransportUnit(CvUnit* pTransportUnit);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++	void setRemoteTransportUnit(CvUnit* pTransportUnit);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	bool isAmphibPlot(const CvPlot* pPlot) const;																																		// Exposed to Python
+ 	bool groupAmphibMove(CvPlot* pPlot, int iFlags);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@404
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@405
+@@ -4454,6 +4454,55 @@
+ 	{
+ 		return;
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	if( plot()->isCity() )
++	{
++		CvCity* pCity = plot()->getPlotCity();
++
++		if( pCity != NULL )
++		{
++			if( pCity->isBlockaded() )
++			{
++				// City under blockade
++				// Attacker has low odds since anyAttack checks above passed, try to break if sufficient numbers
++
++				int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam());
++				int iBlockaders = GET_PLAYER(getOwnerINLINE()).AI_getWaterDanger(plot(), 4);
++
++				if( iAttackers > (iBlockaders + 1) )
++				{
++					if( iAttackers > GC.getGameINLINE().getSorenRandNum(2*iBlockaders + 1, "AI - Break blockade") )
++					{
++						if (AI_anyAttack(1, 5))
++						{
++							return;
++						}
++						
++						if( getMoves() > 2 )  // be able pull back to city
++						{
++							if (AI_anyAttack(2, 5))
++							{
++								return;
++							}
++
++							if (AI_anyAttack(3, 10))
++							{
++								return;
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	if (AI_group(UNITAI_CARRIER_SEA, /*iMaxGroup*/ 4, 1, -1, true, false, false, /*iMaxPath*/ 5))
+ 	{
+@@ -5453,6 +5502,22 @@
+ 		{
+ 			return;
+ 		}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++		if(GC.getGameINLINE().getSorenRandNum(1,"AI - recover stranded") == 0)
++		{
++			if(AI_pickupStranded())
++			{
++				return;
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ 		
+ 	// if we are in a city, and at/preparing land war, and we have cargo, unload, even if full, since AI_assaultSeaTransport already had its chance
+@@ -5617,7 +5682,6 @@
+ 			}
+ 		}
+ 	}
+-	
+ 
+ 	if (AI_pickup(UNITAI_WORKER))
+ 	{
+@@ -16049,6 +16113,146 @@
+ 	return false;
+ }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++// Returns true if a mission was pushed...
++bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI)
++{
++	PROFILE_FUNC();
++
++	CvPlot* pBestPlot;
++	CvUnit* pBestUnit;
++	CvPlot* pBestPickupPlot;
++	int iPathTurns;
++	int iValue;
++	int iBestValue;
++	int iLoop;
++	int iCount;
++
++	FAssert(cargoSpace() > 0);
++	if (0 == cargoSpace())
++	{
++		return false;
++	}
++
++	iBestValue = 0;
++	pBestPlot = NULL;
++	pBestUnit = NULL;
++	pBestPickupPlot = NULL;
++
++	int iI;
++	CvUnit* pLoopUnit = NULL;
++	CvPlot* pLoopPlot = NULL;
++	CvArea* pLoopArea = NULL;
++	CvPlot* pPickupPlot = NULL;
++	CvPlot* pAdjacentPlot = NULL;
++	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++
++	int iMaxFortifyTurns = GC.getDefineINT("MAX_FORTIFY_TURNS");
++
++	for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
++	{
++		if( pLoopUnit->getGroup()->getHeadUnit() != pLoopUnit )
++		{
++			continue;
++		}
++
++		if( pLoopUnit->getFortifyTurns() < iMaxFortifyTurns )
++		{
++			continue;
++		}
++
++		if( !pLoopUnit->getGroup()->canAllMove() )
++		{
++			continue;
++		}
++
++		if( pLoopUnit->getGroup()->AI_getMissionAIType() != NO_MISSIONAI )
++		{
++			continue;
++		}
++
++		if( pLoopUnit->getGroup()->getLengthMissionQueue() > 0 )
++		{
++			continue;
++		}
++
++		pLoopPlot = pLoopUnit->plot();
++		if( pLoopPlot != NULL )
++		{
++			if( pLoopPlot->area()->getCitiesPerPlayer(getOwnerINLINE()) )
++			{
++				continue;
++			}
++
++			if( pLoopPlot->isHasPathToEnemyCity(getTeam()) )
++			{
++				continue;
++			}
++
++			iCount = pLoopUnit->getGroup()->getNumUnits();
++			
++			// Units are stranded, attempt rescue
++			if (!atPlot(pLoopPlot) )
++			{
++				if (GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_PICKUP, getGroup()) < ((iCount + (cargoSpace() - 1)) / cargoSpace()))
++				{
++					pPickupPlot = NULL;
++					if( generatePath(pLoopPlot, 0, true, &iPathTurns) )
++					{
++						pPickupPlot = pLoopPlot;
++					}
++					else
++					{
++						for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++						{
++							pAdjacentPlot = plotDirection(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), ((DirectionTypes)iI));
++
++							if (pAdjacentPlot != NULL)
++							{
++								if( generatePath(pAdjacentPlot, 0, true, &iPathTurns) )
++								{
++									pPickupPlot = pAdjacentPlot;
++								}
++							}
++						}
++					}
++
++					if( pPickupPlot != NULL )
++					{
++						iValue = 1000*iCount;
++
++						iValue /= (iPathTurns + 1);
++
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							pBestPlot = pLoopPlot;
++							pBestUnit = pLoopUnit;
++							pBestPickupPlot = pPickupPlot;
++						}
++					}
++				}
++			}
++		}
++	}
++
++	if ((pBestPlot != NULL) && (pBestPickupPlot != NULL))
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_PICKUP, NULL, pBestUnit);
++		return true;
++	}
++
++	return false;
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_airOffensiveCity()
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@404
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@405
+@@ -180,6 +180,15 @@
+ 	bool AI_travelToUpgradeCity();
+ 	bool AI_retreatToCity(bool bPrimary = false, bool bAirlift = false, int iMaxPath = MAX_INT);
+ 	bool AI_pickup(UnitAITypes eUnitAI);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/01/08                                jdog5000      */
++/**                                                                                              */
++/** Naval AI                                                                                     */
++/*************************************************************************************************/
++	bool AI_pickupStranded(UnitAITypes eUnitAI = NO_UNITAI);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	bool AI_airOffensiveCity();
+ 	bool AI_airDefensiveCity();
+ 	bool AI_airCarrier();
+

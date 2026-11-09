@@ -1,0 +1,589 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 389
+# Author: jdog5000
+# Date: 2008-09-11T06:15:32.362732Z
+# Coverage: full
+# Message:
+#   New espionage AI plus fix to Air v Land blitz strategy per DanF
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@388
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@389
+@@ -3518,12 +3518,12 @@
+ 	CvWString szTempBuffer;
+ 
+ 	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						8/1/08				jdog5000	*/
++	/**		BETTER_BTS_AI_MOD						9/7/08				jdog5000	*/
+ 	/**																				*/
+ 	/**																				*/
+ 	/********************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.37");
++	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.40c");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szTempBuffer.Format(L"%S", "==========================");
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@388
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@389
+@@ -9597,7 +9597,19 @@
+ 	{
+ 		if (pSpyPlot->getTeam() != getTeam())
+ 		{
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						9/5/08			jdog5000		*/
++			/**																				*/
++			/**		Bugfix																	*/
++			/********************************************************************************/
++			/* original BTS code
+ 			if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && (GET_TEAM(getTeam()).AI_getWarPlan(pSpyPlot->getTeam()) != NO_WARPLAN || AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 50 : 1)))
++			*/
++			// Attitude weight < 50 is equivalent to < 1, < 51 is clearly what was intended
++			if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && (GET_TEAM(getTeam()).AI_getWarPlan(pSpyPlot->getTeam()) != NO_WARPLAN || AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1)))
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						END								*/
++			/********************************************************************************/
+ 			{
+ 				//Destroy Improvement.
+ 				if (pSpyPlot->getImprovementType() != NO_IMPROVEMENT)
+@@ -9627,7 +9639,19 @@
+ 			if (pCity != NULL)
+ 			{
+ 				//Something malicious
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						9/5/08			jdog5000		*/
++				/**																				*/
++				/**		Bugfix																	*/
++				/********************************************************************************/
++				/* original BTS code
+ 				if (AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 50 : 1))
++				*/
++				// Attitude weight < 50 is equivalent to < 1, < 51 is clearly what was intended
++				if (AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1))
++				/********************************************************************************/
++				/**		BETTER_BTS_AI_MOD						END								*/
++				/********************************************************************************/
+ 				{
+ 					//Destroy Building.
+ 					if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+@@ -10618,135 +10642,136 @@
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE))
+ 	{
+ 		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						8/16/08				jdog5000	*/
++		/**		BETTER_BTS_AI_MOD						9/6/08				jdog5000	*/
++		/**																				*/
++		/**		Espionage AI															*/
++		/********************************************************************************/
++		/*
++		// original BTS code
++		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
++		{
++			setCommercePercent(COMMERCE_ESPIONAGE, 0);
++
++			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++			{
++				setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
++			}
++
++			bReset = true;
++		}
++		*/
++		
++		// Reset espionage spending always
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		{
++			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
++		}
++
++		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
++		{
++			setCommercePercent(COMMERCE_ESPIONAGE, 0);
++
++			bReset = true;
++		}
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD						END								*/
++		/********************************************************************************/
++	}
++
++	if (bReset)
++	{
++		AI_assignWorkingPlots();
++	}
++
++	bool bFirstTech = GC.getGameINLINE().AI_isFirstTech(getCurrentResearch());
++	if (isCommerceFlexible(COMMERCE_CULTURE))
++	{
++		if (getNumCities() > 0)
++		{
++			iIdealPercent = 0;
++
++			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++			{
++				if (pLoopCity->getCommerceHappinessPer(COMMERCE_CULTURE) > 0)
++				{
++					iIdealPercent += ((pLoopCity->angryPopulation() * 100) / pLoopCity->getCommerceHappinessPer(COMMERCE_CULTURE));
++				}
++			}
++
++			iIdealPercent /= getNumCities();
++
++			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++
++			iIdealPercent = std::min(iIdealPercent, 20);
++
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE4))
++			{
++			    iIdealPercent = 100;
++			}
++
++			setCommercePercent(COMMERCE_CULTURE, iIdealPercent);
++		}
++	}
++
++	if (isCommerceFlexible(COMMERCE_RESEARCH))
++	{
++		if ((isNoResearchAvailable() || AI_isDoStrategy(AI_STRATEGY_CULTURE4)) && !bFirstTech)
++		{
++			setCommercePercent(COMMERCE_RESEARCH, 0);
++		}
++		else
++		{
++			while (calculateGoldRate() > 0)
++			{
++				changeCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++
++				if (getCommercePercent(COMMERCE_RESEARCH) == 100)
++				{
++					break;
++				}
++			}
++
++			if (getGold() + iTargetTurns * calculateGoldRate() < iGoldTarget)
++			{
++				while (getGold() + iTargetTurns * calculateGoldRate() <= iGoldTarget)
++				{
++					changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
++
++					if ((getCommercePercent(COMMERCE_RESEARCH) == 0))
++					{
++						break;
++					}
++				}
++			}
++			else
++			{
++				if (AI_avoidScience())
++				{
++					changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
++				}
++			}
++
++			if ((GET_TEAM(getTeam()).getChosenWarCount(true) > 0) || (GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_ATTACKED_RECENT, true) > 0))
++			{
++				changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
++			}
++
++			if ((getCommercePercent(COMMERCE_RESEARCH) == 0) && (calculateGoldRate() > 0))
++			{
++				setCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++			}
++		}
++	}
++
++	if (isCommerceFlexible(COMMERCE_ESPIONAGE) && !bFirstTech && !GET_TEAM(getTeam()).isBarbarian())
++	{
++		/********************************************************************************/
++		/**		BETTER_BTS_AI_MOD						9/7/08				jdog5000	*/
+ 		/**																				*/
+ 		/**		Espionage AI															*/
+ 		/********************************************************************************/
+ 		// original BTS code
+-		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+-		{
+-			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+-
+-			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-			{
+-				setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-			}
+-
+-			bReset = true;
+-		}
+-		
+ 		/*
+-		// Reset espionage spending always
+-		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-		{
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-		}
+-
+-		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+-		{
+-			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+-
+-			bReset = true;
+-		}
+-		*/
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						END								*/
+-		/********************************************************************************/
+-	}
+-
+-	if (bReset)
+-	{
+-		AI_assignWorkingPlots();
+-	}
+-
+-	bool bFirstTech = GC.getGameINLINE().AI_isFirstTech(getCurrentResearch());
+-	if (isCommerceFlexible(COMMERCE_CULTURE))
+-	{
+-		if (getNumCities() > 0)
+-		{
+-			iIdealPercent = 0;
+-
+-			for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-			{
+-				if (pLoopCity->getCommerceHappinessPer(COMMERCE_CULTURE) > 0)
+-				{
+-					iIdealPercent += ((pLoopCity->angryPopulation() * 100) / pLoopCity->getCommerceHappinessPer(COMMERCE_CULTURE));
+-				}
+-			}
+-
+-			iIdealPercent /= getNumCities();
+-
+-			iIdealPercent -= (iIdealPercent % GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+-
+-			iIdealPercent = std::min(iIdealPercent, 20);
+-
+-			if (AI_isDoStrategy(AI_STRATEGY_CULTURE4))
+-			{
+-			    iIdealPercent = 100;
+-			}
+-
+-			setCommercePercent(COMMERCE_CULTURE, iIdealPercent);
+-		}
+-	}
+-
+-	if (isCommerceFlexible(COMMERCE_RESEARCH))
+-	{
+-		if ((isNoResearchAvailable() || AI_isDoStrategy(AI_STRATEGY_CULTURE4)) && !bFirstTech)
+-		{
+-			setCommercePercent(COMMERCE_RESEARCH, 0);
+-		}
+-		else
+-		{
+-			while (calculateGoldRate() > 0)
+-			{
+-				changeCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+-
+-				if (getCommercePercent(COMMERCE_RESEARCH) == 100)
+-				{
+-					break;
+-				}
+-			}
+-
+-			if (getGold() + iTargetTurns * calculateGoldRate() < iGoldTarget)
+-			{
+-				while (getGold() + iTargetTurns * calculateGoldRate() <= iGoldTarget)
+-				{
+-					changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
+-
+-					if ((getCommercePercent(COMMERCE_RESEARCH) == 0))
+-					{
+-						break;
+-					}
+-				}
+-			}
+-			else
+-			{
+-				if (AI_avoidScience())
+-				{
+-					changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
+-				}
+-			}
+-
+-			if ((GET_TEAM(getTeam()).getChosenWarCount(true) > 0) || (GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_ATTACKED_RECENT, true) > 0))
+-			{
+-				changeCommercePercent(COMMERCE_RESEARCH, -(GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")));
+-			}
+-
+-			if ((getCommercePercent(COMMERCE_RESEARCH) == 0) && (calculateGoldRate() > 0))
+-			{
+-				setCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
+-			}
+-		}
+-	}
+-
+-	if (isCommerceFlexible(COMMERCE_ESPIONAGE) && !bFirstTech)
+-	{
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						8/16/08				jdog5000	*/
+-		/**																				*/
+-		/**		Espionage AI															*/
+-		/********************************************************************************/
+-		// original BTS code
+ 		int iEspionageTargetRate = 0;
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+@@ -10765,28 +10790,137 @@
+ 				}
+ 			}
+ 		}
+-
+-		/*
++		*/
++		
+ 		// TODO: Develop new system
+ 		int iEspionageTargetRate = 0;
++		int* piTarget = new int[MAX_CIV_TEAMS];
++		int* piWeight = new int[MAX_CIV_TEAMS];
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
++			piTarget[iTeam] = 0;
++			piWeight[iTeam] = 0;
++
+ 			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+ 			if (kLoopTeam.isAlive() && iTeam != getTeam() && !kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
+ 			{
+-				int iTarget = (kLoopTeam.getEspionagePointsAgainstTeam(getTeam()) - GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam)) / 8;
+-
+-				iTarget -= GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam);
+-
+-				if (iTarget > 0)
+-				{
+-					iEspionageTargetRate += iTarget;
+-					changeEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, iTarget);
+-				}
+-			}
+-		}
+-		*/
++				if( GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) )
++				{	
++					int iTheirEspPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
++					int iOurEspPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
++					int iDesiredMissionPoints = 0;
++					int iDesiredEspPoints = 0;
++					
++					piWeight[iTeam] = 10;
++					int iRateDivisor = 12;
++
++					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
++					{
++						iTheirEspPoints *= 3;
++						iTheirEspPoints /= 2;
++
++						for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++						{
++							CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++							
++							if( kMissionInfo.isPassive() )
++							{
++								if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
++								{
++									int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
++									if( iDesiredMissionPoints < iMissionCost )
++									{
++										iDesiredMissionPoints = iMissionCost;
++									}
++								}
++							}
++						}
++
++						iRateDivisor = 10;
++						piWeight[iTeam] = 20;
++
++						if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
++						{
++							piWeight[iTeam] = 30;
++							iRateDivisor = 8;
++						}
++					}
++					else
++					{
++						int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
++
++						iTheirEspPoints -= (iTheirEspPoints*iAttitude)/(2*12);
++
++						if( iAttitude <= -3 )
++						{
++							for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++							{
++								CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++								
++								if( kMissionInfo.isPassive() )
++								{
++									if( kMissionInfo.isSeeDemographics() || kMissionInfo.isSeeResearch() )
++									{
++										int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
++										if( iDesiredMissionPoints < iMissionCost )
++										{
++											iDesiredMissionPoints = iMissionCost;
++										}
++									}
++								}
++							}
++						}
++						else if( iAttitude < 3 )
++						{
++							for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++							{
++								CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++								
++								if( kMissionInfo.isPassive() )
++								{
++									if( kMissionInfo.isSeeDemographics() )
++									{
++										int iMissionCost = (11*getEspionageMissionCost((EspionageMissionTypes)iMission, GET_TEAM((TeamTypes)iTeam).getLeaderID(), NULL, -1, NULL))/10;
++										if( iDesiredMissionPoints < iMissionCost )
++										{
++											iDesiredMissionPoints = iMissionCost;
++										}
++									}
++								}
++							}
++						}
++
++						iRateDivisor += (iAttitude/5);
++						piWeight[iTeam] -= (iAttitude/2);
++					}
++
++					iDesiredEspPoints = std::max(iTheirEspPoints,iDesiredMissionPoints);
++
++					piTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++
++					if( piTarget[iTeam] > 0 )
++					{
++						iEspionageTargetRate += piTarget[iTeam];
++					}
++				}
++			}
++		}
++
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		{
++			if( piTarget[iTeam] > 0 )
++			{
++				piWeight[iTeam] += (150*piTarget[iTeam])/std::max(4,iEspionageTargetRate);
++			}
++			else if( piTarget[iTeam] < 0 )
++			{
++				piWeight[iTeam] += 2*piTarget[iTeam];
++			}	
++			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, std::max(0,piWeight[iTeam]));
++		}
++		SAFE_DELETE(piTarget);
++		SAFE_DELETE(piWeight);
+ 		/********************************************************************************/
+ 		/**		BETTER_BTS_AI_MOD						END								*/
+ 		/********************************************************************************/
+@@ -13880,11 +14014,11 @@
+ 			{
+ 				if (getCapitalCity()->canTrain(eLoopUnit))
+ 				{
+-			CvUnitInfo& kLoopUnit = GC.getUnitInfo(eLoopUnit);
+-			bool bIsUU = (GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI));
+-			if (kLoopUnit.getUnitAIType(UNITAI_RESERVE) || kLoopUnit.getUnitAIType(UNITAI_ATTACK_CITY)
+-				|| kLoopUnit.getUnitAIType(UNITAI_COUNTER) || kLoopUnit.getUnitAIType(UNITAI_PILLAGE))
+-			{
++					CvUnitInfo& kLoopUnit = GC.getUnitInfo(eLoopUnit);
++					bool bIsUU = (GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI));
++					if (kLoopUnit.getUnitAIType(UNITAI_RESERVE) || kLoopUnit.getUnitAIType(UNITAI_ATTACK_CITY)
++						|| kLoopUnit.getUnitAIType(UNITAI_COUNTER) || kLoopUnit.getUnitAIType(UNITAI_PILLAGE))
++					{
+ 
+ 						iAttackUnitCount++;
+ 
+@@ -13912,27 +14046,41 @@
+ 							}
+ 						}
+ 					}
+-						if (kLoopUnit.getMoves() > 1)
++					
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						9/10/08				jdog5000	*/
++					/**																				*/
++					/**		Bugfix																	*/
++					/********************************************************************************/
++					/* original BTS code
++					if (kLoopUnit.getMoves() > 1)
++					*/
++					// Mobile anti-air and artillery flags only meant for land units
++					if ( kLoopUnit.getDomainType() == DOMAIN_LAND && kLoopUnit.getMoves() > 1 )
++					/********************************************************************************/
++					/**		BETTER_BTS_AI_MOD						END								*/
++					/********************************************************************************/
++					{
++						if (kLoopUnit.getInterceptionProbability() > 25)
+ 						{
+-							if (kLoopUnit.getInterceptionProbability() > 25)
++							bHasMobileAntiair = true;
++						}
++						if (kLoopUnit.getBombardRate() > 10)
++						{
++							bHasMobileArtillery = true;
++						}
++					}
++
++					if (kLoopUnit.getAirRange() > 1)
++					{
++						if (!kLoopUnit.isSuicide())
++						{
++							if ((kLoopUnit.getBombRate() > 5) && (kLoopUnit.getAirCombat() > 0))
+ 							{
+-								bHasMobileAntiair = true;
+-							}
+-							if (kLoopUnit.getBombardRate() > 10)
+-							{
+-								bHasMobileArtillery = true;
++								bHasBomber = true;								
+ 							}
+ 						}
+-						if (kLoopUnit.getAirRange() > 1)
+-						{
+-							if (!kLoopUnit.isSuicide())
+-							{
+-								if ((kLoopUnit.getBombRate() > 5) && (kLoopUnit.getAirCombat() > 0))
+-								{
+-									bHasBomber = true;								
+-								}
+-							}
+-						}
++					}
+ 					
+ 					if (kLoopUnit.getNukeRange() > 0)
+ 					{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@388
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@389
+@@ -3848,7 +3848,19 @@
+ 					return;
+ 				}
+ 			}
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						9/5/08			jdog5000		*/
++			/**																				*/
++			/**		Espionage AI															*/
++			/********************************************************************************/
++			/* original BTS code
+ 			if (GC.getGame().getSorenRandNum(100, "AI Spy Skip Turn") > 5)
++			*/
++			// if spy has no mission available mission at this location, do something else
++			else if (GC.getGame().getSorenRandNum(100, "AI Spy Skip Turn") > 5)
++			/********************************************************************************/
++			/**		BETTER_BTS_AI_MOD						END								*/
++			/********************************************************************************/
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+

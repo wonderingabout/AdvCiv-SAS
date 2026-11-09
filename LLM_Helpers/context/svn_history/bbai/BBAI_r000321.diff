@@ -1,0 +1,63 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 321
+# Author: iustus
+# Date: 2007-01-29T18:53:15.264487Z
+# Coverage: full
+# Message:
+#   fixed two bugs in firaxis code, incorrectly clearing warplans on PA and failing to clear warplans when becoming a vassal
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@320
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@321
+@@ -554,8 +554,15 @@
+ 
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+-				GET_TEAM((TeamTypes)iI).AI_setWarPlan(getID(), NO_WARPLAN);
+-				GET_TEAM((TeamTypes)iI).AI_setWarPlan(eTeam, NO_WARPLAN);
++				if (!GET_TEAM((TeamTypes)iI).isAtWar(getID()))
++				{
++					GET_TEAM((TeamTypes)iI).AI_setWarPlan(getID(), NO_WARPLAN);
++				}
++
++				if (!GET_TEAM((TeamTypes)iI).isAtWar(eTeam))
++				{
++					GET_TEAM((TeamTypes)iI).AI_setWarPlan(eTeam, NO_WARPLAN);
++				}
+ 			}
+ 		}
+ 	}
+@@ -683,8 +690,11 @@
+ 			{
+ 				AI_setEnemyPeacetimeGrantValue(((TeamTypes)iI), GET_TEAM(eTeam).AI_getEnemyPeacetimeGrantValue((TeamTypes)iI));
+ 			}
+-
+-			GET_TEAM(eTeam).AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
++			
++			if (!GET_TEAM((TeamTypes)eTeam).isAtWar((TeamTypes)iI))
++			{
++				GET_TEAM(eTeam).AI_setWarPlan(((TeamTypes)iI), NO_WARPLAN);
++			}
+ 		}
+ 	}
+ 
+@@ -3327,6 +3337,15 @@
+ 				}
+ 			}
+ 
++			// clear warplans for wars that are not already started
++			for (int iI = 0; iI < MAX_TEAMS; iI++)
++			{
++				if (!isAtWar((TeamTypes)iI) && AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
++				{
++					AI_setWarPlan((TeamTypes)iI, NO_WARPLAN);
++				}
++			}
++
+ 			// All our vassals now become free
+ 			for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 			{
+

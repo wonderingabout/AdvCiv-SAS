@@ -1,0 +1,96 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 332
+# Author: blakeciv
+# Date: 2007-01-30T22:13:50.961380Z
+# Coverage: full
+# Message:
+#   Barbarian behaivour should be closer to 2.08
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@331
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@332
+@@ -935,6 +935,21 @@
+ 		}
+ 	}
+ 	
++	if (isBarbarian())
++	{
++		if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
++		{
++			if (AI_chooseDefender())
++			{
++				return;
++			}
++
++			if (AI_chooseUnit(UNITAI_ATTACK))
++			{
++				return;
++			}
++		}
++	}
+     
+     //do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+@@ -974,8 +989,8 @@
+ 		}
+ 	}
+ 	
+-	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+- 	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
++	int iNeededFloatingDefenders = isBarbarian() ?  0 : GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
++ 	int iTotalFloatingDefenders = isBarbarian() ? 0 : GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+ 	
+ 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+@@ -1783,21 +1798,21 @@
+ 			return;
+ 		}
+ 	}
++	
++	if (iUnitCostPercentage < 15)
++	{
++		if (!AI_isDefended())
++		{
++			if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++			{
++				return;
++			}
++		}
++	}
+ 
+ 	if (AI_chooseBuilding())
+ 	{
+ 		return;
+-	}
+-	
+-	if (iUnitCostPercentage < 15)
+-	{
+-		if (!AI_isDefended())
+-		{
+-			if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-			{
+-				return;
+-			}
+-		}
+ 	}
+ 	
+ 	if (!bChooseUnit)
+@@ -3692,6 +3707,14 @@
+ 	{
+ 		return 1;
+ 	}
++	
++	if (isBarbarian())
++	{
++		iDefenders = 2 + ((getPopulation() - 2) / 7);
++		return iDefenders;
++	}
++		
++		
+ 
+ 	iDefenders = 1;
+ 	
+

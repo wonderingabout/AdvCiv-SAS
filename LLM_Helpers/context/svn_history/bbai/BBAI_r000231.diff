@@ -1,0 +1,113 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 231
+# Author: blakeciv
+# Date: 2006-12-22T04:13:52.126067Z
+# Coverage: full
+# Message:
+#   Made the AI put a higher priority on building mine type things.
+#   Tweaked starting point values distance factor.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@230
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@231
+@@ -4022,7 +4022,10 @@
+ 				{
+ 					iGoodTileCount++;
+                     iFoodTotal += aiFinalYields[YIELD_FOOD];
+-                    iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
++                    if (aiFinalYields[YIELD_PRODUCTION] > 1)
++                    {	
++                    	iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
++                    }
+ 				}
+ 
+ 				if (eBonus != NO_BONUS)
+@@ -4063,11 +4066,12 @@
+ 
+ 	if (iProductionTotal < 10)
+ 	{
+-	    iProductionMultiplier += (40 - 4 * iProductionTotal);
+-	}
+-	if (iProductionTotal < getPopulation())
+-	{
+-	    iProductionMultiplier += 5 * (iProductionTotal - getPopulation());
++	    iProductionMultiplier += (80 - 8 * iProductionTotal);
++	}
++	int iProductionTarget = 1 + (min(getPopulation(), (iTargetSize * 2) / 3) * 2);
++	if (iProductionTotal < iProductionTarget)
++	{
++	    iProductionMultiplier += 10 * (iProductionTotal - iProductionTarget);
+ 	}
+ 
+ 	if ((iBonusFoodSurplus + iFeatureFoodSurplus > 5) && ((iBonusFoodDeficit + iHillFoodDeficit) > 5))
+@@ -4075,7 +4079,7 @@
+ 		if ((iBonusFoodDeficit + iHillFoodDeficit) > 8)
+ 		{
+ 			//probably a good candidate for a wonder pump
+-			iProductionMultiplier += 20;
++			iProductionMultiplier += 40;
+ 			iCommerceMultiplier += (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) ? 0 : -40;
+ 		}
+ 	}
+@@ -6037,7 +6041,7 @@
+ 
+ 
+ 
+-// Improved worker AI provided by Blake - thank you!
++//Improved worker AI provided by Blake - thank you!
+ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop)
+ {
+ 	PROFILE_FUNC();
+@@ -6361,7 +6365,7 @@
+ 					}
+ 					else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 					{
+-						if (iFoodPriority > 0)
++						if (iFoodPriority > 100)
+ 						{
+ 						    if (eNonObsoleteBonus == NO_BONUS)
+ 						    {
+@@ -6373,17 +6377,17 @@
+ 						}
+ 						else
+ 						{
+-							if (aiFinalYields[YIELD_PRODUCTION] > 0)
++							if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3))
+ 							{
+ 								//value booster for mines on hills
+-								iValue *= (100 + 20 * aiDiffYields[YIELD_PRODUCTION]);
++								iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
+ 								iValue /= 100;
+ 							}
+ 						}
+ 
+ 						if ((iFoodPriority < 100) && (iProductionPriority > 100))
+ 						{
+-						    iValue *= (100 + iProductionPriority);
++						    iValue *= (200 + iProductionPriority);
+ 						    iValue /= 200;
+ 						}
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@230
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@231
+@@ -1972,9 +1972,10 @@
+ 		}
+ 		else
+ 		{
+-			iValue += (pPlot->getMinOriginalStartDist() * 100);
+-		}
+-//		
++			iValue *= (1 + 3 * pPlot->getMinOriginalStartDist());
++			iValue /= (1 + 2 * GC.getMapINLINE().maxStepDistance());
++		}
++		
+ 		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
+

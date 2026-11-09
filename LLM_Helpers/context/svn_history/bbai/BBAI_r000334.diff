@@ -1,0 +1,84 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 334
+# Author: iustus
+# Date: 2007-01-31T19:49:54.130710Z
+# Coverage: full
+# Message:
+#   infinite loop in governor fix, dont remove a plot we already removed once
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@333
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@334
+@@ -5339,22 +5339,19 @@
+ 
+ void CvCityAI::AI_juggleCitizens()
+ {
+-	CvPlot* pLoopPlot;
+-
+ 	bool bAvoidGrowth = AI_avoidGrowth();
+ 	bool bIgnoreGrowth = AI_ignoreGrowth();
+ 	bool bIsSpecialistForced = isSpecialistForced();
+-	bool bCompletedChecks;
+-	int iCount;
+-	int iPass;
+ 	
+ 	// one at a time, remove the worst citizen, then add the best citizen
+ 	// until we add back the same one we removed
+-	for (iPass = 0; iPass < 2; iPass++)
+-	{
+-		bCompletedChecks = false;
+-		iCount = 0;
+-		
++	for (int iPass = 0; iPass < 2; iPass++)
++	{
++		bool bCompletedChecks = false;
++		int iCount = 0;
++
++		int iFirstWorstPlot = -1;
++
+ 		while (!bCompletedChecks)
+ 		{
+ 			int iLowestValue = MAX_INT;
+@@ -5367,7 +5364,7 @@
+ 				{
+ 					if (isWorkingPlot(iI))
+ 					{
+-						pLoopPlot = getCityIndexPlot(iI);
++						CvPlot* pLoopPlot = getCityIndexPlot(iI);
+ 
+ 						if (pLoopPlot != NULL)
+ 						{
+@@ -5386,12 +5383,20 @@
+ 					}
+ 				}
+ 			}
+-			if (iWorstPlot == -1)
++			// if no worst plot, or we looped back around and are trying to remove the first plot we removed, stop
++			if (iWorstPlot == -1 || iFirstWorstPlot == iWorstPlot)
+ 			{
+ 				bCompletedChecks = true;
+ 			}
++
+ 			if (!bCompletedChecks)
+ 			{
++				// if this the first worst plot, remember it
++				if (iFirstWorstPlot == -1)
++				{
++					iFirstWorstPlot = iWorstPlot;
++				}
++
+ 				setWorkingPlot(iWorstPlot, false);
+ 
+ 				if (AI_addBestCitizen(true, true))
+@@ -5410,6 +5415,7 @@
+ 				break; // XXX
+ 			}
+ 		}
++
+ 		if ((iPass == 0) && (foodDifference(false) >= 0))
+ 		{
+ 			//good enough, the starvation code
+

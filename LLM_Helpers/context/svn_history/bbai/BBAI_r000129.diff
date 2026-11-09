@@ -1,0 +1,190 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 129
+# Author: iustus
+# Date: 2006-11-30T22:20:30.297917Z
+# Coverage: full
+# Message:
+#   under chipotle, a lot more information about war status/values shown with alt key over scoreboard
+#   fixed assert bug in declareWar in 2.08 (caused by 2.08 changes from 2.0 dealting with vassals)
+#   
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.h
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@128
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@129
+@@ -8035,22 +8035,97 @@
+ 	}
+ }
+ 
++void CvGameTextMgr::getWarplanString(CvWString& szString, WarPlanTypes eWarPlan)
++{
++	switch (eWarPlan)
++	{
++		case WARPLAN_ATTACKED_RECENT: szString = L"new defensive war"; break;
++		case WARPLAN_ATTACKED: szString = L"defensive war"; break;
++		case WARPLAN_PREPARING_LIMITED: szString = L"preparing limited war"; break;
++		case WARPLAN_PREPARING_TOTAL: szString = L"preparing total war"; break;
++		case WARPLAN_LIMITED: szString = L"limited war"; break;
++		case WARPLAN_TOTAL: szString = L"total war"; break;
++		case WARPLAN_DOGPILE: szString = L"dogpile war"; break;
++		case NO_WARPLAN: szString = L"no war"; break;
++		default:  szString = L"unknown war"; break;
++	}
++}
++
+ void CvGameTextMgr::getAttitudeString(CvWString& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer)
+ {
+ 	CvWString szTempBuffer;
+ 	int iAttitudeChange;
+ 	int iPass;
+ 	int iI;
+-	CvTeam& kTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
++	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
++	TeamTypes eTeam = (TeamTypes) kPlayer.getTeam();
++	CvTeamAI& kTeam = GET_TEAM(eTeam);
+ 	
+-	// if alt down and cheat on, show if in financial trouble
++	// if alt down and cheat on, show extra info
+     if (gDLL->altKey() && gDLL->getChtLvl() > 0)
+     {
+-		if (GET_PLAYER(ePlayer).AI_isFinancialTrouble())
+-		{
+-			szBuffer += CvWString::format(SETCOLR L"(in financial trouble)\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"));
+-		}
+-    }
++		szBuffer += CvWString::format(SETCOLR L"%d (%d) power" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kPlayer.getPower(), kTeam.getPower(true));
++		
++		// if in financial trouble, show that
++		if (kPlayer.AI_isFinancialTrouble())
++		{
++			szBuffer += CvWString::format(SETCOLR L" ($$$)" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"));
++		}
++
++		szBuffer += NEWLINE;
++
++		// show war/endwar values
++		for (int iI = 0; iI < MAX_TEAMS; iI++)
++		{
++			TeamTypes eLoopTeam = (TeamTypes) iI;
++			CvTeamAI& kLoopTeam = GET_TEAM(eLoopTeam);
++			if (eLoopTeam != eTeam && kLoopTeam.isAlive() && !kLoopTeam.isBarbarian())
++			{
++				if (kTeam.isAtWar(eLoopTeam))
++				{
++					int iOurValue = kTeam.AI_endWarVal(eLoopTeam);
++					int iTheirValue = kLoopTeam.AI_endWarVal(eTeam);
++					
++					szBuffer += CvWString::format(L"Peace " SETCOLR L"(%d)" ENDCOLR L" with %s " SETCOLR L"(%d)\n" ENDCOLR, 
++						TEXT_COLOR((iOurValue < iTheirValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
++						iOurValue, 
++						kLoopTeam.getName().GetCString(),
++						TEXT_COLOR((iTheirValue < iOurValue) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"),
++						iTheirValue);
++				}
++				else
++				{
++					WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(eLoopTeam);
++					if (eWarPlan != NO_WARPLAN)
++					{
++						getWarplanString(szTempBuffer, eWarPlan);
++						szBuffer += CvWString::format(SETCOLR L"%s (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
++							szTempBuffer.GetCString(), 
++							kTeam.AI_startWarVal(eLoopTeam), 
++							kLoopTeam.getName().GetCString());
++					}
++					else
++					{
++						int iOurPower = kTeam.getPower(true);
++						int iTheirPower = kLoopTeam.getDefensivePower();
++						
++						if (iTheirPower < ((iOurPower * kTeam.AI_maxWarNearbyPowerRatio()) / 100))
++						{
++							szBuffer += CvWString::format(SETCOLR L"Near war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++								kTeam.AI_startWarVal(eLoopTeam), 
++								kLoopTeam.getName().GetCString());
++						}
++						else if (iTheirPower < ((iOurPower * kTeam.AI_maxWarDistantPowerRatio()) / 100))
++						{
++							szBuffer += CvWString::format(SETCOLR L"Distant war (%d) with %s\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++								kTeam.AI_startWarVal(eLoopTeam), 
++								kLoopTeam.getName().GetCString());
++						}
++					}
++				}
++			}
++		}
++	}
+ 	
+ 	szBuffer += gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getAttitudeInfo(GET_PLAYER(ePlayer).AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey());
+ 
+@@ -9491,11 +9566,39 @@
+ 
+ void CvGameTextMgr::setScoreHelp(CvWString &szString, PlayerTypes ePlayer)
+ {
+-    if (gDLL->altKey())
++	bool bAlt = gDLL->altKey();
++
++ 	// so people can tell that they running Better AI
++	if (bAlt)
+     {
+ 		szString = CvWString::format(L"=== Better AI ===\n");
+     }
+ 
++	// show debug info if cheat level > 0 and alt down
++    if (bAlt && (gDLL->getChtLvl() > 0))
++    {
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
++			if (kPlayer.isAlive())
++			{
++				CvTeam& kTeam = GET_TEAM((TeamTypes) kPlayer.getTeam());
++
++				szString += CvWString::format(SETCOLR L"%s(%d): %d (%d) power" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++					kPlayer.getName(), kPlayer.getTeam(), kPlayer.getPower(), kTeam.getDefensivePower());
++				
++				// if in financial trouble, show that
++				if (kPlayer.AI_isFinancialTrouble())
++				{
++					szString += CvWString::format(SETCOLR L" ($$$)" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"));
++				}
++
++				szString += NEWLINE;
++			}
++		}
++    }
++
++	
+ 	if (NO_PLAYER != ePlayer)
+ 	{
+ 		CvPlayer& player = GET_PLAYER(ePlayer);
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.h
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.h@128
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.h@129
+@@ -144,6 +144,7 @@
+ 	DllExport void buildSingleLineTechTreeString(CvWString &szBuffer, TechTypes eTech, bool bPlayerContext);
+ 	DllExport void buildTechTreeString(CvWString &szBuffer, TechTypes eTech, bool bPlayerContext, TechTypes eFromTech);
+ 
++	void getWarplanString(CvWString& szString, WarPlanTypes eWarPlan);
+ 	DllExport void getAttitudeString(CvWString& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
+ 	DllExport void getTradeString(CvWString& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+ 	DllExport void getDealString(CvWString& szString, CvDeal& deal, PlayerTypes ePlayerPerspective = NO_PLAYER);
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@128
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@129
+@@ -950,7 +950,7 @@
+ 
+ 	if (!isAtWar(eTeam))
+ 	{
+-		FAssertMsg((isHuman() || isMinorCiv() || GET_TEAM(eTeam).isMinorCiv() || isBarbarian() || GET_TEAM(eTeam).isBarbarian() || AI_isSneakAttackReady(eTeam) || (GET_TEAM(eTeam).getAtWarCount(true) > 0) || !(GC.getGameINLINE().isFinalInitialized()) || gDLL->GetWorldBuilderMode() || getVassalCount() > 0  || isAVassal() || getDefensivePactCount() > 0), "Possibly accidental AI war!!!");
++		FAssertMsg((isHuman() || isMinorCiv() || GET_TEAM(eTeam).isMinorCiv() || isBarbarian() || GET_TEAM(eTeam).isBarbarian() || AI_isSneakAttackReady(eTeam) || (GET_TEAM(eTeam).getAtWarCount(true) > 0) || !(GC.getGameINLINE().isFinalInitialized()) || gDLL->GetWorldBuilderMode() || getVassalCount() > 0  || isAVassal() || GET_TEAM(eTeam).getVassalCount() > 0  || GET_TEAM(eTeam).isAVassal() || getDefensivePactCount() > 0), "Possibly accidental AI war!!!");
+ 
+ 		for (pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+ 		{
+

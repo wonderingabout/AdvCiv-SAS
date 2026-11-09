@@ -1,0 +1,33 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 520
+# Author: jdog5000
+# Date: 2010-02-12T05:00:18.686208Z
+# Coverage: full
+# Message:
+#   0.84B
+#   
+#   Fix stack overflow crash from AI_acceptSurrender
+#   Fast units pillage first
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@519
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@520
+@@ -4521,12 +4521,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/10/10                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.83h");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.84b");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+

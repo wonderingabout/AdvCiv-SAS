@@ -1,0 +1,698 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 521
+# Author: jdog5000
+# Date: 2010-02-12T05:06:54.957048Z
+# Coverage: full
+# Message:
+#   0.84B
+#   
+#   Rest of files ...
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@520
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@521
+@@ -4106,12 +4106,12 @@
+ 		iValue += 400;
+ 	}
+ 
+-	if (GC.getTechInfo(eTech).isPermanentAllianceTrading())
++	if (GC.getTechInfo(eTech).isPermanentAllianceTrading() && (GC.getGameINLINE().isOption(GAMEOPTION_PERMANENT_ALLIANCES)))
+ 	{
+ 		iValue += 200;
+ 	}
+ 
+-	if (GC.getTechInfo(eTech).isVassalStateTrading())
++	if (GC.getTechInfo(eTech).isVassalStateTrading() && !(GC.getGameINLINE().isOption(GAMEOPTION_NO_VASSAL_STATES)))
+ 	{
+ 		iValue += 200;
+ 	}
+@@ -7234,7 +7234,18 @@
+ 			{
+ 				iGoldData = iGoldWeight * 100;
+ 				iGoldData /= iGoldValuePercent;
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                       09/17/09                     dilandau & jdog5000      */
++/*                                                                                              */
++/* Bugfix				                                                                        */
++/************************************************************************************************/
++/* original bts code
+ 				if ((iGoldData * iGoldValuePercent) < iGoldWeight)
++*/
++				if ((iGoldData * iGoldValuePercent) < iGoldWeight * 100)
++/************************************************************************************************/
++/* UNOFFICIAL_PATCH                        END                                                  */
++/************************************************************************************************/
+ 				{
+ 					iGoldData++;
+ 				}
+@@ -13511,6 +13522,7 @@
+ 										{
+ 											if (AI_getContactTimer(((PlayerTypes)iI), CONTACT_ASK_FOR_HELP) == 0)
+ 											{
++												// BBAI TODO: Check more often if far behind
+ 												if (GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_ASK_FOR_HELP), "AI Diplo Ask For Help") == 0)
+ 												{
+ 													iBestValue = 0;
+@@ -13820,6 +13832,7 @@
+ 									{
+ 										if (AI_getContactTimer(((PlayerTypes)iI), CONTACT_TRADE_TECH) == 0)
+ 										{
++											// BBAI TODO: Check more often if behind
+ 											if (GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getContactRand(CONTACT_TRADE_TECH), "AI Diplo Trade Tech") == 0)
+ 											{
+ 												iBestValue = 0;
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@520
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@521
+@@ -1152,248 +1152,301 @@
+ 			NotifyEntity( headMissionQueueNode()->m_data.eMissionType );
+ 		}
+ 
+-		pUnitNode = headUnitNode();
+-
+-		// BBAI TODO: create new loop for pillaging, so fast units pillage once first
+-
+-		while (pUnitNode != NULL)
+-		{
+-			pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			pUnitNode = nextUnitNode(pUnitNode);
+-
+-			if (pLoopUnit->canMove())
+-			{
+-				switch (headMissionQueueNode()->m_data.eMissionType)
+-				{
+-				case MISSION_MOVE_TO:
+-				case MISSION_ROUTE_TO:
+-				case MISSION_MOVE_TO_UNIT:
+-				case MISSION_SKIP:
+-				case MISSION_SLEEP:
+-				case MISSION_FORTIFY:
+-				case MISSION_AIRPATROL:
+-				case MISSION_SEAPATROL:
+-				case MISSION_HEAL:
+-				case MISSION_SENTRY:
+-					break;
+-
+-				case MISSION_AIRLIFT:
+-					if (pLoopUnit->airlift(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
++/*                                                                                              */
++/* War tactics AI                                                                               */
++/************************************************************************************************/
++		if( headMissionQueueNode()->m_data.eMissionType == MISSION_PILLAGE )
++		{
++			// Fast units pillage first
++			pUnitNode = headUnitNode();
++			int iMaxMovesLeft = 0;
++
++			while (pUnitNode != NULL)
++			{
++				pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = nextUnitNode(pUnitNode);
++
++				if( pLoopUnit->canPillage(plot()) )
++				{
++					iMaxMovesLeft = std::max( iMaxMovesLeft, pLoopUnit->movesLeft() );
++				}
++			}
++
++			bool bDidPillage = true;
++			while( iMaxMovesLeft > 0 && bDidPillage )
++			{
++				bDidPillage = false;
++				pUnitNode = headUnitNode();
++				int iNextMaxMovesLeft = 0;
++
++				while (pUnitNode != NULL)
++				{
++					pLoopUnit = ::getUnit(pUnitNode->m_data);
++					pUnitNode = nextUnitNode(pUnitNode);
++
++					if( pLoopUnit->canPillage(plot()) )
+ 					{
+-						bAction = true;
++						if( pLoopUnit->movesLeft() >= iMaxMovesLeft )
++						{
++							if (pLoopUnit->pillage())
++							{
++								bAction = true;
++								bDidPillage = true;
++							}
++						}
++
++						iNextMaxMovesLeft = std::max( iNextMaxMovesLeft, pLoopUnit->movesLeft() );
+ 					}
+-					break;
+-
+-				case MISSION_NUKE:
+-					if (pLoopUnit->nuke(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++				}
++
++				iMaxMovesLeft = iNextMaxMovesLeft;
++			}
++		}
++		else
++		{
++			pUnitNode = headUnitNode();
++
++			while (pUnitNode != NULL)
++			{
++				pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = nextUnitNode(pUnitNode);
++
++				if (pLoopUnit->canMove())
++				{
++					switch (headMissionQueueNode()->m_data.eMissionType)
+ 					{
+-						bAction = true;
+-
+-						if (GC.getMapINLINE().plotINLINE(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2)->isVisibleToWatchingHuman())
+-						{
+-							bNuke = true;
+-						}
+-					}
+-					break;
+-
+-				case MISSION_RECON:
+-					if (pLoopUnit->recon(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_PARADROP:
+-					if (pLoopUnit->paradrop(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_AIRBOMB:
+-					if (pLoopUnit->airBomb(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_BOMBARD:
+-					if (pLoopUnit->bombard())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_RANGE_ATTACK:
+-					if (pLoopUnit->rangeStrike(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_PILLAGE:
+-					if (pLoopUnit->pillage())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_PLUNDER:
+-					if (pLoopUnit->plunder())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_SABOTAGE:
+-					if (pLoopUnit->sabotage())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_DESTROY:
+-					if (pLoopUnit->destroy())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_STEAL_PLANS:
+-					if (pLoopUnit->stealPlans())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_FOUND:
+-					if (pLoopUnit->found())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_SPREAD:
+-					if (pLoopUnit->spread((ReligionTypes)(headMissionQueueNode()->m_data.iData1)))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_SPREAD_CORPORATION:
+-					if (pLoopUnit->spreadCorporation((CorporationTypes)(headMissionQueueNode()->m_data.iData1)))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_JOIN:
+-					if (pLoopUnit->join((SpecialistTypes)(headMissionQueueNode()->m_data.iData1)))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_CONSTRUCT:
+-					if (pLoopUnit->construct((BuildingTypes)(headMissionQueueNode()->m_data.iData1)))
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_DISCOVER:
+-					if (pLoopUnit->discover())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_HURRY:
+-					if (pLoopUnit->hurry())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_TRADE:
+-					if (pLoopUnit->trade())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_GREAT_WORK:
+-					if (pLoopUnit->greatWork())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_INFILTRATE:
+-					if (pLoopUnit->infiltrate())
+-					{
+-						bAction = true;
+-					}
+-					break;
+-
+-				case MISSION_GOLDEN_AGE:
+-					//just play animation, not golden age - JW
+-					if (headMissionQueueNode()->m_data.iData1 != -1)
+-					{
+-						CvMissionDefinition kMission;
+-						kMission.setMissionTime(GC.getMissionInfo(MISSION_GOLDEN_AGE).getTime() * gDLL->getSecsPerTurn());
+-						kMission.setUnit(BATTLE_UNIT_ATTACKER, pLoopUnit);
+-						kMission.setUnit(BATTLE_UNIT_DEFENDER, NULL);
+-						kMission.setPlot(pLoopUnit->plot());
+-						kMission.setMissionType(MISSION_GOLDEN_AGE);
+-						gDLL->getEntityIFace()->AddMission(&kMission);
+-						pLoopUnit->NotifyEntity(MISSION_GOLDEN_AGE);
+-						bAction = true;
+-					}
+-					else
+-					{
+-						if (pLoopUnit->goldenAge())
++					case MISSION_MOVE_TO:
++					case MISSION_ROUTE_TO:
++					case MISSION_MOVE_TO_UNIT:
++					case MISSION_SKIP:
++					case MISSION_SLEEP:
++					case MISSION_FORTIFY:
++					case MISSION_AIRPATROL:
++					case MISSION_SEAPATROL:
++					case MISSION_HEAL:
++					case MISSION_SENTRY:
++						break;
++
++					case MISSION_AIRLIFT:
++						if (pLoopUnit->airlift(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
+ 						{
+ 							bAction = true;
+ 						}
++						break;
++
++					case MISSION_NUKE:
++						if (pLoopUnit->nuke(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++
++							if (GC.getMapINLINE().plotINLINE(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2)->isVisibleToWatchingHuman())
++							{
++								bNuke = true;
++							}
++						}
++						break;
++
++					case MISSION_RECON:
++						if (pLoopUnit->recon(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_PARADROP:
++						if (pLoopUnit->paradrop(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_AIRBOMB:
++						if (pLoopUnit->airBomb(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_BOMBARD:
++						if (pLoopUnit->bombard())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_RANGE_ATTACK:
++						if (pLoopUnit->rangeStrike(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_PILLAGE:
++						if (pLoopUnit->pillage())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_PLUNDER:
++						if (pLoopUnit->plunder())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_SABOTAGE:
++						if (pLoopUnit->sabotage())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_DESTROY:
++						if (pLoopUnit->destroy())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_STEAL_PLANS:
++						if (pLoopUnit->stealPlans())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_FOUND:
++						if (pLoopUnit->found())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_SPREAD:
++						if (pLoopUnit->spread((ReligionTypes)(headMissionQueueNode()->m_data.iData1)))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_SPREAD_CORPORATION:
++						if (pLoopUnit->spreadCorporation((CorporationTypes)(headMissionQueueNode()->m_data.iData1)))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_JOIN:
++						if (pLoopUnit->join((SpecialistTypes)(headMissionQueueNode()->m_data.iData1)))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_CONSTRUCT:
++						if (pLoopUnit->construct((BuildingTypes)(headMissionQueueNode()->m_data.iData1)))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_DISCOVER:
++						if (pLoopUnit->discover())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_HURRY:
++						if (pLoopUnit->hurry())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_TRADE:
++						if (pLoopUnit->trade())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_GREAT_WORK:
++						if (pLoopUnit->greatWork())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_INFILTRATE:
++						if (pLoopUnit->infiltrate())
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_GOLDEN_AGE:
++						//just play animation, not golden age - JW
++						if (headMissionQueueNode()->m_data.iData1 != -1)
++						{
++							CvMissionDefinition kMission;
++							kMission.setMissionTime(GC.getMissionInfo(MISSION_GOLDEN_AGE).getTime() * gDLL->getSecsPerTurn());
++							kMission.setUnit(BATTLE_UNIT_ATTACKER, pLoopUnit);
++							kMission.setUnit(BATTLE_UNIT_DEFENDER, NULL);
++							kMission.setPlot(pLoopUnit->plot());
++							kMission.setMissionType(MISSION_GOLDEN_AGE);
++							gDLL->getEntityIFace()->AddMission(&kMission);
++							pLoopUnit->NotifyEntity(MISSION_GOLDEN_AGE);
++							bAction = true;
++						}
++						else
++						{
++							if (pLoopUnit->goldenAge())
++							{
++								bAction = true;
++							}
++						}
++						break;
++
++					case MISSION_BUILD:
++						break;
++
++					case MISSION_LEAD:
++						if (pLoopUnit->lead(headMissionQueueNode()->m_data.iData1))
++						{
++							bAction = true;
++						}
++						break;
++
++					case MISSION_ESPIONAGE:
++						if (pLoopUnit->espionage((EspionageMissionTypes)headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++						{
++							bAction = true;
++						}
++						pUnitNode = NULL; // allow one unit at a time to do espionage
++						break;
++
++					case MISSION_DIE_ANIMATION:
++						bAction = true;
++						break;
++
++					default:
++						FAssert(false);
++						break;
+ 					}
+-					break;
+-
+-				case MISSION_BUILD:
+-					break;
+-
+-				case MISSION_LEAD:
+-					if (pLoopUnit->lead(headMissionQueueNode()->m_data.iData1))
++
++					if (getNumUnits() == 0)
+ 					{
+-						bAction = true;
++						break;
+ 					}
+-					break;
+-
+-				case MISSION_ESPIONAGE:
+-					if (pLoopUnit->espionage((EspionageMissionTypes)headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2))
++
++					if (headMissionQueueNode() == NULL)
+ 					{
+-						bAction = true;
++						break;
+ 					}
+-					pUnitNode = NULL; // allow one unit at a time to do espionage
+-					break;
+-
+-				case MISSION_DIE_ANIMATION:
+-					bAction = true;
+-					break;
+-
+-				default:
+-					FAssert(false);
+-					break;
+-				}
+-
+-				if (getNumUnits() == 0)
+-				{
+-					break;
+-				}
+-
+-				if (headMissionQueueNode() == NULL)
+-				{
+-					break;
+ 				}
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@520
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@521
+@@ -1607,7 +1607,7 @@
+ 
+ 		CvEventReporter::getInstance().changeWar(true, getID(), eTeam);
+ 
+-		//REVDCM TODO: what's appropriate for canceling pacts?
++
+ 		if( GC.getDefineINT("BBAI_ALLIANCE_OPTION") != 1 )
+ 		{
+ 			cancelDefensivePacts();
+@@ -1623,6 +1623,7 @@
+ 				}
+ 				else if( GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
+ 				{
++					// For alliance option.  This teams pacts are canceled above if not using alliance option.
+ 					GET_TEAM((TeamTypes)iI).declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE);
+ 				}
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@520
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@521
+@@ -2161,7 +2161,7 @@
+ }
+ 
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      02/10/10                                jdog5000      */
+ /*                                                                                              */
+ /* War Strategy AI                                                                              */
+ /************************************************************************************************/
+@@ -2265,21 +2265,18 @@
+ 		}
+ 	}
+ 
+-	// Check for whether team can surrender to anyone else
+-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+-			if (GET_PLAYER((PlayerTypes)iI).getTeam() != getID() && !(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isVassal(getID())) )
+-			{
+-				if (GET_TEAM(eSurrenderTeam).isAtWar(GET_PLAYER((PlayerTypes)iI).getTeam()))
+-				{
+-					if (GET_TEAM(eSurrenderTeam).AI_getAtWarCounter(GET_PLAYER((PlayerTypes)iI).getTeam()) >= 10)
+-					{
+-						TradeData item;
+-						setTradeItem(&item, TRADE_SURRENDER);
+-
+-						if( GET_PLAYER(GET_TEAM(eSurrenderTeam).getLeaderID()).canTradeItem((PlayerTypes)iI, item, true) )
++	// Check for whether another team has won enough to cause capitulation
++	for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++	{
++		if (GET_TEAM((TeamTypes)iI).isAlive())
++		{
++			if (iI != getID() && !(GET_TEAM((TeamTypes)iI).isVassal(getID())) )
++			{
++				if (GET_TEAM(eSurrenderTeam).isAtWar((TeamTypes)iI))
++				{
++					if (GET_TEAM(eSurrenderTeam).AI_getAtWarCounter((TeamTypes)iI) >= 10)
++					{
++						if (GET_TEAM(eSurrenderTeam).AI_getWarSuccess((TeamTypes)iI) + std::min(GET_TEAM(eSurrenderTeam).getNumCities(), 4) * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING") < GET_TEAM((TeamTypes)iI).AI_getWarSuccess(eSurrenderTeam))
+ 						{
+ 							return true;
+ 						}
+@@ -3989,7 +3986,7 @@
+ 				}
+ 				else if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_LIMITED)
+ 				{
+-					FAssert(canDeclareWar((TeamTypes)iI));
++					FAssert(canEventuallyDeclareWar((TeamTypes)iI));
+ 
+ 					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((5 * iTimeModifier) / 100))
+ 					{
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@520
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@521
+@@ -2389,7 +2389,7 @@
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       09/17/09                         TC01 & jdog5000      */
+ /*                                                                                              */
+-/* Bugfix				                                                                         */
++/* Bugfix				                                                                        */
+ /************************************************************************************************/
+ /* original bts code
+ 		else
+

@@ -1,0 +1,72 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 51
+# Author: iustus
+# Date: 2006-11-08T17:26:10.156161Z
+# Coverage: full
+# Message:
+#   Correctly check domain for AI_compareStacks. Add output in cheat mode for the new calls (combat output has the stack compare, the plot output has the plot strength in all three domains).
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@50
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@51
+@@ -1502,6 +1502,13 @@
+ 			{
+ 				szString += NEWLINE + gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints());
+ 			}
++			
++			if (gDLL->getChtLvl() > 0)
++			{
++				szTempBuffer.Format(L"\nStack Compare Value = %d", 
++					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, false));
++				szString+=szTempBuffer;
++			}
+ 
+ 			szString+=gDLL->getText("TXT_KEY_COLOR_REVERT");
+ 
+@@ -1650,9 +1657,17 @@
+ 
+             if (NO_BUILD != eBestBuild)
+             {
+-                szTempBuffer.Format(L"\n Best Build: %s (%d)", GC.getBuildInfo(eBestBuild).getDescription(), iBuildValue);
++                szTempBuffer.Format(L"\nBest Build: %s (%d)", GC.getBuildInfo(eBestBuild).getDescription(), iBuildValue);
+                 szString += szTempBuffer;
+             }
++		}
++
++		{
++			szTempBuffer.Format(L"\nStack Str: land=%d, sea=%d, air=%d", 
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_LAND, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_SEA, false, false),
++				pPlot->AI_sumStrength(NO_PLAYER, NO_PLAYER, DOMAIN_AIR, false, false));
++			szString+=szTempBuffer;
+ 		}
+ 	}
+ 	else if (!bShift && bAlt && (gDLL->getChtLvl() > 0))
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@50
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@51
+@@ -282,7 +282,17 @@
+ 	FAssert(pPlot != NULL);
+ 	
+ 	int	compareRatio;
+-	DomainTypes eDomainType = NO_DOMAIN;
++	DomainTypes eDomainType = getDomainType();
++
++	// if not aircraft, then choose based on the plot, not the head unit (mainly for transport carried units)
++	if (eDomainType != DOMAIN_AIR)
++	{
++		if (pPlot->isWater())
++			eDomainType = DOMAIN_SEA;
++		else
++			eDomainType = DOMAIN_LAND;
++
++	}
+ 
+ 	compareRatio = AI_sumStrength(pPlot, eDomainType, false);
+ 	compareRatio *= 100;
+

@@ -1,0 +1,1914 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 68
+# Author: iustus
+# Date: 2006-11-14T01:10:19.927868Z
+# Coverage: full
+# Message:
+#   - More changes to governor code, but it is still not 100% right, more changes are forthcoming
+#   - Added frameworks for caching in many classes (Game, Map, Player, Team)
+#   - Use caching for new hasShine() function
+#   - CvSelectionGroup::countNumUnitAIType can be used to count all the units if NO_UNITAI specified
+#   - AI_avoidGrowth does not count miliary unhappiness, since that will likely be fixed quickly
+#   - Added alt-shift mouseover text in cheat mode chipolte for plotvalues, over cities gives a summary. Use this to find problems with the values to recommend governor fixes.
+#   - In chipolte cheat mode, messages are sent for starting and stopping all trades, to watch AI trading (I suspect the gold change has reduced the amount of AI trading)
+# Changed paths (18):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.h
+#   M /trunk/CvGameCoreDLL/CvMap.cpp
+#   M /trunk/CvGameCoreDLL/CvMap.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@67
++++ /trunk/CvGameCoreDLL/CvCity.cpp@68
+@@ -82,6 +82,8 @@
+ 
+ 	CvDLLEntity::createCityEntity(this);		// create and attach entity to city
+ 
++	constructCache();
++
+ 	reset(0, NO_PLAYER, 0, 0, true);
+ }
+ 
+@@ -91,6 +93,8 @@
+ 	CvDLLEntity::destroyEntity();			// delete CvCityEntity and detach from us
+ 
+ 	uninit();
++
++	destructCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_aiSeaPlotYield);
+ 	SAFE_DELETE_ARRAY(m_aiBaseYieldRate);
+@@ -264,11 +268,15 @@
+ 	}
+ 
+ 	AI_init();
++
++	initCache();
+ }
+ 
+ 
+ void CvCity::uninit()
+ {
++	uninitCache();
++
+ 	SAFE_DELETE_ARRAY(m_paiFreeBonus);
+ 	SAFE_DELETE_ARRAY(m_paiNumBonuses);
+ 	SAFE_DELETE_ARRAY(m_paiProjectProduction);
+@@ -557,6 +565,8 @@
+ 	{
+ 		AI_reset();
+ 	}
++	
++	resetCache(bConstructorCall);
+ }
+ 
+ 
+@@ -710,6 +720,8 @@
+ 
+ 	CvPlot* pLoopPlot;
+ 	int iI;
++
++	doUpdateCacheOnTurn();
+ 
+ 	if (!isBombarded())
+ 	{
+@@ -10589,3 +10601,81 @@
+ 	}
+ }
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++bool CvCity::hasShrine(ReligionTypes eReligion)
++{
++	bool bHasShrine = false;
++	
++	// note, for normal XML, this count will be one, there is only one shrine of each religion
++	int	shrineBuildingCount = GC.getGameINLINE().getShrineBuildingCount(eReligion);
++	for (int iI = 0; iI < shrineBuildingCount; iI++)
++	{
++		BuildingTypes eBuilding = GC.getGameINLINE().getShrineBuilding(iI, eReligion);
++
++		if (hasBuilding(eBuilding))
++		{
++			bHasShrine = true;
++			break;
++		}
++	}
++
++	return bHasShrine;
++}
++
++void CvCity::constructCache()
++{
++	// allocate known constants
++
++	// zero everything out, just to be safe
++	m_iPlaceholderCount = 0;
++	m_aiPlaceholderArray = NULL;
++	
++	// note resetCache(/*bConstructorCall*/ true) will be called by CvCity::CvCity
++}
++
++void CvCity::destructCache()
++{
++	uninitCache(); // note, will be called by CvCity::~CvCity as well
++
++	// deallocate anything allocated in constructor
++}
++
++void CvCity::initCache()
++{
++	// init non-saved data
++
++	// note resetCache(/*bConstructorCall*/ false) will be called by CvCity::init
++}
++
++void CvCity::uninitCache()
++{
++	m_iPlaceholderCount = 0;
++
++	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++}
++
++void CvCity::resetCache(bool bConstructorCall)
++{
++	int	iI;
++	
++	uninitCache(); // note, will be called by CvCity::reset as well
++	
++	if (!bConstructorCall)
++	{
++		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
++		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
++		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++		{
++			m_aiPlaceholderArray[iI] = (int) 0;
++		}
++	}
++}
++
++
++void CvCity::doUpdateCacheOnTurn()
++{
++
++}
++
++
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@67
++++ /trunk/CvGameCoreDLL/CvCity.h@68
+@@ -955,6 +955,23 @@
+ 
+ 	virtual bool AI_addBestCitizen(bool bWorkers, bool bSpecialists) = 0;
+ 	virtual bool AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist = NO_SPECIALIST) = 0;
++
++// CACHE: cache frequently used values
++///////////////////////////////////////
++public:
++	bool hasShrine(ReligionTypes eReligion);
++
++protected:
++	int		m_iPlaceholderCount;
++	int*	m_aiPlaceholderArray;
++
++	void constructCache();	// called from constructor
++	void destructCache();	// called from destructor
++	void initCache();
++	void uninitCache();
++	void resetCache(bool bConstructorCall = false);
++
++	void doUpdateCacheOnTurn();	
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@67
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@68
+@@ -274,7 +274,17 @@
+ 
+ 	if (!AI_isEmphasizeYield(YIELD_FOOD))
+ 	{
+-		if (angryPopulation((isHuman()) ? 0 : 1) > 0)
++		int iExtra = (isHuman()) ? 0 : 1;
++		int iHappinessLevel = happyLevel() - unhappyLevel(iExtra);
++		
++		// ignore military unhappy, since we assume it will be fixed quickly, grow anyway
++		if (getMilitaryHappinessUnits() == 0)
++		{
++			iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (getPopulation() + 1)) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"));
++		}
++		
++		// if we have angry citizens
++		if (iHappinessLevel < 0)
+ 		{
+ 			return true;
+ 		}
+@@ -365,37 +375,54 @@
+ 
+         if (!isHuman())
+         {
+-            //gah. Shriiiineeee....
+-            for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
++            // try to spawn a prophet for any shrines we have yet to build
++            bool bNeedProphet = false;
++			
++			for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
+             {
+-                ReligionTypes eReligion = (ReligionTypes)iJ;
+-
+-                if (isHolyCity(eReligion))
++                ReligionTypes eReligion = (ReligionTypes) iJ;
++
++                if (isHolyCity(eReligion) && !hasShrine(eReligion))
+                 {
+-                    PlayerTypes ePlayer = getOwnerINLINE();
+-
+-                    UnitTypes eGreatPeopleUnit;
+-                    FAssert(ePlayer != NO_PLAYER);
+-                    FAssert(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass() != NO_UNITCLASS);
+-
+-                    eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationUnits(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass())));
+-
+-                    if ((eGreatPeopleUnit != NO_UNIT) && GC.getUnitInfo(eGreatPeopleUnit).getDefaultUnitAIType() == UNITAI_PROPHET)
+-                    {
+-                        //urghhh... oh i'm sure he'll be good for something even if the shrine already exists or can't be built
+-                        //don't wanna iterate over all builds and find something which smells like the shrine since
+-                        //i bet this runs a lot...
+-                        iTempValue += (iGreatPeopleRate * 4);
+-                        if (AI_isEmphasizeGreatPeople())
+-                        {
+-                            iTempValue += (iGreatPeopleRate * 8);
+-                        }
+-                    }
+-                    break;
++					CvCivilizationInfo* pCivilizationInfo = &GC.getCivilizationInfo(getCivilizationType());
++					
++					int iUnitClass = GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass();
++                    FAssert(iUnitClass != NO_UNITCLASS);
++                    
++					UnitTypes eGreatPeopleUnit = (UnitTypes) pCivilizationInfo->getCivilizationUnits(iUnitClass);
++					if (eGreatPeopleUnit != NO_UNIT)
++					{
++						// note, for normal XML, this count will be one (there is only 1 shrine building for each religion)
++						int	shrineBuildingCount = GC.getGameINLINE().getShrineBuildingCount(eReligion);
++						for (int iI = 0; iI < shrineBuildingCount; iI++)
++						{
++							int eBuilding = (int) GC.getGameINLINE().getShrineBuilding(iI, eReligion);
++							
++							// if this unit builds or forceBuilds this building
++							if (GC.getUnitInfo(eGreatPeopleUnit).getBuildings(eBuilding) || GC.getUnitInfo(eGreatPeopleUnit).getForceBuildings(eBuilding))
++							{
++								bNeedProphet = true;
++								break;
++							}
++						}
++				
++					}
++				}
++				
++				// stop loop if know we need one
++				if (bNeedProphet)
++					break;
++			}
++
++			if (bNeedProphet)
++            {
++                iTempValue += (iGreatPeopleRate * 4);
++                if (AI_isEmphasizeGreatPeople())
++                {
++                    iTempValue += (iGreatPeopleRate * 8);
+                 }
+             }
+-        }
+-
++		}
+ 
+ 		iValue += iTempValue;
+ 
+@@ -3829,10 +3856,6 @@
+ 	CvPlot* pLoopPlot;
+ 	bool bAvoidGrowth;
+ 	bool bIgnoreGrowth;
+-	int iWorstPlot;
+-	int iValue;
+-	int iLowestValue;
+-	int iI;
+ 
+ 	bAvoidGrowth = AI_avoidGrowth();
+ 	bIgnoreGrowth = AI_ignoreGrowth();
+@@ -3841,12 +3864,17 @@
+ 	
+ 	// one at a time, remove the worst citizen, then add the best citizen
+ 	// until we add back the same one we removed
+-	while (true)
+-	{
+-		iLowestValue = MAX_INT;
+-		iWorstPlot = -1;
+-
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++	bool bCompletedStandardChecks = false;
++	bool bCompletedIgnoreFoodChecks = false;
++	while (!bCompletedStandardChecks || !bCompletedIgnoreFoodChecks)
++	{
++		int iLowestStandardValue = MAX_INT;
++		int iLowestIgnoreFoodValue = MAX_INT;
++		int iWorstStandardPlot = -1;
++		int iWorstIgnoreFoodPlot = -1;
++		int iValue;
++
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			if (iI != CITY_HOME_PLOT)
+ 			{
+@@ -3856,35 +3884,71 @@
+ 
+ 					if (pLoopPlot != NULL)
+ 					{
+-						iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ true, bIgnoreGrowth);
+-
+-						if (iValue < iLowestValue)
+-						{
+-							iLowestValue = iValue;
+-							iWorstPlot = iI;
+-						}
+-					}
+-				}
+-			}
+-		}
+-
+-		if (iWorstPlot == -1)
+-		{
+-			break;
+-		}
+-
+-		setWorkingPlot(iWorstPlot, false);
+-
+-		if (AI_addBestCitizen(true, true))
+-		{
+-			if (isWorkingPlot(iWorstPlot))
+-			{
+-				break;
++						if (!bCompletedStandardChecks)
++						{
++							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ false, bIgnoreGrowth);
++
++							if (iValue < iLowestStandardValue)
++							{
++								iLowestStandardValue = iValue;
++								iWorstStandardPlot = iI;
++							}
++						}
++
++						if (!bCompletedIgnoreFoodChecks)
++						{
++							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ true, bIgnoreGrowth);
++
++							if (iValue < iLowestStandardValue)
++							{
++								iLowestIgnoreFoodValue = iValue;
++								iWorstIgnoreFoodPlot = iI;
++							}
++						}
++					}
++				}
++			}
++		}
++		
++		if (!bCompletedStandardChecks)
++		{
++			if (iWorstStandardPlot == -1)
++				bCompletedStandardChecks = true;
++			else
++			{
++				setWorkingPlot(iWorstStandardPlot, false);
++
++				if (AI_addBestCitizen(true, true))
++				{
++					if (isWorkingPlot(iWorstStandardPlot))
++					{
++						bCompletedStandardChecks = true;
++					}
++				}
++			}
++		}
++
++		if (!bCompletedIgnoreFoodChecks)
++		{
++			if (iWorstIgnoreFoodPlot == -1)
++				bCompletedIgnoreFoodChecks = true;
++			// do not do the same check on the same plot, but continue to loop
++			else if (iWorstIgnoreFoodPlot != iWorstStandardPlot)
++			{
++				setWorkingPlot(iWorstIgnoreFoodPlot, false);
++
++				if (AI_addBestCitizen(true, true))
++				{
++					if (isWorkingPlot(iWorstIgnoreFoodPlot))
++					{
++						bCompletedIgnoreFoodChecks = true;
++					}
++				}
+ 			}
+ 		}
+ 
+ 		iCount++;
+-		if (iCount > NUM_CITY_PLOTS)
++		if (iCount > (2 * (NUM_CITY_PLOTS + 1)))
+ 		{
+ 			FAssertMsg(false, "infinite loop");
+ 			break; // XXX
+@@ -4059,11 +4123,12 @@
+ 
+ 	iValue = 0;
+ 	
+-	if (!bIgnoreFood)
+-	{
+-		int iFoodPerTurn= (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
++	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
++	{
++		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodLevel = getFood();
+ 		int iFoodToGrow = growthThreshold();
++		int	iExtraPopulation = extraPopulation();
+ 
+ 		if (bAvoidGrowth)
+ 		{
+@@ -4078,7 +4143,7 @@
+ 		if (iFoodPerTurn < 0)
+ 		{
+ 			// if working plots all like this one will save us from starving
+-			if (max(0, extraPopulation() * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
++			if (max(0, iExtraPopulation * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+ 			{
+ 				// if this plot alone will not save us from starving
+ 				if (aiYields[YIELD_FOOD] <= -iFoodPerTurn)
+@@ -4088,8 +4153,8 @@
+ 				}
+ 				else
+ 				{
+-					// value the food enormously high(2048), but value the overflow past starving only high(32)
+-					iValue += (-iFoodPerTurn * 2048) + (aiYields[YIELD_FOOD] + iFoodPerTurn) * 32;
++					// value the food needed to break even enormously high(2048)
++					iValue += (-iFoodPerTurn * 2048);
+ 				}
+ 			}
+ 			else
+@@ -4104,58 +4169,130 @@
+ 		{
+ 			if (!bAvoidGrowth)
+ 			{
+-				// value food medium low(8)
+-				iValue += (aiYields[YIELD_FOOD] * 8);
++				// value food low(5)
++				iValue += (aiYields[YIELD_FOOD] * 5);
+ 
+ 				if (!bIgnoreGrowth)
+ 				{
+-					int iTempValue = aiYields[YIELD_FOOD];
++					int iHappinessLevel = happyLevel() - unhappyLevel(0);
++					int iPopulation = getPopulation();
++					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++					// also avail: iFoodLevel, iFoodToGrow
+ 					
+-					// we will set the target to how fast we want to grow
+-					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-					int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
+-					int iHappinessLevel = happyLevel() - unhappyLevel(1);
+-					int iPop = getPopulation();
++					// adjust iFoodPerTurn assuming that we work this plot plus plots all equal to iConsumtionPerPop
++					// that way it is our guesstimate of how much excess food we will have
++					iFoodPerTurn += aiYields[YIELD_FOOD] + ((iExtraPopulation > 1) ? ((iExtraPopulation - 1) * iConsumtionPerPop) : 0);
++					
++					// we have less than 10 extra happy, do some checks to see if we can increase it
++					if (iHappinessLevel < 10)
++					{
++						// if we have anger becase no military, do not count it, on the assumption that it will 
++						// be remedied soon, and that we still want to grow
++						if (getMilitaryHappinessUnits() == 0)
++						{
++							iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (iPopulation + 1)) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"));
++						}
++
++						// currently we can at most increase happy by 2 in the following checks
++						const int kMaxHappyIncrease = 2;
++
++						// if happy is large enough so that it will be over zero after we do the checks
++						if ((iHappinessLevel + kMaxHappyIncrease) > 0 && iFoodPerTurn > 0)
++						{
++							int iApproxTurnsToGrow = (iFoodPerTurn > 0) ? ((iFoodToGrow - iFoodLevel) / iFoodPerTurn) : MAX_INT;
++
++							// do we have hurry anger?
++							int iHurryAngerTimer = getHurryAngerTimer();
++							if (iHurryAngerTimer > 0)
++							{
++								int iTurnsUntilAngerIsReduced = iHurryAngerTimer % flatHurryAngerLength();
++								
++								// if we will recover within about 3 turns of growing, then dont count that angry
++								if (iTurnsUntilAngerIsReduced - 3 <= iApproxTurnsToGrow)
++									iHappinessLevel++;
++							}
++
++							// do we have conscript anger?
++							int iConscriptAngerTimer = getConscriptAngerTimer();
++							if (iConscriptAngerTimer > 0)
++							{
++								int iTurnsUntilAngerIsReduced = iConscriptAngerTimer % flatConscriptAngerLength();
++								
++								// if we will recover within about 3 turns of growing, then dont count that angry
++								if (iTurnsUntilAngerIsReduced - 3 <= iApproxTurnsToGrow)
++									iHappinessLevel++;
++							}
++						}
++					}
++
+ 					int iPopToGrow = max(0, iHappinessLevel);
+-					int iUnhealthLosses = max(0, iPopToGrow - iHealthLevel);
+-
+-					// iFoodLevel, iFoodToGrow, iFoodPerTurn
+-					
+-					// (range 1-15) - we want to grow more if we have a lot of growth to do
+-					int iFactorPopToGrow = 1 + min(9, max(0, iPopToGrow - 2)) + min(5, max(0, iPopToGrow - 6));
+-					iTempValue *= iFactorPopToGrow;
+-					
+-					// (range 51-100) - we will grown slightly slower if we running unhealthy
+-					int iFactorUnhealth = 51 + max(0, 49 - iUnhealthLosses);
+-					iTempValue *= iFactorUnhealth;
+-					iTempValue /= 100;
+-					
+-					// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8 - less than (2*iConsumtionPerPop) will get a big bonus
+-					int iFactorSlowRate = 8 + (3 * max(0, (2 * iConsumtionPerPop) - iFoodPerTurn));
+-					iTempValue *= iFactorUnhealth;
+-					iTempValue /= (3 * iConsumtionPerPop) + 4;
+-
+-					// (range 71-100) - the faster our current rate, the less valueble adding more is
+-					int iFactorFastRate = 71 + max(0, 19 - iFoodPerTurn) + max(0, 10 - (2 * iFoodPerTurn));
+-					iTempValue *= iFactorFastRate;
+-					iTempValue /= 100;
+-					
+-					// (range 2-5ish)[5ish = iConsumtionPerPop+3] - yields less than 3 will not help us grow much
+-					int iFactorLowYield = 2 + min((iConsumtionPerPop+1), max(0, aiYields[YIELD_FOOD]));
+-					iTempValue *= iFactorLowYield * 3;
+-					iTempValue /= (iConsumtionPerPop + 1); // if (iConsumtionPerPop == 2), this cancels out with the 3 above
+-
+-					// (range 2-3) - give a 50% bonus if we are emph food
+-					int iFactorEmp = 2 + (AI_isEmphasizeYield(YIELD_FOOD) ? 1 : 0);
+-					iTempValue *= iFactorEmp;
+-
+-					// (range 11-50) - exclusively growing is less important in big cities
+-					int	iFactorPop = 11 + min(0, 39 - iPop);
+-					iTempValue *= iFactorPop;
+-					iTempValue /= 100;
+-
+-					// (range 0-225) * yield
+-					iValue += iTempValue;
++
++					// if we want to grow
++					if (iPopToGrow > 0)
++					{
++						int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
++						int iUnhealthLosses = max(0, iPopToGrow - iHealthLevel);
++						
++						// will mulitply this by factors
++						int iTempValue = aiYields[YIELD_FOOD] * 3;
++						
++						// (range 1-25) - we want to grow more if we have a lot of growth to do
++						// factor goes up like this: 0:1, 1:2, 2:4, 3:8, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
++						int iFactorPopToGrow;
++						if (iPopToGrow < 2)
++							iFactorPopToGrow = 1 + iPopToGrow;
++						else if (iPopToGrow == 2)
++							iFactorPopToGrow = 4;
++						else if (iPopToGrow == 3)
++							iFactorPopToGrow = 8;
++						else if (iPopToGrow < 6)
++							iFactorPopToGrow = 3 + (2 * iPopToGrow);
++						else if (iPopToGrow < 17)
++							iFactorPopToGrow = 8 + iPopToGrow;
++						else // iPopToGrow >= 17
++							iFactorPopToGrow = 25;
++						iTempValue *= iFactorPopToGrow;
++						
++						// (range 51-100) - we will grown slightly slower if we running unhealthy
++						int iFactorUnhealth = 51 + max(0, 49 - iUnhealthLosses);
++						iTempValue *= iFactorUnhealth;
++						iTempValue /= 100;
++						
++						// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8] - our min goal is (2*iConsumtionPerPop)
++						//													 per turn, if we under, give food a bonus
++						int iFactorSlowRate = 8 + (3 * max(0, (2 * iConsumtionPerPop) - iFoodPerTurn));
++						iTempValue *= iFactorSlowRate;
++						iTempValue /= (3 * iConsumtionPerPop) + 4;
++
++						// (range 71-100) - the faster our current rate, the less valueble adding more is
++						int iFactorFastRate;
++						if (iFoodPerTurn < 5)
++							iFactorFastRate = 100 - (3 * iFoodPerTurn);
++						else if (iFoodPerTurn < 19)
++							iFactorFastRate = 90 - iFoodPerTurn;
++						else // iFoodPerTurn >= 19
++							iFactorFastRate = 71;
++						iTempValue *= iFactorFastRate;
++						iTempValue /= 100;
++						
++						// (range 2-5ish)[5ish = iConsumtionPerPop+3] - yields less than 3 will not help us grow much
++						//												use the minimum (2) if we do not have at least 2 to grow
++						int iFactorLowYield = 2 + ((iPopToGrow > 1) ? (min((iConsumtionPerPop+1), max(0, aiYields[YIELD_FOOD]))) : 0);
++						iTempValue *= iFactorLowYield * 3;
++						iTempValue /= (iConsumtionPerPop + 1); // if (iConsumtionPerPop == 2), this cancels out with the 3 above
++
++						// (range 2-3) - give a 50% bonus if we are emph food
++						int iFactorEmp = 2 + (AI_isEmphasizeYield(YIELD_FOOD) ? 1 : 0);
++						iTempValue *= iFactorEmp;
++
++						// (range 11-50) - exclusively growing is less important in big cities
++						int	iFactorPopulation = 11 + min(0, 39 - iPopulation);
++						iTempValue *= iFactorPopulation;
++						iTempValue /= 100;
++
++						// (range 0-375) * yield
++						iValue += iTempValue;
++					}
+ 				}
+ 			}
+ 		}
+@@ -4240,6 +4377,9 @@
+ 
+ 	if (eCurrentImprovement != NO_IMPROVEMENT)
+ 	{
++		// prefer to use improved tiles
++		iValue += 925;
++		
+ 		if (pPlot->getBonusType(getTeam()) == NO_BONUS) // XXX double-check CvGame::doFeature that the checks are the same...
+ 		{
+ 			for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+@@ -4248,28 +4388,29 @@
+ 				{
+ 					if (GC.getImprovementInfo(eCurrentImprovement).getImprovementBonusDiscoverRand(iI) > 0)
+ 					{
+-						iValue++;
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if ((pPlot->getImprovementType() != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
+-	{
+-		iValue += 2;
++						iValue += 35;
++					}
++				}
++			}
++		}
++	}
++
++	if ((eCurrentImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT))
++	{
++		iValue += 125;
+ 
+ 		iValue += pPlot->getUpgradeProgress();
+ 
+ 		if (GET_PLAYER(getOwnerINLINE()).AI_isCommercePlot(pPlot))
+ 		{
+-			iValue++;
+-		}
+-	}
+-	else if (pPlot->getImprovementType() == NO_IMPROVEMENT)
+-	{
+-		iValue++;
+-	}
++			iValue += 200;
++		}
++	}
++	// removed, why would you want to prefer non-improved tiles?
++	//else if (pPlot->getImprovementType() == NO_IMPROVEMENT)
++	//{
++	//	iValue++;
++	//}
+ 
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@67
++++ /trunk/CvGameCoreDLL/CvCityAI.h@68
+@@ -130,6 +130,9 @@
+ 	int AI_buildUnitProb();
+ 
+ 	void AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop);
++	
++	// added so under cheat mode we can call protected functions for testing
++	friend class CvGameTextMgr;
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@67
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@68
+@@ -80,6 +80,20 @@
+ 		GAMETEXT.getDealString(szDealString, *this, getSecondPlayer());
+ 		szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.GetCString());
+ 		gDLL->getInterfaceIFace()->addMessage((PlayerTypes)getSecondPlayer(), true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString, "AS2D_DEAL_CANCELLED");
++		
++		// if cheatlevel > 0, then notify the human that a deal was canceled
++		if (gDLL->getChtLvl() > 0)
++		{
++			PlayerTypes iActivePlayer = GC.getGameINLINE().getActivePlayer();
++			
++			if (iActivePlayer != getFirstPlayer() && iActivePlayer != getFirstPlayer())
++			{
++				szDealString.clear();
++				GAMETEXT.getDealString(szDealString, *this, iActivePlayer);
++				szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.GetCString());
++				gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
++			}
++		}
+ 	}
+ 
+ 	CLLNode<TradeData>* pNode;
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@67
++++ /trunk/CvGameCoreDLL/CvGame.cpp@68
+@@ -22,6 +22,7 @@
+ #include "FProfiler.h"
+ #include "CvReplayInfo.h"
+ #include "CyPlot.h"
++#include "CvGameTextMgr.h"
+ 
+ // interface uses
+ #include "CvDLLInterfaceIFaceBase.h"
+@@ -66,6 +67,8 @@
+ 
+ 	m_pReplayInfo = NULL;
+ 
++	constructCache();
++
+ 	reset(NO_HANDICAP, true);
+ }
+ 
+@@ -73,6 +76,8 @@
+ CvGame::~CvGame()
+ {
+ 	uninit();
++
++	destructCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_aiEndTurnMessagesReceived);
+ 	SAFE_DELETE_ARRAY(m_aiRankPlayer);
+@@ -260,6 +265,8 @@
+ 	}
+ 
+ 	AI_init();
++
++	initCache();
+ }
+ 
+ //
+@@ -340,6 +347,8 @@
+ void CvGame::uninit()
+ {
+ 	int iI;
++
++	uninitCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_paiUnitCreatedCount);
+ 	SAFE_DELETE_ARRAY(m_paiUnitClassCreatedCount);
+@@ -537,6 +546,8 @@
+ 	{
+ 		AI_reset();
+ 	}
++
++	resetCache(bConstructorCall);
+ }
+ 
+ 
+@@ -3607,15 +3618,33 @@
+ 
+ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
+ {
+-	CvDeal* pDeal;
+-
+ 	FAssertMsg(eWho != NO_PLAYER, "Who is not assigned a valid value");
+ 	FAssertMsg(eOtherWho != NO_PLAYER, "OtherWho is not assigned a valid value");
+ 	FAssertMsg(eWho != eOtherWho, "eWho is not expected to be equal with eOtherWho");
+ 
+-	pDeal = addDeal();
++	// if cheatlevel > 0, then notify the human that a deal was made
++	if (gDLL->getChtLvl() > 0)
++	{
++		FAssertMsg(((pOurList->getLength() > 0) || (pTheirList->getLength() > 0)), "Empty trade implemented?!");
++
++		PlayerTypes iActivePlayer = GC.getGameINLINE().getActivePlayer();
++		
++		if (iActivePlayer != eWho && iActivePlayer != eOtherWho)
++		{
++			CvWString szString;
++			CvWString szDealString;
++
++			szDealString.clear();
++			GAMETEXT.getDealString(szDealString, eWho, eOtherWho, pOurList, pTheirList, iActivePlayer);
++			szString.Format(L"%s", szDealString.GetCString());
++			gDLL->getInterfaceIFace()->addMessage(iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
++		}
++	}
++
++	CvDeal* pDeal = addDeal();
+ 	pDeal->init(pDeal->getID(), eWho, eOtherWho);
+ 	pDeal->addTrades(pOurList, pTheirList, !bForce);
++
+ 	if ((pDeal->getLengthFirstTrades() == 0) && (pDeal->getLengthSecondTrades() == 0))
+ 	{
+ 		pDeal->kill();
+@@ -6099,6 +6128,8 @@
+ 
+ 	// END OF TURN
+ 	gDLL->getEventReporterIFace()->beginGameTurn( getGameTurn() );
++
++	doUpdateCacheOnTurn();
+ 
+ 	updateScore();
+ 
+@@ -8086,3 +8117,169 @@
+ 	return gDLL->hasSkippedSaveChecksum();
+ }
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++
++
++int CvGame::getShrineBuildingCount(ReligionTypes eReligion)
++{
++	int	iShrineBuildingCount = 0;
++
++	if (eReligion == NO_RELIGION)
++		iShrineBuildingCount = m_iShrineBuildingCount;
++	else for (int iI = 0; iI < m_iShrineBuildingCount; iI++)
++		if (m_aiShrineReligion[iI] == eReligion)
++			iShrineBuildingCount++;
++
++	return iShrineBuildingCount;
++}
++
++BuildingTypes CvGame::getShrineBuilding(int eIndex, ReligionTypes eReligion)
++{
++	FAssertMsg(eIndex >= 0 && eIndex < m_iShrineBuildingCount, "invalid index to CvGame::getShrineBuilding");
++
++	BuildingTypes eBuilding = NO_BUILDING;
++
++	if (eIndex >= 0 && eIndex < m_iShrineBuildingCount)
++	{
++		if (eReligion == NO_RELIGION)
++			eBuilding = (BuildingTypes) m_aiShrineBuilding[eIndex];
++		else for (int iI = 0, iReligiousBuilding = 0; iI < m_iShrineBuildingCount; iI++)
++			if (m_aiShrineReligion[iI] == (int) eReligion)
++			{
++				if (iReligiousBuilding == eIndex)
++				{
++					// found it
++					eBuilding = (BuildingTypes) m_aiShrineBuilding[iI];
++					break;
++				}
++
++				iReligiousBuilding++;
++			}
++	}
++
++	return eBuilding;
++}
++
++void CvGame::changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove)
++{
++	FAssertMsg(eBuilding >= 0 && eBuilding < GC.getNumBuildingInfos(), "invalid index to CvGame::changeShrineBuilding");
++	FAssertMsg(bRemove || m_iShrineBuildingCount < GC.getNumBuildingInfos(), "trying to add too many buildings to CvGame::changeShrineBuilding");
++
++	if (bRemove)
++	{
++		bool bFound = false;
++
++		for (int iI = 0; iI < m_iShrineBuildingCount; iI++)
++		{
++			if (!bFound)
++			{
++				// note, eReligion is not important if we removing, since each building is always one religion
++				if (m_aiShrineBuilding[iI] == (int) eBuilding)
++					bFound = true;
++			}
++			
++			if (bFound)
++			{
++				int iToMove = iI + 1;
++				if (iToMove < m_iShrineBuildingCount)
++				{
++					m_aiShrineBuilding[iI] = m_aiShrineBuilding[iToMove];
++					m_aiShrineReligion[iI] = m_aiShrineReligion[iToMove];
++				}
++				else
++				{
++					m_aiShrineBuilding[iI] = (int) NO_BUILDING;
++					m_aiShrineReligion[iI] = (int) NO_RELIGION;
++				}
++			}
++
++		if (bFound)
++			m_iShrineBuildingCount--;
++
++		}
++	}
++	else if (m_iShrineBuildingCount < GC.getNumBuildingInfos())
++	{
++		// add this item to the end
++		m_aiShrineBuilding[m_iShrineBuildingCount] = eBuilding;
++		m_aiShrineReligion[m_iShrineBuildingCount] = eReligion;
++		m_iShrineBuildingCount++;
++	}
++	
++}
++
++void CvGame::constructCache()
++{
++	// allocate known constants
++
++	// zero everything out, just to be safe
++	m_iShrineBuildingCount = 0;
++	m_aiShrineBuilding = NULL;
++	m_aiShrineReligion = NULL;
++	
++	// note resetCache(/*bConstructorCall*/ true) will be called by CvGame::CvGame
++}
++
++void CvGame::destructCache()
++{
++	uninitCache(); // note, will be called by CvGame::~CvGame as well
++
++	// deallocate anything allocated in constructor
++}
++
++void CvGame::initCache()
++{
++	// init non-saved data
++
++	// note resetCache(/*bConstructorCall*/ false) will be called by CvGame::init
++}
++
++void CvGame::uninitCache()
++{
++	m_iShrineBuildingCount = 0;
++
++	SAFE_DELETE_ARRAY(m_aiShrineBuilding);
++	SAFE_DELETE_ARRAY(m_aiShrineReligion);
++}
++
++void CvGame::resetCache(bool bConstructorCall)
++{
++	int	iI;
++	
++	uninitCache(); // note, will be called by CvGame::reset as well
++	
++	if (!bConstructorCall)
++	{
++		FAssertMsg(m_aiShrineBuilding==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
++		FAssertMsg(m_aiShrineReligion==NULL, "about to leak memory, CvGame::m_aiShrineReligion");
++		m_aiShrineBuilding = new int[GC.getNumBuildingInfos()];
++		m_aiShrineReligion = new int[GC.getNumBuildingInfos()];
++		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++		{
++			m_aiShrineBuilding[iI] = (int) NO_BUILDING;
++			m_aiShrineReligion[iI] = (int) NO_RELIGION;
++		}
++	}
++}
++
++
++void CvGame::doUpdateCacheOnTurn()
++{
++	int	iI;
++	
++	// reset shrine count
++	m_iShrineBuildingCount = 0;
++
++	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++	{
++		CvBuildingInfo*	pBuildingInfo = &GC.getBuildingInfo((BuildingTypes) iI);
++		
++		// if it is for holy city, then its a shrine-thing, add it
++		if (pBuildingInfo->getHolyCity() != NO_RELIGION)
++			changeShrineBuilding((BuildingTypes) iI, (ReligionTypes) pBuildingInfo->getReligionType());
++
++
++	}
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@67
++++ /trunk/CvGameCoreDLL/CvGame.h@68
+@@ -543,6 +543,26 @@
+ 
+ 	void showEndGameSequence();
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++public:
++	int getShrineBuildingCount(ReligionTypes eReligion = NO_RELIGION);
++	BuildingTypes getShrineBuilding(int eIndex, ReligionTypes eReligion = NO_RELIGION);
++	void changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove = false);
++
++protected:
++	int		m_iShrineBuildingCount;
++	int*	m_aiShrineBuilding;
++	int*	m_aiShrineReligion;
++
++	void constructCache();	// called from constructor
++	void destructCache();	// called from destructor
++	void initCache();
++	void uninitCache();
++	void resetCache(bool bConstructorCall = false);
++
++	void doUpdateCacheOnTurn();
++
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@67
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@68
+@@ -520,7 +520,8 @@
+ 	}
+     if (bAlt && (gDLL->getChtLvl() > 0))
+     {
+-        szTempBuffer.Format(L"%d", pUnit->getGroup()->getID());
++        CvSelectionGroup* eGroup = pUnit->getGroup();
++		szTempBuffer.Format(L"\nGroup(%d), %d units", eGroup->getID(), eGroup->countNumUnitAIType(NO_UNITAI));
+         szString += szTempBuffer;
+     }
+ 
+@@ -1715,6 +1716,161 @@
+             szString+=szTempBuffer;
+ 	    }
+ 	}
++	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
++	{
++		CvCity*	pCity = pPlot->getWorkingCity();
++		if (pCity != NULL)
++		{
++			// some functions we want to call are not in CvCity, worse some are protected, so made us a friend
++			CvCityAI* pCityAI = static_cast<CvCityAI*>(pCity);
++
++			bool bAvoidGrowth = pCity->AI_avoidGrowth();
++			bool bIgnoreGrowth = pCityAI->AI_ignoreGrowth();
++
++			// if we over the city, then do an array of all the plots
++			if (pPlot->getPlotCity() != NULL)
++			{
++				// check avoid growth
++				if (bAvoidGrowth || bIgnoreGrowth)
++				{
++					// red color
++					szString += CvWString::format(SETCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"));
++					
++					if (bAvoidGrowth)
++					{
++						szString += CvWString::format(L"AvoidGrowth");
++
++						if (bIgnoreGrowth)
++							szString += CvWString::format(L", ");
++					}
++					
++					if (bIgnoreGrowth)
++						szString += CvWString::format(L"IgnoreGrowth");
++					
++					// end color
++					szString += CvWString::format( ENDCOLR L"\n" );
++				}
++
++				// if control key is down, ignore food
++				bool bIgnoreFood = gDLL->ctrlKey();
++
++				// line one is: blank, 20, 9, 10, blank
++				setCityPlotYieldValueString(szString, pCity, -1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 20, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 9, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 10, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				szString += CvWString::format(L"\n");
++
++				// line two is: 19, 8, 1, 2, 11
++				setCityPlotYieldValueString(szString, pCity, 19, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 8, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 2, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 11, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				szString += CvWString::format(L"\n");
++
++				// line three is: 18, 7, 0, 3, 12
++				setCityPlotYieldValueString(szString, pCity, 18, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 7, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 0, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 3, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 12, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				szString += CvWString::format(L"\n");
++
++				// line four is: 17, 6, 5, 4, 13
++				setCityPlotYieldValueString(szString, pCity, 17, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 6, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 5, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 4, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 13, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				szString += CvWString::format(L"\n");
++
++				// line five is: blank, 16, 15, 14, blank
++				setCityPlotYieldValueString(szString, pCity, -1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 16, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 15, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				//szString += CvWString::format(L" ");
++				setCityPlotYieldValueString(szString, pCity, 14, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
++				
++				// show specialist values too
++				for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++				{
++					int iMaxThisSpecialist = pCity->getMaxSpecialistCount((SpecialistTypes) iI);
++					int iSpecialistCount = pCity->getSpecialistCount((SpecialistTypes) iI);
++					bool bUsingSpecialist = (iSpecialistCount > 0);
++					bool bIsDefaultSpecialist = (iI == GC.getDefineINT("DEFAULT_SPECIALIST"));
++					
++					// can this city have any of this specialist?
++					if (iMaxThisSpecialist > 0 || bIsDefaultSpecialist)
++					{
++						// start color
++						if (pCity->getForceSpecialistCount((SpecialistTypes) iI) > 0)
++							szString += CvWString::format(L"\n" SETCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"));
++						else if (bUsingSpecialist)
++							szString += CvWString::format(L"\n" SETCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"));
++						else
++							szString += CvWString::format(L"\n" SETCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"));
++						
++						// add name
++						szString += GC.getSpecialistInfo((SpecialistTypes) iI).getDescription();
++
++						// end color
++						szString += CvWString::format( ENDCOLR );
++
++						// add usage
++						szString += CvWString::format(L": (%d/%d) ", iSpecialistCount, iMaxThisSpecialist);
++						
++						// add value
++						int iValue = pCityAI->AI_specialistValue(((SpecialistTypes) iI), bAvoidGrowth, /*bRemove*/ bUsingSpecialist);
++						setYieldValueString(szString, iValue, /*bActive*/ bUsingSpecialist);
++					}
++				}
++			}
++			else
++			{
++				bool bWorkingPlot = pCity->isWorkingPlot(pPlot);
++
++				if (bWorkingPlot)
++					szTempBuffer.Format( SETCOLR L"%s is working" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCity->getName().GetCString());
++				else
++					szTempBuffer.Format( SETCOLR L"%s not working" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), pCity->getName().GetCString());
++				szString+=szTempBuffer;
++
++				int iValue = pCityAI->AI_plotValue(pPlot, bAvoidGrowth, /*bRemove*/ bWorkingPlot, /*bIgnoreFood*/ false, bIgnoreGrowth);
++				int iJuggleValue = pCityAI->AI_plotValue(pPlot, bAvoidGrowth, /*bRemove*/ bWorkingPlot, /*bIgnoreFood*/ true, bIgnoreGrowth);
++
++				szTempBuffer.Format(L"\nvalue = %d\njuggle value = %d", iValue, iJuggleValue);
++				szString+=szTempBuffer;
++
++				//int iCityPlotIndex = pCity->getCityPlotIndex(pPlot);
++				//if (iCityPlotIndex != -1)
++				//{
++				//	int iDeltaX = GC.getCityPlotX()[iCityPlotIndex];
++				//	int iDeltaY = GC.getCityPlotY()[iCityPlotIndex];
++
++				//	szTempBuffer.Format(L"\n%d:(%d, %d)", iCityPlotIndex, iDeltaX, iDeltaY);
++				//	szString+=szTempBuffer;
++				//}
++			}
++		}
++	}
+ 	else
+ 	{
+ 		eRevealOwner = pPlot->getRevealedOwner(GC.getGameINLINE().getActiveTeam(), true);
+@@ -1947,6 +2103,49 @@
+ 	}
+ }
+ 
++
++void CvGameTextMgr::setCityPlotYieldValueString(CvWString &szString, CvCity* pCity, int iIndex, bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood)
++{
++	CvPlot* pPlot = NULL;
++	
++	if (iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
++		pPlot = pCity->getCityIndexPlot(iIndex);
++	
++	if (pPlot != NULL)
++	{
++		CvCityAI* pCityAI = static_cast<CvCityAI*>(pCity);
++		bool bWorkingPlot = pCity->isWorkingPlot(iIndex);
++
++		int iValue = pCityAI->AI_plotValue(pPlot, bAvoidGrowth, /*bRemove*/ bWorkingPlot, bIgnoreFood, bIgnoreGrowth);
++		
++		setYieldValueString(szString, iValue, /*bActive*/ bWorkingPlot);
++	}
++	else
++		setYieldValueString(szString, 0, /*bActive*/ false, /*bMakeWhitespace*/ true);
++}
++
++void CvGameTextMgr::setYieldValueString(CvWString &szString, int iValue, bool bActive, bool bMakeWhitespace)
++{
++	static bool bUseFloats = false;
++	
++	if (bActive)
++		szString += CvWString::format(SETCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"));
++	else
++		szString += CvWString::format(SETCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"));
++
++	if (!bMakeWhitespace)
++	{
++		if (bUseFloats)
++		{
++			float fValue = ((float) iValue) / 10000;
++			szString += CvWString::format(L"%2.3f " ENDCOLR, fValue);
++		}
++		else
++			szString += CvWString::format(L"%04d  " ENDCOLR, iValue/10);
++	}
++	else
++		szString += CvWString::format(L"         " ENDCOLR);
++}
+ 
+ void CvGameTextMgr::setCityBarHelp(CvWString &szString, CvCity* pCity)
+ {
+@@ -7705,6 +7904,15 @@
+ {
+ 	PlayerTypes ePlayer1 = deal.getFirstPlayer();
+ 	PlayerTypes ePlayer2 = deal.getSecondPlayer();
++	
++	const CLinkList<TradeData>* pListPlayer1 = deal.getFirstTrades();
++	const CLinkList<TradeData>* pListPlayer2 = deal.getSecondTrades();
++	
++	getDealString(szBuffer, ePlayer1, ePlayer2, pListPlayer1,  pListPlayer2, ePlayerPerspective);
++}
++
++void CvGameTextMgr::getDealString(CvWString& szBuffer, PlayerTypes ePlayer1, PlayerTypes ePlayer2, const CLinkList<TradeData>* pListPlayer1, const CLinkList<TradeData>* pListPlayer2, PlayerTypes ePlayerPerspective)
++{
+ 	if (NO_PLAYER == ePlayer1 || NO_PLAYER == ePlayer2)
+ 	{
+ 		FAssertMsg(false, "Deal needs two parties");
+@@ -7712,30 +7920,28 @@
+ 	}
+ 
+ 	CvWString szDealOne;
+-	const CLinkList<TradeData>* pTrades = deal.getFirstTrades();
+-	if (NULL != pTrades && pTrades->getLength() > 0)
++	if (NULL != pListPlayer1 && pListPlayer1->getLength() > 0)
+ 	{
+ 		CLLNode<TradeData>* pTradeNode;
+ 		bool bFirst = true;
+-		for (pTradeNode = pTrades->head(); pTradeNode; pTradeNode = pTrades->next(pTradeNode))
++		for (pTradeNode = pListPlayer1->head(); pTradeNode; pTradeNode = pListPlayer1->next(pTradeNode))
+ 		{
+ 			CvWString szTrade;
+-			getTradeString(szTrade, pTradeNode->m_data, deal.getFirstPlayer(), deal.getSecondPlayer());
++			getTradeString(szTrade, pTradeNode->m_data, ePlayer1, ePlayer2);
+ 			setListHelp(szDealOne, L"", szTrade, L", ", bFirst);
+ 			bFirst = false;
+ 		}
+ 	}
+ 
+ 	CvWString szDealTwo;
+-	pTrades = deal.getSecondTrades();
+-	if (NULL != pTrades && pTrades->getLength() > 0)
++	if (NULL != pListPlayer2 && pListPlayer2->getLength() > 0)
+ 	{
+ 		CLLNode<TradeData>* pTradeNode;
+ 		bool bFirst = true;
+-		for (pTradeNode = pTrades->head(); pTradeNode; pTradeNode = pTrades->next(pTradeNode))
++		for (pTradeNode = pListPlayer2->head(); pTradeNode; pTradeNode = pListPlayer2->next(pTradeNode))
+ 		{
+ 			CvWString szTrade;
+-			getTradeString(szTrade, pTradeNode->m_data, deal.getSecondPlayer(), deal.getFirstPlayer());
++			getTradeString(szTrade, pTradeNode->m_data, ePlayer1, ePlayer2);
+ 			setListHelp(szDealTwo, L"", szTrade, L", ", bFirst);
+ 			bFirst = false;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.h
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.h@67
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.h@68
+@@ -147,6 +147,7 @@
+ 	DllExport void getAttitudeString(CvWString& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
+ 	DllExport void getTradeString(CvWString& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+ 	DllExport void getDealString(CvWString& szString, CvDeal& deal, PlayerTypes ePlayerPerspective = NO_PLAYER);
++	void getDealString(CvWString& szBuffer, PlayerTypes ePlayer1, PlayerTypes ePlayer2, const CLinkList<TradeData>* pListPlayer1, const CLinkList<TradeData>* pListPlayer2, PlayerTypes ePlayerPerspective = NO_PLAYER);
+ 	DllExport void getActiveDealsString(CvWString& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
+ 
+ 	DllExport void buildFinanceInflationString(CvWString& szDetails, PlayerTypes ePlayer);
+@@ -169,6 +170,9 @@
+ 	int m_iNumDiplomacyTextInfos;
+ 	CvDiplomacyTextInfo* m_paDiplomacyTextInfo;
+ 	std::vector<int*> m_apbPromotion;
++
++	void setCityPlotYieldValueString(CvWString &szString, CvCity* pCity, int iIndex, bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false);
++	void setYieldValueString(CvWString &szString, int iValue, bool bActive = false, bool bMakeWhitespace = false);
+ };
+ 
+ // Singleton Accessor
+
+Index: /trunk/CvGameCoreDLL/CvMap.cpp
+--- /trunk/CvGameCoreDLL/CvMap.cpp@67
++++ /trunk/CvGameCoreDLL/CvMap.cpp@68
+@@ -44,13 +44,19 @@
+ 
+ 	m_pMapPlots = NULL;
+ 
++	constructCache();
++	
++	m_bConstructorCall = true;	// hack, because reset does not have a constructer call parameter, and we cannot add it
+ 	reset(&defaultMapData);
++	m_bConstructorCall = false;	// hack
+ }
+ 
+ 
+ CvMap::~CvMap()
+ {
+ 	uninit();
++
++	destructCache();
+ }
+ 
+ // FUNCTION: init()
+@@ -98,11 +104,15 @@
+ 	}
+ 	calculateAreas();
+ 	gDLL->logMemState("CvMap after init plots");
++
++	initCache();
+ }
+ 
+ 
+ void CvMap::uninit()
+ {
++	uninitCache();
++
+ 	SAFE_DELETE_ARRAY(m_paiNumBonus);
+ 	SAFE_DELETE_ARRAY(m_paiNumBonusOnLand);
+ 
+@@ -194,6 +204,8 @@
+ 	}
+ 
+ 	m_areas.removeAll();
++
++	resetCache(m_bConstructorCall);
+ }
+ 
+ 
+@@ -284,6 +296,8 @@
+ 	PROFILE("CvMap::doTurn()")
+ 
+ 	int iI;
++
++	doUpdateCacheOnTurn();
+ 
+ 	for (iI = 0; iI < numPlotsINLINE(); iI++)
+ 	{
+@@ -1332,5 +1346,63 @@
+ }
+ 
+ 
+-// Private Functions...
+-
++// CACHE: cache frequently used values
++///////////////////////////////////////
++
++// public functions here
++
++void CvMap::constructCache()
++{
++	// allocate known constants
++
++	// zero everything out, just to be safe
++	m_iPlaceholderCount = 0;
++	m_aiPlaceholderArray = NULL;
++	
++	// note resetCache(/*bConstructorCall*/ true) will be called by CvMap::CvMap
++}
++
++void CvMap::destructCache()
++{
++	uninitCache(); // note, will be called by CvMap::~CvMap as well
++
++	// deallocate anything allocated in constructor
++}
++
++void CvMap::initCache()
++{
++	// init non-saved data
++
++	// note resetCache(/*bConstructorCall*/ false) will be called by CvMap::init
++}
++
++void CvMap::uninitCache()
++{
++	m_iPlaceholderCount = 0;
++
++	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++}
++
++void CvMap::resetCache(bool bConstructorCall)
++{
++	int	iI;
++	
++	uninitCache(); // note, will be called by CvMap::reset as well
++	
++	if (!bConstructorCall)
++	{
++		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
++		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
++		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++		{
++			m_aiPlaceholderArray[iI] = (int) 0;
++		}
++	}
++}
++
++
++void CvMap::doUpdateCacheOnTurn()
++{
++
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvMap.h
+--- /trunk/CvGameCoreDLL/CvMap.h@67
++++ /trunk/CvGameCoreDLL/CvMap.h@68
+@@ -75,7 +75,7 @@
+ 
+ 	DllExport void init(CvMapInitData* pInitData=NULL);
+ 	DllExport void setupGraphical();
+-	DllExport void reset(CvMapInitData* pInitData);
++	DllExport void reset(CvMapInitData* pInitInfo);
+ 
+ protected:
+ 
+@@ -287,6 +287,24 @@
+ 
+ 	void calculateAreas();
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++public:
++	// public cache functions here
++
++protected:
++	bool	m_bConstructorCall;	// hack, because CvMap::reset does not have this parameter, and we cannot add it
++
++	int		m_iPlaceholderCount;
++	int*	m_aiPlaceholderArray;
++
++	void constructCache();	// called from constructor
++	void destructCache();	// called from destructor
++	void initCache();
++	void uninitCache();
++	void resetCache(bool bConstructorCall = false);
++
++	void doUpdateCacheOnTurn();	
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@67
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@68
+@@ -78,6 +78,8 @@
+ 	m_ppaaiSpecialistExtraYield = NULL;
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
++	constructCache();
++
+ 	reset(NO_PLAYER, true);
+ }
+ 
+@@ -85,6 +87,8 @@
+ CvPlayer::~CvPlayer()
+ {
+ 	uninit();
++
++	destructCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_aiSeaPlotYield);
+ 	SAFE_DELETE_ARRAY(m_aiYieldRateModifier);
+@@ -255,12 +259,16 @@
+ 	}
+ 
+ 	AI_init();
++
++	initCache();
+ }
+ 
+ 
+ void CvPlayer::uninit()
+ {
+ 	int iI;
++
++	uninitCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_paiBonusExport);
+ 	SAFE_DELETE_ARRAY(m_paiBonusImport);
+@@ -644,6 +652,8 @@
+ 	{
+ 		AI_reset();
+ 	}
++
++	resetCache(bConstructorCall);
+ }
+ 
+ 
+@@ -2238,6 +2248,8 @@
+ 	FAssertMsg(!hasBusyUnit() || GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS), "End of turn with busy units in a sequential-turn game");
+ 
+ 	gDLL->getEventReporterIFace()->beginPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
++	
++	doUpdateCacheOnTurn();
+ 
+ 	GC.getGameINLINE().verifyDeals();
+ 
+@@ -12309,5 +12321,76 @@
+ 
+ }
+ 
+-
+-
++// CACHE: cache frequently used values
++///////////////////////////////////////
++bool CvPlayer::hasShrine(ReligionTypes eReligion)
++{
++	bool bHasShrine = false;
++	
++	if (eReligion != NO_RELIGION)
++	{
++		CvCity* pHolyCity = GC.getGameINLINE().getHolyCity(eReligion);
++		
++		// if the holy city exists, and we own it
++		if (pHolyCity != NULL && pHolyCity->getOwnerINLINE() == getID())
++			bHasShrine = pHolyCity->hasShrine(eReligion);
++	}
++
++	return bHasShrine;
++}
++
++void CvPlayer::constructCache()
++{
++	// allocate known constants
++
++	// zero everything out, just to be safe
++	m_iPlaceholderCount = 0;
++	m_aiPlaceholderArray = NULL;
++	
++	// note resetCache(/*bConstructorCall*/ true) will be called by CvPlayer::CvPlayer
++}
++
++void CvPlayer::destructCache()
++{
++	uninitCache(); // note, will be called by CvPlayer::~CvPlayer as well
++
++	// deallocate anything allocated in constructor
++}
++
++void CvPlayer::initCache()
++{
++	// init non-saved data
++
++	// note resetCache(/*bConstructorCall*/ false) will be called by CvPlayer::init
++}
++
++void CvPlayer::uninitCache()
++{
++	m_iPlaceholderCount = 0;
++
++	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++}
++
++void CvPlayer::resetCache(bool bConstructorCall)
++{
++	int	iI;
++	
++	uninitCache(); // note, will be called by CvPlayer::reset as well
++	
++	if (!bConstructorCall)
++	{
++		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
++		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
++		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++		{
++			m_aiPlaceholderArray[iI] = (int) 0;
++		}
++	}
++}
++
++
++void CvPlayer::doUpdateCacheOnTurn()
++{
++
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@67
++++ /trunk/CvGameCoreDLL/CvPlayer.h@68
+@@ -1040,7 +1040,23 @@
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+-
++	
++// CACHE: cache frequently used values
++///////////////////////////////////////
++public:
++	bool hasShrine(ReligionTypes eReligion);
++
++protected:
++	int		m_iPlaceholderCount;
++	int*	m_aiPlaceholderArray;
++
++	void constructCache();	// called from constructor
++	void destructCache();	// called from destructor
++	void initCache();
++	void uninitCache();
++	void resetCache(bool bConstructorCall = false);
++
++	void doUpdateCacheOnTurn();	
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@67
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@68
+@@ -2079,8 +2079,9 @@
+ 	{
+ 		pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 		pUnitNode = nextUnitNode(pUnitNode);
+-
+-		if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++		
++		// count all units if NO_UNITAI passed in
++		if (NO_UNITAI == eUnitAI || pLoopUnit->AI_getUnitAIType() == eUnitAI)
+ 		{
+ 			iCount++;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@67
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@68
+@@ -338,7 +338,6 @@
+ // (so 100 is even ratio, numbers over 100 mean this group is more powerful than the stack on a plot)
+ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bPotentialEnemy, bool bCheckCanAttack, bool bCheckCanMove) const
+ {
+-	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 	FAssert(pPlot != NULL);
+ 
+ 	int	compareRatio;
+@@ -356,6 +355,13 @@
+ 
+ 	compareRatio = AI_sumStrength(pPlot, eDomainType, bCheckCanAttack, bCheckCanMove);
+ 	compareRatio *= 100;
++
++	PlayerTypes eOwner = getOwnerINLINE();
++	if (eOwner == NO_PLAYER)
++	{
++		eOwner = getHeadOwner();
++	}
++	FAssert(eOwner != NO_PLAYER);
+ 	
+ 	int defenderSum = pPlot->AI_sumStrength(NO_PLAYER, getOwnerINLINE(), eDomainType, true, !bPotentialEnemy, bPotentialEnemy);
+ 	compareRatio /= max(1, defenderSum);
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@67
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@68
+@@ -55,6 +55,8 @@
+ 
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
++	constructCache();
++
+ 	reset((TeamTypes)0, true);
+ }
+ 
+@@ -62,6 +64,8 @@
+ CvTeam::~CvTeam()
+ {
+ 	uninit();
++
++	destructCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_aiStolenVisibilityTimer);
+ 	SAFE_DELETE_ARRAY(m_aiWarWeariness);
+@@ -90,12 +94,16 @@
+ 	//--------------------------------
+ 	// Init other game data
+ 	AI_init();
++
++	initCache();
+ }
+ 
+ 
+ void CvTeam::uninit()
+ {
+ 	int iI;
++
++	uninitCache();
+ 
+ 	SAFE_DELETE_ARRAY(m_paiRouteChange);
+ 	SAFE_DELETE_ARRAY(m_paiProjectCount);
+@@ -267,6 +275,8 @@
+ 
+ 		AI_reset();
+ 	}
++
++	resetCache(bConstructorCall);
+ }
+ 
+ 
+@@ -738,6 +748,8 @@
+ 	int iI, iJ;
+ 
+ 	FAssertMsg(isAlive(), "isAlive is expected to be true");
++
++	doUpdateCacheOnTurn();
+ 
+ 	AI_doTurnPre();
+ 
+@@ -4931,3 +4943,77 @@
+ 	}
+ }
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++bool CvTeam::hasShrine(ReligionTypes eReligion)
++{
++	bool bHasShrine = false;
++	
++	if (eReligion != NO_RELIGION)
++	{
++		CvCity* pHolyCity = GC.getGameINLINE().getHolyCity(eReligion);
++		
++		// if the holy city exists, and we own it
++		if (pHolyCity != NULL && GET_PLAYER(pHolyCity->getOwnerINLINE()).getTeam() == getID())
++			bHasShrine = pHolyCity->hasShrine(eReligion);
++	}
++
++	return bHasShrine;
++}
++
++void CvTeam::constructCache()
++{
++	// allocate known constants
++
++	// zero everything out, just to be safe
++	m_iPlaceholderCount = 0;
++	m_aiPlaceholderArray = NULL;
++	
++	// note resetCache(/*bConstructorCall*/ true) will be called by CvTeam::CvTeam
++}
++
++void CvTeam::destructCache()
++{
++	uninitCache(); // note, will be called by CvTeam::~CvTeam as well
++
++	// deallocate anything allocated in constructor
++}
++
++void CvTeam::initCache()
++{
++	// init non-saved data
++
++	// note resetCache(/*bConstructorCall*/ false) will be called by CvTeam::init
++}
++
++void CvTeam::uninitCache()
++{
++	m_iPlaceholderCount = 0;
++
++	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++}
++
++void CvTeam::resetCache(bool bConstructorCall)
++{
++	int	iI;
++	
++	uninitCache(); // note, will be called by CvTeam::reset as well
++	
++	if (!bConstructorCall)
++	{
++		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
++		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
++		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++		{
++			m_aiPlaceholderArray[iI] = (int) 0;
++		}
++	}
++}
++
++
++void CvTeam::doUpdateCacheOnTurn()
++{
++
++}
++
++
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@67
++++ /trunk/CvGameCoreDLL/CvTeam.h@68
+@@ -370,6 +370,22 @@
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 
++// CACHE: cache frequently used values
++///////////////////////////////////////
++public:
++	bool hasShrine(ReligionTypes eReligion);
++
++protected:
++	int		m_iPlaceholderCount;
++	int*	m_aiPlaceholderArray;
++
++	void constructCache();	// called from constructor
++	void destructCache();	// called from destructor
++	void initCache();
++	void uninitCache();
++	void resetCache(bool bConstructorCall = false);
++
++	void doUpdateCacheOnTurn();	
+ };
+ 
+ #endif
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@67
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@68
+@@ -18,6 +18,8 @@
+ #include "FProfiler.h"
+ #include "FAStarNode.h"
+ 
++// interface uses
++#include "CvDLLInterfaceIFaceBase.h"
+ 
+ #define FOUND_RANGE				(6)
+ 
+@@ -7082,6 +7084,17 @@
+ 			}
+ 			else
+ 			{
++				// if cheat on, notify player that a mission was pushed (non-barbarian)
++				if (gDLL->getChtLvl() > 0 && !GET_PLAYER(getOwnerINLINE()).isBarbarian())
++				{
++					CvSelectionGroup* eGroup = getGroup();
++					int iCompareValue = eGroup->AI_compareStacks(pBestCity->plot(), /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ false, /*bCheckCanMove*/ false);
++
++					CvWString szString;
++					szString.Format(L"AI_targetCity:City(%s), Stack(%d), size(%d), turns(%d), compare(%d)", pBestCity->getNameKey(), eGroup->getID(), eGroup->countNumUnitAIType(NO_UNITAI), iPathTurns, iCompareValue);
++					gDLL->getInterfaceIFace()->addMessage(GC.getGameINLINE().getActivePlayer(), true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
++				}
++
+ 				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+ 				return true;
+ 			}
+

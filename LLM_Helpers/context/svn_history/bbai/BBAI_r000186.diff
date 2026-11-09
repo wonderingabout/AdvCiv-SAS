@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 186
+# Author: iustus
+# Date: 2006-12-15T14:58:12.026817Z
+# Coverage: full
+# Message:
+#   fixed 2.08 bug, we calling AI_isLandTarget on ourselves if we have a defensive pact
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@185
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@186
+@@ -645,17 +645,20 @@
+ 	return true;
+ }
+ 
+-
++// this determines if eTeam or any of its allies are land targets of us
+ bool CvTeamAI::AI_isAllyLandTarget(TeamTypes eTeam) const
+ {
+ 	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+ 	{
+ 		CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+-		if (iTeam == eTeam || kLoopTeam.isVassal(eTeam) || GET_TEAM(eTeam).isVassal((TeamTypes)iTeam) || kLoopTeam.isDefensivePact(eTeam))
+-		{
+-			if (AI_isLandTarget((TeamTypes)iTeam))
+-			{
+-				return true;
++		if (iTeam != getID())
++		{
++			if (iTeam == eTeam || kLoopTeam.isVassal(eTeam) || GET_TEAM(eTeam).isVassal((TeamTypes)iTeam) || kLoopTeam.isDefensivePact(eTeam))
++			{
++				if (AI_isLandTarget((TeamTypes)iTeam))
++				{
++					return true;
++				}
+ 			}
+ 		}
+ 	}
+

@@ -1,0 +1,1143 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 387
+# Author: jdog5000
+# Date: 2008-09-06T00:01:18.574897Z
+# Coverage: full
+# Message:
+#   Update to version 0.37
+# Changed paths (11):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   A /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py
+#   A /trunk/Better BTS AI/Assets/Python/ChangePlayer.py
+#   A /trunk/Better BTS AI/Assets/Python/CvCustomEventManager.py
+#   A /trunk/Better BTS AI/Assets/Python/EntryPoints
+#   A /trunk/Better BTS AI/Assets/Python/EntryPoints/CvEventInterface.py
+#   A /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml
+#   D /trunk/Better BTS AI/Better BTS AI sources for 0.36.zip
+#   A /trunk/Better BTS AI/Better BTS AI sources for 0.37.zip
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/Python/AIAutoPlay.py@387
+@@ -0,0 +1,317 @@
++# AI_AUTO_PLAY_MOD
++#
++# by jdog5000
++# version 2.0
++
++from CvPythonExtensions import *
++import CvScreenEnums
++import CvTopCivs
++import CvUtil
++import PyHelpers
++import Popup as PyPopup
++
++import ChangePlayer
++
++# globals
++gc = CyGlobalContext()
++PyPlayer = PyHelpers.PyPlayer
++PyInfo = PyHelpers.PyInfo
++game = CyGame()
++localText = CyTranslator()
++
++class AIAutoPlay :
++
++    def __init__(self, customEM ) :
++
++        print "Initializing AIAutoPlay Mod"
++
++        self.LOG_DEBUG = False
++        self.blockPopups = True
++        self.refortify = True
++        self.bSaveAllDeaths = True
++
++        self.DefaultTurnsToAuto = 10
++        
++        self.customEM = customEM
++
++        self.customEM.addEventHandler( "kbdEvent", self.onKbdEvent )
++        self.customEM.addEventHandler( "EndGameTurn", self.onEndGameTurn )
++        self.customEM.addEventHandler( 'BeginPlayerTurn', self.onBeginPlayerTurn )
++        self.customEM.addEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
++        self.customEM.addEventHandler( 'OnLoad', self.onGameLoad )
++        self.customEM.addEventHandler( 'GameStart', self.onGameStart )
++        self.customEM.addEventHandler( 'victory', self.onVictory )
++
++        self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.AIChooserHandler,self.blankHandler] )
++        self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.pickHumanHandler,self.blankHandler] )
++
++        # Keep game from showing messages about handling these popups
++        CvUtil.SilentEvents.extend([7050,7052])
++        
++        if( self.blockPopups ) :
++            print "Removing some event handlers"
++            try :
++                self.customEM.removeEventHandler( "cityBuilt", customEM.onCityBuilt )
++                self.customEM.addEventHandler( "cityBuilt", self.onCityBuilt )
++            except ValueError :
++                print "Failed to remove 'onCityBuilt', perhaps not registered"
++                self.customEM.setEventHandler( "cityBuilt", self.onCityBuilt )
++            
++            try :
++                self.customEM.removeEventHandler( "BeginGameTurn", customEM.onBeginGameTurn )
++                self.customEM.addEventHandler( "BeginGameTurn", self.onBeginGameTurn )
++            except ValueError :
++                print "Failed to remove 'onBeginGameTurn', perhaps not registered"
++                self.customEM.setEventHandler( "BeginGameTurn", self.onBeginGameTurn )
++
++
++    def removeEventHandlers( self ) :
++        print "Removing event handlers from AIAutoPlay"
++        
++        self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
++        self.customEM.removeEventHandler( "EndGameTurn", self.onEndGameTurn )
++        self.customEM.removeEventHandler( 'BeginPlayerTurn', self.onBeginPlayerTurn )
++        self.customEM.removeEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
++        self.customEM.removeEventHandler( 'OnLoad', self.onGameLoad )
++        self.customEM.removeEventHandler( 'GameStart', self.onGameStart )
++        self.customEM.removeEventHandler( 'victory', self.onVictory )
++
++        self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.blankHandler,self.blankHandler] )
++        self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.blankHandler,self.blankHandler] )
++        
++        if( self.blockPopups ) :
++            self.customEM.removeEventHandler( "cityBuilt", self.onCityBuilt )
++            self.customEM.addEventHandler( "cityBuilt", self.customEM.onCityBuilt )
++            
++            self.customEM.removeEventHandler( "BeginGameTurn", self.onBeginGameTurn )
++            self.customEM.addEventHandler( "BeginGameTurn", self.customEM.onBeginGameTurn )
++    
++    def blankHandler( self, playerID, netUserData, popupReturn ) :
++        # Dummy handler to take the second event for popup
++        return
++
++
++    def onGameStart( self, argsList ) :
++        self.onGameLoad([])
++
++    def onGameLoad( self, argsList ) :
++        # Init things which require a game object or other game data to exist
++
++        pass
++
++    def onVictory( self, argsList ) :
++        self.checkPlayer()
++        game.setAIAutoPlay(0)
++        
++    def onEndGameTurn( self, argsList ) :
++        if( game.getAIAutoPlay() == 1 ) :
++            # About to turn off automation
++            pass
++
++    def pickHumanHandler( self, iPlayerID, netUserData, popupReturn ) :
++
++        CvUtil.pyPrint('Handling pick human popup')
++
++        if( popupReturn.getButtonClicked() == 0 ):  # if you pressed cancel
++            CyInterface().addImmediateMessage("Kill your remaining units if you'd like to see end game screens","")
++            return
++
++        toKillPlayer = gc.getActivePlayer()
++
++        newHumanIdx = popupReturn.getSelectedPullDownValue( 1 )
++        newPlayer = gc.getPlayer(newHumanIdx)
++
++        # game.setActivePlayer( newHumanIdx, False )
++        # newPlayer.setIsHuman(True)
++
++        # CvUtil.pyPrint("You now control the %s"%(newPlayer.getCivilizationDescription(0)))
++        # CyInterface().addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
++        
++        ChangePlayer.changeHuman( newHumanIdx, toKillPlayer.getID() )
++
++        if( toKillPlayer.getNumCities() == 0 ) :
++            # Kills off the lion in the ice field
++            CvUtil.pyPrint("Killing off player %d"%(toKillPlayer.getID()))
++            toKillPlayer.killUnits()
++            toKillPlayer.setIsHuman(False)
++            #success = game.changePlayer( toKillPlayer.getID(), toKillPlayer.getCivilizationType(), toKillPlayer.getLeaderType(), -1, False, False )
++            toKillPlayer.setNewPlayerAlive(False)
++            toKillPlayer.setFoundedFirstCity(True)
++
++    def onBeginPlayerTurn( self, argsList ) :
++        iGameTurn, iPlayer = argsList
++
++        if( game.getAIAutoPlay() == 1 and iPlayer > game.getActivePlayer() and gc.getActivePlayer().isAlive() ) :
++            # Forces isHuman checks to come through positive for everything after human players turn
++
++            self.checkPlayer()
++            game.setAIAutoPlay(0)
++        
++        elif( self.bSaveAllDeaths ) :
++            if( game.getAIAutoPlay() == 0 and not gc.getActivePlayer().isAlive() and iPlayer > game.getActivePlayer() ) :
++                self.checkPlayer()
++                game.setAIAutoPlay(0)
++
++    def onEndPlayerTurn( self, argsList ) :
++        iGameTurn, iPlayer = argsList
++
++        # Can't use isHuman as isHuman has been deactivated by automation
++        if( self.refortify and iPlayer == game.getActivePlayer() and game.getAIAutoPlay() == 1 ) :
++            doRefortify( game.getActivePlayer() )
++        
++        if( iPlayer == gc.getBARBARIAN_PLAYER() and game.getAIAutoPlay() == 1 ) :
++            # About to turn off automation
++            #self.checkPlayer()
++            pass
++
++    def checkPlayer( self ) :
++        
++        pPlayer = gc.getActivePlayer()
++
++        if( not pPlayer.isAlive() ) :
++            popup = PyPopup.PyPopup(7052,contextType = EventContextTypes.EVENTCONTEXT_ALL)
++            popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_PICK_CIV", ()) )
++            popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_CIV_DIED", ()) )
++            popup.addSeparator()
++
++            popup.createPythonPullDown( localText.getText("TXT_KEY_AIAUTOPLAY_TAKE_CONTROL_CIV", ()), 1 )
++            for i in range(0,gc.getMAX_CIV_PLAYERS()) :
++                player = PyPlayer(i)
++                if( not player.isNone() and not i == pPlayer.getID() ) :
++                    if( player.isAlive() ) :
++                        popup.addPullDownString( localText.getText("TXT_KEY_AIAUTOPLAY_OF_THE", ())%(player.getName(),player.getCivilizationName()), i, 1 )
++
++            activePlayerIdx = gc.getActivePlayer().getID()
++            popup.popup.setSelectedPulldownID( activePlayerIdx, 1 )
++
++            popup.addSeparator()
++
++            popup.addButton( localText.getText("TXT_KEY_AIAUTOPLAY_NONE", ()) )
++            CvUtil.pyPrint('Launching pick human popup')
++            popup.launch()
++
++            gc.getActivePlayer().setNewPlayerAlive( True )
++            iSettler = CvUtil.findInfoTypeNum(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
++            gc.getActivePlayer().initUnit( iSettler, 0, 0, UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH )
++            gc.getActivePlayer().setFoundedFirstCity( False )
++            gc.getActivePlayer().setIsHuman( True )
++
++        CvUtil.pyPrint('CDP: Setting autoplay to 0')
++        game.setAIAutoPlay(0)
++        
++        if( not pPlayer.isHuman() ) :
++            CvUtil.pyPrint('Returning human player to control of %s'%(pPlayer.getCivilizationDescription(0)))
++            game.setActivePlayer( pPlayer.getID(), False )
++            pPlayer.setIsHuman( True )
++
++        for idx in range(0,gc.getMAX_CIV_TEAMS()) :
++            pPlayer.setEspionageSpendingWeightAgainstTeam(idx, pPlayer.getEspionageSpendingWeightAgainstTeam(idx)/10)
++
++
++    def onKbdEvent( self, argsList ) :
++        'keypress handler'
++        eventType,key,mx,my,px,py = argsList
++
++        if ( eventType == 6 ):
++            theKey=int(key)
++
++            if( theKey == int(InputTypes.KB_X) and self.customEM.bShift and self.customEM.bCtrl ) :
++                # Get it?  Shift ... control ... to the AI
++                if( game.getAIAutoPlay() > 0 ) :
++                    if( self.refortify ) :
++                        doRefortify( game.getActivePlayer() )
++                    game.setAIAutoPlay( 0 )
++                    self.checkPlayer()
++                else :
++                    self.toAIChooser()
++
++            if( theKey == int(InputTypes.KB_M) and self.customEM.bShift and self.customEM.bCtrl ) :
++                # Toggle auto moves
++                if( self.LOG_DEBUG ) : CyInterface().addImmediateMessage("Moving your units...","")
++                game.setAIAutoPlay( 1 )
++
++            if( theKey == int(InputTypes.KB_O) and self.customEM.bShift and self.customEM.bCtrl ) :
++                doRefortify( game.getActivePlayer() )
++
++
++    def onBeginGameTurn( self, argsList):
++        'Called at the beginning of the end of each turn'
++        iGameTurn = argsList[0]
++        if( game.getAIAutoPlay() == 0 ) :
++            CvTopCivs.CvTopCivs().turnChecker(iGameTurn)
++
++    def onCityBuilt(self, argsList):
++        'City Built'
++        city = argsList[0]
++        if (city.getOwner() == CyGame().getActivePlayer() and game.getAIAutoPlay() == 0 ):
++                self.customEM.onCityBuilt(argsList)
++        else :
++                try :
++                    CvUtil.pyPrint('City Built Event: %s' %(city.getName()))
++                except :
++                    CvUtil.pyPrint('City Built Event: Error processing city name' )
++
++
++    def toAIChooser( self ) :
++        'Chooser window for when user switches to AI auto play'
++
++        screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
++        xResolution = screen.getXResolution()
++        yResolution = screen.getYResolution()
++        popupSizeX = 400
++        popupSizeY = 250
++
++        popup = PyPopup.PyPopup(7050,contextType = EventContextTypes.EVENTCONTEXT_ALL)
++        popup.setPosition((xResolution - popupSizeX )/2, (yResolution-popupSizeY)/2-50)
++        popup.setSize(popupSizeX,popupSizeY)
++        popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_TURN_ON", ()) )
++        popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_TURNS", ()) )
++        popup.addSeparator()
++        popup.createPythonEditBox( '%d'%(self.DefaultTurnsToAuto), 'Number of turns to turn over to AI', 0)
++        popup.setEditBoxMaxCharCount( 4, 2, 0 )
++
++        popup.addSeparator()
++        popup.addButton("OK")
++        popup.addButton(localText.getText("TXT_KEY_AIAUTOPLAY_CANCEL", ()))
++
++        popup.launch(False, PopupStates.POPUPSTATE_IMMEDIATE)
++
++    def AIChooserHandler( self, playerID, netUserData, popupReturn ) :
++        'Handles AIChooser popup'
++        if( popupReturn.getButtonClicked() == 1 ):  # if you pressed cancel
++            return
++
++        numTurns = 0
++        if( popupReturn.getEditBoxString(0) != '' ) :
++            numTurns = int( popupReturn.getEditBoxString(0) )
++
++        if( numTurns > 0 ) :
++            if( self.LOG_DEBUG ) : CyInterface().addImmediateMessage("Fully automating for %d turns"%(numTurns),"")
++            game.setAIAutoPlay(numTurns)
++
++########################## Utility functions ###########################################
++            
++def doRefortify( iPlayer ) :
++     #pyPlayer = PyPlayer( iPlayer )
++    pPlayer = gc.getPlayer(iPlayer)
++    
++    CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))
++
++    for groupID in range(0,pPlayer.getNumSelectionGroups()) :
++        pGroup = pPlayer.getSelectionGroup(groupID)
++        if( pGroup.getNumUnits() > 0 ) :
++
++            headUnit = pGroup.getHeadUnit()
++            #CvUtil.pyPrint( "%s fortTurns %d"%(headUnit.getName(),headUnit.getFortifyTurns()) )
++            if( headUnit.getFortifyTurns() > 0 ) :
++                if( headUnit.isHurt() ) :
++                    #CvUtil.pyPrint( "%s is hurt"%(headUnit.getName()) )
++                    #pGroup.setActivityType(ActivityTypes.ACTIVITY_HEAL)
++                    pass
++                else :
++                    #CvUtil.pyPrint( "Starting mission ..." )
++                    #pGroup.pushMission( MissionTypes.MISSION_FORTIFY, 0, 0, 0, False, True, MissionAITypes.MISSIONAI_GUARD_CITY, pGroup.plot(), pGroup.getHeadUnit() )
++                    pGroup.setActivityType(ActivityTypes.ACTIVITY_SLEEP)
++                    headUnit.NotifyEntity( MissionTypes.MISSION_FORTIFY )
++                    pass
++
+
+Index: /trunk/Better BTS AI/Assets/Python/ChangePlayer.py
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/Python/ChangePlayer.py@387
+@@ -0,0 +1,317 @@
++# ChangePlayer Mod
++#
++# by jdog5000
++# Version 0.71
++
++
++from CvPythonExtensions import *
++import CvUtil
++import PyHelpers
++import Popup as PyPopup
++
++# globals
++gc = CyGlobalContext()
++PyPlayer = PyHelpers.PyPlayer
++PyInfo = PyHelpers.PyInfo
++game = CyGame()
++localText = CyTranslator()
++
++changeCivPopupNum = 7060
++changeHumanPopupNum = 7061
++
++LOG_DEBUG = True
++
++class ChangePlayer :
++
++    def __init__(self, customEM ) :
++
++        print "Initializing ChangePlayer Mod"
++
++        global LOG_DEBUG
++
++        self.LOG_DEBUG = True
++        LOG_DEBUG = self.LOG_DEBUG
++
++        self.customEM = customEM
++
++        self.customEM.addEventHandler( "kbdEvent", self.onKbdEvent )
++
++        self.customEM.setPopupHandler( changeCivPopupNum, ["changeCivPopup",changeCivHandler,self.blankHandler] )
++        self.customEM.setPopupHandler( changeHumanPopupNum, ["changeHumanPopup",changeHumanHandler,self.blankHandler] )
++        
++        # Keep game from showing messages about handling these popups
++        CvUtil.SilentEvents.extend([changeCivPopupNum,changeHumanPopupNum])
++
++    def removeEventHandlers( self ) :
++        print "Removing event handlers from ChangePlayer"
++        
++        self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
++
++        self.customEM.setPopupHandler( changeCivPopupNum, ["changeCivPopup",self.blankHandler,self.blankHandler] )
++        self.customEM.setPopupHandler( changeHumanPopupNum, ["changeHumanPopup",self.blankHandler,self.blankHandler] )
++    
++    def blankHandler( self, playerID, netUserData, popupReturn ) :
++        # Dummy handler to take the second event for popup
++        return
++
++
++    def onKbdEvent(self, argsList ):
++        'keypress handler'
++        eventType,key,mx,my,px,py = argsList
++
++        if ( eventType == 6 ):
++            theKey=int(key)
++
++            if( theKey == int(InputTypes.KB_P) and self.customEM.bShift and self.customEM.bCtrl ) :
++                changeCivPopup( )
++
++            if( theKey == int(InputTypes.KB_L) and self.customEM.bShift and self.customEM.bCtrl ) :
++                changeHumanPopup( )
++            
++            if( theKey == int(InputTypes.KB_U) and self.customEM.bShift and self.customEM.bCtrl ) :
++                updateGraphics( )
++
++def changeCivPopup( ) :
++    'Chooser window for switching a players civ'
++
++    popup = PyPopup.PyPopup(changeCivPopupNum,contextType = EventContextTypes.EVENTCONTEXT_ALL)
++    popup.setHeaderString( 'Change a civ?' )
++    popup.setBodyString( 'Which civ to change, to which civ and leader and what team?' )
++    popup.addSeparator()
++    #popup.createPythonEditBox( '10', 'Number of turns to turn over to AI', 0)
++
++    popup.createPythonPullDown( 'Switch this civ ...', 1 )
++    for i in range(0,gc.getMAX_PLAYERS()) :
++        player = PyPlayer(i)
++        if( not player.isNone() ) :
++            if( player.isAlive() ) :
++                popup.addPullDownString( "%s of the %s"%(player.getName(),player.getCivilizationName()), i, 1 )
++
++    activePlayer = gc.getActivePlayer()
++    popup.popup.setSelectedPulldownID( activePlayer.getID(), 1 )
++
++    popup.createPythonPullDown( ' ... to this civ', 2 )
++    for i in range(0,gc.getNumCivilizationInfos()) :
++        newCivInfo = gc.getCivilizationInfo(i)
++        popup.addPullDownString( "%s Empire"%(newCivInfo.getAdjective(0)), i, 2 )
++
++    popup.popup.setSelectedPulldownID( activePlayer.getCivilizationType(), 2 )
++
++    popup.createPythonPullDown( ' ... with this leader', 3 )
++    for i in range(0,gc.getNumLeaderHeadInfos()) :
++        newLeaderInfo = gc.getLeaderHeadInfo(i)
++        leaderName = newLeaderInfo.getDescription()
++##            leaderName = newLeaderInfo.getLeaderHead()  # this is the full path of the head animation
++##            if( leaderName.count('/') > 0 ) :
++##                leaderName = leaderName.split('/')[-2]  # hack to get to just name
++##                leaderName = leaderName.replace('_',' ')
++##                leaderName = leaderName.title()
++        #if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Leadername %s"%(leaderName) )
++
++        popup.addPullDownString( "%s"%(leaderName), i, 3 )
++
++    popup.popup.setSelectedPulldownID( activePlayer.getLeaderType(), 3 )
++
++    popup.createPythonPullDown( ' ... on this team', 4 )
++    popup.addPullDownString( "Keep current team", -1, 4 )  # Team idx of -1 maintains current team setting
++    for i in range(0,gc.getMAX_PLAYERS()) :
++        player = PyPlayer(i)
++        if( not player.isNone() ) :
++            if( player.isAlive() ) :
++                popup.addPullDownString( "Team with the %s"%(player.getCivilizationName()), i, 4 )
++
++    popup.popup.setSelectedPulldownID( -1, 4 )
++
++    popup.addSeparator()
++
++    popup.addButton('Cancel')
++
++    popup.launch()
++
++def changeCivHandler( playerID, netUserData, popupReturn ) :
++    'Handles changeCiv popup'
++
++    if( popupReturn.getButtonClicked() == 0 ):  # if you pressed cancel
++        return
++
++    playerIdx = popupReturn.getSelectedPullDownValue( 1 )
++    newCivType = popupReturn.getSelectedPullDownValue( 2 )
++    newLeaderType = popupReturn.getSelectedPullDownValue( 3 )
++    teamIdx = popupReturn.getSelectedPullDownValue( 4 )
++
++    if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected player %d, the %s, on team %d"%(playerIdx, gc.getPlayer(playerIdx).getCivilizationDescription(0), gc.getPlayer(playerIdx).getTeam()) )
++    if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : New team idx is %d"%(teamIdx) )
++
++    #player = gc.getPlayer(playerIdx)
++    #game.changePlayer( playerIdx, newCivType, newLeaderType, teamIdx, player.isHuman(), True )
++    success = changeCiv( playerIdx, newCivType, newLeaderType, teamIdx )
++
++    if( success ) :
++        CyInterface().addImmediateMessage("Player %d has been changed"%(playerIdx),"")
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Player change completed" )
++    else :
++        CyInterface().addImmediateMessage("An error occured in changeCiv.","")
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Error on changeCiv" )
++        return
++    
++def updateGraphicsHandler( playerID, netUserData, popupReturn ) :
++    
++    if( popupReturn.getButtonClicked() == 0 ):  # if you pressed update now
++        updateGraphics( )
++
++def updateGraphics( ) :
++    # Switch human player around to force a redraw of unit flags
++    iHuman = game.getActivePlayer()
++    
++    iSwitchTo = -1
++    for i in range(0,gc.getMAX_CIV_PLAYERS()) :
++        player = PyPlayer(i)
++        if( not player.isNone() ) :
++            if( not player.isAlive() ) :
++                iSwitchTo = i
++                break
++    
++    if( iSwitchTo < 0 ) :
++        iSwitchTo = 1 + game.getSorenRandNum( gc.getMAX_CIV_PLAYERS() - 1, 'ChangePlayer')
++        
++    game.setAIAutoPlay( 3 )
++    
++    changeHuman( iSwitchTo, iHuman )
++    
++    changeHuman( iHuman, iSwitchTo )
++    
++    #game.setAIAutoPlay(0)
++
++def changeHumanPopup( bDied = False ) :
++    'Chooser window for switching human player'
++    popup = PyPopup.PyPopup(changeHumanPopupNum,contextType = EventContextTypes.EVENTCONTEXT_ALL)
++    popup.setHeaderString( 'Pick a new civ' )
++    if( bDied ) :
++        popup.setBodyString( 'Your civ has been eliminated.  Would you like to continue as another leader?\n\n(Note:  Switching to barbs is not recommended except as an experiment)' )
++    else :
++        popup.setBodyString( 'Which civ would you like to lead?\n\n(Note:  Switching to barbs is not recommended except as an experiment)' )
++    popup.addSeparator()
++    #popup.createPythonEditBox( '10', 'Number of turns to turn over to AI', 0)
++
++    popup.createPythonPullDown( 'Take control of this civ ...', 1 )
++    for i in range(0,gc.getMAX_PLAYERS()) :
++        player = PyPlayer(i)
++        if( not player.isNone() ) :
++            if( player.isAlive() ) :
++                popup.addPullDownString( "%s of the %s"%(player.getName(),player.getCivilizationName()), i, 1 )
++
++    activePlayerIdx = gc.getActivePlayer().getID()
++    popup.popup.setSelectedPulldownID( activePlayerIdx, 1 )
++
++    popup.addSeparator()
++
++    popup.addButton('Cancel')
++
++    popup.launch()
++
++def changeHumanHandler( playerID, netUserData, popupReturn ) :
++    'Handles changeHuman popup'
++
++    if( popupReturn.getButtonClicked() == 0 ):  # if you pressed cancel
++        return
++
++    newHumanIdx = popupReturn.getSelectedPullDownValue( 1 )
++    newPlayer = gc.getPlayer(newHumanIdx)
++    oldHumanIdx = playerID
++    oldPlayer = gc.getPlayer(oldHumanIdx)
++
++    if( newHumanIdx == oldHumanIdx ) :
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected the same civ, no change")
++        CyInterface().addImmediateMessage("You retain control of the %s"%(oldPlayer.getCivilizationDescription(0)),"")
++        return
++
++
++    if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : You have selected player %d, the %s"%(newHumanIdx, newPlayer.getCivilizationDescription(0)) )
++
++    success = changeHuman( newHumanIdx, oldHumanIdx )
++
++    if( success ) :
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Number of human players is now %d"%(game.getNumHumanPlayers()) )
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Active player is now %d"%(game.getActivePlayer()) )
++##            for i in range(0,gc.getMAX_CIV_PLAYERS()) :
++##                if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Player %d is human %d"%(i,gc.getPlayer(i).isHuman()))
++        CyInterface().addImmediateMessage("You now control the %s"%(newPlayer.getCivilizationDescription(0)),"")
++    else :
++        if( LOG_DEBUG ) : CvUtil.pyPrint( "   CP : Error occured, number of human players is now %d"%(game.getNumHumanPlayers()) )
++        CyInterface().addImmediateMessage("An error occured in changeHuman ...","")
++
++########################## Player modification functions ###########################################
++
++def changeCiv( playerIdx, newCivType = -1, newLeaderType = -1, teamIdx = -1 ) :
++    # Changes specified players civ, leader
++    # Does not change isHuman setting
++
++    player = gc.getPlayer(playerIdx)
++    oldCivType = player.getCivilizationType()
++    oldLeaderType = player.getLeaderType()
++    if( newCivType >= 0 and not newCivType == oldCivType ) :
++        player.changeCiv( newCivType )
++    
++    if( newLeaderType >= 0 and not newLeaderType == oldLeaderType ) :
++        player.changeLeader( newLeaderType )
++    
++    return True
++
++def changePersonality( playerIdx, newPersonality = -1 ) :
++    # Changes leader personality of this civ
++    
++    player = gc.getPlayer(playerIdx)
++    
++    if( newPersonality < 0 ) :
++        iBestValue = 0
++        newPersonality = -1
++
++        for iI in range(0,gc.getNumLeaderHeadInfos()) :
++            if (not iI == gc.getDefineINT("BARBARIAN_LEADER")) :
++                iValue = (1 + game.getSorenRandNum(10000, "Choosing Personality"))
++
++                for iJ in range(0,gc.getMAX_CIV_PLAYERS()) :
++                    if (gc.getPlayer(iJ).isEverAlive()) :
++                        if (gc.getPlayer(iJ).getPersonalityType() == iI) :
++                            iValue /= 2
++
++                if (iValue > iBestValue) :
++                    iBestValue = iValue
++                    newPersonality = iI
++
++    if (newPersonality >= 0 and newPersonality < gc.getNumLeaderHeadInfos()) :
++        player.setPersonalityType(newPersonality)
++
++def changeHuman( newHumanIdx, oldHumanIdx ) :
++
++    game.changeHumanPlayer( newHumanIdx )
++    
++    doRefortify( newHumanIdx )
++    
++    return True
++
++########################## Utility functions ###########################################
++            
++def doRefortify( iPlayer ) :
++     #pyPlayer = PyPlayer( iPlayer )
++    pPlayer = gc.getPlayer(iPlayer)
++    
++    CvUtil.pyPrint( "Refortifying units for player %d"%(iPlayer))
++
++    for groupID in range(0,pPlayer.getNumSelectionGroups()) :
++        pGroup = pPlayer.getSelectionGroup(groupID)
++        if( pGroup.getNumUnits() > 0 ) :
++
++            headUnit = pGroup.getHeadUnit()
++            #CvUtil.pyPrint( "%s fortTurns %d"%(headUnit.getName(),headUnit.getFortifyTurns()) )
++            if( headUnit.getFortifyTurns() > 0 ) :
++                if( headUnit.isHurt() ) :
++                    #CvUtil.pyPrint( "%s is hurt"%(headUnit.getName()) )
++                    #pGroup.setActivityType(ActivityTypes.ACTIVITY_HEAL)
++                    pass
++                else :
++                    #CvUtil.pyPrint( "Starting mission ..." )
++                    #pGroup.pushMission( MissionTypes.MISSION_FORTIFY, 0, 0, 0, False, True, MissionAITypes.MISSIONAI_GUARD_CITY, pGroup.plot(), pGroup.getHeadUnit() )
++                    pGroup.setActivityType(ActivityTypes.ACTIVITY_SLEEP)
++                    headUnit.NotifyEntity( MissionTypes.MISSION_FORTIFY )
++                    pass
+
+Index: /trunk/Better BTS AI/Assets/Python/CvCustomEventManager.py
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/Python/CvCustomEventManager.py@387
+@@ -0,0 +1,186 @@
++## Copyright (c) 2005-2006, Gillmer J. Derge.
++
++## This file is part of Civilization IV Alerts mod.
++##
++## Civilization IV Alerts mod is free software; you can redistribute
++## it and/or modify it under the terms of the GNU General Public
++## License as published by the Free Software Foundation; either
++## version 2 of the License, or (at your option) any later version.
++##
++## Civilization IV Alerts mod is distributed in the hope that it will
++## be useful, but WITHOUT ANY WARRANTY; without even the implied
++## warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++## See the GNU General Public License for more details.
++##
++## You should have received a copy of the GNU General Public License
++## along with Civilization IV Alerts mod; if not, write to the Free
++## Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++## 02110-1301 USA
++    
++__version__ = "$Revision: 1.4 $"
++# $Source: /usr/local/cvsroot/Civ4lerts/src/main/python/CvCustomEventManager.py,v $
++
++import CvEventManager
++# --------- Better BTS AI mod (1/2) -------------
++import AIAutoPlay
++import ChangePlayer
++
++class CvCustomEventManager(CvEventManager.CvEventManager, object):
++
++    """Extends the standard event manager by adding support for multiple
++    handlers for each event.
++    
++    Methods exist for both adding and removing event handlers.  A set method 
++    also exists to override the default handlers.  Clients should not depend 
++    on event handlers being called in a particular order.
++    
++    This approach works best with mods that have implemented the design
++    pattern suggested on Apolyton by dsplaisted.
++    
++    http://apolyton.net/forums/showthread.php?s=658a68df728b2719e9ebfe842d784002&threadid=142916
++    
++    The example given in the 8th post in the thread would be handled by adding
++    the following lines to the CvCustomEventManager constructor.  The RealFort,
++    TechConquest, and CulturalDecay classes can remain unmodified.
++    
++        self.addEventHandler("unitMove", rf.onUnitMove)
++        self.addEventHandler("improvementBuilt", rf.onImprovementBuilt)
++        self.addEventHandler("techAcquired", rf.onTechAcquired)
++        self.addEventHandler("cityAcquired", tc.onCityAcquired)
++        self.addEventHandler("EndGameTurn", cd.onEndGameTurn)
++        
++    Note that the naming conventions for the event type strings vary from event
++    to event.  Some use initial capitalization, some do not; some eliminate the
++    "on..." prefix used in the event handler function name, some do not.  Look
++    at the unmodified CvEventManager.py source code to determine the correct
++    name for a particular event.
++    
++    Take care with event handlers that also extend CvEventManager.  Since
++    this event manager handles invocation of the base class handler function,
++    additional handlers should not also call the base class function themselves.
++
++    """
++
++    def __init__(self, *args, **kwargs):
++        super(CvCustomEventManager, self).__init__(*args, **kwargs)
++        # map the initial EventHandlerMap values into the new data structure
++        for eventType, eventHandler in self.EventHandlerMap.iteritems():
++            self.setEventHandler(eventType, eventHandler)
++        # --> INSERT EVENT HANDLER INITIALIZATION HERE <--
++
++        # --------- Better BTS AI (2/2) -------------
++        AIAutoPlay.AIAutoPlay(self)
++        ChangePlayer.ChangePlayer(self)
++
++    def addEventHandler(self, eventType, eventHandler):
++        """Adds a handler for the given event type.
++        
++        A list of supported event types can be found in the initialization 
++        of EventHandlerMap in the CvEventManager class.
++        
++        Throws LookupError if the eventType is not valid.
++
++        """
++        
++        if eventType not in self.EventHandlerMap:
++            raise LookupError(eventType)
++        if( not eventHandler in self.EventHandlerMap[eventType] ) :
++            self.EventHandlerMap[eventType].append(eventHandler)
++
++    def removeEventHandler(self, eventType, eventHandler):
++        """Removes a handler for the given event type.
++        
++        A list of supported event types can be found in the initialization 
++        of EventHandlerMap in the CvEventManager class.  It is an error if 
++        the given handler is not found in the list of installed handlers.
++        
++        Throws LookupError if the eventType is not valid.
++
++        """
++        if eventType not in self.EventHandlerMap:
++            raise LookupError(eventType)
++        self.EventHandlerMap[eventType].remove(eventHandler)
++    
++    def setEventHandler(self, eventType, eventHandler):
++        """Removes all previously installed event handlers for the given 
++        event type and installs a new handler.
++        
++        A list of supported event types can be found in the initialization 
++        of EventHandlerMap in the CvEventManager class.  This method is 
++        primarily useful for overriding, rather than extending, the default 
++        event handler functionality.
++        
++        Throws LookupError if the eventType is not valid.
++
++        """
++        if eventType not in self.EventHandlerMap:
++            raise LookupError(eventType)
++        self.EventHandlerMap[eventType] = [eventHandler]
++    
++    def setPopupHandler(self, eventType, popupHandler):
++        """Removes all previously installed popup handlers for the given 
++        event type and installs a new handler.
++        
++        The eventType should be an integer.  It must be unique with respect
++        to the integers assigned to built in events.  The popupHandler should
++        be a list made up of (name, beginFunction, applyFunction).  The name
++        is used in debugging output.  The begin and apply functions are invoked
++        by beginEvent and applyEvent, respectively, to manage a popup dialog
++        in response to the event.
++
++        """
++        self.Events[eventType] = popupHandler
++
++    def handleEvent(self, argsList):
++        """Handles events by calling all installed handlers."""
++        self.origArgsList = argsList
++        flagsIndex = len(argsList) - 6
++        self.bDbg, self.bMultiPlayer, self.bAlt, self.bCtrl, self.bShift, self.bAllowCheats = argsList[flagsIndex:]
++        eventType = argsList[0]
++        return {
++            "kbdEvent": self._handleConsumableEvent,
++            "mouseEvent": self._handleConsumableEvent,
++            "OnSave": self._handleOnSaveEvent,
++            "OnLoad": self._handleOnLoadEvent
++        }.get(eventType, self._handleDefaultEvent)(eventType, argsList[1:])
++
++    def _handleDefaultEvent(self, eventType, argsList):
++        if self.EventHandlerMap.has_key(eventType):
++            for eventHandler in self.EventHandlerMap[eventType]:
++                # the last 6 arguments are for internal use by handleEvent
++                eventHandler(argsList[:len(argsList) - 6])
++
++    def _handleConsumableEvent(self, eventType, argsList):
++        """Handles events that can be consumed by the handlers, such as
++        keyboard or mouse events.
++        
++        If a handler returns non-zero, processing is terminated, and no 
++        subsequent handlers are invoked.
++
++        """
++        if self.EventHandlerMap.has_key(eventType):
++            for eventHandler in self.EventHandlerMap[eventType]:
++                # the last 6 arguments are for internal use by handleEvent
++                result = eventHandler(argsList[:len(argsList) - 6])
++                if (result > 0):
++                    return result
++        return 0
++
++    # TODO: this probably needs to be more complex
++    def _handleOnSaveEvent(self, eventType, argsList):
++        """Handles OnSave events by concatenating the results obtained
++        from each handler to form an overall consolidated save string.
++
++        """
++        result = ""
++        if self.EventHandlerMap.has_key(eventType):
++            for eventHandler in self.EventHandlerMap[eventType]:
++                # the last 6 arguments are for internal use by handleEvent
++                result = result + eventHandler(argsList[:len(argsList) - 6])
++        return result
++
++    # TODO: this probably needs to be more complex
++    def _handleOnLoadEvent(self, eventType, argsList):
++        """Handles OnLoad events."""
++        return self._handleDefaultEvent(eventType, argsList)
++
+
+Index: /trunk/Better BTS AI/Assets/Python/EntryPoints/CvEventInterface.py
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/Python/EntryPoints/CvEventInterface.py@387
+@@ -0,0 +1,38 @@
++# Sid Meier's Civilization 4
++# Copyright Firaxis Games 2005
++#
++# CvEventInterface.py
++#
++# These functions are App Entry Points from C++
++# WARNING: These function names should not be changed
++# WARNING: These functions can not be placed into a class
++#
++# No other modules should import this
++
++
++import CvCustomEventManager
++
++# **********************************
++# GJD modifications start here
++# **********************************
++
++customEventManager = CvCustomEventManager.CvCustomEventManager()
++
++def getEventManager():
++    return customEventManager
++
++# **********************************
++# GJD modifications end here
++# **********************************
++
++def onEvent(argsList):
++    """Called when a game event happens - return 1 if the event was consumed."""
++    return getEventManager().handleEvent(argsList)
++
++def applyEvent(argsList):
++    context, playerID, netUserData, popupReturn = argsList
++    return getEventManager().applyEvent(argsList)
++
++def beginEvent(context, argsList = -1):
++    return getEventManager().beginEvent(context, argsList)
++
+
+Index: /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml
+--- /dev/null
++++ /trunk/Better BTS AI/Assets/XML/Text/CIV4GameText_AIAutoPlay.xml@387
+@@ -0,0 +1,153 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Text - New -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_CANCEL</Tag>
++		<English>Cancel</English>
++		<French>Annuler</French>
++		<German>Abbrechen</German>
++		<Italian>Cancel</Italian>
++		<Spanish>Cancel</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_PICK_CIV</Tag>
++		<English>Pick a civ</English>
++		<French>Choisir une civilisation</French>
++		<German>Wähle Zivilisation</German>
++		<Italian>Pick a civ</Italian>
++		<Spanish>Pick a civ</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_CIV_DIED</Tag>
++		<English>Your civ has died.[NEWLINE]Would you like to lead another civ?[NEWLINE]</English>
++		<French>Votre civilisation est morte.[NEWLINE]Voulez-vous diriger une autre civilisation ?[NEWLINE]</French>
++		<German>W&#228;hrend der Automatisierung wurde Ihre Zivilisation zerst&#246;rt.[NEWLINE]Welches Volk wollt Ihr nun anf&#252;hren?[NEWLINE]</German>
++		<Italian>Your civ has died.[NEWLINE]Would you like to lead another civ?[NEWLINE]</Italian>
++		<Spanish>Your civ has died.[NEWLINE]Would you like to lead another civ?[NEWLINE]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_TAKE_CONTROL_CIV</Tag>
++		<English>Take control of this civ ...</English>
++		<French>Prendre le contrôle de la civilisation ...</French>
++		<German>Take control of this civ ...</German>
++		<Italian>Take control of this civ ...</Italian>
++		<Spanish>Take control of this civ ...</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_OF_THE</Tag>
++		<English>%s of the %s</English>
++		<French>%s des %s</French>
++		<German>%s von den %s</German>
++		<Italian>%s of the %s</Italian>
++		<Spanish>%s of the %s</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_NOW_CONTROL</Tag>
++		<English>You now control the %s</English>
++		<French>Vous dirigez maintenant les %s</French>
++		<German>Ihr herrscht nun über die %s</German>
++		<Italian>You now control the %s</Italian>
++		<Spanish>You now control the %s</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_NONE</Tag>
++		<English>None</English>
++		<French>Aucun</French>
++		<German>Keine</German>
++		<Italian>None</Italian>
++		<Spanish>None</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_TURN_ON</Tag>
++		<English>Turn on AI Auto Control?</English>
++		<French>Basculer en mode Jeu Automatique ?</French>
++		<German>KI-Kontrolle aktivieren?</German>
++		<Italian>Turn on AI Auto Control?</Italian>
++		<Spanish>Turn on AI Auto Control?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_TURNS</Tag>
++		<English>How many turns would you like the AI to control?</English>
++		<French>Combien de tours souhaitez-vous que l'ordinateur joue en mode Jeu Automatique ?</French>
++		<German>Wie viele Runden wollt Ihr Euch durch die KI vertreten lassen?</German>
++		<Italian>How many turns would you like the AI to control?</Italian>
++		<Spanish>How many turns would you like the AI to control?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_NO</Tag>
++		<English>No automation</English>
++		<French>Pas d'automatisation</French>
++		<German>Keine Automatisierung</German>
++		<Italian>No automation</Italian>
++		<Spanish>No automation</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_AUTOMATION</Tag>
++		<English>Choose type of automation</English>
++		<French>Choisissez le type d'automatisation</French>
++		<German>W&#228;hlt die Art der Automatisierung</German>
++		<Italian>Choose type of automation</Italian>
++		<Spanish>Choose type of automation</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_FULLY</Tag>
++		<English>Fully Automate</English>
++		<French>Complètement automatique</French>
++		<German>Komplette Automatisierung</German>
++		<Italian>Fully Automate</Italian>
++		<Spanish>Fully Automate</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_UNIT</Tag>
++		<English>Automate unit moves only (not fully tested)</English>
++		<French>Déplacement des unités seulement (Pas encore testé à fond)</French>
++		<German>Nur Einheitenz&#252;ge automatisieren (noch nicht vollst&#228;ndig getestet)</German>
++		<Italian>Automate unit moves only (not fully tested)</Italian>
++		<Spanish>Automate unit moves only (not fully tested)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_DEBUG</Tag>
++		<English>Debug Mode (will reveal entire world!!!)</English>
++		<French>Mode Debug (Révellera la carte du monde !!!)</French>
++		<German>Debug-Modus (Enth&#252;llt die komplette Karte!!!)</German>
++		<Italian>Debug Mode (will reveal entire world!!!)</Italian>
++		<Spanish>Debug Mode (will reveal entire world!!!)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_NEW_LEADER</Tag>
++		<English>There is a new leader!!!</English>
++		<French>Il y a un nouveau leader !!!</French>
++		<German>Es gibt einen neuen Herrscher!!!</German>
++		<Italian>There is a new leader!!!</Italian>
++		<Spanish>There is a new leader!!!</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_ABDICATE</Tag>
++		<English>Old age has finally caught up with you and you decide to abdicated rule.</English>
++		<French>La vieillesse a fini par vous rattrapper et vous avez décidez d'abandonner le pouvoir.</French>
++		<German>Ihr entscheidet Euch, abzudanken, da Euer Alter Euch schwer zu schaffen macht.</German>
++		<Italian>Old age has finally caught up with you and you decide to abdicated rule.</Italian>
++		<Spanish>Old age has finally caught up with you and you decide to abdicated rule.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_USURPATOR</Tag>
++		<English>Terrible news:[NEWLINE][NEWLINE]Coniving rivals have overthrown you in a coup![NEWLINE]A little to much "Let them eat cake" perhaps?</English>
++		<French>Terrible nouvelle :[NEWLINE][NEWLINE]Vos amis politiques se sont révélés être vos rivaux et vous ont destitué ![NEWLINE]Peut-être leur avez-vous un peu trop fait confiance ?</French>
++		<German>Erschreckende Neuigkeiten:[NEWLINE][NEWLINE]Ein Usurpator hat Euch entmachtet![NEWLINE]Vielleicht habt Ihr ein wenig zu oft die Z&#252;gel schleifen lassen?</German>
++		<Italian>Terrible news:[NEWLINE][NEWLINE]Coniving rivals have overthrown you in a coup![NEWLINE]A little to much "Let them eat cake" perhaps?</Italian>
++		<Spanish>Terrible news:[NEWLINE][NEWLINE]Coniving rivals have overthrown you in a coup![NEWLINE]A little to much "Let them eat cake" perhaps?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AIAUTOPLAY_GOOD_NEWS</Tag>
++		<English>[NEWLINE][NEWLINE]However, there is good news![NEWLINE]Mystical advisors report that you will be reincarnated and return to power in %d turns.[NEWLINE][NEWLINE]In the meantime, you can only hope your successor proves worthy.</English>
++		<French>[NEWLINE][NEWLINE]Toutefois, il y a une bonne nouvelle ![NEWLINE]Les astrologues prédisent votre réincarnation et votre retour au pouvoir dans %d tours.[NEWLINE][NEWLINE]En attendant, vous n'avez plus qu'à espérer que votre successeur agira correctement.</French>
++		<German>[NEWLINE][NEWLINE]Aber es gibt auch eine gute Neuigkeit![NEWLINE]Sterndeuter sagen Euch voraus, dass Ihr in %d Runden die Macht zur&#252;ckerlangt.[NEWLINE][NEWLINE]In der Zwischenzeit k&#246;nnt Ihr nur hoffen, dass der neue Herrscher sich als w&#252;rdig erweist.</German>
++		<Italian>[NEWLINE][NEWLINE]However, there is good news![NEWLINE]Mystical advisors report that you will be reincarnated and return to power in %d turns.[NEWLINE][NEWLINE]In the meantime, you can only hope your successor proves worthy.</Italian>
++		<Spanish>[NEWLINE][NEWLINE]However, there is good news![NEWLINE]Mystical advisors report that you will be reincarnated and return to power in %d turns.[NEWLINE][NEWLINE]In the meantime, you can only hope your successor proves worthy.</Spanish>
++	</TEXT>
++</Civ4GameText>
++
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.36.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.37.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@386
++++ /trunk/Better BTS AI/readme.txt@387
+@@ -7,10 +7,32 @@
+ 
+ 2	Replace default files.  The contents of the Assets folder are intended to replace the files located in the same locations in "C:\Program Files\Firaxis Games\Sid Meier's Civilization 4\Beyond the Sword\Assets\".  It is recommended that you backup your current dll and other file (renaming it will work fine) before installing this version.  Simply paste the contents the mod's Assets folder into the same locations in BTS's Assets folder, making sure the game isn't currently running.  This method will make the Better BTS AI changes always apply unless you load a mod with its own DLL.  For online play everyone must have install Better BTS AI in this way or things may not work correctly.  B]Recommended if[/B] you always want to use Better BTS AI.
+ 
+-	The source code for the changes is also included in a zip.  If you are not a modder, you do not need those files and there is no need to extract them from the zip file.
++The source code for the changes is also included in a zip.  If you are not a modder, you do not need those files and there is no need to extract them from the zip file.
+ 
+-Better BTS AI v0.36 Changelog
+-_________
++
++Merge instructions
++_________________________
++
++DLL:  If the other mod has a custom DLL, you will need to merge the source code and complie a new DLL.  If you don't know what this means, ask for help from the community.
++
++Python:  Only the file in Assets\Python\Screens\ contains a fix, the other Python files are only to facilitate testing.  AIAutoPlay and ChangePlayer are very useful for testing, so consider including them.  These components use DrElmerGiggles custom event manager to manage their subscriptions to different Python events.
++
++XML:  The XML changes will need to be merged with the exception of Text\CIV4GameText_AIAutoPlay.xml which is only needed if you also are using the AIAutoPlay python component.
++
++
++Debug Keyboard Commands
++_________________________
++
++This mod includes the AIAutoPlay and ChangePlayer debug suites from the Revolution mod.  These commands are intended to help debug the game plus are also kind of fun (if you're not playing for real):
++
++Ctrl+Shift+X    AIAutoPlay      Opens popup to start automation for any number of turns.  Pressing while in automation cancels automation.
++Ctrl+Shift+M    AIAutoPlay      Automate the rest of the current turn only.
++Ctrl+Shift+P    ChangePlayer    Open popup to change the civ and leader type for any player in the game.
++Ctrl+Shift+L    ChangePlayer    Open popup to switch which player the human controls.
++
++
++Better BTS AI v0.37 Changelog
++_________________________
+ 
+ Bugfix
+ - Fixed bug in player closeness calculations causing the AI to be blind to its actual proximity to other players
+@@ -62,11 +84,14 @@
+ - Created functions for determining when cities share the same water area (lake, ocean)
+ - Partial implementation of a new A* solver for determining closeness, does not yet affect calculations
+ 
++Combat Mechanics
++- Blocked out location for potential changes to air combat
++
+ Debug
+-- Added SDK portion of AIAutoPlay mod to faciliate testing
++- Added SDK and adapted python code from AIAutoPlay mod to faciliate testing
+ - Modified debug mode output to show relevant information for these developments
+ - Added string to lower right flag help text showing Better BTS AI version number currently running
+-- Added SDK portion of ChangePlayer mod to facilitate testing in the future
++- Added SDK and adapted python code from ChangePlayer mod to facilitate testing
+ 
+-Better BTS AI also includes Solver's unofficial 3.17 patch version 0.19.
++Better BTS AI also includes Solver & Dresden's unofficial 3.17 patch version 0.19.1.
+ 
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@386
++++ /trunk/Better BTS AI/todo and ideas.txt@387
+@@ -7,7 +7,7 @@
+ - AP leader not reselected if sitting leader switches to Free Religion
+ 
+ Combat mechanics
+-- For fighter v fighter battles, strength should define damage not intercept odds
++- Revamp air combat, specifically to make air v air different than air v ground
+ 
+ Espionage AI
+ - Always reset spending
+@@ -39,3 +39,5 @@
+ Stack strength assesment?
+ 
+ Vassals: when will vassals break free?  Under what circumstances will AI reject vassal offer to pursue conquest?  Will victim then try to vassal to another player?
++
++War allies:  how do losing/weak civs ask for help?
+

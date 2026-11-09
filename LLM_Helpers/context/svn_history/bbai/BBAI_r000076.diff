@@ -1,0 +1,162 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 76
+# Author: iustus
+# Date: 2006-11-15T02:05:36.330406Z
+# Coverage: full
+# Message:
+#   AI_bestTech changes: religious buildings are worth 1/7th as much, founding a religion is worth twice the random factor if you have zero religions. The net effect of this should be that Polytheism is much more likely to be chosen over Meditation. Prior to this change, Meditation was getting +2200 for its buildings (7 monastaries), while Polytheism was getting +800 for its two wonders). Now Meditation gets about +325, as it should be. Because Meditation will research in fewer turns, it still will be preferred, but the random factor will make it much more even than it was previously. The lost +2000 that meditation was getting is instead part of the possible doubling of the +2400 random if you would found the religion. Since this is always the case for meditation and polytheism early, this factor about evens out meditation to what it was previously, but it raises polytheism to close to the same level. Prior to the change, Meditation would be on average 4500*(180cost), Polytheism would be 3000*(230cost), now it is on average 3700*cost vs 4200*cost. The random factor is +/- 3400, making these two close to equal now.
+#   
+#   Added the new AI_defines.h header file to the VS project
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@75
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@76
+@@ -1408,6 +1408,9 @@
+ 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+ 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+ 			<File
++				RelativePath=".\AI_Defines.h">
++			</File>
++			<File
+ 				RelativePath=".\CvArea.h">
+ 			</File>
+ 			<File
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@75
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@76
+@@ -2143,14 +2143,7 @@
+ 	ImprovementTypes eImprovement;
+ 	BuildingTypes eLoopBuilding;
+ 	RouteTypes eRoute;
+-	TechTypes eBestTech;
+ 	UnitTypes eLoopUnit;
+-	bool bWarPlan;
+-	bool bCapitalAlone;
+-	bool bFinancialTrouble;
+-	int iHasMetCount;
+-	int iCoastalCities;
+-	int iConnectedForeignCities;
+ 	int iPathLength;
+ 	int iNumBonuses;
+ 	int iValue;
+@@ -2158,21 +2151,22 @@
+ 	int iBuildValue;
+ 	int iBonusValue;
+ 	int iMilitaryValue;
+-	int iBestValue;
+ 	int iI, iJ, iK, iL;
+ 
+ 	pCapitalCity = getCapitalCity();
+ 
+-	bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+-	bCapitalAlone = AI_isCapitalAreaAlone();
+-	bFinancialTrouble = AI_isFinancialTrouble();
+-
+-	iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+-	iCoastalCities = countNumCoastalCities();
+-	iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+-
+-	iBestValue = 0;
+-	eBestTech = NO_TECH;
++	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	bool bCapitalAlone = AI_isCapitalAreaAlone();
++	bool bFinancialTrouble = AI_isFinancialTrouble();
++
++	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
++	int iCoastalCities = countNumCoastalCities();
++	int iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
++
++	int iCityCount = GET_TEAM(getTeam()).getNumCities();
++
++	int iBestValue = 0;
++	TechTypes eBestTech = NO_TECH;
+ 
+ 	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+@@ -2786,29 +2780,49 @@
+ 									{
+ 										if (isTechRequiredForBuilding(((TechTypes)iI), eLoopBuilding))
+ 										{
++											int iBuildingValue = 0;
++											
+ 											if (GC.getBuildingInfo(eLoopBuilding).getSpecialBuildingType() != NO_BUILDING)
+ 											{
+-												iValue += ((bCapitalAlone) ? 100 : 25);
++												iBuildingValue += ((bCapitalAlone) ? 100 : 25);
+ 											}
+ 											else
+ 											{
+-												iValue += ((bCapitalAlone) ? 400 : 100);
++												iBuildingValue += ((bCapitalAlone) ? 400 : 100);
+ 											}
+ 
+ 											//the granary effect is SO powerful it deserves special code
+ 											if (GC.getBuildingInfo(eLoopBuilding).getFoodKept() > 0)
+ 											{
+-												iValue += (10 * GC.getBuildingInfo(eLoopBuilding).getFoodKept());
++												iBuildingValue += (10 * GC.getBuildingInfo(eLoopBuilding).getFoodKept());
+ 											}
+ 
+-											iValue += 300;
++											iBuildingValue += 300;
+ 
+                                             if ((GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)))
+                                             {
+                                                 //UB
+-                                                iValue += 600;
++                                                iBuildingValue += 600;
+                                             }
+-
++											
++											// if this is a religious building, its not as useful
++											ReligionTypes eReligion = (ReligionTypes) GC.getBuildingInfo(eLoopBuilding).getReligionType();
++											if (eReligion != NO_RELIGION)
++											{
++												// reduce by a factor based on how many cities we have with that relgion
++												if (iCityCount > 0)
++												{
++													int iCitiesWithReligion = GET_TEAM(getTeam()).getHasReligionCount(eReligion);
++													
++													iBuildingValue *= max(1, iCitiesWithReligion);
++													iBuildingValue /= iCityCount;
++												}
++
++												// if this building requires a religion, then only count it as 1/7th as much
++												// or in other words, only count things like temples once, not 7 times
++												// doing it this way in case some mods give buildings to only one religion
++                                                iBuildingValue /= max (1, GC.getNumReligionInfos());
++											}
+ 
+ 											if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech() == iI)
+ 											{
+@@ -2824,13 +2838,15 @@
+ 
+ 																if (bCapitalAlone)
+ 																{
+-																	iValue += 400;
++																	iBuildingValue += 400;
+ 																}
+ 															}
+ 														}
+ 													}
+ 												}
+ 											}
++
++											iValue += iBuildingValue;
+ 										}
+ 									}
+ 								}
+@@ -2911,6 +2927,7 @@
+ 
+ 													if (countTotalHasReligion() == 0)
+ 													{
++														iReligionValue *= 2;
+ 														iReligionValue += 500;
+ 													}
+ 													
+

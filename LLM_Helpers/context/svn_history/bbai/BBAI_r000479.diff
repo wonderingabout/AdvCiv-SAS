@@ -1,0 +1,670 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 479
+# Author: jdog5000
+# Date: 2009-08-06T20:05:37.278293Z
+# Coverage: full
+# Message:
+#   0.80J
+#   
+#   Changes from UP 1.02
+#   Updates to blockade breaking code
+#   Changed tech handicap handling to new TechDiffusion model
+# Changed paths (12):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLButtonPopup.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@478
++++ /trunk/CvGameCoreDLL/CvCity.cpp@479
+@@ -765,6 +765,17 @@
+ 		abEspionageVisibility.push_back(getEspionageVisibility((TeamTypes)iI));
+ 	}
+ 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/04/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++	// Need to clear trade routes of dead city, else they'll be claimed for the owner forever
++	clearTradeRoutes();
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ 	pPlot->setPlotCity(NULL);
+ 
+ 	area()->changeCitiesPerPlayer(getOwnerINLINE(), -1);
+
+Index: /trunk/CvGameCoreDLL/CvDLLButtonPopup.cpp
+--- /trunk/CvGameCoreDLL/CvDLLButtonPopup.cpp@478
++++ /trunk/CvGameCoreDLL/CvDLLButtonPopup.cpp@479
+@@ -2481,12 +2481,33 @@
+ 
+ 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+ 	{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/04/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
+ 		PlayerTypes ePlayer = pLoopCity->getLiberationPlayer(false);
+ 		if (NO_PLAYER != ePlayer)
+ 		{
+ 			CvWString szCity = gDLL->getText("TXT_KEY_CITY_LIBERATE", pLoopCity->getNameKey(), GET_PLAYER(ePlayer).getNameKey());
+ 			gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szCity, ARTFILEMGR.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION")->getPath(), -pLoopCity->getID(), WIDGET_GENERAL);
+ 		}
++*/
++		// Avoid potential name conflict
++		PlayerTypes eLibPlayer = pLoopCity->getLiberationPlayer(false);
++		if (NO_PLAYER != eLibPlayer)
++		{
++			// Don't offer liberation during war
++			if( !(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eLibPlayer).getTeam())) )
++			{
++				CvWString szCity = gDLL->getText("TXT_KEY_CITY_LIBERATE", pLoopCity->getNameKey(), GET_PLAYER(eLibPlayer).getNameKey());
++				gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szCity, ARTFILEMGR.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION")->getPath(), -pLoopCity->getID(), WIDGET_GENERAL);
++			}
++		}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 	}
+ 
+ 	gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_NEVER_MIND"), ARTFILEMGR.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL")->getPath(), 0, WIDGET_GENERAL);
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@478
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@479
+@@ -3225,15 +3225,11 @@
+ 	// if alt down and cheat on, show extra info
+ 	if (gDLL->altKey() && gDLL->getChtLvl() > 0)
+ 	{
+-		if (eActivePlayer == ePlayer)
+-		{
+-			GC.getGameINLINE().updateResearchPercentAdjustTimes100();
+-
+-			// Show tech percent adjust
+-			szBuffer.append(CvWString::format(SETCOLR L"TechPercentAdjust: %0.2f" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getGameINLINE().getResearchPercentAdjustTimes100()/100.0 ));
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(NEWLINE);
+-		}
++		
++		// Show tech percent adjust
++		szBuffer.append(CvWString::format(SETCOLR L"TechPercent: %d%%, CurResMod: %d%%" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kTeam.getBestKnownTechScorePercent(), kPlayer.calculateResearchModifier(kPlayer.getCurrentResearch()) ));
++		szBuffer.append(NEWLINE);
++		szBuffer.append(NEWLINE);
+ 
+ 		szBuffer.append("Power");
+ 		szBuffer.append(NEWLINE);
+@@ -4445,7 +4441,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.80H");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.80J");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@478
++++ /trunk/CvGameCoreDLL/CvGame.cpp@479
+@@ -449,15 +449,6 @@
+ 	m_bNukesValid = false;
+ 
+ 	m_eHandicap = eHandicap;
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	m_iResearchPercentAdjustTimes100 = 0;
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 	m_ePausePlayer = NO_PLAYER;
+ 	m_eBestLandUnit = NO_UNIT;
+ 	m_eWinner = NO_TEAM;
+@@ -4598,68 +4589,6 @@
+ 	m_eHandicap = eHandicap;
+ }
+ 
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-int CvGame::getResearchPercentAdjustTimes100() const
+-{
+-	return m_iResearchPercentAdjustTimes100;
+-}
+-
+-void CvGame::updateResearchPercentAdjustTimes100()
+-{
+-	m_iResearchPercentAdjustTimes100 = 0;
+-
+-	if( GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_ENABLE") > 0 )
+-	{
+-		int iBestAITechScore = 0;
+-		int iAvgHumanTechScore = 0;
+-		for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
+-		{
+-			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
+-			{
+-				if( GET_PLAYER((PlayerTypes)iI).isHuman() )
+-				{
+-					iAvgHumanTechScore += GET_PLAYER((PlayerTypes)iI).getTechScore();
+-				}
+-				else if( !(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHuman()) )
+-				{
+-					iBestAITechScore = std::max( iBestAITechScore, GET_PLAYER((PlayerTypes)iI).getTechScore() );
+-				}
+-			}
+-		}
+-
+-		iAvgHumanTechScore /= std::max(1, countHumanPlayersAlive());
+-
+-		if( iAvgHumanTechScore > 0 && iBestAITechScore > 0 )
+-		{
+-			int iHumanTechPercentTimes100 = (10000*iAvgHumanTechScore)/std::max(1, iBestAITechScore);
+-
+-			int iUpperBound = std::abs(GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_OVER_TARGET_PERCENT"));
+-			int iLowerBound = std::abs(GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_UNDER_TARGET_PERCENT"));
+-
+-			if( iHumanTechPercentTimes100 > 100*iUpperBound )
+-			{
+-				m_iResearchPercentAdjustTimes100 = ((iHumanTechPercentTimes100 - 100*iUpperBound)*std::abs(GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_SCALE")));
+-				m_iResearchPercentAdjustTimes100 /= 100;
+-			}
+-			else if( iHumanTechPercentTimes100 < 100*iLowerBound )
+-			{
+-				m_iResearchPercentAdjustTimes100 = ((iHumanTechPercentTimes100 - 100*iLowerBound)*std::abs(GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_SCALE")));
+-				m_iResearchPercentAdjustTimes100 /= 100;
+-			}
+-
+-			int iMax = 100*std::abs(GC.getDefineINT("BBAI_RESEARCH_PERCENT_ADJUST_MAX_PERCENT"));
+-			m_iResearchPercentAdjustTimes100 = std::min( m_iResearchPercentAdjustTimes100, iMax );
+-			m_iResearchPercentAdjustTimes100 = std::max( m_iResearchPercentAdjustTimes100, -iMax );
+-		}
+-	}
+-}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 
+ PlayerTypes CvGame::getPausePlayer() const
+ {
+@@ -5690,16 +5619,6 @@
+ 	doUpdateCacheOnTurn();
+ 
+ 	updateScore();
+-
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	updateResearchPercentAdjustTimes100();
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 
+ 	doDeals();
+ 
+@@ -7696,18 +7615,6 @@
+ 	pStream->Read(&m_bNukesValid);
+ 
+ 	pStream->Read((int*)&m_eHandicap);
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	if( uiFlag > 1 )
+-	{
+-		pStream->Read(&m_iResearchPercentAdjustTimes100);
+-	}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 	pStream->Read((int*)&m_ePausePlayer);
+ 	pStream->Read((int*)&m_eBestLandUnit);
+ 	pStream->Read((int*)&m_eWinner);
+@@ -7890,15 +7797,7 @@
+ {
+ 	int iI;
+ 
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	uint uiFlag=2;
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
++	uint uiFlag=1;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -7936,15 +7835,6 @@
+ 	pStream->Write(m_bNukesValid);
+ 
+ 	pStream->Write(m_eHandicap);
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	pStream->Write(m_iResearchPercentAdjustTimes100);
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 	pStream->Write(m_ePausePlayer);
+ 	pStream->Write(m_eBestLandUnit);
+ 	pStream->Write(m_eWinner);
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@478
++++ /trunk/CvGameCoreDLL/CvGame.h@479
+@@ -284,16 +284,6 @@
+ 
+ 	DllExport HandicapTypes getHandicapType() const;
+ 	DllExport void setHandicapType(HandicapTypes eHandicap);
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	int getResearchPercentAdjustTimes100() const;
+-	void updateResearchPercentAdjustTimes100();
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 
+ 	DllExport PlayerTypes getPausePlayer() const;																			// Exposed to Python
+ 	DllExport bool isPaused() const;																									// Exposed to Python
+@@ -598,15 +588,6 @@
+ 	bool m_bNukesValid;
+ 
+ 	HandicapTypes m_eHandicap;
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	int m_iResearchPercentAdjustTimes100;
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 	PlayerTypes m_ePausePlayer;
+ 	UnitTypes m_eBestLandUnit;
+ 	TeamTypes m_eWinner;
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@478
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@479
+@@ -7222,25 +7222,77 @@
+ 	int iKnownCount = 0;
+ 	int iPossibleKnownCount = 0;
+ 
+-	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+-	{
+-		if (GET_TEAM((TeamTypes)iI).isAlive())
+-		{
+-			if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/27/09                                jdog5000      */
++/**                                                                                              */
++/** Tech Diffusion                                                                               */
++/*************************************************************************************************/
++	if( GC.getDefineINT("TECH_DIFFUSION_ENABLE") )
++	{
++		// Tech flows better through open borders
++		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		{
++			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+ 				if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
+ 				{
+-					iKnownCount++;
+-				}
+-			}
+-
+-			iPossibleKnownCount++;
+-		}
+-	}
+-
+-	if (iPossibleKnownCount > 0)
+-	{
+-		iModifier += (GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER") * iKnownCount) / iPossibleKnownCount;
++					if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
++					{
++						iKnownCount++;
++
++						if( GET_TEAM(getTeam()).isOpenBorders((TeamTypes)iI) || GET_TEAM((TeamTypes)iI).isVassal(getTeam()) )
++						{
++							iKnownCount += 2;
++						}
++						else if( GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) || GET_TEAM(getTeam()).isVassal((TeamTypes)iI) )
++						{
++							iKnownCount += 1;
++						}
++					}
++				}
++			}
++		}
++
++		int techDiffMod = GC.getDefineINT("TECH_DIFFUSION_KNOWN_TEAM_MODIFIER");
++		if (iKnownCount > 0)
++		{
++			iModifier += techDiffMod - (int)(techDiffMod * pow(0.85, (double)iKnownCount) + 0.5);
++		}
++
++		// Tech flows downhill to those who are far behind
++		int iTechScorePercent = GET_TEAM(getTeam()).getBestKnownTechScorePercent();
++		int iWelfareThreshold = GC.getDefineINT("TECH_DIFFUSION_WELFARE_THRESHOLD");
++		if( iTechScorePercent < iWelfareThreshold )
++		{
++			if( iKnownCount > 0 )
++			{
++				iModifier += (GC.getDefineINT("TECH_DIFFUSION_WELFARE_MODIFIER") * getCurrentEra() * (iWelfareThreshold - iTechScorePercent))/100;
++			}
++		}
++	}
++	else
++	{
++		// Default BTS code
++		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++		{
++			if (GET_TEAM((TeamTypes)iI).isAlive())
++			{
++				if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iI))
++				{
++					if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
++					{
++						iKnownCount++;
++					}
++				}
++
++				iPossibleKnownCount++;
++			}
++		}
++
++		if (iPossibleKnownCount > 0)
++		{
++			iModifier += (GC.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER") * iKnownCount) / iPossibleKnownCount;
++		}
+ 	}
+ 
+ 	int iPossiblePaths = 0;
+@@ -7261,9 +7313,17 @@
+ 
+ 	FAssertMsg(iPossiblePaths >= iUnknownPaths, "The number of possible paths is expected to match or exceed the number of unknown ones");
+ 
+-	iModifier += (iPossiblePaths - iUnknownPaths) * GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MODIFIER");
++	if( iPossiblePaths > GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN") )
++	{
++		iPossiblePaths -= GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN");
++		iUnknownPaths -= GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MIN");
++		iModifier += (iPossiblePaths - iUnknownPaths) * GC.getDefineINT("TECH_COST_KNOWN_PREREQ_MODIFIER");
++	}
+ 
+ 	return iModifier;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ }
+ 
+ int CvPlayer::calculateBaseNetResearch(TechTypes eTech) const
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@478
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@479
+@@ -2403,9 +2403,23 @@
+ 
+ 			if (pLoopPlot->isWater())
+ 			{
++				// BBAI TODO: One place to make one-tile off coast cities rare
+ 				if (aiYield[YIELD_COMMERCE] > 1)
+ 				{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      08/05/09                                jdog5000      */
++/**                                                                                              */
++/** Settler AI                                                                                   */
++/*************************************************************************************************/
++/* orginal bts code
+ 					iTempValue += bIsCoastal ? 30 : -20;
++*/
++					// Upside is much higher based on multipliers above, with lighthouse a standard coast
++					// plot moves up into the higher multiplier category.  
++					iTempValue += bIsCoastal ? 40 + 10*aiYield[YIELD_COMMERCE] : -10*aiYield[YIELD_COMMERCE];
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 					if (bIsCoastal && (aiYield[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+ 					{
+ 						iSpecialFoodPlus += 1;                    	
+@@ -2430,6 +2444,7 @@
+ 			}
+ 			else if ((pLoopPlot->getOwnerINLINE() == getID()) || (stepDistance(iX, iY, pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) == 1))
+ 			{
++				// BBAI Notes:  Extra weight on tiles which will be available immediately
+ 				iTempValue *= 3;
+ 				iTempValue /= 2;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@478
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@479
+@@ -1806,7 +1806,28 @@
+ 					}
+ 				}
+ 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/04/09                                jdog5000      */
++/**                                                                                              */
++/** Player interface                                                                             */
++/*************************************************************************************************/
++/* original bts code
+ 				deleteMissionQueueNode(headMissionQueueNode());
++*/
++				if (!isHuman() || (headMissionQueueNode()->m_data.eMissionType != MISSION_MOVE_TO))
++				{
++					deleteMissionQueueNode(headMissionQueueNode());
++				}
++				else
++				{
++					if (canAllMove() || (nextMissionQueueNode(headMissionQueueNode()) == NULL))
++					{
++						deleteMissionQueueNode(headMissionQueueNode());
++					}
++				}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/				
+ 			}
+ 		}
+ 		else
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@478
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@479
+@@ -2607,19 +2607,6 @@
+ 
+ 	iCost *= GC.getHandicapInfo(getHandicapType()).getResearchPercent();
+ 	iCost /= 100;
+-
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      07/26/09                                jdog5000      */
+-/**                                                                                              */
+-/** Variable handicap                                                                            */
+-/*************************************************************************************************/
+-	if( isHuman() )
+-	{
+-		iCost += (iCost * GC.getGameINLINE().getResearchPercentAdjustTimes100())/100000;
+-	}
+-/*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
+-/*************************************************************************************************/
+ 
+ 	iCost *= GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
+ 	iCost /= 100;
+@@ -4635,6 +4622,38 @@
+ 	return m_paiTechCount[eIndex];
+ }
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/27/09                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++int CvTeam::getBestKnownTechScorePercent() const
++{
++	int iOurTechScore = 0;
++	int iBestKnownTechScore = 0;
++
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		{
++			if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++			{
++				iOurTechScore = std::max( iOurTechScore, GET_PLAYER((PlayerTypes)iI).getTechScore() );
++			}
++			else if (isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
++			{
++				iBestKnownTechScore = std::max( iBestKnownTechScore, GET_PLAYER((PlayerTypes)iI).getTechScore() );
++			}
++		}
++	}
++
++	iBestKnownTechScore = std::max( iBestKnownTechScore, iOurTechScore );
++
++	return ((100*iOurTechScore)/iBestKnownTechScore);
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ int CvTeam::getTerrainTradeCount(TerrainTypes eIndex) const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@478
++++ /trunk/CvGameCoreDLL/CvTeam.h@479
+@@ -291,6 +291,15 @@
+ 	int changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer);
+ 
+ 	int getTechCount(TechTypes eIndex) const;																										// Exposed to Python
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/27/09                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++	int getBestKnownTechScorePercent() const;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	int getTerrainTradeCount(TerrainTypes eIndex) const;
+ 	bool isTerrainTrade(TerrainTypes eIndex) const;																												// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@478
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@479
+@@ -5019,27 +5019,14 @@
+ 				int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam(), PUF_isGroupHead, -1, -1);
+ 				int iBlockaders = GET_PLAYER(getOwnerINLINE()).AI_getWaterDanger(plot(), 4);
+ 
+-				if( iAttackers > (iBlockaders + 1) )
++				if( iAttackers > (iBlockaders + 2) )
+ 				{
+ 					if( iAttackers > GC.getGameINLINE().getSorenRandNum(2*iBlockaders + 1, "AI - Break blockade") )
+ 					{
+ 						// BBAI TODO: Make odds scale by # of blockaders vs number of attackers
+-						if (AI_anyAttack(1, 5))
++						if (AI_anyAttack(1, 15))
+ 						{
+ 							return;
+-						}
+-						
+-						if( getMoves() > 2 )  // be able pull back to city
+-						{
+-							if (AI_anyAttack(2, 5))
+-							{
+-								return;
+-							}
+-
+-							if (AI_anyAttack(3, 10))
+-							{
+-								return;
+-							}
+ 						}
+ 					}
+ 				}
+@@ -10010,6 +9997,7 @@
+ 						{
+ 							if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+ 							{
++								// BBAI TODO: Multiple defenders for higher value resources?
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup()) == 0)
+ 								{
+ 									if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+@@ -11381,6 +11369,19 @@
+ 					{
+ 						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_SPREAD, getGroup()) == 0)
+ 						{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/04/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++							// Don't airlift where there's already one of our unit types (probably just airlifted)
++							if( pLoopCity->plot()->plotCount(PUF_isUnitType, getUnitType(), -1, getOwnerINLINE()) > 0 )
++							{
++								continue;
++							}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 							iValue = (7 + (pLoopCity->getPopulation() * 4));
+ 							
+ 							int iCityReligionCount = pLoopCity->getReligionCount();
+@@ -11473,6 +11474,20 @@
+ 					{
+ 						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_SPREAD_CORPORATION, getGroup()) == 0)
+ 						{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       08/04/09                                jdog5000      */
++/**                                                                                              */
++/** Unit AI                                                                                      */
++/*************************************************************************************************/
++							// Don't airlift where there's already one of our unit types (probably just airlifted)
++							if( pLoopCity->plot()->plotCount(PUF_isUnitType, getUnitType(), -1, getOwnerINLINE()) > 0 )
++							{
++								continue;
++							}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ 							int iValue = (pLoopCity->getPopulation() * 4);
+ 
+ 							if (pLoopCity->getOwnerINLINE() == getOwnerINLINE())
+

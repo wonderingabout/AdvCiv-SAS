@@ -1,0 +1,54 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 367
+# Author: iustus
+# Date: 2007-02-20T10:43:33.513464Z
+# Coverage: full
+# Message:
+#   Fixed bug in Warlords 2.08, parseCivicInfo and setBuildingHelp incorrectly display all buildings of the same class with BuildingHappinessChanges. (Visible once the XML bug is fixed so that Zulu specific barracks also gives +2 happy from Nationhood) (As reported http://forums.civfanatics.com/showthread.php?t=208291)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@366
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@367
+@@ -4291,7 +4291,13 @@
+ 	{
+ 		if (GC.getCivicInfo(eCivic).getBuildingHappinessChanges(iI) != 0)
+ 		{
+-			szHelpText += NEWLINE + gDLL->getText("TXT_KEY_CIVIC_BUILDING_HAPPINESS", GC.getCivicInfo(eCivic).getBuildingHappinessChanges(iI), ((GC.getCivicInfo(eCivic).getBuildingHappinessChanges(iI) > 0) ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR)), GC.getBuildingInfo((BuildingTypes)iI).getTextKeyWide());
++			// make sure this building is valid for this player (so we do not list class buildings twice)
++			PlayerTypes ePlayer = bPlayerContext ? GC.getGameINLINE().getActivePlayer() : NO_PLAYER;
++			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes)GC.getBuildingInfo((BuildingTypes)iI).getBuildingClassType();
++			if (ePlayer == NO_PLAYER || iI == GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationBuildings(eLoopBuildingClass))
++			{
++				szHelpText += NEWLINE + gDLL->getText("TXT_KEY_CIVIC_BUILDING_HAPPINESS", GC.getCivicInfo(eCivic).getBuildingHappinessChanges(iI), ((GC.getCivicInfo(eCivic).getBuildingHappinessChanges(iI) > 0) ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR)), GC.getBuildingInfo((BuildingTypes)iI).getTextKeyWide());
++			}
+ 		}
+ 	}
+ 
+@@ -6185,12 +6191,17 @@
+ 	{
+ 		if (GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI) != 0)
+ 		{
+-			szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_BUILDING_HAPPINESS_CHANGE", GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI),
+-				((GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI) > 0) ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR))).c_str());
+-			CvWString szBuilding;
+-			szBuilding.Format(L"<link=literal>%s</link>", GC.getBuildingInfo((BuildingTypes)iI).getDescription());
+-			setListHelp(szBuffer, szTempBuffer, szBuilding, L", ", (GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI) != iLast));
+-			iLast = GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI);
++			// make sure this building is valid for this player (so we do not list class buildings twice)
++			BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes)GC.getBuildingInfo((BuildingTypes)iI).getBuildingClassType();
++			if (ePlayer == NO_PLAYER || iI == GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationBuildings(eLoopBuildingClass))
++			{
++				szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_BUILDING_HAPPINESS_CHANGE", GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI),
++					((GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI) > 0) ? gDLL->getSymbolID(HAPPY_CHAR) : gDLL->getSymbolID(UNHAPPY_CHAR))).c_str());
++				CvWString szBuilding;
++				szBuilding.Format(L"<link=literal>%s</link>", GC.getBuildingInfo((BuildingTypes)iI).getDescription());
++				setListHelp(szBuffer, szTempBuffer, szBuilding, L", ", (GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI) != iLast));
++				iLast = GC.getBuildingInfo(eBuilding).getBuildingHappinessChanges(iI);
++			}
+ 		}
+ 	}
+ 
+

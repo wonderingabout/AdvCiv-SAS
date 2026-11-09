@@ -1,0 +1,185 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 504
+# Author: jdog5000
+# Date: 2009-10-30T05:21:58.275349Z
+# Coverage: full
+# Message:
+#   0.82H
+#   
+#   Tweak missionary AI changes
+#   Other minor tweaks
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@503
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@504
+@@ -4449,12 +4449,12 @@
+ /* UNOFFICIAL_PATCH                       END                                                   */
+ /************************************************************************************************/
+ /************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/03/09                                jdog5000      */
++/* BETTER_BTS_AI_MOD                      10/29/09                                jdog5000      */
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.82 pre-release");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.82H");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@503
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@504
+@@ -713,7 +713,7 @@
+ /************************************************************************************************/
+ 		if( gTeamLogLevel >= 2 )
+ 		{
+-			logBBAI("    Player %d (%S) trades tech %s due to TRADE_TECHNOLOGIES with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getTechInfo((TechTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++			logBBAI("    Player %d (%S) trades tech %S due to TRADE_TECHNOLOGIES with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), GC.getTechInfo((TechTypes)trade.m_iData).getDescription(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
+ 		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -767,7 +767,7 @@
+ /************************************************************************************************/
+ 			if( gTeamLogLevel >= 2 )
+ 			{
+-				logBBAI("    Player %d (%S) gives city %s due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), pCity->getName(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				logBBAI("    Player %d (%S) gives city %S due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), pCity->getName(), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
+ 			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -868,7 +868,14 @@
+ /************************************************************************************************/
+ 			if( gTeamLogLevel >= 2 )
+ 			{
+-				logBBAI("    Player %d (%S) trades themselves as vassal due to %S with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), (TRADE_SURRENDER == trade.m_eItemType ? "TRADE_SURRENDER" : "TRADE_VASSAL"), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				if( TRADE_SURRENDER == trade.m_eItemType )
++				{
++					logBBAI("    Player %d (%S) trades themselves as vassal due to TRADE_SURRENDER with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				}
++				else
++				{
++					logBBAI("    Player %d (%S) trades themselves as vassal due to TRADE_VASSAL with player %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0) );
++				}
+ 			}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@503
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@504
+@@ -9976,14 +9976,14 @@
+ 	int iGoldValue = 0;
+ 	if (kTeam.hasHolyCity(eReligion))
+ 	{
+-		iSpreadInternalValue += bStateReligion ? 1000 : 500;
+-		iSpreadExternalValue += bStateReligion ? 1000 : 200;
++		iSpreadInternalValue += bStateReligion ? 1000 : 300;
++		iSpreadExternalValue += bStateReligion ? 1000 : 150;
+ 		if (kTeam.hasShrine(eReligion))
+ 		{
+ 			iSpreadInternalValue += bStateReligion ? 500 : 300;
+ 			iSpreadExternalValue += bStateReligion ? 300 : 200;
+ 			int iGoldMultiplier = kGame.getHolyCity(eReligion)->getTotalCommerceRateModifier(COMMERCE_GOLD);
+-			iGoldValue = 5 * iGoldMultiplier;
++			iGoldValue = 6 * iGoldMultiplier;
+ 		}
+ 	}
+ 	
+@@ -11518,8 +11518,8 @@
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes() > 0)
+ 	{
+-		int iGoldStolen = iData;
+-		iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 6 : 2) * (2 * std::max(0, iGoldStolen - iCost));
++		int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;;
++		iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));
+ 	}
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getCounterespionageNumTurns() > 0)
+@@ -11570,13 +11570,16 @@
+ 			{
+ 				int iCityHealth = pCity->goodHealth() - pCity->badHealth(false, 0);
+ 				int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
++
++				int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
++				iAvgFoodShortage += std::max(0, iBaseUnhealth/2 - iCityHealth) - pCity->foodDifference();
+ 				
+-				int iAverageUnhealth = std::max(0, iBaseUnhealth - iCityHealth);
+-				iAverageUnhealth += std::max(0, (iBaseUnhealth / 2) - iCityHealth);
++				iAvgFoodShortage /= 2;
+ 				
+-				iAverageUnhealth /= 2;
+-				
+-				iValue += 8 * iAverageUnhealth * iBaseUnhealth;
++				if( iAvgFoodShortage > 0 )
++				{
++					iValue += 8 * iAvgFoodShortage * iAvgFoodShortage;
++				}
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@503
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@504
+@@ -4246,13 +4246,13 @@
+ /************************************************************************************************/
+ 		// From Sanguo Mod Performance, ie the CAR Mod
+ 		// Attitude cache
+-		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 		{
+ 			if( GET_PLAYER((PlayerTypes)iI).isAlive() )
+ 			{
+ 				if( GET_PLAYER((PlayerTypes)iI).getTeam() == getID() || GET_PLAYER((PlayerTypes)iI).getTeam() == eIndex )
+ 				{
+-					for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++					for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+ 					{
+ 						if( GET_PLAYER((PlayerTypes)iJ).isAlive() && GET_PLAYER((PlayerTypes)iJ).getTeam() != GET_PLAYER((PlayerTypes)iI).getTeam() )
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@503
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@504
+@@ -4859,7 +4859,7 @@
+ 					return;
+ 				}
+ 
+-				if (GC.getGame().getSorenRandNum(4, "AI Spy Skip Turn") > 0)
++				if (GC.getGame().getSorenRandNum(5, "AI Spy Skip Turn") > 0)
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+ 					return;
+@@ -4871,15 +4871,12 @@
+ 				}
+ 			}
+ 			
+-			if( area()->getTargetCity(getOwnerINLINE()) == plot()->getPlotCity() )
+-			{
+-				if( GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(plot(), MISSIONAI_ASSAULT, getGroup()) > 0 )
+-				{
+-					bTargetCity = true;
+-
+-					getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
+-					return;
+-				}				
++			if( GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(plot(), MISSIONAI_ASSAULT, getGroup()) > 0 )
++			{
++				bTargetCity = true;
++
++				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_ATTACK_SPY);
++				return;
+ 			}
+ 			
+ 			if( !bTargetCity )
+

@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 316
+# Author: iustus
+# Date: 2007-01-28T03:09:32.809898Z
+# Coverage: full
+# Message:
+#   hippy factor (dont cut down forests when you need them for health) only counted for features that give positive health (for mods that allow you to build useful things in jungles)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@315
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@316
+@@ -6728,14 +6728,16 @@
+ 
+                         if (iValue > 0)
+                         {
+-                            int iHippyFactor = ((GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent() * -healthRate(false, 5)));
+-                            FAssert(iHippyFactor >= 0);
+-                            iHippyFactor += (pPlot->isBeingWorked() ? 300 : 0);
+-
+-                            iValue *= (400 - iHippyFactor);
+-                            iValue /= 400;
+-                            iValue = max(0, iValue);
+-                            
++                            int iFeatureHealthPercent = GC.getFeatureInfo(pPlot->getFeatureType()).getHealthPercent();
++							if (iFeatureHealthPercent > 0)
++							{
++								int iHippyFactor = ((iFeatureHealthPercent * -healthRate(false, 5)));
++								iHippyFactor += (pPlot->isBeingWorked() ? 300 : 0);
++
++								iValue *= (400 - iHippyFactor);
++								iValue /= 400;
++								iValue = max(0, iValue);
++							}
+ 
+                             if (iValue > 0)
+                             {
+

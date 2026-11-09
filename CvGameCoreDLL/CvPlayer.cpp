@@ -2637,6 +2637,9 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
 	m_bAutoPlayJustEnded = true;
 	updateHuman();
 	AI().AI_setHuman(!bNewVal);
+	// <!-- custom: AI Auto Play changes isHuman() through setHumanDisabled/updateHuman rather than setIsHuman, so refresh the same controller-dependent founding-unit surcharge cache fixed by KI#771.
+	// Otherwise entering or leaving autoplay can retain the previous human/AI Settler production cost. See KI#771.2 for the replay and pre-K-Mod lineage. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+	updateFoundingUnitExtraCosts();
 	if (isActive())
 	{
 		CvWString szReplayText;

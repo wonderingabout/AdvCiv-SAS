@@ -1,0 +1,54 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 211
+# Author: iustus
+# Date: 2006-12-19T14:57:36.641585Z
+# Coverage: full
+# Message:
+#   fixed governor bug that was created earlier, now high food plots will again be chosen first, so that other great plots can be chosen before the junk 2 food plots
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@210
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@211
+@@ -5460,6 +5460,7 @@
+ 		int iPopulation = getPopulation();
+ 		int iWorkingPopulation = getWorkingPopulation();
+ 		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
++		int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 
+ 		// if we not human, allow us to starve to half full if avoiding growth
+ 		int iStarvingAllowance = 0;
+@@ -5474,9 +5475,19 @@
+ 			// if working plots all like this one will save us from starving
+ 			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+ 			{
+-				// give a huge boost to this plot, but not based on how much food it has
+-				// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
+-				iValue += 4096;
++				// if this is high food, then we want to pick it first, this will allow us to pick some great non-food later
++				int iHighFoodThreshold = iConsumtionPerPop + 1;				
++				if (iFoodPerTurn <= -iHighFoodThreshold && aiYields[YIELD_FOOD] >= iHighFoodThreshold)
++				{
++					// value all the food that will contribute to not starving
++					iValue += 2048 * min(aiYields[YIELD_FOOD], -iFoodPerTurn);
++				}
++				else
++				{
++					// give a huge boost to this plot, but not based on how much food it has
++					// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
++					iValue += 4096;
++				}
+ 			}
+ 			else
+ 			{
+@@ -5497,7 +5508,6 @@
+ 				// the emp food case will just give a big boost to all food under all circumstances
+ 				if (!bIgnoreGrowth && !bEmphasizeFood)
+ 				{
+-					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 					bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 					// also avail: iFoodLevel, iFoodToGrow
+ 					
+

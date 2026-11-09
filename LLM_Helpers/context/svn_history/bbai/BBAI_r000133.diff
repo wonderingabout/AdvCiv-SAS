@@ -1,0 +1,32 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 133
+# Author: iustus
+# Date: 2006-11-30T22:29:21.097644Z
+# Coverage: full
+# Message:
+#   fixed bug in hurry pop cache when reading from save
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@132
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@133
+@@ -12000,6 +12000,16 @@
+ 		}
+ 	}
+ #endif
++
++	// set the pop rush count cache
++	m_iPopRushHurryCount = 0;
++	for (iI = 0; iI < GC.getNumHurryInfos(); iI++)
++	{
++		if (GC.getHurryInfo((HurryTypes)iI).getProductionPerPopulation() > 0)
++		{
++			m_iPopRushHurryCount++;
++		}
++	}
+ }
+ 
+ //
+

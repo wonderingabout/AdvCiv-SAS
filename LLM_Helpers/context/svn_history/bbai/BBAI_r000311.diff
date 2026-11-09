@@ -1,0 +1,23 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 311
+# Author: iustus
+# Date: 2007-01-27T22:14:19.320566Z
+# Coverage: full
+# Message:
+#   dont stagger out explorers in network game
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@310
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@311
+@@ -151,6 +151,7 @@
+ 
+ 		case AUTOMATE_EXPLORE:
+ 			// stagger explorer units a bit, so they do not all go at start of turn and cause more lag
++			if (!GC.getGameINLINE().isNetworkMultiPlayer())
+ 			{
+ 				static int s_iLastAutomatedTurn = -1;
+ 				static int s_iLastAutomatedTurnSlice = 0;
+

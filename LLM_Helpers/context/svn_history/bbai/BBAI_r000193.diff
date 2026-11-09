@@ -1,0 +1,273 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 193
+# Author: iustus
+# Date: 2006-12-17T19:14:11.085248Z
+# Coverage: full
+# Message:
+#   governor changes: if any specialists are forced, then all future specialists will try to be assigned at the same ratio as the forced specialists. It should be much easier to keep a clean GP pool if desired
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@192
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@193
+@@ -237,12 +237,23 @@
+ 	// remove any plots we can no longer work for any reason
+ 	verifyWorkingPlots();
+ 	
++	// if forcing specialists, try to make all future specialists of the same type
++	bool bIsSpecialistForced = false;
++	int iTotalForcedSpecialists = 0;
++
+ 	// make sure at least the forced amount of specialists are assigned
+ 	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 	{
+-		if (!isHuman() || isCitizensAutomated() || (getSpecialistCount((SpecialistTypes)iI) < getForceSpecialistCount((SpecialistTypes)iI)))
+-		{
+-			setSpecialistCount(((SpecialistTypes)iI), getForceSpecialistCount((SpecialistTypes)iI));
++		int iForcedSpecialistCount = getForceSpecialistCount((SpecialistTypes)iI);
++		if (iForcedSpecialistCount > 0)
++		{
++			bIsSpecialistForced = true;
++			iTotalForcedSpecialists += iForcedSpecialistCount;
++		}
++		
++		if (!isHuman() || isCitizensAutomated() || (getSpecialistCount((SpecialistTypes)iI) < iForcedSpecialistCount))
++		{
++			setSpecialistCount(((SpecialistTypes)iI), iForcedSpecialistCount);
+ 		}
+ 	}
+ 	
+@@ -282,12 +293,51 @@
+ 	while (extraPopulation() > 0)
+ 	{
+ 		// (if we are forcing any specialists at all, then assign no more while we can work any plot)
+-		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ !isSpecialistForced()))
++		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ !bIsSpecialistForced))
+ 		{
+ 			break;
+ 		}
+ 	}
+-	
++
++	// if forcing specialists, assign any other specialists that we must place based on forced specialists
++	int iInitialExtraSpecialists = extraSpecialists();
++	int iExtraSpecialists = iInitialExtraSpecialists;
++	if (bIsSpecialistForced && iExtraSpecialists > 0)
++	{
++		FAssertMsg(iTotalForcedSpecialists > 0, "zero or negative total forced specialists");
++		for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++		{
++			if (isSpecialistValid((SpecialistTypes)iI, 1))
++			{
++				int iForcedSpecialistCount = getForceSpecialistCount((SpecialistTypes)iI);
++				if (iForcedSpecialistCount > 0)
++				{
++					int iSpecialistCount = getSpecialistCount((SpecialistTypes)iI);
++					int iMaxSpecialistCount = getMaxSpecialistCount((SpecialistTypes)iI);
++
++					int iSpecialistsToAdd = ((iInitialExtraSpecialists * iForcedSpecialistCount) + (iTotalForcedSpecialists/2)) / iTotalForcedSpecialists;
++					if (iExtraSpecialists < iSpecialistsToAdd)
++					{
++						iSpecialistsToAdd = iExtraSpecialists;
++					}
++					
++					iSpecialistCount += iSpecialistsToAdd;
++					iExtraSpecialists -= iSpecialistsToAdd;
++
++					// if we cannot fit that many, then add as many as we can
++					if (iSpecialistCount > iMaxSpecialistCount && !GET_PLAYER(getOwnerINLINE()).isSpecialistValid((SpecialistTypes)iI))
++					{
++						iExtraSpecialists += iSpecialistCount - iMaxSpecialistCount;
++						iSpecialistCount = iMaxSpecialistCount;
++					}
++
++					setSpecialistCount((SpecialistTypes)iI, iSpecialistCount);
++				}
++			}
++		}
++	}
++	FAssertMsg(iExtraSpecialists >= 0, "added too many specialists");
++
+ 	// if we still have population to assign, assign specialists
+ 	while (extraSpecialists() > 0)
+ 	{
+@@ -4664,60 +4714,102 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvPlot* pLoopPlot;
+-	SpecialistTypes eBestSpecialist;
+-	bool bAvoidGrowth;
+-	bool bIgnoreGrowth;
+-	int iBestPlot;
+-	int iValue;
+-	int iBestValue;
+-	int iI;
+-
+-	bAvoidGrowth = AI_avoidGrowth();
+-	bIgnoreGrowth = AI_ignoreGrowth();
+-
+-	iBestValue = 0;
+-	eBestSpecialist = NO_SPECIALIST;
+-	iBestPlot = -1;
++	bool bAvoidGrowth = AI_avoidGrowth();
++	bool bIgnoreGrowth = AI_ignoreGrowth();
++	bool bIsSpecialistForced = false;
++
++	int iBestSpecialistValue = 0;
++	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
++	SpecialistTypes eBestForcedSpecialist = NO_SPECIALIST;
+ 
+ 	if (bSpecialists)
+ 	{
+-		for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+-		{
+-			if (isSpecialistValid(((SpecialistTypes)iI), 1))
+-			{
+-				iValue = AI_specialistValue(((SpecialistTypes)iI), bAvoidGrowth, false);
+-
+-				if (iValue >= iBestValue)
+-				{
+-					iBestValue = iValue;
+-					eBestSpecialist = ((SpecialistTypes)iI);
+-					iBestPlot = -1;
+-				}
+-			}
+-		}
+-	}
+-
++		// count the total forced specialists
++		int iTotalForcedSpecialists = 0;
++		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++		{
++			int iForcedSpecialistCount = getForceSpecialistCount((SpecialistTypes)iI);
++			if (iForcedSpecialistCount > 0)
++			{
++				bIsSpecialistForced = true;
++				iTotalForcedSpecialists += iForcedSpecialistCount;
++			}
++		}
++		
++		// if forcing any specialists, find the best one that we can still assign
++		if (bIsSpecialistForced)
++		{
++			int iBestForcedValue = MIN_INT;
++			
++			int iTotalSpecialists = 1 + getSpecialistPopulation();
++			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++			{
++				if (isSpecialistValid((SpecialistTypes)iI, 1))
++				{
++					int iForcedSpecialistCount = getForceSpecialistCount((SpecialistTypes)iI);
++					if (iForcedSpecialistCount > 0)
++					{
++						int iSpecialistCount = getSpecialistCount((SpecialistTypes)iI);
++
++						// the value is based on how close we are to our goal ratio forced/total
++						int iForcedValue = ((iForcedSpecialistCount * 128) / iTotalForcedSpecialists) -  ((iSpecialistCount * 128) / iTotalSpecialists);
++						if (iForcedValue >= iBestForcedValue)
++						{
++							int iSpecialistValue = AI_specialistValue((SpecialistTypes)iI, bAvoidGrowth, false);
++							
++							// if forced value larger, or if equal, does this specialist have a higher value
++							if (iForcedValue > iBestForcedValue || iSpecialistValue > iBestSpecialistValue)
++							{					
++								iBestForcedValue = iForcedValue;
++								iBestSpecialistValue = iSpecialistValue;
++								eBestForcedSpecialist = ((SpecialistTypes)iI);
++								eBestSpecialist = eBestForcedSpecialist;
++							}
++						}
++					}
++				}
++			}
++		}
++		
++		// if we do not have a best specialist yet, then just find the one with the best value
++		if (eBestSpecialist == NO_SPECIALIST)
++		{
++			for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++			{
++				if (isSpecialistValid((SpecialistTypes)iI, 1))
++				{
++					int iValue = AI_specialistValue(((SpecialistTypes)iI), bAvoidGrowth, false);
++					if (iValue >= iBestSpecialistValue)
++					{
++						iBestSpecialistValue = iValue;
++						eBestSpecialist = ((SpecialistTypes)iI);
++					}
++				}
++			}
++		}
++	}
++
++	int iBestPlotValue = 0;
++	int iBestPlot = -1;
+ 	if (bWorkers)
+ 	{
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			if (iI != CITY_HOME_PLOT)
+ 			{
+ 				if (!isWorkingPlot(iI))
+ 				{
+-					pLoopPlot = getCityIndexPlot(iI);
++					CvPlot* pLoopPlot = getCityIndexPlot(iI);
+ 
+ 					if (pLoopPlot != NULL)
+ 					{
+ 						if (canWork(pLoopPlot))
+ 						{
+-							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ false, /*bIgnoreFood*/ false, bIgnoreGrowth);
+-
+-							if (iValue > iBestValue)
++							int iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ false, /*bIgnoreFood*/ false, bIgnoreGrowth);
++
++							if (iValue > iBestPlotValue)
+ 							{
+-								iBestValue = iValue;
+-								eBestSpecialist = NO_SPECIALIST;
++								iBestPlotValue = iValue;
+ 								iBestPlot = iI;
+ 							}
+ 						}
+@@ -4726,7 +4818,18 @@
+ 			}
+ 		}
+ 	}
+-
++	
++	// if we found a plot to work
++	if (iBestPlot != -1)
++	{
++		// if the best plot value is better than the best specialist, or if we forcing and we could not assign a forced specialst
++		if (iBestPlotValue > iBestSpecialistValue || (bIsSpecialistForced && eBestForcedSpecialist == NO_SPECIALIST))
++		{
++			// do not work the specialist
++			eBestSpecialist = NO_SPECIALIST;
++		}
++	}
++	
+ 	if (eBestSpecialist != NO_SPECIALIST)
+ 	{
+ 		changeSpecialistCount(eBestSpecialist, 1);
+@@ -4870,11 +4973,10 @@
+ void CvCityAI::AI_juggleCitizens()
+ {
+ 	CvPlot* pLoopPlot;
+-	bool bAvoidGrowth;
+-	bool bIgnoreGrowth;
+-
+-	bAvoidGrowth = AI_avoidGrowth();
+-	bIgnoreGrowth = AI_ignoreGrowth();
++
++	bool bAvoidGrowth = AI_avoidGrowth();
++	bool bIgnoreGrowth = AI_ignoreGrowth();
++	bool bIsSpecialistForced = isSpecialistForced();
+ 
+ 	int iCount = 0; // XXX
+ 	
+

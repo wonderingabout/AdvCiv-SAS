@@ -1,0 +1,190 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 486
+# Author: jdog5000
+# Date: 2009-09-18T06:59:43.139161Z
+# Coverage: full
+# Message:
+#   New UP fixes
+#   Small tweaks
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@485
++++ /trunk/CvGameCoreDLL/CvCity.cpp@486
+@@ -10913,7 +10913,18 @@
+ 
+ 		if (bFinish)
+ 		{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       09/17/09                  davidlallen & jdog5000      */
++/**                                                                                              */
++/** Bugfix				                                                                         */
++/*************************************************************************************************/
++/* original bts code
+ 			if (GET_PLAYER(getOwnerINLINE()).isBuildingClassMaxedOut(((BuildingClassTypes)(GC.getBuildingInfo(eConstructBuilding).getBuildingClassType())), 1))
++*/
++			if (GET_PLAYER(getOwnerINLINE()).isBuildingClassMaxedOut(((BuildingClassTypes)(GC.getBuildingInfo(eConstructBuilding).getBuildingClassType())), 0))
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				GET_PLAYER(getOwnerINLINE()).removeBuildingClass((BuildingClassTypes)(GC.getBuildingInfo(eConstructBuilding).getBuildingClassType()));
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@485
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@486
+@@ -383,7 +383,7 @@
+ 			iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (getPopulation() + 1)) / GC.getPERCENT_ANGER_DIVISOR());
+ 		}
+ 		
+-		// Note to self: Disable this in Revolution
++
+ 		// if we can pop rush, we want to grow one over the cap
+ 		if (GET_PLAYER(getOwnerINLINE()).canPopRush())
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@485
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@486
+@@ -4441,19 +4441,19 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.81J");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.81K");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+ /*************************************************************************************************/
+-/** UNOFFICIAL_PATCH                      08/08/09                                jdog5000       */
++/** UNOFFICIAL_PATCH                      09/17/09                                jdog5000       */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.10");
++	szTempBuffer.Format(L"%S", "Unofficial 3.19 Patch v1.20");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@485
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@486
+@@ -7025,26 +7025,25 @@
+ 	iFreeMilitaryUnits = getBaseFreeMilitaryUnits();
+ 	iFreeMilitaryUnits += ((getTotalPopulation() * getFreeMilitaryUnitsPopulationPercent()) / 100);
+ 
+-	if (!isHuman())
+-	{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      02/04/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      09/17/09                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+-/*
++/* original BTS code
++	if (!isHuman())
++	{
+ 		if (GET_TEAM(getTeam()).hasMetHuman())
++		{
++			iFreeUnits += getNumCities(); // XXX
++			iFreeMilitaryUnits += getNumCities(); // XXX
++		}
++	}
+ */
+-		// Strange anti-human bias ...
+-		if( GET_TEAM(getTeam()).getHasMetCivCount(true) > 0 )
++	// Removed hidden AI bonus
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-		{
+-			iFreeUnits += getNumCities(); // XXX
+-			iFreeMilitaryUnits += getNumCities(); // XXX
+-		}
+-	}
+ 
+ 	iPaidUnits = std::max(0, getNumUnits() - iFreeUnits);
+ 	iPaidMilitaryUnits = std::max(0, getNumMilitaryUnits() - iFreeMilitaryUnits);
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@485
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@486
+@@ -668,6 +668,16 @@
+ 			GET_TEAM((TeamTypes)iI).AI_setEnemyPeacetimeTradeValue(getID(), ((GET_TEAM((TeamTypes)iI).AI_getEnemyPeacetimeTradeValue(getID()) + GET_TEAM((TeamTypes)iI).AI_getEnemyPeacetimeTradeValue(eTeam)) / 2));
+ 			GET_TEAM((TeamTypes)iI).AI_setEnemyPeacetimeGrantValue(getID(), ((GET_TEAM((TeamTypes)iI).AI_getEnemyPeacetimeGrantValue(getID()) + GET_TEAM((TeamTypes)iI).AI_getEnemyPeacetimeGrantValue(eTeam)) / 2));
+ 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       09/17/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix				                                                                         */
++/*************************************************************************************************/
++			GET_TEAM((TeamTypes)iI).setEspionagePointsAgainstTeam( getID(), std::max(GET_TEAM((TeamTypes)iI).getEspionagePointsAgainstTeam(getID()), GET_TEAM((TeamTypes)iI).getEspionagePointsAgainstTeam(eTeam)));
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+ 			{
+ 				GET_TEAM((TeamTypes)iI).AI_setWarPlan(getID(), NO_WARPLAN, false);
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@485
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@486
+@@ -517,7 +517,19 @@
+ 		{
+ 			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+ 			{
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       09/17/09                      cephalo & jdog5000      */
++/**                                                                                              */
++/** Bugfix				                                                                         */
++/*************************************************************************************************/
++/* original BTS code
+ 				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
++*/
++				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++				
+ 				if (kPlayer.isAlive())
+ 				{
+ 					if (kPlayer.getTeam() == getID())
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@485
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@486
+@@ -2365,7 +2365,18 @@
+ 				}
+ 			}
+ 		}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       09/17/09                         TC01 & jdog5000      */
++/**                                                                                              */
++/** Bugfix				                                                                         */
++/*************************************************************************************************/
++/* original bts code
+ 		else
++*/
++		// always check terrain also
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			if (m_pUnitInfo->getTerrainImpassable(pPlot->getTerrainType()))
+ 			{
+

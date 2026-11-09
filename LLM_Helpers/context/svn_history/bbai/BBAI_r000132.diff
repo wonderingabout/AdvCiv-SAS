@@ -1,0 +1,81 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 132
+# Author: iustus
+# Date: 2006-11-30T22:28:33.288506Z
+# Coverage: full
+# Message:
+#   fixed bug in AI_foundValue where the bonus outer ring calcs were not used 
+#   civs going for culture strategy will value founding a religion even more if they have zero holy cities
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@131
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@132
+@@ -1642,9 +1642,8 @@
+ 			}
+ 			else
+ 			{
+-			    iTempValue *= iGreed;
+-			    iTempValue /= 100;
+-
++				iTempValue *= iGreed;
++				iTempValue /= 100;
+ 			}
+ 
+ 			iValue += iTempValue;
+@@ -1669,6 +1668,19 @@
+ 				iTempValue = (AI_bonusVal(eBonus) * ((!bStartingLoc && (getNumTradeableBonuses(eBonus) == 0) && (paiBonusCount[eBonus] == 1)) ? 80 : 20));
+ 				iTempValue *= ((bStartingLoc) ? 100 : iGreed);
+ 				iTempValue /= 100;
++
++				if (iI != CITY_HOME_PLOT && !bStartingLoc)
++                {
++					if ((pLoopPlot->getOwnerINLINE() != getID()) && stepDistance(pPlot->getX_INLINE(),pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) > 1)
++					{
++						iTempValue *= 2;
++						iTempValue /= 3;
++
++						iTempValue *= min(150, iGreed);
++						iTempValue /= 100;
++					}
++                }
++
+ 				iValue += (iTempValue + 10);
+ 
+ 				if (iI != CITY_HOME_PLOT)
+@@ -1695,17 +1707,7 @@
+ 							iResourceValue -= 30;
+ 						}
+ 					}
+-                    if (!bStartingLoc)
+-                    {
+-                        if ((pLoopPlot->getOwnerINLINE() != getID()) && stepDistance(pPlot->getX_INLINE(),pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) > 1)
+-                        {
+-                            iTempValue *= 66;
+-                            iTempValue /= 100;
+-
+-                            iTempValue *= min(150, iGreed);
+-                            iTempValue /= 100;
+-                        }
+-                    }
++
+                     if (pLoopPlot->isWater())
+                     {
+                         iValue += (bIsCoastal ? 150 : -150);
+@@ -3028,7 +3030,12 @@
+ 													int iReligionValue = ((bAsync) ? GC.getASyncRand().get(2400, "AI Research Religion ASYNC") : GC.getGameINLINE().getSorenRandNum(2400, "AI Research Religion"));
+                                                     if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+                                                     {
+-                                                        iValue += 500;
++                                                        iReligionValue += 500;
++
++														if (countHolyCities() < 1)
++														{
++															iReligionValue += 1000;
++														}
+                                                     }
+                                                     else
+                                                     {
+

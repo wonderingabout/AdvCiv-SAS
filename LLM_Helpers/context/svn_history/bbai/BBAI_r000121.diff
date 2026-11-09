@@ -1,0 +1,600 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 121
+# Author: iustus
+# Date: 2006-11-26T01:08:20.584708Z
+# Coverage: full
+# Message:
+#   Major governor fixes:
+#    - the main one would cause the governor to remove the worst plot and pick a nearly random one to use
+#    - if you emphasize commerce, then specialists choose based on the commerce sliders (if you have 100% culture, you will get artists)
+#    - generic citizens are worth 60% value, you should not get them instead of another specialist unless you emph production
+#    - when production is marked dirty (like in financial crisis), do not stop building wonders (this may need to be tuned)
+#    - likelyhood of building cheep building changed from 25% to 15%, it still happens perhaps too often
+#    - canPopRush() added to player, it is a cached value
+#    - AI players will no longer starve excessively (who changed that /2 to /8??)
+#    - human players should no longer starve, even with emph buttons
+#    - cases where a lower food tile worked with everything else the same fixed
+#    - if you canPopRush, allowed to go one extra pop (to one unhappy basically)
+#    - one production is now *slightly* less than 4 commerce (15 vs 16)
+#    - emphasize buttons have a stronger effect, they should really do what you want them to do
+#    - added (duplicate?) to case where it seems a duplicate trade message may be sent, if so, we can eliminate them
+#    - trade deals messages were getting the who/from backwards in some cases. crash bug thats in 2.08 fixed
+#    - the declare war assert added last build commented out
+#    - AI_spreadReligion slightly sped up
+#   
+# Changed paths (7):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDeal.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@120
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@121
+@@ -355,14 +355,23 @@
+ 
+ 			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
+ 			{
+-				iTempValue += (iCommerce * 20);
+-			}
++				iTempValue += (iCommerce * 40);
++			}
++			
++			int iCommercePercent = GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes) iI);
++			int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			
+ 			// if emp commerce, then value based on the player's commerce percent
+ 			if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 			{
+-				int iCommercePercent = GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes) iI);
+-				iTempValue += ((iCommerce * 20) * iCommercePercent) / 100;
++				iTempValue += ((iCommerce * 40) * iCommercePercent) / 100;
++				
++				// if the weight is so low, its less than half this commerce slider value, use a high percentage instead
++				// (otherwise, artists never get picked)
++				if (iCommerceWeight < iCommercePercent / 2)
++				{
++					iCommerceWeight = iCommercePercent + 25;
++				}
+ 			}
+ 			
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+@@ -370,16 +379,22 @@
+ 			    iTempValue *= iCultureModifier;
+ 			    if (iCultureModifier == 1)
+ 			    {
+-                    iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
+-                    iTempValue /= 100;
++                    int iCulturePercent = calculateCulturePercent(getOwnerINLINE());
++					
++					// boost artists if our culture is under 55% (but do not lower them if its over that)
++					if (iCulturePercent < 55)
++					{
++						iTempValue *= (2 * (105 - iCulturePercent));
++						iTempValue /= 100;
++					}
+ 			    }
+ 			}
+ 			else
+ 			{
+ 			    iTempValue /= iCultureModifier;
+ 			}
+-
+-			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
++			
++			iTempValue *= iCommerceWeight;
+ 			iTempValue /= 100;
+ 
+ 			iValue += iTempValue;
+@@ -396,7 +411,7 @@
+ 
+ 		if (AI_isEmphasizeGreatPeople())
+ 		{
+-			iTempValue += (iGreatPeopleRate * 32);
++			iTempValue += (iGreatPeopleRate * 40);
+ 		}
+ 
+         if (!isHuman() && (GET_PLAYER(getOwnerINLINE()).getCurrentEra() <= (GC.getNumEraInfos() / 2)))
+@@ -453,6 +468,18 @@
+ 		iValue += iTempValue;
+ 	}
+ 
++	else
++	{
++		SpecialistTypes eGenericCitizen = (SpecialistTypes) GC.getDefineINT("DEFAULT_SPECIALIST");
++		
++		// are we the generic specialist?
++		if (eSpecialist == eGenericCitizen)
++		{
++			iValue *= 60;
++			iValue /= 100;
++		}
++	}
++	
+ 	int iExperience = GC.getSpecialistInfo(eSpecialist).getExperience();
+ 	if (0 != iExperience)
+ 	{
+@@ -494,11 +521,13 @@
+ 	{
+ 		if (getProduction() > 0)
+ 		{
++			// if less than 3 turns left, keep building current item
+ 			if (getProductionTurnsLeft() <= 3)
+ 			{
+ 				return;
+ 			}
+-
++			
++			// if building a combat unit, and we have no defenders, keep building it
+ 			if (plot()->getNumDefenders(getOwnerINLINE()) == 0)
+ 			{
+ 				eProductionUnit = getProductionUnit();
+@@ -510,6 +539,13 @@
+ 						return;
+ 					}
+ 				}
++			}
++			
++			// if we are building a wonder, do not cancel, keep building it
++			BuildingTypes eProductionBuilding = getProductionBuilding();
++			if (eProductionBuilding != NO_BUILDING && isLimitedWonderClass((BuildingClassTypes) GC.getBuildingInfo(eProductionBuilding).getBuildingClassType()))
++			{
++				return;
+ 			}
+ 		}
+ 
+@@ -757,7 +793,7 @@
+ 		}
+ 	}
+ 
+-	if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 75)
++	if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+ 	{
+         if (AI_chooseBuilding(0, 10))
+         {
+@@ -1862,15 +1898,7 @@
+ 	bool bCulturalVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1);
+ 	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+ 
+-	bCanPopRush = false;
+-	for (iI = 0; iI < GC.getNumHurryInfos(); ++iI)
+-	{
+-		if (GC.getHurryInfo((HurryTypes)iI).getProductionPerPopulation() > 0 && GET_PLAYER(getOwnerINLINE()).canHurry((HurryTypes)iI))
+-		{
+-			bCanPopRush = true;
+-			break;
+-		}
+-	}
++	bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 
+ 	if (kBuilding.isCapital())
+ 	{
+@@ -4396,7 +4424,7 @@
+ 						{
+ 							iValue = AI_plotValue(pLoopPlot, bAvoidGrowth, /*bRemove*/ true, /*bIgnoreFood*/ true, bIgnoreGrowth);
+ 
+-							if (iValue < iLowestStandardValue)
++							if (iValue < iLowestIgnoreFoodValue)
+ 							{
+ 								iLowestIgnoreFoodValue = iValue;
+ 								iWorstIgnoreFoodPlot = iI;
+@@ -4575,7 +4603,7 @@
+ 	int iValue;
+ 	int iI;
+ 
+-	int iYieldResearch = 0;
++	int iCommerceYields[NUM_COMMERCE_TYPES];
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+ 	bool bFoodIsProduction = isFoodProduction();
+ 
+@@ -4584,6 +4612,14 @@
+ 		if (piYields[iI] == 0)
+ 		{
+ 			aiYields[iI] = 0;
++
++			if (iI == YIELD_COMMERCE)
++			{
++				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++				{
++					iCommerceYields[iJ] = 0;
++				}
++			}
+ 		}
+ 		else
+ 		{
+@@ -4602,21 +4638,16 @@
+ 
+ 			if (iI == YIELD_COMMERCE)
+ 			{
+-				int iNewCommerceSum = 0;
+-				int iOldCommerceSum = 0;
++				aiYields[iI] = 0;
+ 				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 				{
+ 					int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
+ 					int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * getTotalCommerceRateModifier((CommerceTypes)iJ)) / 100;
+ 
+-					if (iJ == COMMERCE_RESEARCH)
+-						iYieldResearch = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
+-
+-					iNewCommerceSum += iNewCommerceComponent;
+-					iOldCommerceSum += iOldCommerceComponent;
+-				}
+-
+-				aiYields[iI] = (bRemove ? (iOldCommerceSum - iNewCommerceSum) : (iNewCommerceSum - iOldCommerceSum));
++					iCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++
++					aiYields[iI] += iCommerceYields[iJ];
++				}
+ 			}
+ 			else
+ 			{
+@@ -4632,24 +4663,27 @@
+ 	
+ 	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
+ 	{
++		// tiny food factor, to insure that even when we dont want to grow, 
++		// we still prefer more food if everything else is equal
++		iValue += (aiYields[YIELD_FOOD] * 1);
++
+ 		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodLevel = getFood();
+ 		int iFoodToGrow = growthThreshold();
+ 		int iHappinessLevel = happyLevel() - unhappyLevel(0);
+ 		int iPopulation = getPopulation();
+-		int	iExtraPopulationThatCanWork = min(NUM_CITY_PLOTS, iPopulation) - range(-iHappinessLevel, 0, iPopulation) - getWorkingPopulation() + min(0, extraFreeSpecialists());
+-
+-		if (bAvoidGrowth)
+-		{
+-			// if we not human, allow us to starve to half full if avoiding growth
+-			if (!isHuman())
+-			{
+-				iFoodPerTurn += max(0, (iFoodLevel - max(1, (iFoodToGrow / 8))));
+-			}
++		int iWorkingPopulation = getWorkingPopulation();
++		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
++
++		// if we not human, allow us to starve to half full if avoiding growth
++		int iStarvingAllowance = 0;
++		if (bAvoidGrowth && !isHuman())
++		{
++			iStarvingAllowance = max(0, (iFoodLevel - max(1, (iFoodToGrow / 2))));
+ 		}
+ 		
+ 		// if still starving
+-		if (iFoodPerTurn < 0)
++		if ((iFoodPerTurn + iStarvingAllowance) < 0)
+ 		{
+ 			// if working plots all like this one will save us from starving
+ 			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+@@ -4657,13 +4691,13 @@
+ 				// if this plot alone will not save us from starving
+ 				if (aiYields[YIELD_FOOD] <= -iFoodPerTurn)
+ 				{
+-					// value the food enormously high(2048)
+-					iValue += aiYields[YIELD_FOOD] * 2048;
++					// value the food enormously high(4096)
++					iValue += aiYields[YIELD_FOOD] * 4096;
+ 				}
+ 				else
+ 				{
+-					// value the food needed to break even enormously high(2048)
+-					iValue += (-iFoodPerTurn * 2048);
++					// value the food needed to break even enormously high(4096)
++					iValue += (-iFoodPerTurn * 4096);
+ 				}
+ 			}
+ 			else
+@@ -4678,8 +4712,8 @@
+ 		{
+ 			if (!bAvoidGrowth)
+ 			{
+-				// value food low(5)
+-				iValue += (aiYields[YIELD_FOOD] * 5);
++				// value food low(4)
++				iValue += (aiYields[YIELD_FOOD] * 4);
+ 				
+ 				// only do relative checks on food if we want to grow AND we not emph food
+ 				// the emp food case will just give a big boost to all food under all circumstances
+@@ -4700,6 +4734,12 @@
+ 						if (getMilitaryHappinessUnits() == 0)
+ 						{
+ 							iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (iPopulation + 1)) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"));
++						}
++
++						// if we can pop rush, let us grow one over the limit
++						if (GET_PLAYER(getOwnerINLINE()).canPopRush())
++						{
++							iHappinessLevel++;
+ 						}
+ 
+ 						// currently we can at most increase happy by 2 in the following checks
+@@ -4807,8 +4847,8 @@
+ 	// if food is production, the count it
+ 	int adjustedYIELD_PRODUCTION = (((bFoodIsProduction) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
+ 
+-	// value production medium(16)
+-	iValue += (adjustedYIELD_PRODUCTION * 16);
++	// value production medium(15)
++	iValue += (adjustedYIELD_PRODUCTION * 15);
+ 	
+ 	// value commerce low(4)
+ 	iValue += (aiYields[YIELD_COMMERCE] * 4);
+@@ -4824,35 +4864,38 @@
+ 
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+-		// value production high(40)
+-		iValue += (adjustedYIELD_PRODUCTION * 40);
++		// value production high(80)
++		iValue += (adjustedYIELD_PRODUCTION * 80);
+ 	}
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		// value commerce medium(20)
+-		iValue += (aiYields[YIELD_COMMERCE] * 20);
+-	}
+-
+-	if (AI_isEmphasizeCommerce(COMMERCE_RESEARCH))
+-	{
+-		// value the part of our commerce that goes to research medium (20)
+-		iValue += (iYieldResearch * 20);
++		// value commerce medium(40)
++		iValue += (aiYields[YIELD_COMMERCE] * 40);
++	}
++
++	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++	{
++		if (AI_isEmphasizeCommerce((CommerceTypes) iJ))
++		{
++			// value the part of our commerce that goes to our emphasis medium (40)
++			iValue += (iCommerceYields[iJ] * 40);
++		}
+ 	}
+ 	
+-	//Sanity Perserving Factor
+-	{
+-	    if (bFoodIsProduction)
+-	    {
+-	        iValue += adjustedYIELD_PRODUCTION * 2;
+-	    }
+-	    else
+-	    {
+-	        iValue += aiYields[YIELD_FOOD] * 3;
+-	        iValue += aiYields[YIELD_PRODUCTION] * 2;
+-	    }
+-        iValue += aiYields[YIELD_COMMERCE] * 1;
+-	}	        
++	////Sanity Perserving Factor
++	//{
++	//    if (bFoodIsProduction)
++	//    {
++	//        iValue += adjustedYIELD_PRODUCTION * 2;
++	//    }
++	//    else
++	//    {
++	//        iValue += aiYields[YIELD_FOOD] * 3;
++	//        iValue += aiYields[YIELD_PRODUCTION] * 2;
++	//    }
++ //       iValue += aiYields[YIELD_COMMERCE] * 1;
++	//}	        
+ 
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvDeal.cpp
+--- /trunk/CvGameCoreDLL/CvDeal.cpp@120
++++ /trunk/CvGameCoreDLL/CvDeal.cpp@121
+@@ -90,7 +90,7 @@
+ 			{
+ 				szDealString.clear();
+ 				GAMETEXT.getDealString(szDealString, *this, iActivePlayer);
+-				szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.GetCString());
++				szString.Format(L"%s: %s%s", szCancelString.GetCString(), szDealString.GetCString(), bKillTeam ? "" : "(duplicate?)");
+ 				gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
+ 			}
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@120
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@121
+@@ -7979,7 +7979,7 @@
+ 		for (pTradeNode = pListPlayer2->head(); pTradeNode; pTradeNode = pListPlayer2->next(pTradeNode))
+ 		{
+ 			CvWString szTrade;
+-			getTradeString(szTrade, pTradeNode->m_data, ePlayer1, ePlayer2);
++			getTradeString(szTrade, pTradeNode->m_data, ePlayer2, ePlayer1);
+ 			setListHelp(szDealTwo, L"", szTrade, L", ", bFirst);
+ 			bFirst = false;
+ 		}
+@@ -8229,7 +8229,7 @@
+ 		szBuffer.Format(L"%s", GC.getBonusInfo((BonusTypes)tradeData.m_iData).getDescription());
+ 		break;
+ 	case TRADE_CITIES:
+-		szBuffer.Format(L"%s", GET_PLAYER(ePlayer1).getCity(tradeData.m_iData)->getName());
++		szBuffer.Format(L"%s", GET_PLAYER(ePlayer1).getCity(tradeData.m_iData)->getName().GetCString());
+ 		break;
+ 	case TRADE_PEACE:
+ 	case TRADE_WAR:
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@120
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@121
+@@ -10019,14 +10019,31 @@
+ }
+ 
+ 
++bool CvPlayer::canPopRush()
++{
++	return (m_iPopRushHurryCount > 0);
++}
++
+ void CvPlayer::changeHurryCount(HurryTypes eIndex, int iChange)										
+ {
+ 	FAssert(eIndex >= 0);
+ 	FAssert(eIndex < GC.getNumHurryInfos());
++
++	int oldHurryCount = m_paiHurryCount[eIndex];
+ 	m_paiHurryCount[eIndex] = (m_paiHurryCount[eIndex] + iChange);
+ 	FAssert(getHurryCount(eIndex) >= 0);
+-}
+-
++	
++	// if we just went from 0 to 1 (or the reverse)
++	if ((oldHurryCount > 0) != (m_paiHurryCount[eIndex] > 0))
++	{
++		// does this hurry reduce population?
++		if (GC.getHurryInfo(eIndex).getProductionPerPopulation() > 0)
++		{
++			m_iPopRushHurryCount += iChange;
++			FAssert(m_iPopRushHurryCount >= 0);
++		}
++	}
++}
+ 
+ int CvPlayer::getSpecialBuildingNotRequiredCount(SpecialBuildingTypes eIndex)														
+ {
+@@ -12440,6 +12457,8 @@
+ 	// zero everything out, just to be safe
+ 	m_iPlaceholderCount = 0;
+ 	m_aiPlaceholderArray = NULL;
++
++	m_iPopRushHurryCount = 0;
+ 	
+ 	// note resetCache(/*bConstructorCall*/ true) will be called by CvPlayer::CvPlayer
+ }
+@@ -12460,6 +12479,8 @@
+ 
+ void CvPlayer::uninitCache()
+ {
++	m_iPopRushHurryCount = 0;
++	
+ 	m_iPlaceholderCount = 0;
+ 
+ 	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@120
++++ /trunk/CvGameCoreDLL/CvPlayer.h@121
+@@ -661,6 +661,7 @@
+ 
+ 	int getHurryCount(HurryTypes eIndex);																												// Exposed to Python
+ 	DllExport bool canHurry(HurryTypes eIndex);																									// Exposed to Python
++	bool canPopRush();
+ 	void changeHurryCount(HurryTypes eIndex, int iChange);
+ 
+ 	int getSpecialBuildingNotRequiredCount(SpecialBuildingTypes eIndex);												// Exposed to Python
+@@ -1053,6 +1054,7 @@
+ protected:
+ 	int		m_iPlaceholderCount;
+ 	int*	m_aiPlaceholderArray;
++	int		m_iPopRushHurryCount;
+ 
+ 	void constructCache();	// called from constructor
+ 	void destructCache();	// called from destructor
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@120
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@121
+@@ -2001,7 +2001,7 @@
+ 				{
+ 					if (pPlot->isVisibleEnemyUnit(getOwnerINLINE()) != bAttack)
+ 					{
+-						FAssertMsg(isHuman() || (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack)), "hopefully not an issue, but tracking how often this is the case when we dont want to really declare war");
++						//FAssertMsg(isHuman() || (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack)), "hopefully not an issue, but tracking how often this is the case when we dont want to really declare war");
+ 						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack))
+ 						{
+ 							return false;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@120
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@121
+@@ -5896,42 +5896,46 @@
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+ 		    iPlayerMultiplierPercent = 100;
+-		    if (!bCultureVictory || (eReligion == GET_PLAYER(getOwnerINLINE()).getStateReligion()))
+-		    {
+-                if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == NO_RELIGION)
+-                {
+-                    if (0 == (GET_PLAYER((PlayerTypes)iI).getNonStateReligionHappiness()))
+-                    {
+-                        iPlayerMultiplierPercent += 600;
+-                    }
+-                }
+-                else if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == eReligion)
+-                {
+-                    iPlayerMultiplierPercent += 300;
+-                }
+-                else
+-                {
+-                    if (GET_PLAYER((PlayerTypes)iI).hasHolyCity(GET_PLAYER((PlayerTypes)iI).getStateReligion()))
+-                    {
+-                        iPlayerMultiplierPercent += 50;
+-                    }
+-                    else
+-                    {
+-                        iPlayerMultiplierPercent += 300;
+-                    }
+-                }
+-                int iReligionCount = GET_PLAYER((PlayerTypes)iI).countTotalHasReligion();
+-                int iCityCount = GET_PLAYER(getOwnerINLINE()).getNumCities();
+-                //magic formula to produce normalized adjustment factor based on religious infusion
+-                int iAdjustment = (100 * (iCityCount + 1));
+-                iAdjustment /= ((iCityCount + 1) + iReligionCount);
+-                iAdjustment = (((iAdjustment - 25) * 4) / 3);
+-                
+-                iAdjustment = (max(10, iAdjustment));
+-                
+-                iPlayerMultiplierPercent *= iAdjustment;
+-                iPlayerMultiplierPercent /= 100;
+-		    }
++
++			if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam())
++			{
++				if (!bCultureVictory || (eReligion == GET_PLAYER(getOwnerINLINE()).getStateReligion()))
++				{
++					if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == NO_RELIGION)
++					{
++						if (0 == (GET_PLAYER((PlayerTypes)iI).getNonStateReligionHappiness()))
++						{
++							iPlayerMultiplierPercent += 600;
++						}
++					}
++					else if (GET_PLAYER((PlayerTypes)iI).getStateReligion() == eReligion)
++					{
++						iPlayerMultiplierPercent += 300;
++					}
++					else
++					{
++						if (GET_PLAYER((PlayerTypes)iI).hasHolyCity(GET_PLAYER((PlayerTypes)iI).getStateReligion()))
++						{
++							iPlayerMultiplierPercent += 50;
++						}
++						else
++						{
++							iPlayerMultiplierPercent += 300;
++						}
++					}
++					int iReligionCount = GET_PLAYER((PlayerTypes)iI).countTotalHasReligion();
++					int iCityCount = GET_PLAYER(getOwnerINLINE()).getNumCities();
++					//magic formula to produce normalized adjustment factor based on religious infusion
++					int iAdjustment = (100 * (iCityCount + 1));
++					iAdjustment /= ((iCityCount + 1) + iReligionCount);
++					iAdjustment = (((iAdjustment - 25) * 4) / 3);
++	                
++					iAdjustment = (max(10, iAdjustment));
++	                
++					iPlayerMultiplierPercent *= iAdjustment;
++					iPlayerMultiplierPercent /= 100;
++				}
++			}
+ 
+ 			for (pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+ 			{
+

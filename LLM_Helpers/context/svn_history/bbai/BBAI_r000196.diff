@@ -1,0 +1,145 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 196
+# Author: iustus
+# Date: 2006-12-17T22:54:50.259044Z
+# Coverage: full
+# Message:
+#   governor changes: emphasize buttons should no longer stagnate city under any but the most extreme conditions. Changes made to how non-starving food is forced, so it is more likely to work lower food tiles if they are good tiles and will be sufficient to not starve (this ends up resulting in fewer specialists): old way: 2f, 2f, 1 priest, new way: 1f3h, 1f3h, 1f3h)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@195
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@196
+@@ -485,18 +485,25 @@
+ 
+ 			iTempValue = (iCommerce * 4);
+ 
+-			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
+-			{
+-				iTempValue += (iCommerce * 40);
+-			}
+-			
+-			int iCommercePercent = GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes) iI);
+ 			int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			
+-			// if emp commerce, then value based on the player's commerce percent
++			// if this commerce type is specifically emphasized
++			bool bIsEmphasizeThisCommerceType = AI_isEmphasizeCommerce((CommerceTypes)iI);
++			if (bIsEmphasizeThisCommerceType)
++			{
++				iTempValue += (iCommerce * 40);
++			}
++			
++			// if emp all commerce, then value based on the player's commerce percent
+ 			if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 			{
+-				iTempValue += ((iCommerce * 40) * iCommercePercent) / 100;
++				int iCommercePercent = GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes) iI);
++
++				// do not count twice, if emph both this commerce type and general commerce
++				if (!bIsEmphasizeThisCommerceType)
++				{
++					iTempValue += ((iCommerce * 40) * iCommercePercent) / 100;
++				}
+ 				
+ 				// if the weight is so low, its less than half this commerce slider value, use a high percentage instead
+ 				// (otherwise, artists never get picked)
+@@ -5355,17 +5362,9 @@
+ 			// if working plots all like this one will save us from starving
+ 			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+ 			{
+-				// if this plot alone will not save us from starving
+-				if (aiYields[YIELD_FOOD] <= -iFoodPerTurn)
+-				{
+-					// value the food enormously high(4096)
+-					iValue += aiYields[YIELD_FOOD] * 4096;
+-				}
+-				else
+-				{
+-					// value the food needed to break even enormously high(4096)
+-					iValue += (-iFoodPerTurn * 4096);
+-				}
++				// give a huge boost to this plot, but not based on how much food it has
++				// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
++				iValue += 4096;
+ 			}
+ 			else
+ 			{
+@@ -5391,7 +5390,7 @@
+ 					bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 					// also avail: iFoodLevel, iFoodToGrow
+ 					
+-					// adjust iFoodPerTurn assuming that we plots all equal to iConsumtionPerPop
++					// adjust iFoodPerTurn assuming that we work plots all equal to iConsumtionPerPop
+ 					// that way it is our guesstimate of how much excess food we will have
+ 					iFoodPerTurn += (iExtraPopulationThatCanWork * iConsumtionPerPop);
+ 					
+@@ -5445,7 +5444,7 @@
+ 					}
+ 
+ 					int iPopToGrow = max(0, iHappinessLevel);
+-					iPopToGrow = max(iPopToGrow, AI_countGoodTiles(iHealthLevel == 0, true, 50));
++					iPopToGrow = max(iPopToGrow, AI_countGoodTiles(iHealthLevel == 0, true, 50) + ((bRemove) ? 1 : 0));
+ 
+ 					// if we do not have unhappy, fill food bar to 85%
+ 					bool bFillingBar = false;
+@@ -5474,7 +5473,7 @@
+ 						
+ 						// will mulitply this by factors
+ 						int iTempValue = aiYields[YIELD_FOOD] * 3;
+-						
++
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+ 						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+ 						int iFactorPopToGrow;
+@@ -5488,6 +5487,12 @@
+ 							iFactorPopToGrow = 8 + iPopToGrow;
+ 						else // iPopToGrow >= 17
+ 							iFactorPopToGrow = 25;
++						// cap iFactorPopToGrow if this is a very poor tile
++						if (iFactorPopToGrow > 1 &&
++							aiYields[YIELD_FOOD] <= iConsumtionPerPop && (aiYields[YIELD_PRODUCTION] + aiYields[YIELD_COMMERCE]) < 2)
++						{
++							iFactorPopToGrow = 1;
++						}
+ 						iTempValue *= iFactorPopToGrow;
+ 						
+ 						// (range 51-100) - we will grown slightly slower if we running unhealthy
+@@ -5524,6 +5529,13 @@
+ 
+ 						// (range 0-158) * yield
+ 						iValue += iTempValue;
++
++						// if this is our last plot to assign and stagnant, give an equal boost to any food tile
++						iFoodPerTurn -= (iExtraPopulationThatCanWork * iConsumtionPerPop);
++						if (iExtraPopulationThatCanWork <= 1 && iFoodPerTurn <= 0 && aiYields[YIELD_FOOD] > 0)
++						{
++							iValue += 512;
++						}
+ 					}
+ 				}
+ 			}
+@@ -5535,11 +5547,15 @@
+ 
+ 	// value production medium(15)
+ 	iValue += (adjustedYIELD_PRODUCTION * 15);
+-	if (adjustedYIELD_PRODUCTION != 0)
+-	{
+-		if (!isHuman() && ((GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER))
+-			|| 	((area()->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE) 
+-			|| (area()->getAreaAIType(getTeam()) == AREAAI_MASSING) || (area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT))))
++	
++	// non-human production value increase
++	if (adjustedYIELD_PRODUCTION != 0 && !isHuman())
++	{
++		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
++		
++		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER)
++			|| (eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) 
++			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+ 		{
+ 			iValue += (adjustedYIELD_PRODUCTION * 9);
+ 		}
+

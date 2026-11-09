@@ -1,0 +1,268 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 285
+# Author: blakeciv
+# Date: 2007-01-22T16:24:35.932150Z
+# Coverage: full
+# Message:
+#   Tweaked wonder building to improved expansion.
+#   Tweaked the unit spam in a number of ways (the CvCityAI and CvPlayerAI stuff mostly). Not done yet.
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@284
++++ /trunk/CvGameCoreDLL/CvCity.h@285
+@@ -780,7 +780,7 @@
+ 	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
+ 	virtual int AI_yieldMultiplier(YieldTypes eYield) = 0;
+ 	virtual int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance = 7) = 0;
+-	virtual int AI_cityThreat() = 0;
++	virtual int AI_cityThreat(bool bDangerPercent = false) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@284
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@285
+@@ -942,7 +942,7 @@
+ 
+ 		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()) != NULL)
+ 		{
+-			if (!AI_isDefended(-2))
++			if (!AI_isDefended())
+ 			{
+ 				if (AI_chooseDefender())
+ 				{
+@@ -1042,16 +1042,16 @@
+         }
+     }
+ 	
+-    if (isHuman())
+-    {
+-        if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) == NULL)
+-        {
+-            if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-            {
+-                return;
+-            }
+-        }
+-    }
++//    if (isHuman())
++//    {
++//        if (plot()->plotCheck(PUF_canDefend, -1, -1, getOwnerINLINE()) == NULL)
++//        {
++//            if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++//            {
++//                return;
++//            }
++//        }
++//    }
+ 
+ 	// don't build frivilious things if this is an imporant city unless we at war
+     if (!bImportantCity || bLandWar || bAssault)
+@@ -1236,7 +1236,7 @@
+         }
+         
+         //oppurunistic wonder build
+-        if (!bDanger)
++        if (!bDanger && (!hasActiveWorldWonder() || (kPlayer.getNumCities() > 3)))
+         {
+         	int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+         	iWonderTime /= 5;
+@@ -3691,7 +3691,12 @@
+ 	}
+ 
+ 	iDefenders = 1;
+-
++	
++	if (hasActiveWorldWonder() || isCapital())
++	{
++		iDefenders++;
++	}
++	
+ 	if (!GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
+ 	{
+ 		if ((iNumCities > 1))
+@@ -3706,11 +3711,6 @@
+ 	else
+ 	{
+ 		iDefenders += (AI_neededFloatingDefenders() + 2) / 4;
+-	}
+-	
+-	if (hasActiveWorldWonder() || isCapital())
+-	{
+-		iDefenders++;
+ 	}
+ 	
+ 	
+@@ -3794,13 +3794,22 @@
+ 	int iFloatingDefenders = GET_PLAYER(getOwnerINLINE()).AI_getTotalFloatingDefendersNeeded(area());
+ 	
+ 	int iTotalThreat = max(1, GET_PLAYER(getOwnerINLINE()).AI_getTotalAreaCityThreat(area()));
+-	
+-	
+-	
++		
+ 	iFloatingDefenders *= AI_cityThreat();
+ 	iFloatingDefenders += (iTotalThreat / 2);
+ 	iFloatingDefenders /= iTotalThreat;
+-
++	
++	
++	if (!GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_CRUSH))
++	{		
++		iFloatingDefenders += max(0, (getPopulation() / 6) - (getGameTurnFounded() % 3));
++		
++		iFloatingDefenders += AI_neededFloatingDefenders();
++	}
++	else
++	{
++		iFloatingDefenders += (AI_neededFloatingDefenders() + 2) / 4;
++	}
+ 	
+ 	m_iNeededFloatingDefenders = iFloatingDefenders;
+ 	m_iNeededFloatingDefendersCacheTurn = GC.getGame().getGameTurn();
+@@ -5913,9 +5922,9 @@
+ 
+ 						// if this is our last plot to assign and stagnant, give an equal boost to any food tile
+ 						iFoodPerTurn -= (iExtraPopulationThatCanWork * iConsumtionPerPop);
+-						if (iExtraPopulationThatCanWork <= 1 && iFoodPerTurn <= 0 && aiYields[YIELD_FOOD] > 0)
++						if (iExtraPopulationThatCanWork <= 1 && (iFoodPerTurn <= aiYields[YIELD_FOOD]) && aiYields[YIELD_FOOD] > 0)
+ 						{
+-							iValue += 512;
++							iValue += iFoodPerTurn <= 0 ? 64 : 32;
+ 						}
+ 					}
+ 				}
+@@ -7666,10 +7675,11 @@
+ 	m_iCachePlayerClosenessDistance = iMaxDistance;
+ }
+ 
+-int CvCityAI::AI_cityThreat()
++int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ {
+ 	PROFILE_FUNC();
+ 	int iValue = 0;
++	int iDangerPercentValue = 0;
+ 	bool bCrushStrategy = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CRUSH);
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@284
++++ /trunk/CvGameCoreDLL/CvCityAI.h@285
+@@ -107,7 +107,7 @@
+     int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+ 
+ 	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
+-	int AI_cityThreat();
++	int AI_cityThreat(bool bDangerPercent = false);
+ 	
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@284
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@285
+@@ -10275,7 +10275,7 @@
+ 		int iWarCount = 0;
+ 		int iCrushValue = 0;
+ 		
+-		iCrushValue += (iNonsense % 3);
++		iCrushValue += (iNonsense % 4);
+ 		
+ 		if (m_iStrategyHash & AI_STRATEGY_DAGGER)
+ 		{
+@@ -10283,7 +10283,7 @@
+ 		}
+ 		if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI))
+ 		{
+-			iCrushValue += 2;
++			iCrushValue += 3;
+ 		}
+ 
+ 		for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+@@ -10292,7 +10292,14 @@
+ 			{
+ 				if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN)
+ 				{
+-					iWarCount++;
++					if (!GET_TEAM(getTeam()).isAVassal())
++					{
++						if (GET_TEAM(getTeam()).AI_teamCloseness((TeamTypes)iI) > 0)
++						{
++							iWarCount++;
++						}
++					}
++					
+ 					if (GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_TOTAL)
+ 					{
+ 						iCrushValue += 6;					
+@@ -10318,9 +10325,9 @@
+ 				}
+ 			}
+ 		}
+-		if ((iWarCount == 1) && (iCrushValue >= 10))
+-		{
+-			m_iStrategyHash |= AI_STRATEGY_CRUSH;			
++		if ((iWarCount <= 1) && (iCrushValue >= 10))
++		{
++			m_iStrategyHash |= AI_STRATEGY_CRUSH;
+ 		}
+ 	}
+ 	
+@@ -10944,7 +10951,7 @@
+ 	else if (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+ 	{
+ 		iDefenders *= 2;
+-		iDefenders /= 3;		
++		iDefenders /= 3;
+ 	}
+ 		
+ 	iDefenders = max(iDefenders, AI_countNumAreaHostileUnits(pArea));
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@284
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@285
+@@ -878,7 +878,7 @@
+ 
+ 	iValue += (3 * AI_calculateCapitalProximity(eTeam)) / ((iValue > 0) ? 2 : 3);
+ 	
+-	int iClosenessValue = AI_teamCloseness(eTeam, DEFAULT_PLAYER_CLOSENESS);
++	int iClosenessValue = AI_teamCloseness(eTeam);
+ 	if (iClosenessValue == 0)
+ 	{
+ 		iValue /= 4;
+@@ -2475,6 +2475,11 @@
+ {
+ 	PROFILE_FUNC();
+ 	int iI, iJ;
++	
++	if (iMaxDistance == -1)
++	{
++		iMaxDistance = DEFAULT_PLAYER_CLOSENESS;
++	}
+ 	
+ 	FAssert(eIndex != getID());
+ 	int iValue = 0;
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@284
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@285
+@@ -142,7 +142,7 @@
+ 	bool AI_isSneakAttackReady(TeamTypes eIndex) const;
+ 	void AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue);
+ 	
+-	int AI_teamCloseness(TeamTypes eIndex, int iMaxDistance) const;
++	int AI_teamCloseness(TeamTypes eIndex, int iMaxDistance = -1) const;
+ 
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+

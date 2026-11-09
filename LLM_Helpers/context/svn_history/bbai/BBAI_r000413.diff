@@ -1,0 +1,188 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 413
+# Author: jdog5000
+# Date: 2008-12-13T22:53:43.615415Z
+# Coverage: full
+# Message:
+#   0.45H final revision
+#   
+#   Fix for blockade range issue
+# Changed paths (6):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameInterface.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@412
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@413
+@@ -3523,7 +3523,7 @@
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.45G");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.45H");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@412
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@413
+@@ -1778,16 +1778,40 @@
+ 		return FALSE;
+ 	}
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD					12/12/08				jdog5000	*/
++/**																				*/
++/**		Bugfix																	*/
++/********************************************************************************/
++/* original BTS code
+ 	if (GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->area() != pNewPlot->area())
+ 	{
+ 		return FALSE;
+ 	}
++*/
++	CvPlot* pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
++	if (pFromPlot->area() != pNewPlot->area())
++	{
++		return FALSE;
++	}
++
++	// Don't count diagonal hops across land isthmus
++	if (pFromPlot->isWater() && pNewPlot->isWater())
++	{
++		if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
++		{
++			return FALSE;
++		}
++	}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	return TRUE;
+ }
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD					11/30/08				jdog5000	*/
++/**		BETTER_BTS_AI_MOD					12/11/08				jdog5000	*/
+ /**																				*/
+ /**																				*/
+ /********************************************************************************/
+@@ -1808,15 +1832,30 @@
+ 		return FALSE;
+ 	}
+ 
+-	if (GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY)->area() != pNewPlot->area())
++	CvPlot* pFromPlot = GC.getMapINLINE().plotSorenINLINE(parent->m_iX, parent->m_iY);
++	if (pFromPlot->area() != pNewPlot->area())
+ 	{
+ 		return FALSE;
++	}
++
++	// Don't count diagonal hops across land isthmus
++	if (pFromPlot->isWater() && pNewPlot->isWater())
++	{
++		if (!(GC.getMapINLINE().plotINLINE(parent->m_iX, node->m_iY)->isWater()) && !(GC.getMapINLINE().plotINLINE(node->m_iX, parent->m_iY)->isWater()))
++		{
++			return FALSE;
++		}
+ 	}
+ 
+ 	TeamTypes ePlotTeam = pNewPlot->getTeam();
+ 	TeamTypes eTeam = *((TeamTypes *)pointer);
+ 	CvTeamAI& kTeam = GET_TEAM(eTeam);
+ 
++	if( !(pNewPlot->isRevealed(eTeam,false)) )
++	{
++		return FALSE;
++	}
++
+ 	if (kTeam.isFriendlyTerritory(ePlotTeam))
+ 	{
+ 		return TRUE;
+@@ -1836,6 +1875,8 @@
+ 	{
+ 		return TRUE;
+ 	}
++
++
+ 
+ 	return FALSE;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvGameInterface.cpp
+--- /trunk/CvGameCoreDLL/CvGameInterface.cpp@412
++++ /trunk/CvGameCoreDLL/CvGameInterface.cpp@413
+@@ -306,6 +306,20 @@
+ 									CvPlot* pLoopPlot = ::plotXY(pLoopUnit->getX_INLINE(), pLoopUnit->getY_INLINE(), i, j);
+ 									if (NULL != pLoopPlot && pLoopPlot->isRevealed(getActiveTeam(), false))
+ 									{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/11/08                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++										if( GC.getMapINLINE().calculatePathDistance(pLoopUnit->plot(),pLoopPlot) > iBlockadeRange )
++										{
++											// No blockading on other side of an isthmus
++											continue;
++										}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 										if (pLoopPlot->isWater() && pLoopPlot->area() == pLoopUnit->area())
+ 										{
+ 											NiColorA color(GC.getColorInfo((ColorTypes)GC.getPlayerColorInfo(GET_PLAYER(getActivePlayer()).getPlayerColor()).getColorTypePrimary()).getColor());
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@412
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@413
+@@ -4713,6 +4713,8 @@
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
++						// BBAI TODO: This doesn't properly block movement over diagonally connected land
++
+ 						if( GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot) > iBlockadeRange )
+ 						{
+ 							// No blockading on other side of an isthmus
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@412
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@413
+@@ -4747,6 +4747,8 @@
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
++	// BBAI TODO: Turn this into a function, have docked escort ships do it to
++	
+ 	if( plot()->isCity() )
+ 	{
+ 		CvCity* pCity = plot()->getPlotCity();
+@@ -4758,13 +4760,14 @@
+ 				// City under blockade
+ 				// Attacker has low odds since anyAttack checks above passed, try to break if sufficient numbers
+ 
+-				int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam());
++				int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam(), PUF_isGroupHead, -1, -1);
+ 				int iBlockaders = GET_PLAYER(getOwnerINLINE()).AI_getWaterDanger(plot(), 4);
+ 
+ 				if( iAttackers > (iBlockaders + 1) )
+ 				{
+ 					if( iAttackers > GC.getGameINLINE().getSorenRandNum(2*iBlockaders + 1, "AI - Break blockade") )
+ 					{
++						// BBAI TODO: Make odds scale by # of blockaders vs number of attackers
+ 						if (AI_anyAttack(1, 5))
+ 						{
+ 							return;
+

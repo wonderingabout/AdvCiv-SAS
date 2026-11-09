@@ -1,0 +1,77 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 62
+# Author: blakeciv
+# Date: 2006-11-11T04:04:42.947358Z
+# Coverage: full
+# Message:
+#   fixed potential priest madness problem and prevented that code running for the human since they might find it weird.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@61
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@62
+@@ -349,34 +349,38 @@
+ 			iTempValue += (iGreatPeopleRate * 16);
+ 		}
+ 
+-		//gah. Shriiiineeee....
+-		for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
+-		{
+-		    ReligionTypes eReligion = (ReligionTypes)iJ;
+-
+-		    if (isHolyCity(eReligion))
+-		    {
+-                PlayerTypes ePlayer = getOwnerINLINE();
+-
+-                UnitTypes eGreatPeopleUnit;
+-                FAssert(ePlayer != NO_PLAYER);
+-                FAssert(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass() != NO_UNITCLASS);
+-
+-                eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationUnits(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass())));
+-
+-                if ((eGreatPeopleUnit != NO_UNIT) && GC.getUnitInfo(eGreatPeopleUnit).getDefaultUnitAIType() == UNITAI_PROPHET)
++        if (!isHuman())
++        {
++            //gah. Shriiiineeee....
++            for (iJ = 0; iJ < GC.getNumReligionInfos(); iJ++)
++            {
++                ReligionTypes eReligion = (ReligionTypes)iJ;
++
++                if (isHolyCity(eReligion))
+                 {
+-                    //urghhh... oh i'm sure he'll be good for something even if the shrine already exists or can't be built
+-                    //don't wanna iterate over all builds and find something which smells like the shrine since
+-                    //i bet this runs a lot...
+-                    iTempValue += (iGreatPeopleRate * 4);
+-                    if (AI_isEmphasizeGreatPeople())
++                    PlayerTypes ePlayer = getOwnerINLINE();
++
++                    UnitTypes eGreatPeopleUnit;
++                    FAssert(ePlayer != NO_PLAYER);
++                    FAssert(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass() != NO_UNITCLASS);
++
++                    eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType()).getCivilizationUnits(GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass())));
++
++                    if ((eGreatPeopleUnit != NO_UNIT) && GC.getUnitInfo(eGreatPeopleUnit).getDefaultUnitAIType() == UNITAI_PROPHET)
+                     {
+-                        iTempValue += (iGreatPeopleRate * 8);
++                        //urghhh... oh i'm sure he'll be good for something even if the shrine already exists or can't be built
++                        //don't wanna iterate over all builds and find something which smells like the shrine since
++                        //i bet this runs a lot...
++                        iTempValue += (iGreatPeopleRate * 4);
++                        if (AI_isEmphasizeGreatPeople())
++                        {
++                            iTempValue += (iGreatPeopleRate * 8);
++                        }
+                     }
++                    break;
+                 }
+             }
+-		}
++        }
+ 
+ 
+ 		iValue += iTempValue;
+

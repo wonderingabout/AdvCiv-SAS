@@ -1,0 +1,189 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 444
+# Author: jdog5000
+# Date: 2009-05-02T05:28:50.227629Z
+# Coverage: full
+# Message:
+#   Update to 0.70E
+# Changed paths (5):
+#   M /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+#   D /trunk/Better BTS AI/Better BTS AI sources for 0.60.zip
+#   A /trunk/Better BTS AI/Better BTS AI sources for 0.70.zip
+#   M /trunk/Better BTS AI/readme.txt
+#   M /trunk/Better BTS AI/todo and ideas.txt
+
+Index: /trunk/Better BTS AI/Assets/CvGameCoreDLL.dll
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.60.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/Better BTS AI sources for 0.70.zip
+# Binary file, contents not shown
+
+Index: /trunk/Better BTS AI/readme.txt
+--- /trunk/Better BTS AI/readme.txt@443
++++ /trunk/Better BTS AI/readme.txt@444
+@@ -58,6 +58,10 @@
+ - Fixed bug in CvPlayerAI::AI_calculateUnitAIViability which blocked main logic for AI building of Privateers
+ - Fixed bug (introduced) in settler transports picking up stranded assault units
+ - Fixed bug where logic to lower AI building of defenses on small, offshore islands also meant they didn't defend their first few captured cities on enemy continent
++- Merged in alexman's fix for sync error in amphibious landings
++- Fixed potential crash bug (introduced) for boats on the edge of non-wrapping maps
++- Fixed bug where running 100% espionage would often cause cities to ignore commerce yield when picking tiles
++- Fixed bug where running 100% culture would often cause cities to ignore commerce yield when picking tiles
+ 
+ War strategy AI
+ - Modified how closeness is used for determining who to attack, different settings for regular and Aggressive AI
+@@ -65,6 +69,8 @@
+ - Modified city attack targetting by terrain bonuses to consider how important bonus is to AI
+ - An AI winning a war no longer automatically accepts offers of capitulation, may continue conquest under a few circumstances
+ - AIs will no longer declare war on faraway vassals of their neighbors
++- Added function AI_getWarSuccessCapitulationRatio to measure how well a team is doing in war
++- If team is losing a land war badly, they will now use defensive ar
+ 
+ War tactics AI
+ - Attack city stacks will now reduce the distance they travel in enemy territory so the enemy has less time to prepare or hit them with suicide siege
+@@ -78,6 +84,7 @@
+ - Created new logic for AI to run assault transports to reinforce its existing positions without building up new full invasion force
+ - AI can now time smaller transport loads to arrive at the same time as bigger invasion stacks
+ - Attack city stacks in own cities now wait if enough units are just about to join before heading off to attack
++- AI puts less weight on minor civ cities when also at war with major civs
+ 
+ Vassal AI
+ - Vassals will now be better prepared to participate when their AI master is planning a war.  If their master is a human, they will be probabilistically be a bit better prepared.
+@@ -105,6 +112,8 @@
+ - Blocked coastal cities from gearing up for naval invasions if enemy team isn't on same water area (for cities on inland lakes in maps with oceans)
+ - AI cities on inland lakes which are connected through a bridge city to the ocean are now considered to be on "relevant" water areas, meaning they will now help build navies
+ - Tweaked logic for production of escorts so the AI builds them faster if it doesn't have any
++- Adjusted threshold for construction of missionaries when at war, an AI that is on a roll capturing cities will now be more likely to build missionaries to convert the new cities
++- Added extra logic for panic production of defensive and counter attack units when AI is losing the wars it is in
+ 
+ Worker AI
+ - Fix issue where AI would not build workboats to make use of resources in small lakes (was blocked because it felt lake was not relevant militarily)
+@@ -126,10 +135,16 @@
+ - When AI starts preparing for war against another player they will heavily shift their espionage spending towards that player
+ - AI will attempt to gain passive mission levels against adversaries
+ - AI will now actually load spies onto the spy transport it builds
++- Smoothed and rebalanced AI's weighting on espionage yield, previously was either equal to production (!) or 0.  This issue caused the overemphasis on spy specialists by governors.
++- Weighting on espionage yield now responsive to human player's positioning of espionage slider
+ 
+ Gold AI
+ - AI now has a budget for troop upgrades each turn based on how much gold it wants to have, it won't spend more than this budget on non-critical units when at peace
+ - AI now prioritizes upgrading escort ships to same extent as transports
++- Tweaks so that AI emphasizes/deemphasizes gold yield in a broader range of circumstances, will help AI and city governors make better choices when doing all out science or culture and also if having money problems.
++
++Civic AI
++- AI now will more readily change civics in a golden age, acts as if it is spiritual
+ 
+ Diplomacy AI
+ - Removed blanket acceptance of all proposals by secretaries the AI is friends with, now just auto accept less strategic proposals like extra trade routes
+@@ -223,7 +238,12 @@
+ - Removed redundant logic from counter ai routine
+ - If an attack city stack is not big enough to go out on its own, but has enough units coming to join it, it will wait instead of traveling a long way to join another forming stack
+ - Added new flags to AI_group to allow grouping only with transports which are full, in port
+-
++- Great people, missionaries, executives now avoid or won't move through enemy territory when running their missions
++- Catch several cases where unit deaths can cause strange groupings
++- Large groups no longer run choke mission, will go for attacks instead
++- Attack city stacks will now wait for units just about to join them
++- AI will no longer send missionaries, execs, most great people through enemy territory
++- AI great generals now strongly avoid traveling in enemy territory when joining units
+ 
+ Barbarian AI
+ - Barb ships will now often blockade cities for a few turns before moving on if they have no nearby targets
+@@ -233,10 +253,16 @@
+ - Barb ships less suicidal, more oppurtunistic
+ - Reduced range in which barb ships detect unprotected resources by 25%
+ - Barbarians now will build defenders in captured cities first, not buildings
++- Barb cities now wait to build workers until pop 2
+ 
+ Pirate AI
+ - Privateers now prefer moving outside of other teams territory and enter at the last moment for a quick strike
+ - Fixed issue with AI Privateers being unable to group, also won't run around the whole world just to group
++
++Cultural Victory AI
++- If AI moves its capital, it will no longer always block pursuit of cultural victory
++- Further boosted AI's valuation of culture yield for second, third place culture city when going for cultural victory 
++- The AI's final city for cultural victory will now build culture much more frequently, tightening up their vcitory
+ 
+ General AI
+ - Modified city closeness calculations to use population from both cities, not just pop of the other city
+@@ -266,6 +292,7 @@
+ - Holding down SHIFT+ALT and clicking on a leader in the scoreboard now sets your civ's warplan to WARPLAN_PREPARING_TOTAL, like the AI does when beginning war preparations and can be used to signal to Vassals that they should begin preparing for war (not multiplayer compatible)
+ - Modified CvMainInterface.py to show on scoreboard when player is set to planning a war against another player using WAR in yellow instead of red
+ - Air units can now be set to explore, they use the same explore logic as AI planes and then have extra logic if that doesn't push a mission.  Note that planes on auto explore always move at the very beginning of your turn.
++- Added line to contact help text explaining SHIFT+ALT click toggling war plans
+ 
+ 
+ Debug
+
+Index: /trunk/Better BTS AI/todo and ideas.txt
+--- /trunk/Better BTS AI/todo and ideas.txt@443
++++ /trunk/Better BTS AI/todo and ideas.txt@444
+@@ -10,8 +10,8 @@
+ 
+ City AI:
+ - Valuation of commerce incorrect at 100% culture, 100% espionage
++- Golden age adjustments for plot selection logic
+ - Better logic (centralized) for determining when to relocate capital
+-x Emphasize city placement on water more
+ x Rework "early" city hunting stack logic
+ 
+ War strategy AI:
+@@ -25,31 +25,25 @@
+ x Privateers: move in the shadows
+ x Galleys on lakes not upgrading?
+ x Attack stacks should stage in coastal cities if in assault areas
+-x Settlers should load if can't reach found sites in area
+ - If sending an attack load with no attack city units, change at least one unit ai
+ - When pillaging, have fast units pillage once each and then slow units/second pillage so that group can still move
+ 
+ Naval AI:
+-- Transports (particularly with settlers) stalling if target location taken when on the way?
+ x Have AI transfer troops from Assault to Defensive and Offensive areas if it is out-gunned
+-x Don't unload settlers from transports unless they can reach area sites
+ - Portugese can't upgrade existing galley transports to Carracks, so often won't build new settler transports since already have
+ - Block transports from grouping with transports running MISSIONAI_ASSAULT
+ - When transport heads out on assault mission, clear missions for all those coming to join with it
+-
+-Settler AI:
+-x If player is in financial trouble, don't set out to found?
+ 
+ Great people AI
+ - If losing war or on defensive, up value of Golden Age (so can switch to drafting civics)
+ 
+ Civics AI
+-- Check that Golden Age lowers thesholds for changes just like Spiritual
++x Check that Golden Age lowers thesholds for changes just like Spiritual
+ - If in tough war, up value of civics which allow drafting, whipping, or buying?
+ 
+ Vassal AI:
+ - Option to turn off extra human's vassal military production
+-- Make it clear that SHIFT+ALT clicking on enemies in scoreboard toggels war planning
++x Make it clear that SHIFT+ALT clicking on enemies in scoreboard toggles war planning
+ 
+ Barbarian AI:
+ - Build smallish attack stacks?
+@@ -58,10 +52,11 @@
+ - How do losing/weak civs ask for help in war?
+ - when will vassals choose to break free?
+ - Pick state religion logic
+-x Team relations bug
++- Switch state religions in Golden Age?
++- Less willing to make peace when about to capture city, more willing when have threatened cities
+ 
+ General AI:
+-x Add new path finding flag for weighting enemy territory or territory adjacent to enemy territory two or three times higher (useful for attack stacks to avoid counter attack, privateers sneaking around, much more)
++x Adjust new path finding flags so they only weight end of turn position heavily
+ - XML option for beelining length
+ 
+ -----------------------------------------------------------
+@@ -82,4 +77,4 @@
+ 
+ Active defense, both shifting defenders around plus forming a stack to attack invaders.  See Version 0.50 thread.
+ 
+-
++Make city threat check a function, only call in unit AI if owner is at war
+

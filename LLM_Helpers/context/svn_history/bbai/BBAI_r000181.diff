@@ -1,0 +1,4576 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 181
+# Author: iustus
+# Date: 2006-12-13T08:23:43.415600Z
+# Coverage: full
+# Message:
+#   merge from trunk, revs 158-180
+# Changed paths (19):
+#   M /branches/vanilla/CvGameCoreDLL/CvCity.h
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   A /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.cpp
+#   A /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.h
+#   M /branches/vanilla/CvGameCoreDLL/CvGame.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+#   M /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvMap.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvMap.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvPlot.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlot.h
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvTeamAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCity.h
+--- /branches/vanilla/CvGameCoreDLL/CvCity.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvCity.h@181
+@@ -759,6 +759,7 @@
+ 
+ 	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
+ 	virtual int AI_calculateWaterWorldPercent() = 0;
++	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold) = 0;
+ 
+ protected:
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@181
+@@ -12,6 +12,7 @@
+ #include "CyCity.h"
+ #include "CyArgsList.h"
+ #include "CvInfos.h"
++#include "CvExtraSaveData.h"
+ #include "FProfiler.h"
+ 
+ #include "CvDLLPythonIFaceBase.h"
+@@ -31,6 +32,35 @@
+ #define BUILDINGFOCUS_MAINTENANCE			(1 << 10)
+ #define BUILDINGFOCUS_SPECIALIST			(1 << 11)
+ #define BUILDINGFOCUS_BIGCULTURE            (1 << 12)
++#define BUILDINGFOCUS_WORLDWONDER           (1 << 13)
++
++// for testing only
++#ifndef FINAL_RELEASE
++#define TESTING_EXTRA_SAVE_DATA
++#endif
++
++// our own version number on our extra data
++// if we want to reorder what we save, change this number
++// adding to the list should be fine
++#ifdef TESTING_EXTRA_SAVE_DATA
++
++#define CITYEXTRADATA_CURRENTVERSION		0x4000
++enum CityExtraDataIndicies
++{
++	CITYEXTRADATA_VERSION = 0,
++	CITYEXTRADATA_XCOORD,
++	CITYEXTRADATA_YCOORD,
++};
++#else
++
++#define CITYEXTRADATA_CURRENTVERSION		1
++enum CityExtraDataIndicies
++{
++	CITYEXTRADATA_VERSION = 0,
++	//CITYEXTRADATA_UNUSED1,
++	//CITYEXTRADATA_UNUSED2,
++};
++#endif
+ 
+ //#define DEBUG_CITY_BUILDS
+ #ifdef DEBUG_CITY_BUILDS
+@@ -610,10 +640,13 @@
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+-	bool bImportantCity = false;
++	bool bImportantCity = false; //be very careful about setting this.
+ 	bool bBigCultureCity = false;
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++    
++    int iExistingWorkers = (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER));
++    int iNeededWorkers = (GET_PLAYER(getOwnerINLINE()).AI_neededWorkers(area()));
+             
+ 	
+ 	if (iNumCitiesInArea > 2)
+@@ -697,6 +730,18 @@
+ 			return;
+ 		}
+ 	}
++	
++    
++    //do a check for one tile island type thing?
++    //this can be overridden by "wait and grow more"
++    if ((iExistingWorkers == 0) && isCapital())
++    {
++        if (AI_chooseUnit(UNITAI_WORKER))
++        {
++            return;
++        }
++    }
++	
+ 
+ 	if (isHuman())
+ 	{
+@@ -736,11 +781,9 @@
+ 		}
+ 	}
+ 
+-	if (!bLandWar && !bDanger && !bImportantCity)
+-	{
+-		int iExistingWorkers = (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER));
+-		int iNeededWorkers = (GET_PLAYER(getOwnerINLINE()).AI_neededWorkers(area()));
+-		if ((iExistingWorkers == 0 && iNeededWorkers > 0) || iExistingWorkers < (iNeededWorkers + 1) / 2)
++	if (!(iExistingWorkers == 0) && !bImportantCity)
++	{
++        if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+ 		{
+ 			if (AI_chooseUnit(UNITAI_WORKER))
+ 			{
+@@ -765,7 +808,10 @@
+ 	
+ 	//this is needed to build the cathedrals quickly
+ 	//also very good for giving cultural cities first dibs on wonders
+-    if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
++	//kind of a bug but with bImportantCity set it'll cause important cities
++	//to snap up wonders - this wasn't intended logic but it works well and I
++	//don't see the need to add a cultural victory check.
++    if (bImportantCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
+     {
+         if (iCultureRateRank == iCulturalVictoryNumCultureCities)
+         {
+@@ -774,7 +820,8 @@
+                 return;
+             }
+         }
+-        else if (GC.getGameINLINE().getSorenRandNum(iCulturalVictoryNumCultureCities * 2,"AI Build up Culture") < iCultureRateRank)
++        
++        else if (GC.getGameINLINE().getSorenRandNum(((iCultureRateRank == 1) ? 4 : 1) + iCulturalVictoryNumCultureCities * 2 , "AI Build up Culture") < iCultureRateRank)
+         {
+             if (AI_chooseBuilding(BUILDINGFOCUS_BIGCULTURE | BUILDINGFOCUS_CULTURE, 40))
+             {
+@@ -868,7 +915,7 @@
+ 
+         if (GC.getGameINLINE().getSorenRandNum(100, "AI Build Cheap Building") >= 85)
+         {
+-            if (AI_chooseBuilding(0, 10))
++            if (AI_chooseBuilding(0, 8))
+             {
+                 return;
+             }
+@@ -902,6 +949,21 @@
+             }
+         }
+         
++        if (iProductionRank <= 2)
++        {
++            int iWonderRand = 2 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++            
++            iWonderRand /= 4;
++            
++            if (iWonderRand > GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand"))
++            {
++                if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, 25))
++                {
++                    return;
++                }
++            }
++        }
++        
+         if (!bLandWar)
+         {
+             if (GET_PLAYER(getOwnerINLINE()).AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+@@ -935,7 +997,7 @@
+ 	
+ 	if (!bLandWar)
+ 	{		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
++		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
+ 		{
+ 		    ReligionTypes eStateReligion = GET_PLAYER(getOwnerINLINE()).getStateReligion();
+             if ((eStateReligion != NO_RELIGION) && isHasReligion(eStateReligion))
+@@ -1047,14 +1109,14 @@
+ 		}
+ 	}
+ 
+-	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 80))
++	if (AI_chooseBuilding(BUILDINGFOCUS_FOOD, 20))
+ 	{
+ 		return;
+ 	}
+ 
+ 	if (getBaseYieldRate(YIELD_PRODUCTION) >= 8)
+ 	{
+-		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 30))
++		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20))
+ 		{
+ 			return;
+ 		}
+@@ -1623,9 +1685,22 @@
+ 	int iOriginalValue;
+ 	int iBestOriginalValue;
+ 	int iI, iJ, iK;
++	
++	bool bGrowMore;
+ 
+ 	FAssertMsg(eUnitAI != NO_UNITAI, "UnitAI is not assigned a valid value");
+ 
++    bGrowMore = ((getPopulation() < 3) && (AI_countGoodTiles(true, false, 100) >= getPopulation()));
++    if (!bGrowMore && (getPopulation() < 5) && (AI_countGoodTiles(true, false, 80) >= getPopulation()))
++    {
++        if ((getFood() - (getFoodKept() / 2)) >= (growthThreshold() / 2))
++        {
++            if (angryPopulation(1) == 0)
++            {
++                bGrowMore = true;                
++            }
++        }
++    }
+ 	iBestOriginalValue = 0;
+ 
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+@@ -1638,7 +1713,8 @@
+ 			{
+ 				if (!isHuman() || (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == eUnitAI))
+ 				{
+-					if (!isFoodProduction(eLoopUnit) || (getPopulation() > 2))
++				    
++					if (!(bGrowMore && isFoodProduction(eLoopUnit)))
+ 					{
+ 						if (canTrain(eLoopUnit))
+ 						{
+@@ -1668,7 +1744,8 @@
+ 			{
+ 				if (!isHuman() || (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == eUnitAI))
+ 				{
+-					if (!isFoodProduction(eLoopUnit) || (getPopulation() > 1))
++				    
++					if (!(bGrowMore && isFoodProduction(eLoopUnit)))
+ 					{
+ 						if (canTrain(eLoopUnit))
+ 						{
+@@ -1852,8 +1929,8 @@
+ 						        {
+ 						            iValue = 0;
+ 						            break;
+-						        }						        
+-						    }						    
++						        }
++						    }
+ 						}
+ 
+ 
+@@ -1870,17 +1947,18 @@
+ 
+ 							if (isWorldWonderClass((BuildingClassTypes)iI))
+ 							{
++							    int iMultiplier = 50 + getProductionModifier(eLoopBuilding);
+ 								if (iProductionRank <= min(3, ((GET_PLAYER(getOwnerINLINE()).getNumCities() + 2) / 3)))
+ 								{
+ 									if (bAsync)
+ 									{
+-										iTempValue = 2 * GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
++										iTempValue = ((iMultiplier * GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC")) / 100);
+ 									}
+ 									else
+ 									{
+-										iTempValue = 2 * GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++										iTempValue = ((iMultiplier * GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand")) / 100);
+ 									}
+-
++									
+ 									if (bAreaAlone)
+ 									{
+ 										iTempValue *= 2;
+@@ -1891,13 +1969,6 @@
+ #endif
+ 
+ 									iValue += (iTempValue * 2) / 3;
+-
+-//									if (AI_isEmphasizeYield(YIELD_FOOD))
+-//									{
+-//										// Building the Wonder will no longer emphasize food, so we will gain production
+-//										iTurnsLeft *= 2;
+-//										iTurnsLeft /= 3;
+-//									}
+ 									}
+ 								}
+ 
+@@ -1934,7 +2005,7 @@
+ 							{
+ 								FAssert((MAX_INT / 1000) > iValue);
+ 								iValue *= 1000;
+-								iValue /= max(1, (iTurnsLeft + 10));
++								iValue /= max(1, (iTurnsLeft + 3));
+ 
+ 								iValue = max(1, iValue);
+ 
+@@ -2068,6 +2139,21 @@
+ 	{
+ 		if ((iFocusFlags == 0) || (iValue > 0) || (iPass == 0))
+ 		{
++		    
++		    if ((iFocusFlags & BUILDINGFOCUS_WORLDWONDER) || (iPass > 0))
++		    {
++		        if (isWorldWonderClass(eBuildingClass))
++		        {
++                    if (aiYieldRank[YIELD_PRODUCTION] <= 2)
++                    {
++                        if (getProductionModifier(eBuilding) > 49)
++                        {
++                            iValue++;
++                        }
++                    }
++		        }
++		    }
++		    
+ 			if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || (iPass > 0))
+ 			{
+ 				if (!bAreaAlone)
+@@ -2354,7 +2440,7 @@
+ 				}
+ 				
+ 				// prefer to build great people buildings in places that already have some GP points
+-				iValue += (kBuilding.getGreatPeopleRateChange() * 10) * (1 + (getBaseGreatPeopleRate() / 4));
++				iValue += (kBuilding.getGreatPeopleRateChange() * 10) * (1 + (getBaseGreatPeopleRate() / 2));
+ 
+ 				if (!bAreaAlone)
+ 				{
+@@ -2472,7 +2558,7 @@
+ 
+ 					if (kBuilding.getSeaPlotYieldChange(iI) > 0)
+ 					{
+-						iTempValue += (kBuilding.getSeaPlotYieldChange(iI) * countNumWaterPlots() * 4);
++					    iTempValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSpecialYieldChangeValue(eBuilding, (YieldTypes)iI);
+ 					}
+ 					iTempValue += (kBuilding.getGlobalSeaPlotYieldChange(iI) * kOwner.countNumCoastalCities() * 8);
+ 					iTempValue += (kBuilding.getYieldChange(iI) * 6);
+@@ -2528,7 +2614,16 @@
+ 
+ 					if (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 					{
+-						iValue += (kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * countNumWaterPlots() * 4);
++					    
++					    iTempValue = kBuilding.getSeaPlotYieldChange(YIELD_FOOD) * AI_buildingSpecialYieldChangeValue(eBuilding, YIELD_FOOD);
++					    if (iTempValue < 8)
++					    {
++					        // don't bother
++					    }
++					    else
++					    {
++                            iValue += ((iTempValue * 4) / max(2, iFoodDifference));
++					    }
+ 					}
+ 				}
+ 
+@@ -2714,7 +2809,8 @@
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
+ 					// we do _not_ want to build this here (unless the value was small anyway)
+-					if (bIsLimitedWonder && (aiCommerceRank[iI] > (3 + iLimitedWonderLimit)))
++					if (bIsLimitedWonder && ((aiCommerceRank[iI] > (3 + iLimitedWonderLimit)))
++						|| (bCulturalVictory1 && (iI == COMMERCE_CULTURE) && (aiCommerceRank[iI] == 1)))
+ 					{
+ 						iTempValue *= -1;
+ 
+@@ -3702,6 +3798,7 @@
+ 	bool bDanger;
+ 	bool bWait;
+ 	bool bEssential;
++	bool bGrowth;
+ 	int iI, iJ;
+ 
+ 	FAssert(!isHuman() || isProductionAutomated());
+@@ -3728,6 +3825,7 @@
+ 
+ 			iMinTurns = MAX_INT;
+ 			bEssential = false;
++			bGrowth = false;
+ 
+ 			// Whip to eliminate unhappiness - thank you Blake!
+ 			if (getProduction() > 0)
+@@ -3793,6 +3891,10 @@
+ 						{
+ 						    bEssential = true;
+ 						    iMinTurns = min(iMinTurns, 5);
++						    if (AI_countNumBonuses(NO_BONUS, false, true, 2) > 0)
++						    {
++						    	bGrowth = true;						    	
++						    }
+ 						}
+ 					}
+ 				}
+@@ -3824,8 +3926,13 @@
+ 			{
+ 				if (GC.getBuildingInfo(eProductionBuilding).getSeaPlotYieldChange(YIELD_FOOD) > 0)
+ 				{
++					
+ 					iMinTurns = min(iMinTurns, 10);
+-					bEssential = true;
++					if (AI_buildingSpecialYieldChangeValue(eProductionBuilding, YIELD_FOOD) > 10)
++					{
++						bEssential = true;
++						bGrowth = true;
++					}
+ 				}
+ 			}
+ 
+@@ -3848,6 +3955,7 @@
+ 					if (getMaintenance() >= 10)
+ 					{
+ 						iMinTurns = min(iMinTurns, 10);
++						bEssential = true;
+ 					}
+ 				}
+ 			}
+@@ -3904,6 +4012,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -3943,6 +4052,7 @@
+ 						{
+ 							iMinTurns = min(iMinTurns, 5);
+ 							bEssential = true;
++							bGrowth = true;
+ 						}
+ 					}
+ 				}
+@@ -3968,6 +4078,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -3977,6 +4088,7 @@
+ 				{
+ 					iMinTurns = min(iMinTurns, 5);
+ 					bEssential = true;
++					bGrowth = true;
+ 				}
+ 			}
+ 
+@@ -4000,16 +4112,30 @@
+ 
+ 			iMinTurns /= 100;
+ 
++			//this overrides everything.
++			if (bGrowth)
++			{
++				if (AI_countGoodTiles((healthRate(0) == 0), false, 90) <= (getPopulation() - iHurryPopulation))
++				{
++					hurry((HurryTypes)iI);
++					break;					
++				}
++			}
+ 			if (getProductionTurnsLeft() > iMinTurns)
+ 			{
+ 				bWait = false;
++				
++				if ((iHurryPopulation * 3) > (getProductionTurnsLeft * 2))
++				{
++				    bWait = true;
++				}
+ 
+ 				if (!bWait)
+ 				{
+ 					if (iHurryAngerLength > 0)
+ 					{
+ 						//is the whip just too small or the population just too reduced to bother?
+-						if ((iHurryPopulation < 1 + GC.getDefineINT("HURRY_POP_ANGER") && !bEssential) || ((getPopulation() - iHurryPopulation) <= max(3, (getHighestPopulation() / 2))))
++						if (!bEssential && ((iHurryPopulation < (1 + GC.getDefineINT("HURRY_POP_ANGER"))) || ((getPopulation() - iHurryPopulation) <= max(3, (getHighestPopulation() / 2)))))
+ 						{
+ 							bWait = true;
+ 						}
+@@ -5722,12 +5848,20 @@
+         {
+             if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+             {
++                
+                 if ((eOldRoute == NO_ROUTE) || (GC.getRouteInfo(eRoute).getValue() > GC.getRouteInfo(eOldRoute).getValue()))
+                 {
+                     int iTempValue = 0;
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_FOOD)) * 100);
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_PRODUCTION)) * 60);
+                     iTempValue += ((GC.getImprovementInfo(pPlot->getImprovementType()).getRouteYieldChanges(eRoute, YIELD_COMMERCE)) * 40);
++                    
++                    //road up bonuses if sort of bored.
++                    if ((eOldRoute == NO_ROUTE) && (eBonus != NO_BONUS))
++                    {
++                        iTempValue += (pPlot->isConnectedToCapital() ? 10 : 30);
++                    }
++                    
+                     if (iTempValue > 0)
+                     {
+                         for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+@@ -5750,6 +5884,7 @@
+                             }
+                         }
+                     }
++                    
+                 }
+             }
+         }
+@@ -6219,6 +6354,90 @@
+     }
+ }
+ 
++// +1/+3/+5 plot based on base food yield (1/2/3)
++// +4 if being worked.
++// +4 if a bonus.
++// Unworked ocean ranks very lowly. Unworked lake ranks at 3. Worked lake at 7.
++// Worked bonus in ocean ranks at like 11
++int CvCityAI::AI_buildingSpecialYieldChangeValue(BuildingTypes eBuilding, YieldTypes eYield)
++{
++    int iI;
++    CvPlot* pLoopPlot;
++    int iValue = 0;
++    CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++    
++    int iYieldChange = kBuilding.getSeaPlotYieldChange(eYield);
++    if (iYieldChange > 0)
++    {
++        int iWaterCount = 0;
++        int iWorkedWaterCount = 0;
++        for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++        {
++            if (iI != CITY_HOME_PLOT)
++            {
++                pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++                if ((pLoopPlot != NULL) && (pLoopPlot->getWorkingCity() == this))
++                {
++                    if (pLoopPlot->isWater())
++                    {
++                        iWaterCount++;
++                        iValue += max(0, (pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam(), false)) * 2 - 1);
++                        iValue += (pLoopPlot->isBeingWorked() ? 4 : 0);
++                        iValue += ((pLoopPlot->getBonusType(getTeam()) != NO_BONUS) ? 4 : 0);
++                    }
++                }
++            }
++        }
++    }
++     
++    
++
++    return iValue;
++}
++
++
++int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold)
++{
++    CvPlot* pLoopPlot;
++    BonusTypes eLoopBonus;
++    int iI;
++    int iCount = 0;
++    for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++    {
++        pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++        
++        if (pLoopPlot != NULL)
++        {
++            eLoopBonus = pLoopPlot->getBonusType(getTeam());
++            if (eLoopBonus != NO_BONUS)
++            {
++                if ((eBonus == NO_BONUS) || (eBonus == eLoopBonus))
++                {
++                    if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()))
++                    {
++                        iCount++;                    
++                    }
++                    else if (bIncludeNeutral && (!pLoopPlot->isOwned()))
++                    {
++                        iCount++;
++                    }
++                    else if ((iOtherCultureThreshold > 0) && (pLoopPlot->isOwned() && (pLoopPlot->getOwnerINLINE() != getOwnerINLINE())))
++                    {
++                        if ((pLoopPlot->getCulture(pLoopPlot->getOwnerINLINE()) - pLoopPlot->getCulture(getOwnerINLINE())) < iOtherCultureThreshold)
++                        {
++                            iCount++;
++                        }                        
++                    }
++                }
++            }
++        }
++    }
++    
++    
++    return iCount;    
++    
++}
++
+ //
+ //
+ //
+@@ -6250,6 +6469,36 @@
+ 	pStream->Read(NUM_CITY_PLOTS, (int*)m_aeBestBuild);
+ 
+ 	pStream->Read(GC.getNumEmphasizeInfos(), m_pbEmphasize);
++
++	CvExtraSaveData& extraSaveData = GC.getMapINLINE().getExtraSaveDataClass();
++	int iVersion;
++	if (extraSaveData.getSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_VERSION, iVersion))
++	{
++		if (iVersion == CITYEXTRADATA_CURRENTVERSION)
++		{
++#ifdef TESTING_EXTRA_SAVE_DATA
++			int iValue;
++			if (extraSaveData.getSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_XCOORD, iValue))
++			{
++				FAssertMsg(iValue == m_iX, "TESTING_EXTRA_SAVE_DATA integrity check failed");
++			}
++			if (extraSaveData.getSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_YCOORD, iValue))
++			{
++				FAssertMsg(iValue == m_iY, "TESTING_EXTRA_SAVE_DATA integrity check failed");
++			}
++#else
++			//int iValue;
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_UNUSED1, iValue))
++			//{
++			//	m_unused1 = iValue;
++			//}
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_UNUSED2, iValue))
++			//{
++			//	m_unused2 = iValue;
++			//}
++#endif
++		}
++	}
+ }
+ 
+ //
+@@ -6285,3 +6534,21 @@
+ 	pStream->Write(GC.getNumEmphasizeInfos(), m_pbEmphasize);
+ }
+ 
++void CvCityAI::writeExtraSaveData(CvExtraSaveData& extraSaveData)
++{
++	int iVersion = CITYEXTRADATA_CURRENTVERSION;
++	extraSaveData.setSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_VERSION, iVersion);
++
++#ifdef TESTING_EXTRA_SAVE_DATA
++	extraSaveData.setSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_XCOORD, m_iX);
++	extraSaveData.setSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_YCOORD, m_iY);
++#else
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_UNUSED1, iUnused);
++	
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_CITY, m_iID, m_eOwner, CITYEXTRADATA_UNUSED2, iUnused);
++#endif
++}
++
++
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@181
+@@ -4,6 +4,8 @@
+ #define CIV4_CITY_AI_H
+ 
+ #include "CvCity.h"
++
++class CvExtraSaveData;
+ 
+ class CvCityAI : public CvCity
+ {
+@@ -92,6 +94,8 @@
+     void CvCityAI::AI_setCityRole(int iOnFlags, int iOffFlags = 0);
+     void AI_resetCityRoles();
+     int AI_getCityImportance(bool bEconomy, bool bMilitary);
++    
++    int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold);
+ 
+ 	DllExport void read(FDataStreamBase* pStream);
+ 	DllExport void write(FDataStreamBase* pStream);
+@@ -153,6 +157,11 @@
+ 	
+ 	void AI_stealPlots();
+ 	
++	int AI_buildingSpecialYieldChangeValue(BuildingTypes kBuilding, YieldTypes eYield);
++	
++	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
++	friend CvExtraSaveData;
++
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+ };
+
+Index: /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.cpp
+--- /dev/null
++++ /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.cpp@181
+@@ -0,0 +1,1244 @@
++// extraSaveData.cpp
++
++#include "CvGameCoreDLL.h"
++#include "CvExtraSaveData.h"
++#include "CvMap.h"
++#include "CvPlot.h"
++#include "CvTeamAI.h"
++#include "CvPlayerAI.h"
++#include "FFreeListTrashArray.h"
++
++// Public Functions...
++
++
++CvExtraCityDataArray::CvExtraCityDataArray()
++{
++	for (int iOwner = 0; iOwner < MAX_PLAYERS; iOwner++)
++	{
++		m_cityDataAllocation[iOwner] = 0;
++		m_cityDataCount[iOwner] = 0;
++		m_cityData[iOwner] = NULL;
++	}
++}
++
++CvExtraCityDataArray::~CvExtraCityDataArray()
++{
++	for (int iOwner = 0; iOwner < MAX_PLAYERS; iOwner++)
++	{
++		SAFE_DELETE_ARRAY(m_cityData[iOwner]);
++	}
++}
++
++bool CvExtraCityDataArray::initOwner(short iOwner, short iSize)
++{
++	// do we already have a big enough pool allocated?
++	if (m_cityDataAllocation[iOwner] >= iSize)
++	{
++		return true;
++	}
++	
++	// otherwise, increase our allocation
++	return increaseAllocation(iOwner, iSize);
++}
++
++
++CvExtraSaveDataNode* CvExtraCityDataArray::getCityExtraDataNode(short iCityID, short iOwner, short iNodeIndex, bool bCreate)
++{
++	FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++	FAssertMsg(iNodeIndex >= 0 && iNodeIndex < EXTRASAVEDATA_MAX_CITY_VALUES, "city value index out of range");
++
++	if (!(iOwner >= 0 && iOwner < MAX_PLAYERS) || !(iNodeIndex >= 0 && iNodeIndex < EXTRASAVEDATA_MAX_CITY_VALUES))
++	{
++		return NULL;
++	}
++	
++	CvExtraSaveDataNode* saveDataNode = NULL;
++		
++	// does it already exist?
++	CvExtraCityData* pExtraCityData = findCityExtraData(iCityID, iOwner);
++	
++	// do we need to add it?
++	if (pExtraCityData == NULL && bCreate)
++	{
++		pExtraCityData = addCityExtraData(iCityID, iOwner);
++	}
++
++	// do we now have a valid item
++	if (pExtraCityData != NULL)
++	{
++		// do we need to increment the node count?
++		if (bCreate && iNodeIndex >= pExtraCityData->iNodeCount)
++		{
++			// zero fill the extras
++			while (pExtraCityData->iNodeCount < iNodeIndex)
++			{
++				pExtraCityData->aNodes[pExtraCityData->iNodeCount++].iValue = 0;
++			}
++			
++			pExtraCityData->iNodeCount++;
++			FAssertMsg(pExtraCityData->iNodeCount == iNodeIndex + 1, "node count out of sync");
++		}
++		
++		// is the index in range?
++		FAssertMsg(iNodeIndex < pExtraCityData->iNodeCount, "city value index out of range");
++		if (iNodeIndex < pExtraCityData->iNodeCount)
++		{
++			// get the node
++			saveDataNode = &pExtraCityData->aNodes[iNodeIndex];
++		}
++	}
++
++	return saveDataNode;
++}
++
++bool CvExtraCityDataArray::increaseAllocation(short iOwner, short iSize)
++{
++	FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++
++	bool bSuccess = false;
++	
++	int iOldAllocation = m_cityDataAllocation[iOwner];
++	// double allocation (min allocation 4)
++	int iNewAllocation = (iOldAllocation > 2) ? (iOldAllocation * 2) : 4;
++	// if we asked for a size even larger than that, use it
++	if (iSize > iNewAllocation)
++	{
++		iNewAllocation = iSize;
++	}
++	
++	// allocate new
++	CvExtraCityData* aExtraCityData = new CvExtraCityData[iNewAllocation];
++	
++	FAssertMsg(aExtraCityData != NULL, "failed to allocate city data array");
++	if (aExtraCityData != NULL)
++	{
++		// did we already have an allocation?
++		if (iOldAllocation > 0)
++		{
++			// copy old data
++			for (int iI = 0; iI < m_cityDataCount[iOwner]; iI++)
++			{
++				aExtraCityData[iI] = m_cityData[iOwner][iI];
++			}
++
++			// dispose of old allocation
++			SAFE_DELETE_ARRAY(m_cityData[iOwner]);
++		}
++		
++		FAssertMsg(m_cityData[iOwner] == NULL, "leaking memory");
++
++		// set to new size and pointer
++		m_cityDataAllocation[iOwner] = iNewAllocation;
++		m_cityData[iOwner] = aExtraCityData;
++
++		bSuccess = true;
++	}
++
++	return bSuccess;
++}
++
++CvExtraCityData* CvExtraCityDataArray::findCityExtraData(short iCityID, short iOwner)
++{
++	FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++	
++	if (!(iOwner >= 0 && iOwner < MAX_PLAYERS))
++	{
++		return NULL;
++	}
++	
++	CvExtraCityData* pExtraCityData = NULL;
++	
++	// find the city ID already from our list
++	for (int iCityIndex = 0; pExtraCityData == NULL && iCityIndex < m_cityDataCount[iOwner]; iCityIndex++)
++	{
++		FAssertMsg(m_cityData[iOwner][iCityIndex].iCityID != -1, "city ID invalid (-1)");
++		if (m_cityData[iOwner][iCityIndex].iCityID == iCityID)
++		{
++			pExtraCityData = &m_cityData[iOwner][iCityIndex];
++		}
++	}
++	
++	return pExtraCityData;
++}
++
++CvExtraCityData* CvExtraCityDataArray::addCityExtraData(short iCityID, short iOwner)
++{
++	FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++	FAssertMsg(findCityExtraData(iCityID, iOwner) == NULL, "adding city which already exists");
++	
++	CvExtraCityData* pExtraCityData = NULL;
++	
++	// the new slot (at the end)
++	int iCityIndex = m_cityDataCount[iOwner];
++
++	// do we need to re-allocate?
++	bool bSuccess = false;
++	if (iCityIndex >= m_cityDataAllocation[iOwner])
++	{
++		bSuccess = increaseAllocation(iOwner, iCityIndex);
++	}
++
++	// do we have room for the new value? (true unless memory allocation failed)
++	FAssertMsg(iCityIndex < m_cityDataAllocation[iOwner], "unable to add city data");
++	if (iCityIndex < m_cityDataAllocation[iOwner])
++	{
++		// expand count
++		FAssertMsg (iCityIndex == m_cityDataCount[iOwner], "city index out of order")
++		m_cityDataCount[iOwner] = iCityIndex + 1;
++		
++		// remember pointer to next extraCityData
++		pExtraCityData = &m_cityData[iOwner][iCityIndex];
++
++		// initialize ID and count
++		pExtraCityData->iCityID = iCityID;
++		pExtraCityData->iNodeCount = 0;
++	}
++
++	return pExtraCityData;
++}
++
++/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++
++CvExtraSaveData::CvExtraSaveData()
++{
++	m_bValidForRead = false;
++	m_bValidForWrite = false;
++	m_bValidForRestore = false;
++
++	m_aiOldFoundValuesSize = 0;
++	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++	{
++		m_aiOldFoundValues[iJ] = NULL;
++	}
++}
++
++CvExtraSaveData::~CvExtraSaveData()
++{
++	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++	{
++		SAFE_DELETE_ARRAY(m_aiOldFoundValues[iJ]);
++	}
++}
++
++// sets values from the plots, returns success
++bool CvExtraSaveData::setupForRead(CvMap& kMap)
++{
++	// zero map data
++	m_mapDataCount = 0;
++
++	// zero team data for each team
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
++	{
++		m_teamDataCount[0] = 0;
++	}
++
++	// zero player data for each player
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		m_playerDataCount[0] = 0;
++	}
++
++	bool bValid;
++	
++	// read in the header
++	int iIndex = 0;
++	CvExtraSaveDataHeader header;
++	bValid = popHeader(kMap, iIndex, header);
++	
++	// only used for later assert
++	bool bHeaderExists = bValid;
++
++	// confirm ValidCheck
++	if (bValid)
++	{
++		if (header.iValidCheck1 != kExtraSaveData_validCheck1 || header.iValidCheck2 != kExtraSaveData_validCheck2 ||
++			header.iValidCheck3 != kExtraSaveData_validCheck3)
++		{
++			bValid = false;
++		}
++	}
++	
++	// confirm size, larger than we expect is alright, smaller is not currently (all sizes are count of ints)
++	// should update this if the save file format is increased, to deal with smaller sizes if we can handle them
++	if (bValid)
++	{
++		if (header.iHeaderSize < (sizeof(CvExtraSaveDataHeader) / sizeof(short)))
++		{
++			bValid = false;
++		}
++		else if (header.iNodeHeaderSize < (sizeof(CvExtraSaveDataNodeHeader) / sizeof(short)))
++		{
++			bValid = false;
++		}
++		else if (header.iNodeSize < (sizeof(CvExtraSaveDataNode) / sizeof(short)))
++		{
++			bValid = false;
++		}
++	}
++	
++	FAssertMsg(bHeaderExists == bValid, "extra save info header exists but was invalid");
++
++	// valid header, update iIndex
++	if (bValid)
++	{
++		iIndex += header.iHeaderSize;
++	}
++	
++	// if a valid header, read in the nodes
++	bool bFinished = false;
++	int iMapIndex = 0;
++	int iTeamIndex = 0;
++	int iPlayerIndex = 0;
++	while (bValid && !bFinished)
++	{
++		CvExtraSaveDataNodeHeader nodeHeader;
++		bValid = popNodeHeader(kMap, iIndex, nodeHeader);
++		iIndex += header.iNodeHeaderSize;
++
++		FAssertMsg(bValid, "extra save info exists but was invalid");
++		
++		if (bValid)
++		{
++			switch (nodeHeader.eType)
++			{
++			case EXTRASAVEDATA_MAP:
++				FAssertMsg(iMapIndex == 0, "more than one map header in extra saved data");
++				FAssertMsg(nodeHeader.iID == 0, "map header has non-zero owner in extra saved data");
++				FAssertMsg(nodeHeader.iCount <= EXTRASAVEDATA_MAX_MAP_VALUES, "more map values than max in extra saved data");
++				
++				if (iMapIndex == 0 && nodeHeader.iID == 0)
++				{
++					// if there are more stored values than we can use, only use the number we can use
++					// we assume here that extra values are for newer DLLs than us, and that order was not changed
++					if (nodeHeader.iCount > EXTRASAVEDATA_MAX_MAP_VALUES)
++					{
++						nodeHeader.iCount = EXTRASAVEDATA_MAX_MAP_VALUES;
++					}
++					
++					// remember count
++					m_mapDataCount = nodeHeader.iCount;
++
++					// loop over each node
++					for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++					{
++						CvExtraSaveDataNode node;
++						bValid = popNode(kMap, iIndex, node);
++						iIndex += header.iNodeSize;
++							
++						// remember data
++						if (bValid)
++						{
++							m_mapData[iI] = node;
++						}
++					}
++				}
++
++				iMapIndex++;
++				break;
++
++			case EXTRASAVEDATA_TEAM:
++				FAssertMsg(iTeamIndex < MAX_TEAMS, "too many teams in extra saved data");
++				FAssertMsg(nodeHeader.iID >= 0 && nodeHeader.iID < MAX_TEAMS, "team header has team out of range in extra saved data");
++				FAssertMsg(nodeHeader.iCount <= EXTRASAVEDATA_MAX_TEAM_VALUES, "more team values than max in extra saved data");
++				
++				if (iTeamIndex < MAX_TEAMS && nodeHeader.iID >= 0 && nodeHeader.iID < MAX_TEAMS)
++				{
++					// if there are more stored values than we can use, only use the number we can use
++					// we assume here that extra values are for newer DLLs than us, and that order was not changed
++					if (nodeHeader.iCount > EXTRASAVEDATA_MAX_TEAM_VALUES)
++					{
++						nodeHeader.iCount = EXTRASAVEDATA_MAX_TEAM_VALUES;
++					}
++					
++					// remember our count
++					m_teamDataCount[nodeHeader.iID] = nodeHeader.iCount;
++
++					// loop over each node
++					for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++					{
++						CvExtraSaveDataNode node;
++						bValid = popNode(kMap, iIndex, node);
++						iIndex += header.iNodeSize;
++							
++						// remember data
++						if (bValid)
++						{
++							m_teamData[nodeHeader.iID][iI] = node;
++						}
++					}
++				}
++
++				iTeamIndex++;
++				break;
++
++			case EXTRASAVEDATA_PLAYER:
++				FAssertMsg(iTeamIndex < MAX_PLAYERS, "too many players in extra saved data");
++				FAssertMsg(nodeHeader.iID >= 0 && nodeHeader.iID < MAX_PLAYERS, "player header has player out of range in extra saved data");
++				FAssertMsg(nodeHeader.iCount <= EXTRASAVEDATA_MAX_PLAYER_VALUES, "more player values than max in extra saved data");
++				
++				if (iPlayerIndex < MAX_PLAYERS && nodeHeader.iID >= 0 && nodeHeader.iID < MAX_PLAYERS)
++				{
++					// if there are more stored values than we can use, only use the number we can use
++					// we assume here that extra values are for newer DLLs than us, and that order was not changed
++					if (nodeHeader.iCount > EXTRASAVEDATA_MAX_PLAYER_VALUES)
++					{
++						nodeHeader.iCount = EXTRASAVEDATA_MAX_PLAYER_VALUES;
++					}
++					
++					// remember our count
++					m_playerDataCount[nodeHeader.iID] = nodeHeader.iCount;
++
++					// loop over each node
++					for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++					{
++						CvExtraSaveDataNode node;
++						bValid = popNode(kMap, iIndex, node);
++						iIndex += header.iNodeSize;
++							
++						// remember data
++						if (bValid)
++						{
++							m_playerData[nodeHeader.iID][iI] = node;
++						}
++					}
++				}
++
++				iPlayerIndex++;
++				break;
++
++			case EXTRASAVEDATA_CITY:
++				FAssertMsg(nodeHeader.iOwner >= 0 && nodeHeader.iOwner < MAX_PLAYERS, "city header has player out of range in extra saved data");
++				FAssertMsg(nodeHeader.iCount <= EXTRASAVEDATA_MAX_CITY_VALUES, "more city values than max in extra saved data");
++
++				// is player ID in range?
++				if (nodeHeader.iOwner >= 0 && nodeHeader.iOwner < MAX_PLAYERS)
++				{
++					// if there are more stored values than we can use, only use the number we can use
++					// we assume here that extra values are for newer DLLs than us, and that order was not changed
++					if (nodeHeader.iCount > EXTRASAVEDATA_MAX_CITY_VALUES)
++					{
++						nodeHeader.iCount = EXTRASAVEDATA_MAX_CITY_VALUES;
++					}
++					
++					// loop over each node
++					for (int iNodeIndex = 0; bValid && iNodeIndex < nodeHeader.iCount; iNodeIndex++)
++					{
++						// get the node from our city array, creating the entry if necessary
++						CvExtraSaveDataNode* pNode = m_cityDataArray.getCityExtraDataNode(nodeHeader.iID, nodeHeader.iOwner, iNodeIndex, /*bCreate*/ true);
++						if (pNode == NULL)
++						{
++							bValid = false;
++						}
++						
++						// pop the data into that node
++						if (bValid)
++						{
++							bValid = popNode(kMap, iIndex, *pNode);
++							iIndex += header.iNodeSize;
++						}
++					}
++				}
++				break;
++
++			default:
++				FAssertMsg(false, "unknown type in extra saved data");
++				break;
++			}
++		}
++		
++		// if we have read in everything, we are finished
++		if (iIndex == header.iSize)
++		{
++			bFinished = true;
++		}
++	}
++
++	m_bValidForRead = bValid;
++
++	return m_bValidForRead;
++}
++
++// cleans the plot values, all used values set to -1, returns whether any were cleaned
++bool CvExtraSaveData::cleanPlotValues(CvMap& kMap)
++{
++	// clean values, anything less than -1 gets set to -1
++	bool bCleaned = false;
++	for (int iI = 0; iI < kMap.numPlotsINLINE(); iI++)
++	{		
++		CvPlot* pPlot = kMap.plotByIndexINLINE(iI);
++		FAssertMsg(pPlot != NULL, "NULL plot by index!");
++
++		if (pPlot != NULL)
++		{
++			for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
++			{
++				if (pPlot->m_aiFoundValue[iJ] < -1)
++				{
++					pPlot->m_aiFoundValue[iJ] = -1;
++					bCleaned = true;
++				}
++			}
++		}
++	}
++	
++	return bCleaned;
++}
++
++// sets values from the classes, returns success
++bool CvExtraSaveData::setupForWrite(CvMap& kMap)
++{
++	// is there room to store our info?
++	int iMaxTotalSize = calculateMaxTotalSize();
++	if (kMap.numPlotsINLINE() * MAX_PLAYERS >= iMaxTotalSize)
++	{
++		// as long as we have room, we will write out our data (must set before calling writeExtraSaveData)
++		m_bValidForWrite = true;
++
++		// zero map data
++		m_mapDataCount = 0;
++		// have map write out its data
++		kMap.writeExtraSaveData(*this);
++
++		// teams
++		for (int iTeamIndex = 0; iTeamIndex < MAX_TEAMS; iTeamIndex++)
++		{
++			// zero team data for team
++			m_teamDataCount[0] = 0;
++			// have team write out its data
++			GET_TEAM((TeamTypes)iTeamIndex).writeExtraSaveData(*this);
++		}
++		
++		// players
++		for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++		{
++			// zero player data for team
++			m_playerDataCount[0] = 0;
++			// have player write out its data
++			GET_PLAYER((PlayerTypes)iPlayerIndex).writeExtraSaveData(*this);
++		}
++
++		// cities
++		for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++		{
++			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iPlayerIndex);
++			
++			// if we successfully initialize our city data array for this player
++			if (m_cityDataArray.initOwner(iPlayerIndex, kPlayer.getNumCities()))
++			{
++				// ask each city to save its extra data
++				int iLoop;
++				for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
++				{
++					CvCityAI* pLoopCityAI = static_cast<CvCityAI*>(pLoopCity);
++					pLoopCityAI->writeExtraSaveData(*this);
++				}
++			}
++		}
++	}
++	
++	FAssertMsg(m_bValidForWrite, "unable to write extra data");
++
++	return m_bValidForWrite;
++}
++
++// writes values to the plots, returns success
++bool CvExtraSaveData::writeToPlots(CvMap& kMap)
++{
++	FAssertMsg(m_bValidForWrite, "invalid to write extra data");
++	
++	if (!m_bValidForWrite)
++	{
++		return false;
++	}
++	
++	// start out valid
++	bool bValid = true;
++
++	// save the old plot found values
++	savePlotValues(kMap);
++
++	// set up the header	
++	CvExtraSaveDataHeader header;
++	header.iValidCheck1 = kExtraSaveData_validCheck1;
++	header.iValidCheck2 = kExtraSaveData_validCheck2;
++	header.iValidCheck3 = kExtraSaveData_validCheck3;
++	header.iHeaderSize = sizeof(CvExtraSaveDataHeader) / sizeof(short);
++	header.iNodeHeaderSize = sizeof(CvExtraSaveDataNodeHeader) / sizeof(short);
++	header.iNodeSize = sizeof(CvExtraSaveDataNode) / sizeof(short);
++	header.iSize = header.iHeaderSize; // note we will re-write out the header with the correct size at the end
++	int iIndex = 0;
++	bValid = pushHeader(kMap, iIndex, header);
++	iIndex += header.iHeaderSize;
++	
++	// used for all
++	CvExtraSaveDataNodeHeader nodeHeader;
++
++	// write out the map data
++	if (bValid && m_mapDataCount > 0)
++	{
++		nodeHeader.iID = 0;
++		nodeHeader.iOwner = 0;
++		nodeHeader.eType = EXTRASAVEDATA_MAP;
++		nodeHeader.iCount = m_mapDataCount;
++		bValid = pushNodeHeader(kMap, iIndex, nodeHeader);
++		iIndex += header.iNodeHeaderSize;
++		
++		// write out the nodes
++		for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++		{
++			bValid = pushNode(kMap, iIndex, m_mapData[iI]);
++			iIndex += header.iNodeSize;
++		}
++	}
++
++	// write out the teams data
++	for (int iTeamIndex = 0; bValid && iTeamIndex < MAX_TEAMS; iTeamIndex++)
++	{
++		if (m_teamDataCount[iTeamIndex] > 0)
++		{
++			nodeHeader.iID = iTeamIndex;
++			nodeHeader.iOwner = 0;
++			nodeHeader.eType = EXTRASAVEDATA_TEAM;
++			nodeHeader.iCount = m_teamDataCount[iTeamIndex];
++			bValid = pushNodeHeader(kMap, iIndex, nodeHeader);
++			iIndex += header.iNodeHeaderSize;
++			
++			// write out the nodes
++			for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++			{
++				bValid = pushNode(kMap, iIndex, m_teamData[iTeamIndex][iI]);
++				iIndex += header.iNodeSize;
++			}
++		}
++	}
++
++	// write out the players data
++	for (int iPlayerIndex = 0; bValid && iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++	{
++		if (m_playerDataCount[iPlayerIndex] > 0)
++		{
++			nodeHeader.iID = iPlayerIndex;
++			nodeHeader.iOwner = 0;
++			nodeHeader.eType = EXTRASAVEDATA_PLAYER;
++			nodeHeader.iCount = m_playerDataCount[iPlayerIndex];
++			bValid = pushNodeHeader(kMap, iIndex, nodeHeader);
++			iIndex += header.iNodeHeaderSize;
++			
++			// write out the nodes
++			for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++			{
++				bValid = pushNode(kMap, iIndex, m_playerData[iPlayerIndex][iI]);
++				iIndex += header.iNodeSize;
++			}
++		}
++	}
++
++	// write out the cities data
++	for (int iPlayerIndex = 0; bValid && iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++	{
++		for (int iCityIndex = 0; iCityIndex < m_cityDataArray.m_cityDataCount[iPlayerIndex]; iCityIndex++)
++		{
++			CvExtraCityData& kCity = m_cityDataArray.m_cityData[iPlayerIndex][iCityIndex];
++			nodeHeader.iID = kCity.iCityID;
++			nodeHeader.iOwner = iPlayerIndex;
++			nodeHeader.eType = EXTRASAVEDATA_CITY;
++			nodeHeader.iCount = kCity.iNodeCount;
++			bValid = pushNodeHeader(kMap, iIndex, nodeHeader);
++			iIndex += header.iNodeHeaderSize;
++			
++			// write out the nodes
++			for (int iI = 0; bValid && iI < nodeHeader.iCount; iI++)
++			{
++				bValid = pushNode(kMap, iIndex, kCity.aNodes[iI]);
++				iIndex += header.iNodeSize;
++			}
++		}
++	}
++
++	// if everything was valid, re-write out the header with a correct size
++	if (bValid)
++	{
++		header.iSize = iIndex;
++		iIndex = 0;
++		bValid = pushHeader(kMap, iIndex, header);
++	}
++
++	FAssertMsg(bValid, "unable to write extra data");
++	
++	// if we failed at some point, restore the found values
++	if (!bValid)
++	{
++		restorePlotValues(kMap);
++	}
++
++	return bValid;
++}
++
++// save the plot values, returns success (called by setupForWrite)
++bool CvExtraSaveData::savePlotValues(CvMap& kMap)
++{
++	bool bValid = true;
++	
++	int iNumPlots = kMap.numPlotsINLINE();
++	int iOldSize = m_aiOldFoundValuesSize;
++	int iNewSize = max(iOldSize, iNumPlots);
++	
++	for (int iPlayerIndex = 0; bValid && iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++	{
++		// if we are too small, reallocate array
++		if (iNewSize != iOldSize)
++		{
++			// dispose of old array if it exists
++			SAFE_DELETE_ARRAY(m_aiOldFoundValues[iPlayerIndex]);
++
++			// allocate new array
++			m_aiOldFoundValues[iPlayerIndex] = new short[iNewSize];
++		}
++
++		// if we got it, then set the values
++		if (m_aiOldFoundValues[iPlayerIndex] != NULL)
++		{
++			for (int iPlotIndex = 0; bValid && iPlotIndex < iNumPlots; iPlotIndex++)
++			{		
++				CvPlot* pPlot = kMap.plotByIndexINLINE(iPlotIndex);
++				FAssertMsg(pPlot != NULL, "NULL plot by index!");
++
++				if (pPlot != NULL)
++				{
++					m_aiOldFoundValues[iPlayerIndex][iPlotIndex] = pPlot->m_aiFoundValue[iPlayerIndex];
++				}
++				else 
++				{
++					m_aiOldFoundValues[iPlayerIndex][iPlotIndex] = -1;
++					bValid = false;
++				}
++			}
++		}
++		else
++		{
++			bValid = false;
++		}
++	}
++	
++	// if success, reset size
++	if (bValid)
++	{
++		m_aiOldFoundValuesSize = iNewSize;
++	}
++	
++	m_bValidForRestore = bValid;
++
++	return m_bValidForRestore;
++}
++
++// restores the plot values, returns success
++bool CvExtraSaveData::restorePlotValues(CvMap& kMap)
++{
++	if (!m_bValidForRestore)
++	{
++		return false;
++	}
++	
++	// restore values
++	bool bError = false;
++	for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++	{
++		// if array exists, restore the values
++		int iNumPlots = kMap.numPlotsINLINE();
++
++		FAssertMsg(m_aiOldFoundValues[iPlayerIndex] != NULL, "m_bValidForRestore true but we have NULL found values array");
++		FAssertMsg(m_aiOldFoundValuesSize >= iNumPlots, "m_aiOldFoundValues array too small");
++
++		if (m_aiOldFoundValues[iPlayerIndex] != NULL)
++		{
++			for (int iPlotIndex = 0; iPlotIndex < iNumPlots; iPlotIndex++)
++			{		
++				CvPlot* pPlot = kMap.plotByIndexINLINE(iPlotIndex);
++				FAssertMsg(pPlot != NULL, "NULL plot by index!");
++
++				if (pPlot != NULL)
++				{
++					pPlot->m_aiFoundValue[iPlayerIndex] = m_aiOldFoundValues[iPlayerIndex][iPlotIndex];
++				}
++				else 
++				{
++					bError = true;
++				}
++			}
++		}
++		else
++		{
++			bError = true;
++		}
++	}
++	
++	return !bError;
++}
++
++// called when read or write finished
++bool CvExtraSaveData::invalidate(void)
++{
++	m_bValidForRead = false;
++	m_bValidForWrite = false;
++	m_bValidForRestore = false;
++
++	return true;
++}
++
++// called by CvMap, CvTeamAI, CvPlayerAI, CvCityAI
++bool CvExtraSaveData::getSaveData(ExtraSaveDataType eType, int iID, int iOwner, int iIndex, int& iValue)
++{
++	// if we not valid for read, we probably are using a save file without any info
++	//FAssertMsg(m_bValidForRead, "save data not valid for reading");
++	if (!m_bValidForRead)
++	{
++		return false;
++	}
++	
++	bool bValid = false;
++	iValue = -1;
++
++	switch (eType)
++	{
++	case EXTRASAVEDATA_MAP:
++		FAssertMsg(iOwner == 0, "map data get from non-zero owner");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_MAP_VALUES, "map values index out of range");
++		
++		if (iIndex >= 0 && iIndex < m_mapDataCount)
++		{
++			// get the value
++			iValue = m_mapData[iIndex].iValue;
++			bValid = true;
++		}
++		break;
++
++	case EXTRASAVEDATA_TEAM:
++		FAssertMsg(iOwner >= 0 && iOwner < MAX_TEAMS, "team out of range");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_TEAM_VALUES, "team value index out of range");
++		
++		if (iOwner >= 0 && iOwner < MAX_TEAMS &&
++			iIndex >= 0 && iIndex < m_teamDataCount[iOwner])
++		{
++			// get the value
++			iValue = m_teamData[iOwner][iIndex].iValue;
++			bValid = true;
++		}
++		break;
++
++	case EXTRASAVEDATA_PLAYER:
++		FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "player out of range");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_PLAYER_VALUES, "player value index out of range");
++		
++		if (iOwner >= 0 && iOwner < MAX_PLAYERS &&
++			iIndex >= 0 && iIndex < m_playerDataCount[iOwner])
++		{
++			// get the value
++			iValue = m_playerData[iOwner][iIndex].iValue;
++			bValid = true;
++		}
++		break;
++	
++	case EXTRASAVEDATA_CITY:
++		FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_CITY_VALUES, "city value index out of range");
++		
++		// cityIDs are huge numbers, but we know they are a FFreeListTrashArray ID, so just take the index, which is 12 bits
++		iID = (iID & FLTA_INDEX_MASK);
++
++		CvExtraSaveDataNode* pNode;
++		pNode = m_cityDataArray.getCityExtraDataNode(iID, iOwner, iIndex);
++		// do we now have a valid item
++		if (pNode != NULL)
++		{
++			// get the value
++			iValue = pNode->iValue;
++			bValid = true;
++		}
++		break;
++	
++	default:
++		FAssertMsg(false, "unknown type");
++		break;
++	}
++
++	return bValid;
++}
++
++// called by CvMap, CvTeamAI, CvPlayerAI, CvCityAI
++bool CvExtraSaveData::setSaveData(ExtraSaveDataType eType, int iID, int iOwner, int iIndex, int iValue)
++{
++	// we should only call this when we are valid for reading
++	FAssertMsg(m_bValidForWrite, "save data not valid for writing");
++	if (!m_bValidForWrite)
++	{
++		return false;
++	}
++
++	// range check
++	FAssertMsg(!(iValue < 0 || iValue == MAX_SHORT), "trying to write value out of range");
++	if (iValue < 0 || iValue == MAX_SHORT)
++	{
++		return false;
++	}
++	
++	bool bValid = false;
++	
++	switch (eType)
++	{
++	case EXTRASAVEDATA_MAP:
++		FAssertMsg(iID == 0, "map data set to non-zero iID");
++		FAssertMsg(iOwner == 0, "map data set to non-zero owner");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_MAP_VALUES, "map values index out of range");
++		
++		if (iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_MAP_VALUES)
++		{
++			// if this higher than the count, then set to the max count, zero filling
++			if (m_mapDataCount < (iIndex + 1))
++			{
++				// zero fill the extras
++				while (m_mapDataCount < iIndex)
++				{
++					m_mapData[m_mapDataCount++].iValue = 0;
++				}
++				
++				m_mapDataCount = iIndex + 1;
++			}
++			
++			// set the value
++			m_mapData[iIndex].iValue = iValue;
++			bValid = true;
++		}
++		break;
++
++	case EXTRASAVEDATA_TEAM:
++		FAssertMsg(iID >= 0 && iID < MAX_TEAMS, "team out of range");
++		FAssertMsg(iOwner == 0, "team data set to non-zero owner");
++		FAssertMsg(iIndex >= 0 && iIndex <= EXTRASAVEDATA_MAX_TEAM_VALUES, "team value index out of range");
++		
++		if (iID >= 0 && iID < MAX_TEAMS &&
++			iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_TEAM_VALUES)
++		{
++			// if this higher than the count, then set to the max count, zero filling
++			if (m_teamDataCount[iID] < (iIndex + 1))
++			{
++				// zero fill the extras
++				while (m_teamDataCount[iID] < iIndex)
++				{
++					m_teamData[iID][m_teamDataCount[iID]++].iValue = 0;
++				}
++				
++				m_teamDataCount[iID] = iIndex + 1;
++			}
++			
++			// set the value
++			m_teamData[iID][iIndex].iValue = iValue;
++			bValid = true;
++		}
++		break;
++
++	case EXTRASAVEDATA_PLAYER:
++		FAssertMsg(iID >= 0 && iID < MAX_PLAYERS, "player out of range");
++		FAssertMsg(iOwner == 0, "player data set to non-zero owner");
++		FAssertMsg(iIndex >= 0 && iIndex <= EXTRASAVEDATA_MAX_PLAYER_VALUES, "player value index out of range");
++		
++		if (iID >= 0 && iID < MAX_PLAYERS &&
++			iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_PLAYER_VALUES)
++		{
++			// if this higher than the count, then set to the max count, zero filling
++			if (m_playerDataCount[iID] < (iIndex + 1))
++			{
++				// zero fill the extras
++				while (m_playerDataCount[iID] < iIndex)
++				{
++					m_playerData[iID][m_playerDataCount[iID]++].iValue = 0;
++				}
++				
++				m_playerDataCount[iID] = iIndex + 1;
++			}
++			
++			// set the value
++			m_playerData[iID][iIndex].iValue = iValue;
++			bValid = true;
++		}
++		break;
++
++	case EXTRASAVEDATA_CITY:
++		FAssertMsg(iOwner >= 0 && iOwner < MAX_PLAYERS, "city owner out of range");
++		FAssertMsg(iIndex >= 0 && iIndex < EXTRASAVEDATA_MAX_CITY_VALUES, "city value index out of range");
++		
++		// cityIDs are huge numbers, but we know they are a FFreeListTrashArray ID, so just take the index, which is 12 bits
++		iID = (iID & FLTA_INDEX_MASK);
++
++		// get the node, creating if necessary
++		CvExtraSaveDataNode* pNode;
++		pNode = m_cityDataArray.getCityExtraDataNode(iID, iOwner, iIndex, /*bCreate*/ true);
++		// do we now have a valid item
++		if (pNode != NULL)
++		{
++			// set the value
++			pNode->iValue = iValue;
++			bValid = true;
++		}
++		break;
++
++	default:
++		FAssertMsg(false, "unknown type");
++		break;
++	}
++
++	return bValid;
++}
++
++
++/* protected functions */
++
++// index should be 0 on input for header
++bool CvExtraSaveData::pushHeader(CvMap& kMap, int iIndex, CvExtraSaveDataHeader& header)
++{
++	FAssertMsg(iIndex == 0, "header not being written to the start");
++
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iValidCheck1);
++	}
++
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iValidCheck2);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iValidCheck3);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iHeaderSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iNodeHeaderSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, header.iNodeSize);
++	}
++
++	return bValid;
++}
++
++// index should be 0 on input for header
++bool CvExtraSaveData::popHeader(CvMap& kMap, int iIndex, CvExtraSaveDataHeader& header)
++{
++	FAssertMsg(iIndex == 0, "header not being written to the start");
++
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iValidCheck1);
++	}
++
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iValidCheck2);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iValidCheck3);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iHeaderSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iNodeHeaderSize);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, header.iNodeSize);
++	}
++
++	return bValid;
++}
++
++bool CvExtraSaveData::pushNodeHeader(CvMap& kMap, int iIndex, CvExtraSaveDataNodeHeader& nodeHeader)
++{
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, nodeHeader.eType);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, nodeHeader.iID);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, nodeHeader.iOwner);
++	}
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, nodeHeader.iCount);
++	}
++	
++	return bValid;
++}
++
++bool CvExtraSaveData::popNodeHeader(CvMap& kMap, int iIndex, CvExtraSaveDataNodeHeader& nodeHeader)
++{
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, nodeHeader.eType);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, nodeHeader.iID);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, nodeHeader.iOwner);
++	}
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, nodeHeader.iCount);
++	}
++	
++	return bValid;
++}
++
++bool CvExtraSaveData::pushNode(CvMap& kMap, int iIndex, CvExtraSaveDataNode& node)
++{
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = pushToFoundValues(kMap, iIndex++, node.iValue);
++	}
++	
++	return bValid;
++}
++
++bool CvExtraSaveData::popNode(CvMap& kMap, int iIndex, CvExtraSaveDataNode& node)
++{
++	bool bValid = true;
++	
++	if (bValid)
++	{
++		bValid = popFromFoundValues(kMap, iIndex++, node.iValue);
++	}
++	
++	return bValid;
++}
++
++
++bool CvExtraSaveData::pushToFoundValues(CvMap& kMap, int iIndex, short iValue)
++{
++	FAssertMsg(validValueToEncode(iValue), "trying to push invalid value (can only use 15 bits), must be positive");
++
++	bool bValid = false;
++	
++	if (validValueToEncode(iValue))
++	{
++		int iPlotIndex, iPlayerIndex;
++		indexToPlotIndexPlayerIndex(iIndex, iPlotIndex, iPlayerIndex);
++		FAssertMsg(iPlotIndex < kMap.numPlotsINLINE(), "invalid plot index!");
++		FAssertMsg(iPlayerIndex < MAX_PLAYERS, "invalid player index!");
++		
++		CvPlot* pPlot = kMap.plotByIndexINLINE(iPlotIndex);
++		FAssertMsg(pPlot != NULL, "NULL plot by index!");
++
++		if (pPlot != NULL)
++		{
++			pPlot->m_aiFoundValue[iPlayerIndex] = encodeToFoundValue(iValue);
++			bValid = true;
++		}
++	}
++
++	return bValid;
++}
++
++bool CvExtraSaveData::popFromFoundValues(CvMap& kMap, int iIndex, short& iValue)
++{
++	bool bValid = false;
++	iValue = -1;
++	
++	int iPlotIndex, iPlayerIndex;
++	indexToPlotIndexPlayerIndex(iIndex, iPlotIndex, iPlayerIndex);
++	FAssertMsg(iPlotIndex < kMap.numPlotsINLINE(), "invalid plot index!");
++	FAssertMsg(iPlayerIndex < MAX_PLAYERS, "invalid player index!");
++	
++	CvPlot* pPlot = kMap.plotByIndexINLINE(iPlotIndex);
++	FAssertMsg(pPlot != NULL, "NULL plot by index!");
++
++	if (pPlot != NULL)
++	{
++		short iFoundValue = pPlot->m_aiFoundValue[iPlayerIndex];
++
++		if (validFoundValueToDecode(iFoundValue))
++		{
++			iValue = decodeFromFoundValue(iFoundValue);
++
++			bValid = true;
++		}
++		
++	}
++
++	return bValid;
++}
++
++// total number of shorts to hold all our data
++// can only call this from write, it is not valid on read, we cannot know number of cities yet
++int CvExtraSaveData::calculateMaxTotalSize()
++{
++	int iTotalSize = sizeof(CvExtraSaveDataHeader) / sizeof(short);
++	
++	int iMapDataSize = (sizeof(CvExtraSaveDataNodeHeader) + (sizeof(CvExtraSaveDataNode) * EXTRASAVEDATA_MAX_MAP_VALUES)) / sizeof(short);
++	iTotalSize += iMapDataSize; 
++	
++	int iTeamDataSize = (sizeof(CvExtraSaveDataNodeHeader) + (sizeof(CvExtraSaveDataNode) * EXTRASAVEDATA_MAX_TEAM_VALUES)) / sizeof(short);
++	iTotalSize += iTeamDataSize * MAX_TEAMS; 
++
++	int iPlayerDataSize = (sizeof(CvExtraSaveDataNodeHeader) + (sizeof(CvExtraSaveDataNode) * EXTRASAVEDATA_MAX_PLAYER_VALUES)) / sizeof(short);
++	iTotalSize += iPlayerDataSize * MAX_PLAYERS; 
++	
++	// count cities
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		int iCityCount = GET_PLAYER((PlayerTypes)iI).getNumCities();
++		int iCityDataSize = (sizeof(CvExtraSaveDataNodeHeader) + (sizeof(CvExtraSaveDataNode) * EXTRASAVEDATA_MAX_CITY_VALUES)) / sizeof(short);
++		iTotalSize += iCityDataSize * iCityCount; 
++	}
++
++	return iTotalSize;
++}
++
+
+Index: /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.h
+--- /dev/null
++++ /branches/vanilla/CvGameCoreDLL/CvExtraSaveData.h@181
+@@ -0,0 +1,272 @@
++// extraSaveData.h
++
++/* 
++The purpose of this class is to allow us to save additional data without
++breaking save file compatibility.
++
++On read: we transform data that is stored in the found values of the map 
++into data we use.
++
++On write: we transform in the opposite direction
++
++Found values are always positive or -1. 
++So, we will always use negative numbers, and never use -1.
++
++Found values are shorts, this will give us 15 bits to use, we will always set bit 15, bits 0-14 all set (0x4FFF) is not valid.
++
++The order that classes are read is the following:
++game
++map (which reads plots)
++teams
++players (which read cities)
++
++changes with this class:
++
++on read:
++map will setup this class for read: (setupForRead)
++ - filling the data from the found values
++ - setting all found values to -1 that we used (cleanPlotValues)
++map will read from this class (getSaveData)
++teams will read from this class (getSaveData)
++players will read from this class (getSaveData)
++cities will read from this class (getSaveData)
++
++on CvMap::doTurn:
++this class marked invalid, we should be done reading by then (invalidate)
++
++on write:
++map will setup this class for write: (setupForWrite)
++ - this class will call CvMap::writeExtraSaveData which calls back to CvExtraSaveData::setSaveData
++ - this class will call CvTeamAI::writeExtraSaveData which calls back to CvExtraSaveData::setSaveData
++ - this class will call CvPlayerAI::writeExtraSaveData which calls back to CvExtraSaveData::setSaveData
++ - this class will call CvCityAI::writeExtraSaveData which calls back to CvExtraSaveData::setSaveData
++map will tell this class to push its values to the found values (writeToPlots)
++map will write out the plots (CvPlot::write)
++map will tell this class to restore the found values (restorePlotValues)
++map will mark invalid (invalidate)
++*/
++
++#ifndef CIV4_EXTRA_SAVE_DATA_H
++#define CIV4_EXTRA_SAVE_DATA_H
++
++#include "CvDefines.h"
++#include "FAssert.h"
++
++/*
++	Save file format:
++		CvExtraSaveDataHeader
++	
++		repeat
++		{
++			CvExtraSaveDataNodeHeader
++				CvExtraSaveDataNode * CvExtraSaveDataNodeHeader->iCount
++		}
++		until CvExtraSaveDataHeader->iSize exhausted
++
++	if we find invalid value before finished, then everything is discarded.
++*/
++
++// you can change these defines, to add more data to the save
++#define EXTRASAVEDATA_MAX_MAP_VALUES			3
++#define EXTRASAVEDATA_MAX_TEAM_VALUES			3
++#define EXTRASAVEDATA_MAX_PLAYER_VALUES			3
++#define EXTRASAVEDATA_MAX_CITY_VALUES			3
++
++// do not change these enums, you can add, but do not change, will break saves
++enum ExtraSaveDataType
++{
++	EXTRASAVEDATA_NONE = 0,
++	EXTRASAVEDATA_GAME = 1,		// currently not used, no game data saved
++	EXTRASAVEDATA_MAP = 2,
++	EXTRASAVEDATA_TEAM = 3,
++	EXTRASAVEDATA_PLAYER = 4,
++	EXTRASAVEDATA_CITY = 5,
++};
++
++// this is hardcoded, so if MAX_PLAYERS is changed, it does not break our save compatibility
++#define EXTRASAVEDATA_MAX_PLAYERS			19
++
++// note all sizes are count of ints
++
++struct CvExtraSaveDataHeader
++{
++	short			iValidCheck1;
++	short			iValidCheck2;
++	short			iValidCheck3;
++	short			iSize;
++	short			iHeaderSize;
++	short			iNodeHeaderSize;
++	short			iNodeSize;
++};
++
++struct CvExtraSaveDataNodeHeader
++{
++	short			eType;
++	short			iID;
++	short			iOwner;
++	short			iCount;
++};
++
++struct CvExtraSaveDataNode
++{
++	short			iValue;
++};
++
++// constants
++const short kExtraSaveData_validCheck1 = ' B';
++const short kExtraSaveData_validCheck2 = ' A';
++const short kExtraSaveData_validCheck3 = ' I';
++
++const unsigned short kBit15 = (1 << 15);
++
++class CvMap;
++
++struct CvExtraCityData
++{
++	short					iCityID;
++	short					iNodeCount;
++	CvExtraSaveDataNode		aNodes[EXTRASAVEDATA_MAX_CITY_VALUES];
++};
++
++class CvExtraSaveData;
++
++class CvExtraCityDataArray
++{
++public:
++	CvExtraCityDataArray();
++	virtual ~CvExtraCityDataArray();
++	
++	bool initOwner(short iOwner, short iSize = -1);
++
++	CvExtraSaveDataNode* getCityExtraDataNode(short iCityID, short iOwner, short iNodeIndex, bool bCreate = false);
++
++protected:
++
++	bool				increaseAllocation(short iOwner, short iSize = -1);
++	CvExtraCityData*	findCityExtraData(short iCityID, short iOwner);
++	CvExtraCityData*	addCityExtraData(short iCityID, short iOwner);
++
++
++	short							m_cityDataAllocation[MAX_PLAYERS];
++	short							m_cityDataCount[MAX_PLAYERS];
++	CvExtraCityData*				m_cityData[MAX_PLAYERS];
++
++	friend CvExtraSaveData;
++};
++
++class CvExtraSaveData
++{
++
++public:
++	
++	// called by CvMap:
++	CvExtraSaveData();
++	virtual ~CvExtraSaveData();
++	
++	bool setupForRead(CvMap& kMap);			// sets values from the plots, returns success
++	bool cleanPlotValues(CvMap& kMap);		// cleans the plot values, all used values set to -1, returns whether any were cleaned
++
++	bool setupForWrite(CvMap& kMap);		// sets values from the classes, returns success
++	bool writeToPlots(CvMap& kMap);			// writes values to the plots, returns success
++
++	bool savePlotValues(CvMap& kMap);		// save the plot values, returns success (called by setupForWrite)
++	bool restorePlotValues(CvMap& kMap);	// restores the plot values, returns success
++
++	bool invalidate(void);					// called when read or write finished
++
++	// called by CvMap, CvTeamAI, CvPlayerAI
++	bool getSaveData(ExtraSaveDataType eType, int iID, int iOwner, int iIndex, int& iValue);
++	bool setSaveData(ExtraSaveDataType eType, int iID, int iOwner, int iIndex, int iValue);
++
++
++protected:
++	// convert index to plot and player indicies
++	// we use a constant defined here, so we do not break save game compatibility if MAX_PLAYERS changes
++	inline void indexToPlotIndexPlayerIndex(int iIndex, int& iPlotIndex, int& iPlayerIndex) const
++	{
++		FAssert(EXTRASAVEDATA_MAX_PLAYERS >= MAX_PLAYERS);
++		
++		iPlotIndex = iIndex / EXTRASAVEDATA_MAX_PLAYERS;
++		iPlayerIndex = iIndex % EXTRASAVEDATA_MAX_PLAYERS;
++	}
++	
++	// we encode values by setting the high bit, but we need to ensure we never get -1, so 0x7FFF (MAX_SHORT) is invalid
++	inline bool validValueToEncode(short iValue) const
++	{
++		// valid if bit 15 clear and not MAX_SHORT
++		return (!(iValue & kBit15) && iValue != MAX_SHORT);
++	}
++	inline bool validFoundValueToDecode(short iValue) const
++	{
++		// valid if bit 15 set and not -1
++		return ((iValue & kBit15) && iValue != -1);
++	}
++	inline short encodeToFoundValue(short iValue) const
++	{
++		FAssert(validValueToEncode(iValue));
++		
++		// set bit 15
++		return (iValue | kBit15);
++	}
++	inline short decodeFromFoundValue(short iValue) const
++	{
++		FAssert(validFoundValueToDecode(iValue));
++		
++		// clear bit 15
++		return (iValue & ~kBit15);
++	}
++	
++	// high level push/pop functions
++	bool pushHeader(CvMap& kMap, int iIndex, CvExtraSaveDataHeader& header);	// iIndex should be 0 on input
++	bool popHeader(CvMap& kMap, int iIndex, CvExtraSaveDataHeader& header);	// iIndex should be 0 on input
++
++	bool pushNodeHeader(CvMap& kMap, int iIndex, CvExtraSaveDataNodeHeader& nodeHeader);
++	bool popNodeHeader(CvMap& kMap, int iIndex, CvExtraSaveDataNodeHeader& nodeHeader);
++
++	bool pushNode(CvMap& kMap, int iIndex, CvExtraSaveDataNode& node);
++	bool popNode(CvMap& kMap, int iIndex, CvExtraSaveDataNode& node);
++
++	// these are actually used to set/get the found values
++	bool pushToFoundValues(CvMap& kMap, int iIndex, short iValue);
++	bool popFromFoundValues(CvMap& kMap, int iIndex, short& iValue);
++	
++	// total number of shorts to hold all our data
++	// can only call this from write, it is not valid on read, we cannot know number of cities yet
++	int calculateMaxTotalSize();
++
++	// we hardcode knowledge about the types actually used
++	// we could change this implementation, but this is going to be a lot faster than dynamically allocating every save
++	// changing this implementation will not affect save file compatibility
++
++	// only 1 map
++	short							m_mapDataCount;
++	CvExtraSaveDataNode				m_mapData[EXTRASAVEDATA_MAX_MAP_VALUES];
++	
++	// MAX_TEAMS number of teams
++	short							m_teamDataCount[MAX_TEAMS];
++	CvExtraSaveDataNode				m_teamData[MAX_TEAMS][EXTRASAVEDATA_MAX_TEAM_VALUES];
++	
++	// MAX_PLAYERS number of players
++	short							m_playerDataCount[MAX_PLAYERS];
++	CvExtraSaveDataNode				m_playerData[MAX_PLAYERS][EXTRASAVEDATA_MAX_PLAYER_VALUES];
++	
++	
++	// city data array (arrays of cities for each player)
++	CvExtraCityDataArray			m_cityDataArray;
++
++	// all the old values
++	int		m_aiOldFoundValuesSize;
++	short*	m_aiOldFoundValues[MAX_PLAYERS];
++
++	// is the data valid, both of these will not be true at the same time
++	// m_bValidForRead is set on CvMap::read by calling setupForRead and cleared on CvMap::doTurn by calling invalidate
++	// m_bValidForWrite is set and cleared inside CvMap::write by calling setupForWrite and invalidate
++	bool m_bValidForRead;
++	bool m_bValidForWrite;
++
++	// m_bValidForRestore is set from writeToPlots and cleared from invalidate
++	bool m_bValidForRestore;
++};
++
++#endif
++
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGame.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGame.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvGame.cpp@181
+@@ -1183,33 +1183,6 @@
+   
+ 			            }
+ 			        }
+-
+-//				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+-//				{
+-//					pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+-//
+-//					if (pLoopPlot != NULL)
+-//					{
+-//						if (!(pLoopPlot->isWater()))
+-//						{
+-//							if ((GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_FOOD) + GC.getTerrainInfo(pLoopPlot->getTerrainType()).getYield(YIELD_PRODUCTION)) <= 1)
+-//							{
+-//								for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
+-//								{
+-//									if (!(GC.getTerrainInfo((TerrainTypes)iK).isWater()))
+-//									{
+-//										if ((GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_FOOD) + GC.getTerrainInfo((TerrainTypes)iK).getYield(YIELD_PRODUCTION)) > 1)
+-//										{
+-//											if ((pLoopPlot->getFeatureType() == NO_FEATURE) || GC.getFeatureInfo(pLoopPlot->getFeatureType()).isTerrain(iK))
+-//											{
+-//												pLoopPlot->setTerrainType((TerrainTypes)iK);
+-//											}
+-//										}
+-//									}
+-//								}
+-//							}
+-//						}
+-//					}
+ 				}
+ 			}
+ 		}
+@@ -1224,6 +1197,7 @@
+ 	BonusTypes eBonus;
+ 	bool bIgnoreLatitude;
+ 	int iFoodBonus;
++	int iGoodNatureTileCount;
+ 	int iI, iJ, iK;
+ 
+ 	bIgnoreLatitude = false;
+@@ -1238,6 +1212,7 @@
+ 			if (pStartingPlot != NULL)
+ 			{
+ 				iFoodBonus = 0;
++				iGoodNatureTileCount = 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+@@ -1246,9 +1221,14 @@
+ 					if (pLoopPlot != NULL)
+ 					{
+ 						eBonus = pLoopPlot->getBonusType(GET_PLAYER((PlayerTypes)iI).getTeam());
++						
+ 
+ 						if (eBonus != NO_BONUS)
+ 						{
++						    if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, GET_PLAYER((PlayerTypes)iI).getTeam()) >= 2)
++						    {
++						        iGoodNatureTileCount++;
++						    }
+ 							if (GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0)
+ 							{
+ 								if ((GC.getBonusInfo(eBonus).getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(GC.getBonusInfo(eBonus).getTechCityTrade())).getEra() <= getStartEra()))
+@@ -1264,12 +1244,22 @@
+ 								}
+ 							}
+ 						}
++						else
++						{
++                            if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, GET_PLAYER((PlayerTypes)iI).getTeam()) >= 3)
++						    {
++						        iGoodNatureTileCount++;
++						    }
++						}
+ 					}
+ 				}
++				
++				int iTargetFoodBonusCount = 2;
++				iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 1 : 0;
+ 
+ 				for (iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+-					if (iFoodBonus >= 2)
++					if (iFoodBonus >= iTargetFoodBonusCount)
+ 					{
+ 						break;
+ 					}
+@@ -1473,7 +1463,7 @@
+ 
+ 	//iTargetValue = (iTotalValue + iBestValue) / (iPlayerCount + 1);
+ 	
+-	iTargetValue = (iBestValue * 3) / 5;
++	iTargetValue = (iBestValue * 4) / 5;
+ 		
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+@@ -1566,7 +1556,7 @@
+ 				{
+ 				    pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+ 
+-                    if (pLoopPlot != NULL)
++                    if ((pLoopPlot != NULL) && (pLoopPlot != pStartingPlot))
+                     {
+                         if (getSorenRandNum((((iCount * 3) + 1) * ((bLandBias && pLoopPlot->isWater()) ? 2 : 1)), "Placing Bonuses") == 0)
+                         {
+@@ -1589,6 +1579,7 @@
+ 										{
+ 											if (GC.getBonusInfo((BonusTypes)iK).isNormalize())
+ 											{
++											    //???no bonuses with negative yields?
+ 												if ((GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_FOOD) >= 0) &&
+ 													  (GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_PRODUCTION) >= 0))
+ 												{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@180
++++ /branches/vanilla/CvGameCoreDLL/CvGameCoreDLL.vcproj@181
+@@ -407,7 +407,7 @@
+ 				OmitFramePointers="FALSE"
+ 				OptimizeForProcessor="3"
+ 				AdditionalIncludeDirectories="&quot;Boost-1.32.0\include&quot;;Python24\include"
+-				PreprocessorDefinitions="WIN32;NDEBUG;FASSERT_ENABLE;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;DEBUG_WAR_ACTIONS;DEBUG_CITY_BUILDS"
++				PreprocessorDefinitions="WIN32;NDEBUG;FASSERT_ENABLE;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;DEBUG_WAR_ACTIONS"
+ 				MinimalRebuild="FALSE"
+ 				ExceptionHandling="TRUE"
+ 				BasicRuntimeChecks="3"
+@@ -752,6 +752,9 @@
+ 				RelativePath=".\CvDLLWidgetData.cpp">
+ 			</File>
+ 			<File
++				RelativePath=".\CvExtraSaveData.cpp">
++			</File>
++			<File
+ 				RelativePath=".\CvFractal.cpp">
+ 				<FileConfiguration
+ 					Name="Debug|Win32">
+@@ -1694,6 +1697,9 @@
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvEnums.h">
++			</File>
++			<File
++				RelativePath=".\CvExtraSaveData.h">
+ 			</File>
+ 			<File
+ 				RelativePath=".\CvFractal.h">
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@181
+@@ -1330,8 +1330,13 @@
+ 				}
+ 			}
+ 		}
+-
+-		szTempBuffer.Format(L"\nFound Value: %d, %d", GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1 , true), GET_PLAYER(GC.getGameINLINE().getActivePlayer()).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1 , false));
++		
++		PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
++		int iActualFoundValue = pPlot->m_aiFoundValue[eActivePlayer];
++		int iCalcFoundValue = GET_PLAYER(eActivePlayer).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
++		int iStartingFoundValue = GET_PLAYER(eActivePlayer).AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++
++		szTempBuffer.Format(L"\nFound Value: %d, (%d, %d)", iActualFoundValue, iCalcFoundValue, iStartingFoundValue);
+ 		szString+=szTempBuffer;
+ 
+ 		CvCity* pWorkingCity = pPlot->getWorkingCity();
+@@ -1429,22 +1434,64 @@
+ 	    }
+ 	    }
+ 
++		szTempBuffer.Format(L"\nFound Values:");
++		szString+=szTempBuffer;
+             for (iI = 0; iI < MAX_PLAYERS; iI++)
+             {
+-                if (GET_PLAYER((PlayerTypes)iI).isAlive())
++            PlayerTypes ePlayer = (PlayerTypes)iI;
++			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
++			
++			if (kPlayer.isAlive())
+                 {
+-                int iFoundValue = (GET_PLAYER((PlayerTypes)iI).AI_foundValue(pPlot->getX_INLINE(),pPlot->getY_INLINE()));
+-                if (iFoundValue > 0)
++				int iActualFoundValue = pPlot->m_aiFoundValue[iI];
++				if (iActualFoundValue > 0)
+                 {
+-                    szTempBuffer.Format(L"\n%s Found Value = %d", GET_PLAYER((PlayerTypes)iI).getName(), iFoundValue);
+-                    szString+=szTempBuffer;
++                    szString+=NEWLINE;
+     
+-                    int iDeadlockCount = GET_PLAYER((PlayerTypes)iI).AI_countDeadlockedBonuses(pPlot);
+-                    szTempBuffer.Format(L"\n %d Deadlocked Bonuses", iDeadlockCount);
++                    bool bIsRevealed = pPlot->isRevealed(kPlayer.getTeam(), false);
++
++                    if (!bIsRevealed)
++                    {
++                        szTempBuffer.Format(L"(");
+                     szString+=szTempBuffer;
+                 }
++
++                    szTempBuffer.Format(L"%s:%d", kPlayer.getName(), iActualFoundValue);
++                    szString+=szTempBuffer;
++
++                    if (!bIsRevealed)
++                    {
++                        szTempBuffer.Format(L")");
++                        szString+=szTempBuffer;
+             }
+-		}
++
++                    int iCalcFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
++                    int iStartingFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++                    if (iCalcFoundValue > 0 || iStartingFoundValue > 0)
++                    {
++                        szTempBuffer.Format(L" (%d,%ds)", iCalcFoundValue, iStartingFoundValue);
++                        szString+=szTempBuffer;
++                    }
++
++                    int iDeadlockCount = kPlayer.AI_countDeadlockedBonuses(pPlot);
++                    if (iDeadlockCount > 0)
++                    {
++                        szTempBuffer.Format(L", d=%d", iDeadlockCount);
++                        szString+=szTempBuffer;
++	}
++
++                    int iBestAreaFoundValue = pPlot->area()->getBestFoundValue(ePlayer);
++                    if (iBestAreaFoundValue > 0)
++                    {
++                        int iBestFoundValue = kPlayer.findBestFoundValue();
++
++                        szTempBuffer.Format(L"\n  Area Best = %d, Best = %d", iBestAreaFoundValue, iBestFoundValue);
++                        szString+=szTempBuffer;
++                    }	
++                }
++            }
++			
++        }
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+@@ -1572,18 +1619,29 @@
+ 
+ 				szTempBuffer.Format(L"\nvalue = %d\njuggle value = %d\nmagic value = %d", iValue, iJuggleValue, iMagicValue);
+ 				szString+=szTempBuffer;
++			}
++		}
+ 				
+-
+-
+-				//int iCityPlotIndex = pCity->getCityPlotIndex(pPlot);
+-				//if (iCityPlotIndex != -1)
+-				//{
+-				//	int iDeltaX = GC.getCityPlotX()[iCityPlotIndex];
+-				//	int iDeltaY = GC.getCityPlotY()[iCityPlotIndex];
+-
+-				//	szTempBuffer.Format(L"\n%d:(%d, %d)", iCityPlotIndex, iDeltaX, iDeltaY);
+-				//	szString+=szTempBuffer;
+-				//}
++		// calc some bonus info
++		if (GC.getGameINLINE().isDebugMode())
++		{
++			eBonus = pPlot->getBonusType();
++			}
++		else
++		{
++			eBonus = pPlot->getBonusType(GC.getGameINLINE().getActiveTeam());
++		}
++		if (eBonus != NO_BONUS)
++		{
++			szString += CvWString::format(L"\n%s values:", GC.getBonusInfo(eBonus).getDescription());
++			
++			for (int iPlayerIndex = 0; iPlayerIndex < MAX_PLAYERS; iPlayerIndex++)
++			{
++				CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes) iPlayerIndex);
++				if (kLoopPlayer.isAlive())
++				{
++					szString += CvWString::format(L"\n %s: %d", kLoopPlayer.getName(), kLoopPlayer.AI_bonusVal(eBonus));
++	}
+ 			}
+ 		}
+ 	}
+@@ -7832,7 +7890,7 @@
+ 	int iModProduction = iFoodProduction + (iBaseModifier * iBaseProduction) / 100;
+ 
+     //asserts on processes
+-	FAssertMsg(iModProduction == city.getCurrentProductionDifference(false, true), "Modified Production does not match actual value");
++	FAssertMsg(iModProduction == city.getCurrentProductionDifference(false, (iPastOverflow > 0)), "Modified Production does not match actual value");
+ 
+ 	szBuffer += gDLL->getText("TXT_KEY_MISC_HELP_PROD_FINAL_YIELD", iModProduction) + NEWLINE;
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvMap.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvMap.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvMap.cpp@181
+@@ -25,6 +25,7 @@
+ #include "FAStarNode.h"
+ #include "CvInitCore.h"
+ #include "CvInfos.h"
++#include "CvExtraSaveData.h"
+ #include "FProfiler.h"
+ 
+ #include "CvDLLEngineIFaceBase.h"
+@@ -33,6 +34,17 @@
+ #include "CvDLLFAStarIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ 
++// our own version number on our extra data
++// if we want to reorder what we save, change this number
++// adding to the list should be fine
++#define MAPEXTRADATA_CURRENTVERSION		1
++enum MapExtraDataIndicies
++{
++	MAPEXTRADATA_VERSION = 0,
++	//MAPEXTRADATA_UNUSED1,
++	//MAPEXTRADATA_UNUSED2,
++};
++
+ // Public Functions...
+ 
+ CvMap::CvMap()
+@@ -43,6 +55,8 @@
+ 	m_paiNumBonusOnLand = NULL;
+ 
+ 	m_pMapPlots = NULL;
++	
++	//m_extraSaveData = new CvExtraSaveData;
+ 
+ 	constructCache();
+ 	
+@@ -296,6 +310,9 @@
+ 	PROFILE("CvMap::doTurn()")
+ 
+ 	int iI;
++
++	// the save data is no longer valid, we are done reading or writing
++	getExtraSaveDataClass().invalidate();
+ 
+ 	doUpdateCacheOnTurn();
+ 
+@@ -1256,11 +1273,34 @@
+ 			m_pMapPlots[iI].read(pStream);
+ 		}
+ 	}
++	
++	// read in the save info from the found values, and set those values to -1 (cleaning them)
++	CvExtraSaveData& extraSaveData = getExtraSaveDataClass();
++	extraSaveData.setupForRead(*this);
++	extraSaveData.cleanPlotValues(*this);
+ 
+ 	// call the read of the free list CvArea class allocations
+ 	ReadStreamableFFreeListTrashArray(m_areas, pStream);
+ 
+ 	setup();
++
++	// get the map saved data for ourselves
++	int iVersion;
++	if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_VERSION, iVersion))
++	{
++		if (iVersion == MAPEXTRADATA_CURRENTVERSION)
++		{
++			//int iValue;
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED1, iValue))
++			//{
++			//	m_unused1 = iValue;
++			//}
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED2, iValue))
++			//{
++			//	m_unused2 = iValue;
++			//}
++		}
++	}
+ }
+ 
+ // save object to a stream
+@@ -1286,11 +1326,20 @@
+ 	pStream->Write(GC.getNumBonusInfos(), m_paiNumBonus);
+ 	pStream->Write(GC.getNumBonusInfos(), m_paiNumBonusOnLand);
+ 
++	// push the extra save info to the plot found values
++	CvExtraSaveData& extraSaveData = getExtraSaveDataClass();
++	extraSaveData.setupForWrite(*this);
++	extraSaveData.writeToPlots(*this);
++
+ 	int iI;	
+ 	for (iI = 0; iI < numPlotsINLINE(); iI++)
+ 	{
+ 		m_pMapPlots[iI].write(pStream);
+ 	}
++
++	// restore the plot found values
++	extraSaveData.restorePlotValues(*this);
++	extraSaveData.invalidate();
+ 
+ 	// call the read of the free list CvArea class allocations
+ 	WriteStreamableFFreeListTrashArray(m_areas, pStream);
+@@ -1347,6 +1396,18 @@
+ 	}
+ }
+ 
++void CvMap::writeExtraSaveData(CvExtraSaveData& extraSaveData)
++{
++	int iVersion = MAPEXTRADATA_CURRENTVERSION;
++	extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_VERSION, iVersion);
++
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED1, iUnused);
++
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_MAP, 0, 0, MAPEXTRADATA_UNUSED2, iUnused);
++}
++
+ 
+ // CACHE: cache frequently used values
+ ///////////////////////////////////////
+
+Index: /branches/vanilla/CvGameCoreDLL/CvMap.h
+--- /branches/vanilla/CvGameCoreDLL/CvMap.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvMap.h@181
+@@ -13,6 +13,7 @@
+ 
+ #include "CvArea.h"
+ #include "CvPlot.h"
++#include "CvExtraSaveData.h"
+ 
+ 
+ class FAStar;
+@@ -265,6 +266,10 @@
+ 
+ 	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude, bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize, ClimateTypes eClimate, SeaLevelTypes eSeaLevel, int iNumCustomMapOptions, CustomMapOptionTypes * eCustomMapOptions);		// Exposed to Python
+ 
++	inline CvExtraSaveData& getExtraSaveDataClass(void)
++	{
++		return m_extraSaveData;
++	}
+ protected:
+ 
+ 	int m_iGridWidth;
+@@ -285,7 +290,12 @@
+ 
+ 	FFreeListTrashArray<CvArea> m_areas;
+ 
++	CvExtraSaveData m_extraSaveData;
++
+ 	void calculateAreas();
++	
++	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
++	friend CvExtraSaveData;
+ 
+ // CACHE: cache frequently used values
+ ///////////////////////////////////////
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@181
+@@ -899,6 +899,62 @@
+ 	return false;
+ }
+ 
++int CvPlayer::startingPlotClosenessPenalty(CvPlot* pPlot, PlayerTypes ePlayer, int iRange)
++{
++	PROFILE_FUNC();
++
++	CvPlot* pStartingPlot;
++	
++	int iValue = 10000;
++
++	if (pPlot->getMinOriginalStartDist() == -1)
++	{
++		return 100;
++	}
++
++	if (pPlot->getMinOriginalStartDist() > ((iRange * 2) / 3))
++	{
++		return 100;
++	}
++
++	pStartingPlot = getStartingPlot();
++
++	if (pStartingPlot != NULL)
++	{
++		if (pStartingPlot->getArea() == pPlot->getArea())
++		{
++			if (GC.getGameINLINE().isTeamGame())
++			{
++				if (GET_PLAYER(ePlayer).getTeam() == getTeam())
++				{
++					iRange *= GC.getDefineINT("OWN_TEAM_STARTING_MODIFIER");
++					iRange /= 100;
++				}
++				else
++				{
++					iRange *= GC.getDefineINT("RIVAL_TEAM_STARTING_MODIFIER");
++					iRange /= 100;
++				}
++			}
++
++            int iDistance = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE());
++			if (iDistance <= iRange)
++			{
++			    iValue *= iDistance;
++			    iValue /= (iRange + 1);
++			    
++                iValue *= (iDistance + (iRange / 2));
++			    iValue /= (iRange + 1 + (iRange / 2));
++			}
++		}
++	}
++
++    iValue /= 100;
++    
++	return iValue;
++
++}
++
+ 
+ // Returns the id of the best area, or -1 if it doesn't matter:
+ int CvPlayer::findStartingArea()
+@@ -1000,25 +1056,28 @@
+ 			if ((iBestArea == -1) || (pLoopPlot->getArea() == iBestArea))
+ 			{
+ 				iValue = pLoopPlot->getFoundValue(getID());
++				
++				int iMaxClosePenalty = 100;
++				
++                for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++                {
++                    if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++                    {
++                        if (iJ != getID())
++                        {
++                            int iClosenessPenalty = GET_PLAYER((PlayerTypes)iJ).startingPlotClosenessPenalty(pLoopPlot, getID(), iRange);
++                            iMaxClosePenalty = min(iClosenessPenalty, iMaxClosePenalty);
++                            iValue *= iClosenessPenalty;
++                            iValue /= 100;
++                        }
++                    }
++                }
++                iValue *= iMaxClosePenalty;
++                iValue /= 100;
+ 
+ 				if (iValue > iBestValue)
+ 				{
+ 					bValid = true;
+-
+-					for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-					{
+-						if (GET_PLAYER((PlayerTypes)iJ).isAlive())
+-						{
+-							if (iJ != getID())
+-							{
+-								if (GET_PLAYER((PlayerTypes)iJ).startingPlotWithinRange(pLoopPlot, getID(), iRange, iPass))
+-								{
+-									bValid = false;
+-									break;
+-								}
+-							}
+-						}
+-					}
+ 
+ 					if (bValid)
+ 					{
+@@ -2747,24 +2806,34 @@
+ int CvPlayer::countOwnedBonuses(BonusTypes eBonus)
+ {
+ 	PROFILE("CvPlayer::countOwnedBonuses");
+-
++    CvCity* pLoopCity;
+ 	CvPlot* pLoopPlot;
+ 	int iCount;
+ 	int iI;
++    int iLoop;
+ 
+ 	iCount = 0;
+-
++	
++	//count bonuses outside city radius
+ 	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+ 		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if (pLoopPlot->getOwnerINLINE() == getID())
++		if ((pLoopPlot->getOwnerINLINE() == getID()) && !pLoopPlot->isCityRadius())
+ 		{
+ 			if (pLoopPlot->getBonusType(getTeam()) == eBonus)
+ 			{
+ 				iCount++;
+ 			}
+ 		}
++	}
++	
++
++
++	//count bonuses inside city radius or easily claimed
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		iCount += pLoopCity->AI_countNumBonuses(eBonus, true, pLoopCity->getCommerceRate(COMMERCE_CULTURE) > 0, -1);
+ 	}
+ 
+ 	return iCount;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.h@181
+@@ -51,6 +51,8 @@
+ 
+ 	int startingPlotRange();																																									// Exposed to Python
+ 	bool startingPlotWithinRange(CvPlot* pPlot, PlayerTypes ePlayer, int iRange, int iPass);									// Exposed to Python
++	int startingPlotClosenessPenalty(CvPlot* pPlot, PlayerTypes ePlayer, int iRange);
++	
+ 	int findStartingArea();
+ 	CvPlot* findStartingPlot();
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@181
+@@ -18,12 +18,30 @@
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ #include "CvInfos.h"
++#include "CvExtraSaveData.h"
+ #include "FProfiler.h"
+ 
+ #define DANGER_RANGE						(4)
+ #define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(25)
+ #define RELIGION_CHANGE_DELAY		(15)
++
++// for testing only
++#ifndef FINAL_RELEASE
++#define DEBUG_TECH_CHOICES
++//#define DEBUG_TECH_CHOICES_NO_RANDOM
++#endif
++
++// our own version number on our extra data
++// if we want to reorder what we save, change this number
++// adding to the list should be fine
++#define PLAYEREXTRADATA_CURRENTVERSION		1
++enum PlayerExtraDataIndicies
++{
++	PLAYEREXTRADATA_VERSION = 0,
++	//PLAYEREXTRADATA_UNUSED1,
++	//PLAYEREXTRADATA_UNUSED2,
++};
+ 
+ // statics
+ 
+@@ -1708,8 +1726,15 @@
+ 		else
+ 		{
+ 		    //let other penalties bring this down.
+-		    iValue += 1000;
+-	}
++		    iValue += 600;
++		    if (!pPlot->isStartingPlot())
++		    {
++                if (pArea->getNumStartingPlots() == 0)
++                {
++                    iValue += 1000;                    
++                }
++			}
++		}
+ 	}
+ 
+ 	if (pPlot->isHills())
+@@ -1825,6 +1850,9 @@
+ 		{
+ 		    int iTotalDist = 0;
+ 		    int iTotalCount = 0;
++		    int iMinDist = MAX_INT;
++		    int iMinStartDist = startingPlotRange();
++		    int iClosePenalty = 1000;
+             for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+             {
+                 if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -1832,25 +1860,42 @@
+                     CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+ 
+                     if (pStartingPlot != NULL)
+-                    {		
++                    {
+                         int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
+                         iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
+-                        
+-                        if (iDist > 8)
+-                        {
+-                            iDist = 4 + ((iDist + 1) / 2);
+-                        }
++                        iDist = min(iDist, iMinStartDist * 2);
+                         iTotalDist += iDist;
+                             iTotalCount++;
++                        
++                        iMinDist = min(iDist, iMinDist);
++                        
++                        iClosePenalty *= min(iDist, iMinStartDist);
++                        iClosePenalty /= iMinStartDist;
+                     }
+ 				}
+ 			}
+             
+-            //maybe this could be normalized by map size better or something. 
+-            //is the effect too strong?
+-            iValue *= (10 + iTotalDist);
+-            iValue /= (10 + 10 * iTotalCount);
+-		}
++            //This generally encourages distant starts
++            iValue *= (iMinStartDist + iTotalDist);
++            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
++            
++//            //This specifically pushes apart close starts
++//            iValue *= iClosePenalty + 100;
++//            iValue /= 1000 + 100;
++//            iValue *= iClosePenalty + 100;
++//            iValue /= 1000 + 100;
++//            
++//            //further decimate the value for very close starts.
++//            if (iMinDist < 5)
++//            {
++//                iValue /= 10;
++//            }
++            
++            if (pPlot->getBonusType() != NO_BONUS)
++            {
++                iValue /= 2;                
++		}
++	}
+ 	}
+ 
+ 	pNearestCity = GC.getMapINLINE().findCity(iX, iY, ((isBarbarian()) ? NO_PLAYER : getID()));
+@@ -2419,18 +2464,67 @@
+ 
+ 	pCapitalCity = getCapitalCity();
+ 
+-	bool bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
+-	bool bCapitalAlone = AI_isCapitalAreaAlone();
++	CvTeam& kTeam = GET_TEAM(getTeam());
++
++	bool bWarPlan = (kTeam.getAnyWarPlanCount(true) > 0);
++	bool bCapitalAlone = (GC.getGameINLINE().getElapsedGameTurns() > 0) ? AI_isCapitalAreaAlone() : false;
+ 	bool bFinancialTrouble = AI_isFinancialTrouble();
+ 
+-	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+-	int iCoastalCities = countNumCoastalCities();
++	int iHasMetCount = kTeam.getHasMetCivCount(true);
++	int iCoastalCityCount = countNumCoastalCities();
+ 	int iConnectedForeignCities = countPotentialForeignTradeCitiesConnected();
+ 
+-	int iCityCount = GET_TEAM(getTeam()).getNumCities();
++	int iCityCount = getNumCities();
++	int iTeamCityCount = kTeam.getNumCities();
+ 
+ 	int iBestValue = 0;
+ 	TechTypes eBestTech = NO_TECH;
++	
++	int* paiBonusClassRevealed;
++	int* paiBonusClassUnrevealed;
++	int* paiBonusClassHave;
++	
++	paiBonusClassRevealed = new int[GC.getNumBonusClassInfos()];
++	paiBonusClassUnrevealed = new int[GC.getNumBonusClassInfos()];
++	paiBonusClassHave = new int[GC.getNumBonusClassInfos()];
++	
++	for (iI = 0; iI < GC.getNumBonusClassInfos(); iI++)
++	{
++        paiBonusClassRevealed[iI] = 0;
++        paiBonusClassUnrevealed[iI] = 0;
++        paiBonusClassHave[iI] = 0;	    
++	}
++	
++	for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	{
++	    TechTypes eRevealTech = (TechTypes)GC.getBonusInfo((BonusTypes)iI).getTechReveal();
++	    BonusClassTypes eBonusClass = (BonusClassTypes)GC.getBonusInfo((BonusTypes)iI).getBonusClassType();
++	    if (eRevealTech != NO_TECH)
++	    {
++	        if ((kTeam.isHasTech(eRevealTech)))
++	        {
++	            paiBonusClassRevealed[eBonusClass]++;
++	        }
++	        else
++	        {
++	            paiBonusClassUnrevealed[eBonusClass]++;
++	        }
++
++            if (getNumAvailableBonuses((BonusTypes)iI) > 0)
++            {
++                paiBonusClassHave[eBonusClass]++;                
++            }
++            else if (countOwnedBonuses((BonusTypes)iI) > 0)
++            {
++                paiBonusClassHave[eBonusClass]++;
++            }
++	    }
++	}
++
++#ifdef DEBUG_TECH_CHOICES
++	CvWString szPlayerName = getName();
++	DEBUGLOG("AI_bestTech:%S\n", szPlayerName.GetCString());
++#endif
+ 
+ 	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 	{
+@@ -2440,7 +2534,7 @@
+ 			{
+ 				if (canEverResearch((TechTypes)iI))
+ 				{
+-					if (!(GET_TEAM(getTeam()).isHasTech((TechTypes)iI)))
++					if (!(kTeam.isHasTech((TechTypes)iI)))
+ 					{
+ 						if (GC.getTechInfo((TechTypes)iI).getEra() <= (getCurrentEra() + 1))
+ 						{
+@@ -2450,13 +2544,15 @@
+ 							{
+ 								iValue = 1;
+ 
+-								iValue += ((bAsync) ? GC.getASyncRand().get(2000, "AI Research ASYNC") : GC.getGameINLINE().getSorenRandNum(2000, "AI Research"));
+-
+-								iValue += GET_TEAM(getTeam()).getResearchProgress((TechTypes)iI);
++								int iRandomFactor = ((bAsync) ? GC.getASyncRand().get(2000, "AI Research ASYNC") : GC.getGameINLINE().getSorenRandNum(2000, "AI Research"));
++								int iRandomMax = 2000;
++								iValue += iRandomFactor;
++
++								iValue += kTeam.getResearchProgress((TechTypes)iI);
+ 
+ 								if (GC.getTechInfo((TechTypes)iI).isExtraWaterSeeFrom())
+ 								{
+-									if (iCoastalCities > 0)
++									if (iCoastalCityCount > 0)
+ 									{
+ 										iValue += 100;
+ 
+@@ -2518,7 +2614,7 @@
+ 									{
+ 										iValue += 500;
+ 
+-										if (iCoastalCities > 0)
++										if (iCoastalCityCount > 0)
+ 										{
+ 											iValue += 400;
+ 										}
+@@ -2552,7 +2648,7 @@
+ 
+ 								if (GC.getTechInfo((TechTypes)iI).isWaterWork())
+ 								{
+-									iValue += (600 * iCoastalCities);
++									iValue += (600 * iCoastalCityCount);
+ 								}
+ 
+ 								iValue += (GC.getTechInfo((TechTypes)iI).getFeatureProductionModifier() * 2);
+@@ -2593,12 +2689,12 @@
+ 												iValue += (countPotentialForeignTradeCities(pCapitalCity->area()) * 100);
+ 											}
+ 
+-											if (iCoastalCities > 0)
++											if (iCoastalCityCount > 0)
+ 											{
+-												iValue += 200;
++												iValue += ((bCapitalAlone) ? 950 : 350);
+ 											}
+ 
+-											iValue += ((bCapitalAlone) ? 800 : 200);
++											iValue += 50;
+ 										}
+ 										else
+ 										{
+@@ -2623,103 +2719,126 @@
+ 								}
+ 
+ 								iBuildValue = 0;
+-
+ 								for (iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 								{
+ 									if (GC.getBuildInfo((BuildTypes)iJ).getTechPrereq() == iI)
+ 									{
+-										iBuildValue += 200;
+-
+ 										eImprovement = (ImprovementTypes)(GC.getBuildInfo((BuildTypes)iJ).getImprovement());
+ 										if (eImprovement != NO_IMPROVEMENT)
+ 										{
+ 											eImprovement = finalImprovementUpgrade(eImprovement);
+ 										}
++										else
++										{
++											// only increment build value if it is not an improvement, otherwise handle it there
++											iBuildValue += 200;
++										}
+ 
+ 										if (eImprovement != NO_IMPROVEMENT)
+ 										{
+-											iBuildValue += 100;
+-
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isHillsMakesValid()) ? 100 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isFreshWaterMakesValid()) ? 200 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isRiverSideMakesValid()) ? 100 : 0);
+-											iBuildValue += ((GC.getImprovementInfo(eImprovement).isCarriesIrrigation()) ? 300 : 0);
++											CvImprovementInfo& kImprovement = GC.getImprovementInfo(eImprovement);
++											
++											int iImprovementValue = 300;
++
++											iImprovementValue += ((kImprovement.isHillsMakesValid()) ? 100 : 0);
++											iImprovementValue += ((kImprovement.isFreshWaterMakesValid()) ? 200 : 0);
++											iImprovementValue += ((kImprovement.isRiverSideMakesValid()) ? 100 : 0);
++											iImprovementValue += ((kImprovement.isCarriesIrrigation()) ? 300 : 0);
+ 
+ 											for (iK = 0; iK < GC.getNumTerrainInfos(); iK++)
+ 											{
+-												iBuildValue += (GC.getImprovementInfo(eImprovement).getTerrainMakesValid(iK) ? 50 : 0);
++												iImprovementValue += (kImprovement.getTerrainMakesValid(iK) ? 50 : 0);
+ 											}
+ 
+ 											for (iK = 0; iK < GC.getNumFeatureInfos(); iK++)
+ 											{
+-												iBuildValue += (GC.getImprovementInfo(eImprovement).getFeatureMakesValid(iK) ? 50 : 0);
++												iImprovementValue += (kImprovement.getFeatureMakesValid(iK) ? 50 : 0);
+ 											}
+ 
+ 											for (iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 											{
+ 												iTempValue = 0;
+ 
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getYieldChange(iK) * 200);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getRiverSideYieldChange(iK) * 100);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getHillsYieldChange(iK) * 100);
+-												iTempValue += (GC.getImprovementInfo(eImprovement).getIrrigatedYieldChange(iK) * 150);
++												iTempValue += (kImprovement.getYieldChange(iK) * 200);
++												iTempValue += (kImprovement.getRiverSideYieldChange(iK) * 100);
++												iTempValue += (kImprovement.getHillsYieldChange(iK) * 100);
++												iTempValue += (kImprovement.getIrrigatedYieldChange(iK) * 150);
++
++												// land food yield is more valueble
++												if (iK == YIELD_FOOD && !kImprovement.isWater())
++												{
++													iTempValue *= 3;
++													iTempValue /= 2;
++												}
+ 
+ 												iTempValue *= AI_yieldWeight((YieldTypes)iK);
+ 												iTempValue /= 100;
+ 
+-												iBuildValue += iTempValue;
++												iImprovementValue += iTempValue;
+ 											}
+-
++											
+ 											for (iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 											{
+ 												iBonusValue = 0;
+ 
++												iBonusValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 450 : 0);
++												iBonusValue += ((kImprovement.isImprovementBonusTrade(iK)) ? (45 * AI_bonusVal((BonusTypes) iK)) : 0);
++
++												if (iBonusValue > 0)
++												{
++													for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
++													{
+ 												iTempValue = 0;
+ 
+-												iTempValue += ((GC.getImprovementInfo(eImprovement).isImprovementBonusMakesValid(iK)) ? 30 : 0);
+-												iTempValue += ((GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(iK)) ? 60 : 0);
+-
+-												if (iTempValue > 0)
++														iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
++														iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 200);
++
++														// land food bonuses are more valueble
++														if (iL == YIELD_FOOD && !kImprovement.isWater())
+ 												{
+-													iTempValue *= AI_bonusVal((BonusTypes)iK);
++															iTempValue *= 4;
++															iTempValue /= 3;
++												}
++														// otherwise, devalue the bonus slightly
++														else
++												{
++															iTempValue *= 3;
++															iTempValue /= 4;
++														}
++
++													iTempValue *= AI_yieldWeight((YieldTypes)iL);
++													iTempValue /= 100;
+ 
+ 													iBonusValue += iTempValue;
+ 												}
+ 
+-												for (iL = 0; iL < NUM_YIELD_TYPES; iL++)
+-												{
+-													iTempValue = 0;
+-
+-													iTempValue += (GC.getImprovementInfo(eImprovement).getImprovementBonusYield(iK, iL) * 300);
+-
+-													iTempValue *= AI_yieldWeight((YieldTypes)iL);
+-													iTempValue /= 100;
+-
+-													iBonusValue += iTempValue;
+-												}
+-
+-												if (iBonusValue > 0)
+-												{
+-													iNumBonuses = countOwnedBonuses((BonusTypes)iK);
++													iNumBonuses = countOwnedBonuses((BonusTypes) iK);
+ 
+ 													if (iNumBonuses > 0)
+ 													{
+ 														iBonusValue *= (iNumBonuses + 3);
+-														iBonusValue /= 2;
+-
+-														iBuildValue += iBonusValue;
++														iBonusValue /= kImprovement.isWater() ? 6 : 3;	// water resources are worth less
++
++														iImprovementValue += iBonusValue;
+ 													}
+ 												}
+ 											}
++											
++											// if water improvement, weight by coastal cities (weight the whole build)
++											if (kImprovement.isWater())
++											{
++												iImprovementValue *= iCoastalCityCount;
++												iImprovementValue /= max(1, iCityCount/2);
++										}
++											
++											iBuildValue += iImprovementValue;
+ 										}
+ 
+ 										eRoute = ((RouteTypes)(GC.getBuildInfo((BuildTypes)iJ).getRoute()));
+ 
+ 										if (eRoute != NO_ROUTE)
+ 										{
+-											iBuildValue += ((getBestRoute() == NO_ROUTE) ? 800 : 200);
+-
+-											iBuildValue += (getNumCities() * 50);
++											iBuildValue += ((getBestRoute() == NO_ROUTE) ? 700 : 200) * getNumCities();
+ 
+ 											for (iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 											{
+@@ -2770,22 +2889,53 @@
+                                     }
+                                 }
+ 
+-								if (AI_totalUnitAIs(UNITAI_WORKER) == 0)
++								/*if (AI_totalUnitAIs(UNITAI_WORKER) == 0)
+ 								{
+ 									iBuildValue /= 2;
+-								}
+-
++								}*/
++								
+ 								iValue += iBuildValue;
+-
++								
++								// does tech reveal bonus resources
+ 								for (iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
+ 								{
+ 									if (GC.getBonusInfo((BonusTypes)iJ).getTechReveal() == iI)
+ 									{
+-										iValue += 200;
+-										iValue += (AI_bonusVal((BonusTypes)iJ) * 50);
++										int iRevealValue = 150;
++										iRevealValue += (AI_bonusVal((BonusTypes)iJ) * 50);
++										
++										BonusClassTypes eBonusClass = (BonusClassTypes)GC.getBonusInfo((BonusTypes)iJ).getBonusClassType();
++										int iBonusClassTotal = (paiBonusClassRevealed[eBonusClass] + paiBonusClassUnrevealed[eBonusClass]);
++										
++										//iMultiplier is basically a desperation value
++										//it gets larger as the AI runs out of options
++										//Copper after failing to get horses is +66%
++										//Iron after failing to get horse or copper is +200%
++										//but with either copper or horse, Iron is only +25%
++										int iMultiplier = 0;
++										if (iBonusClassTotal > 0)
++										{
++                                            iMultiplier = (paiBonusClassRevealed[eBonusClass] - paiBonusClassHave[eBonusClass]);
++                                            iMultiplier *= 100;
++                                            iMultiplier /= iBonusClassTotal;
++                                            
++                                            iMultiplier *= (paiBonusClassRevealed[eBonusClass] + 1);
++                                            iMultiplier /= ((paiBonusClassHave[eBonusClass] * iBonusClassTotal) + 1);
+ 									}
++										
++										iMultiplier *= min(3, getNumCities());
++										iMultiplier /= 3;
++										
++										iRevealValue *= 100 + iMultiplier;
++										iRevealValue /= 100;
++                                    
++
++										iValue += iRevealValue;
++										
+ 								}
+-
++								}
++
++								bool bEnablesUnitWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
+ 								{
+ 									eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)));
+@@ -2794,12 +2944,13 @@
+ 									{
+ 										if (isTechRequiredForUnit(((TechTypes)iI), eLoopUnit))
+ 										{
+-											iValue += 200;
+-
++                                            const int iBaseUnitValue = 200;
++											int iUnitValue = 0;
++											
+                                             if ((GC.getUnitClassInfo((UnitClassTypes)iJ).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)))
+                                             {
+                                                 //UU
+-                                                iValue += 600;
++                                                iUnitValue += 600;
+                                             }
+ 
+ 											if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == iI)
+@@ -2810,66 +2961,73 @@
+ 												{
+ 												case UNITAI_UNKNOWN:
+ 												case UNITAI_ANIMAL:
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_SETTLE:
+-													iValue += 1200;
++													iUnitValue += 1200 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_WORKER:
+-													iValue += 800;
++													iUnitValue += 800 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ATTACK:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+-													iValue += 100;
++													iUnitValue += 100 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ATTACK_CITY:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 800 : 0);
+-													iValue += 100;
++													iUnitValue += 100 + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_COLLATERAL:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 500 : 0);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_PILLAGE:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_RESERVE:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_COUNTER:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													iMilitaryValue += (AI_isDoStrategy(AI_STRATEGY_DAGGER ) ? 600 : 0);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_DEFENSE:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
+ 													iMilitaryValue += ((!bCapitalAlone) ? 400 : 200);
+-													iValue += ((iHasMetCount > 0) ? 800 : 200);
++													iUnitValue += ((iHasMetCount > 0) ? 800 : 200) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_COUNTER:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CITY_SPECIAL:
+ 													iMilitaryValue += ((bWarPlan) ? 800 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_EXPLORE:
+-													iValue += ((bCapitalAlone) ? 100 : 200);
++													iUnitValue += ((bCapitalAlone) ? 100 : 200) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_MISSIONARY:
+-													iValue += ((getStateReligion() != NO_RELIGION) ? 600 : 300);
++													iUnitValue += ((getStateReligion() != NO_RELIGION) ? 600 : 300) + iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_PROPHET:
+@@ -2877,99 +3035,112 @@
+ 												case UNITAI_SCIENTIST:
+ 												case UNITAI_MERCHANT:
+ 												case UNITAI_ENGINEER:
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_SPY:
+ 													iMilitaryValue += ((bWarPlan) ? 100 : 50);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_ICBM:
+ 													iMilitaryValue += ((bWarPlan) ? 100 : 50);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_WORKER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+-														iValue += 400;
++														// note, workboat improvements are already counted in the improvement section above
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ATTACK_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 200 : 100);
+ 														iMilitaryValue += 100;
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_RESERVE_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ESCORT_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_EXPLORE_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+-														iValue += ((bCapitalAlone) ? 1800 : 600);
++														iUnitValue += ((bCapitalAlone) ? 1800 : 600) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ASSAULT_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan || bCapitalAlone) ? 400 : 200);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_SETTLER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+-														iValue += ((bWarPlan || bCapitalAlone) ? 200 : 100);
++														iUnitValue += ((bWarPlan || bCapitalAlone) ? 200 : 100) + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_MISSIONARY_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+-														iValue += 100;
++														iUnitValue += 100 + iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_SPY_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += 100;
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_CARRIER_SEA:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+ 												case UNITAI_ATTACK_AIR:
+ 													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_DEFENSE_AIR:
+ 													iMilitaryValue += ((bWarPlan) ? 600 : 400);
++													iUnitValue += iBaseUnitValue;
+ 													break;
+ 
+ 												case UNITAI_CARRIER_AIR:
+-													if (iCoastalCities > 0)
++													if (iCoastalCityCount > 0)
+ 													{
+ 														iMilitaryValue += ((bWarPlan) ? 100 : 50);
++														iUnitValue += iBaseUnitValue;
+ 													}
+ 													break;
+ 
+@@ -2989,24 +3160,28 @@
+ 													iMilitaryValue /= 3;
+ 												}
+ 
+-												iValue += iMilitaryValue;
++												iUnitValue += iMilitaryValue;
+ 
+ 												if (AI_totalUnitAIs((UnitAITypes)(GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType())) == 0)
+ 												{
+-													iValue += 200;
++													// do not give bonus to seagoing units if they are worthless
++													if (iUnitValue > 0)
++													{
++														iUnitValue += 200;
++													}
+ 
+ 													if (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == UNITAI_EXPLORE)
+ 													{
+ 														if (pCapitalCity != NULL)
+ 														{
+-															iValue += (AI_neededExplorers(pCapitalCity->area()) * 400);
++															iUnitValue += (AI_neededExplorers(pCapitalCity->area()) * 400);
+ 														}
+ 													}
+ 
+ 													if (GC.getUnitInfo(eLoopUnit).getDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+ 													{
+-														iValue += 400;
+-														iValue += ((GC.getGameINLINE().countCivTeamsAlive() - iHasMetCount) * 200);
++														iUnitValue += 400;
++														iUnitValue += ((GC.getGameINLINE().countCivTeamsAlive() - iHasMetCount) * 200);
+ 													}
+ 												}
+ 
+@@ -3018,21 +3193,28 @@
+ 														{
+ 															if (!(GC.getGameINLINE().isUnitClassMaxedOut((UnitClassTypes)iJ)))
+ 															{
+-																iValue += ((bAsync) ? GC.getASyncRand().get(400, "AI Research Wonder Unit ASYNC") : GC.getGameINLINE().getSorenRandNum(400, "AI Research Wonder Unit"));
+-
+-																if (bCapitalAlone)
+-																{
+-																	iValue += 200;
++																bEnablesUnitWonder = true;
+ 																}
+ 															}
+ 														}
+ 													}
++
++												iValue += iUnitValue;
+ 												}
+ 											}
+ 										}
+ 									}
++								if (bEnablesUnitWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(400, "AI Research Wonder Unit ASYNC") : GC.getGameINLINE().getSorenRandNum(400, "AI Research Wonder Unit"));
++									iValue += iWonderRandom + (bCapitalAlone ? 200 : 0);
++
++									iRandomMax += 400;
++									iRandomFactor += iWonderRandom;
+ 								}
+ 
++								int iBestLandBuildingValue = 0;
++								bool bEnablesWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+ 								{
+ 									eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)));
+@@ -3041,52 +3223,52 @@
+ 									{
+ 										if (isTechRequiredForBuilding(((TechTypes)iI), eLoopBuilding))
+ 										{
+-											CvBuildingInfo& kBuilding = GC.getBuildingInfo(eLoopBuilding);
++											CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+ 											int iBuildingValue = 0;
+ 											
+-											if (kBuilding.getSpecialBuildingType() != NO_BUILDING)
++											if (kLoopBuilding.getSpecialBuildingType() != NO_BUILDING)
+ 											{
+ 												iBuildingValue += ((bCapitalAlone) ? 100 : 25);
+ 											}
+ 											else
+ 											{
+-												iBuildingValue += ((bCapitalAlone) ? 400 : 100);
++												iBuildingValue += ((bCapitalAlone) ? 200 : 50);
+ 											}
+ 
+ 											//the granary effect is SO powerful it deserves special code
+-											if (kBuilding.getFoodKept() > 0)
++											if (kLoopBuilding.getFoodKept() > 0)
+ 											{
+-												iBuildingValue += (10 * kBuilding.getFoodKept());
++												iBuildingValue += (15 * kLoopBuilding.getFoodKept());
+ 											}
+ 
+-											iBuildingValue += 300;
++											iBuildingValue += 100;
+ 
+                                             if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+                                             {
+                                                 int iMultiplier = ((isWorldWonderClass((BuildingClassTypes)iJ) || isNationalWonderClass((BuildingClassTypes)iJ)) ? 1 : 3);
+-                                                iBuildingValue += (150 * kBuilding.getCommerceChange(COMMERCE_CULTURE)) * iMultiplier;
+-                                                iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ;
++                                                iBuildingValue += (150 * kLoopBuilding.getCommerceChange(COMMERCE_CULTURE)) * iMultiplier;
++                                                iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE) * 4 * iMultiplier ;
+                                             }
+ 											
+ 											if (bFinancialTrouble)
+ 											{
+-												iBuildingValue += kBuilding.getMaintenanceModifier() * 10;
+-												iBuildingValue += kBuilding.getYieldModifier(YIELD_COMMERCE) * 5;
+-												iBuildingValue += kBuilding.getCommerceModifier(COMMERCE_GOLD) * 10;
++												iBuildingValue += kLoopBuilding.getMaintenanceModifier() * 15;
++												iBuildingValue += kLoopBuilding.getYieldModifier(YIELD_COMMERCE) * 8;
++												iBuildingValue += kLoopBuilding.getCommerceModifier(COMMERCE_GOLD) * 15;
+ 											}
+ 
+  											// if this is a religious building, its not as useful
+-											ReligionTypes eReligion = (ReligionTypes) kBuilding.getReligionType();
++											ReligionTypes eReligion = (ReligionTypes) kLoopBuilding.getReligionType();
+ 											if (eReligion != NO_RELIGION)
+ 											{
+ 											    
+ 												// reduce by a factor based on how many cities we have with that relgion
+-												if (iCityCount > 0)
++												if (iTeamCityCount > 0)
+ 												{
+-													int iCitiesWithReligion = GET_TEAM(getTeam()).getHasReligionCount(eReligion);
++													int iCitiesWithReligion = kTeam.getHasReligionCount(eReligion);
+ 													
+ 													iBuildingValue *= (4 + iCitiesWithReligion);
+-													iBuildingValue /= (4 + iCityCount);
++													iBuildingValue /= (4 + iTeamCityCount);
+ 												}
+ 
+ 												// if this building requires a religion, then only count it as 1/7th as much
+@@ -3095,7 +3277,7 @@
+                                                 iBuildingValue /= max (1, GC.getNumReligionInfos());
+ 											}
+ 
+-											if (kBuilding.getPrereqAndTech() == iI)
++											if (kLoopBuilding.getPrereqAndTech() == iI)
+ 											{
+ 												if (iPathLength <= 1)
+ 												{
+@@ -3105,8 +3287,8 @@
+ 														{
+ 															if (!(GC.getGameINLINE().isBuildingClassMaxedOut((BuildingClassTypes)iJ)))
+ 															{
+-															    
+-																iValue += ((bAsync) ? GC.getASyncRand().get(800, "AI Research Wonder Building ASYNC") : GC.getGameINLINE().getSorenRandNum(800, "AI Research Wonder Building"));
++																bEnablesWonder = true;
++
+ 																if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+ 																{
+ 																    iValue += 400;
+@@ -3122,11 +3304,45 @@
+ 												}
+ 											}
+ 
++
++											if (iBuildingValue > iBestLandBuildingValue)
++											{
++												iBestLandBuildingValue = iBuildingValue;
++											}
++
++											// if water building, weight by coastal cities
++											if (kLoopBuilding.isWater())
++											{
++												iBuildingValue *= iCoastalCityCount;
++												iBuildingValue /= max(1, iCityCount/2);
++											}
++											// if land building, is it the best?
++											else if (iBuildingValue > iBestLandBuildingValue)
++											{
++												iBestLandBuildingValue = iBuildingValue;
++											}
++
+ 											iValue += iBuildingValue;
+ 										}
+ 									}
+ 								}
+-
++								// if tech gives at least one building (so we can count each individual building less)
++								if (iBestLandBuildingValue > 0)
++								{
++									iValue += iBestLandBuildingValue;
++								}
++
++								// if it gives at least one wonder
++								if (bEnablesWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(800, "AI Research Wonder Building ASYNC") : GC.getGameINLINE().getSorenRandNum(800, "AI Research Wonder Building"));
++									iValue += 500 + iWonderRandom;
++
++									iRandomMax += 800;
++									iRandomFactor += iWonderRandom;
++								}
++
++								bool bEnablesProjectWonder = false;
+ 								for (iJ = 0; iJ < GC.getNumProjectInfos(); iJ++)
+ 								{
+ 									if (GC.getProjectInfo((ProjectTypes)iJ).getTechPrereq() == iI)
+@@ -3141,7 +3357,7 @@
+ 												{
+ 													if (!(GC.getGameINLINE().isProjectMaxedOut((ProjectTypes)iJ)))
+ 													{
+-														iValue += ((bAsync) ? GC.getASyncRand().get(200, "AI Research Wonder Project ASYNC") : GC.getGameINLINE().getSorenRandNum(200, "AI Research Wonder Project"));
++														bEnablesProjectWonder = true;
+ 
+ 														if (bCapitalAlone)
+ 														{
+@@ -3153,6 +3369,14 @@
+ 										}
+ 									}
+ 								}
++								if (bEnablesProjectWonder)
++								{
++									int iWonderRandom = ((bAsync) ? GC.getASyncRand().get(200, "AI Research Wonder Project ASYNC") : GC.getGameINLINE().getSorenRandNum(200, "AI Research Wonder Project"));
++									iValue += iWonderRandom;
++
++									iRandomMax += 200;
++									iRandomFactor += iWonderRandom;
++								}
+ 
+ 								for (iJ = 0; iJ < GC.getNumProcessInfos(); iJ++)
+ 								{
+@@ -3188,7 +3412,7 @@
+ 
+ 										if (iNewCivicValue > iCurrentCivicValue)
+ 										{
+-											iValue += min(1200, (2400 * (iNewCivicValue - iCurrentCivicValue)) / max(1, iCurrentCivicValue));
++											iValue += min(2400, (2400 * (iNewCivicValue - iCurrentCivicValue)) / max(1, iCurrentCivicValue));
+ 										}
+ 									}
+ 								}
+@@ -3204,6 +3428,9 @@
+ 												if (!(GC.getGameINLINE().isReligionFounded((ReligionTypes)iJ)))
+ 												{
+ 													int iReligionValue = ((bAsync) ? GC.getASyncRand().get(2400, "AI Research Religion ASYNC") : GC.getGameINLINE().getSorenRandNum(2400, "AI Research Religion"));
++													iRandomMax += 2400;
++													iRandomFactor += iReligionValue;
++
+                                                     if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+                                                     {
+                                                         iReligionValue += 500;
+@@ -3227,7 +3454,13 @@
+ 													if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
+ 													{
+ 													    iReligionValue /= 2;
+-													}													
++													}
++
++													if (iPathLength < 2)
++													{
++														iReligionValue *= 3;
++														iReligionValue /= 2;
++													}
+ 
+ 													iValue += iReligionValue;
+ 												}
+@@ -3238,7 +3471,11 @@
+ 										{
+ 											if (((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(GC.getTechInfo((TechTypes) iI).getFirstFreeUnitClass()))) != NO_UNIT)
+ 											{
+-												iValue += ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Great People ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Great People"));
++												int iGreatPeopleRandom = ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Great People ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Great People"));
++												iValue += iGreatPeopleRandom;
++												
++												iRandomMax += 3200;
++												iRandomFactor += iGreatPeopleRandom;
+ 
+ 												if (bCapitalAlone)
+ 												{
+@@ -3267,6 +3504,13 @@
+ 								{
+ 									iValue /= 10;
+ 								}
++
++#ifdef DEBUG_TECH_CHOICES_NO_RANDOM
++								// remove random factors, use average
++								iValue -= iRandomFactor;
++								iValue += iRandomMax/2;
++#endif
++								int iPreNormalizedValue = iValue;
+ 
+ 								if (bIgnoreCost)
+ 								{
+@@ -3277,20 +3521,26 @@
+ 								{
+ 									if (iValue > 0)
+ 									{
+-									    int iTurnsLeft = getResearchTurnsLeftTimes100(((TechTypes)iI), false);
+-									    bool bCheapBooster = ((iTurnsLeft < 50) && (0 == ((bAsync) ? GC.getASyncRand().get(5, "AI Choose Cheap Tech") : GC.getGameINLINE().getSorenRandNum(5, "AI Choose Cheap Tech"))));
+-									    
+ 									    //this stops quick speed messing up.... might want to adjust by other things too...
+ 									    int iAdjustment = GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
+ 									    
++									    int iTurnsLeft = getResearchTurnsLeftTimes100(((TechTypes)iI), false);
++									    bool bCheapBooster = ((iTurnsLeft < (2 * iAdjustment)) && (0 == ((bAsync) ? GC.getASyncRand().get(5, "AI Choose Cheap Tech") : GC.getGameINLINE().getSorenRandNum(5, "AI Choose Cheap Tech"))));
++									    
++									    
+ 										iValue *= 100000;
+ 										
+-                                        iValue /= (iTurnsLeft + (bCheapBooster ? 1 : 5 * iAdjustment));
++                                        iValue /= (iTurnsLeft + (bCheapBooster ? 1 : (5 * iAdjustment)));
+ 									}
+ 								}
+ 
+ 								iValue = max(1, iValue);
+ 
++#ifdef DEBUG_TECH_CHOICES
++								CvWString szTechName = GC.getTechInfo((TechTypes)iI).getDescription();
++								DEBUGLOG("    %S (%d [%d/%d]->%.2f)\n", szTechName.GetCString(), 
++									iPreNormalizedValue, iRandomFactor, iRandomMax, ((float) iValue) / 1000);
++#endif
+ 								if (iValue > iBestValue)
+ 								{
+ 									iBestValue = iValue;
+@@ -3303,6 +3553,15 @@
+ 			}
+ 		}
+ 	}
++
++#ifdef DEBUG_TECH_CHOICES
++	CvWString szBestTechName = GC.getTechInfo(eBestTech).getDescription();
++	DEBUGLOG("  best:%S (%.2f)\n", szBestTechName.GetCString(), ((float) iBestValue) / 1000);
++#endif
++
++    SAFE_DELETE_ARRAY(paiBonusClassRevealed);
++    SAFE_DELETE_ARRAY(paiBonusClassUnrevealed);
++    SAFE_DELETE_ARRAY(paiBonusClassHave);	
+ 
+ 	return eBestTech;
+ }
+@@ -4834,6 +5093,39 @@
+ 
+ 	iValue += (GC.getBonusInfo(eBonus).getHappiness() * 100);
+ 	iValue += (GC.getBonusInfo(eBonus).getHealth() * 100);
++	
++	CvTeam& kTeam = GET_TEAM(getTeam());
++
++	CvCity* pCapital = getCapitalCity();
++	int iCityCount = getNumCities();
++	int iCoastalCityCount = countNumCoastalCities();
++	
++	// find the first coastal city
++	CvCity* pCoastalCity = NULL;
++	CvCity* pUnconnectedCoastalCity = NULL;
++	if (iCoastalCityCount > 0)
++	{
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pCoastalCity == NULL && pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			if (pLoopCity->isCoastal())
++			{
++				if (pLoopCity->isConnectedToCapital(getID()))
++				{
++					pCoastalCity = pLoopCity;
++				}
++				else if (pUnconnectedCoastalCity == NULL)
++				{
++					pUnconnectedCoastalCity = pLoopCity;
++				}
++			}
++		}
++	}
++	if (pCoastalCity == NULL && pUnconnectedCoastalCity != NULL)
++	{
++		pCoastalCity = pUnconnectedCoastalCity;
++	}
++
+ 
+ 	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+@@ -4841,33 +5133,56 @@
+ 
+ 		if (eLoopUnit != NO_UNIT)
+ 		{
++			CvUnitInfo& kLoopUnit = GC.getUnitInfo(eLoopUnit);
++
+ 			iTempValue = 0;
+ 
+-			if (GC.getUnitInfo(eLoopUnit).getPrereqAndBonus() == eBonus)
++			if (kLoopUnit.getPrereqAndBonus() == eBonus)
+ 			{
+ 				iTempValue += 50;
+ 			}
+ 
+ 			for (iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++)
+ 			{
+-				if (GC.getUnitInfo(eLoopUnit).getPrereqOrBonuses(iJ) == eBonus)
++				if (kLoopUnit.getPrereqOrBonuses(iJ) == eBonus)
+ 				{
+ 					iTempValue += 40;
+ 				}
+ 			}
+ 
+-			iTempValue += (GC.getUnitInfo(eLoopUnit).getBonusProductionModifier(eBonus) / 10);
++			iTempValue += kLoopUnit.getBonusProductionModifier(eBonus) / 10;
+ 
+ 			if (iTempValue > 0)
+ 			{
++				bool bIsWater = (kLoopUnit.getDomainType() == DOMAIN_SEA);
++				
++				// if non-limited water unit, weight by coastal cities
++				if (bIsWater && !isLimitedUnitClass((UnitClassTypes)(kLoopUnit.getUnitClassType())))
++				{
++					iTempValue *= min(iCoastalCityCount * 2, iCityCount);	// double coastal cities, cap at total cities
++					iTempValue /= max(1, iCityCount);
++				}
++
+ 				if (canTrain(eLoopUnit))
+ 				{
++					// is it a water unit and no coastal cities or our coastal city cannot build because its obsolete
++					if ((bIsWater && (pCoastalCity == NULL || (pCoastalCity->allUpgradesAvailable(eLoopUnit) != NO_UNIT))) ||
++						// or our capital cannot build because its obsolete (we can already build all its upgrades)
++						(pCapital != NULL && pCapital->allUpgradesAvailable(eLoopUnit) != NO_UNIT))
++					{
++						// its worthless
++						iTempValue = 2;
++					}
++					// otherwise, value units we could build if we had this bonus double
++					else
++					{
+ 					iTempValue *= 2;
+ 				}
+-
+-				if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() != NO_TECH)
+-				{
+-					iDiff = abs(GC.getTechInfo((TechTypes)(GC.getUnitInfo(eLoopUnit).getPrereqAndTech())).getEra() - getCurrentEra());
++				}
++
++				if (kLoopUnit.getPrereqAndTech() != NO_TECH)
++				{
++					iDiff = abs(GC.getTechInfo((TechTypes)(kLoopUnit.getPrereqAndTech())).getEra() - getCurrentEra());
+ 
+ 					if (iDiff == 0)
+ 					{
+@@ -4891,33 +5206,71 @@
+ 
+ 		if (eLoopBuilding != NO_BUILDING)
+ 		{
++			CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
++			
+ 			iTempValue = 0;
+ 
+-			if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndBonus() == eBonus)
++			if (kLoopBuilding.getPrereqAndBonus() == eBonus)
+ 			{
+ 				iTempValue += 30;
+ 			}
+ 
+ 			for (iJ = 0; iJ < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); iJ++)
+ 			{
+-				if (GC.getBuildingInfo(eLoopBuilding).getPrereqOrBonuses(iJ) == eBonus)
++				if (kLoopBuilding.getPrereqOrBonuses(iJ) == eBonus)
+ 				{
+ 					iTempValue += 20;
+ 				}
+ 			}
+-
+-			iTempValue += (GC.getBuildingInfo(eLoopBuilding).getBonusProductionModifier(eBonus) / 10);
+-
++			
++			iTempValue += kLoopBuilding.getBonusProductionModifier(eBonus) / 10;
++			
+ 			if (iTempValue > 0)
+ 			{
+-				if (canConstruct(eLoopBuilding))
++				// determine whether we have the tech for this building
++				bool bHasTechForBuilding = true;
++				if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTech()))))
++				{
++					bHasTechForBuilding = false;
++				}
++				for (int iPrereqIndex = 0; bHasTechForBuilding && iPrereqIndex < GC.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS"); iPrereqIndex++)
++				{
++					if (kLoopBuilding.getPrereqAndTechs(iPrereqIndex) != NO_TECH)
++					{
++						if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTechs(iPrereqIndex)))))
++						{
++							bHasTechForBuilding = false;
++						}
++					}
++				}
++				
++				bool bIsStateReligion = (((ReligionTypes) kLoopBuilding.getStateReligion()) != NO_RELIGION);
++				bool bCanConstruct = canConstruct(eLoopBuilding, false, false, true);
++				
++				// bCanNeverBuild when true is accurate, it may be false in some cases where we will never be able to build 
++				bool bCanNeverBuild = (bHasTechForBuilding && !bCanConstruct && !bIsStateReligion);
++
++				// if we can never build this, it is worthless
++				if (bCanNeverBuild)
++				{
++					iTempValue = 1;
++				}
++				// double value if we can build it right now
++				else if (bCanConstruct)
+ 				{
+ 					iTempValue *= 2;
+ 				}
+-
+-				if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech() != NO_TECH)
+-				{
+-					iDiff = abs(GC.getTechInfo((TechTypes)(GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech())).getEra() - getCurrentEra());
++				
++				// if non-limited water building, weight by coastal cities
++				if (kLoopBuilding.isWater() && !isLimitedWonderClass((BuildingClassTypes)(kLoopBuilding.getBuildingClassType())))
++				{
++					iTempValue *= iCoastalCityCount;
++					iTempValue /= max(1, iCityCount/2);
++				}
++
++				if (kLoopBuilding.getPrereqAndTech() != NO_TECH)
++				{
++					iDiff = abs(GC.getTechInfo((TechTypes)(kLoopBuilding.getPrereqAndTech())).getEra() - getCurrentEra());
+ 
+ 					if (iDiff == 0)
+ 					{
+@@ -4937,18 +5290,29 @@
+ 
+ 	for (iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 	{
+-		iTempValue = (GC.getProjectInfo((ProjectTypes)iI).getBonusProductionModifier(eBonus) / 10);
+-
++		ProjectTypes eProject = (ProjectTypes) iI;
++		CvProjectInfo& kLoopProject = GC.getProjectInfo(eProject);
++		iTempValue = 0;
++
++		iTempValue += kLoopProject.getBonusProductionModifier(eBonus) / 10;
++		
+ 		if (iTempValue > 0)
+ 		{
+-			if (canCreate((ProjectTypes)iI))
++			bool bMaxedOut = (GC.getGameINLINE().isProjectMaxedOut(eProject) || kTeam.isProjectMaxedOut(eProject));
++
++			if (bMaxedOut)
++			{
++				// project worthless
++				iTempValue = 1;
++			}
++			else if (canCreate(eProject))
+ 			{
+ 				iTempValue *= 2;
+ 			}
+ 
+-			if (GC.getProjectInfo((ProjectTypes)iI).getTechPrereq() != NO_TECH)
+-			{
+-				iDiff = abs(GC.getTechInfo((TechTypes)(GC.getProjectInfo((ProjectTypes)iI).getTechPrereq())).getEra() - getCurrentEra());
++			if (kLoopProject.getTechPrereq() != NO_TECH)
++			{
++				iDiff = abs(GC.getTechInfo((TechTypes)(kLoopProject.getTechPrereq())).getEra() - getCurrentEra());
+ 
+ 				if (iDiff == 0)
+ 				{
+@@ -4969,21 +5333,20 @@
+ 	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 	{
+         RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
+-
+ 
+         if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
+         {
+             if ((eBestRoute != NO_ROUTE) && (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue()))
+             {
+-                iTempValue = 100;
++				iTempValue = 160;
+             }
+             else
+             {
+-                iTempValue += 40;
++				iTempValue = 40;
+             }
+-        }
+ 
+         iValue += iTempValue;
++    }
+     }
+ 
+ 	iValue /= 10;
+@@ -6213,7 +6576,7 @@
+ 	int iCount;
+ 	int iLoop;
+ 
+-	iCount = countUnimprovedBonuses(pArea);
++	iCount = countUnimprovedBonuses(pArea) * 2;
+ 
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+@@ -6227,11 +6590,13 @@
+ 
+ 	if (iCount > 0)
+ 	{
+-		iCount /= 4;
++	    iCount += 1;
++		iCount /= 3;
+ 		iCount = min(iCount, 3 * pArea->getCitiesPerPlayer(getID()));
+-	}
+-
+-	return iCount;
++		iCount = min(iCount, (1 + getTotalPopulation()) / 2);
++	}
++
++	return max(1, iCount);
+ }
+ 
+ 
+@@ -6693,6 +7058,7 @@
+ 		{
+ 			iValue *= 5;
+ 			iValue /= 4;
++			iValue += 6 * getNumCities();
+ 			iValue += 20;
+ 		}
+ 	}
+@@ -8883,6 +9249,14 @@
+ 			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
+         }
+     }
++    
++    
++	
++	CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++	if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
++	{
++		iValue -= 3;		
++	}
+ 
+     //atleast I'm honest
+     int iNonsense = 0;
+@@ -9149,6 +9523,12 @@
+                 iMissionary += AI_getFlavorValue(AI_FLAVOR_CULTURE) * 4; // up to 40
+                 iMissionary += AI_getFlavorValue(AI_FLAVOR_RELIGION) * 6; // up to 60
+                 
++                CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++                if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
++                {
++                	iMissionary += 20;
++                }
++                
+                 iMissionary += (iHolyCityCount - 1) * 5;
+                 
+                 iMissionary += iMetCount * 7;
+@@ -9301,6 +9681,24 @@
+ 
+ 	pStream->Read((MAX_PLAYERS * NUM_CONTACT_TYPES), m_aaiContactTimer[0]);
+ 	pStream->Read((MAX_PLAYERS * NUM_MEMORY_TYPES), m_aaiMemoryCount[0]);
++
++	CvExtraSaveData& extraSaveData = GC.getMapINLINE().getExtraSaveDataClass();
++	int iVersion;
++	if (extraSaveData.getSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_VERSION, iVersion))
++	{
++		if (iVersion == PLAYEREXTRADATA_CURRENTVERSION)
++		{
++			//int iValue;
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_UNUSED1, iValue))
++			//{
++			//	m_unused1 = iValue;
++			//}
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_UNUSED2, iValue))
++			//{
++			//	m_unused2 = iValue;
++			//}
++		}
++	}
+ }
+ 
+ 
+@@ -9337,3 +9735,16 @@
+ 	pStream->Write((MAX_PLAYERS * NUM_MEMORY_TYPES), m_aaiMemoryCount[0]);
+ }
+ 
++void CvPlayerAI::writeExtraSaveData(CvExtraSaveData& extraSaveData)
++{
++	int iVersion = PLAYEREXTRADATA_CURRENTVERSION;
++	extraSaveData.setSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_VERSION, iVersion);
++
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_UNUSED1, iUnused);
++	
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_PLAYER, m_eID, 0, PLAYEREXTRADATA_UNUSED2, iUnused);
++}
++
++
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@181
+@@ -5,6 +5,8 @@
+ 
+ #include "CvPlayer.h"
+ #include "AI_defines.h"
++
++class CvExtraSaveData;
+ 
+ class CvPlayerAI : public CvPlayer
+ {
+@@ -276,6 +278,8 @@
+ 	
+ 	int AI_getStrategyHash();
+ 
++	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
++	friend CvExtraSaveData;
+ };
+ 
+ // helper for accessing static functions
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlot.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlot.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlot.cpp@181
+@@ -5635,18 +5635,21 @@
+ 	CvPlot* pAdjacentPlot;
+ 	int iI;
+ 
+-	if (getFoundValue(eIndex) == 0)
++	int iPlotValue = GET_PLAYER(eIndex).AI_foundValue(getX_INLINE(), getY_INLINE());
++
++	if (iPlotValue == 0)
+ 	{
+ 		return false;
+ 	}
+-
++	
+ 	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+ 		pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), ((DirectionTypes)iI));
+ 
+-		if (pAdjacentPlot != NULL)
+-		{
+-			if (pAdjacentPlot->getFoundValue(eIndex) >= getFoundValue(eIndex))
++		if ((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(GET_PLAYER(eIndex).getTeam(), false))
++		{
++			//if (pAdjacentPlot->getFoundValue(eIndex) >= getFoundValue(eIndex))
++			if (GET_PLAYER(eIndex).AI_foundValue(pAdjacentPlot->getX_INLINE(), pAdjacentPlot->getY_INLINE()) > iPlotValue)
+ 			{
+ 				return false;
+ 			}
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlot.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlot.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvPlot.h@181
+@@ -20,6 +20,7 @@
+ class CvUnit;
+ class CvSymbol;
+ class CvFlagEntity;
++class CvExtraSaveData;
+ 
+ typedef bool (*ConstPlotUnitFunc)( const CvUnit* pUnit, int iData1, int iData2);
+ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
+@@ -524,6 +525,12 @@
+ 	void processArea(CvArea* pArea, int iChange);
+ 
+ 	ColorTypes plotMinimapColor();
++	
++	// let CvExtraSaveData read m_aiFoundValue directly
++	friend CvExtraSaveData;
++
++	// added so under cheat mode we can access protected stuff
++	friend class CvGameTextMgr;
+ };
+ 
+ #endif
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.cpp@181
+@@ -14,6 +14,18 @@
+ #include "FProfiler.h"
+ #include "CyArgsList.h"
+ #include "CvDLLPythonIFaceBase.h"
++#include "CvExtraSaveData.h"
++
++// our own version number on our extra data
++// if we want to reorder what we save, change this number
++// adding to the list should be fine
++#define TEAMEXTRADATA_CURRENTVERSION		1
++enum TeamExtraDataIndicies
++{
++	TEAMEXTRADATA_VERSION = 0,
++	//TEAMEXTRADATA_UNUSED1,
++	//TEAMEXTRADATA_UNUSED2,
++};
+ 
+ // statics
+ 
+@@ -505,11 +517,15 @@
+ 
+ 	iDistance = 0;
+ 	iCount = 0;
++	
++	int iSameAreaCount = 0;
++	bool bSameArea;
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
++			
+ 			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
+ 			{
+ 				pOurCapitalCity = GET_PLAYER((PlayerTypes)iI).getCapitalCity();
+@@ -526,8 +542,11 @@
+ 
+ 								if (pTheirCapitalCity != NULL)
+ 								{
+-									iDistance += (plotDistance(pOurCapitalCity->getX_INLINE(), pOurCapitalCity->getY_INLINE(), pTheirCapitalCity->getX_INLINE(), pTheirCapitalCity->getY_INLINE()) * ((pOurCapitalCity->area() != pTheirCapitalCity->area()) ? 3 : 2));
++									bSameArea = (pOurCapitalCity->area() == pTheirCapitalCity->area());
++									
++									iDistance += (plotDistance(pOurCapitalCity->getX_INLINE(), pOurCapitalCity->getY_INLINE(), pTheirCapitalCity->getX_INLINE(), pTheirCapitalCity->getY_INLINE()) * ((!bSameArea) ? 3 : 2));
+ 									iCount++;
++									iSameAreaCount += (bSameArea ? 1 : 0);
+ 								}
+ 							}
+ 						}
+@@ -541,7 +560,18 @@
+ 
+ 	if (iCount > 0)
+ 	{
+-		return max(1, (GC.getMapINLINE().maxPlotDistance() - (iDistance / iCount)));
++		//cross up to the entire map to kill the only other foe
++		//be more picky if there are more foes...
++		int iTeamCount = GC.getGame().countCivTeamsAlive();
++		int iMaxDistance = GC.getMapINLINE().maxPlotDistance();
++		
++		if (iSameAreaCount > 0) //preserve sanity on islands...
++		{
++			iMaxDistance *= 4;
++			iMaxDistance /= (2 + iTeamCount);
++		}
++		
++		return max(1, (iMaxDistance - (iDistance / iCount)));
+ 	}
+ 
+ 	return 0;
+@@ -794,7 +824,7 @@
+ 
+ 	iValue = AI_calculatePlotWarValue(eTeam);
+ 
+-	iValue += AI_calculateCapitalProximity(eTeam);
++	iValue += (3 * AI_calculateCapitalProximity(eTeam)) / ((iValue > 0) ? 2 : 3);
+ 
+ 	switch (AI_getAttitude(eTeam))
+ 	{
+@@ -2015,6 +2045,24 @@
+ 	pStream->Read(MAX_TEAMS, m_aiEnemyPeacetimeGrantValue);
+ 
+ 	pStream->Read(MAX_TEAMS, (int*)m_aeWarPlan);
++
++	CvExtraSaveData& extraSaveData = GC.getMapINLINE().getExtraSaveDataClass();
++	int iVersion;
++	if (extraSaveData.getSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_VERSION, iVersion))
++	{
++		if (iVersion == TEAMEXTRADATA_CURRENTVERSION)
++		{
++			//int iValue;
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_UNUSED1, iValue))
++			//{
++			//	m_unused1 = iValue;
++			//}
++			//if (extraSaveData.getSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_UNUSED2, iValue))
++			//{
++			//	m_unused2 = iValue;
++			//}
++		}
++	}
+ }
+ 
+ 
+@@ -2871,5 +2919,16 @@
+ 	}
+ }
+ 
++void CvTeamAI::writeExtraSaveData(CvExtraSaveData& extraSaveData)
++{
++	int iVersion = TEAMEXTRADATA_CURRENTVERSION;
++	extraSaveData.setSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_VERSION, iVersion);
++
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_UNUSED1, iUnused);
++	
++	//int iUnused = 0;
++	//extraSaveData.setSaveData(EXTRASAVEDATA_TEAM, m_eID, 0, TEAMEXTRADATA_UNUSED2, iUnused);
++}
+ // Private Functions...
+ 
+
+Index: /branches/vanilla/CvGameCoreDLL/CvTeamAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvTeamAI.h@180
++++ /branches/vanilla/CvGameCoreDLL/CvTeamAI.h@181
+@@ -4,6 +4,8 @@
+ #define CIV4_TEAM_AI_H
+ 
+ #include "CvTeam.h"
++
++class CvExtraSaveData;
+ 
+ class CvTeamAI : public CvTeam
+ {
+@@ -170,6 +172,9 @@
+ 	void AI_doCounter();
+ 	void AI_doWar();
+ 
++	void writeExtraSaveData(CvExtraSaveData& extraSaveData);
++	friend CvExtraSaveData;
++
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+ 	friend class CvDLLWidgetData;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@180
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@181
+@@ -976,6 +976,7 @@
+ 
+ 	bCanRoute = canBuildRoute();
+ 	bNextCity = false;
++	int iI;
+ 
+ 	// XXX could be trouble...
+ 	if (plot()->getOwnerINLINE() != getOwnerINLINE())
+@@ -1046,6 +1047,45 @@
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+ 		pCity = plot()->getWorkingCity();
++	}
++	if (pCity != NULL)
++	{
++		bool bMoreBuilds = false;
++		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		{
++			CvPlot* pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++			if ((iI != CITY_HOME_PLOT) && (pLoopPlot != NULL))
++			{
++				if (pLoopPlot->getWorkingCity() == pCity)
++				{
++					if (pLoopPlot->isBeingWorked())
++					{
++						if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
++						{
++							if (pCity->AI_getBestBuildValue(iI) > 0)
++							{
++								ImprovementTypes eImprovement;
++								eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes)pCity->AI_getBestBuild(iI)).getImprovement();
++								if (eImprovement != NO_IMPROVEMENT)
++								{
++									bMoreBuilds = true;
++									break;
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++		
++		if (bMoreBuilds)
++		{
++			if (AI_improveCity(pCity))
++			{
++				return;
++			}
++		}
++		
+ 	}
+ 
+ 	if ((pCity == NULL) || (pCity->countNumImprovedPlots() > (pCity->getPopulation()+1)))
+@@ -8683,7 +8723,7 @@
+ 		FAssertMsg(pBestPlot != NULL, "BestPlot is not assigned a valid value");
+ 		FAssertMsg(eBestBuild != NO_BUILD, "BestBuild is not assigned a valid value");
+ 		FAssertMsg(eBestBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+-		if (plot()->getWorkingCity() != pCity)
++		if ((plot()->getWorkingCity() != pCity) || (GC.getBuildInfo(eBestBuild).getRoute() != NO_ROUTE))
+ 		{
+ 			eMission = MISSION_ROUTE_TO;
+ 		}
+@@ -9114,6 +9154,15 @@
+                                     if (generatePath(pLoopPlot, 0, true, &iPathTurns)) // XXX should this actually be at the top of the loop? (with saved paths and all...)
+                                     {
+                                         iValue = GET_PLAYER(getOwnerINLINE()).AI_bonusVal(eNonObsoleteBonus);
++                                        
++                                        if (bDoImprove)
++                                        {
++                                            eImprovement = (ImprovementTypes)GC.getBuildInfo(eBestTempBuild).getImprovement();
++                                            FAssert(eImprovement != NO_IMPROVEMENT);
++                                            //iValue += (GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBestTempBuild).getImprovement()))
++                                            iValue += 5 * pLoopPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, getOwner(), false);
++                                            iValue += 5 * pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam(), (pLoopPlot->getFeatureType() == NO_FEATURE) ? true : GC.getBuildInfo(eBestTempBuild).isFeatureRemove(pLoopPlot->getFeatureType()));
++                                        }
+ 
+                                         if (GET_PLAYER(getOwnerINLINE()).getNumTradeableBonuses(eNonObsoleteBonus) == 0)
+                                         {
+@@ -9456,7 +9505,7 @@
+ 							{
+ 								if (iPathTurns <= ((iPass == 2) ? 1 : iMaxPath))
+ 								{
+-									if (iPass > 0 || GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(pLoopCity->plot()) < iCurrentDanger)
++									if ((iPass > 0) || (getGroup()->canFight() || GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(pLoopCity->plot()) < iCurrentDanger))
+ 									{
+ 										iValue = iPathTurns;
+ 
+@@ -10521,7 +10570,7 @@
+ 
+ int CvUnitAI::AI_stackOfDoomExtra()
+ {
+-	return ((AI_getBirthmark() % 7) + 2);
++	return ((AI_getBirthmark() % (1 + GET_PLAYER(getOwnerINLINE()).getCurrentEra() * 2)) + 2);
+ }
+ 
+ bool CvUnitAI::AI_stackAttackCity(int iRange, int iPowerThreshold, bool bFollow)
+

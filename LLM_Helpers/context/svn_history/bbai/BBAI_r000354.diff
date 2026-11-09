@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 354
+# Author: iustus
+# Date: 2007-02-09T20:37:38.640876Z
+# Coverage: full
+# Message:
+#   hopefully fix the last nagging sync error
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@353
++++ /trunk/CvGameCoreDLL/CvCity.cpp@354
+@@ -469,7 +469,7 @@
+ 			m_paiNumBonuses[iI] = 0;
+ 		}
+ 
+-		FAssertMsg((0 < GC.getNumProjectInfos()),  "GC.getNumProjectInfos() is not greater than zero but an array is being allocated in CvCity::reset");
++		//FAssertMsg((0 < GC.getNumProjectInfos()),  "GC.getNumProjectInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+ 		m_paiProjectProduction = new int[GC.getNumProjectInfos()];
+ 		for (iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@353
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@354
+@@ -9111,8 +9111,8 @@
+ 		int iCheckDiameter = (iVisibilityRange * 2) + 1;
+ 
+ 		int iNumPlots = GC.getMapINLINE().numPlotsINLINE();
+-		std::vector<bool> abCheckedPlot;	// initializes to zero (false)
+-		abCheckedPlot.reserve(iNumPlots);
++		std::vector<bool> abCheckedPlot;
++		abCheckedPlot.resize(iNumPlots, false);
+ 
+ 		// constants when to break off search
+ 		const int iMaxMoreToCheck = 3;
+

@@ -1,0 +1,68 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 265
+# Author: blakeciv
+# Date: 2007-01-12T22:30:24.095148Z
+# Coverage: full
+# Message:
+#   Fixed a bug I introduced in tile governor (actually two bugs one canceled the other for the most part)
+#   Made the gov slightly less inclined to grow into unhappiness.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@264
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@265
+@@ -576,10 +576,20 @@
+ 
+ 	if (iGreatPeopleRate != 0)
+ 	{
++		int iGPPValue = 4;
++		
++		
+ 		//iGreatPeopleRate = ((iGreatPeopleRate * getTotalGreatPeopleRateModifier()) / 100);
+-
++		UnitTypes iGreatPeopleType = (UnitTypes)GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass();
++		
+ 		iTempValue = (iGreatPeopleRate * 4);
+ 		
++		if (isHuman() && (getGreatPeopleUnitRate(iGreatPeopleType) == 0)
++			&& (getForceSpecialistCount(eSpecialist) == 0))
++		{
++			iTempValue -= (iGreatPeopleRate * 4);			
++		}
++
+ 		if (!isHuman())
+ 		{
+ 			int iProgress = getGreatPeopleProgress();
+@@ -5792,8 +5802,8 @@
+ 							{
+ 								int iTurnsUntilAngerIsReduced = iHurryAngerTimer % flatHurryAngerLength();
+ 								
+-								// if we will recover within about 3 turns of growing, then dont count that angry
+-								if (iTurnsUntilAngerIsReduced - 3 <= iApproxTurnsToGrow)
++								// angry population is bad but if we'll recover by the time we grow...
++								if (iTurnsUntilAngerIsReduced <= iApproxTurnsToGrow)
+ 									iHappinessLevel++;
+ 							}
+ 
+@@ -5803,15 +5813,15 @@
+ 							{
+ 								int iTurnsUntilAngerIsReduced = iConscriptAngerTimer % flatConscriptAngerLength();
+ 								
+-								// if we will recover within about 3 turns of growing, then dont count that angry
+-								if (iTurnsUntilAngerIsReduced - 3 <= iApproxTurnsToGrow)
++								// angry population is bad but if we'll recover by the time we grow...
++								if (iTurnsUntilAngerIsReduced <= iApproxTurnsToGrow)
+ 									iHappinessLevel++;
+ 							}
+ 						}
+ 					}
+ 
+ 					int iPopToGrow = max(0, iHappinessLevel);
+-					iPopToGrow = max(iPopToGrow, AI_countGoodTiles(iHealthLevel == 0, true, 50) + ((bRemove) ? 1 : 0));
++					iPopToGrow = min(iPopToGrow, AI_countGoodTiles(iHealthLevel > 0, true, 50) + ((bRemove) ? 1 : 0));
+ 
+ 					// if we do not have unhappy, fill food bar to 85%
+ 					bool bFillingBar = false;
+

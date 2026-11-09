@@ -1,0 +1,524 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 350
+# Author: blakeciv
+# Date: 2007-02-08T02:41:03.515940Z
+# Coverage: full
+# Message:
+#   AI should train and use settlers far more effectively.
+#   Other little choose production tweaks.
+#   Simplified governor food value.
+#   AI should use defensive siege properly.
+#   Fixed bug which resulted in AI not sallying forth from cities.
+#   Tweaked commerce valuations under extreme conditions.
+#   Fixed a serious bug with Crush strategy and Assault Battleplan resulting in no boats being built.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@349
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@350
+@@ -2363,6 +2363,8 @@
+     int iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
+     int iNeededWorkers = kPlayer.AI_neededWorkers(area());
+     
++    int iAreaBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
++    
+ 	int iEconomyFlags = 0;
+ 	iEconomyFlags |= BUILDINGFOCUS_GOLD;
+ 	iEconomyFlags |= BUILDINGFOCUS_RESEARCH;
+@@ -2621,6 +2623,40 @@
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+ 			AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30);
++		}
++	}
++	
++	//oppurunistic wonder build (1)
++	if (!bDanger && (!hasActiveWorldWonder()))
++	{
++		int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++		iWonderTime /= 5;
++		iWonderTime += 7;
++		if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
++		{
++			if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_RESERVE) <= iNumCitiesInArea)
++			{
++				AI_chooseUnit(UNITAI_RESERVE);
++			}
++			return;
++		}
++	}
++	
++	if ((iAreaBestFoundValue > (bDanger ? 2000 : 1400)) && !bFinancialTrouble)
++	{
++		if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) <= (iNumCitiesInArea / 4))
++		{
++			if (AI_chooseUnit(UNITAI_SETTLE))
++			{
++				if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) <= iNumCitiesInArea)
++				{
++					if (!AI_chooseUnit(UNITAI_CITY_DEFENSE))
++					{
++						AI_chooseUnit(UNITAI_RESERVE);
++					}
++				}
++				return;
++			}
+ 		}
+ 	}
+ 	
+@@ -2675,17 +2711,6 @@
+                 }
+             }
+         }
+-
+-//        if (bDanger)
+-//        {
+-//            if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK) < (iNumCitiesInArea + 2))
+-//            {
+-//                if (AI_chooseUnit(UNITAI_ATTACK))
+-//                {
+-//                    return;
+-//                }
+-//            }
+-//        }
+         
+         // if we already choose to build a sea transport, then finish the stack
+ 		if (bAssault)
+@@ -2843,7 +2868,7 @@
+         }
+         
+ 		//essential economic builds
+-		if (AI_chooseBuilding(iEconomyFlags, 10, 20))
++		if (AI_chooseBuilding(iEconomyFlags, 10, 25))
+ 		{
+ 			return;
+ 		}
+@@ -2852,19 +2877,6 @@
+         {
+             if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > (bAggressiveAI ? 60 - iBuildUnitProb : 80 - iBuildUnitProb))
+             {
+-
+-                int iBestFoundValue = area()->getBestFoundValue(getOwnerINLINE());
+-                if (((kPlayer.getNumCities() == 1) && iBestFoundValue > 1000)
+-                	|| ((kPlayer.getNumCities() >= 2) && iBestFoundValue > 2500))
+-                {
+-					if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
+-					{
+-						if (AI_chooseUnit(UNITAI_SETTLE))
+-						{
+-							return;
+-						}
+-					}
+-                }
+                 if (iUnitCostPercentage < 20)
+                 {
+ 					if (iWaterPercent > 50 && !bLandWar)
+@@ -2918,21 +2930,6 @@
+             }
+         }
+ 	}
+-	
+-	//build a damn settler you clown!
+-	if (isCapital() && GET_PLAYER(getOwnerINLINE()).getNumCities() == 1)
+-	{
+-		if ((getGameTurnFounded() - GC.getGame().getStartTurn()) < 5)
+-		{
+-			if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
+-			{
+-				if (AI_chooseUnit(UNITAI_SETTLE))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-	}
+ 
+  	// don't build frivilious things if this is an imporant city
+     if (!bImportantCity)
+@@ -2943,7 +2940,7 @@
+             {
+                 if (!bFinancialTrouble)
+                 {
+-                    if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
++                    if (iAreaBestFoundValue > 0)
+                     {
+                         if (AI_chooseUnit(UNITAI_SETTLE))
+                         {
+@@ -2993,7 +2990,7 @@
+ 		{
+ 			if (!bFinancialTrouble)
+ 			{
+-				if (area()->getBestFoundValue(getOwnerINLINE()) > 500)
++				if (iAreaBestFoundValue  > 500)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SETTLE))
+ 					{
+@@ -4124,7 +4121,7 @@
+ 		    {
+ 		        if (isWorldWonderClass(eBuildingClass))
+ 		        {
+-                    if (aiYieldRank[YIELD_PRODUCTION] <= 2)
++                    if (aiYieldRank[YIELD_PRODUCTION] <= 3)
+                     {
+ 						iValue++;
+                     }
+@@ -7303,9 +7300,6 @@
+ 		{
+ 			if (!bAvoidGrowth)
+ 			{
+-				// value food low(4)
+-				iValue += (aiYields[YIELD_FOOD] * 4);
+-				
+ 				// only do relative checks on food if we want to grow AND we not emph food
+ 				// the emp food case will just give a big boost to all food under all circumstances
+ 				if (!bIgnoreGrowth && !bEmphasizeFood)
+@@ -7398,30 +7392,20 @@
+ 						int iUnhealthLosses = max(0, iPopToGrow - iHealthLevel);
+ 						
+ 						// will mulitply this by factors
+-						iFoodGrowthValue += aiYields[YIELD_FOOD] * 3;
++						iFoodGrowthValue = aiYields[YIELD_FOOD];
+ 
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+ 						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+ 						int iFactorPopToGrow;
+-//						if (iPopToGrow < 1 || bFillingBar)
+-//							iFactorPopToGrow = 1;
+-//						else if (iPopToGrow < 4)
+-//							iFactorPopToGrow = 7 + iPopToGrow;
+-//						else if (iPopToGrow < 6)
+-//							iFactorPopToGrow = 3 + (2 * iPopToGrow);
+-//						else if (iPopToGrow < 17)
+-//							iFactorPopToGrow = 8 + iPopToGrow;
+-//						else // iPopToGrow >= 17
+-//							iFactorPopToGrow = 25;
+ 
+ 						if (iPopToGrow < 1 || bFillingBar)
+ 							iFactorPopToGrow = 1;
+ 						else if (iPopToGrow < 7)
+-							iFactorPopToGrow = 7 + iPopToGrow;
++							iFactorPopToGrow = 17 + 3 * iPopToGrow;
+ 						else
+-							iFactorPopToGrow = 14;
++							iFactorPopToGrow = 41;
+ 						
+-						if (AI_isEmphasizeYield(YIELD_PRODUCTION) || AI_isEmphasizeYield(YIELD_COMMERCE))
++						if (AI_isEmphasizeYield(YIELD_PRODUCTION) || AI_isEmphasizeYield(YIELD_COMMERCE) || AI_isEmphasizeGreatPeople())
+ 						{
+ 							iFactorPopToGrow *= 2;
+ 						}
+@@ -7440,41 +7424,13 @@
+ 							iFoodGrowthValue *= iFactorUnhealth;
+ 							iFoodGrowthValue /= 100;
+ 						}
+-						
+-						// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8] - our min goal is (2*iConsumtionPerPop)
+-						//													 per turn, if we under, give food a bonus
+-						int iFactorSlowRate = 8 + (3 * max(0, (2 * iConsumtionPerPop) - iFoodPerTurn));
+-						iFoodGrowthValue *= iFactorSlowRate;
+-						iFoodGrowthValue /= (3 * iConsumtionPerPop) + 4;
+-
+-						// (range 71-100) - the faster our current rate, the less valueble adding more is
+-						int iFactorFastRate;
+-						if (iFoodPerTurn < 5)
+-							iFactorFastRate = 100 - (3 * iFoodPerTurn);
+-						else if (iFoodPerTurn < 19)
+-							iFactorFastRate = 90 - iFoodPerTurn;
+-						else // iFoodPerTurn >= 19
+-							iFactorFastRate = 71;
+-						iFoodGrowthValue *= iFactorFastRate;
+-						iFoodGrowthValue /= 100;
+-						
+-						// (range 4-16)[under normal conditions, 12 will be the highest]
+-						int iFactorHighYield = 4 + (2 * min(iConsumtionPerPop * 3, max(0, aiYields[YIELD_FOOD] - iConsumtionPerPop)));
+-						iFoodGrowthValue *= iFactorHighYield * 16;
+-						iFoodGrowthValue /= (4 + (iConsumtionPerPop * 6)); // if (iConsumtionPerPop == 2), this cancels out with the 16 above
+-
+-						// (range 76-100) - exclusively growing is less important in big cities
+-						int	iFactorPopulation = 75 + max(0, 25 - max(0, iPopulation - 10));
+-						iFoodGrowthValue *= iFactorPopulation;
+-						iFoodGrowthValue /= 500;
+-
+-						// (range 0-158) * yield
+-
+-						// if this is our last plot to assign and stagnant, give an equal boost to any food tile
+-						iFoodPerTurn -= (iExtraPopulationThatCanWork * iConsumtionPerPop);
+-						if (iExtraPopulationThatCanWork <= 1 && (iFoodPerTurn <= 0) && aiYields[YIELD_FOOD] > 0)
++						//If we already grow somewhat fast, devalue further food
++						//Remember growth acceleration is not dependent on food eaten per 
++						//pop, 4f twice as fast as 2f twice as fast as 1f...
++						if (iFoodPerTurn > 2)
+ 						{
+-							iFoodGrowthValue += 180;
++							iFoodGrowthValue *= 6;
++							iFoodGrowthValue /= 4 + min(8, iFoodPerTurn);
+ 						}
+ 					}
+ 				}
+@@ -7604,184 +7560,6 @@
+ 	
+ 	return iValue;
+ }
+-
+-int CvCityAI::AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth)
+-{
+-	PROFILE_FUNC();
+-
+-	int aiYields[NUM_YIELD_TYPES];
+-	int aiCommerceYields[NUM_COMMERCE_TYPES];
+-	int iNewCityYield;
+-	int iOldCityYield;
+-	int iValue;
+-	int iI, iJ;
+-	int iModifier;
+-	
+-	int iExtraProductionModifier = 0;
+-	int iBaseProductionModifier = 100;
+-	
+-	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+-	bool bFoodIsProduction = isFoodProduction();
+-	
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-	{
+-		aiCommerceYields[iI] = piCommerce[iI];
+-	}
+-
+-	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+-	{
+-		if (piYields[iI] == 0)
+-		{
+-			aiYields[iI] = 0;
+-		}
+-		else
+-		{
+-			// Get yield for city after adding/removing the citizen in question
+-			iOldCityYield = getBaseYieldRate((YieldTypes)iI);
+-			iNewCityYield = (bRemove ? (iOldCityYield - piYields[iI]) : (iOldCityYield + piYields[iI]));
+-			
+-			iModifier = getBaseYieldRateModifier((YieldTypes)iI);
+-			if (iI == YIELD_PRODUCTION)
+-			{
+-				iBaseProductionModifier = iModifier;
+-				iExtraProductionModifier = getProductionModifier();
+-				iModifier += iExtraProductionModifier;
+-			}
+-
+-			iNewCityYield = (iNewCityYield * iModifier) / 100;
+-			iOldCityYield = (iOldCityYield * iModifier) / 100;
+-
+-			// The yield of the citizen in question is the difference of total yields
+-			// to account for rounding of modifiers
+-			aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
+-			
+-			//Convert Commerce into COMMERCE_TYPES
+-			if (iI == YIELD_COMMERCE)
+-			{
+-				aiYields[iI] = 0; 
+-				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+-				{
+-				    iModifier = getTotalCommerceRateModifier((CommerceTypes)iJ);
+-				    
+-                    int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * iModifier) / 100;
+-                    int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * iModifier) / 100;
+-
+-					aiCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
+-				}
+-			}
+-			
+-			//Convert Production into COMMERCE_TYPES			
+-			if (iI == YIELD_PRODUCTION)
+-			{
+-				if (isProductionProcess())
+-				{					
+-					aiYields[iI] = 0;
+-					for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+-					{
+-						aiCommerceYields[iJ] += (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iJ)) * (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	iValue = 0;
+-	int iStuffValue = 0;
+-	
+-	int iProductionValue = 0;
+-	int iCommerceValue = 0;
+-	int iFoodValue = 0;
+-	
+-	if (bFoodIsProduction)
+-	{
+-		// if food is production, the count it
+-		iProductionValue += aiYields[YIELD_FOOD] * 55;
+-	}
+-	else
+-	{
+-	
+-		iFoodValue += 100 * aiYields[YIELD_FOOD];
+-	}
+-	
+-	iProductionValue += aiYields[YIELD_PRODUCTION] * 55;
+-	
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-	{
+-		iCommerceValue += ((aiCommerceYields[iI] * 40) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
+-	}
+-	
+-	//Lets have some fun with the multipliers, this basically bluntens the impact of
+-	//massive bonuses.....
+-	{
+-		//normalize the production... this allows the system to account for rounding
+-		//and such while preventing an "out to lunch smoking weed" scenario with
+-		//unusually high transient production modifiers.
+-		//Other yields don't have transient bonuses in quite the same way.
+-		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
+-		iProductionValue *= iBaseProductionModifier;
+-		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
+-		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+-		iValue += iProductionValue;
+-	}
+-	
+-	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
+-	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+-	
+-	iFoodValue *= (100 + AI_specialYieldMultiplier(YIELD_FOOD));
+-	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
+-	
+-	iStuffValue += iProductionValue;
+-	iStuffValue += iCommerceValue;
+-	
+-	iValue += iStuffValue;
+-	iValue += iFoodValue;
+-
+-	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
+-	{
+-		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+-		int iFoodLevel = getFood();
+-		int iFoodToGrow = growthThreshold();
+-		int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 0);
+-		int iHappinessLevel = (isNoUnhappiness() ? max(1, iHealthLevel + 3) : happyLevel() - unhappyLevel(0));
+-		int iPopulation = getPopulation();
+-		int iWorkingPopulation = getWorkingPopulation();
+-		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
+-		int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-
+-		// if we not human, allow us to starve to half full if avoiding growth
+-		int iStarvingAllowance = 0;
+-		if (bAvoidGrowth && !isHuman())
+-		{
+-			iStarvingAllowance = max(0, (iFoodLevel - max(1, ((9 * iFoodToGrow) / 10))));
+-		}
+-		
+-		// if still starving
+-		if ((iFoodPerTurn + iStarvingAllowance) < 0)
+-		{
+-			// if working plots all like this one will save us from starving
+-			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
+-			{
+-				// if this is high food, then we want to pick it first, this will allow us to pick some great non-food later
+-				int iHighFoodThreshold = iConsumtionPerPop + 1;				
+-				if (iFoodPerTurn <= -iHighFoodThreshold && aiYields[YIELD_FOOD] >= iHighFoodThreshold)
+-				{
+-					// value all the food that will contribute to not starving
+-					iValue += 250 * (1 + min(aiYields[YIELD_FOOD], -iFoodPerTurn));
+-				}
+-				else
+-				{
+-					// give a huge boost to this plot, but not based on how much food it has
+-					// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
+-					iValue += 250;
+-				}
+-			}
+-		}
+-	}
+-	
+-	
+-	return iValue;
+-}
+-
+ 
+ int CvCityAI::AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth, bool bIgnoreStarvation)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@349
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@350
+@@ -1310,7 +1310,7 @@
+ 	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent();
+ 	
+ 	//sorry but the merchant descrimination must stop.
+-	iWeight = min(101, iWeight);
++	iWeight = min(110, iWeight);
+ 
+ 	if (eCommerce == COMMERCE_RESEARCH)
+ 	{
+@@ -1323,6 +1323,25 @@
+ 			else
+ 			{
+ 				iWeight /= 4;
++			}
++		}
++	}
++	else if (eCommerce == COMMERCE_GOLD)
++	{
++		if (getCommercePercent(COMMERCE_GOLD) == 100)
++		{
++			//avoid strikes
++			if (getGoldPerTurn() < 0)
++			{
++				iWeight += 15;
++			}
++		}
++		else if (getCommercePercent(COMMERCE_GOLD) == 0)
++		{
++			//put more money towards other commerce types
++			if (getGoldPerTurn() > 0)
++			{
++				iWeight -= 15;
+ 			}
+ 		}
+ 	}
+@@ -10987,6 +11006,12 @@
+ 		{
+ 			bValid = true;
+ 		}
++		if ((pLoopUnit->area()->getAreaAIType(getTeam()) == AREAAI_ASSAULT)
++			|| (pLoopUnit->area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++		{
++			bValid = false;			
++		}
++	
+ 		if (bValid)
+ 		{
+ 			if (pLoopUnit->plot()->isCity())
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@349
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@350
+@@ -1884,6 +1884,11 @@
+ {
+ 	PROFILE_FUNC();
+ 
++	if (AI_leaveAttack(1, 20, 100))
++	{
++		return;
++	}
++	
+ 	if (AI_guardCity(false, true, 1))
+ 	{
+ 		return;
+@@ -9976,7 +9981,7 @@
+     	int iEnemyStrength = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), iRange, false, false);
+ 		if (iEnemyStrength > 0)
+ 		{
+-    		if (((iOurStrength * 100) / iEnemyStrength) >= iStrengthThreshold)
++    		if (((iOurStrength * 100) / iEnemyStrength) < iStrengthThreshold)
+     		{
+     			return false;    		    		
+     		}
+

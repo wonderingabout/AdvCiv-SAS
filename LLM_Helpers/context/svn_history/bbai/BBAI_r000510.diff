@@ -1,0 +1,100 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 510
+# Author: jdog5000
+# Date: 2009-11-05T08:01:04.544778Z
+# Coverage: full
+# Message:
+#   All terrain tweaks
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@509
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@510
+@@ -1084,6 +1084,7 @@
+ 
+ 	if( !(bDefenseWar && iWarSuccessRatio < -50) && !bDanger )
+ 	{
++		// BBAI TODO: separate out special capital handling in early game
+ 		if ((iExistingWorkers == 0) && ((AI_getWorkersNeeded() > 0) || ((isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100))))))
+ 		{
+ 			int iLandBonuses = AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false);
+@@ -1105,6 +1106,8 @@
+ 					return;
+ 				}
+ 			}
++
++			// BBAI TODO: Does AI_getWorkersNeeded work well in early game?  Could instead check AI_countBestBuilds(area())
+ 			if ((iLandBonuses == 1  && getPopulation() > 1) || (AI_getWorkersNeeded() > 0))
+     		{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+@@ -1556,7 +1559,8 @@
+ 	if( !(bDefenseWar && iWarSuccessRatio < -50) )
+ 	{
+ 		if ((iAreaBestFoundValue > iMinFoundValue) || (iWaterAreaBestFoundValue > iMinFoundValue))
+-		{		
++		{
++			// BBAI TODO: Needs logic to check for early settler builds, settler builds in small cities, whether settler sea exists for water area sites?
+ 			if (pWaterArea != NULL)
+ 			{
+ 				int iTotalCities = kPlayer.getNumCities();
+@@ -11255,6 +11259,8 @@
+ //This needs to be serialized for human workers.
+ void CvCityAI::AI_updateWorkersNeededHere()
+ {
++	PROFILE_FUNC();
++
+ 	CvPlot* pLoopPlot;
+ 	
+ 	short aiYields[NUM_YIELD_TYPES];
+@@ -11291,12 +11297,12 @@
+ 		{
+ 			if (pLoopPlot->getArea() == getArea())
+ 			{
++				// BBAI TODO: Check late game slowness 
++
+ 				//How slow is this? It could be almost NUM_CITY_PLOT times faster
+ 				//by iterating groups and seeing if the plot target lands in this city
+ 				//but since this is only called once/turn i'm not sure it matters.
+ 				iWorkersHave += (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD));
+-			
+-				
+ 				
+ 				iWorkersHave += pLoopPlot->plotCount(PUF_isUnitAIType, UNITAI_WORKER, -1, getOwner(), getTeam(), PUF_isNoMission, -1, -1);
+ 				if (iI != CITY_HOME_PLOT)
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@509
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@510
+@@ -1299,9 +1299,12 @@
+ 			int iGroupAreaID = pSelectionGroup->getArea();
+ 			if (pToPlot->getArea() != iGroupAreaID)
+ 			{
+-				if (!(pToPlot->isAdjacentToArea(iGroupAreaID)))
++				if( !(pSelectionGroup->canMoveAllTerrain()) )
+ 				{
+-					return FALSE;
++					if (!(pToPlot->isAdjacentToArea(iGroupAreaID)))
++					{
++						return FALSE;
++					}
+ 				}
+ 			}
+ 		}	
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@509
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@510
+@@ -10713,7 +10713,7 @@
+ /*                                                                                              */
+ /* AI logging                                                                                   */
+ /************************************************************************************************/
+-			logBBAI("Player %d (%S) setTurnActive for turn %d", getID(), getCivilizationDescription(0), GC.getGameINLINE().getGameTurn() );
++			if( gPlayerLogLevel > 0 ) logBBAI("Player %d (%S) setTurnActive for turn %d", getID(), getCivilizationDescription(0), GC.getGameINLINE().getGameTurn() );
+ 			if( gPlayerLogLevel >= 2 )
+ 			{
+ 				CvWStringBuffer szBuffer;
+

@@ -1,0 +1,42 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 554
+# Author: jdog5000
+# Date: 2010-05-01T05:46:21.491212Z
+# Coverage: full
+# Message:
+#   (no message)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj
+--- /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@553
++++ /trunk/CvGameCoreDLL/CvGameCoreDLL.vcproj@554
+@@ -111,7 +111,7 @@
+ 			<Tool
+ 				Name="VCLinkerTool"
+ 				AdditionalDependencies="boost_python-vc71-mt-1_32.lib  winmm.lib"
+-				OutputFile="Assets/CvGameCoreDLL_RELEASE.dll"
++				OutputFile="../Assets/CvGameCoreDLL.dll"
+ 				LinkIncremental="1"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
+ 				GenerateDebugInformation="TRUE"
+@@ -176,7 +176,7 @@
+ 			<Tool
+ 				Name="VCLinkerTool"
+ 				AdditionalDependencies="boost_python-vc71-mt-1_32.lib  winmm.lib"
+-				OutputFile="Assets/CvGameCoreDLL.dll"
++				OutputFile="../Assets/CvGameCoreDLL.dll"
+ 				LinkIncremental="1"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
+ 				GenerateDebugInformation="TRUE"
+@@ -240,7 +240,7 @@
+ 			<Tool
+ 				Name="VCLinkerTool"
+ 				AdditionalDependencies="boost_python-vc71-mt-1_32.lib winmm.lib msvcprt.lib"
+-				OutputFile="Assets/CvGameCoreDLL_DEBUG.dll"
++				OutputFile="../Assets/CvGameCoreDLL.dll"
+ 				LinkIncremental="2"
+ 				AdditionalLibraryDirectories="Python24\libs;&quot;boost-1.32.0\libs\&quot;"
+ 				IgnoreDefaultLibraryNames="msvcprtd.lib"
+

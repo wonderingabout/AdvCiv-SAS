@@ -1,0 +1,473 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 442
+# Author: jdog5000
+# Date: 2009-04-06T05:24:58.116192Z
+# Coverage: full
+# Message:
+#   0.70B
+#   
+#   Tweaks to new city build while in war/losing logic
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@441
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@442
+@@ -1071,46 +1071,46 @@
+ 			return;
+ 		}
+ 	}
+-      
+-    if ((iExistingWorkers == 0) && (!bDanger) && ((AI_getWorkersNeeded() > 0) || ((isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100))))))
+-	{
+-		int iLandBonuses = AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false);
+-		if ((iLandBonuses > 1) || (getPopulation() > 3))
+-		{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
+-		}
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						10/25/08		jdog5000		*/
+-		/**																				*/
+-		/**		City AI																	*/
+-		/********************************************************************************/
+-		/* original BTS code
+-		if ((iNeededSeaWorkers > 0) && (getPopulation() < 3))
+-		{
+-		*/
+-		if (!bWaterDanger && (iNeededSeaWorkers > 0) && (getPopulation() < 3))
+-		{
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						END								*/
+-		/********************************************************************************/
+-			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+-			{
+-				return;
+-			}
+-		}
+-		if ((iLandBonuses == 1) || (AI_getWorkersNeeded() > 0))
+-    	{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
+-    	}
+-    }
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	if( !(bDefenseWar && iWarSuccessRatio < -50) && !bDanger )
++	{
++		if ((iExistingWorkers == 0) && ((AI_getWorkersNeeded() > 0) || ((isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100))))))
++		{
++			int iLandBonuses = AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false);
++			if ((iLandBonuses > 1) || (getPopulation() > 3))
++			{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++			}
++
++			if (!bWaterDanger && (iNeededSeaWorkers > 0) && (getPopulation() < 3))
++			{
++				if (AI_chooseUnit(UNITAI_WORKER_SEA))
++				{
++					return;
++				}
++			}
++			if ((iLandBonuses == 1) || (AI_getWorkersNeeded() > 0))
++    		{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++    		}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	int iPercentOfDomination = 0;
+ 	int iOurPopPercent = 100 * GET_TEAM(getTeam()).getTotalPopulation() / std::max(1, GC.getGameINLINE().getTotalPopulation());
+@@ -1188,7 +1188,7 @@
+ /**                                                                                              */
+ /** City AI                                                                                      */
+ /*************************************************************************************************/
+-		if( !(bLandWar && iWarSuccessRatio < -10) && !bDanger )
++		if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
+ 		{
+ 			if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < std::min(3,kPlayer.getNumCities()))
+ 			{
+@@ -1281,14 +1281,25 @@
+ 		{
+ 			return;	
+ 		}
+-		if ((iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+-		{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
+-		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++		if( !(bDefenseWar && iWarSuccessRatio < -30) )
++		{
++			if ((iExistingWorkers < ((iNeededWorkers + 1) / 2)))
++			{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	}
+ 	
+ 	bool bCrushStrategy = kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH);
+@@ -1311,7 +1322,7 @@
+ 	}
+ 
+ /********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						04/03/09		jdog5000		*/
++/**		BETTER_BTS_AI_MOD						04/05/09		jdog5000		*/
+ /**																				*/
+ /**		City AI																	*/
+ /********************************************************************************/
+@@ -1333,42 +1344,56 @@
+ 			}
+ 		}
+ 	}
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/	
+-
+-	if (!(iExistingWorkers == 0))
+-	{
+-        if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+-		{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
+-		}
+-	}
++
++	if( !(bDefenseWar && iWarSuccessRatio < -50) )
++	{
++		if (!(iExistingWorkers == 0))
++		{
++			if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
++			{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	//do a check for one tile island type thing?
+     //this can be overridden by "wait and grow more"
+     if (bDanger && (iExistingWorkers == 0) && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > 0)))
+     {
+-		if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+-			(isCapital() && (getPopulation() > 3)))
+-    	{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
+-    	}
+-		if (iNeededSeaWorkers > 0)
+-		{
+-			if (AI_chooseUnit(UNITAI_WORKER_SEA))
+-			{
+-				return;
+-			}
+-		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++		if( !(bDefenseWar && iWarSuccessRatio < -50) )
++		{
++			if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
++				(isCapital() && (getPopulation() > 3)))
++    		{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++    		}
++			if (iNeededSeaWorkers > 0)
++			{
++				if (AI_chooseUnit(UNITAI_WORKER_SEA))
++				{
++					return;
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+     }
+ 
+ /********************************************************************************/
+@@ -1391,7 +1416,7 @@
+ 		}
+ 	}
+ */
+-	if( !bDefenseWar || iWarSuccessRatio > 0 )
++	if( !(bDefenseWar && iWarSuccessRatio < -30) )
+ 	{
+ 		if (!bWaterDanger && iNeededSeaWorkers > 0)
+ 		{
+@@ -1510,6 +1535,9 @@
+ 				return;
+ 			}
+ 		}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 	}
+ 	
+ 	if (!bDanger && !bIsCapitalArea && area()->getCitiesPerPlayer(getOwnerINLINE()) > iNumCapitalAreaCities)
+@@ -1582,13 +1610,24 @@
+ 		}
+ 	}
+ 	
+-	if (!bDanger && (iProductionRank <= ((kPlayer.getNumCities() / 5) + 1)))
+-	{
+-		if (AI_chooseProject())
+-		{
+-			return;
+-		}
+-	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	if( !(bLandWar && iWarSuccessRatio < 30) )
++	{
++		if (!bDanger && (iProductionRank <= ((kPlayer.getNumCities() / 5) + 1)))
++		{
++			if (AI_chooseProject())
++			{
++				return;
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	//minimal defense.
+ 	if (plot()->plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwnerINLINE()) < (AI_minDefenders() + iPlotSettlerCount))
+@@ -1599,59 +1638,69 @@
+ 		}
+ 	}
+ 	
+-	
+-	if ((iAreaBestFoundValue > iMinFoundValue) || (iWaterAreaBestFoundValue > iMinFoundValue))
+-	{		
+-		if (pWaterArea != NULL)
+-		{
+-			int iTotalCities = kPlayer.getNumCities();
+-			int iSettlerSeaNeeded = std::min(iNumWaterAreaCitySites, ((iTotalCities + 4) / 8) + 1);
+-			if (kPlayer.getCapitalCity() != NULL)
+-			{
+-				int iOverSeasColonies = iTotalCities - kPlayer.getCapitalCity()->area()->getCitiesPerPlayer(getOwnerINLINE());;
+-				int iLoop = 2;
+-				int iExtras = 0;
+-				while (iOverSeasColonies >= iLoop)
+-				{
+-					iExtras++;
+-					iLoop += iLoop + 2;
+-				}
+-				iSettlerSeaNeeded += std::min(kPlayer.AI_totalUnitAIs(UNITAI_WORKER) / 4, iExtras);
+-			}
+-			if (bAssault)
+-			{
+-				iSettlerSeaNeeded = std::min(1, iSettlerSeaNeeded);
+-			}
+-
+-			// BBAI TODO: Limit boats based on total number of settlers?  Land war?
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	if( !(bDefenseWar && iWarSuccessRatio < -50) )
++	{
++		if ((iAreaBestFoundValue > iMinFoundValue) || (iWaterAreaBestFoundValue > iMinFoundValue))
++		{		
++			if (pWaterArea != NULL)
++			{
++				int iTotalCities = kPlayer.getNumCities();
++				int iSettlerSeaNeeded = std::min(iNumWaterAreaCitySites, ((iTotalCities + 4) / 8) + 1);
++				if (kPlayer.getCapitalCity() != NULL)
++				{
++					int iOverSeasColonies = iTotalCities - kPlayer.getCapitalCity()->area()->getCitiesPerPlayer(getOwnerINLINE());;
++					int iLoop = 2;
++					int iExtras = 0;
++					while (iOverSeasColonies >= iLoop)
++					{
++						iExtras++;
++						iLoop += iLoop + 2;
++					}
++					iSettlerSeaNeeded += std::min(kPlayer.AI_totalUnitAIs(UNITAI_WORKER) / 4, iExtras);
++				}
++				if (bAssault)
++				{
++					iSettlerSeaNeeded = std::min(1, iSettlerSeaNeeded);
++				}
++
++				// BBAI TODO: Limit boats based on total number of settlers?  Land war?
++				
++				if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) < iSettlerSeaNeeded)
++				{
++					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
++					{
++						return;
++					}
++				}
++			}
+ 			
+-			if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_SETTLER_SEA) < iSettlerSeaNeeded)
+-			{
+-				if (AI_chooseUnit(UNITAI_SETTLER_SEA))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-		
+-		if (iPlotSettlerCount == 0)
+-		{
+-			if ((iNumSettlers < iMaxSettlers) && (!bLandWar || (GC.getGameINLINE().getSorenRandNum(2, "AI War Settler") == 0)))
+-			{
+-				if (iPlotCityDefenderCount == 1)
+-				{
+-					if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++			if (iPlotSettlerCount == 0)
++			{
++				if ((iNumSettlers < iMaxSettlers) && (!bLandWar || (GC.getGameINLINE().getSorenRandNum(2, "AI War Settler") == 0)))
++				{
++					if (iPlotCityDefenderCount == 1)
++					{
++						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
++						{
++							return;
++						}
++					}
++					else if (AI_chooseUnit(UNITAI_SETTLE))
+ 					{
+ 						return;
+ 					}
+ 				}
+-				else if (AI_chooseUnit(UNITAI_SETTLE))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-	}
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	//this is needed to build the cathedrals quickly
+ 	//also very good for giving cultural cities first dibs on wonders
+@@ -1758,23 +1807,35 @@
+ /********************************************************************************/	
+ 	}
+ 	
+-	if (iNeededWorkers < iExistingWorkers)
+-	{
+-		if ((AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+-		{
+-			if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+-			{
+-				return;
+-			}
+-			bChooseWorker = true;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/05/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
++	{
++		// BBAI TODO: WTF?
++		if (iNeededWorkers < iExistingWorkers)
++		{
++			if ((AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
++			{
++				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
++				{
++					return;
++				}
++				bChooseWorker = true;
++			}
+ 		}
+ 	}
+     
+ 	//essential economic builds
+-	if (AI_chooseBuilding(iEconomyFlags, 10, 25))
++	if (AI_chooseBuilding(iEconomyFlags, 10, 25 + iWarTroubleThreshold))
+ 	{
+ 		return;
+ 	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	if (iBestSpreadUnitValue > ((iSpreadUnitThreshold * 60) / 100))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@441
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@442
+@@ -4257,7 +4257,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.70A");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.70B");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+

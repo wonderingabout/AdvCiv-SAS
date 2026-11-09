@@ -1,0 +1,351 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 290
+# Author: iustus
+# Date: 2007-01-24T18:04:57.555048Z
+# Coverage: full
+# Message:
+#   buildings which give happy or health have _some_ value even if the city is not unhappy or unhealthy 
+#   building value from commerce is rounded up after calculating AI weight
+#   buildings which are one tech away from being obsolete are low value not zero value
+#   holding down alt-shift-ctrl when turning on build governor will force a new item to be selected (clears queue)
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@289
++++ /trunk/CvGameCoreDLL/CvCity.cpp@290
+@@ -6559,6 +6559,12 @@
+ 		if ((getOwnerINLINE() == GC.getGameINLINE().getActivePlayer()) && isCitySelected())
+ 		{
+ 			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
++
++			// if automated && all 3 modifiers down, clear the queue and choose again
++			if (bNewValue && gDLL->ctrlKey() && gDLL->shiftKey() && gDLL->altKey())
++			{
++				clearOrderQueue();
++			}
+ 		}
+ 		
+ 		if (!isProduction())
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@289
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@290
+@@ -2483,20 +2483,9 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	ReligionTypes eStateReligion;
+-	bool bAreaAlone;
+-	bool bProvidesPower;
+-	bool bCanPopRush;
+-	int iHasMetCount;
+-	int iBaseMaintenance;
+-	int iFoodDifference;
+-	int iAngryPopulation;
+-	int iBadHealth;
+-	int iValue;
+ 	int iTempValue;
+ 	int iPass;
+ 	int iI, iJ;
+-	int iNumCities, iNumCitiesInArea;
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
+@@ -2504,20 +2493,25 @@
+ 	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
+ 	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
+ 
+-	eStateReligion = kOwner.getStateReligion();
+-
+-	bAreaAlone = kOwner.AI_isAreaAlone(area());
+-	bProvidesPower = (kBuilding.isPower() || ((kBuilding.getPowerBonus() != NO_BONUS) && hasBonus((BonusTypes)(kBuilding.getPowerBonus()))));
+-
+-	iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+-	iBaseMaintenance = calculateBaseMaintenanceTimes100()/100; // XXX is this slow?
+-	iFoodDifference = foodDifference(false);
+-	iAngryPopulation = angryPopulation(1);
+-	FAssert(iAngryPopulation >= 0);
+-	iBadHealth = max(0, -(healthRate(/*bNoAngry*/ true, 1)));
+-	iNumCities = kOwner.getNumCities();
+-	iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+-
++	ReligionTypes eStateReligion = kOwner.getStateReligion();
++
++	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
++	bool bProvidesPower = (kBuilding.isPower() || ((kBuilding.getPowerBonus() != NO_BONUS) && hasBonus((BonusTypes)(kBuilding.getPowerBonus()))));
++
++	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
++	int iBaseMaintenance = calculateBaseMaintenanceTimes100()/100; // XXX is this slow?
++	int iFoodDifference = foodDifference(false);
++
++	int iHappinessLevel = happyLevel() - unhappyLevel(1);
++	int iAngryPopulation = range(-iHappinessLevel, 0, (getPopulation() + 1));
++	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
++	int iBadHealth = max(0, -iHealthLevel);
++
++	int iHappyModifier = (iHappinessLevel >= iHealthLevel && iHappinessLevel <= 6) ? 2 : 1;
++	int iHealthModifier = (iHealthLevel > iHappinessLevel && iHealthLevel <= 4) ? 2 : 1;
++	
++	int iNumCities = kOwner.getNumCities();
++	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+ 	
+ 	int aiYieldRank[NUM_YIELD_TYPES];
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -2542,7 +2536,7 @@
+ 	bool bCulturalVictory2 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+ 	
+-	bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
++	bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 
+ 	if (kBuilding.isCapital())
+ 	{
+@@ -2550,39 +2544,18 @@
+ 		return 0;
+ 	}
+ 
+-	if (kBuilding.getObsoleteTech() != NO_TECH)
+-	{
+-		FAssertMsg(!(GET_TEAM(getTeam()).isHasTech((TechTypes)(kBuilding.getObsoleteTech()))), "Team expected to not have the tech that obsoletes eBuilding");
+-		if (kOwner.canResearch((TechTypes)(kBuilding.getObsoleteTech())))
+-		{
+-			return 0;
+-		}
+-	}
+-
+-	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+-	{
+-		if (GC.getSpecialBuildingInfo((SpecialBuildingTypes) kBuilding.getSpecialBuildingType()).getObsoleteTech() != NO_TECH)
+-		{
+-			FAssertMsg(!(GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getSpecialBuildingInfo((SpecialBuildingTypes) kBuilding.getSpecialBuildingType()).getObsoleteTech()))), "Team expected to not have the tech that obsoletes eBuilding");
+-			if (kOwner.canResearch((TechTypes)(GC.getSpecialBuildingInfo((SpecialBuildingTypes) kBuilding.getSpecialBuildingType()).getObsoleteTech())))
++	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++	{
++		if (kBuilding.getReligionChange(iI) > 0)
++		{
++			if (!(GET_TEAM(getTeam()).hasHolyCity((ReligionTypes)iI)))
+ 			{
+ 				return 0;
+ 			}
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+-	{
+-		if (kBuilding.getReligionChange(iI) > 0)
+-		{
+-			if (!(GET_TEAM(getTeam()).hasHolyCity((ReligionTypes)iI)))
+-			{
+-				return 0;
+-			}
+-		}
+-	}
+-
+-	iValue = 0;
++	int iValue = 0;
+ 
+ 	for (iPass = 0; iPass < 2; iPass++)
+ 	{
+@@ -2635,30 +2608,54 @@
+ 				{
+ 					iValue += ((iAngryPopulation * 10) + getPopulation());
+ 				}
+-
+-				iValue += (min(kBuilding.getHappiness(), iAngryPopulation) * 10);
++				
++				int iBuildingHappiness = kBuilding.getHappiness();
++				if (iBuildingHappiness != 0)
++				{
++					iValue += (min(iBuildingHappiness, iAngryPopulation) * 10) 
++						+ (max(0, iBuildingHappiness - iAngryPopulation) * iHappyModifier);
++				}
++
+ 				iValue += (kBuilding.getAreaHappiness() * iNumCitiesInArea * 8);
+ 				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);
+ 
+-				iValue += (min(-(((kBuilding.getWarWearinessModifier() * kOwner.getWarWearinessPercentAnger()) / 100) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")), iAngryPopulation) * 8);
+-				iValue += (-(((kBuilding.getGlobalWarWearinessModifier() * kOwner.getWarWearinessPercentAnger() / 100) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"))) * iNumCities);
+-				iValue -= (kBuilding.getHurryAngerModifier() * getHurryPercentAnger()) / 100;
+-
+-				if (kBuilding.getReligionType() == eStateReligion)
+-				{
+-					iValue += (min(kBuilding.getStateReligionHappiness(), iAngryPopulation) * 8);
++				int iWarWearinessPercentAnger = kOwner.getWarWearinessPercentAnger();
++				int iWarWearinessModifer = kBuilding.getWarWearinessModifier();
++				if (iWarWearinessModifer > 0)
++				{
++					iValue += (min(-(((iWarWearinessModifer * iWarWearinessPercentAnger) / 100) / GC.getDefineINT("PERCENT_ANGER_DIVISOR")), iAngryPopulation) * 8);
++					iValue += (-iWarWearinessModifer * iHappyModifier) / 16;
++				}
++				
++				int iGlobalWarWearinessModifer = kBuilding.getGlobalWarWearinessModifier();
++				if (iGlobalWarWearinessModifer > 0)
++				{
++					iValue += (-(((iGlobalWarWearinessModifer * iWarWearinessPercentAnger / 100) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"))) * iNumCities);
++					iValue += (-iGlobalWarWearinessModifer * iHappyModifier) / 16;
++				}
++
++				iValue += (-kBuilding.getHurryAngerModifier() * getHurryPercentAnger()) / 100;
++
++				int iStateReligionHappiness = kBuilding.getStateReligionHappiness();
++				if (kBuilding.getReligionType() == eStateReligion && iStateReligionHappiness != 0)
++				{
++					iValue += (min(iStateReligionHappiness, iAngryPopulation) * 8)
++						+ (max(0, iStateReligionHappiness - iAngryPopulation) * iHappyModifier);
+ 				}
+ 
+ 				for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 				{
+ 					iValue += (min(((kBuilding.getCommerceHappiness(iI) * kOwner.getCommercePercent((CommerceTypes)iI)) / 100), iAngryPopulation) * 8);
++					iValue += (kBuilding.getCommerceHappiness(iI) * iHappyModifier) / 4;
+ 				}
+ 
+ 				for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 				{
+ 					if (hasBonus((BonusTypes)iI))
+ 					{
+-						iValue += (min(kBuilding.getBonusHappinessChanges(iI), iAngryPopulation) * 8);
++						int iBonusHappinessChange = kBuilding.getBonusHappinessChanges(iI);
++						iValue += (min(iBonusHappinessChange, iAngryPopulation) * 8)
++							+ (max(0, iBonusHappinessChange - iAngryPopulation) * iHappyModifier);
+ 					}
+ 				}
+ 
+@@ -2683,15 +2680,25 @@
+ 
+ 				if (kBuilding.isNoUnhealthyPopulation())
+ 				{
+-					iValue += (min(unhealthyPopulation(), iBadHealth) * 6);
++					int iUnhealthyPopulation = unhealthyPopulation();
++					iValue += (min(iUnhealthyPopulation, iBadHealth) * 6)
++						+ (max(0, iUnhealthyPopulation - iBadHealth) * iHealthModifier);
+ 				}
+ 
+ 				if (kBuilding.isBuildingOnlyHealthy())
+ 				{
+-					iValue += (min(-(getBuildingBadHealth()), iBadHealth) * 6);
+-				}
+-
+-				iValue += (min(kBuilding.getHealth(), iBadHealth) * 6);
++					int iBuildingBadHealth = -getBuildingBadHealth();
++					iValue += (min(iBuildingBadHealth, iBadHealth) * 6)
++						+ ((max(0, iBuildingBadHealth - iBadHealth) + 1) * iHealthModifier);
++				}
++
++				int iBuildingHealth = kBuilding.getHealth();
++				if (iBuildingHealth != 0)
++				{
++					iValue += (min(iBuildingHealth, iBadHealth) * 6)
++						+ (max(0, iBuildingHealth - iBadHealth) * iHealthModifier);
++				}
++
+ 				iValue += (kBuilding.getAreaHealth() * iNumCitiesInArea * 4);
+ 				iValue += (kBuilding.getGlobalHealth() * iNumCities * 4);
+ 
+@@ -2699,7 +2706,9 @@
+ 				{
+ 					if (hasBonus((BonusTypes)iI))
+ 					{
+-						iValue += (min(kBuilding.getBonusHealthChanges(iI), iBadHealth) * 6);
++						int iBonusHealthChange = kBuilding.getBonusHealthChanges(iI);
++						iValue += (min(iBonusHealthChange, iBadHealth) * 6)
++							+ (max(0, iBonusHealthChange - iBadHealth) * iHealthModifier);
+ 					}
+ 				}
+ 			}
+@@ -3283,7 +3292,7 @@
+ 					}
+ 
+ 					iTempValue *= kOwner.AI_commerceWeight(((CommerceTypes)iI), this);
+-					iTempValue /= 100;
++					iTempValue = (iTempValue + 99) / 100;
+ 
+ 					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
+ 					// we do _not_ want to build this here (unless the value was small anyway)
+@@ -3292,7 +3301,7 @@
+ 					{
+ 						iTempValue *= -1;
+ 
+-						// for culture, just set it to zero, not negative, jsut about every wonder gives culture
++						// for culture, just set it to zero, not negative, just about every wonder gives culture
+ 						if (iI == COMMERCE_CULTURE)
+ 						{
+ 							iTempValue = 0;
+@@ -3388,18 +3397,14 @@
+ 				}
+ 			}
+ 
+-			if (iPass > 0)
++			if (iPass > 0 && !isHuman())
+ 			{
+ 				iValue += kBuilding.getAIWeight();
+-
+ 				if (iValue > 0)
+ 				{
+-					if (!isHuman())
+-					{
+-						for (iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+-						{
+-							iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+-						}
++					for (iI = 0; iI < GC.getNumFlavorTypes(); iI++)
++					{
++						iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+ 					}
+ 				}
+ 			}
+@@ -3407,15 +3412,20 @@
+ 	}
+ 	
+ 	// obsolete checks
++	bool bCanResearchObsoleteTech = false;
+ 	int iErasUntilObsolete = MAX_INT;
+ 	if (kBuilding.getObsoleteTech() != NO_TECH)
+ 	{
+-		iErasUntilObsolete = GC.getTechInfo((TechTypes) kBuilding.getObsoleteTech()).getEra() - kOwner.getCurrentEra();
++		TechTypes eObsoleteTech = (TechTypes) kBuilding.getObsoleteTech();
++		FAssertMsg(eObsoleteTech == NO_TECH || !(GET_TEAM(getTeam()).isHasTech(eObsoleteTech)), "Team expected to not have the tech that obsoletes eBuilding");
++		iErasUntilObsolete = GC.getTechInfo(eObsoleteTech).getEra() - kOwner.getCurrentEra();
++		bCanResearchObsoleteTech = kOwner.canResearch(eObsoleteTech);
+ 	}
+ 
+ 	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 	{
+ 		TechTypes eSpecialBldgObsoleteTech = (TechTypes) GC.getSpecialBuildingInfo((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType())).getObsoleteTech();
++		FAssertMsg(eSpecialBldgObsoleteTech == NO_TECH || !(GET_TEAM(getTeam()).isHasTech(eSpecialBldgObsoleteTech)), "Team expected to not have the tech that obsoletes eBuilding");
+ 		if (eSpecialBldgObsoleteTech != NO_TECH)
+ 		{
+ 			int iSpecialBldgErasUntilObsolete = GC.getTechInfo(eSpecialBldgObsoleteTech).getEra() - kOwner.getCurrentEra();
+@@ -3423,6 +3433,11 @@
+ 			if (iSpecialBldgErasUntilObsolete < iErasUntilObsolete)
+ 			{
+ 				iErasUntilObsolete = iSpecialBldgErasUntilObsolete;
++			}
++
++			if (!bCanResearchObsoleteTech)
++			{
++				bCanResearchObsoleteTech = kOwner.canResearch(eSpecialBldgObsoleteTech);
+ 			}
+ 		}
+ 	}
+@@ -3444,9 +3459,14 @@
+ 	//		iObsoleteTechPathLength = iSpecialBldgObsoleteTechPathLength;
+ 	//	}
+ 	//}
+-
++	
++	// if we can research obsolete tech, then this almost no value
++	if (bCanResearchObsoleteTech)
++	{
++		iValue = min(16, (iValue + 31) / 32);
++	}
+ 	// if we are going obsolete in the next era, the current era, or even previous eras...
+-	if (iErasUntilObsolete < 2)
++	else if (iErasUntilObsolete < 2)
+ 	{
+ 		// do not care about obsolete if we are going cultural and there is a culture benefit post obsolesence
+ 		if (!bCulturalVictory1 || (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) <= 0))
+

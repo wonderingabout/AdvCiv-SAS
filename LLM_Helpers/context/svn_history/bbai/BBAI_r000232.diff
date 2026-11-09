@@ -1,0 +1,1290 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 232
+# Author: iustus
+# Date: 2006-12-22T04:41:27.709130Z
+# Coverage: full
+# Message:
+#   merge from trunk, revs 223-231
+# Changed paths (7):
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+#   M /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@231
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@232
+@@ -479,14 +479,12 @@
+ 		if (iCommerce != 0)
+ 		{
+ 		    iModifier = 100;
++                iModifier = getTotalCommerceRateModifier((CommerceTypes) iI);
+ 		    
+-
+-                iModifier = getTotalCommerceRateModifier((CommerceTypes) iI);
+-
+-		    
+-			iCommerce = ((iCommerce * iModifier) / 100);
+-
+-			iTempValue = (iCommerce * 5);
++			iTempValue = iCommerce * 5;
++			iTempValue *= iModifier;
++			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++			iTempValue /= 10000;
+ 
+ 			int iCommerceWeight = GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(((CommerceTypes)iI), this);
+ 			
+@@ -540,9 +538,10 @@
+ 			}
+ 			
+ 			iTempValue *= iCommerceWeight;
+-//			iTempValue /= 100;
++			iTempValue /= 100;
+ 			//since multipliers have been allowed back in...
+-			iTempValue /= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceMultiplier((CommerceTypes)iI);
++			iTempValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
++			iTempValue /= 100;
+ 
+ 			iValue += iTempValue;
+ 		}
+@@ -731,7 +730,7 @@
+ 	bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 	iCulturePressure = AI_calculateCulturePressure();
+ 	int iNumCitiesInArea = area()->getCitiesPerPlayer(getOwnerINLINE());
+-	bool bImportantCity = false; //be very careful about setting this.
++	bool bSpecialCultureCity = false; //be very careful about setting this.
+ 	bool bBigCultureCity = false;
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+@@ -747,12 +746,17 @@
+ 	{	
+         if (kPlayer.AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+         {
+-            if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 1 && iCultureRateRank < kPlayer.getNumCities())
++			if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 1)
+             {
+                 bBigCultureCity = true;
+-                bImportantCity = true;
++
++				// if we do not have enough cities, then the highest culture city will not get special attention
++				if (iCultureRateRank > 1 || (kPlayer.getNumCities() > (iCulturalVictoryNumCultureCities + 1)))
++				{
++					bSpecialCultureCity = true;
+             }
+         }
++	}
+ 	}
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+@@ -886,7 +890,7 @@
+ 		}
+ 	}
+ 
+-	if (!(iExistingWorkers == 0) && !bImportantCity)
++	if (!(iExistingWorkers == 0) && !bSpecialCultureCity)
+ 	{
+         if (!bDanger && (iExistingWorkers < ((iNeededWorkers + 1) / 2)))
+ 		{
+@@ -911,7 +915,7 @@
+ 		}
+ 	}
+ 
+-	if (AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ false, /*bIncludeNeutral*/ true, /*iOtherCultureThreshold*/ -1) > 0)
++	if (AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ false, /*bIncludeNeutral*/ true, /*iOtherCultureThreshold*/ -1, /*bLand*/ true, /*bWater*/ true) > 0)
+ 	{
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+@@ -921,10 +925,10 @@
+ 	
+ 	//this is needed to build the cathedrals quickly
+ 	//also very good for giving cultural cities first dibs on wonders
+-	//kind of a bug but with bImportantCity set it'll cause important cities
++	//kind of a bug but with bSpecialCultureCity set it'll cause important cities
+ 	//to snap up wonders - this wasn't intended logic but it works well and I
+ 	//don't see the need to add a cultural victory check.
+-    if (bImportantCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
++    if (bSpecialCultureCity && (iCultureRateRank <= iCulturalVictoryNumCultureCities))
+     {
+         if (iCultureRateRank == iCulturalVictoryNumCultureCities)
+         {
+@@ -955,7 +959,7 @@
+         }
+ 
+ 	// don't build frivilious things if this is an imporant city unless we at war
+-    if (!bImportantCity || bLandWar || bAssault)
++    if (!bSpecialCultureCity || bLandWar || bAssault)
+     {
+         if (bPrimaryArea)
+         {
+@@ -1194,7 +1198,7 @@
+ 	}
+ 
+  	// don't build frivilious things if this is an imporant city
+-    if (!bImportantCity)
++    if (!bSpecialCultureCity)
+     {
+ 		if (iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
+         {
+@@ -3547,6 +3551,11 @@
+ 		}
+ 	}
+ 	
++	if (bDefenseWar || bOffenseWar)
++	{
++		iDefenders += (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) + 1) / 2;
++	}
++
+ 	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
+ 	{
+ 		iDefenders++;
+@@ -3562,18 +3571,25 @@
+ 				{
+ 					iDefenders += 2;
+ 				}
+-
+-				iDefenders += (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) + 1) / 2;
+ 			}
+ 		}
+ 	}		
+ 
+-	if (getGameTurnAcquired() != getGameTurnFounded())
+-	{
+-		if ((getGameTurnAcquired() + 10) > GC.getGameINLINE().getGameTurn())
+-		{
+-			iDefenders++;
+-		}
++	int iGameTurnAcquired = getGameTurnAcquired();
++	if (iGameTurnAcquired != getGameTurnFounded())
++	{
++		iDefenders++;
++		
++		int iGameTurn = GC.getGameINLINE().getGameTurn();
++		if (iGameTurnAcquired > (iGameTurn - 30))
++		{
++			iDefenders += (iGameTurnAcquired - (iGameTurn - 30)) / 10;
++		}
++	}
++
++	if (isOccupation())
++	{
++		iDefenders += 2;
+ 	}
+ 
+ 	if (GC.getGameINLINE().getMaxCityElimination() > 0)
+@@ -3972,7 +3988,10 @@
+ 				{
+ 					iGoodTileCount++;
+                     iFoodTotal += aiFinalYields[YIELD_FOOD];
++                    if (aiFinalYields[YIELD_PRODUCTION] > 1)
++                    {	
+                     iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
++				}
+ 				}
+ 
+ 				if (eBonus != NO_BONUS)
+@@ -4014,11 +4033,12 @@
+ 
+ 	if (iProductionTotal < 10)
+ 	{
+-	    iProductionMultiplier += (40 - 4 * iProductionTotal);
+-	}
+-	if (iProductionTotal < getPopulation())
+-	{
+-	    iProductionMultiplier += 5 * (iProductionTotal - getPopulation());
++	    iProductionMultiplier += (80 - 8 * iProductionTotal);
++	}
++	int iProductionTarget = 1 + (min(getPopulation(), (iTargetSize * 2) / 3) * 2);
++	if (iProductionTotal < iProductionTarget)
++	{
++	    iProductionMultiplier += 10 * (iProductionTotal - iProductionTarget);
+ 	}
+ 
+ 	if ((iBonusFoodSurplus + iFeatureFoodSurplus > 5) && ((iBonusFoodDeficit + iHillFoodDeficit) > 5))
+@@ -4026,7 +4046,7 @@
+ 		if ((iBonusFoodDeficit + iHillFoodDeficit) > 8)
+ 		{
+ 			//probably a good candidate for a wonder pump
+-			iProductionMultiplier += 20;
++			iProductionMultiplier += 40;
+ 			iCommerceMultiplier += (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) ? 0 : -40;
+ 		}
+ 	}
+@@ -4275,7 +4295,7 @@
+ 						{
+ 						    bEssential = true;
+ 						    iMinTurns = min(iMinTurns, 5);
+-						    if (AI_countNumBonuses(NO_BONUS, false, true, 2) > 0)
++						    if (AI_countNumBonuses(NO_BONUS, false, true, 2, true, true) > 0)
+ 						    {
+ 						    	bGrowth = true;						    	
+ 						    }
+@@ -5332,40 +5352,32 @@
+ 	PROFILE_FUNC();
+ 
+ 	int aiYields[NUM_YIELD_TYPES];
+-	int iNewCityYield;
+-	int iOldCityYield;
+-	int iValue;
+-	int iI;
+-	int iModifier;
+-	
++	int iCommerceYields[NUM_COMMERCE_TYPES];
++
+ 	int iExtraProductionModifier = 0;
+ 	int iBaseProductionModifier = 100;
+ 	
+-	int iCommerceYields[NUM_COMMERCE_TYPES];
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+ 	bool bFoodIsProduction = isFoodProduction();
+-
+-	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	
++	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++	{
++		iCommerceYields[iJ] = 0;
++	}
++
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		if (piYields[iI] == 0)
+ 		{
+ 			aiYields[iI] = 0;
+-
+-			if (iI == YIELD_COMMERCE)
+-			{
+-				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+-				{
+-					iCommerceYields[iJ] = 0;
+-		}
+-			}
+ 		}
+ 		else
+ 		{
+ 			// Get yield for city after adding/removing the citizen in question
+-			iOldCityYield = getBaseYieldRate((YieldTypes)iI);
+-			iNewCityYield = (bRemove ? (iOldCityYield - piYields[iI]) : (iOldCityYield + piYields[iI]));
++			int iOldCityYield = getBaseYieldRate((YieldTypes)iI);
++			int iNewCityYield = (bRemove ? (iOldCityYield - piYields[iI]) : (iOldCityYield + piYields[iI]));
+ 			
+-                iModifier = getBaseYieldRateModifier((YieldTypes)iI);
++			int iModifier = getBaseYieldRateModifier((YieldTypes)iI);
+                 if (iI == YIELD_PRODUCTION)
+                 {
+ 				iBaseProductionModifier = iModifier;
+@@ -5376,9 +5388,12 @@
+ 			iNewCityYield = (iNewCityYield * iModifier) / 100;
+ 			iOldCityYield = (iOldCityYield * iModifier) / 100;
+ 
++			// The yield of the citizen in question is the difference of total yields
++			// to account for rounding of modifiers
++			aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++			
+ 			if (iI == YIELD_COMMERCE)
+ 			{
+-				aiYields[iI] = 0;
+ 				for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 				{
+ 				        iModifier = getTotalCommerceRateModifier((CommerceTypes)iJ);
+@@ -5386,22 +5401,32 @@
+                     int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * iModifier) / 100;
+                     int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * iModifier) / 100;
+ 
+-					iCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
+-
+-					aiYields[iI] += iCommerceYields[iJ];
+-				}
+-			}
+-			else
+-			{
+-				// The yield of the citizen in question is the difference of total yields
+-				// to account for rounding of modifiers
+-				aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
+-			}
+-
+-		}
+-	}
+-
+-	iValue = 0;
++					iCommerceYields[iJ] += (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++				}
++			}
++			
++			if (iI == YIELD_PRODUCTION)
++			{
++				if (isProductionProcess())
++				{
++					aiYields[iI] = 0;
++					for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++					{
++						iCommerceYields[iJ] += ((GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iJ)) * (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield))) / 100;
++			}
++		}
++			}			
++	}
++	}
++	
++	// should not really use this much, but making it accurate
++	aiYields[YIELD_COMMERCE] = 0;
++	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++	{
++		aiYields[YIELD_COMMERCE] += iCommerceYields[iJ];
++	}
++
++	int iValue = 0;
+ 	
+ 	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
+ 	{
+@@ -5631,7 +5656,11 @@
+ 	iProductionValue += (adjustedYIELD_PRODUCTION * 14);
+ 	
+ 	// value commerce low(5 was 4)
+-	iCommerceValue += (aiYields[YIELD_COMMERCE] * 5);
++
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		iCommerceValue += ((iCommerceYields[iI] * 5) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++	}
+ 
+ 	if (bEmphasizeFood)
+ 	{
+@@ -5650,8 +5679,10 @@
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		// value commerce medium(40)
+-		iCommerceValue += (aiYields[YIELD_COMMERCE] * 40);
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			iCommerceValue += ((iCommerceYields[iI] * 40) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++	}
+ 	}
+ 
+ 	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+@@ -5662,6 +5693,137 @@
+ 			iCommerceValue += (iCommerceYields[iJ] * 40);
+ 	    }
+ 	    }
++	
++	//Lets have some fun with the multipliers, this basically bluntens the impact of
++	//massive bonuses.....
++	
++	//normalize the production... this allows the system to account for rounding
++	//and such while preventing an "out to lunch smoking weed" scenario with
++	//unusually high transient production modifiers.
++	//Other yields don't have transient bonuses in quite the same way.
++	iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
++	iProductionValue *= iBaseProductionModifier;
++	iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
++	iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++	iValue += iProductionValue;
++	
++	
++	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
++	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
++	iValue += iCommerceValue;
++//	
++	iFoodValue *= 100;
++	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
++	iValue += iFoodValue;
++
++	
++	return iValue;
++}
++
++int CvCityAI::AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth)
++{
++	PROFILE_FUNC();
++
++	int aiYields[NUM_YIELD_TYPES];
++	int aiCommerceYields[NUM_COMMERCE_TYPES];
++	int iNewCityYield;
++	int iOldCityYield;
++	int iValue;
++	int iI, iJ;
++	int iModifier;
++	
++	int iExtraProductionModifier = 0;
++	int iBaseProductionModifier = 100;
++	
++	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
++	bool bFoodIsProduction = isFoodProduction();
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		aiCommerceYields[iI] = piCommerce[iI];
++	}
++
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		if (piYields[iI] == 0)
++		{
++			aiYields[iI] = 0;
++		}
++		else
++		{
++			// Get yield for city after adding/removing the citizen in question
++			iOldCityYield = getBaseYieldRate((YieldTypes)iI);
++			iNewCityYield = (bRemove ? (iOldCityYield - piYields[iI]) : (iOldCityYield + piYields[iI]));
++			
++			iModifier = getBaseYieldRateModifier((YieldTypes)iI);
++			if (iI == YIELD_PRODUCTION)
++			{
++				iBaseProductionModifier = iModifier;
++				iExtraProductionModifier = getProductionModifier();
++				iModifier += iExtraProductionModifier;
++			}
++
++			iNewCityYield = (iNewCityYield * iModifier) / 100;
++			iOldCityYield = (iOldCityYield * iModifier) / 100;
++
++			// The yield of the citizen in question is the difference of total yields
++			// to account for rounding of modifiers
++			aiYields[iI] = (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++			
++			//Convert Commerce into COMMERCE_TYPES
++			if (iI == YIELD_COMMERCE)
++			{
++				aiYields[iI] = 0; 
++				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++				{
++				    iModifier = getTotalCommerceRateModifier((CommerceTypes)iJ);
++				    
++                    int iNewCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iNewCityYield) * iModifier) / 100;
++                    int iOldCommerceComponent = (getCommerceFromPercent((CommerceTypes)iJ, iOldCityYield) * iModifier) / 100;
++
++					aiCommerceYields[iJ] = (bRemove ? (iOldCommerceComponent - iNewCommerceComponent) : (iNewCommerceComponent - iOldCommerceComponent));
++				}
++			}
++			
++			//Convert Production into COMMERCE_TYPES			
++			if (iI == YIELD_PRODUCTION)
++			{
++				if (isProductionProcess())
++				{					
++					aiYields[iI] = 0;
++					for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++					{
++						aiCommerceYields[iJ] += (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iJ)) * (bRemove ? (iOldCityYield - iNewCityYield) : (iNewCityYield - iOldCityYield));
++					}
++				}
++			}
++		}
++	}
++
++	iValue = 0;
++	int iStuffValue = 0;
++	
++	int iProductionValue = 0;
++	int iCommerceValue = 0;
++	int iFoodValue = 0;
++	
++	if (bFoodIsProduction)
++	{
++		// if food is production, the count it
++		iProductionValue += aiYields[YIELD_FOOD] * 55;
++	}
++	else
++	{
++	
++		iFoodValue += 100 * aiYields[YIELD_FOOD];
++	}
++	
++	iProductionValue += aiYields[YIELD_PRODUCTION] * 55;
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		iCommerceValue += ((aiCommerceYields[iI] * 40) * GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI)) / 100;
++	}
+ 	
+ 	//Lets have some fun with the multipliers, this basically bluntens the impact of
+ 	//massive bonuses.....
+@@ -5679,11 +5841,58 @@
+ 	
+ 	iCommerceValue *= (100 + AI_specialYieldMultiplier(YIELD_COMMERCE));
+ 	iCommerceValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+-	iValue += iCommerceValue;
+-	
+-	iFoodValue *= 100;
++	
++	iFoodValue *= (100 + AI_specialYieldMultiplier(YIELD_FOOD));
+ 	iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
++	
++	iStuffValue += iProductionValue;
++	iStuffValue += iCommerceValue;
++	
++	iValue += iStuffValue;
+ 	iValue += iFoodValue;
++
++	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
++	{
++		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
++		int iFoodLevel = getFood();
++		int iFoodToGrow = growthThreshold();
++		int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 0);
++		int iHappinessLevel = (isNoUnhappiness() ? max(1, iHealthLevel + 3) : happyLevel() - unhappyLevel(0));
++		int iPopulation = getPopulation();
++		int iWorkingPopulation = getWorkingPopulation();
++		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
++		int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++
++		// if we not human, allow us to starve to half full if avoiding growth
++		int iStarvingAllowance = 0;
++		if (bAvoidGrowth && !isHuman())
++		{
++			iStarvingAllowance = max(0, (iFoodLevel - max(1, ((9 * iFoodToGrow) / 10))));
++		}
++	
++		// if still starving
++		if ((iFoodPerTurn + iStarvingAllowance) < 0)
++		{
++			// if working plots all like this one will save us from starving
++			if (max(0, iExtraPopulationThatCanWork * aiYields[YIELD_FOOD]) >= -iFoodPerTurn)
++			{
++				// if this is high food, then we want to pick it first, this will allow us to pick some great non-food later
++				int iHighFoodThreshold = iConsumtionPerPop + 1;				
++				if (iFoodPerTurn <= -iHighFoodThreshold && aiYields[YIELD_FOOD] >= iHighFoodThreshold)
++				{
++					// value all the food that will contribute to not starving
++					iValue += 250 * (1 + min(aiYields[YIELD_FOOD], -iFoodPerTurn));
++				}
++				else
++				{
++					// give a huge boost to this plot, but not based on how much food it has
++					// ie, if working a bunch of 1f 7h plots will stop us from starving, then do not force working unimproved 2f plot
++					iValue += 250;
++				}
++			}
++		}
++	}
++	
+ 	
+ 	return iValue;
+ }
+@@ -5787,7 +5996,7 @@
+ 
+ 
+ 
+-// Improved worker AI provided by Blake - thank you!
++//Improved worker AI provided by Blake - thank you!
+ void CvCityAI::AI_bestPlotBuild(CvPlot* pPlot, int* piBestValue, BuildTypes* peBestBuild, int iFoodPriority, int iProductionPriority, int iCommercePriority, bool bChop)
+ {
+ 	PROFILE_FUNC();
+@@ -6111,7 +6320,7 @@
+ 					}
+ 					else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 					{
+-						if (iFoodPriority > 0)
++						if (iFoodPriority > 100)
+ 						{
+ 						    if (eNonObsoleteBonus == NO_BONUS)
+ 						    {
+@@ -6123,17 +6332,17 @@
+ 						}
+ 						else
+ 						{
+-							if (aiFinalYields[YIELD_PRODUCTION] > 0)
++							if ((aiDiffYields[YIELD_PRODUCTION] > 0) && (aiFinalYields[YIELD_FOOD]+aiFinalYields[YIELD_PRODUCTION] > 3))
+ 							{
+                             //value booster for mines on hills
+-                            iValue *= (100 + 20 * aiDiffYields[YIELD_PRODUCTION]);
++								iValue *= (100 + 25 * aiDiffYields[YIELD_PRODUCTION]);
+                             iValue /= 100;
+ 						}
+ 						}
+ 
+ 						if ((iFoodPriority < 100) && (iProductionPriority > 100))
+ 						{
+-						    iValue *= (100 + iProductionPriority);
++						    iValue *= (200 + iProductionPriority);
+ 						    iValue /= 200;
+ 						}
+ 					}
+@@ -6592,8 +6801,8 @@
+ 		}
+ 	}
+ 
+-	if ((AI_countNumBonuses(NO_BONUS, false, true, 10) > 0)
+-		&& (getPopulation() > AI_countNumBonuses(NO_BONUS, true, false, -1)))
++	if ((AI_countNumBonuses(NO_BONUS, false, true, 10, true, true) > 0)
++		&& (getPopulation() > AI_countNumBonuses(NO_BONUS, true, false, -1, true, true)))
+ 	{
+ 		if (getCommerceRate(COMMERCE_CULTURE) == 0)
+ 		{
+@@ -6937,26 +7146,12 @@
+ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ {
+ 	PROFILE_FUNC();
+-	int iI;
+ 	
+ 	int iMultiplier = getBaseYieldRateModifier(eYield);
+ 	
+ 	if (eYield == YIELD_PRODUCTION)
+ 	{
+ 		iMultiplier += (getMilitaryProductionModifier() / 2);
+-	}
+-	else if (eYield == YIELD_COMMERCE)
+-	{
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+-		{
+-			if ((iI == COMMERCE_GOLD) || (iI == COMMERCE_RESEARCH))
+-			{
+-				//use the average of science and gold. To be strictly correct these should be
+-				//weighted by the *sustainable* slider allocation, using the present slider
+-				//is fallacious logic. However an average is probably good enough....
+-				iMultiplier += ((getTotalCommerceRateModifier((CommerceTypes)iI) - 100) / 2);
+-			}
+-		}
+ 	}
+ 	
+ 	return iMultiplier;	
+@@ -6976,7 +7171,7 @@
+ 	{
+ 		if (GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER_SEA)
+ 		{
+-			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 100;
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 50;
+ 			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 50;				
+ 		}
+ 		if ((GC.getUnitInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_WORKER) ||
+@@ -7001,12 +7196,12 @@
+ 	{
+ 		AreaAITypes eAreaAIType = area()->getAreaAIType(getTeam());
+ 		
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER)
++		if ((GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_DAGGER) && getPopulation() >= 4)
+ 			|| (eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) 
+ 			|| (eAreaAIType == AREAAI_MASSING) || (eAreaAIType == AREAAI_ASSAULT))
+ 		{
+-			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 40;
+-			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 30;	
++			m_aiSpecialYieldMultiplier[YIELD_PRODUCTION] += 10;
++			m_aiSpecialYieldMultiplier[YIELD_COMMERCE] -= 40;
+ 		}
+ 	}
+ }
+@@ -7036,7 +7231,7 @@
+             {
+                 if ((eBonus == NO_BONUS) || (eBonus == eLoopBonus))
+                 {
+-                    if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()))
++						if (bIncludeOurs && (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) && (pLoopPlot->getWorkingCity() == this))
+                     {
+                         iCount++;                    
+                     }
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.h@231
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.h@232
+@@ -149,6 +149,7 @@
+ 	bool AI_potentialPlot(short* piYields);
+ 	bool AI_foodAvailable(int iExtra = 0);
+ 	int AI_yieldValue(short* piYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
++	int AI_unifiedYieldValue(short* piYields, short* piCommerce, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood, bool bIgnoreGrowth);
+ 	int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false);
+ 
+ 	int AI_experienceWeight();
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@231
++++ /branches/vanilla/CvGameCoreDLL/CvGameTextMgr.cpp@232
+@@ -1644,16 +1644,15 @@
+                 szTempBuffer.Format(L"\nWater World Percent = %d", pCity->AI_calculateWaterWorldPercent());
+                 szString+=szTempBuffer;                
+ 
+-				szString += CvWString::format(L"\nRanks:");
++                szTempBuffer.Format(L"\nNeeded defenders = %d", pCity->AI_neededDefenders());
++                szString+=szTempBuffer;                
++				
++				szString += CvWString::format(L"\n\nRanks:");
+ 				szString += CvWString::format(L"\nPopulation:%d", pCity->findPopulationRank());
+ 				
+-				szString += CvWString::format(L"\n(Base) Food:%d, ", pCity->findBaseYieldRateRank(YIELD_FOOD));
+-				szString += CvWString::format(L"Prod:%d, ", pCity->findBaseYieldRateRank(YIELD_PRODUCTION));
+-				szString += CvWString::format(L"Commerce:%d", pCity->findBaseYieldRateRank(YIELD_COMMERCE));
+-				
+-				szString += CvWString::format(L"\nFood:%d, ", pCity->findYieldRateRank(YIELD_FOOD));
+-				szString += CvWString::format(L"Prod:%d, ", pCity->findYieldRateRank(YIELD_PRODUCTION));
+-				szString += CvWString::format(L"Commerce:%d", pCity->findYieldRateRank(YIELD_COMMERCE));
++				szString += CvWString::format(L"\nFood:%d(%d), ", pCity->findYieldRateRank(YIELD_FOOD), pCity->findBaseYieldRateRank(YIELD_FOOD));
++				szString += CvWString::format(L"Prod:%d(%d), ", pCity->findYieldRateRank(YIELD_PRODUCTION), pCity->findBaseYieldRateRank(YIELD_PRODUCTION));
++				szString += CvWString::format(L"Commerce:%d(%d)", pCity->findYieldRateRank(YIELD_COMMERCE), pCity->findBaseYieldRateRank(YIELD_COMMERCE));
+ 				
+ 				szString += CvWString::format(L"\nGold:%d, ", pCity->findCommerceRateRank(COMMERCE_GOLD));
+ 				szString += CvWString::format(L"Research:%d, ", pCity->findCommerceRateRank(COMMERCE_RESEARCH));
+@@ -1689,8 +1688,7 @@
+ 	    }
+ 	    }
+ 
+-		szTempBuffer.Format(L"\nFound Values:");
+-		szString+=szTempBuffer;
++		bool bFirst = true;
+             for (iI = 0; iI < MAX_PLAYERS; iI++)
+             {
+             PlayerTypes ePlayer = (PlayerTypes)iI;
+@@ -1699,29 +1697,40 @@
+ 			if (kPlayer.isAlive())
+                 {
+ 				int iActualFoundValue = pPlot->m_aiFoundValue[iI];
+-				if (iActualFoundValue > 0)
++                int iCalcFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
++                int iStartingFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++				
++				if (iActualFoundValue > 0 || iCalcFoundValue > 0 || iStartingFoundValue > 0)
+                 {
++					if (bFirst)
++					{
++						szString += CvWString::format(SETCOLR L"\nFound Values:" ENDCOLR, TEXT_COLOR("COLOR_UNIT_TEXT"));
++						bFirst = false;
++					}
++
+                     szString+=NEWLINE;
+-    
+-                    bool bIsRevealed = pPlot->isRevealed(kPlayer.getTeam(), false);
+-
++
++					int iBestAreaFoundValue = pPlot->area()->getBestFoundValue(ePlayer);
++
++					bool bIsRevealed = pPlot->isRevealed(kPlayer.getTeam(), false);
++					
++					szString += CvWString::format(SETCOLR, 
++						TEXT_COLOR(bIsRevealed ? (((iActualFoundValue > 0) && (iActualFoundValue == iBestAreaFoundValue)) ? "COLOR_UNIT_TEXT" : "COLOR_ALT_HIGHLIGHT_TEXT") : "COLOR_HIGHLIGHT_TEXT"));
++					
+                     if (!bIsRevealed)
+                     {
+-                        szTempBuffer.Format(L"(");
+-                    szString+=szTempBuffer;
+-                }
+-
+-                    szTempBuffer.Format(L"%s:%d", kPlayer.getName(), iActualFoundValue);
+-                    szString+=szTempBuffer;
++						szString += CvWString::format(L"(");
++					}
++
++					szString += CvWString::format(L"%s: %d", kPlayer.getName(), iActualFoundValue);
+ 
+                     if (!bIsRevealed)
+                     {
+-                        szTempBuffer.Format(L")");
+-                        szString+=szTempBuffer;
+-            }
+-
+-                    int iCalcFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, false);
+-                    int iStartingFoundValue = kPlayer.AI_foundValue(pPlot->getX_INLINE(), pPlot->getY_INLINE(), -1, true);
++						szString += CvWString::format(L")");
++					}
++
++					szString += CvWString::format(ENDCOLR); 
++
+                     if (iCalcFoundValue > 0 || iStartingFoundValue > 0)
+                     {
+                         szTempBuffer.Format(L" (%d,%ds)", iCalcFoundValue, iStartingFoundValue);
+@@ -1731,22 +1740,20 @@
+                     int iDeadlockCount = kPlayer.AI_countDeadlockedBonuses(pPlot);
+                     if (iDeadlockCount > 0)
+                     {
+-                        szTempBuffer.Format(L", d=%d", iDeadlockCount);
++						szTempBuffer.Format(L", " SETCOLR L"d=%d" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"), iDeadlockCount);
+                         szString+=szTempBuffer;
+-	}
+-
+-                    int iBestAreaFoundValue = pPlot->area()->getBestFoundValue(ePlayer);
++					}
++
+                     if (iBestAreaFoundValue > 0)
+                     {
+                         int iBestFoundValue = kPlayer.findBestFoundValue();
+ 
+                         szTempBuffer.Format(L"\n  Area Best = %d, Best = %d", iBestAreaFoundValue, iBestFoundValue);
+                         szString+=szTempBuffer;
+-                    }	
+                 }
+             }
+-			
+         }
++	}
+ 	}
+ 	else if (bShift && bAlt && (gDLL->getChtLvl() > 0))
+ 	{
+@@ -1876,6 +1883,13 @@
+ 					
+ 					szString += CvWString::format(L"\nCitySp:(f%d, h%d, c%d)", iFood, iHammer, iCommerce);
+ 					
++					szString += CvWString::format(L"\nExchange");
++					for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++					{
++						iCommerce = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++						szTempBuffer.Format(L", %d%c", iCommerce, GC.getCommerceInfo((CommerceTypes) iI).getChar());
++						szString+=szTempBuffer;
++					}
+ 			}
+ 			}
+ 			else
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@231
++++ /branches/vanilla/CvGameCoreDLL/CvPlayer.cpp@232
+@@ -915,11 +915,6 @@
+ 		return 100;
+ 	}
+ 
+-	if (pPlot->getMinOriginalStartDist() > ((iRange * 2) / 3))
+-	{
+-		return 100;
+-	}
+-
+ 	pStartingPlot = getStartingPlot();
+ 
+ 	if (pStartingPlot != NULL)
+@@ -953,11 +948,7 @@
+                 iValue *= (iDistance + (iRange / 2));
+ 			    iValue /= (iRange + 1 + (iRange / 2));
+ 			}
+-//			if (iDistance < (iRange / 2))
+-//			{
+-//				iValue /= 2;
+-//			}
+-			if (iDistance <= CITY_PLOTS_RADIUS)
++			if (iDistance <= (CITY_PLOTS_RADIUS * 2))
+ 			{
+ 				iValue /= 2;
+ 			}
+@@ -1010,7 +1001,7 @@
+ 			iValue *= min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
+ 			iValue /= (NUM_CITY_PLOTS + 1);
+ 
+-			if (iNumPlayersOnArea == 2)
++			if (iNumPlayersOnArea <= 2)
+ 			{
+ 				iValue *= 4;
+ 				iValue /= 3;
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@231
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@232
+@@ -73,6 +73,7 @@
+ 	
+ 	m_aiAverageYieldMultiplier = new int[NUM_YIELD_TYPES];
+ 	m_aiAverageCommerceMultiplier = new int[NUM_COMMERCE_TYPES];
++	m_aiAverageCommerceExchange = new int[NUM_COMMERCE_TYPES];
+ 
+ 	AI_reset();
+ }
+@@ -84,6 +85,7 @@
+ 	
+ 	SAFE_DELETE_ARRAY(m_aiAverageYieldMultiplier);
+ 	SAFE_DELETE_ARRAY(m_aiAverageCommerceMultiplier);
++	SAFE_DELETE_ARRAY(m_aiAverageCommerceExchange);
+ }
+ 
+ 
+@@ -164,6 +166,7 @@
+ 	for (iI = 0; iI< NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		m_aiAverageCommerceMultiplier[iI] = 0;
++		m_aiAverageCommerceExchange[iI] = 0;
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
+ 	m_iAveragesCacheTurn = -1;
+@@ -295,7 +298,7 @@
+ 	PROFILE_FUNC();
+ 
+ 	CvUnit* pLoopUnit;
+-	CvPlot* pLastUpgradePlot;
++	CvPlot* pUnitPlot;
+ 	bool bValid;
+ 	int iPass;
+ 	int iLoop;
+@@ -313,7 +316,7 @@
+ 		return;
+ 	}
+ 
+-	pLastUpgradePlot = NULL;
++	CvPlot* pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+@@ -329,21 +332,23 @@
+ 				}
+ 				break;
+ 			case 1:
+-				if (pLoopUnit->plot()->isCity())
+-				{
+-					//try to upgrade units which are in danger... but don't get obsessed
+-					if (((AI_getPlotDanger(pLoopUnit->plot(), 1, false)) > 0) && (pLastUpgradePlot != pLoopUnit->plot()))
++				pUnitPlot = pLoopUnit->plot();
++				if (pUnitPlot->isCity())
++				{
++					if (pUnitPlot->getBestDefender(getID()) == pLoopUnit)
+ 					{
+ 						bValid = true;
+-						pLastUpgradePlot = pLoopUnit->plot();
+-						break;
++						pLastUpgradePlot = pUnitPlot;
+ 					}
+-					if (pLoopUnit->plot()->getBestDefender(getID()) == pLoopUnit)
++
++					// try to upgrade units which are in danger... but don't get obsessed
++					if (!bValid && (pLastUpgradePlot != pUnitPlot) && ((AI_getPlotDanger(pUnitPlot, 1, false)) > 0))
+ 					{
+ 						bValid = true;
+-						break;
++						pLastUpgradePlot = pUnitPlot;
+ 					}
+ 				}
++				break;
+ 			case 2:
+ 				if (pLoopUnit->cargoSpace() > 0)
+ 				{
+@@ -1190,7 +1195,10 @@
+ {
+ 	int iWeight;
+ 
+-	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent(); 
++	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent();
++	
++	//sorry but the merchant descrimination must stop.
++	iWeight = min(101, iWeight);
+ 
+ 	if (eCommerce == COMMERCE_RESEARCH)
+ 	{
+@@ -1311,7 +1319,6 @@
+ 
+ 	pPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	pArea = pPlot->area();
+-	iNumAreaCities = pArea->getCitiesPerPlayer(getID());
+ 	bIsCoastal = false;
+ 	for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+ 	{
+@@ -1887,58 +1894,16 @@
+ 		}
+ 		else
+ 		{
+-			iValue += (pPlot->getMinOriginalStartDist() * 100);
+-		}
+-//		
++			iValue *= (1 + 3 * pPlot->getMinOriginalStartDist());
++			iValue /= (1 + 2 * GC.getMapINLINE().maxStepDistance());
++		}
++		
+ 		//nice hacky way to avoid this messing with normalizer, use elsewhere?
+ 		if (!pPlot->isStartingPlot())
+ 		{
+-//		    int iTotalDist = 0;
+-//		    int iTotalCount = 0;
+-//		    int iMinDist = MAX_INT;
+-//		    int iMinStartDist = startingPlotRange();
+-//		    int iClosePenalty = 1000;
+-//            for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-//            {
+-//                if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-//                {
+-//                    CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-//
+-//                    if (pStartingPlot != NULL)
+-//                    {
+-//                        int iDist = plotDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pStartingPlot->getX_INLINE(), pStartingPlot->getX_INLINE());
+-//                        iDist *= (pStartingPlot->area() == pPlot->area()) ? 3 : 1;
+-//                        iDist = min(iDist, iMinStartDist * 2);
+-//                        iTotalDist += iDist;
+-//                        iTotalCount++;
+-//                        
+-//                        iMinDist = min(iDist, iMinDist);
+-//                        
+-//                        iClosePenalty *= min(iDist, iMinStartDist);
+-//                        iClosePenalty /= iMinStartDist;
+-//                    }
+-//                }
+-//            }
+-//            
+-//            //This generally encourages distant starts
+-//            iValue *= (iMinStartDist + iTotalDist);
+-//            iValue /= (iMinStartDist + iMinStartDist * iTotalCount);
+-//            
+-////            //This specifically pushes apart close starts
+-////            iValue *= iClosePenalty + 100;
+-////            iValue /= 1000 + 100;
+-////            iValue *= iClosePenalty + 100;
+-////            iValue /= 1000 + 100;
+-////            
+-////            //further decimate the value for very close starts.
+-////            if (iMinDist < 5)
+-////            {
+-////                iValue /= 10;
+-////            }
+-//            
+             if (pPlot->getBonusType() != NO_BONUS)
+             {
+-                iValue /= 2;                
++                iValue /= 2;
+             }
+ 		}
+ 	}
+@@ -4573,6 +4538,8 @@
+ 
+ 	iHumanDealWeight = AI_dealVal(ePlayer, pTheirList);
+ 	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList);
++	
++	int iGoldValuePercent = AI_goldTradeValuePercent();
+ 
+ 	pTheirCounter->clear();
+ 	pOurCounter->clear();
+@@ -4671,11 +4638,15 @@
+ 			if (pGoldNode)
+ 			{
+ 				iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++				if ((iGoldData * iGoldValuePercent) < iGoldWeight)
++				{
++					iGoldData++;
++				}
+ 				if (GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += iGoldWeight;
++					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -4759,14 +4730,19 @@
+ 			if (pGoldNode)
+ 			{
+ 				iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++				
++				if ((iGoldWeight * 100) > (iGoldData * iGoldValuePercent))
++				{
++					iGoldData++;
++				}
+ 
+ 				iGoldData = min(iGoldData, GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()));
+ 
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += (iGoldData * AI_goldTradeValuePercent()) / 100;
++					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -4924,11 +4900,12 @@
+ 			if (pGoldNode)
+ 			{
+ 				int iGoldData = iGoldWeight * 100;
+-				iGoldData /= AI_goldTradeValuePercent();
++				iGoldData /= iGoldValuePercent;
++
+ 				if (AI_maxGoldTrade(ePlayer) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += (iGoldData * AI_goldTradeValuePercent());
++					iAIDealWeight += ((iGoldData * iGoldValuePercent) / 100);
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -9930,6 +9907,20 @@
+ 	return m_iAverageGreatPeopleMultiplier;	
+ }
+ 
++//"100 eCommerce is worth (return) raw YIELD_COMMERCE
++int CvPlayerAI::AI_averageCommerceExchange(CommerceTypes eCommerce)
++{
++	FAssert(eCommerce > -1);
++	FAssert(eCommerce < NUM_COMMERCE_TYPES);
++	
++	if (m_iAveragesCacheTurn != GC.getGameINLINE().getGameTurn())
++	{
++		AI_calculateAverages();
++	}
++	
++	return m_aiAverageCommerceExchange[eCommerce];
++}
++
+ void CvPlayerAI::AI_calculateAverages()
+ {
+ 	CvCity* pLoopCity;
+@@ -9954,9 +9945,6 @@
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		iPopulation = max(pLoopCity->getPopulation(), NUM_CITY_PLOTS);
+-		
+-		if (iPopulation > 0)
+-		{
+ 			iTotalPopulation += iPopulation;
+ 			
+ 			for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -9969,7 +9957,7 @@
+ 		}
+ 			m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
+ 		}
+-	}	
++	
+ 	
+ 	if (iTotalPopulation > 0)
+ 	{
+@@ -9997,6 +9985,48 @@
+ 			m_aiAverageCommerceMultiplier[iI] = 100;
+ 		}
+ 		m_iAverageGreatPeopleMultiplier = 100;
++	}
++	
++	
++	//Calculate Exchange Rate
++	
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		m_aiAverageCommerceExchange[iI] = 0;		
++	}
++	
++	int iCommerce = 0;
++	int iTotalCommerce = 0;
++	
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		iCommerce = pLoopCity->getYieldRate(YIELD_COMMERCE);
++		iTotalCommerce += iCommerce;
++		
++		int iExtraCommerce = 0;
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			iExtraCommerce +=((pLoopCity->getSpecialistPopulation() + pLoopCity->getNumGreatPeople()) * getSpecialistExtraCommerce((CommerceTypes)iI));
++			iExtraCommerce += (pLoopCity->getBuildingCommerce((CommerceTypes)iI) + pLoopCity->getSpecialistCommerce((CommerceTypes)iI) + pLoopCity->getReligionCommerce((CommerceTypes)iI) + getFreeCityCommerce((CommerceTypes)iI));
++		}
++		iTotalCommerce += iExtraCommerce;
++		
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_aiAverageCommerceExchange[iI] += ((iCommerce + iExtraCommerce) * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI)) / 100;		
++		}
++	}
++
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		if (m_aiAverageCommerceExchange[iI] > 0)
++		{
++			m_aiAverageCommerceExchange[iI] = (100 * iTotalCommerce) / m_aiAverageCommerceExchange[iI];
++		}
++		else
++		{
++			m_aiAverageCommerceExchange[iI] = 100;
++		}
+ 	}
+ 
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@231
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.h@232
+@@ -241,6 +241,7 @@
+ 	int AI_averageYieldMultiplier(YieldTypes eYield);
+ 	int AI_averageCommerceMultiplier(CommerceTypes eCommerce);
+ 	int AI_averageGreatPeopleMultiplier();
++	int AI_averageCommerceExchange(CommerceTypes eCommerce);
+ 	
+   	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+@@ -265,6 +266,7 @@
+ 	
+ 	int *m_aiAverageYieldMultiplier;
+ 	int *m_aiAverageCommerceMultiplier;
++	int *m_aiAverageCommerceExchange;
+ 	
+ 	
+ 	int m_aiNumTrainAIUnits[NUM_UNITAI_TYPES];
+
+Index: /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@231
++++ /branches/vanilla/CvGameCoreDLL/CvUnitAI.cpp@232
+@@ -4600,7 +4600,8 @@
+ 						    {
+ 								// do not attempt to join groups which are healing this turn
+ 								// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
+-								if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && canJoinGroup(pPlot, pLoopGroup))
++									// do not join groups that are guarding cities
++									if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY && canJoinGroup(pPlot, pLoopGroup))
+                                 {
+                                     if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+                                     {
+@@ -4720,13 +4721,14 @@
+ 					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+ 					
+ 					CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-					if ((pLoopUnit != this) && (pLoopGroup != pGroup) && (pLoopGroup->AI_getMissionAIType() != MISSIONAI_GROUP))
++					if ((pLoopUnit != this) && (pLoopGroup != pGroup) && pLoopUnit->isGroupHead() && !(pLoopUnit->isCargo()))
+ 					{
++						// do not merge with groups that are headed to group somewhere else, or are guarding a city
+ 						// do not attempt to join groups which are healing this turn
+ 						// (healing is cleared every turn for automated groups, so we know we pushed a heal this turn)
+-						//		do not check if the loop unit is not the head
+-						//		do not check if the loop unit is on a transport
+-						if (pLoopGroup->getActivityType() != ACTIVITY_HEAL && pLoopUnit->isGroupHead() && !(pLoopUnit->isCargo()))
++						MissionAITypes eLoopGroupMissionAI = pLoopGroup->AI_getMissionAIType();
++						if (eLoopGroupMissionAI != MISSIONAI_GROUP && eLoopGroupMissionAI != MISSIONAI_GUARD_CITY &&
++							pLoopGroup->getActivityType() != ACTIVITY_HEAL)
+ 						{
+ 							if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+ 							{
+@@ -4961,7 +4963,7 @@
+ 		{
+ 			if (pPlot->getBestDefender(getOwnerINLINE()) == this)
+ 			{
+-				getGroup()->pushMission(MISSION_SKIP);
++				getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 				return true;
+ 			}
+ 		}
+@@ -5065,7 +5067,19 @@
+ 
+ 		if (bDefend)
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP);
++			// split up group if we are going to defend, so rest of group has opportunity to do something else
++			if (getGroup()->getNumUnits() > 1)
++			{
++				getGroup()->AI_separate();	// will change group
++			}
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++			DEBUGLOG("AI_guardCity:%S(%d) guarding %S\n", szUnitName.GetCString(), shortenID(m_iID), pCity->getName().GetCString());
++#endif
++
++			// the plot in this mission has to be NULL or it will get counted below in the bSearch part
++			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_CITY, NULL);
+ 			return true;
+ 		}
+ 	}
+@@ -5115,6 +5129,17 @@
+ 		if ((pBestPlot != NULL) && (pBestGuardPlot != NULL))
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
++			// split up group if we are going to defend, so rest of group has opportunity to do something else
++			if (getGroup()->getNumUnits() > 1)
++			{
++				getGroup()->AI_separate();	// will change group
++			}
++
++#ifdef DEBUG_AI_UPDATE_GROUPS
++			CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++			DEBUGLOG("AI_guardCity:%S(%d) moving to guard %S\n", szUnitName.GetCString(), shortenID(m_iID), pBestGuardPlot->getPlotCity()->getName().GetCString());
++#endif
++
+ 			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_GUARD_CITY, pBestGuardPlot);
+ 			return true;
+ 		}
+@@ -5788,7 +5813,9 @@
+ 
+ 			// note, removing the head unit from a group will force the group to be completely split if non-human
+ 			if (pUnitToHeal == this)
++			{
+ 				bPushedMission = true;
++			}
+ 
+ 			iHurtUnitCount--;	    
+ 		}
+

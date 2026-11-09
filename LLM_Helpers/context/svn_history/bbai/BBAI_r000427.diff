@@ -1,0 +1,220 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 427
+# Author: jdog5000
+# Date: 2009-01-17T06:18:03.471530Z
+# Coverage: full
+# Message:
+#   0.60G
+#   
+#   Fixed new crash bug
+#   Tweaks to city hunting production logic
+#   Limit new colonies when in financial trouble
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@426
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@427
+@@ -1482,44 +1482,66 @@
+ 		iMinFoundValue *= 3;
+ 		iMinFoundValue /= 2;
+ 	}
+-	
++
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						01/16/09		jdog5000		*/
++/**																				*/
++/**		City AI																	*/
++/********************************************************************************/
++	// BBAI TODO: This is very general ... AI will build attack units for other reasons
++	// Also, with no attack city units their stack won't group, they just run in pairs
+ 	if (!bGetBetterUnits && (bIsCapitalArea) && (iAreaBestFoundValue < (iMinFoundValue * 2)))
+ 	{
+ 		//Building city hunting stack.
+-		int iAttackCityCount = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK);
+-		if (iAttackCityCount > 0)
+-		{
+-			if (iAttackCityCount < (3 + iBuildUnitProb / 10))
+-			{
+-				if (AI_chooseUnit(UNITAI_ATTACK))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-		else
+-		{
+-			int iStartAttackStackRand = 0;
+-			if (pArea->getCitiesPerPlayer(BARBARIAN_PLAYER))
+-			{
+-				iStartAttackStackRand += 15;
+-			}
+-			if ((pArea->getNumCities() - iNumCitiesInArea) > 0)
+-			{
+-				iStartAttackStackRand += iBuildUnitProb / 2;
+-			}
+-
+-			
+-			if (GC.getGame().getSorenRandNum(100, "AI start city attack stack") <= iStartAttackStackRand)
+-			{
+-				if (AI_chooseUnit(UNITAI_ATTACK))
+-				{
+-					return;
+-				}
+-			}
+-		}
+-	}
+-        
++
++		int iStartAttackStackRand = 0;
++		if (pArea->getCitiesPerPlayer(BARBARIAN_PLAYER))
++		{
++			iStartAttackStackRand += 15;
++		}
++		if ((pArea->getNumCities() - iNumCitiesInArea) > 0)
++		{
++			iStartAttackStackRand += iBuildUnitProb / 2;
++		}
++
++		if( iStartAttackStackRand > 0 )
++		{
++			int iAttackCityCount = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK_CITY);
++			int iAttackCount = iAttackCityCount + kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK);
++
++			if( (iAttackCount) == 0 )
++			{
++				if (GC.getGame().getSorenRandNum(100, "AI start city attack stack") <= iStartAttackStackRand)
++				{
++					if (AI_chooseUnit(UNITAI_ATTACK))
++					{
++						return;
++					}
++				}
++			}
++			else
++			{
++				if( (iAttackCount > 2) && (iAttackCityCount == 0) )
++				{
++					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++					{
++						return;
++					}
++				}
++				else if (iAttackCount < (3 + iBuildUnitProb / 10))
++				{
++					if (AI_chooseUnit(UNITAI_ATTACK))
++					{
++						return;
++					}
++				}
++			}
++		}
++	}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
+ 	//oppurunistic wonder build (1)
+ 	if (!bDanger && (!hasActiveWorldWonder()) && (kPlayer.getNumCities() <= 3))
+ 	{
+@@ -1575,7 +1597,6 @@
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-	
+ 	UnitTypes eBestSpreadUnit = NO_UNIT;
+ 	int iBestSpreadUnitValue = -1;
+ 	
+@@ -1994,6 +2015,12 @@
+ 			else if( iUnitsToTransport < (iLocalTransports*iBestSeaAssaultCapacity) )
+ 			{
+ 				iTrainInvaderChance += 15;
++			}
++
++			if( getPopulation() < 4 )
++			{
++				// Let small cities build themselves up first
++				iTrainInvaderChance /= (5 - getPopulation());
+ 			}
+ 
+ 			if (GC.getGameINLINE().getSorenRandNum(100, "AI Invader Offense Unit") < iTrainInvaderChance )
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@426
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@427
+@@ -4246,7 +4246,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.60F");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.60G");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@426
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@427
+@@ -1179,6 +1179,24 @@
+ 			iOtherBestFoundValue = std::max(iOtherBestFoundValue, pCitySitePlot->getFoundValue(getOwnerINLINE()));
+ 		}
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      01/16/09                                jdog5000      */
++/**                                                                                              */
++/** Gold AI                                                                                      */
++/*************************************************************************************************/
++	// No new settling of colonies when AI is in financial trouble
++	if( plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()) )
++	{
++		if( GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble() )
++		{
++			iOtherBestFoundValue = 0;
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	
+ 	if ((iAreaBestFoundValue == 0) && (iOtherBestFoundValue == 0))
+ 	{
+@@ -17580,7 +17598,7 @@
+ 		if (pCity->getOwnerINLINE() == getOwnerINLINE())
+ 		{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/14/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/15/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -17625,11 +17643,11 @@
+ 				// only count units which are available to load 
+ 				int iCount = pCity->plot()->plotCount(PUF_isAvailableUnitAITypeGroupie, eUnitAI, -1, getOwnerINLINE(), NO_TEAM, PUF_isFiniteRange);
+ 				
+-				if (bCountProduction && (pLoopCity->getProductionUnitAI() == eUnitAI))
+-				{
+-					if( pLoopCity->getProductionTurnsLeft() < 4 )
++				if (bCountProduction && (pCity->getProductionUnitAI() == eUnitAI))
++				{
++					if( pCity->getProductionTurnsLeft() < 4 )
+ 					{
+-						CvUnitInfo& kUnitInfo = GC.getUnitInfo(pLoopCity->getProductionUnit());
++						CvUnitInfo& kUnitInfo = GC.getUnitInfo(pCity->getProductionUnit());
+ 						if ((kUnitInfo.getDomainType() != DOMAIN_AIR) || kUnitInfo.getAirRange() > 0)
+ 						{
+ 							iCount++;
+@@ -17658,7 +17676,7 @@
+ 		if (AI_plotValid(pLoopCity->plot()))
+ 		{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/14/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/15/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+

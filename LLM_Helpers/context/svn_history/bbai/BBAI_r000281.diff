@@ -1,0 +1,40 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 281
+# Author: iustus
+# Date: 2007-01-21T20:24:16.625814Z
+# Coverage: full
+# Message:
+#   chipotle: ctrl mouseover city gives more information, specifically about needed defenders
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@280
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@281
+@@ -1843,10 +1843,23 @@
+ 	
+ 	if (bCtrl && (gDLL->getChtLvl() > 0))
+ 	{
++		if (pPlot->getOwnerINLINE() != NO_PLAYER)
++		{
++			int iPlotDanger = GET_PLAYER(pPlot->getOwnerINLINE()).AI_getPlotDanger(pPlot, 2);
++			if (iPlotDanger > 0)
++			{
++				szString+=CvWString::format(L"\nPlot Danger = %d", iPlotDanger);
++			}
++		}
++
+ 		CvCity* pPlotCity = pPlot->getPlotCity();
+ 		if (pPlotCity != NULL)
+ 		{
+-			szTempBuffer.Format(L"\nDefenders H/N (%d / %d)", GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefenders(pPlotCity->area()), GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefendersNeeded(pPlotCity->area()));
++			int iCityDefenders = pPlot->plotCount(PUF_canDefendGroupHead, -1, -1, pPlotCity->getOwnerINLINE(), NO_TEAM, PUF_isCityAIType);
++			int iAttackGroups = pPlot->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, pPlotCity->getOwnerINLINE());
++			szString+=CvWString::format(L"\nDefenders [D+A]/N ([%d + %d] / %d)", iCityDefenders, iAttackGroups, pPlotCity->AI_neededDefenders());
++
++			szTempBuffer.Format(L"\nFloating Defenders H/N (%d / %d)", GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefenders(pPlotCity->area()), GET_PLAYER(pPlotCity->getOwner()).AI_getTotalFloatingDefendersNeeded(pPlotCity->area()));
+ 			szString+=szTempBuffer;
+ 			int iHostileUnits = GET_PLAYER(pPlotCity->getOwner()).AI_countNumAreaHostileUnits(pPlotCity->area());
+ 			if (iHostileUnits > 0)
+

@@ -1,0 +1,63 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 56
+# Author: blakeciv
+# Date: 2006-11-11T01:30:12.841628Z
+# Coverage: full
+# Message:
+#   Tweaked the tech evaluation function to account for UU's, to value buildings, and UB's extra, and to value Siege units more.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@55
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@56
+@@ -2526,6 +2526,12 @@
+ 										{
+ 											iValue += 200;
+ 
++                                            if ((GC.getUnitClassInfo((UnitClassTypes)iJ).getDefaultUnitIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iJ)))
++                                            {
++                                                //UU
++                                                iValue += 600;
++                                            }
++
+ 											if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() == iI)
+ 											{
+ 												iMilitaryValue = 0;
+@@ -2555,7 +2561,7 @@
+ 													break;
+ 
+ 												case UNITAI_COLLATERAL:
+-													iMilitaryValue += ((bWarPlan) ? 200 : 100);
++													iMilitaryValue += ((bWarPlan) ? 600 : 300);
+ 													break;
+ 
+ 												case UNITAI_PILLAGE:
+@@ -2777,6 +2783,15 @@
+ 												iValue += (10 * GC.getBuildingInfo(eLoopBuilding).getFoodKept());
+ 											}
+ 
++											iValue += 300;
++
++                                            if ((GC.getBuildingClassInfo((BuildingClassTypes)iJ).getDefaultBuildingIndex()) != (GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iJ)))
++                                            {
++                                                //UB
++                                                iValue += 600;
++                                            }
++
++
+ 											if (GC.getBuildingInfo(eLoopBuilding).getPrereqAndTech() == iI)
+ 											{
+ 												if (iPathLength <= 1)
+@@ -2922,7 +2937,8 @@
+ 
+ 								if (bIgnoreCost)
+ 								{
+-									iValue += (getResearchTurnsLeft(((TechTypes)iI), false) * 100);
++									iValue *= (1 + (getResearchTurnsLeft(((TechTypes)iI), false)));
++									iValue /= 10;
+ 								}
+ 								else
+ 								{
+

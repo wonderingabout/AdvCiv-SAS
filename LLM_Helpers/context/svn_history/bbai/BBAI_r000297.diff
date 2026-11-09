@@ -1,0 +1,26 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 297
+# Author: iustus
+# Date: 2007-01-26T01:10:59.338050Z
+# Coverage: full
+# Message:
+#   only clear the build queue when not a network game (sync issues)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@296
++++ /trunk/CvGameCoreDLL/CvCity.cpp@297
+@@ -6560,8 +6560,8 @@
+ 		{
+ 			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
+ 
+-			// if automated && all 3 modifiers down, clear the queue and choose again
+-			if (bNewValue && gDLL->ctrlKey() && gDLL->shiftKey() && gDLL->altKey())
++			// if automated and not network game and all 3 modifiers down, clear the queue and choose again
++			if (bNewValue && !GC.getGameINLINE().isNetworkMultiPlayer() && gDLL->ctrlKey() && gDLL->shiftKey() && gDLL->altKey())
+ 			{
+ 				clearOrderQueue();
+ 			}
+

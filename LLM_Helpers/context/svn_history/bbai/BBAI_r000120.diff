@@ -1,0 +1,191 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 120
+# Author: iustus
+# Date: 2006-11-25T07:25:28.731263Z
+# Coverage: full
+# Message:
+#   culturalVictoryCultureLevel cache added (it was already caching the number of cities)
+#   tweaked the culturalVictory strategy decision to work right with financial trait
+#   culturalVictory will go to stage 3 if there are enough high culture cities, regardless of religions
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@119
++++ /trunk/CvGameCoreDLL/CvGame.cpp@120
+@@ -8213,7 +8213,7 @@
+ 
+ bool CvGame::culturalVictoryValid()
+ {
+-	if (m_iNumCultureCities > 0)
++	if (m_iNumCultureVictoryCities > 0)
+ 	{
+ 		return true;
+ 	}
+@@ -8223,8 +8223,19 @@
+ 
+ int CvGame::culturalVictoryNumCultureCities()
+ {
+-	return m_iNumCultureCities;
+-}
++	return m_iNumCultureVictoryCities;
++}
++
++CultureLevelTypes CvGame::culturalVictoryCultureLevel()
++{
++	if (m_iNumCultureVictoryCities > 0)
++	{
++		return (CultureLevelTypes) m_eCultureVictoryCultureLevel;
++	}
++	
++	return NO_CULTURELEVEL;
++}
++
+ 
+ void CvGame::constructCache()
+ {
+@@ -8235,7 +8246,7 @@
+ 	m_aiShrineBuilding = NULL;
+ 	m_aiShrineReligion = NULL;
+ 
+-	m_iNumCultureCities = 0;
++	m_iNumCultureVictoryCities = 0;
+ 	
+ 	// note resetCache(/*bConstructorCall*/ true) will be called by CvGame::CvGame
+ }
+@@ -8263,7 +8274,7 @@
+ 	SAFE_DELETE_ARRAY(m_aiShrineBuilding);
+ 	SAFE_DELETE_ARRAY(m_aiShrineReligion);
+ 
+-	m_iNumCultureCities = 0;
++	m_iNumCultureVictoryCities = 0;
+ }
+ 
+ void CvGame::resetCache(bool bConstructorCall)
+@@ -8306,7 +8317,7 @@
+ 	}
+ 
+ 	// reset cultural victories
+-	m_iNumCultureCities = 0;
++	m_iNumCultureVictoryCities = 0;
+ 	for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+ 	{
+ 		if (isVictoryValid((VictoryTypes) iI))
+@@ -8315,13 +8326,14 @@
+ 			if (kVictoryInfo.getCityCulture() > 0)
+ 			{
+ 				int iNumCultureCities = kVictoryInfo.getNumCultureCities();
+-				if (iNumCultureCities > m_iNumCultureCities)
+-				{
+-					m_iNumCultureCities = iNumCultureCities;
+-				}
+-			}
+-		}
+-	}
+-
+-}
+-
++				if (iNumCultureCities > m_iNumCultureVictoryCities)
++				{
++					m_iNumCultureVictoryCities = iNumCultureCities;
++					m_eCultureVictoryCultureLevel = kVictoryInfo.getCityCulture();
++				}
++			}
++		}
++	}
++
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@119
++++ /trunk/CvGameCoreDLL/CvGame.h@120
+@@ -552,13 +552,15 @@
+ 
+ 	bool culturalVictoryValid();
+ 	int culturalVictoryNumCultureCities();
++	CultureLevelTypes culturalVictoryCultureLevel();
+ 
+ protected:
+ 	int		m_iShrineBuildingCount;
+ 	int*	m_aiShrineBuilding;
+ 	int*	m_aiShrineReligion;
+ 
+-	int		m_iNumCultureCities;
++	int		m_iNumCultureVictoryCities;
++	int		m_eCultureVictoryCultureLevel;
+ 
+ 	void constructCache();	// called from constructor
+ 	void destructCache();	// called from destructor
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@119
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@120
+@@ -9008,12 +9008,26 @@
+     {
+         if (hasTrait((TraitTypes)iI))
+         {
+-            iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxAnarchy() == 0) ? 4 : 0);
++            // spiritual +4
++			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxAnarchy() == 0) ? 4 : 0);
++
++			// creative +4
+             iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceChange(COMMERCE_CULTURE) * 2);
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 10);
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 30);
+-            iValue += ((GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE) * 6) / max(1, (1 + (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)))));
+-            iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
++
++			// (none in default xml), set so 25% boost = 4
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 6);
++
++			// philisophical +4
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 25);
++
++			// financial +4
++            iValue += (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)) * 2 * GC.getDefineINT("EXTRA_YIELD");
++            
++			// (none in default xml), set so 100% boost = 4
++			iValue += (GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE)) / 25;
++            
++			// industrious +4
++			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
+         }
+     }
+ 
+@@ -9035,6 +9049,30 @@
+         {
+             return 3;
+         }
++
++		int iHighCultureCount = 0;
++		
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			// is culture rate over 100?
++			if (pLoopCity->getBaseCommerceRate(COMMERCE_CULTURE) > 100)
++			{
++				iHighCultureCount++;
++			}
++			// or is the culture level 1 less than required to win?
++			else if (pLoopCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1))
++			{
++				iHighCultureCount++;
++			}
++		}
++		
++		// if we have enough high culture cities, go to stage 3
++		if (iHighCultureCount >= GC.getGameINLINE().culturalVictoryNumCultureCities())
++		{
++			return 3;
++		}
+     }
+ 	
+ 	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
+

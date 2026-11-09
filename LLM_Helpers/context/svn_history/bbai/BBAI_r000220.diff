@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 220
+# Author: iustus
+# Date: 2006-12-21T06:50:51.486808Z
+# Coverage: full
+# Message:
+#   silly that you have to call canMoveInto twice, but you do
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@219
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@220
+@@ -10226,7 +10226,7 @@
+ 							{
+ 								if (!(pLoopUnit->isInvisible(getTeam(), false)))
+ 								{
+-								    if (pLoopUnit->atPlot(pPlot) || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true))
++								    if (pLoopUnit->atPlot(pPlot) || pLoopUnit->canMoveInto(pPlot) || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true))
+ 								    {
+                                         if (!bTestMoves)
+                                         {
+

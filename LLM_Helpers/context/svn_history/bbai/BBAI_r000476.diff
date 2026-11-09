@@ -1,0 +1,840 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 476
+# Author: jdog5000
+# Date: 2009-07-10T05:38:10.662554Z
+# Coverage: full
+# Message:
+#   Several UP changes
+#   Many debug output changes
+# Changed paths (16):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGameInterface.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvMessageData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlot.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@475
++++ /trunk/CvGameCoreDLL/CvCity.cpp@476
+@@ -7545,6 +7545,12 @@
+ 				CvEventReporter::getInstance().cultureExpansion(this, getOwnerINLINE());
+ 				
+ 				//Stop Build Culture
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       07/09/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix, Odd behavior                                                                         */
++/*************************************************************************************************/
++/* original BTS code
+ 				if (isProductionProcess())
+ 				{
+ 					if (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+@@ -7552,6 +7558,13 @@
+ 						popOrder(0, false, true);						
+ 					}
+ 				}
++*/
++				// For human player, stopping culture after poping borders is unexpected, for AI it is
++				// completely unnecessary.  Timing also appears to cause bug with overflow production, 
++				// giving extra hammers innappropriately.
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 			}
+ 		}
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@475
++++ /trunk/CvGameCoreDLL/CvCity.h@476
+@@ -926,6 +926,7 @@
+ /**                                                                                              */
+ /** Debug                                                                                        */
+ /*************************************************************************************************/
++	virtual int AI_getTargetSize() = 0;
+ 	virtual int AI_getImprovementValue( CvPlot* pPlot, ImprovementTypes eImprovement, int iFoodPriority, int iProductionPriority, int iCommercePriority, int iFoodChange ) = 0;
+ 	virtual void AI_getYieldMultipliers( int &iFoodMultiplier, int &iCommerceMultiplier, int &iProductionMultiplier, int &iDesiredFoodChange ) = 0;
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@475
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@476
+@@ -1826,7 +1826,6 @@
+ /*************************************************************************************************/
+ 	if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger )
+ 	{
+-		// BBAI TODO: WTF?
+ 		if (iNeededWorkers < iExistingWorkers)
+ 		{
+ 			if ((AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+@@ -2229,7 +2228,7 @@
+ 	}
+ 
+ 	// Check for whether to produce planes to fill carriers
+-	if (iUnitCostPercentage < (iMaxUnitSpending))
++	if ( (bLandWar || bAssault) && iUnitCostPercentage < (iMaxUnitSpending))
+ 	{			
+ 		if (iCarriers > 0 && !bImportantCity)
+ 		{
+@@ -2723,32 +2722,64 @@
+ 	// BBAI TODO: Temporary for testing
+ 	if( getOwnerINLINE()%2 == 1 )
+ 	{
+-		if (AI_chooseProject())
++		// Only cities with reasonable production
++		if ((iProductionRank <= ((kPlayer.getNumCities() > 8) ? 3 : 2))
++		&& (getPopulation() > 3))
++		{
++			if (AI_chooseProject())
++			{
++				return;
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
++	if (AI_chooseBuilding())
++	{
++		return;
++	}
++	
++	if (!bChooseUnit && !bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++	{
++		if (AI_chooseUnit())
+ 		{
+ 			return;
+ 		}
+ 	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++	// If more efficient to get research from slider, build gold
++/*	if( kPlayer.AI_averageCommerceMultiplier(COMMERCE_RESEARCH) > kPlayer.AI_averageCommerceMultiplier(COMMERCE_GOLD) )
++	{
++		if (AI_chooseProcess(COMMERCE_GOLD))
++		{
++			return;
++		}
++	}
++	else
++	{
++		// Will almost always choose research
++		if (AI_chooseProcess())
++		{
++			return;
++		}
++	}
++*/
++	if (AI_chooseProcess())
++	{
++		return;
++	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+ 
+-	if (AI_chooseBuilding())
+-	{
+-		return;
+-	}
+-	
+-	if (!bChooseUnit && !bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
+-	{
+-		if (AI_chooseUnit())
+-		{
+-			return;
+-		}
+-	}		
+-
+-	if (AI_chooseProcess())
+-	{
+-		return;
+-	}
++	
+ }
+ 
+ 
+@@ -5014,6 +5045,18 @@
+ 		
+ 		iTempValue /= 100;
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
++/**                                                                                              */
++/** Gold AI                                                                                      */
++/*************************************************************************************************/
++		iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange((CommerceTypes)iI);
++
++		iTempValue /= 60;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 		iValue += iTempValue;
+ 	}
+ 
+@@ -5769,51 +5812,9 @@
+ 					}
+ 				}
+ 				
+-				if (pLoopPlot->isBeingWorked())
+-				{
+-					//iWorkedFood += aiFinalYields[YIELD_FOOD];					
+-				}
+-				else
+-				{
+-					if (aiFinalYields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+-					{
+-						//iWorkableFood += aiFinalYields[YIELD_FOOD];
+-						//iWorkableFoodPlotCount++;
+-					}
+-				}
+-				
+ 				if (pLoopPlot->isBeingWorked() || (((aiFinalYields[YIELD_FOOD]*10) + (aiFinalYields[YIELD_PRODUCTION]*6) + (aiFinalYields[YIELD_COMMERCE]*4)) > 21))
+ 				{
+ 					iGoodTileCount++;
+-					if (pLoopPlot->isBeingWorked())
+-					{
+-						//iFoodTotal += aiFinalYields[YIELD_FOOD];
+-					}
+-					else
+-					{
+-						//iFoodTotal += aiFinalYields[YIELD_FOOD] / 2;
+-					}
+-                    if (aiFinalYields[YIELD_PRODUCTION] > 1)
+-                    {	
+-                    	//iProductionTotal += aiFinalYields[YIELD_PRODUCTION];
+-                    }
+-				}
+-
+-				if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+-				{
+-                    //int iNetFood = (aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION());
+-                    //iBonusFoodSurplus += std::max(0, iNetFood);
+-                    //iBonusFoodDeficit += std::max(0, -iNetFood);
+-				}
+-
+-				if ((pLoopPlot->getFeatureType()) != NO_FEATURE)
+-				{
+-					//iFeatureFoodSurplus += std::max(0, pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam()) - GC.getFOOD_CONSUMPTION_PER_POPULATION());
+-				}
+-
+-				if ((pLoopPlot->isHills()))
+-				{
+-					//iHillFoodDeficit += std::max(0, GC.getFOOD_CONSUMPTION_PER_POPULATION() - pLoopPlot->calculateNatureYield(YIELD_FOOD, getTeam()));
+ 				}
+ 			}
+ 		}
+@@ -5823,7 +5824,6 @@
+ 	int iTargetSize = std::min(iGoodTileCount, getPopulation()+(happyLevel()-unhappyLevel()));
+ 	iTargetSize = std::min(iTargetSize, 1 + getPopulation() + iHealth);
+ 
+-	// WTF code duplication
+ 	if (kPlayer.getAdvancedStartPoints() >= 0)
+ 	{
+ 		iTargetSize += 2 + kPlayer.getCurrentEra();
+@@ -6055,7 +6055,6 @@
+ 	int iNetExpenses = kPlayer.calculateInflatedCosts() + std::max(0, -kPlayer.getGoldPerTurn());
+ 	int iRatio = (100 * iNetExpenses) / std::max(1, iNetCommerce);
+ 	
+-	// BBAI TODO: This next logic is pointless ... either adds 0 or 1 to 100
+ 	if (iRatio > 40)
+ 	{
+ 		iCommerceMultiplier += (33 * (iRatio - 40)) / 60;
+@@ -6861,7 +6860,6 @@
+ /*************************************************************************************************/
+ 	int iRatio = (100 * iNetExpenses) / std::max(1, iNetCommerce);
+ 	
+-	// BBAI TODO: This next logic is pointless ... either adds 0 or 1 to 100
+ 	if (iRatio > 40)
+ 	{
+ 		iCommerceMultiplier += (33 * (iRatio - 40)) / 60;
+@@ -8580,6 +8578,12 @@
+ 		aiCommerceYieldsTimes100[iJ] += (iCommerceTimes100 * iModifier) / 100;
+ 	}
+ 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       07/09/09                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
++/* original BTS code
+ 	if (isProductionProcess() && !bWorkerOptimization)
+ 	{
+ 		for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+@@ -8589,7 +8593,13 @@
+ 
+ 		aiYields[YIELD_PRODUCTION] = 0;
+ 	}
+-	
++*/
++	// Above code causes governor and AI to heavily weight food when building any form of commerce,
++	// which is not expected by human and does not seem to produce better results for AI either.  
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ 	// should not really use this much, but making it accurate
+ 	aiYields[YIELD_COMMERCE] = 0;
+ 	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@475
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@476
+@@ -4270,12 +4270,12 @@
+ 	CvWString szTempBuffer;
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      05/19/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.80A");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.80C");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGameInterface.cpp
+--- /trunk/CvGameCoreDLL/CvGameInterface.cpp@475
++++ /trunk/CvGameCoreDLL/CvGameInterface.cpp@476
+@@ -55,7 +55,7 @@
+ /** Debug                                                                                        */
+ /*************************************************************************************************/
+ 	// City circles for debugging
+-	if (GC.getGameINLINE().isDebugMode())
++	if (isDebugMode())
+ 	{
+ 		for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+ 		{
+@@ -78,7 +78,7 @@
+ 	}
+ 
+ 	// Plot improvement replacement circles for debugging
+-	if (GC.getGameINLINE().isDebugMode())
++	if (isDebugMode())
+ 	{
+ 		for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@475
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@476
+@@ -2675,9 +2675,11 @@
+ 			int iFoodMultiplier, iCommerceMultiplier, iProductionMultiplier, iDesiredFoodChange;
+ 			pWorkingCity->AI_getYieldMultipliers( iFoodMultiplier, iCommerceMultiplier, iProductionMultiplier, iDesiredFoodChange );
+ 
+-			szTempBuffer.Format(L"\n%s yield multipliers: ", pWorkingCity->getNameKey() );
++			szTempBuffer.Format(L"\n%s yield multipliers: ", pWorkingCity->getName().c_str() );
+ 			szString.append(szTempBuffer);
+ 			szTempBuffer.Format(L"\n   Food %d, Com %d, Prod %d, FoodDiff %d", iFoodMultiplier, iCommerceMultiplier, iProductionMultiplier, iDesiredFoodChange );
++			szString.append(szTempBuffer);
++			szTempBuffer.Format(L"\nTarget size: %d", pWorkingCity->AI_getTargetSize() );
+ 			szString.append(szTempBuffer);
+ 
+ 			ImprovementTypes eImprovement = pPlot->getImprovementType();
+@@ -3190,19 +3192,19 @@
+ 					int iHammer = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 					int iCommerce = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
+ 					
+-					szString.append(CvWString::format(L"\nPlayer:(f%d, h%d, c%d)", iFood, iHammer, iCommerce));
++					szString.append(CvWString::format(L"\nPlayer avg:       (f%d, h%d, c%d)", iFood, iHammer, iCommerce));
+ 					
+ 					iFood = pCity->AI_yieldMultiplier(YIELD_FOOD);
+ 					iHammer = pCity->AI_yieldMultiplier(YIELD_PRODUCTION);
+ 					iCommerce = pCity->AI_yieldMultiplier(YIELD_COMMERCE);
+ 					
+-					szString.append(CvWString::format(L"\nCityBa:(f%d, h%d, c%d)", iFood, iHammer, iCommerce));
++					szString.append(CvWString::format(L"\nCity yield mults: (f%d, h%d, c%d)", iFood, iHammer, iCommerce));
+ 					
+ 					iFood = pCityAI->AI_specialYieldMultiplier(YIELD_FOOD);
+ 					iHammer = pCityAI->AI_specialYieldMultiplier(YIELD_PRODUCTION);
+ 					iCommerce = pCityAI->AI_specialYieldMultiplier(YIELD_COMMERCE);
+ 					
+-					szString.append(CvWString::format(L"\nCitySp:(f%d, h%d, c%d)", iFood, iHammer, iCommerce));
++					szString.append(CvWString::format(L"\nCity spec mults:  (f%d, h%d, c%d)", iFood, iHammer, iCommerce));
+ 					
+ 					szString.append(CvWString::format(L"\nExchange"));
+ 					for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+@@ -3211,6 +3213,22 @@
+ 						szTempBuffer.Format(L", %d%c", iCommerce, GC.getCommerceInfo((CommerceTypes) iI).getChar());
+ 						szString.append(szTempBuffer);
+ 					}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
++					szString.append(CvWString::format(L"\nAvg mults"));
++					for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
++					{
++						iCommerce = GET_PLAYER(pCity->getOwnerINLINE()).AI_averageCommerceMultiplier((CommerceTypes)iI);
++						szTempBuffer.Format(L", %d%c", iCommerce, GC.getCommerceInfo((CommerceTypes) iI).getChar());
++						szString.append(szTempBuffer);
++					}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 					
+ 					if (GET_PLAYER(pCity->getOwnerINLINE()).AI_isFinancialTrouble())
+ 					{
+@@ -3605,7 +3623,7 @@
+ 	if (iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
+ 		pPlot = pCity->getCityIndexPlot(iIndex);
+ 	
+-	if (pPlot != NULL)
++	if (pPlot != NULL && pPlot->getWorkingCity() == pCity)
+ 	{
+ 		CvCityAI* pCityAI = static_cast<CvCityAI*>(pCity);
+ 		bool bWorkingPlot = pCity->isWorkingPlot(iIndex);
+@@ -3637,10 +3655,10 @@
+ 			szString.append(CvWString::format(L"%2.3f " ENDCOLR, fValue));
+ 		}
+ 		else
+-			szString.append(CvWString::format(L"%04d  " ENDCOLR, iValue/10));
++			szString.append(CvWString::format(L"%05d  " ENDCOLR, iValue/10));
+ 	}
+ 	else
+-		szString.append(CvWString::format(L"         " ENDCOLR));
++		szString.append(CvWString::format(L"           " ENDCOLR));
+ }
+ 
+ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+
+Index: /trunk/CvGameCoreDLL/CvMessageData.cpp
+--- /trunk/CvGameCoreDLL/CvMessageData.cpp@475
++++ /trunk/CvGameCoreDLL/CvMessageData.cpp@476
+@@ -851,9 +851,25 @@
+ 			if (m_bAlt && GC.getCommandInfo(m_eCommand).getAll())
+ 			{
+ 				int iLoop;
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       07/08/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* orginal bts code
++				
+ 				for (CvUnit* pLoopUnit = GET_PLAYER(m_ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_ePlayer).nextUnit(&iLoop))
+ 				{
+ 					if (pLoopUnit->getUnitType() == pUnit->getUnitType())
++*/
++				// Have to save type ahead of time, pointer can change
++				UnitTypes eUpgradeType = pUnit->getUnitType();
++				for (CvUnit* pLoopUnit = GET_PLAYER(m_ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_ePlayer).nextUnit(&iLoop))
++				{
++					if (pLoopUnit->getUnitType() == eUpgradeType)
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 					{
+ 						pLoopUnit->doCommand(m_eCommand, m_iData1, m_iData2);
+ 					}
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@475
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@476
+@@ -3372,6 +3372,19 @@
+ 
+ 	AI_doTurnPost();
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
++/**                                                                                              */
++/** Debug                                                                                        */
++/*************************************************************************************************/
++    if( GC.getGameINLINE().isDebugMode() )
++	{
++		GC.getGameINLINE().updateColoredPlots();
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	CvEventReporter::getInstance().endPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@475
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@476
+@@ -1832,8 +1832,19 @@
+ 			{
+ 				iWeight /= 50;
+ 			}
+-			// UNOFFICIAL_PATCH 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       04/29/09                                jdog5000      */
++/**                                                                                              */
++/** Poor behavior                                                                                */
++/*************************************************************************************************/
++/* original bts code
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++*/
++			// Slider check works for detection of whether human player is going for cultural victory
+ 			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) > 80 )
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				int iCultureRateRank = pCity->findCommerceRateRank(COMMERCE_CULTURE);
+ 				int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+@@ -1935,6 +1946,8 @@
+ 			}
+ 			else if( isHuman() )
+ 			{
++				// UNOFFICIAL_PATCH todo:  should this tweak come over in some form?
++				// There's still an issue with upping espionage slider for human player.
+ 				if( getCommercePercent(COMMERCE_ESPIONAGE) > 50 )
+ 				{
+ 					iWeight *= getCommercePercent(COMMERCE_ESPIONAGE);
+@@ -6316,10 +6329,6 @@
+ 						int iNoWarOdds = GC.getLeaderHeadInfo(getPersonalityType()).getNoWarAttitudeProb((GET_TEAM(getTeam()).AI_getAttitude(eWarTeam)));
+ 						bValid = ((iNoWarOdds < 30) || (GC.getGame().getSorenRandNum(100, "AI War Vote Attitude Check (Force War)") > iNoWarOdds));
+ 					}
+-					// BBAI TODO: does defying a forced war resolution make sense?
+-					// Currently it scuttles the whole resolution, not just keeps this player out of war.
+-					// A small voting player shouldn't be able to block the resolution single-handedly.
+-					// But if that was changed at least for this type of vote, then defying would make sense.
+ 					/*
+ 					else
+ 					{
+@@ -7351,7 +7360,6 @@
+ 							// otherwise, value units we could build if we had this bonus double
+ 							else
+ 							{
+-								// BBAI TODO: Extra for unique units???
+ 								iTempValue *= 2;
+ 							}
+ 						}
+@@ -8078,19 +8086,7 @@
+ 		return NO_DENIAL;
+ 	}
+ 
+-/*************************************************************************************************/
+-/** UNOFFICIAL_PATCH                       06/11/09                                jdog5000      */
+-/**                                                                                              */
+-/** Bugfix                                                                                       */
+-/*************************************************************************************************/
+-/* original BTS code
+-	if (getCivicPercentAnger(eCivic) > 0)
+-*/
+-	// getCivicPercentAnger(eCivic) > 0 means that you will get unhappiness if you aren't running eCivic ...
+-	if ( getCivicPercentAnger(eCivic) < getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) )
+-/*************************************************************************************************/
+-/** UNOFFICIAL_PATCH                        END                                                  */
+-/*************************************************************************************************/
++	if (getCivicPercentAnger(getCivics((CivicOptionTypes)(GC.getCivicInfo(eCivic).getCivicOptionType())),true) > getCivicPercentAnger(eCivic))
+ 	{
+ 		return DENIAL_ANGER_CIVIC;
+ 	}
+@@ -8994,7 +8990,7 @@
+ 			iValue += 200;
+ 		}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      06/03/09                                jdog5000      */
++/** UNOFFICIAL_PATCH                       06/03/09                                jdog5000      */
+ /**                                                                                              */
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
+@@ -9004,7 +9000,7 @@
+ 			iValue /= 2;
+ 		}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                       END                                                  */
++/** UNOFFICIAL_PATCH                        END                                                  */
+ /*************************************************************************************************/
+ 		break;
+ 
+@@ -12707,11 +12703,20 @@
+ 									// Reduced duplication so easier to maintain
+ 									if (GET_PLAYER((PlayerTypes)iI).isHuman() && (GET_TEAM(getTeam()).getLeaderID() == getID()))
+ 									{
+-										// UNOFFICIAL_PATCH
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       05/06/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
++										if (GET_TEAM(getTeam()).canDeclareWar(GET_PLAYER((PlayerTypes)iI).getTeam()) && !GET_TEAM(getTeam()).AI_isSneakAttackPreparing(GET_PLAYER((PlayerTypes)iI).getTeam()))
++*/
+ 										// Bug fix: when team was sneak attack ready but hadn't declared, could demand tribute
+ 										// If other team accepted, it blocked war declaration for 10 turns but AI didn't react.
+-										//if (GET_TEAM(getTeam()).canDeclareWar(GET_PLAYER((PlayerTypes)iI).getTeam()) && !GET_TEAM(getTeam()).AI_isSneakAttackPreparing(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 										if (GET_TEAM(getTeam()).canDeclareWar(GET_PLAYER((PlayerTypes)iI).getTeam()) && !GET_TEAM(getTeam()).AI_isChosenWar(GET_PLAYER((PlayerTypes)iI).getTeam()))
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 										{
+ 											if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).getDefensivePower() < GET_TEAM(getTeam()).getPower(true))
+ 											{
+
+Index: /trunk/CvGameCoreDLL/CvPlot.cpp
+--- /trunk/CvGameCoreDLL/CvPlot.cpp@475
++++ /trunk/CvGameCoreDLL/CvPlot.cpp@476
+@@ -6946,14 +6946,15 @@
+ 		}
+ 
+ 		m_aiBlockadedCount[eTeam] += iChange;
+-		FAssert(getBlockadedCount(eTeam) >= 0);
+-		FAssert(getBlockadedCount(eTeam) == 0 || isWater());
+ 
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                      06/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
++		//FAssert(getBlockadedCount(eTeam) >= 0);
++		FAssert(getBlockadedCount(eTeam) == 0 || isWater());
++
+ 		// Hack so that never get negative blockade counts as a result of fixing issue causing
+ 		// rare permanent blockades.
+ 		if( getBlockadedCount(eTeam) < 0 )
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@475
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@476
+@@ -1104,7 +1104,7 @@
+ 
+ 		pUnitNode = headUnitNode();
+ 
+-		// BBAI TODO: create new loop for pillaging
++		// BBAI TODO: create new loop for pillaging, so fast units pillage once first
+ 
+ 		while (pUnitNode != NULL)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@475
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@476
+@@ -857,10 +857,28 @@
+ 			setResearchProgress(((TechTypes)iI), GET_TEAM(eTeam).getResearchProgress((TechTypes)iI), getLeaderID());
+ 		}
+ 
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       07/06/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
+ 		if (GET_TEAM(eTeam).isNoTradeTech((TechTypes)iI))
+ 		{
+ 			setNoTradeTech(((TechTypes)iI), true);
+ 		}
++*/
++		// Clear no tech trade if it is false for other team
++		// Fixes bug where if, with no tech brokering, team A trades a tech to team B, then later joins B in
++		// a permanent alliance.  Previous code would block the AB alliance from "brokering" the tech, even
++		// though A had researched it on their own.
++		if ( GET_TEAM(eTeam).isHasTech((TechTypes)iI) && !(GET_TEAM(eTeam).isNoTradeTech((TechTypes)iI)) )
++		{
++			setNoTradeTech(((TechTypes)iI), false);
++		}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@475
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@476
+@@ -2084,7 +2084,7 @@
+ }
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/23/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+ /**                                                                                              */
+ /** War Strategy AI                                                                              */
+ /*************************************************************************************************/
+@@ -2221,7 +2221,7 @@
+ 				}
+ 
+ 				int iOwnerPower = GET_PLAYER((PlayerTypes)iI).AI_getOurPlotStrength(pLoopCity->plot(), 2, true, false);
+-				int iOurPower = AI_getOurPlotStrength(pLoopCity->plot(), 2, false, false, false);
++				int iOurPower = AI_getOurPlotStrength(pLoopCity->plot(), 2, false, false, true);
+ 				int iOtherPower = GET_PLAYER((PlayerTypes)iI).AI_getEnemyPlotStrength(pLoopCity->plot(), 2, false, false) - iOurPower;
+ 
+ 				if( iOtherPower > iOwnerPower )
+@@ -2279,10 +2279,14 @@
+ 		return false;
+ 	}
+ 
+-	if( iCitiesThreatenedByOthers > (iCitiesThreatenedByUs/2) )
+-	{
+-		// Keep others from capturing spoils
+-		return true;
++	if( iCitiesThreatenedByOthers > (1 + iCitiesThreatenedByUs/2) )
++	{
++		// Keep others from capturing spoils, but let it go if surrender civ is too small
++		// to care about
++		if( 6*(iValuableCities + GET_TEAM(eSurrenderTeam).getNumCities()) > getNumCities() )
++		{
++			return true;
++		}
+ 	}
+ 
+ 	// If we're low on the totem poll, accept so enemies don't drag anyone else into war with us
+@@ -2293,34 +2297,41 @@
+ 		return true;
+ 	}
+ 
++	int iOurWarSuccessRatio = AI_getWarSuccessCapitulationRatio();
++	if( iOurWarSuccessRatio < -30 )
++	{
++		// We're doing badly overall, need to be done with this war and gain an ally
++		return true;
++	}
++
+ 	int iWarCount = 0;
+ 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+-		if (GET_TEAM((TeamTypes)iI).isAlive())
+-		{
+-			if (!(GET_TEAM((TeamTypes)iI).isMinorCiv()))
+-			{
+-				if (!(GET_TEAM((TeamTypes)iI).isVassal(eSurrenderTeam)))
+-				{
+-					if (isAtWar((TeamTypes)iI))
+-					{
+-						if( GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID()) > 4*GC.getDefineINT("WAR_SUCCESS_ATTACKING") )
+-						{
+-							iWarCount++;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if( iWarCount > 1 )
++		if (GET_TEAM((TeamTypes)iI).isAlive() && !(GET_TEAM((TeamTypes)iI).isMinorCiv()))
++		{
++			if ((TeamTypes)iI != eSurrenderTeam && !(GET_TEAM((TeamTypes)iI).isVassal(eSurrenderTeam)))
++			{
++				if (isAtWar((TeamTypes)iI))
++				{
++					if( GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID()) > 5*GC.getDefineINT("WAR_SUCCESS_ATTACKING") )
++					{
++						iWarCount++;
++					}
++				}
++			}
++		}
++	}
++
++	if( iWarCount > 0 && iOurWarSuccessRatio < 50 )
+ 	{
+ 		// Accept if we have other wars to fight
+ 		return true;
+ 	}
+ 
+ 	// War weariness
++	int iWearinessThreshold = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 300 : 240);
++	iWearinessThreshold += 10*iValuableCities + 20*iCitiesThreatenedByUs;
++
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -2333,9 +2344,7 @@
+ 				// Significant war weariness from eSurrenderTeam, 1000 = 100%
+ 				if( iWarWearinessPercentAnger > 50 )
+ 				{
+-					int iThreshold = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 300 : 240);
+-					iThreshold += 10*iValuableCities + 10*iCitiesThreatenedByUs;
+-					if( GET_PLAYER((PlayerTypes)iI).getWarWearinessPercentAnger() > iThreshold )
++					if( GET_PLAYER((PlayerTypes)iI).getWarWearinessPercentAnger() > iWearinessThreshold )
+ 					{
+ 						return true;
+ 					}
+@@ -2347,6 +2356,12 @@
+ 	if( (iValuableCities + iCitiesThreatenedByUs) >= (AI_maxWarRand()/100) )
+ 	{
+ 		// Continue conquest
++		return false;
++	}
++
++	if( GET_TEAM(eSurrenderTeam).getNumCities() < (getNumCities()/4 - (AI_maxWarRand()/100)) )
++	{
++		// Too small to bother leaving alive
+ 		return false;
+ 	}
+ 	
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@475
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@476
+@@ -2482,9 +2482,6 @@
+ 		}
+ 	}
+ 
+-	
+-	// UNOFFICIAL_PATCH notes:  This following line causes paratroopers to be unable to attack units
+-	// after landing.  Should be expanded to include cities.
+ /*************************************************************************************************/
+ /** UNOFFICIAL_PATCH                       07/03/09                                jdog5000      */
+ /**                                                                                              */
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@475
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@476
+@@ -6144,7 +6144,20 @@
+ 								getGroup()->AI_separateAI(UNITAI_ATTACK_SEA);
+ 								getGroup()->AI_separateAI(UNITAI_RESERVE_SEA);
+ 
+-								// UNOFFICIAL_PATCH
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                       05/11/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/* original bts code
++					if (pOldGroup == getGroup() && getUnitType() == UNITAI_ASSAULT_SEA)
++					{
++						if (AI_retreatToCity(true))
++						{
++							bMissionPushed = true;
++						}
++					}
++*/
+ 								// Fixed bug in next line with checking unit type instead of unit AI
+ 								if (pOldGroup == getGroup() && AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+ 								{
+@@ -6157,6 +6170,10 @@
+ 										}
+ 									}
+ 								}
++/*************************************************************************************************/
++/** UNOFFICIAL_PATCH                        END                                                  */
++/*************************************************************************************************/
++
+ 
+ 								if (bMissionPushed)
+ 								{
+

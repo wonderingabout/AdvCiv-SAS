@@ -1,0 +1,49 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 256
+# Author: iustus
+# Date: 2007-01-10T07:17:29.439429Z
+# Coverage: full
+# Message:
+#   stylistic cleanup of some old changes I made (added braces)
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@255
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@256
+@@ -5671,7 +5671,9 @@
+ 	}
+ 	// otherwise, attack plot is the plot of us (the defender)
+ 	else if (pAttacker != NULL)
++	{
+ 		pAttackedPlot = plot();
++	}
+ 
+ 	if (pCombatDetails != NULL)
+ 	{
+@@ -5869,7 +5871,9 @@
+ 
+ 	// if we are attacking to an plot with an unknown defender, the calc the modifier in reverse
+ 	if (bAttackingUnknownDefender)
++	{
+ 		pAttacker = this;
++	}
+ 
+ 	// calc attacker bonueses
+ 	if (pAttacker != NULL)
+@@ -6000,9 +6004,13 @@
+ 		
+ 		// if we are attacking an unknown defender, then use the reverse of the modifier
+ 		if (bAttackingUnknownDefender)
++		{
+ 			iModifier -= iTempModifier;
++		}
+ 		else
++		{
+ 			iModifier += iTempModifier;
++		}
+ 	}
+ 
+ 	if (pCombatDetails != NULL)
+

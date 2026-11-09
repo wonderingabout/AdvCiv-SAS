@@ -1,0 +1,180 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 519
+# Author: jdog5000
+# Date: 2010-01-17T06:53:33.714633Z
+# Coverage: full
+# Message:
+#   0.83 release version
+#   
+#   Re-worked AI ability to start war plans while still in a peace treaty
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@518
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@519
+@@ -3715,7 +3715,7 @@
+ 				WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(eLoopTeam);
+ 				if (!kTeam.isAtWar(eLoopTeam) && (eWarPlan == NO_WARPLAN))
+ 				{
+-					if (kTeam.canDeclareWar(eLoopTeam) && kTeam.isHasMet(eLoopTeam))
++					if (kTeam.canEventuallyDeclareWar(eLoopTeam) && kTeam.isHasMet(eLoopTeam))
+ 					{
+ 						if( GET_TEAM(eLoopTeam).isAVassal() && !kTeam.AI_isOkayVassalTarget(eLoopTeam) )
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@518
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@519
+@@ -1180,6 +1180,72 @@
+ 	return true;
+ }
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/16/10                                jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
++/// \brief Version of canDeclareWar which ignores temporary peace treaties.
++///
++/// This function is for AIs considering who to start war preparations against, so they're future
++/// plans aren't unnecessarily affected by current conditions.
++///
++/// Could not change definition of canDeclareWar, some sporadic crash-inducing compatibility issue
++/// with the DLL it seems.  Lost a lot of time tracking down the source of the crash, it really is 
++/// just from adding bool bWhatever = false to canDeclareWar in CvTeam.h.  So, that's why there's 
++/// this overlapping second function.
++bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
++{
++	if (eTeam == getID())
++	{
++		return false;
++	}
++
++	if (!(isAlive()) || !(GET_TEAM(eTeam).isAlive()))
++	{
++		return false;
++	}
++
++	if (isAtWar(eTeam))
++	{
++		return false;
++	}
++
++	if (!isHasMet(eTeam))
++	{
++		return false;
++	}
++
++	if (!canChangeWarPeace(eTeam, true))
++	{
++		return false;
++	}
++
++	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
++	{
++		return false;
++	}
++
++	if(GC.getUSE_CAN_DECLARE_WAR_CALLBACK())
++	{
++		CyArgsList argsList;
++		argsList.add(getID());	// Team ID
++		argsList.add(eTeam);	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "canDeclareWar", argsList.makeFunctionArgs(), &lResult);
++
++		if (lResult == 0)
++		{
++			return false;
++		}
++	}
++
++	return true;
++}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
++
+ 
+ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@518
++++ /trunk/CvGameCoreDLL/CvTeam.h@519
+@@ -49,6 +49,15 @@
+ 
+ 	bool canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal = false) const;																			// Exposed to Python
+ 	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      01/16/10                                jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
++	bool canEventuallyDeclareWar(TeamTypes eTeam) const;
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 	DllExport void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan);										// Exposed to Python
+ 	DllExport void makePeace(TeamTypes eTeam, bool bBumpUnits = true);																		// Exposed to Python
+ 	bool canContact(TeamTypes eTeam) const;																							// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@518
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@519
+@@ -4002,7 +4002,7 @@
+ 				}
+ 				else if (AI_getWarPlan((TeamTypes)iI) == WARPLAN_PREPARING_TOTAL)
+ 				{
+-					FAssert(canDeclareWar((TeamTypes)iI));
++					FAssert(canEventuallyDeclareWar((TeamTypes)iI));
+ 
+ 					if (AI_getWarPlanStateCounter((TeamTypes)iI) > ((10 * iTimeModifier) / 100))
+ 					{
+@@ -4327,7 +4327,7 @@
+ 							{
+ 								if (isHasMet((TeamTypes)iI))
+ 								{
+-									if (canDeclareWar((TeamTypes)iI))
++									if (canEventuallyDeclareWar((TeamTypes)iI))
+ 									{
+ 										if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 										{
+@@ -4408,7 +4408,7 @@
+ 						{
+ 							if (isHasMet((TeamTypes)iI))
+ 							{
+-								if (canDeclareWar((TeamTypes)iI))
++								if (canEventuallyDeclareWar((TeamTypes)iI))
+ 								{
+ 									if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 									{
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@518
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@519
+@@ -39,13 +39,13 @@
+ 	void AI_makeAssignWorkDirty();
+ 
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						10/6/08				jdog5000	*/
+-/* 																			*/
+-/* 																			*/
++/* 	BETTER_BTS_AI_MOD						10/6/08				jdog5000	    */
++/* 																			    */
++/* 																			    */
+ /********************************************************************************/
+ 	int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves, bool bIncludeVassals = false);
+ /********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								*/
++/* 	BETTER_BTS_AI_MOD						END								    */
+ /********************************************************************************/
+ 
+ 	void AI_updateAreaStragies(bool bTargets = true);
+

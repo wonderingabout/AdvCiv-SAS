@@ -1,0 +1,1600 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 417
+# Author: jdog5000
+# Date: 2009-01-01T21:41:32.283522Z
+# Coverage: full
+# Message:
+#   0.46B
+#   
+#   Fixes for spawning new players (ie colonies) during the game, including handling global event resetting and resetting culture and revealed plots
+#   Changes to AI considerations on voting for AP/UN proposals
+#   Attack stacks with few siege units now favor cities with low defenses
+# Changed paths (15):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+#   M /trunk/CvGameCoreDLL/CyGame.h
+#   M /trunk/CvGameCoreDLL/CyPlayer.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@416
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@417
+@@ -1751,7 +1751,7 @@
+ 			{
+ 				iBestSeaAssaultCapacity = GC.getUnitInfo(eBestAssaultUnit).getCargoSpace();
+ 			}
+-		
++			
+ 			int iUnitsToTransport = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK_CITY);
+ 			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK);
+ 			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@416
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@417
+@@ -3523,7 +3523,7 @@
+ /** General AI                                                                                   */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.45H");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.46B");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@416
++++ /trunk/CvGameCoreDLL/CvGame.cpp@417
+@@ -8185,7 +8185,19 @@
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						12/30/08            jdog5000    */
++/**																				*/
++/**		Bugfix																	*/
++/********************************************************************************/
++/* original bts code
+ 		if (eColor == NO_PLAYERCOLOR || GET_PLAYER((PlayerTypes)iI).getPlayerColor() == eColor)
++*/
++		// Don't invalidate color choice if it's taken by this player
++		if (eColor == NO_PLAYERCOLOR || (GET_PLAYER((PlayerTypes)iI).getPlayerColor() == eColor && (PlayerTypes)iI != eNewPlayer) )
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 		{
+ 			for (int iK = 0; iK < GC.getNumPlayerColorInfos(); iK++)
+ 			{
+@@ -8218,8 +8230,21 @@
+ 	GC.getInitCore().setCiv(eNewPlayer, eCiv);
+ 	GC.getInitCore().setSlotStatus(eNewPlayer, SS_COMPUTER);
+ 	GC.getInitCore().setColor(eNewPlayer, eColor);
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						12/30/08            jdog5000    */
++/**																				*/
++/**		Bugfix																	*/
++/********************************************************************************/
++/* original BTS code
+ 	GET_TEAM(eTeam).init(eTeam);
+ 	GET_PLAYER(eNewPlayer).init(eNewPlayer);
++*/
++	// Team init no handled when appropriate in player initInGame
++	// Standard player init is written for beginning of game, it resets global random events for this player only among other flaws
++	GET_PLAYER(eNewPlayer).initInGame(eNewPlayer);
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ }
+ 
+ /********************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@416
++++ /trunk/CvGameCoreDLL/CvGame.h@417
+@@ -469,15 +469,15 @@
+ 	bool hasSkippedSaveChecksum() const;
+ 
+ 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);   // Exposed to Python
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						8/1/08				jdog5000	*/
+-	/**																				*/
+-	/**		Debug																	*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						8/1/08				jdog5000	*/
++/**																				*/
++/**		Debug																	*/
++/********************************************************************************/
+ 	void changeHumanPlayer( PlayerTypes eNewHuman );
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	bool testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore = NULL) const;
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@416
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@417
+@@ -297,6 +297,305 @@
+ 
+ 	AI_init();
+ }
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++//
++// Copy of CvPlayer::init but with modifications for use in the middle of a game
++//
++void CvPlayer::initInGame(PlayerTypes eID)
++{
++	LeaderHeadTypes eBestPersonality;
++	int iValue;
++	int iBestValue;
++	int iI, iJ;
++
++	//--------------------------------
++	// Init saved data
++	reset(eID);
++
++	//--------------------------------
++	// Init containers
++	m_plotGroups.init();
++
++	m_cities.init();
++
++	m_units.init();
++
++	m_selectionGroups.init();
++
++	m_eventsTriggered.init();
++
++	//--------------------------------
++	// Init non-saved data
++	setupGraphical();
++
++	//--------------------------------
++	// Init other game data
++	FAssert(getTeam() != NO_TEAM);
++
++	// Some effects on team necessary if this is the only member of the team
++	int iOtherTeamMembers = 0;
++	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		if( iI != getID() )
++		{
++			if( GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam() )
++			{
++				iOtherTeamMembers++;
++			}
++		}
++	}
++
++	bool bTeamInit = false;
++	if( (iOtherTeamMembers == 0) || GET_TEAM(getTeam()).getNumMembers() == 0 )
++	{
++		bTeamInit = true;
++		GET_TEAM(getTeam()).init(getTeam());
++		GET_TEAM(getTeam()).resetPlotAndCityData();
++	}
++
++	if( bTeamInit || (GET_TEAM(getTeam()).getNumMembers() == iOtherTeamMembers) )
++	{
++		GET_TEAM(getTeam()).changeNumMembers(1);
++	}
++
++	if ((GC.getInitCore().getSlotStatus(getID()) == SS_TAKEN) || (GC.getInitCore().getSlotStatus(getID()) == SS_COMPUTER))
++	{
++		setAlive(true);
++
++		if (GC.getGameINLINE().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
++		{
++			if (!isBarbarian() && !isMinorCiv())
++			{
++				iBestValue = 0;
++				eBestPersonality = NO_LEADER;
++
++				for (iI = 0; iI < GC.getNumLeaderHeadInfos(); iI++)
++				{
++					if (iI != GC.getDefineINT("BARBARIAN_LEADER")) // XXX minor civ???
++					{
++						iValue = (1 + GC.getGameINLINE().getSorenRandNum(10000, "Choosing Personality"));
++
++						for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++						{
++							if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++							{
++								if (GET_PLAYER((PlayerTypes)iJ).getPersonalityType() == ((LeaderHeadTypes)iI))
++								{
++									iValue /= 2;
++								}
++							}
++						}
++
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							eBestPersonality = ((LeaderHeadTypes)iI);
++						}
++					}
++				}
++
++				if (eBestPersonality != NO_LEADER)
++				{
++					setPersonalityType(eBestPersonality);
++				}
++			}
++		}
++
++		changeBaseFreeUnits(GC.getDefineINT("INITIAL_BASE_FREE_UNITS"));
++		changeBaseFreeMilitaryUnits(GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS"));
++		changeFreeUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT"));
++		changeFreeMilitaryUnitsPopulationPercent(GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT"));
++		changeGoldPerUnit(GC.getDefineINT("INITIAL_GOLD_PER_UNIT"));
++		changeTradeRoutes(GC.getDefineINT("INITIAL_TRADE_ROUTES"));
++		changeStateReligionHappiness(GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS"));
++		changeNonStateReligionHappiness(GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS"));
++
++		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
++			changeTradeYieldModifier(((YieldTypes)iI), GC.getYieldInfo((YieldTypes)iI).getTradeModifier());
++		}
++
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			setCommercePercent(((CommerceTypes)iI), GC.getCommerceInfo((CommerceTypes)iI).getInitialPercent());
++		}
++
++		FAssertMsg((GC.getNumTraitInfos() > 0), "GC.getNumTraitInfos() is less than or equal to zero but is expected to be larger than zero in CvPlayer::init");
++		for (iI = 0; iI < GC.getNumTraitInfos(); iI++)
++		{
++			if (hasTrait((TraitTypes)iI))
++			{
++				changeExtraHealth(GC.getTraitInfo((TraitTypes)iI).getHealth());
++				changeExtraHappiness(GC.getTraitInfo((TraitTypes)iI).getHappiness());
++
++				for (iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
++				{
++					changeExtraBuildingHappiness((BuildingTypes)iJ, GC.getBuildingInfo((BuildingTypes)iJ).getHappinessTraits(iI));
++				}
++
++				changeUpkeepModifier(GC.getTraitInfo((TraitTypes)iI).getUpkeepModifier());
++				changeLevelExperienceModifier(GC.getTraitInfo((TraitTypes)iI).getLevelExperienceModifier());
++				changeGreatPeopleRateModifier(GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier());
++				changeGreatGeneralRateModifier(GC.getTraitInfo((TraitTypes)iI).getGreatGeneralRateModifier());
++				changeDomesticGreatGeneralRateModifier(GC.getTraitInfo((TraitTypes)iI).getDomesticGreatGeneralRateModifier());
++
++				changeMaxGlobalBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier());
++				changeMaxTeamBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxTeamBuildingProductionModifier());
++				changeMaxPlayerBuildingProductionModifier(GC.getTraitInfo((TraitTypes)iI).getMaxPlayerBuildingProductionModifier());
++
++				for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++				{
++					changeTradeYieldModifier(((YieldTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(iJ));
++				}
++
++				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
++				{
++					changeFreeCityCommerce(((CommerceTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getCommerceChange(iJ));
++					changeCommerceRateModifier(((CommerceTypes)iJ), GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(iJ));
++				}
++
++				for (iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
++				{
++					if (GC.getCivicOptionInfo((CivicOptionTypes) iJ).getTraitNoUpkeep(iI))
++					{
++						changeNoCivicUpkeepCount(((CivicOptionTypes)iJ), 1);
++					}
++				}
++			}
++		}
++
++		updateMaxAnarchyTurns();
++
++		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
++			updateExtraYieldThreshold((YieldTypes)iI);
++		}
++
++		for (iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
++		{
++			setCivics(((CivicOptionTypes)iI), ((CivicTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationInitialCivics(iI))));
++		}
++
++		// Reset all triggers at first, set those whose events have fired in next block
++		for (iI = 0; iI < GC.getNumEventTriggerInfos(); iI++)
++		{
++			resetTriggerFired((EventTriggerTypes)iI);
++		}
++
++		for (iI = 0; iI < GC.getNumEventInfos(); iI++)
++		{
++/* original bts code
++			resetEventOccured((EventTypes)iI, false);
++*/
++			if( GC.getEventInfo((EventTypes)iI).isGlobal() )
++			{
++				// Has global event already happened?
++				const EventTriggeredData* pEvent = NULL;
++				for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++				{
++					if( iJ != getID() )
++					{
++						pEvent = GET_PLAYER((PlayerTypes)iJ).getEventOccured((EventTypes)iI);
++						if ( pEvent != NULL )
++						{
++							break;
++						}
++					}
++				}
++
++				if( pEvent != NULL )
++				{
++					setEventOccured( (EventTypes)iI, *pEvent, false );
++					setTriggerFired( *pEvent, false, false );
++				}
++				else
++				{
++					resetEventOccured((EventTypes)iI, false);
++				}
++			}
++			else if( GC.getEventInfo((EventTypes)iI).isTeam() && !bTeamInit )
++			{
++				// Has team event already happened?
++				const EventTriggeredData* pEvent = NULL;
++				for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
++				{
++					if( (GET_PLAYER((PlayerTypes)iJ).getTeam() == getTeam()) && (iJ != getID()) )
++					{
++						pEvent = GET_PLAYER((PlayerTypes)iJ).getEventOccured((EventTypes)iI);
++						if ( pEvent != NULL )
++						{
++							break;
++						}
++					}
++				}
++
++				if( pEvent != NULL )
++				{
++					setEventOccured( (EventTypes)iI, *pEvent, false );
++					setTriggerFired( *pEvent, false, false );
++				}
++				else
++				{
++					resetEventOccured((EventTypes)iI, false);
++				}
++			}
++			else
++			{
++				resetEventOccured((EventTypes)iI, false);
++			}
++		}
++
++		for (iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
++		{
++			UnitTypes eUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++			if (NO_UNIT != eUnit)
++			{
++				if (GC.getUnitInfo(eUnit).isFound())
++				{
++					setUnitExtraCost((UnitClassTypes)iI, getNewCityProductionValue());
++				}
++			}
++		}
++	}
++
++	resetPlotAndCityData();
++
++	AI_init();
++}
++
++//
++// Reset all data for this player stored in plot and city objects
++//
++void CvPlayer::resetPlotAndCityData( )
++{
++	CvPlot* pLoopPlot;
++	CvCity* pLoopCity;
++	for (int iPlot = 0; iPlot < GC.getMapINLINE().numPlotsINLINE(); ++iPlot)
++	{
++		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iPlot);
++
++		pLoopPlot->setCulture(getID(), 0, false, false);
++		pLoopPlot->setFoundValue(getID(), 0);
++
++		pLoopCity = pLoopPlot->getPlotCity();
++		if( pLoopCity != NULL )
++		{
++			pLoopCity->setCulture(getID(), 0, false, false);
++			pLoopCity->changeNumRevolts(getID(), -pLoopCity->getNumRevolts(getID()));
++			pLoopCity->setEverOwned(getID(), false);
++			pLoopCity->setTradeRoute(getID(), false);
++		}
++	}
++}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 
+ void CvPlayer::uninit()
+@@ -497,7 +796,6 @@
+ /** AI_AUTO_PLAY_MOD                        END                                                  */
+ /*************************************************************************************************/
+ 
+-
+ 	m_eID = eID;
+ 	updateTeamType();
+ 	updateHuman();
+@@ -974,12 +1272,18 @@
+ 
+ 		for (iI = 0; iI < GC.getNumEventInfos(); iI++)
+ 		{
+-			resetEventOccured((EventTypes)iI, false);
++			if( (!GC.getEventInfo((EventTypes)iI).isGlobal()) && (!GC.getEventInfo((EventTypes)iI).isTeam() || GET_TEAM(getTeam()).getNumMembers() == 1) )
++			{
++				resetEventOccured((EventTypes)iI, false);
++			}
+ 		}
+ 
+ 		for (iI = 0; iI < GC.getNumEventTriggerInfos(); iI++)
+ 		{
+-			resetTriggerFired((EventTriggerTypes)iI);
++			if( (!GC.getEventTriggerInfo((EventTriggerTypes)iI).isGlobal()) && (!GC.getEventTriggerInfo((EventTriggerTypes)iI).isTeam() || GET_TEAM(getTeam()).getNumMembers() == 1) )
++			{
++				resetTriggerFired((EventTriggerTypes)iI);
++			}
+ 		}
+ 	}
+ 
+@@ -1102,6 +1406,8 @@
+ 		GC.getInitCore().setFlagDecal( getID(), (CvWString)GC.getCivilizationInfo(eNewCiv).getFlagTexture() );
+ 		GC.getInitCore().setArtStyle( getID(), (ArtStyleTypes)GC.getCivilizationInfo(eNewCiv).getArtStyleType() );
+ 
++		// Forces update of units flags
++		/*
+ 		EraTypes eEra = getCurrentEra();
+ 		bool bAuto = m_bDisableHuman;
+ 		m_bDisableHuman = true;
+@@ -1110,6 +1416,42 @@
+ 
+ 		setCurrentEra(eEra);
+ 		m_bDisableHuman = bAuto;
++		gDLL->getInterfaceIFace()->makeInterfaceDirty();
++		*/
++
++		int iLoop;
++		CvCity* pLoopCity;
++		// dirty all of this player's cities...
++		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			if (pLoopCity->getOwnerINLINE() == getID())
++			{
++				pLoopCity->setLayoutDirty(true);
++			}
++		}
++
++		CvUnit* pLoopUnit;
++		CvPlot* pLoopPlot;
++		//update unit eras
++		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
++		{
++			pLoopUnit->reloadEntity();
++			pLoopPlot = pLoopUnit->plot();
++
++			if( pLoopPlot != NULL )
++			{
++				pLoopPlot->updateFlagSymbol();
++			}
++		}
++
++		//update flag eras
++		gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
++
++		if (getID() == GC.getGameINLINE().getActivePlayer())
++		{
++			gDLL->getInterfaceIFace()->setDirty(Soundtrack_DIRTY_BIT, true);
++		}
++
+ 		gDLL->getInterfaceIFace()->makeInterfaceDirty();
+ 
+ 		// Need to force redraw
+@@ -1124,7 +1466,6 @@
+ 		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+-		gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
+ 		gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+@@ -1169,7 +1510,6 @@
+ /*************************************************************************************************/
+ /** CHANGE_PLAYER                          END                                                  */
+ /*************************************************************************************************/
+-
+ 
+ //////////////////////////////////////
+ // graphical only setup
+@@ -19809,6 +20149,12 @@
+ 		}
+ 		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szMessage, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++/*
+ 		// remove leftover culture from old recycled player
+ 		for (int iPlot = 0; iPlot < GC.getMapINLINE().numPlotsINLINE(); ++iPlot)
+ 		{
+@@ -19816,6 +20162,11 @@
+ 
+ 			pLoopPlot->setCulture(eNewPlayer, 0, false, false);
+ 		}
++*/
++		// Clearing plot culture along with many other bits of data now handled by CvGame::addPlayer
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 		GC.getGameINLINE().addPlayer(eNewPlayer, eBestLeader, eBestCiv);
+ 		GET_PLAYER(eNewPlayer).setParent(getID());
+@@ -20545,7 +20896,19 @@
+ 	{
+ 		if (!::atWar(getTeam(), GET_PLAYER(kData.ePlayer).getTeam()))
+ 		{
+-			return true;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/31/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++			// Vassals can't defy declarations of war
++			if( !GET_TEAM(getTeam()).isAVassal() )
++			{
++				return true;
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 	}
+ 	else if (GC.getVoteInfo(kData.eVote).isForcePeace())
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@416
++++ /trunk/CvGameCoreDLL/CvPlayer.h@417
+@@ -36,7 +36,18 @@
+ 	DllExport void reset(PlayerTypes eID = NO_PLAYER, bool bConstructorCall = false);
+ 
+ /*************************************************************************************************/
+-/** CHANGE_PLAYER                          08/17/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	void initInGame(PlayerTypes eID);
++	void resetPlotAndCityData( );
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
++/*************************************************************************************************/
++/** CHANGE_PLAYER                          12/30/08                                jdog5000      */
+ /**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+@@ -51,6 +62,7 @@
+ /*************************************************************************************************/
+ /** CHANGE_PLAYER                           END                                                  */
+ /*************************************************************************************************/
++
+ protected:
+ 
+ 	void uninit();
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@416
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@417
+@@ -5391,6 +5391,12 @@
+ 	{
+ 		TeamTypes eSecretaryGeneral = GC.getGameINLINE().getSecretaryGeneral(eVoteSource);
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 		if (!bPropose)
+ 		{
+ 			if (eSecretaryGeneral != NO_TEAM)
+@@ -5400,7 +5406,27 @@
+ 					return PLAYER_VOTE_YES;
+ 				}
+ 			}
+-		}
++		}						
++*/
++		// Remove blanket auto approval for friendly secretary
++		bool bFriendlyToSecretary = false;
++		if (!bPropose)
++		{
++			if (eSecretaryGeneral != NO_TEAM)
++			{
++				if (eSecretaryGeneral == getTeam())
++				{
++					return PLAYER_VOTE_YES;
++				}
++				else
++				{
++					bFriendlyToSecretary = (GET_TEAM(getTeam()).AI_getAttitude(eSecretaryGeneral) == ATTITUDE_FRIENDLY);
++				}
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		
+ 		bool bDefy = false;
+ 
+@@ -5422,10 +5448,34 @@
+ 							{
+ 								int iBestCivicValue = AI_civicValue(eBestCivic);
+ 								int iNewCivicValue = AI_civicValue((CivicTypes)iI);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 								if (iBestCivicValue > ((iNewCivicValue * 120) / 100))
+ 								{
+ 									bValid = false;
++
+ 									if (iBestCivicValue > ((iNewCivicValue * (140 + (GC.getGame().getSorenRandNum(120, "AI Erratic Defiance (Force Civic)"))) / 100)))
++*/
++								// Increase threshold of voting for friend's proposal
++								if( bFriendlyToSecretary )
++								{
++									iNewCivicValue *= 6;
++									iNewCivicValue /= 5;
++								}
++
++								if (iBestCivicValue > ((iNewCivicValue * 120) / 100))
++								{
++									bValid = false;
++
++									// Increase odds of defiance, particularly on AggressiveAI
++									if (iBestCivicValue > ((iNewCivicValue * (140 + (GC.getGame().getSorenRandNum((GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 60 : 80), "AI Erratic Defiance (Force Civic)"))) / 100)))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 									{
+ 										bDefy = true;										
+ 									}
+@@ -5442,6 +5492,18 @@
+ 		{
+ 			if (GC.getVoteInfo(eVote).getTradeRoutes() > 0)
+ 			{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				if( bFriendlyToSecretary )
++				{
++					return PLAYER_VOTE_YES;
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				if (getNumCities() > ((GC.getGameINLINE().getNumCities() * 2) / (GC.getGameINLINE().countCivPlayersAlive() + 1)))
+ 				{
+ 					bValid = false;
+@@ -5483,6 +5545,20 @@
+ 					iValue *= 2;
+ 				}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				if( bFriendlyToSecretary )
++				{
++					iValue *= 2;
++					iValue /= 3;
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 				bValid = GC.getGameINLINE().getSorenRandNum(100, "AI nuke ban vote") > iValue;
+ 				// Unofficial Patch End
+ 				
+@@ -5508,6 +5584,19 @@
+ 		{
+ 			if (GC.getVoteInfo(eVote).isFreeTrade())
+ 			{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				if( bFriendlyToSecretary )
++				{
++					return PLAYER_VOTE_YES;
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 				iOpenCount = 0;
+ 				iClosedCount = 0;
+ 
+@@ -5545,6 +5634,19 @@
+ 		{
+ 			if (GC.getVoteInfo(eVote).isOpenBorders())
+ 			{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				if( bFriendlyToSecretary )
++				{
++					return PLAYER_VOTE_YES;
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 				bValid = true;
+ 
+ 				for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+@@ -5564,6 +5666,19 @@
+ 			}
+ 			else if (GC.getVoteInfo(eVote).isDefensivePact())
+ 			{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				if( bFriendlyToSecretary )
++				{
++					return PLAYER_VOTE_YES;
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 				bValid = true;
+ 
+ 				for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+@@ -5589,7 +5704,29 @@
+ 				int iWarsWinning = 0;
+ 				int iWarsLosing = 0;
+ 				int iChosenWar = 0;
+-				//Are we winning wars?
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++				bool bLosingBig = false;
++				bool bWinningBig = false;
++				bool bThisPlayerWinning = false;
++
++				int iWinDeltaThreshold = 3*GC.getDefineINT("WAR_SUCCESS_ATTACKING");
++				int iLossAbsThreshold = std::max(3, getNumMilitaryUnits()/40)*GC.getDefineINT("WAR_SUCCESS_ATTACKING");
++
++				bool bAggressiveAI = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
++				if( bAggressiveAI )
++				{
++					iWinDeltaThreshold *= 2;
++					iWinDeltaThreshold /= 3;
++
++					iLossAbsThreshold *= 4;
++					iLossAbsThreshold /= 3;
++				}
++
++				// Is ePeaceTeam winning wars?
+ 				for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 				{
+ 					if (GET_TEAM((TeamTypes)iI).isAlive())
+@@ -5598,13 +5735,48 @@
+ 						{
+ 							if (GET_TEAM((TeamTypes)iI).isAtWar(ePeaceTeam))
+ 							{
+-								if (GET_TEAM((TeamTypes)iI).AI_getWarSuccess(ePeaceTeam) < GET_TEAM(ePeaceTeam).AI_getWarSuccess((TeamTypes)iI))
++								int iPeaceTeamSuccess = GET_TEAM(ePeaceTeam).AI_getWarSuccess((TeamTypes)iI);
++								int iOtherTeamSuccess = GET_TEAM((TeamTypes)iI).AI_getWarSuccess(ePeaceTeam);
++								
++								if ( (iPeaceTeamSuccess - iOtherTeamSuccess) > iWinDeltaThreshold )
+ 								{
++									// Have to be ahead by at least a few victories to count as win
+ 									++iWarsWinning;
++
++									if ( (iPeaceTeamSuccess - iOtherTeamSuccess) > (3*iWinDeltaThreshold) )
++									{
++										bWinningBig = true;
++									}
+ 								}
+-								else
++								else if( (iOtherTeamSuccess > iPeaceTeamSuccess) && (iOtherTeamSuccess > iLossAbsThreshold) )
+ 								{
++									// Have to have non-trivial loses
+ 									++iWarsLosing;
++
++									if( (iOtherTeamSuccess - iPeaceTeamSuccess) > (3*iLossAbsThreshold) )
++									{
++										bLosingBig = true;
++									}
++								}
++								else if( (iOtherTeamSuccess >= iPeaceTeamSuccess) )
++								{
++									if( iI == getTeam() )
++									{
++										if( (iOtherTeamSuccess - iPeaceTeamSuccess) > iWinDeltaThreshold )
++										{
++											bThisPlayerWinning = true;
++										}
++									}
++
++									// Not winning, just recently attacked, and in multiple wars, be pessimistic
++									// Counts ties from no actual battles
++									if( GET_TEAM(ePeaceTeam).AI_getAtWarCounter((TeamTypes)iI) < 8 )
++									{
++										if( GET_TEAM(ePeaceTeam).getAtWarCount(true) > 1 )
++										{
++											++iWarsLosing;
++										}
++									}
+ 								}
+ 
+ 								if (GET_TEAM(ePeaceTeam).AI_isChosenWar((TeamTypes)iI))
+@@ -5618,13 +5790,34 @@
+ 				
+ 				if (ePeaceTeam == getTeam())
+ 				{
+-					if (iWarsLosing < iChosenWar)
+-					{
++					int iPeaceRand = GC.getLeaderHeadInfo(getPersonalityType()).getBasePeaceWeight();
++					iPeaceRand /= (bAggressiveAI ? 2 : 1);
++					
++					// Always true for real war-mongers, rarely true for less aggressive types
++					bool bWarmongerRoll = (GC.getGame().getSorenRandNum(iPeaceRand, "AI Erratic Defiance (Force Peace)") == 0);
++
++					if( bLosingBig && (!bWarmongerRoll || bPropose) )
++					{
++						// Non-warmongers want peace to escape loss
++						bValid = true;
++					}
++					else if ( !bLosingBig && (iChosenWar > iWarsLosing) )
++					{
++						// If chosen to be in most wars, keep it going
+ 						bValid = false;
+ 					}
+ 					else
+ 					{
+-						bValid = (iWarsWinning < iWarsLosing);
++						// If losing most wars, vote for peace
++						bValid = (iWarsLosing > iWarsWinning);
++					}
++
++					if (!bValid && !bLosingBig && bWinningBig)
++					{
++						if (bWarmongerRoll)
++						{
++							bDefy = true;
++						}
+ 					}
+ 				}
+ 				else if (eSecretaryGeneral == getTeam() && !bPropose)
+@@ -5633,32 +5826,80 @@
+ 				}
+ 				else if (GET_TEAM(ePeaceTeam).isAtWar(getTeam()))
+ 				{
+-					bValid = (bPropose || NO_DENIAL == GET_TEAM(getTeam()).AI_makePeaceTrade(ePeaceTeam, eSecretaryGeneral));
+-
+-					if (bValid)
+-					{
+-						bValid = (iWarsWinning > iWarsLosing);
++					bool bWantsToEndWar = (GET_TEAM(getTeam()).AI_endWarVal(ePeaceTeam) > (GET_TEAM(ePeaceTeam).AI_endWarVal(getTeam())));
++					bValid = bWantsToEndWar;
++
++					if( bValid )
++					{
++						bValid = (iWarsWinning > iWarsLosing) || (GET_TEAM(getTeam()).getAtWarCount(true) > 1);
++					}
++
++					if( !bValid )
++					{
++						if( bPropose || (GET_TEAM(getTeam()).AI_getAttitude(ePeaceTeam) > GC.getLeaderHeadInfo(getPersonalityType()).getVassalRefuseAttitudeThreshold()) )
++						{
++							// Influence by secretary
++							if( NO_DENIAL == GET_TEAM(getTeam()).AI_makePeaceTrade(ePeaceTeam, eSecretaryGeneral) )
++							{
++								bValid = true;
++							}
++							else if( eSecretaryGeneral != NO_TEAM && GET_TEAM(getTeam()).isVassal(eSecretaryGeneral) )
++							{
++								bValid = true;
++							}
++						}
++					}
++
++					if (!bValid && bThisPlayerWinning )
++					{
++						if( (GET_TEAM(getTeam()).getAtWarCount(true) == 1) || bLosingBig )
++						{
++							int iDefyRand = GC.getLeaderHeadInfo(getPersonalityType()).getBasePeaceWeight();
++							iDefyRand /= (bAggressiveAI ? 2 : 1);
++
++							if (GC.getGame().getSorenRandNum(iDefyRand, "AI Erratic Defiance (Force Peace)") == 0)
++							{
++								bDefy = true;
++							}
++						}
+ 					}
+ 				}
+ 				else
+ 				{
+-					if (GET_TEAM(getTeam()).AI_getAttitude(ePeaceTeam) >= ATTITUDE_CAUTIOUS)
+-					{
+-						bValid = (iWarsLosing > iWarsWinning);
+-					}
+-					else
+-					{
+-						bValid = (iWarsWinning > iWarsLosing);
+-					}
+-				}
+-				
+-				if (!bValid && iWarsWinning > 0)
+-				{
+-					if (GC.getGame().getSorenRandNum(2, "AI Erratic Defiance (Force Peace)") == 0)
+-					{
+-						bDefy = true;
+-					}
+-				}
++					if( GET_TEAM(getTeam()).AI_getWarPlan(ePeaceTeam) != NO_WARPLAN )
++					{
++						// Keep planned enemy occupied
++						bValid = false;
++					}
++					else if( GET_TEAM(getTeam()).AI_shareWar(ePeaceTeam) )
++					{
++						// Keep ePeaceTeam at war with our common enemies
++						bValid = false;
++					}
++					else if(iWarsLosing > iWarsWinning)
++					{
++						// Feel pity for team that is losing (if like them enough to not declare war on them)
++						bValid = (GET_TEAM(getTeam()).AI_getAttitude(ePeaceTeam) >= GC.getLeaderHeadInfo(getPersonalityType()).getDeclareWarThemRefuseAttitudeThreshold());
++					}
++					else 
++					{
++						// Stop a team that is winning (if don't like them enough to join them in war)
++						bValid = (GET_TEAM(getTeam()).AI_getAttitude(ePeaceTeam) < GC.getLeaderHeadInfo(getPersonalityType()).getDeclareWarRefuseAttitudeThreshold());
++					}
++
++					if( !bValid )
++					{
++						if( bFriendlyToSecretary )
++						{
++							// Influence by secretary
++							bValid = true;
++						}
++					}
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 			}
+ 			else if (GC.getVoteInfo(eVote).isForceNoTrade())
+ 			{
+@@ -5677,18 +5918,33 @@
+ 						bDefy = true;
+ 					}
+ 				}
+-				else if (canStopTradingWithTeam(eEmbargoTeam))
+-				{
+-					bValid = (NO_DENIAL == AI_stopTradingTrade(eEmbargoTeam, kVoteData.ePlayer));
+-					if (bValid)
+-					{
+-						bValid = (GET_TEAM(getTeam()).AI_getAttitude(eEmbargoTeam) <= ATTITUDE_CAUTIOUS);
+-					}
+-				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
+ 				else
+ 				{
+-					bValid = (GET_TEAM(getTeam()).AI_getAttitude(eEmbargoTeam) < ATTITUDE_CAUTIOUS);
+-				}
++					if( bFriendlyToSecretary )
++					{
++						return PLAYER_VOTE_YES;
++					}
++					else if( canStopTradingWithTeam(eEmbargoTeam) )
++					{
++						bValid = (NO_DENIAL == AI_stopTradingTrade(eEmbargoTeam, kVoteData.ePlayer));
++						if (bValid)
++						{
++							bValid = (GET_TEAM(getTeam()).AI_getAttitude(eEmbargoTeam) <= ATTITUDE_CAUTIOUS);
++						}
++					}
++					else
++					{
++						bValid = (GET_TEAM(getTeam()).AI_getAttitude(eEmbargoTeam) < ATTITUDE_CAUTIOUS);
++					}
++				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			}
+ 			else if (GC.getVoteInfo(eVote).isForceWar())
+ 			{
+@@ -5699,21 +5955,101 @@
+ 				{
+ 					bValid = true;
+ 				}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 				else if (eWarTeam == getTeam())
+ 				{
+ 					bValid = false;
+ 				}
+ 				else if (GET_TEAM(eWarTeam).isAtWar(getTeam()))
++*/
++				else if (eWarTeam == getTeam() || GET_TEAM(getTeam()).isVassal(eWarTeam))
++				{
++					bValid = false;
++				}
++				else if ( GET_TEAM(getTeam()).AI_getWarPlan(eWarTeam) != NO_WARPLAN )
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				{
+ 					bValid = true;
+ 				}
+ 				else
+ 				{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 					bValid = (bPropose || NO_DENIAL == GET_TEAM(getTeam()).AI_declareWarTrade(eWarTeam, eSecretaryGeneral));
+ 					if (bValid)
+ 					{
+ 						bValid = (GET_TEAM(getTeam()).AI_getAttitude(eWarTeam) < ATTITUDE_CAUTIOUS);
+ 					}
++*/
++					if( !bPropose && GET_TEAM(getTeam()).isAVassal() )
++					{
++						// Vassals always deny war trade requests and thus previously always voted no
++						bValid = false;
++
++						if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0 )
++						{
++							if( eSecretaryGeneral == NO_TEAM || (GET_TEAM(getTeam()).AI_getAttitude(eSecretaryGeneral) > GC.getLeaderHeadInfo(getPersonalityType()).getDeclareWarRefuseAttitudeThreshold()) )
++							{
++								if( eSecretaryGeneral != NO_TEAM && GET_TEAM(getTeam()).isVassal(eSecretaryGeneral) )
++								{
++									bValid = true;
++								}
++								else if( (GET_TEAM(getTeam()).getPower(false) + GET_TEAM(getTeam()).getMasterPower()) > GET_TEAM(eWarTeam).getDefensivePower() )
++								{
++									bValid = true;
++								}
++							}
++						}
++					}
++					else
++					{
++						bValid = (bPropose || NO_DENIAL == GET_TEAM(getTeam()).AI_declareWarTrade(eWarTeam, eSecretaryGeneral));
++					}
++
++					if (bValid)
++					{
++						bValid = (GET_TEAM(getTeam()).AI_getAttitude(eWarTeam) < ATTITUDE_CAUTIOUS);
++					}
++					// BBAI TODO: does defying a forced war resolution make sense?
++					// Currently it scuttles the whole resolution, not just keeps this player out of war.
++					// A small voting player shouldn't be able to block the resolution single-handedly.
++					// But if that was changed at least for this type of vote, then defying would make sense.
++					/*
++					else
++					{
++						// Consider defying resolution
++						if( !GET_TEAM(getTeam()).isAVassal() )
++						{
++							if( eSecretaryGeneral == NO_TEAM || GET_TEAM(getTeam()).AI_getAttitude(eWarTeam) > GET_TEAM(getTeam()).AI_getAttitude(eSecretaryGeneral) )
++							{
++								if( GET_TEAM(getTeam()).AI_getAttitude(eWarTeam) > GC.getLeaderHeadInfo(getPersonalityType()).getDefensivePactRefuseAttitudeThreshold() )
++								{
++									int iDefyRand = GC.getLeaderHeadInfo(getPersonalityType()).getBasePeaceWeight();
++									iDefyRand /= (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 2 : 1);
++
++									if (GC.getGame().getSorenRandNum(iDefyRand, "AI Erratic Defiance (Force War)") > 0)
++									{
++										bDefy = true;
++									}
++								}
++							}
++						}
++					}
++					*/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				}
+ 			}
+ 			else if (GC.getVoteInfo(eVote).isAssignCity())
+@@ -5734,6 +6070,7 @@
+ 						else if (kVoteData.ePlayer == getID())
+ 						{
+ 							bValid = false;
++							// BBAI TODO: Wonders, holy city, aggressive AI
+ 							if (GC.getGame().getSorenRandNum(3, "AI Erratic Defiance (Assign City)") == 0)
+ 							{
+ 								bDefy = true;
+@@ -5747,8 +6084,19 @@
+ 				}
+ 			}
+ 		}
+-		
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 		if (bDefy && canDefyResolution(eVoteSource, kVoteData))
++*/
++		// Don't defy resolutions from friends
++		if( bDefy && !bFriendlyToSecretary && canDefyResolution(eVoteSource, kVoteData))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			return PLAYER_VOTE_NEVER;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@416
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@417
+@@ -102,6 +102,32 @@
+ 	//--------------------------------
+ 	// Init other game data
+ 	AI_init();
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                         12/30/08                             jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++	if( GC.getGame().isFinalInitialized() )
++	{
++		for (int iI = 0; iI < MAX_TEAMS; iI++)
++		{
++			if( iI != getID() )
++			{
++				if( GET_TEAM((TeamTypes)iI).isMinorCiv() )
++				{
++					GET_TEAM((TeamTypes)iI).declareWar(getID(), false, WARPLAN_LIMITED);
++				}
++				if( GET_TEAM((TeamTypes)iI).isBarbarian() )
++				{
++					GET_TEAM((TeamTypes)iI).declareWar(getID(), false, WARPLAN_LIMITED);
++				}
++			}
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ }
+ 
+ 
+@@ -334,6 +360,39 @@
+ 	}
+ }
+ 
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						12/30/08		jdog5000		*/
++/**																				*/
++/**		     																	*/
++/********************************************************************************/
++//
++// for clearing data stored in plots and cities for this team
++//
++void CvTeam::resetPlotAndCityData( )
++{
++	int iI;
++	CvPlot* pLoopPlot;
++	CvCity* pLoopCity;
++	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	{
++		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		
++		pLoopPlot->setRevealedOwner(getID(), NO_PLAYER);
++		pLoopPlot->setRevealedImprovementType(getID(), NO_IMPROVEMENT);
++		pLoopPlot->setRevealedRouteType(getID(), NO_ROUTE);
++		pLoopPlot->setRevealed(getID(), false, false, getID(), true);
++
++		pLoopCity = pLoopPlot->getPlotCity();
++		if( pLoopCity != NULL )
++		{
++			pLoopCity->setRevealed(getID(), false);
++			pLoopCity->setEspionageVisibility(getID(), false, true);
++		}
++	}
++}
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ void CvTeam::addTeam(TeamTypes eTeam)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@416
++++ /trunk/CvGameCoreDLL/CvTeam.h@417
+@@ -24,6 +24,17 @@
+ 	void uninit();
+ 
+ public:
++
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						12/30/08		jdog5000		*/
++/**																				*/
++/**		     																	*/
++/********************************************************************************/
++	void resetPlotAndCityData( );
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
++
+ 
+ 	void addTeam(TeamTypes eTeam);																								// Exposed to Python
+ 	void shareItems(TeamTypes eTeam);
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@416
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@417
+@@ -1966,7 +1966,19 @@
+ 	}
+ 	else
+ 	{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** Diplomacy AI                                                                                 */
++/*************************************************************************************************/
++/* original BTS code
+ 		if (AI_getWarSuccess(eTeam) + 4 * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING") > GET_TEAM(eTeam).AI_getWarSuccess(getID()))
++*/
++		// Scale better for small empires, particularly necessary if WAR_SUCCESS_CITY_CAPTURING > 10
++		if (AI_getWarSuccess(eTeam) + std::min(getNumCities(), 4) * GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING") > GET_TEAM(eTeam).AI_getWarSuccess(getID()))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			return DENIAL_JOKING;
+ 		}
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@416
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@417
+@@ -4713,8 +4713,6 @@
+ /**                                                                                              */
+ /** Bugfix                                                                                       */
+ /*************************************************************************************************/
+-						// BBAI TODO: This doesn't properly block movement over diagonally connected land
+-
+ 						if( GC.getMapINLINE().calculatePathDistance(plot(),pLoopPlot) > iBlockadeRange )
+ 						{
+ 							// No blockading on other side of an isthmus
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@416
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@417
+@@ -2959,7 +2959,7 @@
+ 		if (!canAttack())
+ 		{
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -2970,7 +2970,7 @@
+ 			}
+ */
+ 			// Don't restrict to groups carrying cargo ... does this apply to any units in standard bts anyway?
+-			if (AI_shadow(UNITAI_ATTACK_CITY, -1, -1, false, false, 4))
++			if (AI_shadow(UNITAI_ATTACK_CITY, -1, 21, false, false, 4))
+ 			{
+ 				return;
+ 			}
+@@ -4809,7 +4809,7 @@
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
+ /**                                                                                              */
+-/** Naval AI                                                                                      */
++/** Naval AI                                                                                     */
+ /*************************************************************************************************/
+ /* original bts code
+ 		if (AI_shadow(UNITAI_ASSAULT_SEA, 4, 34))
+@@ -4972,7 +4972,7 @@
+ 	}
+ 	
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -4981,58 +4981,72 @@
+ 	{
+ 		return;
+ 	}
++
++	if (AI_group(UNITAI_RESERVE_SEA, 1))
++	{
++		return;
++	}
++	
++	if (bombardRate() > 0)
++	{
++		if (AI_shadow(UNITAI_ASSAULT_SEA, 2, 30, true))
++		{
++			return;
++		}
++	}
+ */
+-	
+-	if (AI_shadow(UNITAI_SETTLER_SEA, 1, -1, false, true))
+-	{
+-		return;
++	// Shadow any nearby settler sea transport out at sea
++	if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, false, true, 5))
++	{
++		return;
++	}
++	
++	if (AI_group(UNITAI_RESERVE_SEA, 1))
++	{
++		return;
++	}
++	
++	if (bombardRate() > 0)
++	{
++		if (AI_shadow(UNITAI_ASSAULT_SEA, 2, 30, true, false, 10))
++		{
++			return;
++		}
+ 	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/	
+-	
+-	if (AI_group(UNITAI_RESERVE_SEA, 1))
+-	{
+-		return;
+-	}
+-	
+-	if (bombardRate() > 0)
+-	{
+-		if (AI_shadow(UNITAI_ASSAULT_SEA, 2, 30, true))
++
++	if (AI_heal(50, 3))
++	{
++		return;
++	}
++
++	if (AI_anyAttack(3, 45))
++	{
++		return;
++	}
++
++	if (AI_heal())
++	{
++		return;
++	}
++
++	if (!isNeverInvisible())
++	{
++		if (AI_anyAttack(5, 35))
+ 		{
+ 			return;
+ 		}
+ 	}
+ 
+-	if (AI_heal(50, 3))
+-	{
+-		return;
+-	}
+-
+-	if (AI_anyAttack(3, 45))
+-	{
+-		return;
+-	}
+-
+-	if (AI_heal())
+-	{
+-		return;
+-	}
+-
+-	if (!isNeverInvisible())
+-	{
+-		if (AI_anyAttack(5, 35))
+-		{
+-			return;
+-		}
+-	}
+-
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/08/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                      */
+ /*************************************************************************************************/
+-	if (AI_shadow(UNITAI_SETTLER_SEA, 4, 200, true))
++	// Shadow settler transport with cargo 
++	if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, true))
+ 	{
+ 		return;
+ 	}
+@@ -5220,7 +5234,7 @@
+ 		return;
+ 	}
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      12/07/08                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                      */
+ /*************************************************************************************************/
+@@ -5230,12 +5244,13 @@
+ 		return;
+ 	}
+ */
++	// Group only with large flotillas first
+ 	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 4, /*iMinUnitAI*/ 3, /*bIgnoreFaster*/ true))
+ 	{
+ 		return;
+ 	}
+ 
+-	if (AI_shadow(UNITAI_SETTLER_SEA, 2, 200, false, true))
++	if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, false, true, 4))
+ 	{
+ 		return;
+ 	}
+@@ -12543,6 +12558,43 @@
+ 									iValue /= 2;
+ 								}
+ 							}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      12/30/08                                jdog5000      */
++/**                                                                                              */
++/** War strategy AI                                                                              */
++/*************************************************************************************************/
++							// If stack has poor bombard, direct towards lower defense cities
++							bool bHasBomber = (area()->getNumAIUnits(getOwner(),UNITAI_ATTACK_AIR) > 0);
++							bool bIgnoreBuildingDefense = bHasBomber;
++							int iTotalBombardRate = 0;
++
++							CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
++							while (pUnitNode != NULL)
++							{
++								CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++								pUnitNode = getGroup()->nextUnitNode(pUnitNode);
++
++								if( pLoopUnit->bombardRate() > 0 )
++								{
++									iTotalBombardRate += pLoopUnit->bombardRate();
++									bIgnoreBuildingDefense = (bIgnoreBuildingDefense || pLoopUnit->ignoreBuildingDefense());
++								}
++							}
++
++							int iBombardTurns = pLoopCity->getDefenseModifier(bIgnoreBuildingDefense);
++							if( !bIgnoreBuildingDefense )
++							{
++								iBombardTurns *= std::max(100, (100 + pLoopCity->getBuildingBombardDefense()));
++								iBombardTurns /= 100;
++							}
++							iBombardTurns /= std::max(8, iTotalBombardRate);
++							iBombardTurns = std::min(12, iBombardTurns);
++
++							iPathTurns += (iBombardTurns)/(bHasBomber ? 3 : 2);
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 							iValue /= (4 + iPathTurns*iPathTurns);
+ 
+@@ -16786,6 +16838,7 @@
+ 			if (pCity->plot()->plotCount(PUF_isUnitAIType, eUnitAI, -1, getOwnerINLINE()) > 0)
+ 			{
+ */
++			// Only count units which might actually load
+ 			if (pCity->plot()->plotCount(PUF_isAvailableGroupHeadUnitAIType, eUnitAI, -1, getOwnerINLINE(), NO_TEAM, PUF_isFiniteRange) > 0)
+ 			{
+ /*************************************************************************************************/
+
+Index: /trunk/CvGameCoreDLL/CyGame.h
+--- /trunk/CvGameCoreDLL/CyGame.h@416
++++ /trunk/CvGameCoreDLL/CyGame.h@417
+@@ -259,15 +259,15 @@
+ 	void saveReplay(int iPlayer);
+ 
+ 	void addPlayer(int /*PlayerTypes*/ eNewPlayer, int /*LeaderHeadTypes*/ eLeader, int /*CivilizationTypes*/ eCiv);
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						8/1/08				jdog5000	*/
+-	/**																				*/
+-	/**		Debug																	*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						8/1/08				jdog5000	*/
++/**																				*/
++/**		Debug																	*/
++/********************************************************************************/
+ 	void changeHumanPlayer( int /*PlayerTypes*/ eNewHuman );
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/********************************************************************************/
++/**		BETTER_BTS_AI_MOD						END								*/
++/********************************************************************************/
+ 
+ 	void setPlotExtraYield(int iX, int iY, int /*YieldTypes*/ eYield, int iExtraYield);
+ 	void changePlotExtraCost(int iX, int iY, int iExtraCost);
+
+Index: /trunk/CvGameCoreDLL/CyPlayer.cpp
+--- /trunk/CvGameCoreDLL/CyPlayer.cpp@416
++++ /trunk/CvGameCoreDLL/CyPlayer.cpp@417
+@@ -47,7 +47,7 @@
+ 		m_pPlayer->setIsHuman( bNewValue );
+ }
+ /*************************************************************************************************/
+-/** CHANGE_PLAYER                          END                                                  */
++/** CHANGE_PLAYER                          END                                                   */
+ /*************************************************************************************************/
+ 
+ int CyPlayer::startingPlotRange()
+

@@ -1,0 +1,150 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 518
+# Author: jdog5000
+# Date: 2010-01-17T03:34:58.181041Z
+# Coverage: full
+# Message:
+#   Removed new feature causing crash
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.h
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@517
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@518
+@@ -3715,7 +3715,7 @@
+ 				WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(eLoopTeam);
+ 				if (!kTeam.isAtWar(eLoopTeam) && (eWarPlan == NO_WARPLAN))
+ 				{
+-					if (kTeam.canDeclareWar(eLoopTeam, true) && kTeam.isHasMet(eLoopTeam))
++					if (kTeam.canDeclareWar(eLoopTeam) && kTeam.isHasMet(eLoopTeam))
+ 					{
+ 						if( GET_TEAM(eLoopTeam).isAVassal() && !kTeam.AI_isOkayVassalTarget(eLoopTeam) )
+ 						{
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@517
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@518
+@@ -1114,15 +1114,8 @@
+ 	return true;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/10/10                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-/// \brief Can team declare war on eTeam.
+-///
+-/// Option bIgnoreTreaties = true causes function to ignore temporary peace treaties.
+-bool CvTeam::canDeclareWar(TeamTypes eTeam, bool bIgnoreTreaties) const
++
++bool CvTeam::canDeclareWar(TeamTypes eTeam) const
+ {
+ 	if (eTeam == getID())
+ 	{
+@@ -1144,21 +1137,18 @@
+ 		return false;
+ 	}
+ 
+-	if (!bIgnoreTreaties && isForcePeace(eTeam))
++	if (isForcePeace(eTeam))
+ 	{
+ 		return false;
+ 	}
+ 
+-	if( !bIgnoreTreaties )
+-	{
+-		for (int i = 0; i < MAX_TEAMS; ++i)
+-		{
+-			if (i != eTeam && i != getID() && GET_TEAM(eTeam).isVassal((TeamTypes)i))
+-			{
+-				if (isForcePeace((TeamTypes)i))
+-				{
+-					return false;
+-				}
++	for (int i = 0; i < MAX_TEAMS; ++i)
++	{
++		if (i != eTeam && i != getID() && GET_TEAM(eTeam).isVassal((TeamTypes)i))
++		{
++			if (isForcePeace((TeamTypes)i))
++			{
++				return false;
+ 			}
+ 		}
+ 	}
+@@ -1189,9 +1179,6 @@
+ 
+ 	return true;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
+ 
+ 
+ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan)
+
+Index: /trunk/CvGameCoreDLL/CvTeam.h
+--- /trunk/CvGameCoreDLL/CvTeam.h@517
++++ /trunk/CvGameCoreDLL/CvTeam.h@518
+@@ -48,15 +48,7 @@
+ 	void updateCommerce();
+ 
+ 	bool canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal = false) const;																			// Exposed to Python
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/10/10                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-	DllExport bool canDeclareWar(TeamTypes eTeam, bool bIgnoreTreaties = false) const;																// Exposed to Python
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
+ 	DllExport void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan);										// Exposed to Python
+ 	DllExport void makePeace(TeamTypes eTeam, bool bBumpUnits = true);																		// Exposed to Python
+ 	bool canContact(TeamTypes eTeam) const;																							// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@517
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@518
+@@ -563,7 +563,7 @@
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       09/17/09                      cephalo & jdog5000      */
+ /*                                                                                              */
+-/* Bugfix				                                                                        */
++/* Bugfix                                                                                       */
+ /************************************************************************************************/
+ /* original BTS code
+ 				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+@@ -4031,7 +4031,7 @@
+ 							}
+ 						}
+ 
+-						if ((bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110))
++						if ( (bAreaValid && iEnemyPowerPercent < 140) || (!bShareValid && iEnemyPowerPercent < 110))
+ 						{
+ 							if( gTeamLogLevel >= 1 )
+ 							{
+@@ -4327,7 +4327,7 @@
+ 							{
+ 								if (isHasMet((TeamTypes)iI))
+ 								{
+-									if (canDeclareWar((TeamTypes)iI, true))
++									if (canDeclareWar((TeamTypes)iI))
+ 									{
+ 										if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 										{
+@@ -4408,7 +4408,7 @@
+ 						{
+ 							if (isHasMet((TeamTypes)iI))
+ 							{
+-								if (canDeclareWar((TeamTypes)iI, true))
++								if (canDeclareWar((TeamTypes)iI))
+ 								{
+ 									if( GET_TEAM((TeamTypes)iI).isAVassal() && !AI_isOkayVassalTarget((TeamTypes)iI) )
+ 									{
+

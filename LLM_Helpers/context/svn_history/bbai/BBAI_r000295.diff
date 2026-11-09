@@ -1,0 +1,182 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 295
+# Author: blakeciv
+# Date: 2007-01-25T23:42:45.075916Z
+# Coverage: full
+# Message:
+#   Expanded the definition of "attack unit" for strategy purposes to include mounted units.
+#   Missionary now takes precedence over Dagger.
+#   City Attack units will pillage if their group is small.
+# Changed paths (2):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@294
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@295
+@@ -10126,7 +10126,8 @@
+ 	{
+ 		eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 
+-		if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY))
++		if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)
++			|| GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_COUNTER) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_PILLAGE))
+ 		{
+ 			if (getCapitalCity() != NULL)
+ 			{
+@@ -10143,8 +10144,61 @@
+ 		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
+ 	}
+     
++    
++	//missionary
++	{
++	    if (getStateReligion() != NO_RELIGION)
++	    {
++            int iHolyCityCount = countHolyCities();
++            if ((iHolyCityCount > 0) && hasHolyCity(getStateReligion()))
++            {
++                int iMissionary = 0;
++                //Missionary
++                iMissionary += AI_getFlavorValue(AI_FLAVOR_GROWTH) * 2; // up to 10
++                iMissionary += AI_getFlavorValue(AI_FLAVOR_CULTURE) * 4; // up to 40
++                iMissionary += AI_getFlavorValue(AI_FLAVOR_RELIGION) * 6; // up to 60
++                
++                CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
++                if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
++                {
++                	iMissionary += 20;
++                }
++                
++                iMissionary += (iHolyCityCount - 1) * 5;
++                
++                iMissionary += iMetCount * 7;
++                
++                for (iI = 0; iI < MAX_PLAYERS; iI++)
++                {
++                    if (GET_PLAYER((PlayerTypes)iI).isAlive())
++                    {
++                        if (iI != getID())
++                        {
++                            if (GET_TEAM(getTeam()).isOpenBorders(GET_PLAYER((PlayerTypes)iI).getTeam()))
++                            {
++                                iMissionary += (GET_PLAYER((PlayerTypes)iI).countHolyCities() == 0) ? 12 : 4;
++                            }
++                            if ((GET_PLAYER((PlayerTypes)iI).getStateReligion() == getStateReligion()))
++                            {
++                                iMissionary += 10;
++                            }
++                        }
++                    }
++                }
++                
++                iMissionary += (iNonsense % 7) * 3;
++                
++                if (iMissionary > 100)
++                {
++                    m_iStrategyHash |= AI_STRATEGY_MISSIONARY;
++                }
++            }
++	    }
++	}
++	
+     //dagger
+-    if ((iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0)) && (iParanoia > 0))
++    if (!(m_iStrategyHash & AI_STRATEGY_MISSIONARY)
++     && ((iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0)) && (iParanoia > 0)))
+     {	    
+ 	    int iDagger = 0;
+ 	    iDagger += 3000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+@@ -10282,56 +10336,6 @@
+ 		m_iStrategyHash &= ~AI_STRATEGY_DAGGER;            
+ 	}
+ 	
+-	if (!(m_iStrategyHash & AI_STRATEGY_DAGGER))
+-	{
+-	    if (getStateReligion() != NO_RELIGION)
+-	    {
+-            int iHolyCityCount = countHolyCities();
+-            if ((iHolyCityCount > 0) && hasHolyCity(getStateReligion()))
+-            {
+-                int iMissionary = 0;
+-                //Missionary
+-                iMissionary += AI_getFlavorValue(AI_FLAVOR_GROWTH) * 2; // up to 10
+-                iMissionary += AI_getFlavorValue(AI_FLAVOR_CULTURE) * 4; // up to 40
+-                iMissionary += AI_getFlavorValue(AI_FLAVOR_RELIGION) * 6; // up to 60
+-                
+-                CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
+-                if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
+-                {
+-                	iMissionary += 20;
+-                }
+-                
+-                iMissionary += (iHolyCityCount - 1) * 5;
+-                
+-                iMissionary += iMetCount * 7;
+-                
+-                for (iI = 0; iI < MAX_PLAYERS; iI++)
+-                {
+-                    if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-                    {
+-                        if (iI != getID())
+-                        {
+-                            if (GET_TEAM(getTeam()).isOpenBorders(GET_PLAYER((PlayerTypes)iI).getTeam()))
+-                            {
+-                                iMissionary += (GET_PLAYER((PlayerTypes)iI).countHolyCities() == 0) ? 12 : 4;
+-                            }
+-                            if ((GET_PLAYER((PlayerTypes)iI).getStateReligion() == getStateReligion()))
+-                            {
+-                                iMissionary += 10;
+-                            }
+-                        }
+-                    }
+-                }
+-                
+-                iMissionary += (iNonsense % 7) * 3;
+-                
+-                if (iMissionary > 100)
+-                {
+-                    m_iStrategyHash |= AI_STRATEGY_MISSIONARY;
+-                }
+-            }
+-	    }
+-	}
+ 	
+ 	{//Crush
+ 		int iWarCount = 0;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@294
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@295
+@@ -1758,13 +1758,28 @@
+ 	{
+ 		return;
+ 	}
++	
++	bool bAtWar = atWar(getTeam(), plot()->getTeam());
++	
++	if (bAtWar && (getGroup()->getNumUnits() <= 2))
++	{
++		if (AI_pillageRange(3, 11))
++		{
++			return;
++		}
++
++		if (AI_pillageRange(1))
++		{
++			return;
++		}
++	}
+ 
+ 	if (AI_heal(50, 3))
+ 	{
+ 		return;
+ 	}
+ 
+-	if (!atWar(getTeam(), plot()->getTeam()))
++	if (!bAtWar)
+ 	{
+ 		if (AI_heal())
+ 		{
+

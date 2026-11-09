@@ -1,0 +1,2200 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 119
+# Author: iustus
+# Date: 2006-11-25T06:13:51.347594Z
+# Coverage: full
+# Message:
+#   findPopulationRank, findBaseYieldRateRank, findYieldRateRank, findCommerceRateRank all cached, they can now be called more liberally without performance penalties
+#   getBuildingCommerceByBuilding cleaned up so that it does less work when commerce is going to be zero
+#   AI_commerceWeight now reflects whether the player is going for a cultural victory, all the places that called this and then adjusted for cultural victory outside the call were adjusted
+#   AI_specialistValue removed the 'hack' to prefer merchants if you emphasized commerce, now it picks each commerce type based on the player's commerce slider allocations (so if you doing 80% research, 10% culture, 10% gold and emph commerce, then you get 80% emph on research, 10% emph on gold, and 10% emph on culture, so scientists will get a boost, if the slider is moved to all culture, then artists will have the biggest boost)
+#   if a city needs to pop borders (its culture level is under 2), we now will run culture process correctly in the case where we captured the city (in that case, the culture level is 1)
+#   otherwise, if we just captured a city, and it is still in revolt, we will pick a building (food, production, then anything) rather than a unit
+#   National and World wonders will be more likely to be built in appropriate cities (if its not the top 4 rank of whatever the wonder does, it gets low value)
+#   Buildings that increase great people rate are more likely to be built in cities that already have a high great person rate
+#   monastaries are more likely to be built under cultural victory strategy, or in the early game (more than 1 era prior to obselecence)
+#   under cultural victory strat, temples are given high priority if there are not enough yet built to get a cathedral in the top 3 culture cities
+#   we make sure we build cathedrals in the top culture cities first 
+#   possible crash because parameters of DLLExport'ed AI_processValue removed, now we overload the function to add parameter
+#   AI_processValue gives higher priority to culture process if we need to pop borders, also under cultural victory
+#   AI_forceEmphasizeCulture added, since there is no EmphasizeInfo in XML to do this. This works just like regular emphasize calls, except it does not have an associated EmphasizeInfo
+#   we now call AI_forceEmphasizeCulture(true) on the top 4 culture cities in cultural victory strat
+#   we cache the number of cities needed for cultural victory, culturalVictoryNumCultureCities - you can also call culturalVictoryValid which uses the same cached value (zero means cultural victory is not valid)
+#   limitedWonderClassLimit added, since isLimitedWonderClass does not specify how many you can build. this new function returns the number you can build (it adds up the numbers of each type, although in the default XML there are no wonders that are both national and world, but it is possible)
+#   alt mouseover city under chipotle cheat mode shows the ranks for population, yields, commerce
+#   alt mouseover player under chipotle cheat mode (which shows attitude) also shows if in financial trouble
+#   getBuildingClassPrereqBuilding does almost zero work in the case where it is going to return zero
+#   AI_religionValue does less work when it is going to return zero
+#   if we get to cultural victory stage 2, dagger strat is forced off
+#   AI_getBestGroupAttacker does less work when bForce is true
+#   AI_sumStrength works correctly in the case where you need to declare war to move into the plot to be attacked
+#   canMoveInto: check on !isHuman() removed when you would need to declareWar to move. Previously it would return false in this case. There is a temporary assert there now, to see when this happens. Currently it only seems to happen on sea-going exploring units and the case we wanted to catch, when a unit needs to attack to move into territory where it wants to declare war. 
+#   divide by zero crash fixed when improper units were given great people missions (discover value would be zero)
+#   AI_stackAttackCity now passes (bDeclareWar = true) to canMoveInto and (bPotentialEnemy = true) to AI_compareStacks
+#   
+#   
+#   
+#   
+#   
+#   
+#   
+# Changed paths (17):
+#   M /trunk/CvGameCoreDLL/CvArea.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.h
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeam.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvArea.cpp
+--- /trunk/CvGameCoreDLL/CvArea.cpp@118
++++ /trunk/CvGameCoreDLL/CvArea.cpp@119
+@@ -771,6 +771,8 @@
+ 	if (iChange != 0)
+ 	{
+ 		m_aaiYieldRateModifier[eIndex1][eIndex2] = (m_aaiYieldRateModifier[eIndex1][eIndex2] + iChange);
++		
++		GET_PLAYER(eIndex1).invalidateYieldRankCache(eIndex2);
+ 
+ 		if (eIndex2 == YIELD_COMMERCE)
+ 		{
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@118
++++ /trunk/CvGameCoreDLL/CvCity.cpp@119
+@@ -1221,94 +1221,108 @@
+ 
+ int CvCity::findPopulationRank() const
+ {
+-	CvCity* pLoopCity;
+-	int iRank;
+-	int iLoop;
+-
+-	iRank = 1;
+-
+-	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-	{
+-		if ((pLoopCity->getPopulation() > getPopulation()) ||
+-			  ((pLoopCity->getPopulation() == getPopulation()) && (pLoopCity->getID() < getID())))
+-		{
+-			iRank++;
+-		}
+-	}
+-
+-	return iRank;
++	if (!m_bPopulationRankValid)
++	{
++		int iRank = 1;
++
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if ((pLoopCity->getPopulation() > getPopulation()) ||
++				((pLoopCity->getPopulation() == getPopulation()) && (pLoopCity->getID() < getID())))
++			{
++				iRank++;
++			}
++		}
++		
++		// shenanigans are to get around the const check
++		*((bool*)& m_bPopulationRankValid) = true;
++		*((int*)& m_iPopulationRank) = iRank;
++	}
++
++	return m_iPopulationRank;
+ }
+ 
+ 
+ int CvCity::findBaseYieldRateRank(YieldTypes eYield) const
+ {
+-	CvCity* pLoopCity;
+-	int iRate;
+-	int iRank;
+-	int iLoop;
+-
+-	iRate = getBaseYieldRate(eYield);
+-
+-	iRank = 1;
+-
+-	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-	{
+-		if ((pLoopCity->getBaseYieldRate(eYield) > iRate) ||
+-			  ((pLoopCity->getBaseYieldRate(eYield) == iRate) && (pLoopCity->getID() < getID())))
+-		{
+-			iRank++;
+-		}
+-	}
+-
+-	return iRank;
++	if (!m_abBaseYieldRankValid[eYield])
++	{
++		int iRate = getBaseYieldRate(eYield);
++
++		int iRank = 1;
++
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if ((pLoopCity->getBaseYieldRate(eYield) > iRate) ||
++				((pLoopCity->getBaseYieldRate(eYield) == iRate) && (pLoopCity->getID() < getID())))
++			{
++				iRank++;
++			}
++		}
++
++		m_abBaseYieldRankValid[eYield] = true;
++		m_aiBaseYieldRank[eYield] = iRank;
++	}
++
++	return m_aiBaseYieldRank[eYield];
+ }
+ 
+ 
+ int CvCity::findYieldRateRank(YieldTypes eYield) const
+ {
+-	CvCity* pLoopCity;
+-	int iRate;
+-	int iRank;
+-	int iLoop;
+-
+-	iRate = getYieldRate(eYield);
+-
+-	iRank = 1;
+-
+-	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-	{
+-		if ((pLoopCity->getYieldRate(eYield) > iRate) ||
+-			  ((pLoopCity->getYieldRate(eYield) == iRate) && (pLoopCity->getID() < getID())))
+-		{
+-			iRank++;
+-		}
+-	}
+-
+-	return iRank;
++	if (!m_abYieldRankValid[eYield])
++	{
++		int iRate = getYieldRate(eYield);
++
++		int iRank = 1;
++
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if ((pLoopCity->getYieldRate(eYield) > iRate) ||
++				((pLoopCity->getYieldRate(eYield) == iRate) && (pLoopCity->getID() < getID())))
++			{
++				iRank++;
++			}
++		}
++
++		m_abYieldRankValid[eYield] = true;
++		m_aiYieldRank[eYield] = iRank;
++	}
++
++	return m_aiYieldRank[eYield];
+ }
+ 
+ 
+ int CvCity::findCommerceRateRank(CommerceTypes eCommerce) const
+ {
+-	CvCity* pLoopCity;
+-	int iRate;
+-	int iRank;
+-	int iLoop;
+-
+-	iRate = getCommerceRateTimes100(eCommerce);
+-
+-	iRank = 1;
+-
+-	for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-	{
+-		if ((pLoopCity->getCommerceRateTimes100(eCommerce) > iRate) ||
+-			  ((pLoopCity->getCommerceRateTimes100(eCommerce) == iRate) && (pLoopCity->getID() < getID())))
+-		{
+-			iRank++;
+-		}
+-	}
+-
+-	return iRank;
++	if (!m_abCommerceRankValid[eCommerce])
++	{
++		int iRate = getCommerceRateTimes100(eCommerce);
++
++		int iRank = 1;
++
++		int iLoop;
++		CvCity* pLoopCity;
++		for (pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
++		{
++			if ((pLoopCity->getCommerceRateTimes100(eCommerce) > iRate) ||
++				((pLoopCity->getCommerceRateTimes100(eCommerce) == iRate) && (pLoopCity->getID() < getID())))
++			{
++				iRank++;
++			}
++		}
++
++		m_abCommerceRankValid[eCommerce] = true;
++		m_aiCommerceRank[eCommerce] = iRank;
++	}
++
++	return m_aiCommerceRank[eCommerce];
+ }
+ 
+ 
+@@ -4721,6 +4735,8 @@
+ 		m_iPopulation = iNewValue;
+ 		FAssert(getPopulation() >= 0);
+ 
++		GET_PLAYER(getOwnerINLINE()).invalidatePopulationRankCache();
++
+ 		if (getPopulation() > getHighestPopulation())
+ 		{
+ 			setHighestPopulation(getPopulation());
+@@ -4820,6 +4836,8 @@
+ 	{
+ 		m_iSpecialistPopulation = (m_iSpecialistPopulation + iChange);
+ 		FAssert(getSpecialistPopulation() >= 0);
++
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache();
+ 
+ 		updateCommerce();
+ 	}
+@@ -6250,6 +6268,8 @@
+ 
+ 		if (bOldPower != isPower())
+ 		{
++			GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache();
++
+ 			updateCommerce();
+ 
+ 			if (getTeam() == GC.getGameINLINE().getActiveTeam())
+@@ -6822,6 +6842,9 @@
+ 
+ 	iModifier += iExtra;
+ 
++	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
++	// so if any extra checked things are added here, the cache needs to be invalidated
++
+ 	return max(0, (iModifier + 100));
+ }
+ 
+@@ -6885,6 +6908,8 @@
+ 		m_aiYieldRateModifier[eIndex] = (m_aiYieldRateModifier[eIndex] + iChange);
+ 		FAssert(getYieldRate(eIndex) >= 0);
+ 
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache(eIndex);
++
+ 		if (eIndex == YIELD_COMMERCE)
+ 		{
+ 			updateCommerce();
+@@ -6918,6 +6943,8 @@
+ 		m_aiPowerYieldRateModifier[eIndex] = (m_aiPowerYieldRateModifier[eIndex] + iChange);
+ 		FAssert(getYieldRate(eIndex) >= 0);
+ 
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache(eIndex);
++
+ 		if (eIndex == YIELD_COMMERCE)
+ 		{
+ 			updateCommerce();
+@@ -6950,6 +6977,8 @@
+ 	{
+ 		m_aiBonusYieldRateModifier[eIndex] = (m_aiBonusYieldRateModifier[eIndex] + iChange);
+ 		FAssert(getYieldRate(eIndex) >= 0);
++
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache(eIndex);
+ 
+ 		if (eIndex == YIELD_COMMERCE)
+ 		{
+@@ -7195,6 +7224,8 @@
+ 		m_aiCommerceRate[eIndex] = iNewCommerce;
+ 		FAssert(m_aiCommerceRate[eIndex] >= 0);
+ 
++		GET_PLAYER(getOwnerINLINE()).invalidateCommerceRankCache(eIndex);
++
+ 		GET_PLAYER(getOwnerINLINE()).changeCommerceRate(eIndex, (iNewCommerce - iOldCommerce));
+ 
+ 		if (isCitySelected())
+@@ -7209,6 +7240,8 @@
+ void CvCity::updateCommerce()
+ {
+ 	int iI;
++
++	GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache();
+ 
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+@@ -7260,37 +7293,38 @@
+ 
+ 	if (hasBuilding(eBuilding))
+ 	{
+-		iCommerce += GC.getBuildingInfo(eBuilding).getObsoleteSafeCommerceChange(eIndex);
+-
+-		if (hasActiveBuilding(eBuilding))
+-		{
+-			iCommerce += GC.getBuildingInfo(eBuilding).getCommerceChange(eIndex);
+-
+-			if (GC.getBuildingInfo(eBuilding).getReligionType() != NO_RELIGION)
+-			{
+-				if (GC.getBuildingInfo(eBuilding).getReligionType() == GET_PLAYER(getOwnerINLINE()).getStateReligion())
++		CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);	
++		if (!(kBuilding.isCommerceChangeOriginalOwner(eIndex)) || (getBuildingOriginalOwner(eBuilding) == getOwnerINLINE()))
++		{
++			iCommerce += kBuilding.getObsoleteSafeCommerceChange(eIndex);
++
++			if (hasActiveBuilding(eBuilding))
++			{
++				iCommerce += GC.getBuildingInfo(eBuilding).getCommerceChange(eIndex);
++
++				if (GC.getBuildingInfo(eBuilding).getReligionType() != NO_RELIGION)
+ 				{
+-					iCommerce += GET_PLAYER(getOwnerINLINE()).getStateReligionBuildingCommerce(eIndex);
++					if (GC.getBuildingInfo(eBuilding).getReligionType() == GET_PLAYER(getOwnerINLINE()).getStateReligion())
++					{
++						iCommerce += GET_PLAYER(getOwnerINLINE()).getStateReligionBuildingCommerce(eIndex);
++					}
+ 				}
+-			}
+-
+-			if (GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce() != NO_RELIGION)
+-			{
+-				iCommerce += (GC.getReligionInfo((ReligionTypes)(GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce())).getGlobalReligionCommerce(eIndex) * GC.getGameINLINE().countReligionLevels((ReligionTypes)(GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce())));
+-			}
+-		}
+-	}
+-
+-	if (!(GC.getBuildingInfo(eBuilding).isCommerceChangeOriginalOwner(eIndex)) || (getBuildingOriginalOwner(eBuilding) == getOwnerINLINE()))
+-	{
+-		if ((GC.getBuildingInfo(eBuilding).getCommerceChangeDoubleTime(eIndex) != 0) &&
++
++				if (GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce() != NO_RELIGION)
++				{
++					iCommerce += (GC.getReligionInfo((ReligionTypes)(GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce())).getGlobalReligionCommerce(eIndex) * GC.getGameINLINE().countReligionLevels((ReligionTypes)(GC.getBuildingInfo(eBuilding).getGlobalReligionCommerce())));
++				}
++			}
++
++			if ((GC.getBuildingInfo(eBuilding).getCommerceChangeDoubleTime(eIndex) != 0) &&
+ 				(getBuildingOriginalTime(eBuilding) != MIN_INT) &&
+ 				((GC.getGameINLINE().getGameTurnYear() - getBuildingOriginalTime(eBuilding)) >= GC.getBuildingInfo(eBuilding).getCommerceChangeDoubleTime(eIndex)))
+-		{
+-			return (iCommerce * 2);
+-		}
++			{
++				return (iCommerce * 2);
++			}
+ 
+ 		return iCommerce;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -8620,6 +8654,8 @@
+ 		bOldHasBuilding = hasBuilding(eIndex);
+ 
+ 		m_pabHasRealBuilding[eIndex] = bNewValue;
++
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache();
+ 
+ 		if (isHasRealBuilding(eIndex))
+ 		{
+@@ -8798,6 +8834,8 @@
+ 		bOldHasBuilding = hasBuilding(eIndex);
+ 
+ 		m_pabFreeBuilding[eIndex] = bNewValue;
++
++		GET_PLAYER(getOwnerINLINE()).invalidateYieldRankCache();
+ 
+ 		if (bOldHasBuilding != hasBuilding(eIndex))
+ 		{
+@@ -10628,14 +10666,73 @@
+ 	return bHasShrine;
+ }
+ 
++void CvCity::invalidatePopulationRankCache()
++{
++	m_bPopulationRankValid = false;
++}
++
++void CvCity::invalidateYieldRankCache(YieldTypes eYield)
++{
++	FAssertMsg(eYield >= NO_YIELD && eYield < NUM_YIELD_TYPES, "invalidateYieldRankCache passed bogus yield index");
++
++	if (eYield == NO_YIELD)
++	{
++		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		{
++			m_abBaseYieldRankValid[iI] = false;
++			m_abYieldRankValid[iI] = false;
++		}
++	}
++	else
++	{
++		m_abBaseYieldRankValid[eYield] = false;
++		m_abYieldRankValid[eYield] = false;
++	}
++}
++
++void CvCity::invalidateCommerceRankCache(CommerceTypes eCommerce)
++{
++	FAssertMsg(eCommerce >= NO_YIELD && eCommerce < NUM_YIELD_TYPES, "invalidateCommerceRankCache passed bogus commerce index");
++
++	if (eCommerce == NO_COMMERCE)
++	{
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			m_abCommerceRankValid[iI] = false;
++		}
++	}
++	else
++	{
++		m_abCommerceRankValid[eCommerce] = false;
++	}
++}
++
++
+ void CvCity::constructCache()
+ {
+ 	// allocate known constants
+ 
++	m_aiBaseYieldRank = new int[NUM_YIELD_TYPES];
++	m_abBaseYieldRankValid = new bool[NUM_YIELD_TYPES];
++	m_aiYieldRank = new int[NUM_YIELD_TYPES];
++	m_abYieldRankValid = new bool[NUM_YIELD_TYPES];
++	m_aiCommerceRank = new int[NUM_COMMERCE_TYPES];
++	m_abCommerceRankValid = new bool[NUM_COMMERCE_TYPES];
++
+ 	// zero everything out, just to be safe
+-	m_iPlaceholderCount = 0;
+-	m_aiPlaceholderArray = NULL;
++	m_bPopulationRankValid = false;
+ 	
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		m_abBaseYieldRankValid[iI] = false;
++		m_abYieldRankValid[iI] = false;
++	}
++
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		m_abCommerceRankValid[iI] = false;
++	}
++
+ 	// note resetCache(/*bConstructorCall*/ true) will be called by CvCity::CvCity
+ }
+ 
+@@ -10644,6 +10741,13 @@
+ 	uninitCache(); // note, will be called by CvCity::~CvCity as well
+ 
+ 	// deallocate anything allocated in constructor
++	
++	SAFE_DELETE_ARRAY(m_aiBaseYieldRank);
++	SAFE_DELETE_ARRAY(m_abBaseYieldRankValid);
++	SAFE_DELETE_ARRAY(m_aiYieldRank);
++	SAFE_DELETE_ARRAY(m_abYieldRankValid);
++	SAFE_DELETE_ARRAY(m_aiCommerceRank);
++	SAFE_DELETE_ARRAY(m_abCommerceRankValid);
+ }
+ 
+ void CvCity::initCache()
+@@ -10655,25 +10759,29 @@
+ 
+ void CvCity::uninitCache()
+ {
+-	m_iPlaceholderCount = 0;
+-
+-	SAFE_DELETE_ARRAY(m_aiPlaceholderArray);
++	m_bPopulationRankValid = false;
++
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		m_abBaseYieldRankValid[iI] = false;
++		m_abYieldRankValid[iI] = false;
++	}
++
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		m_abCommerceRankValid[iI] = false;
++	}
++
++	// delloc info that depends on xml here
+ }
+ 
+ void CvCity::resetCache(bool bConstructorCall)
+ {
+-	int	iI;
+-	
+ 	uninitCache(); // note, will be called by CvCity::reset as well
+ 	
+ 	if (!bConstructorCall)
+ 	{
+-		FAssertMsg(m_aiPlaceholderArray==NULL, "about to leak memory, CvGame::m_aiShrineBuilding");
+-		m_aiPlaceholderArray = new int[GC.getNumBuildingInfos()];
+-		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+-		{
+-			m_aiPlaceholderArray[iI] = (int) 0;
+-		}
++		// allocate info that depends on xml here
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@118
++++ /trunk/CvGameCoreDLL/CvCity.h@119
+@@ -962,10 +962,20 @@
+ ///////////////////////////////////////
+ public:
+ 	bool hasShrine(ReligionTypes eReligion);
++	
++	void invalidatePopulationRankCache();
++	void invalidateYieldRankCache(YieldTypes eYield = NO_YIELD);
++	void invalidateCommerceRankCache(CommerceTypes eCommerce = NO_COMMERCE);
+ 
+ protected:
+-	int		m_iPlaceholderCount;
+-	int*	m_aiPlaceholderArray;
++	int		m_iPopulationRank;
++	bool	m_bPopulationRankValid;
++	int*	m_aiBaseYieldRank;
++	bool*	m_abBaseYieldRankValid;
++	int*	m_aiYieldRank;
++	bool*	m_abYieldRankValid;
++	int*	m_aiCommerceRank;
++	bool*	m_abCommerceRankValid;
+ 
+ 	void constructCache();	// called from constructor
+ 	void destructCache();	// called from destructor
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@118
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@119
+@@ -38,6 +38,7 @@
+ {
+ 	m_aiEmphasizeYieldCount = new int[NUM_YIELD_TYPES];
+ 	m_aiEmphasizeCommerceCount = new int[NUM_COMMERCE_TYPES];
++	m_bForceEmphasizeCulture = false;
+ 
+ 	m_pbEmphasize = NULL;
+ 
+@@ -82,6 +83,7 @@
+ 
+ 	m_iEmphasizeAvoidGrowthCount = 0;
+ 	m_iEmphasizeGreatPeopleCount = 0;
++	m_bForceEmphasizeCulture = false;
+ 
+ 	m_bAssignWorkDirty = false;
+ 	m_bChooseProductionDirty = false;
+@@ -320,14 +322,17 @@
+ 	int iGreatPeopleRate;
+ 	int iValue;
+ 	int iI, iJ;
+-	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 	int iNumCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
+ 
+-
+     int iCultureModifier = 1;
+-    iCultureModifier += GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2) ? 1 : 0;
+-    iCultureModifier += GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3) ? 1 : 0;
+-    
++	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++	{
++		iCultureModifier = 3;
++	}
++	else if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++	{
++		iCultureModifier = 2;
++	}
+     
+ 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+@@ -337,7 +342,6 @@
+ 	aiYields[YIELD_PRODUCTION] /= iCultureModifier;
+ 
+ 	iValue = AI_yieldValue(aiYields, bAvoidGrowth, bRemove);
+-	
+     
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+@@ -345,21 +349,26 @@
+ 
+ 		if (iCommerce != 0)
+ 		{
+-			iCommerce = ((iCommerce * getTotalCommerceRateModifier((CommerceTypes)iI)) / 100);
++			iCommerce = ((iCommerce * getTotalCommerceRateModifier((CommerceTypes) iI)) / 100);
+ 
+ 			iTempValue = (iCommerce * 4);
++
++			if (AI_isEmphasizeCommerce((CommerceTypes)iI))
++			{
++				iTempValue += (iCommerce * 20);
++			}
+ 			
+-			if (AI_isEmphasizeCommerce((CommerceTypes)iI) ||
+-				// since the UI does not let you specify emp gold, let emp commerce include gold 
+-				((iCultureModifier == 1) && ((CommerceTypes)iI == COMMERCE_GOLD) && AI_isEmphasizeYield(YIELD_COMMERCE)))
+-			{
+-				iTempValue += (iCommerce * 20);
++			// if emp commerce, then value based on the player's commerce percent
++			if (AI_isEmphasizeYield(YIELD_COMMERCE))
++			{
++				int iCommercePercent = GET_PLAYER(getOwnerINLINE()).getCommercePercent((CommerceTypes) iI);
++				iTempValue += ((iCommerce * 20) * iCommercePercent) / 100;
+ 			}
+ 			
+ 			if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 			{
+ 			    iTempValue *= iCultureModifier;
+-			    if (iCultureModifier == 0)
++			    if (iCultureModifier == 1)
+ 			    {
+                     iTempValue *= (2 * (105 - calculateCulturePercent(getOwnerINLINE())));
+                     iTempValue /= 100;
+@@ -442,12 +451,12 @@
+ 		}
+ 
+ 		iValue += iTempValue;
+-
+ 	}
+ 
+ 	int iExperience = GC.getSpecialistInfo(eSpecialist).getExperience();
+ 	if (0 != iExperience)
+ 	{
++		int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 		int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 
+ 		iValue += (iExperience * ((iHasMetCount > 0) ? 4 : 2));
+@@ -549,12 +558,35 @@
+ 		AI_assignWorkingPlots();
+ 	}
+ 	
+-    if (getCultureLevel() == (CultureLevelTypes)1)
++    // if we need to pop borders, then do that immediately if we have drama and can do it
++	if (getCultureLevel() <= (CultureLevelTypes) 1)
+ 	{
+         if (AI_chooseProcess(COMMERCE_CULTURE))
+         {
+             return;
+         }
++	}
++
++	// if we just captured this city, dont build a unit first
++	if (isOccupation())
++	{
++		// pick granary or lighthouse, any duration
++		if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
++		{
++			return;
++		}
++
++		// try picking forge, etc, any duration
++		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION))
++		{
++			return;
++		}
++		
++		// just pick any building, any duration
++		if (AI_chooseBuilding())
++		{
++			return;
++		}
+ 	}
+ 
+ 	if (plot()->getNumDefenders(getOwnerINLINE()) == 0) // XXX check for other team's units?
+@@ -1787,11 +1819,13 @@
+ 	int iTempValue;
+ 	int iPass;
+ 	int iI, iJ;
+-	int iProductionRank;
+ 	int iNumCities;
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++	BuildingClassTypes eBuildingClass = (BuildingClassTypes) kBuilding.getBuildingClassType();
++	int iLimitedWonderLimit = limitedWonderClassLimit(eBuildingClass);
++	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
+ 
+ 	eStateReligion = kOwner.getStateReligion();
+ 
+@@ -1804,10 +1838,29 @@
+ 	iAngryPopulation = angryPopulation(1);
+ 	FAssert(iAngryPopulation >= 0);
+ 	iBadHealth = max(0, -(healthRate(/*bNoAngry*/ true, 1)));
+-	iProductionRank = findBaseYieldRateRank(YIELD_PRODUCTION);
+ 	iNumCities = kOwner.getNumCities();
++	
++	int aiYieldRank[NUM_YIELD_TYPES];
++	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	{
++		aiYieldRank[iI] = findBaseYieldRateRank((YieldTypes) iI);
++	}
++
++	int aiCommerceRank[NUM_COMMERCE_TYPES];
++	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	{
++		aiCommerceRank[iI] = findCommerceRateRank((CommerceTypes) iI);
++	}
++
++	bool bIsHighProductionCity = (aiYieldRank[YIELD_PRODUCTION] <= max(3, (iNumCities / 2)));
++	
++	int iCultureRank = findCommerceRateRank(COMMERCE_CULTURE);
++	int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 
+ 	bool bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
++
++	bool bCulturalVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1);
++	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+ 
+ 	bCanPopRush = false;
+ 	for (iI = 0; iI < GC.getNumHurryInfos(); ++iI)
+@@ -2065,8 +2118,26 @@
+ 						}
+ 					}
+ 				}
+-
+-				iValue += ((kBuilding.getGreatPeopleRateModifier() * getBaseGreatPeopleRate()) / 16);
++				
++				int iGreatPeopleRateModifier = kBuilding.getGreatPeopleRateModifier();
++				if (iGreatPeopleRateModifier > 0)
++				{
++					int iGreatPeopleRate = getBaseGreatPeopleRate();
++					const int kTargetGPRate = 10;
++
++					// either not a wonder, or a wonder and our GP rate is at least the target rate
++					if (!bIsLimitedWonder || iGreatPeopleRate >= kTargetGPRate)
++					{
++						iValue += ((iGreatPeopleRateModifier * iGreatPeopleRate) / 16);
++					}
++					// otherwise, this is a limited wonder (aka National Epic), we _really_ do not want to build this here
++					// subtract from the value (if this wonder has a lot of other stuff, we still might build it)
++					else
++					{
++						iValue -= ((iGreatPeopleRateModifier * (kTargetGPRate - iGreatPeopleRate)) / 12);
++					}
++				}
++
+ 				iValue += ((kBuilding.getGlobalGreatPeopleRateModifier() * iNumCities) / 8);
+ 
+ 				iValue += (-(kBuilding.getAnarchyModifier()) / 4);
+@@ -2092,13 +2163,34 @@
+ 
+ 				iValue += ((kBuilding.getWorkerSpeedModifier() * kOwner.AI_getNumAIUnits(UNITAI_WORKER)) / 10);
+ 
+-				if (iHasMetCount > 0)
+-				{
+-					iValue += (kBuilding.getMilitaryProductionModifier() / 3);
+-
+-					if (iProductionRank <= max(3, (GET_PLAYER(getOwnerINLINE()).getNumCities() / 2)))
+-					{
+-						iValue += kBuilding.getMilitaryProductionModifier() / 3;
++				int iMilitaryProductionModifier = kBuilding.getMilitaryProductionModifier();
++				if (iHasMetCount > 0 && iMilitaryProductionModifier > 0)
++				{
++					// either not a wonder, or a wonder and we are a high production city
++					if (!bIsLimitedWonder || bIsHighProductionCity)
++					{
++						iValue += (iMilitaryProductionModifier / 3);
++
++						// if a wonder, then pick one of the best cities
++						if (bIsLimitedWonder)
++						{
++							// if one of the top 3 production cities, give a big boost
++							if (aiYieldRank[YIELD_PRODUCTION] <= (2 + iLimitedWonderLimit))
++							{
++								iValue += (iMilitaryProductionModifier / aiYieldRank[YIELD_PRODUCTION]);
++							}
++						}
++						// otherwise, any of the top half of cities will do
++						else if (bIsHighProductionCity)
++						{
++							iValue += iMilitaryProductionModifier / 3;
++						}
++					}
++					// otherwise, this is a limited wonder (aka Heroic Epic), we _really_ do not want to build this here
++					// subtract from the value (if this wonder has a lot of other stuff, we still might build it)
++					else
++					{
++						iValue -= (iMilitaryProductionModifier * aiYieldRank[YIELD_PRODUCTION]) / 5;
+ 					}
+ 				}
+ 
+@@ -2121,8 +2213,9 @@
+ 				{
+ 					iValue++; // XXX improve this for diversity...
+ 				}
+-
+-				iValue += (kBuilding.getGreatPeopleRateChange() * 20);
++				
++				// prefer to build great people buildings in places that already have some GP points
++				iValue += (kBuilding.getGreatPeopleRateChange() * 10) * (1 + (getBaseGreatPeopleRate() / 4));
+ 
+ 				if (!bAreaAlone)
+ 				{
+@@ -2144,7 +2237,8 @@
+ 				for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 				{
+ 					iValue += (kBuilding.getDomainProductionModifier(iI) / 5);
+-					if (iProductionRank <= max(3, (GET_PLAYER(getOwnerINLINE()).getNumCities() / 2)))
++					
++					if (bIsHighProductionCity)
+ 					{
+ 						iValue += (kBuilding.getDomainProductionModifier(iI) / 5);
+ 					}
+@@ -2165,24 +2259,54 @@
+ 						if (eReligion != NO_RELIGION)
+ 						{
+ 						    //encouragement to get some minimal ability to train special units
+-						    if (isHolyCity(eReligion) || isCapital())
++						    if (bCulturalVictory1 || isHolyCity(eReligion) || isCapital())
+ 						    {
+ 						        iValue += (2 + area()->getCitiesPerPlayer(getOwnerINLINE()));
+                             }
+ 						}
+ 					}
+ 				}
+-
++				
++				// is this building needed to build other buildings?
+ 				for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+ 				{
+-					if (kOwner.getBuildingClassPrereqBuilding(((BuildingTypes)iI), ((BuildingClassTypes)(kBuilding.getBuildingClassType()))) <= iNumCities)
+-					{
+-						if (kOwner.getBuildingClassPrereqBuilding(((BuildingTypes)iI), ((BuildingClassTypes)(kBuilding.getBuildingClassType()))) > kOwner.getBuildingClassCountPlusMaking((BuildingClassTypes)(kBuilding.getBuildingClassType())))
++					int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(((BuildingTypes) iI), eBuildingClass);
++
++					// if we need some of us to build iI building, and we dont need more than we have cities
++					if (iPrereqBuildings > 0 && iPrereqBuildings <= iNumCities)
++					{
++						// do we need more than what we are currently building?
++						if (iPrereqBuildings > kOwner.getBuildingClassCountPlusMaking(eBuildingClass))
+ 						{
+ 							iValue += (iNumCities * 3);
++
++							if (bCulturalVictory1)
++							{
++								BuildingTypes eLoopBuilding = (BuildingTypes) iI;
++								CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
++								int iLoopBuildingCultureModifier = kLoopBuilding.getCommerceModifier(COMMERCE_CULTURE);
++								if (iLoopBuildingCultureModifier > 0)
++								{
++									int iLoopBuildingsBuilt = kOwner.getBuildingClassCount((BuildingClassTypes) kLoopBuilding.getBuildingClassType());
++									
++									// if we have less than the number needed in culture cities
++									//		OR we are one of the top cities and we do not have the building
++									if (iLoopBuildingsBuilt < iCulturalVictoryNumCultureCities || 
++										(iCultureRank <= iCulturalVictoryNumCultureCities && !hasBuilding(eLoopBuilding)))
++									{
++										iValue += iLoopBuildingCultureModifier;
++
++										if (bCulturalVictory3)
++										{
++											iValue += iLoopBuildingCultureModifier * 2;
++										}
++									}
++								}
++							}
+ 						}
+ 					}
+ 				}
++
+ 			}
+ 
+ 			if (iPass > 0)
+@@ -2230,6 +2354,13 @@
+ 					iTempValue *= kOwner.AI_yieldWeight((YieldTypes)iI);
+ 					iTempValue /= 100;
+ 
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiYieldRank[iI] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++					}
++
+ 					iValue += iTempValue;
+ 				}
+ 			}
+@@ -2250,13 +2381,22 @@
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_PRODUCTION)
+ 				{
+-					iValue += ((kBuilding.getYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 10);
+-					iValue += ((kBuilding.getPowerYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / ((bProvidesPower || isPower()) ? 12 : 15));
++					iTempValue = ((kBuilding.getYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 10);
++					iTempValue += ((kBuilding.getPowerYieldModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / ((bProvidesPower || isPower()) ? 12 : 15));
+ 
+ 					if (bProvidesPower && !isPower())
+ 					{
+-						iValue += ((getPowerYieldRateModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 12);
+-					}
++						iTempValue += ((getPowerYieldRateModifier(YIELD_PRODUCTION) * getBaseYieldRate(YIELD_PRODUCTION)) / 12);
++					}
++					
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiYieldRank[iI] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++					}
++
++					iValue += iTempValue;
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_GOLD)
+@@ -2271,6 +2411,13 @@
+ 					
+ 					iTempValue /= 1000;
+ 
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiYieldRank[iI] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++					}
++
+ 					iValue += iTempValue;
+ 				}
+ 			}
+@@ -2286,7 +2433,7 @@
+ 					
+ 					if ((CommerceTypes)iI == COMMERCE_CULTURE)
+ 					{
+-					    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++					    if (bCulturalVictory1)
+ 					    {
+ 					        iTempValue *= 2;					        
+ 					    }
+@@ -2299,31 +2446,78 @@
+ 							iTempValue += (1000 / kBuilding.getCommerceChangeDoubleTime(iI));
+ 						}
+ 					}
+-
+-					if ((CommerceTypes)iI == COMMERCE_CULTURE)
+-					{
+-					    if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1))
+-					    {
+-					        int iCultureModifier = kBuilding.getCommerceModifier(iI);
+-					        //don't be lazy, find the city count needed...??
+-					        if (findCommerceRateRank(COMMERCE_CULTURE) < 4)
+-					        {					        
+-                                iTempValue += ((iCultureModifier * getBaseCommerceRate((CommerceTypes)iI)) / 3);					        
+-					        }
+-					        else
+-					        {
+-					            iTempValue += ((iCultureModifier * getBaseCommerceRate((CommerceTypes)iI)) / 18);	
+-					        }
+-					    }
+-					    else
+-					    {
+-                            iTempValue += (((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15) * (100 - calculateCulturePercent(getOwnerINLINE())));
+-					    }
++					
++					// add value for a commerce modifier
++					int iCommerceModifier = kBuilding.getCommerceModifier(iI);
++					int iBaseCommerceRate = getBaseCommerceRate((CommerceTypes) iI);
++					int iCommerceMultiplierValue = iCommerceModifier * iBaseCommerceRate;
++					if (((CommerceTypes) iI) == COMMERCE_CULTURE && iCommerceModifier != 0)
++					{
++						if (bCulturalVictory1)
++						{							
++							// if this is one of our top culture cities, then we want to build this here first!
++							if (iCultureRank <= iCulturalVictoryNumCultureCities)
++							{					        
++								iCommerceMultiplierValue /= 8;					        
++								
++								// if we at culture level 3, then these need to get built asap
++								if (bCulturalVictory3)
++								{
++									// its most important to build in the lowest rate city, but important everywhere
++									iCommerceMultiplierValue += max(100, 500 - iBaseCommerceRate) * iCommerceModifier;					        
++								}
++							}
++							else
++							{
++								int iCountBuilt = kOwner.getBuildingClassCountPlusMaking(eBuildingClass);
++
++								// do we have enough buildings to build extras?
++								bool bHaveEnough = true;
++
++								// if its limited and the limit is less than the number we need in culture cities, do not build here
++								if (bIsLimitedWonder && (iLimitedWonderLimit <= iCulturalVictoryNumCultureCities))
++								{
++									bHaveEnough = false;
++								}
++
++								for (iJ = 0; bHaveEnough && iJ < GC.getNumBuildingClassInfos(); iJ++)
++								{
++									// count excess the number of prereq buildings which do not have this building built for yet
++									int iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eBuilding, (BuildingClassTypes) iJ, -iCountBuilt);
++									
++									// do we not have enough built (do not count ones in progress)
++									if (iPrereqBuildings > 0 && kOwner.getBuildingClassCount((BuildingClassTypes) iJ) <  iPrereqBuildings)
++									{
++										bHaveEnough = false;
++									}
++								}
++
++								// if we have enough and our rank is close to the top, then possibly build here too
++								if (bHaveEnough && (iCultureRank - iCulturalVictoryNumCultureCities) <= 3)
++								{
++									iCommerceMultiplierValue /= 12;
++								}
++								// otherwise, we really do not want to build this here
++								else
++								{
++									iCommerceMultiplierValue /= 30;
++								}
++							}
++						}
++						else
++						{
++							iCommerceMultiplierValue /= 15;
++
++							// increase priority if we need culture oppressed city
++							iCommerceMultiplierValue *= (100 - calculateCulturePercent(getOwnerINLINE()));
++						}
+ 					}
+ 					else
+ 					{
+-                        iTempValue += ((kBuilding.getCommerceModifier(iI) * getBaseCommerceRate((CommerceTypes)iI)) / 15);
+-					}
++ 						iCommerceMultiplierValue /= 15;
++					}
++					iTempValue += iCommerceMultiplierValue;
++
+ 					iTempValue += ((kBuilding.getGlobalCommerceModifier(iI) * iNumCities) / 4);
+ 					iTempValue += ((kBuilding.getSpecialistExtraCommerce(iI) * kOwner.getTotalPopulation()) / 3);
+ 
+@@ -2365,6 +2559,19 @@
+ 					iTempValue *= kOwner.AI_commerceWeight(((CommerceTypes)iI), this);
+ 					iTempValue /= 100;
+ 
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiCommerceRank[iI] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++
++						// for culture, just set it to zero, not negative, jsut about every wonder gives culture
++						if (iI == COMMERCE_CULTURE)
++						{
++							iTempValue = 0;
++						}
++					}
++
+ 					iValue += iTempValue;
+ 				}
+ 
+@@ -2390,18 +2597,44 @@
+ 						iTempValue *= 2;
+ 					}
+ 
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiCommerceRank[COMMERCE_GOLD] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++					}
++
+ 					iValue += iTempValue;
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_RESEARCH)
+ 				{
+-					iValue += ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) * getBaseCommerceRate(COMMERCE_RESEARCH)) / 15);
++					iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) * getBaseCommerceRate(COMMERCE_RESEARCH)) / 15);
++
++					// if this is a limited wonder, and we are not one of the top 4 in this category, subtract the value
++					// we do _not_ want to build this here (unless the value was small anyway)
++					if (bIsLimitedWonder && (aiCommerceRank[COMMERCE_RESEARCH] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue *= -1;
++					}
++
++					iValue += iTempValue;
+ 				}
+ 
+ 				if (iFocusFlags & BUILDINGFOCUS_CULTURE)
+ 				{
+-					iValue += (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 4);
+-					iValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 4);
++					iTempValue = (kBuilding.getCommerceChange(COMMERCE_CULTURE) * 4);
++					iTempValue += (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) * 4);
++
++					// if this is a limited wonder, and we are not one of the top 4 in this category, 
++					// do not count the culture value
++					// we probably do not want to build this here (but we might)
++					if (bIsLimitedWonder && (aiCommerceRank[COMMERCE_CULTURE] > (3 + iLimitedWonderLimit)))
++					{
++						iTempValue  = 0;
++					}
++
++					iValue += iTempValue;
+ 				}
+ 			}
+ 
+@@ -2422,16 +2655,51 @@
+ 			}
+ 		}
+ 	}
+-
++	
++	// obsolete checks
++	int iErasUntilObsolete = MAX_INT;
+ 	if (kBuilding.getObsoleteTech() != NO_TECH)
+ 	{
+-		iValue++;
+-		iValue /= 2;
++		iErasUntilObsolete = GC.getTechInfo((TechTypes) kBuilding.getObsoleteTech()).getEra() - kOwner.getCurrentEra();
+ 	}
+ 
+ 	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 	{
+-		if (GC.getSpecialBuildingInfo((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType())).getObsoleteTech() != NO_TECH)
++		TechTypes eSpecialBldgObsoleteTech = (TechTypes) GC.getSpecialBuildingInfo((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType())).getObsoleteTech();
++		if (eSpecialBldgObsoleteTech != NO_TECH)
++		{
++			int iSpecialBldgErasUntilObsolete = GC.getTechInfo(eSpecialBldgObsoleteTech).getEra() - kOwner.getCurrentEra();
++
++			if (iSpecialBldgErasUntilObsolete < iErasUntilObsolete)
++			{
++				iErasUntilObsolete = iSpecialBldgErasUntilObsolete;
++			}
++		}
++	}
++	
++	// tech path method commented out, it would be more accurate if we want to be so.
++	//int iObsoleteTechPathLength = 0;
++	//if (kBuilding.getObsoleteTech() != NO_TECH)
++	//{
++	//	iObsoleteTechPathLength = findPathLength(kBuilding.getObsoleteTech(), false);
++	//}
++
++	//if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
++	//{
++	//	TechTypes eSpecialBldgObsoleteTech = GC.getSpecialBuildingInfo((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType())).getObsoleteTech();
++	//	int iSpecialBldgObsoleteTechPathLength = findPathLength(eSpecialBldgObsoleteTech, false);
++
++	//	if (iSpecialBldgObsoleteTechPathLength < iObsoleteTechPathLength)
++	//	{
++	//		iObsoleteTechPathLength = iSpecialBldgObsoleteTechPathLength;
++	//	}
++	//}
++
++	// if we are going obsolete in the next era, the current era, or even previous eras...
++	if (iErasUntilObsolete < 2)
++	{
++		// do not care about obsolete if we are going cultural and there is a culture benefit post obsolesence
++		if (!bCulturalVictory1 || (kBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) <= 0))
+ 		{
+ 			iValue++;
+ 			iValue /= 2;
+@@ -2549,6 +2817,11 @@
+ }
+ 
+ 
++ProcessTypes CvCityAI::AI_bestProcess()
++{
++	return AI_bestProcess(NO_COMMERCE);
++}
++
+ ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
+ {
+ 	ProcessTypes eBestProcess;
+@@ -2576,6 +2849,11 @@
+ 	return eBestProcess;
+ }
+ 
++
++int CvCityAI::AI_processValue(ProcessTypes eProcess)
++{
++	return AI_processValue(eProcess, NO_COMMERCE);
++}
+ 
+ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType)
+ {
+@@ -2591,7 +2869,8 @@
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD);
+ 	}
+ 
+-	if (plot()->calculateCulturePercent(getOwnerINLINE()) < 50)
++	// if we own less than 50%, or we need to pop borders
++	if ((plot()->calculateCulturePercent(getOwnerINLINE()) < 50) || (getCultureLevel() <= (CultureLevelTypes) 1))
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+ 	}
+@@ -2601,7 +2880,7 @@
+ 		iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(iI);
+ 		if (!bValid && ((CommerceTypes)iI == eCommerceType) && (iTempValue > 0))
+ 		{
+-		    bValid = true;
++			bValid = true;
+ 		    iTempValue *= 2;
+ 		}
+ 
+@@ -2909,6 +3188,17 @@
+ 		{
+ 			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
+ 		}
++	}
++}
++
++void CvCityAI::AI_forceEmphasizeCulture(bool bNewValue)
++{
++	if (m_bForceEmphasizeCulture != bNewValue)
++	{
++		m_bForceEmphasizeCulture = bNewValue;
++
++		m_aiEmphasizeCommerceCount[COMMERCE_CULTURE] += (bNewValue ? 1 : -1);
++		FAssert(m_aiEmphasizeCommerceCount[COMMERCE_CULTURE] >= 0);
+ 	}
+ }
+ 
+@@ -3629,7 +3919,6 @@
+ 
+ 	bool bFirstTech;
+ 	bool bEmphasize;
+-	int iPopulationRank;
+ 	bool bGrow;
+ 	bool bUrgentBuild;
+ 	bool bCultureVictory = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+@@ -3676,7 +3965,10 @@
+ 		bFirstTech = false;
+ 	}
+ 
+-	iPopulationRank = findPopulationRank();
++	int iPopulationRank = findPopulationRank();
++	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
++
++	int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 
+ 	for (iI = 0; iI < GC.getNumEmphasizeInfos(); iI++)
+ 	{
+@@ -3723,7 +4015,7 @@
+ 			{
+ 				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1))
+ 				{
+-				    if (!bCultureVictory || findCommerceRateRank(COMMERCE_CULTURE) > 4)
++				    if (!bCultureVictory || iCultureRateRank > (iCulturalVictoryNumCultureCities + 1))
+ 				    {
+                         bEmphasize = true;
+ 				    }
+@@ -3732,6 +4024,20 @@
+ 		}
+ 
+ 		AI_setEmphasize(((EmphasizeTypes)iI), bEmphasize);
++	}
++	
++	// force emphasize culture for cultural victories
++	// there is no emphasize type for this, so we have to force it
++	{
++		bEmphasize = false;
++		
++		// emphasize culture in our top 4 cities (1 more than what is needed for cultural victory)
++		if (bCultureVictory && iCultureRateRank <= (iCulturalVictoryNumCultureCities + 1))
++		{
++			bEmphasize = true;
++		}
++		
++		AI_forceEmphasizeCulture(bEmphasize);
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@118
++++ /trunk/CvGameCoreDLL/CvCityAI.h@119
+@@ -10,10 +10,10 @@
+ 
+ public:
+ 
+-  DllExport CvCityAI();
+-  DllExport virtual ~CvCityAI();
++	DllExport CvCityAI();
++	DllExport virtual ~CvCityAI();
+ 
+-  DllExport void AI_init();
++	DllExport void AI_init();
+ 	DllExport void AI_uninit();
+ 	DllExport void AI_reset();
+ 
+@@ -37,8 +37,10 @@
+ 	DllExport ProjectTypes AI_bestProject();
+ 	DllExport int AI_projectValue(ProjectTypes eProject);
+ 
+-	DllExport ProcessTypes AI_bestProcess(CommerceTypes eCommerceType = NO_COMMERCE);
+-	DllExport int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType = NO_COMMERCE);
++	DllExport ProcessTypes AI_bestProcess();
++	ProcessTypes AI_bestProcess(CommerceTypes eCommerceType);
++	DllExport int AI_processValue(ProcessTypes eProcess);
++	int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType);
+ 
+ 	DllExport int AI_neededSeaWorkers();
+ 
+@@ -72,6 +74,7 @@
+ 
+ 	DllExport bool AI_isEmphasize(EmphasizeTypes eIndex);
+ 	DllExport void AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue);
++	void AI_forceEmphasizeCulture(bool bNewValue);
+ 
+ 	DllExport int AI_getBestBuildValue(int iIndex);
+ 	DllExport int AI_totalBestBuildValue(CvArea* pArea);
+@@ -99,6 +102,8 @@
+ 
+ 	int* m_aiEmphasizeYieldCount;
+ 	int* m_aiEmphasizeCommerceCount;
++	bool m_bForceEmphasizeCulture;
++
+ 	int m_aiBestBuildValue[NUM_CITY_PLOTS];
+ 
+ 	BuildTypes m_aeBestBuild[NUM_CITY_PLOTS];
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@118
++++ /trunk/CvGameCoreDLL/CvGame.cpp@119
+@@ -7867,6 +7867,8 @@
+ 			m_sorenRand.reseed(timeGetTime());
+ 		}
+ 	}
++
++	doUpdateCacheOnTurn();
+ }
+ 
+ 
+@@ -8209,6 +8211,21 @@
+ 	
+ }
+ 
++bool CvGame::culturalVictoryValid()
++{
++	if (m_iNumCultureCities > 0)
++	{
++		return true;
++	}
++
++	return false;
++}
++
++int CvGame::culturalVictoryNumCultureCities()
++{
++	return m_iNumCultureCities;
++}
++
+ void CvGame::constructCache()
+ {
+ 	// allocate known constants
+@@ -8217,6 +8234,8 @@
+ 	m_iShrineBuildingCount = 0;
+ 	m_aiShrineBuilding = NULL;
+ 	m_aiShrineReligion = NULL;
++
++	m_iNumCultureCities = 0;
+ 	
+ 	// note resetCache(/*bConstructorCall*/ true) will be called by CvGame::CvGame
+ }
+@@ -8233,6 +8252,8 @@
+ 	// init non-saved data
+ 
+ 	// note resetCache(/*bConstructorCall*/ false) will be called by CvGame::init
++
++	doUpdateCacheOnTurn();
+ }
+ 
+ void CvGame::uninitCache()
+@@ -8241,6 +8262,8 @@
+ 
+ 	SAFE_DELETE_ARRAY(m_aiShrineBuilding);
+ 	SAFE_DELETE_ARRAY(m_aiShrineReligion);
++
++	m_iNumCultureCities = 0;
+ }
+ 
+ void CvGame::resetCache(bool bConstructorCall)
+@@ -8273,13 +8296,32 @@
+ 
+ 	for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+ 	{
+-		CvBuildingInfo*	pBuildingInfo = &GC.getBuildingInfo((BuildingTypes) iI);
++		CvBuildingInfo&	kBuildingInfo = GC.getBuildingInfo((BuildingTypes) iI);
+ 		
+ 		// if it is for holy city, then its a shrine-thing, add it
+-		if (pBuildingInfo->getHolyCity() != NO_RELIGION)
+-			changeShrineBuilding((BuildingTypes) iI, (ReligionTypes) pBuildingInfo->getReligionType());
+-
+-
+-	}
+-}
+-
++		if (kBuildingInfo.getHolyCity() != NO_RELIGION)
++		{
++			changeShrineBuilding((BuildingTypes) iI, (ReligionTypes) kBuildingInfo.getReligionType());
++		}
++	}
++
++	// reset cultural victories
++	m_iNumCultureCities = 0;
++	for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
++	{
++		if (isVictoryValid((VictoryTypes) iI))
++		{
++			CvVictoryInfo& kVictoryInfo = GC.getVictoryInfo((VictoryTypes) iI);
++			if (kVictoryInfo.getCityCulture() > 0)
++			{
++				int iNumCultureCities = kVictoryInfo.getNumCultureCities();
++				if (iNumCultureCities > m_iNumCultureCities)
++				{
++					m_iNumCultureCities = iNumCultureCities;
++				}
++			}
++		}
++	}
++
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvGame.h
+--- /trunk/CvGameCoreDLL/CvGame.h@118
++++ /trunk/CvGameCoreDLL/CvGame.h@119
+@@ -550,10 +550,15 @@
+ 	BuildingTypes getShrineBuilding(int eIndex, ReligionTypes eReligion = NO_RELIGION);
+ 	void changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove = false);
+ 
++	bool culturalVictoryValid();
++	int culturalVictoryNumCultureCities();
++
+ protected:
+ 	int		m_iShrineBuildingCount;
+ 	int*	m_aiShrineBuilding;
+ 	int*	m_aiShrineReligion;
++
++	int		m_iNumCultureCities;
+ 
+ 	void constructCache();	// called from constructor
+ 	void destructCache();	// called from destructor
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@118
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@119
+@@ -484,6 +484,36 @@
+ bool isLimitedWonderClass(BuildingClassTypes eBuildingClass)
+ {
+ 	return (isWorldWonderClass(eBuildingClass) || isTeamWonderClass(eBuildingClass) || isNationalWonderClass(eBuildingClass));
++}
++
++int limitedWonderClassLimit(BuildingClassTypes eBuildingClass)
++{
++	int iMax;
++	int iCount = 0;
++	bool bIsLimited = false;
++
++	iMax = GC.getBuildingClassInfo(eBuildingClass).getMaxGlobalInstances();
++	if (iMax != -1)
++	{
++		iCount += iMax;
++		bIsLimited = true;
++	}
++
++	iMax = GC.getBuildingClassInfo(eBuildingClass).getMaxTeamInstances();
++	if (iMax != -1)
++	{
++		iCount += iMax;
++		bIsLimited = true;
++	}
++
++	iMax = GC.getBuildingClassInfo(eBuildingClass).getMaxPlayerInstances();
++	if (iMax != -1)
++	{
++		iCount += iMax;
++		bIsLimited = true;
++	}
++
++	return bIsLimited ? iCount : -1;
+ }
+ 
+ bool isWorldProject(ProjectTypes eProject)
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@118
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@119
+@@ -458,6 +458,7 @@
+ DllExport bool isTeamWonderClass(BuildingClassTypes eBuildingClass);						// Exposed to Python
+ DllExport bool isNationalWonderClass(BuildingClassTypes eBuildingClass);				// Exposed to Python
+ DllExport bool isLimitedWonderClass(BuildingClassTypes eBuildingClass);					// Exposed to Python
++int limitedWonderClassLimit(BuildingClassTypes eBuildingClass);
+ 
+ DllExport bool isWorldProject(ProjectTypes eProject);														// Exposed to Python
+ DllExport bool isTeamProject(ProjectTypes eProject);														// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@118
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@119
+@@ -1705,19 +1705,31 @@
+                     szString+=szTempBuffer;
+                 }
+             }
+-            
+-            
+-
+-
+-
+-            if (pPlot->getPlotCity() != NULL)
++
++			CvCity* pCity = pPlot->getPlotCity();
++            if (pCity != NULL)
+             {
+-                szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pPlot->getPlotCity()->AI_calculateCulturePressure());
++                szTempBuffer.Format(L"\n\nCulture Pressure Value = %d", pCity->AI_calculateCulturePressure());
+                 szString+=szTempBuffer;
+                 
+-                szTempBuffer.Format(L"\nWater World Percent = %d", pPlot->getPlotCity()->AI_calculateWaterWorldPercent());
++                szTempBuffer.Format(L"\nWater World Percent = %d", pCity->AI_calculateWaterWorldPercent());
+                 szString+=szTempBuffer;                
+-            }
++
++				szString += CvWString::format(L"\nRanks:");
++				szString += CvWString::format(L"\nPopulation:%d", pCity->findPopulationRank());
++				
++				szString += CvWString::format(L"\n(Base) Food:%d, ", pCity->findBaseYieldRateRank(YIELD_FOOD));
++				szString += CvWString::format(L"Prod:%d, ", pCity->findBaseYieldRateRank(YIELD_PRODUCTION));
++				szString += CvWString::format(L"Commerce:%d", pCity->findBaseYieldRateRank(YIELD_COMMERCE));
++				
++				szString += CvWString::format(L"\nFood:%d, ", pCity->findYieldRateRank(YIELD_FOOD));
++				szString += CvWString::format(L"Prod:%d, ", pCity->findYieldRateRank(YIELD_PRODUCTION));
++				szString += CvWString::format(L"Commerce:%d", pCity->findYieldRateRank(YIELD_COMMERCE));
++				
++				szString += CvWString::format(L"\nGold:%d, ", pCity->findCommerceRateRank(COMMERCE_GOLD));
++				szString += CvWString::format(L"Research:%d, ", pCity->findCommerceRateRank(COMMERCE_RESEARCH));
++				szString += CvWString::format(L"Culture:%d", pCity->findCommerceRateRank(COMMERCE_CULTURE));
++			}
+             szString += NEWLINE;
+             
+             //AI strategies
+@@ -1773,6 +1785,7 @@
+ 			// if we over the city, then do an array of all the plots
+ 			if (pPlot->getPlotCity() != NULL)
+ 			{
++				
+ 				// check avoid growth
+ 				if (bAvoidGrowth || bIgnoreGrowth)
+ 				{
+@@ -8029,7 +8042,16 @@
+ 	int iPass;
+ 	int iI;
+ 	CvTeam& kTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
+-
++	
++	// if alt down and cheat on, show if in financial trouble
++    if (gDLL->altKey() && gDLL->getChtLvl() > 0)
++    {
++		if (GET_PLAYER(ePlayer).AI_isFinancialTrouble())
++		{
++			szBuffer += CvWString::format(SETCOLR L"(in financial trouble)\n" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"));
++		}
++    }
++	
+ 	szBuffer += gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getAttitudeInfo(GET_PLAYER(ePlayer).AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey());
+ 
+ 	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@118
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@119
+@@ -5165,13 +5165,24 @@
+ 
+ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra)
+ {
+-	int iPrereqs;
+-
+-	iPrereqs = ((GC.getBuildingInfo(eBuilding).getPrereqNumOfBuildingClass(ePrereqBuildingClass) * max(0, (GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getBuildingClassPrereqModifier() + 100))) / 100);
+-
+-	if (!isLimitedWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType())))
+-	{
+-		return (iPrereqs * (getBuildingClassCount((BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType())) + iExtra + 1));
++	CvBuildingInfo& kBuilding = GC.getBuildingInfo(eBuilding);
++
++	int iPrereqs = kBuilding.getPrereqNumOfBuildingClass(ePrereqBuildingClass);
++	
++	// dont bother with the rest of the calcs if we have no prereqs
++	if (iPrereqs < 1)
++	{
++		return 0;
++	}
++	
++	BuildingClassTypes eBuildingClass = (BuildingClassTypes)kBuilding.getBuildingClassType();
++
++	iPrereqs *= max(0, (GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getBuildingClassPrereqModifier() + 100));
++	iPrereqs /= 100;
++
++	if (!isLimitedWonderClass(eBuildingClass))
++	{
++		return (iPrereqs * (getBuildingClassCount(eBuildingClass) + 1 + iExtra));
+ 	}
+ 
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+@@ -9230,6 +9241,8 @@
+ 	{
+ 		m_aiYieldRateModifier[eIndex] = (m_aiYieldRateModifier[eIndex] + iChange);
+ 
++		invalidateYieldRankCache(eIndex);
++		
+ 		if (eIndex == YIELD_COMMERCE)
+ 		{
+ 			updateCommerce();
+@@ -9263,6 +9276,8 @@
+ 	if (iChange != 0)
+ 	{
+ 		m_aiCapitalYieldRateModifier[eIndex] = (m_aiCapitalYieldRateModifier[eIndex] + iChange);
++		
++		invalidateYieldRankCache(eIndex);
+ 
+ 		pCapitalCity = getCapitalCity();
+ 
+@@ -10617,6 +10632,7 @@
+ 
+ 
+ //	Finds the path length from this tech type to one you already know
++// iustus: add caching for findPathLength
+ int CvPlayer::findPathLength(TechTypes eTech, bool bCost)
+ {
+ 	int i;
+@@ -12387,6 +12403,36 @@
+ 	return bHasShrine;
+ }
+ 
++void CvPlayer::invalidatePopulationRankCache()
++{
++	int iLoop;
++	CvCity* pLoopCity;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		pLoopCity->invalidatePopulationRankCache();
++	}
++}
++
++void CvPlayer::invalidateYieldRankCache(YieldTypes eYield)
++{
++	int iLoop;
++	CvCity* pLoopCity;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		pLoopCity->invalidateYieldRankCache();
++	}
++}
++
++void CvPlayer::invalidateCommerceRankCache(CommerceTypes eCommerce)
++{
++	int iLoop;
++	CvCity* pLoopCity;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		pLoopCity->invalidateCommerceRankCache();
++	}
++}
++
+ void CvPlayer::constructCache()
+ {
+ 	// allocate known constants
+@@ -12439,6 +12485,8 @@
+ 
+ void CvPlayer::doUpdateCacheOnTurn()
+ {
+-
+-}
+-
++	// add this back, after testing without it
++	// invalidateYieldRankCache();
++
++}
++
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.h
+--- /trunk/CvGameCoreDLL/CvPlayer.h@118
++++ /trunk/CvGameCoreDLL/CvPlayer.h@119
+@@ -1046,6 +1046,10 @@
+ public:
+ 	bool hasShrine(ReligionTypes eReligion);
+ 
++	void invalidatePopulationRankCache();
++	void invalidateYieldRankCache(YieldTypes eYield = NO_YIELD);
++	void invalidateCommerceRankCache(CommerceTypes eCommerce = NO_COMMERCE);
++
+ protected:
+ 	int		m_iPlaceholderCount;
+ 	int*	m_aiPlaceholderArray;
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@118
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@119
+@@ -1229,12 +1229,11 @@
+ }
+ 
+ 
+-// XXX cultural victory???
+ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity)
+ {
+ 	int iWeight;
+ 
+-	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent();
++	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent(); 
+ 
+ 	if (eCommerce == COMMERCE_RESEARCH)
+ 	{
+@@ -1252,13 +1251,58 @@
+ 	}
+ 	else if (eCommerce == COMMERCE_CULTURE)
+ 	{
++		// COMMERCE_CULTURE AIWeightPercent is 25% in default xml
++	
+ 		if (pCity != NULL)
+ 		{
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			{
++				int iCultureRateRank = pCity->findCommerceRateRank(COMMERCE_CULTURE);
++				int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++				
++				// if one of the currently best cities, then focus hard, *4
++				if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
++				{
++					iWeight *= 4;
++				}
++				// if one of the 3 close to the top, then still emphasize culture some, *2
++				else if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 3)
++				{
++					iWeight *= 2;
++				}
++			}
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++			{
++				iWeight *= 3;
++			}
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++			{
++				iWeight *= 2;
++			}
++			
+ 			iWeight += (100 - pCity->plot()->calculateCulturePercent(getID()));
+ 		}
++		// pCity == NULL
+ 		else
+ 		{
+-			iWeight /= 3;
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			{
++				iWeight *= 3;
++				iWeight /= 4;
++			}
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++			{
++				iWeight *= 2;
++				iWeight /= 3;
++			}
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++			{
++				iWeight /= 2;
++			}
++			else 
++			{
++				iWeight /= 3;
++			}
+ 		}
+ 	}
+ 
+@@ -2944,6 +2988,11 @@
+ 											iTempValue *= AI_commerceWeight((CommerceTypes)iK);
+ 											iTempValue /= 100;
+ 
++											if ((iK == COMMERCE_CULTURE) && AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++											{
++												iTempValue *= 3;
++											}
++
+ 											iValue += iTempValue;
+ 										}
+ 									}
+@@ -6450,6 +6499,7 @@
+ 	int iI, iJ;
+ 	
+ 	bool bCultureVictory3 = AI_isDoStrategy(AI_STRATEGY_CULTURE3);
++	bool bCultureVictory2 = AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 
+ 	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
+ 	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
+@@ -6564,12 +6614,12 @@
+ 		iTempValue += ((GC.getCivicInfo(eCivic).getSpecialistExtraCommerce(iI) * getTotalPopulation()) / 15);
+ 
+ 		iTempValue *= AI_commerceWeight((CommerceTypes)iI);
+-		if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+-		{
+-		    iTempValue *= 4;
+-		    if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++		if ((iI == COMMERCE_CULTURE) && bCultureVictory2)
++		{
++		    iTempValue *= 2;
++		    if (bCultureVictory3)
+ 		    {
+-		        iTempValue *= 4;		        
++		        iTempValue *= 2;		        
+ 		    }
+ 		}
+ 		iTempValue /= 100;
+@@ -6683,20 +6733,15 @@
+ 
+ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion)
+ {
+-	CvCity* pHolyCity;
++	if (getHasReligionCount(eReligion) == 0)
++	{
++		return 0;
++	}
++
++	int iValue = GC.getGameINLINE().countReligionLevels(eReligion);
++
++	int iLoop;
+ 	CvCity* pLoopCity;
+-	int iCommerceCount;
+-	int iValue;
+-	int iLoop;
+-	int iI, iJ;
+-
+-	if (getHasReligionCount(eReligion) == 0)
+-	{
+-		return 0;
+-	}
+-
+-	iValue = GC.getGameINLINE().countReligionLevels(eReligion);
+-
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		if (pLoopCity->isHasReligion(eReligion))
+@@ -6705,35 +6750,40 @@
+ 		}
+ 	}
+ 
+-	pHolyCity = GC.getGameINLINE().getHolyCity(eReligion);
+-
++	CvCity* pHolyCity = GC.getGameINLINE().getHolyCity(eReligion);
+ 	if (pHolyCity != NULL)
+ 	{
+-		iCommerceCount = 0;
+-
+-		for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+-		{
+-			if (pHolyCity->hasActiveBuilding((BuildingTypes)iI))
+-			{
+-				for (iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+-				{
+-					if (GC.getBuildingInfo((BuildingTypes)iI).getGlobalReligionCommerce() == eReligion)
++		bool bOurHolyCity = pHolyCity->getOwnerINLINE() == getID();
++		bool bOurTeamHolyCity = pHolyCity->getTeam() == getTeam();
++		
++		if (bOurHolyCity || bOurTeamHolyCity)
++		{
++			int iCommerceCount = 0;
++
++			for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
++			{
++				if (pHolyCity->hasActiveBuilding((BuildingTypes)iI))
++				{
++					for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 					{
+-						iCommerceCount += GC.getReligionInfo(eReligion).getGlobalReligionCommerce((CommerceTypes)iJ);
++						if (GC.getBuildingInfo((BuildingTypes)iI).getGlobalReligionCommerce() == eReligion)
++						{
++							iCommerceCount += GC.getReligionInfo(eReligion).getGlobalReligionCommerce((CommerceTypes)iJ);
++						}
+ 					}
+ 				}
+ 			}
+-		}
+-
+-		if (pHolyCity->getOwnerINLINE() == getID())
+-		{
+-			iValue *= (3 + iCommerceCount);
+-			iValue /= 2;
+-		}
+-		else if (pHolyCity->getTeam() == getTeam())
+-		{
+-			iValue *= (4 + iCommerceCount);
+-			iValue /= 3;
++
++			if (bOurHolyCity)
++			{
++				iValue *= (3 + iCommerceCount);
++				iValue /= 2;
++			}
++			else if (bOurTeamHolyCity)
++			{
++				iValue *= (4 + iCommerceCount);
++				iValue /= 3;
++			}
+ 		}
+ 	}
+ 
+@@ -8934,25 +8984,9 @@
+ 
+ int CvPlayerAI::AI_getCultureVictoryStage()
+ {
+-    int iI;
+-    VictoryTypes eVictory;
+-    VictoryTypes eCultureVictory;
+     int iValue;
+-
+-    for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+-    {
+-        eVictory = (VictoryTypes)iI;
+-        if (GC.getGame().isVictoryValid(eVictory))
+-        {
+-            if (GC.getVictoryInfo(eVictory).getCityCulture() > 0)
+-            {
+-                eCultureVictory = eVictory;
+-                break;
+-            }
+-        }
+-    }
+-
+-    if (eCultureVictory == NO_VICTORY)
++	
++    if (!GC.getGameINLINE().culturalVictoryValid())
+     {
+         return 0;
+     }
+@@ -9188,6 +9222,12 @@
+             }
+ 	    }
+ 	}
++
++	// turn off dagger if culture gets to 2
++	if (m_iStrategyHash & AI_STRATEGY_CULTURE2)
++	{
++		m_iStrategyHash &= ~AI_STRATEGY_DAGGER;            
++	}
+ 	
+ 	if (!(m_iStrategyHash & AI_STRATEGY_DAGGER))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@118
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@119
+@@ -276,9 +276,9 @@
+ 
+ 			if (bCanAttack)
+ 			{
+-				if (pLoopUnit->canMove() || bForce)
++				if (bForce || pLoopUnit->canMove())
+ 				{
+-					if (pLoopUnit->canMoveInto(pPlot, true) || bForce)
++					if (bForce || pLoopUnit->canMoveInto(pPlot, /*bAttack*/ true, /*bDeclareWar*/ bPotentialEnemy))
+ 					{
+ 						iValue = pLoopUnit->AI_attackOdds(pPlot, bPotentialEnemy);
+ 						FAssertMsg(iValue > 0, "iValue is expected to be greater than 0");
+@@ -427,7 +427,7 @@
+ 			if (!bCheckCanAttack || bCanAttack)
+ 			{
+ 				if (!bCheckCanMove || pLoopUnit->canMove())
+-					if (!bCheckCanMove || pAttackedPlot == NULL || pLoopUnit->canMoveInto(pAttackedPlot, true))
++					if (!bCheckCanMove || pAttackedPlot == NULL || pLoopUnit->canMoveInto(pAttackedPlot, /*bAttack*/ true, /*bDeclareWar*/ true))
+ 						if (eDomainType == NO_DOMAIN || pLoopUnit->getDomainType() == eDomainType)
+ 							strSum += pLoopUnit->currEffectiveStr(pAttackedPlot, pLoopUnit);
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvTeam.cpp
+--- /trunk/CvGameCoreDLL/CvTeam.cpp@118
++++ /trunk/CvGameCoreDLL/CvTeam.cpp@119
+@@ -4116,6 +4116,8 @@
+ 					
+ 					// notify the player they now have the tech, if they want to make immediate changes
+ 					GET_PLAYER((PlayerTypes)iI).AI_nowHasTech(eIndex);
++
++					GET_PLAYER((PlayerTypes)iI).invalidateYieldRankCache();
+ 				}
+ 			}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@118
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@119
+@@ -2001,7 +2001,8 @@
+ 				{
+ 					if (pPlot->isVisibleEnemyUnit(getOwnerINLINE()) != bAttack)
+ 					{
+-						if (!isHuman() || !bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack))
++						FAssertMsg(isHuman() || (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack)), "hopefully not an issue, but tracking how often this is the case when we dont want to really declare war");
++						if (!bDeclareWar || (pPlot->isVisibleOtherUnit(getOwnerINLINE()) != bAttack))
+ 						{
+ 							return false;
+ 						}
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@118
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@119
+@@ -2389,7 +2389,7 @@
+ 	}
+ 
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+-	int iDiscoverValue = getDiscoverResearch(NO_TECH);
++	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+ 	if (((iGoldenAgeValue * 100) / iDiscoverValue) > 60)
+ 	{
+@@ -2470,7 +2470,7 @@
+ 	}
+ 
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+-	int iDiscoverValue = getDiscoverResearch(NO_TECH);
++	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+ 	if (((iGoldenAgeValue * 100) / iDiscoverValue) > 60)
+ 	{
+@@ -2549,7 +2549,7 @@
+ 	}
+ 
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+-	int iDiscoverValue = getDiscoverResearch(NO_TECH);
++	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+ 	if (((iGoldenAgeValue * 100) / iDiscoverValue) > 60)
+ 	{
+@@ -2690,7 +2690,7 @@
+ 	}
+ 
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+-	int iDiscoverValue = getDiscoverResearch(NO_TECH);
++	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+ 	if (AI_trade(iGoldenAgeValue * 2))
+ 	{
+@@ -2781,7 +2781,7 @@
+ 	}
+ 
+ 	int iGoldenAgeValue = (GET_PLAYER(getOwnerINLINE()).AI_calculateGoldenAgeValue() / (GET_PLAYER(getOwnerINLINE()).unitsRequiredForGoldenAge()));
+-	int iDiscoverValue = getDiscoverResearch(NO_TECH);
++	int iDiscoverValue = max(1, getDiscoverResearch(NO_TECH));
+ 
+ 	if (((iGoldenAgeValue * 100) / iDiscoverValue) > 60)
+ 	{
+@@ -5948,26 +5948,52 @@
+ 								{
+ 									iValue = (7 + (pLoopCity->getPopulation() * 4));
+ 
++									bool bOurCity = false;
+ 									if (pLoopCity->getOwnerINLINE() == getOwnerINLINE())
+ 									{
+ 										iValue *= (bCultureVictory ? 16 : 4);
++										bOurCity = true;
+ 									}
+ 									else if (pLoopCity->getTeam() == getTeam())
+ 									{
+ 										iValue *= 3;
++										bOurCity = true;
+ 									}
+ 									else
+ 									{
+ 									    iValue *= iPlayerMultiplierPercent;
+ 									    iValue /= 100;
+ 									}
+-
+-									if (pLoopCity->getReligionCount() == 0)
++									
++									int iCityReligionCount = pLoopCity->getReligionCount();
++									int iReligionCountFactor = iCityReligionCount;
++
++									if (bOurCity)
+ 									{
+-										iValue *= 2;
++										// count cities with no religion the same as cities with 2 religions
++										// prefer a city with exactly 1 religion already
++										if (iCityReligionCount == 0)
++										{
++											iReligionCountFactor = 2;
++										}
++										else if (iCityReligionCount == 1)
++										{
++											iValue *= 2;
++										}
+ 									}
+-
+-									iValue /= (pLoopCity->getReligionCount() + 1);
++									else
++									{
++										// absolutely prefer cities with zero religions
++										if (iCityReligionCount == 0)
++										{
++											iValue *= 2;
++										}
++
++										// not our city, so prefer the lowest number of religions (increment so no divide by zero)
++										iReligionCountFactor++;
++									}
++
++									iValue /= iReligionCountFactor;
+ 
+ 									FAssert(iPathTurns > 0);
+ 
+@@ -10766,9 +10792,9 @@
+ 					{
+ 						if (AI_potentialEnemy(pLoopPlot->getTeam()))
+ 						{
+-							if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
++							if (!atPlot(pLoopPlot) && ((bFollow) ? canMoveInto(pLoopPlot, /*bAttack*/ true, /*bDeclareWar*/ true) : (generatePath(pLoopPlot, 0, true, &iPathTurns) && (iPathTurns <= iRange))))
+ 							{
+-								iValue = getGroup()->AI_compareStacks(pLoopPlot, false, true, true);
++								iValue = getGroup()->AI_compareStacks(pLoopPlot, /*bPotentialEnemy*/ true, /*bCheckCanAttack*/ true, /*bCheckCanMove*/ true);
+ 
+ 								if (iValue >= iPowerThreshold)
+ 								{
+@@ -10882,30 +10908,8 @@
+         bGreatWork = true;
+     }
+     
+-    //Find the culture victory type
+-    VictoryTypes eVictory;
+-    VictoryTypes eCultureVictory;
+-    int iI;
+-
+-    for (iI = 0; iI < GC.getNumVictoryInfos(); iI++)
+-    {
+-        eVictory = (VictoryTypes)iI;
+-        if (GC.getGame().isVictoryValid(eVictory))
+-        {
+-            if (GC.getVictoryInfo(eVictory).getCityCulture() > 0)
+-            {
+-                eCultureVictory = eVictory;
+-                break;
+-            }
+-        }
+-    }
+-
+-    if (eCultureVictory == NO_VICTORY)
+-    {
+-        FAssertMsg(false, "CultureVictory Strategy should not be true");
+-    }
+-    
+-    int iCultureCitiesNeeded = GC.getVictoryInfo(eVictory).getNumCultureCities();
++	int iCultureCitiesNeeded = GC.getGameINLINE().culturalVictoryNumCultureCities();
++	FAssertMsg(iCultureCitiesNeeded > 0, "CultureVictory Strategy should not be true");
+ 
+ 	CvCity* pLoopCity;
+ 	CvPlot* pBestPlot;
+@@ -10940,7 +10944,7 @@
+                         }
+                     }
+ 
+-                    for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++                    for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+                     {
+                         if (canJoin(pBestPlot, ((SpecialistTypes)iI)))
+                         {
+

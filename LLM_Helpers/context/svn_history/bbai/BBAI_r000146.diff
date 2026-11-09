@@ -1,0 +1,157 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 146
+# Author: blakeciv
+# Date: 2006-12-03T09:52:40.572275Z
+# Coverage: full
+# Message:
+#   Added stuff to better improve the AI's spreading of rare religions under CV.
+#   Tweaked AI research strategy.
+#   Tweaked the builder governor.
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@145
++++ /trunk/CvGameCoreDLL/CvCity.cpp@146
+@@ -6561,6 +6561,11 @@
+ 		{
+ 			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
+ 		}
++		
++		if (!isProduction())
++		{
++		    AI_chooseProduction();		    
++		}
+ 	}
+ }
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@145
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@146
+@@ -1764,7 +1764,7 @@
+ 	int iValue;
+ 	int iTempValue;
+ 	int iBestValue;
+-	int iI;
++	int iI, iJ;
+ 
+ 	bAreaAlone = GET_PLAYER(getOwnerINLINE()).AI_isAreaAlone(area());
+ 
+@@ -1806,6 +1806,18 @@
+ 								iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (GET_PLAYER(getOwnerINLINE()).getNumCities() - GET_PLAYER(getOwnerINLINE()).getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
+ 							}
+ 						}
++						if (isProductionAutomated())
++						{
++						    for (iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
++						    {
++						        if (GC.getBuildingInfo(eLoopBuilding).getPrereqNumOfBuildingClass(iJ) > 0)
++						        {
++						            iValue = 0;
++						            break;
++						        }						        
++						    }						    
++						}
++
+ 
+ 						if (iValue > 0)
+ 						{
+@@ -1971,6 +1983,7 @@
+ 	bool bFinancialTrouble = GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble();
+ 
+ 	bool bCulturalVictory1 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE1);
++	bool bCulturalVictory2 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	bool bCulturalVictory3 = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3);
+ 
+ 	bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+@@ -2365,6 +2378,15 @@
+ 						    if (bCulturalVictory1 || isHolyCity(eReligion) || isCapital())
+ 						    {
+ 						        iValue += (2 + iNumCitiesInArea);
++                            }
++                            
++                            if (bCulturalVictory2 && GC.getUnitInfo((UnitTypes)iI).getReligionSpreads(eReligion))
++                            {
++                                //this gives a very large extra value if the religion is (nearly) unique
++                                //to no extra value for a fully spread religion.
++                                //I'm torn between huge boost and enough to bias towards the best monastery type.
++                                int iReligionCount = GET_PLAYER(getOwnerINLINE()).getHasReligionCount(eReligion);
++                                iValue += (100 * (iNumCities - iReligionCount)) / (iNumCities * (iReligionCount + 1));
+                             }
+ 						}
+ 					}
+@@ -3740,6 +3762,11 @@
+ 					if ((getCommerceRateTimes100(COMMERCE_CULTURE) == 0) || (plot()->calculateCulturePercent(getOwnerINLINE()) < 40))
+ 					{
+ 						iMinTurns = min(iMinTurns, 10);
++						if (getCommerceRateTimes100(COMMERCE_CULTURE) == 0)
++						{
++						    bEssential = true;
++						    iMinTurns = min(iMinTurns, 5);
++						}
+ 					}
+ 				}
+ 			}
+@@ -5841,7 +5868,7 @@
+ 	}
+ 	
+     // if we need to pop borders, then do that immediately if we have drama and can do it
+-	if (getCultureLevel() <= (CultureLevelTypes) 1)
++	if ((getCultureLevel() <= (CultureLevelTypes)1) && ((getCommerceRate(COMMERCE_CULTURE) < 2) || (iCulturePressure > 0)))
+ 	{
+         if (AI_chooseProcess(COMMERCE_CULTURE))
+         {
+@@ -5870,7 +5897,8 @@
+         return;
+     }
+     
+-    if ((getCommerceRateTimes100(COMMERCE_CULTURE) == 0) && (iCulturePressure != 0))
++    if (((getCommerceRateTimes100(COMMERCE_CULTURE) == 0) && (iCulturePressure != 0))
++        || (iCulturePressure > 100))
+     {
+         if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
+         {
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@145
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@146
+@@ -3242,7 +3242,14 @@
+ 									if (iValue > 0)
+ 									{
+ 										iValue *= 1000;
+-										iValue /= (getResearchTurnsLeft(((TechTypes)iI), true) + 5);
++										if (((bAsync) ? GC.getASyncRand().get(2, "AI Choose Cheap Tech") : GC.getGameINLINE().getSorenRandNum(2, "AI Choose Cheap Tech")) == 0)
++										{
++                                            iValue /= max(1, getResearchTurnsLeft(((TechTypes)iI), true));
++										}
++										else
++										{
++										    iValue /= (getResearchTurnsLeft(((TechTypes)iI), true) + 5);
++										}
+ 									}
+ 								}
+ 
+@@ -6146,6 +6153,18 @@
+ 			{
+ 				iValue += 100;
+ 			}
++		}
++		if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++		{
++		    int iTempValue = 0;
++		    for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++		    {
++                if (GC.getUnitInfo(eUnit).getReligionSpreads((ReligionTypes)iI))
++                {
++                    iTempValue += (50 * getNumCities()) / (1 + getHasReligionCount((ReligionTypes)iI));
++                }
++		    }
++		    iValue += iTempValue;		    
+ 		}
+ 		break;
+ 
+

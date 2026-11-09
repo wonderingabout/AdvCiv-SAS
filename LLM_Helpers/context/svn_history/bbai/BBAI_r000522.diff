@@ -1,0 +1,25 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 522
+# Author: jdog5000
+# Date: 2010-02-12T08:27:49.638601Z
+# Coverage: full
+# Message:
+#   Fix missing comment tag
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@521
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@522
+@@ -1451,6 +1451,9 @@
+ 			}
+ 		}
+ 	}
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                       END                                                  */
++/************************************************************************************************/
+ 
+ 	if ((getNumUnits() > 0) && (headMissionQueueNode() != NULL))
+ 	{
+

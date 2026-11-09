@@ -1,0 +1,155 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 420
+# Author: jdog5000
+# Date: 2009-01-04T00:20:48.447776Z
+# Coverage: full
+# Message:
+#   0.50E
+#   
+#   Final tweaks before release
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@419
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@420
+@@ -4171,7 +4171,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.50D");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.50E");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@419
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@420
+@@ -15715,7 +15715,7 @@
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
+ /**                                                                                              */
+-/** Bug Fix                                                                                      */
++/** Bugfix                                                                                      */
+ /*************************************************************************************************/
+ /* original code
+ 	for (pLoopCity = GET_PLAYER(eIndex).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eIndex).nextCity(&iLoop))
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@419
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@420
+@@ -4645,12 +4645,28 @@
+ 			return;
+ 		}
+ 		
++
+ 		if (((AI_getBirthmark() / 8) % 2) == 0)
+ 		{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      01/03/09                                jdog5000      */
++/**                                                                                              */
++/** Pirate AI                                                                                    */
++/*************************************************************************************************/
++/* original bts code
+ 			if (AI_group(UNITAI_PIRATE_SEA, 1, 0))
+ 			{
+ 				return;
+ 			}
++*/
++			// Previously code actually blocked grouping
++			if (AI_group(UNITAI_PIRATE_SEA, -1, 1, -1, true, false, false, 8))
++			{
++				return;
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 	}
+ 	else
+@@ -4870,6 +4886,12 @@
+ 		{
+ 			return;
+ 		}
++	}
++	
++	if (AI_group(UNITAI_CARRIER_SEA, -1, 1, -1, false, false, false))
++	{
++		return;
++	}
+ */
+ 		if (AI_shadow(UNITAI_ASSAULT_SEA, 4, 34, true, false, 4))
+ 		{
+@@ -4891,15 +4913,16 @@
+ 		{
+ 			return;
+ 		}
++	}
++	
++	if (AI_group(UNITAI_CARRIER_SEA, -1, 1, -1, false, false, false, 10))
++	{
++		return;
++	}
+ /*************************************************************************************************/
+ /** BETTER_BTS_AI_MOD                       END                                                  */
+ /*************************************************************************************************/
+-	}
+-	
+-	if (AI_group(UNITAI_CARRIER_SEA, -1, 1, -1, false, false, false))
+-	{
+-		return;
+-	}
++
+ 	
+ 	if (plot()->isOwned() && (isEnemy(plot()->getTeam())))
+ 	{
+@@ -5016,7 +5039,7 @@
+ 	}
+ 	
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/03/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                     */
+ /*************************************************************************************************/
+@@ -5045,14 +5068,14 @@
+ 		return;
+ 	}
+ 	
+-	if (AI_group(UNITAI_RESERVE_SEA, 1))
++	if (AI_group(UNITAI_RESERVE_SEA, 1, -1, -1, false, false, false, 8))
+ 	{
+ 		return;
+ 	}
+ 	
+ 	if (bombardRate() > 0)
+ 	{
+-		if (AI_shadow(UNITAI_ASSAULT_SEA, 2, 30, true, false, 10))
++		if (AI_shadow(UNITAI_ASSAULT_SEA, 2, 30, true, false, 8))
+ 		{
+ 			return;
+ 		}
+@@ -5085,12 +5108,12 @@
+ 	}
+ 
+ /*************************************************************************************************/
+-/** BETTER_BTS_AI_MOD                      01/01/09                                jdog5000      */
++/** BETTER_BTS_AI_MOD                      01/03/09                                jdog5000      */
+ /**                                                                                              */
+ /** Naval AI                                                                                      */
+ /*************************************************************************************************/
+ 	// Shadow settler transport with cargo 
+-	if (AI_shadow(UNITAI_SETTLER_SEA, 2, -1, true))
++	if (AI_shadow(UNITAI_SETTLER_SEA, 1, -1, true, false, 10))
+ 	{
+ 		return;
+ 	}
+

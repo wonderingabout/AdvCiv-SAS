@@ -1,0 +1,53 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 271
+# Author: iustus
+# Date: 2007-01-16T14:11:10.409890Z
+# Coverage: full
+# Message:
+#   bombard bug fix
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@270
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@271
+@@ -3481,24 +3481,26 @@
+ bool CvUnit::bombard()
+ {
+ 	CvPlot* pPlot = plot();
+-
+ 	if (!canBombard(pPlot))
+-	{
+-		return false;
+-	}
+-
+-	if (!atWar(getTeam(), pPlot->getTeam()))
+-	{
+-		getGroup()->groupDeclareWar(pPlot, true);
+-	}
+-
+-	if (!atWar(getTeam(), pPlot->getTeam()))
+ 	{
+ 		return false;
+ 	}
+ 
+ 	CvCity* pBombardCity = bombardTarget(pPlot);
+ 	FAssertMsg(pBombardCity != NULL, "BombardCity is not assigned a valid value");
++
++	CvPlot* pTargetPlot = pBombardCity->plot();
++	TeamTypes eTeam = getTeam();
++	TeamTypes eTargetTeam = pTargetPlot->getTeam();
++	if (!atWar(eTeam, eTargetTeam))
++	{
++		getGroup()->groupDeclareWar(pTargetPlot, true);
++	}
++
++	if (!atWar(eTeam, eTargetTeam))
++	{
++		return false;
++	}
+ 
+ 	int iBombardModifier = 0;
+ 	if (!ignoreBuildingDefense())
+

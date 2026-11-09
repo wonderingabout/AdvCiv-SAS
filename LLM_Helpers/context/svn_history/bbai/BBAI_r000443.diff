@@ -1,0 +1,448 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 443
+# Author: jdog5000
+# Date: 2009-05-02T04:35:38.081835Z
+# Coverage: full
+# Message:
+#   0.70E
+#   
+#   Fixes for 100% culture/espionage city tile selection issues
+#   Improvements for cultural victory pursuit
+#   Improvements for choosing to build Culture/Research/Wealth
+# Changed paths (5):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@442
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@443
+@@ -1332,11 +1332,15 @@
+ 		if( (-iWarSuccessRatio) > GC.getGameINLINE().getSorenRandNum(150, "City AI - Build units to counter losing streak") )
+ 		{
+ 			UnitTypeWeightArray defensiveTypes;
+-			defensiveTypes.push_back(std::make_pair(UNITAI_CITY_DEFENSE, 100));
+-			defensiveTypes.push_back(std::make_pair(UNITAI_CITY_COUNTER, 30));
+-			defensiveTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 40));
+-			defensiveTypes.push_back(std::make_pair(UNITAI_COUNTER, 50));
+-			defensiveTypes.push_back(std::make_pair(UNITAI_ATTACK, 50));
++			defensiveTypes.push_back(std::make_pair(UNITAI_COUNTER, 100));
++			defensiveTypes.push_back(std::make_pair(UNITAI_ATTACK, 100));
++			defensiveTypes.push_back(std::make_pair(UNITAI_RESERVE, 60));
++			defensiveTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 60));
++			if (iTotalFloatingDefenders < (5*iNeededFloatingDefenders)/(bGetBetterUnits ? 6 : 4))
++			{
++				defensiveTypes.push_back(std::make_pair(UNITAI_CITY_DEFENSE, 200));
++				defensiveTypes.push_back(std::make_pair(UNITAI_CITY_COUNTER, 50));
++			}
+ 
+ 			if (AI_chooseLeastRepresentedUnit(defensiveTypes))
+ 			{
+@@ -4938,6 +4942,23 @@
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+ 	}
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/30/09                                jdog5000      */
++/**                                                                                              */
++/** Cultural Victory AI                                                                          */
++/*************************************************************************************************/
++	if ( GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE3) )
++	{
++		// Final city for cultural victory will build culture to speed up victory
++		if( findCommerceRateRank(COMMERCE_CULTURE) == GC.getGameINLINE().culturalVictoryNumCultureCities() )
++		{
++			iValue += 2*GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
++		}
++	}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(iI);
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@442
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@443
+@@ -4257,7 +4257,7 @@
+ /**                                                                                              */
+ /*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(L"%S", "Better BTS AI v0.70B");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.70F");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+ 	szBuffer.append(NEWLINE);
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@442
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@443
+@@ -1646,53 +1646,72 @@
+ 		}
+ 		break;
+ 	case COMMERCE_GOLD:
+-		if (getCommercePercent(COMMERCE_GOLD) == 100)
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/29/09                                jdog5000      */
++/**                                                                                              */
++/** Gold AI				                                                                         */
++/*************************************************************************************************/
++		if (getCommercePercent(COMMERCE_GOLD) > 70)
+ 		{
+ 			//avoid strikes
+-			if (getGoldPerTurn() < 0)
++			if (getGoldPerTurn() < -getGold()/100)
+ 			{
+ 				iWeight += 15;
+ 			}
+ 		}
+-		else if (getCommercePercent(COMMERCE_GOLD) == 0)
++		else if (getCommercePercent(COMMERCE_GOLD) < 25)
+ 		{
+ 			//put more money towards other commerce types
+-			if (getGoldPerTurn() > 0)
+-			{
+-				iWeight -= 15;
+-			}
+-		}
++			if (getGoldPerTurn() > -getGold()/40)
++			{
++				iWeight -= 25 - getCommercePercent(COMMERCE_GOLD);
++			}
++		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		break;
+ 	case COMMERCE_CULTURE:
+ 		// COMMERCE_CULTURE AIWeightPercent is 25% in default xml
+-	
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/29/09                                jdog5000      */
++/**                                                                                              */
++/** Bugfix, Cultural Victory AI                                                                  */
++/*************************************************************************************************/
++		// Adjustments for human player going for cultural victory (who won't have AI strategy set) 
++		// so that governors do smart things
+ 		if (pCity != NULL)
+ 		{
+ 			if (pCity->getCultureTimes100(getID()) >= 100 * GC.getCultureLevelInfo((CultureLevelTypes)(GC.getNumCultureLevelInfos() - 1)).getSpeedThreshold(GC.getGameINLINE().getGameSpeedType()))
+ 			{
+ 				iWeight /= 50;
+ 			}
+-			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) > 80 )
+ 			{
+ 				int iCultureRateRank = pCity->findCommerceRateRank(COMMERCE_CULTURE);
+ 				int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 				
+-				// if one of the currently best cities, then focus hard, *4
++				// if one of the currently best cities, then focus hard, *4 or more
+ 				if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
+ 				{
+-					iWeight *= 4;
++					iWeight *= (3 + iCultureRateRank);
+ 				}
+ 				// if one of the 3 close to the top, then still emphasize culture some, *2
+ 				else if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 3)
+ 				{
+ 					iWeight *= 2;
+ 				}
++				else if (isHuman())
++				{
++					iWeight *= 2;
++				}
++
+ 			}
+ 			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
+ 			{
+ 				iWeight *= 3;
+ 			}
+-			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 50)
+ 			{
+ 				iWeight *= 2;
+ 			}
+@@ -1707,17 +1726,17 @@
+ 		// pCity == NULL
+ 		else
+ 		{
+-			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3))
++			if (AI_isDoStrategy(AI_STRATEGY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) > 90 )
+ 			{
+ 				iWeight *= 3;
+ 				iWeight /= 4;
+ 			}
+-			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE2))
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) > 70 )
+ 			{
+ 				iWeight *= 2;
+-			iWeight /= 3;
+-		}
+-			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1))
++				iWeight /= 3;
++			}
++			else if (AI_isDoStrategy(AI_STRATEGY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) > 50 )
+ 			{
+ 				iWeight /= 2;
+ 			}
+@@ -1726,10 +1745,20 @@
+ 				iWeight /= 3;
+ 			}
+ 		}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		break;
+ 	case COMMERCE_ESPIONAGE:
+ 		{
+-			int iEspMultiplier = 0;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/29/09                                jdog5000      */
++/**                                                                                              */
++/** Espionage AI, Bugfix                                                                         */
++/*************************************************************************************************/
++			// Fixed bug where espionage weight set to 0 if winning all esp point races
++			// Smoothed out emphasis
++			int iEspBehindWeight = 0;
+ 			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 			{
+ 				CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+@@ -1738,15 +1767,45 @@
+ 					int iPointDiff = kLoopTeam.getEspionagePointsAgainstTeam(getTeam()) - GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
+ 					if (iPointDiff > 0)
+ 					{
+-						iEspMultiplier += 1;
+-						break;
+-					}
+-				}
+-			}
+-			iEspMultiplier += (iEspMultiplier > 0) ? 3 : 0;
+-			iWeight *= iEspMultiplier;
++						iEspBehindWeight += 1;
++						if( GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) < ATTITUDE_CAUTIOUS )
++						{
++							iEspBehindWeight += 1;
++						}
++					}
++				}
++			}
++			
++			iWeight *= 2*iEspBehindWeight + (3*GET_TEAM(getTeam()).getHasMetCivCount(true))/4 + 1;
+ 			iWeight *= AI_getEspionageWeight();
++			iWeight /= GET_TEAM(getTeam()).getHasMetCivCount(true) + 1;
+ 			iWeight /= 100;
++
++			if( getCommercePercent(COMMERCE_ESPIONAGE) == 0 )
++			{
++				iWeight *= 2;
++				iWeight /= 3;
++			}
++			else if( isHuman() )
++			{
++				if( getCommercePercent(COMMERCE_ESPIONAGE) > 50 )
++				{
++					iWeight *= getCommercePercent(COMMERCE_ESPIONAGE);
++					iWeight /= 50;
++				}
++			}
++			else
++			{
++				// AI Espionage slider use maxed out at 20 percent
++				if( getCommercePercent(COMMERCE_ESPIONAGE) >= 20 )
++				{
++					iWeight *= 3;
++					iWeight /= 2;
++				}
++			}
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		}
+ 		break;
+ 		
+@@ -14401,52 +14460,85 @@
+         return 0;
+     }
+ 
+-    if (getCapitalCity()->getGameTurnFounded() > (10 + GC.getGameINLINE().getStartTurn()))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      04/30/09                                jdog5000      */
++/**                                                                                              */
++/** Cultural Victory AI                                                                          */
++/*************************************************************************************************/
++/* original bts code
++	if (getCapitalCity()->getGameTurnFounded() > (10 + GC.getGameINLINE().getStartTurn()))
+     {
+         //the loss of the capital indicates it might be a good idea to abort any culture victory
+         return 0;
+     }
+-
+-    if (GC.getGame().getStartEra() > 1)
++*/
++	if (GC.getGame().getStartEra() > 1)
+     {
+     	return 0;
+     }
+ 
++	int iHighCultureCount = 0;
++		
++	int iLoop;
++	CvCity* pLoopCity;
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		// is culture rate over 100?
++		if (pLoopCity->getBaseCommerceRate(COMMERCE_CULTURE) > 100)
++		{
++			iHighCultureCount++;
++		}
++		// or is the culture level 1 less than required to win?
++		else if (pLoopCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1))
++		{
++			iHighCultureCount++;
++		}
++	}
++
++	if (getCapitalCity()->getGameTurnFounded() > (10 + GC.getGameINLINE().getStartTurn()))
++    {
++		if( iHighCultureCount < GC.getGameINLINE().culturalVictoryNumCultureCities() )
++		{
++			//the loss of the capital indicates it might be a good idea to abort any culture victory
++			return 0;
++		}
++    }
++
+     iValue = 0;
+ 
+ 	if (GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE))
+-    {
++	{
+     	iValue += 4;
+-    }
+-
+-    for (int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+-    {
+-        if (hasTrait((TraitTypes)iI))
+-        {
+-            // spiritual +4
++	}
++
++	for (int iI = 0; iI < GC.getNumTraitInfos(); iI++)
++	{
++		if (hasTrait((TraitTypes)iI))
++		{
++			// spiritual +4
+ 			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxAnarchy() == 0) ? 4 : 0);
+ 
+ 			// creative +4
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceChange(COMMERCE_CULTURE) * 2);
++			iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceChange(COMMERCE_CULTURE) * 2);
+ 
+ 			// (none in default xml), set so 25% boost = 4
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 6);
++			iValue += (GC.getTraitInfo((TraitTypes)iI).getCommerceModifier(COMMERCE_CULTURE) / 6);
+ 
+ 			// philisophical +4
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 25);
++			iValue += (GC.getTraitInfo((TraitTypes)iI).getGreatPeopleRateModifier() / 25);
+ 
+ 			// financial +4
+-            iValue += (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)) * 2 * GC.getDefineINT("EXTRA_YIELD");
+-            
++			iValue += (GC.getTraitInfo((TraitTypes)iI).getExtraYieldThreshold(YIELD_COMMERCE)) * 2 * GC.getDefineINT("EXTRA_YIELD");
++	        
+ 			// (none in default xml), set so 100% boost = 4
+ 			iValue += (GC.getTraitInfo((TraitTypes)iI).getTradeYieldModifier(YIELD_COMMERCE)) / 25;
+-            
++	        
+ 			// industrious +4
+ 			iValue += ((GC.getTraitInfo((TraitTypes)iI).getMaxGlobalBuildingProductionModifier() / 25));
+-        }
+-    }
+-    
+-    iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
++		}
++	}
++	
++	iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -3 : 0);
+ 	
+ 	CivicTypes eCivic = (CivicTypes)GC.getLeaderHeadInfo(getPersonalityType()).getFavoriteCivic();
+ 	if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
+@@ -14465,17 +14557,17 @@
+ 		}
+ 	}
+ 
+-    //atleast I'm honest
+-    int iNonsense = 0;
+-    iNonsense += getCapitalCity()->getX();
+-    iNonsense += getCapitalCity()->getY();
+-
+-    iValue += (iNonsense % 7);
+-
+-    if (iValue < 10)
+-    {
+-        return 0;
+-    }
++	//atleast I'm honest
++	int iNonsense = 0;
++	iNonsense += getCapitalCity()->getX();
++	iNonsense += getCapitalCity()->getY();
++
++	iValue += (iNonsense % 7);
++
++	if (iValue < 10)
++	{
++		return 0;
++	}
+     
+     if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + iNonsense % 2)))
+     {
+@@ -14483,24 +14575,6 @@
+         {
+             return 3;
+         }
+-
+-		int iHighCultureCount = 0;
+-		
+-		int iLoop;
+-		CvCity* pLoopCity;
+-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-		{
+-			// is culture rate over 100?
+-			if (pLoopCity->getBaseCommerceRate(COMMERCE_CULTURE) > 100)
+-			{
+-				iHighCultureCount++;
+-			}
+-			// or is the culture level 1 less than required to win?
+-			else if (pLoopCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1))
+-			{
+-				iHighCultureCount++;
+-			}
+-		}
+ 		
+ 		// if we have enough high culture cities, go to stage 3
+ 		if (iHighCultureCount >= GC.getGameINLINE().culturalVictoryNumCultureCities())
+@@ -14508,7 +14582,10 @@
+ 			return 3;
+ 		}
+     }
+-	
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
+ 	{
+ 	    return 2;
+

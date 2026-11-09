@@ -1,0 +1,24 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 326
+# Author: iustus
+# Date: 2007-01-29T22:53:08.580183Z
+# Coverage: full
+# Message:
+#   lol blake! turned back on oosync logs 
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@325
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@326
+@@ -40,7 +40,7 @@
+ // for testing only
+ #ifndef FINAL_RELEASE
+ //#define TESTING_EXTRA_SAVE_DATA
+-//#define DEBUG_OUT_OF_SYNCS
++#define DEBUG_OUT_OF_SYNCS
+ #endif
+ 
+ // our own version number on our extra data
+

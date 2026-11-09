@@ -1,0 +1,92 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 35
+# Author: blakeciv
+# Date: 2006-11-06T07:43:50.106510Z
+# Coverage: full
+# Message:
+#   Streamlined the missionary needed code and fixed the "coal bug" for good.
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@34
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@35
+@@ -4693,17 +4693,18 @@
+ 
+ 	for (iI = 0; iI < GC.getNumBuildInfos(); iI++)
+ 	{
+-        RouteTypes eRoute = ((RouteTypes)(GC.getBuildInfo(eBuild).getRoute()));
+-
++        RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
+ 
+         if ((eRoute != NO_ROUTE) && (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus))
+         {
+-            if (GC.getRouteInfo(getBestRoute()).getValue() >= GC.getRouteInfo(eRoute).getValue());
++            if (GC.getRouteInfo(getBestRoute()).getValue() <= GC.getRouteInfo(eRoute).getValue())
+             {
+-                iTempValue += 100;
++                iTempValue = 100;
+             }
+         }
+-	}
++
++        iValue += iTempValue;
++    }
+ 
+ 	iValue /= 10;
+ 
+@@ -6040,37 +6041,33 @@
+ int CvPlayerAI::AI_neededMissionaries(CvArea* pArea, ReligionTypes eReligion)
+ {
+ 	int iCount;
+-
+-	if (!(hasHolyCity(eReligion) || (getStateReligion() == eReligion)))
+-	{
+-		return 0;
+-	}
++	bool bHoly;
++
++	bHoly = hasHolyCity(eReligion);
+ 
+ 	iCount = 0;
+ 
+-    if (hasHolyCity(eReligion))
++    if (getStateReligion() == eReligion)
+     {
+-        iCount = ((pArea->getCitiesPerPlayer(getID()) - pArea->countHasReligion(eReligion, getID())) * 2);
++        iCount = max(iCount, (pArea->getCitiesPerPlayer(getID()) - pArea->countHasReligion(eReligion, getID())));
++        if (iCount > 0)
++        {
++            iCount = max(1, iCount / (bHoly ? 2 : 4));
++            return iCount;
++        }
++    }
++
++    if (bHoly)
++    {
+         iCount += (pArea->getNumCities() - pArea->countHasReligion(eReligion));
+-        iCount /= 3;
++        iCount /= 4;
+         if (AI_isPrimaryArea(pArea))
+         {
+             iCount++;
+         }
+     }
+ 
+-    if (getStateReligion() == eReligion)
+-    {
+-        iCount = max(iCount, (pArea->getCitiesPerPlayer(getID()) - pArea->countHasReligion(eReligion, getID())));
+-        if (iCount > 0)
+-        {
+-            iCount = max(1, iCount / 3);
+-        }
+-
+-    }
+     // needs better logic
+-
+-
+ 	return iCount;
+ }
+ 
+

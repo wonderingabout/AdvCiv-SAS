@@ -1,0 +1,139 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 123
+# Author: iustus
+# Date: 2006-11-26T10:11:48.401979Z
+# Coverage: full
+# Message:
+#   no longer get the triple open borders agreement messages under chipotle
+#   production queue is only cleared at most once every 10 turns (by new techs and financial trouble)
+#   fixed bug in 1.61 and 2.08 with 'free barbarian wins', when the rolls were changed to 1-1000 instead of 1-100, this code was not updated.
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.h
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@122
++++ /trunk/CvGameCoreDLL/CvGame.cpp@123
+@@ -3631,13 +3631,28 @@
+ 		
+ 		if (iActivePlayer != eWho && iActivePlayer != eOtherWho)
+ 		{
+-			CvWString szString;
+-			CvWString szDealString;
+-
+-			szDealString.clear();
+-			GAMETEXT.getDealString(szDealString, eWho, eOtherWho, pOurList, pTheirList, iActivePlayer);
+-			szString.Format(L"%s", szDealString.GetCString());
+-			gDLL->getInterfaceIFace()->addMessage(iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
++			bool bReportTrade = true;
++			
++			// special check for the triple open borders issue
++			CLLNode<TradeData>* pNode = pOurList->head();
++			if (pNode != NULL)
++			{
++				if (pNode->m_data.m_eItemType == TRADE_OPEN_BORDERS && pNode->m_data.m_iData != 0)
++				{
++					bReportTrade = false;
++				}
++			}
++			
++			if (bReportTrade)
++			{
++				CvWString szString;
++				CvWString szDealString;
++
++				szDealString.clear();
++				GAMETEXT.getDealString(szDealString, eWho, eOtherWho, pOurList, pTheirList, iActivePlayer);
++				szString.Format(L"%s", szDealString.GetCString());
++				gDLL->getInterfaceIFace()->addMessage(iActivePlayer, true, GC.getDefineINT("EVENT_MESSAGE_TIME"), szString);
++			}
+ 		}
+ 	}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@122
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@123
+@@ -184,6 +184,7 @@
+ 	m_iStrategyHash = 0;
+ 
+ 	m_bWasFinancialTrouble = false;
++	m_iTurnLastProductionDirty = -1;
+ }
+ 
+ 
+@@ -8974,8 +8975,16 @@
+ 	{
+ 		if (bFinancialTrouble)
+ 		{
+-			// redeterimine the best things to build
+-			AI_makeProductionDirty();
++			int iGameTurn = GC.getGameINLINE().getGameTurn();
++			
++			// only reset at most every 10 turns
++			if (iGameTurn > m_iTurnLastProductionDirty + 10)
++			{
++				// redeterimine the best things to build in each city
++				AI_makeProductionDirty();
++			
++				m_iTurnLastProductionDirty = iGameTurn;
++			}
+ 		}
+ 		
+ 		m_bWasFinancialTrouble = bFinancialTrouble;
+@@ -9326,8 +9335,16 @@
+ 	// if this is changed, then at a minimum, AI_isFinancialTrouble should be checked
+ 	if (!isHuman())
+ 	{
+-		// redeterimine the best things to build in each city
+-		AI_makeProductionDirty();
++		int iGameTurn = GC.getGameINLINE().getGameTurn();
++		
++		// only reset at most every 10 turns
++		if (iGameTurn > m_iTurnLastProductionDirty + 10)
++		{
++			// redeterimine the best things to build in each city
++			AI_makeProductionDirty();
++		
++			m_iTurnLastProductionDirty = iGameTurn;
++		}
+ 	}
+ 
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.h
+--- /trunk/CvGameCoreDLL/CvPlayerAI.h@122
++++ /trunk/CvGameCoreDLL/CvPlayerAI.h@123
+@@ -263,6 +263,7 @@
+ 	int** m_aaiMemoryCount;
+ 
+ 	bool m_bWasFinancialTrouble;
++	int m_iTurnLastProductionDirty;
+ 
+ 	void AI_doCounter();
+ 	void AI_doMilitary();
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@122
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@123
+@@ -904,14 +904,14 @@
+ 			{
+ 				if (GET_PLAYER(getOwnerINLINE()).getWinsVsBarbs() < GC.getHandicapInfo(GET_PLAYER(getOwnerINLINE()).getHandicapType()).getFreeWinsVsBarbs())
+ 				{
+-					iDefenderOdds = min(10, iDefenderOdds);
++					iDefenderOdds = min((10 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iDefenderOdds);
+ 				}
+ 			}
+ 			if (isBarbarian())
+ 			{
+ 				if (GET_PLAYER(pDefender->getOwnerINLINE()).getWinsVsBarbs() < GC.getHandicapInfo(GET_PLAYER(pDefender->getOwnerINLINE()).getHandicapType()).getFreeWinsVsBarbs())
+ 				{
+-					iDefenderOdds = max(90, iDefenderOdds);
++					iDefenderOdds = max((90 * GC.getDefineINT("COMBAT_DIE_SIDES")) / 100, iDefenderOdds);
+ 				}
+ 			}
+ 
+

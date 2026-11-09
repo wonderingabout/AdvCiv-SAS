@@ -1,0 +1,1129 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 86
+# Author: iustus
+# Date: 2006-11-17T02:02:16.042141Z
+# Coverage: full
+# Message:
+#   fixed the infinite loop, now you canJoin returns false if the group is marked for separation (AI_isForceSeparate)
+#   also, AI_attackCityMove will not call AI_group with bAllowRegrouping true, it assumes that AI_groupMergeRange handled those cases. 
+#   
+#   additionally there is a bunch of debugging outputs which need to be stripped, DO NOT RELEASE this revision. (Even though they should all get stripped in FINAL_RELEASE)
+# Changed paths (9):
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+#   M /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnit.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@85
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.cpp@86
+@@ -13,6 +13,8 @@
+ #include "CvInfos.h"
+ #include "CvGlobals.h"
+ #include "FProfiler.h"
++//#include "Math.h"
++
+ 
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLEntityIFaceBase.h"
+@@ -27,6 +29,84 @@
+ #define PATH_STEP_WEIGHT											(2)
+ #define PATH_STRAIGHT_WEIGHT									(1)
+ 
++// fast_sqrt from Wilco Dijkstra: mailto:[email redacted]
++// only works for 32 bit numbers (so if int is larger, or signed, it needs to be changed
++#define sqrt_iter1(N)			\
++	tryN = root + (1 << (N));	\
++	if (n >= tryN << (N))		\
++	{   n -= tryN << (N);		\
++		root |= 2 << (N);		\
++	}
++
++int fast_sqrt (int number)
++{
++	if (number <= 0)
++		return 0;
++	
++	unsigned int root = 0, n = number, tryN;
++	sqrt_iter1 (15);	sqrt_iter1 (14);	sqrt_iter1 (13);	sqrt_iter1 (12);
++	sqrt_iter1 (11);	sqrt_iter1 (10);	sqrt_iter1 ( 9);	sqrt_iter1 ( 8);
++	sqrt_iter1 ( 7);	sqrt_iter1 ( 6);	sqrt_iter1 ( 5);	sqrt_iter1 ( 4);
++	sqrt_iter1 ( 3);	sqrt_iter1 ( 2);	sqrt_iter1 ( 1);	sqrt_iter1 ( 0);
++	return root >> 1;
++}
++
++int plotRangeIndexToRange(int iIndex)
++{
++	//for (int diameter = 1; diameter < MAX_INT; diameter+= 2)
++	//{
++	//	if (iIndex < (diameter*diameter))
++	//		return (diameter/2);
++	//}
++
++	return ((fast_sqrt(iIndex)+1)/2);
++}
++
++int plotRangeIndexX(int iIndex)
++{
++	// if index is in the range for city plots, then use that cached value
++	if (false && iIndex < NUM_CITY_PLOTS)
++		return GC.getCityPlotX()[iIndex];
++	else 
++	{
++		int iRange = plotRangeIndexToRange(iIndex);
++		int iX = 0;
++
++		//  if we filling in the missing corners
++		if (false && iIndex < NUM_CITY_PLOTS + 4)
++		{
++			iX = CITY_PLOTS_RADIUS * (1 + (((iIndex - NUM_CITY_PLOTS) % 2) * (-2)));
++		}
++		else
++		{
++			iX = 0;
++		}
++
++		return iX;
++	}
++}
++
++int plotRangeIndexY(int iIndex)
++{
++	if (iIndex < NUM_CITY_PLOTS)
++		return GC.getCityPlotY()[iIndex];
++	else
++	{
++
++	}
++
++	return 0;
++}
++
++int maxPlotRangeIndexAtRange(int iRange)
++{
++	return 0;
++}
++
++CvPlot* plotRangeIndex(int iX, int iY, int iIndex)
++{
++	return GC.getMapINLINE().plotINLINE(iX + plotRangeIndexX(iIndex), iY + plotRangeIndexY(iIndex));
++}
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+ {
+
+Index: /trunk/CvGameCoreDLL/CvGameCoreUtils.h
+--- /trunk/CvGameCoreDLL/CvGameCoreUtils.h@85
++++ /trunk/CvGameCoreDLL/CvGameCoreUtils.h@86
+@@ -257,6 +257,31 @@
+ 	return directionXY(dxWrap(pToPlot->getX_INLINE() - pFromPlot->getX_INLINE()), dyWrap(pToPlot->getY_INLINE() - pFromPlot->getY_INLINE()));
+ }
+ 
++#ifdef FASSERT_ENABLE
++inline int ShortenID(int iID)
++{
++	return (((iID/1000)/1459) + (iID%1000));
++}
++
++inline void DEBUGLOG(const char* format, ...)
++//#define DEBUGLOG(format, ...)					
++{
++	char temp[256];
++	sprintf(temp, "");
++	va_list args;
++	va_start(args, format);
++	vsprintf(temp, format, args);
++	va_end(args);
++	OutputDebugString(temp);
++}
++#else
++#define ShortenID(x)
++#define DEBUGLOG(x)
++#endif
++
++int plotRangeIndexToRange(int iIndex);
++int maxPlotRangeIndexAtRange(int iRange);
++CvPlot* plotRangeIndex(int iX, int iY, int iIndex);
+ 
+ DllExport CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+ DllExport int plotCityXY(int iDX, int iDY);																									// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@85
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@86
+@@ -521,7 +521,7 @@
+     if (bAlt && (gDLL->getChtLvl() > 0))
+     {
+         CvSelectionGroup* eGroup = pUnit->getGroup();
+-		szTempBuffer.Format(L"\nGroup(%d), %d units", eGroup->getID(), eGroup->countNumUnitAIType(NO_UNITAI));
++		szTempBuffer.Format(L"\nGroup(%d), %d units", eGroup->getID(), eGroup->getNumUnits());
+         szString += szTempBuffer;
+     }
+ 
+@@ -1738,8 +1738,13 @@
+ 			bool bAvoidGrowth = pCity->AI_avoidGrowth();
+ 			bool bIgnoreGrowth = pCityAI->AI_ignoreGrowth();
+ 
++			// debugging
++			if (false)
++			{
++				setYieldValueString(szString, 0, false);
++			}
+ 			// if we over the city, then do an array of all the plots
+-			if (pPlot->getPlotCity() != NULL)
++			else if (pPlot->getPlotCity() != NULL)
+ 			{
+ 				// check avoid growth
+ 				if (bAvoidGrowth || bIgnoreGrowth)
+@@ -1767,57 +1772,39 @@
+ 
+ 				// line one is: blank, 20, 9, 10, blank
+ 				setCityPlotYieldValueString(szString, pCity, -1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 20, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 9, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 10, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+ 				szString += CvWString::format(L"\n");
+ 
+ 				// line two is: 19, 8, 1, 2, 11
+ 				setCityPlotYieldValueString(szString, pCity, 19, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 8, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 2, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 11, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+ 				szString += CvWString::format(L"\n");
+ 
+ 				// line three is: 18, 7, 0, 3, 12
+ 				setCityPlotYieldValueString(szString, pCity, 18, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 7, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 0, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 3, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 12, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+ 				szString += CvWString::format(L"\n");
+ 
+ 				// line four is: 17, 6, 5, 4, 13
+ 				setCityPlotYieldValueString(szString, pCity, 17, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 6, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 5, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 4, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 13, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+ 				szString += CvWString::format(L"\n");
+ 
+ 				// line five is: blank, 16, 15, 14, blank
+ 				setCityPlotYieldValueString(szString, pCity, -1, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 16, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 15, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+-				//szString += CvWString::format(L" ");
+ 				setCityPlotYieldValueString(szString, pCity, 14, bAvoidGrowth, bIgnoreGrowth, bIgnoreFood);
+ 				
+ 				// show specialist values too
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@85
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@86
+@@ -2249,6 +2249,42 @@
+ 
+ 	gDLL->getEventReporterIFace()->beginPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
+ 	
++#ifdef FASSERT_ENABLE
++	if (true)
++	{
++		CLLNode<int>* pCurrUnitNode = headGroupCycleNode();
++		while (pCurrUnitNode != NULL)
++		{
++			CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
++			FAssertMsg(pLoopSelectionGroup != NULL, "selection group node with NULL selection group");
++			
++			// debugging
++			if (pLoopSelectionGroup != NULL)
++			{
++				CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
++
++				//FAssertMsg(pHeadUnit != NULL, "(SaveFile) selection group with no units");
++				
++				if (true)
++				{
++					CLLNode<IDInfo>* pUnitNode = pLoopSelectionGroup->headUnitNode();
++					
++					while (pUnitNode != NULL)
++					{
++						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++						
++						FAssertMsg(pLoopUnit != NULL, "unit in selection group does not exist");
++						
++						pUnitNode = pLoopSelectionGroup->nextUnitNode(pUnitNode);
++					}
++				}
++			}
++
++			pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
++		}
++	}
++#endif
++
+ 	doUpdateCacheOnTurn();
+ 
+ 	GC.getGameINLINE().verifyDeals();
+@@ -10567,12 +10603,14 @@
+ 	CLLNode<int>* pSelectionGroupNode;
+ 
+ 	pSelectionGroupNode = headGroupCycleNode();
+-
++	
++	bool bRemoved = false;
+ 	while (pSelectionGroupNode != NULL)
+ 	{
+ 		if (pSelectionGroupNode->m_data == iID)
+ 		{
+ 			pSelectionGroupNode = deleteGroupCycleNode(pSelectionGroupNode);
++			bRemoved = true;
+ 			break;
+ 		}
+ 		else
+@@ -11056,7 +11094,12 @@
+ 
+ void CvPlayer::deleteSelectionGroup(int iID)
+ {
+-	m_selectionGroups.removeAt(iID);
++	bool bRemoved = m_selectionGroups.removeAt(iID);
++	if (!bRemoved)
++	{
++		DEBUGLOG("deleteSelectionGroup failed, could not find group (%d)\n", ShortenID(iID));
++	}
++
+ }
+ 
+ 
+@@ -11925,6 +11968,43 @@
+ 		// Get the NetID from the initialization structure
+ 		setNetID(gDLL->getAssignedNetworkID(getID()));
+ 	}
++	
++	// do sanity check on selection groups
++#ifdef FASSERT_ENABLE
++	if (true)
++	{
++		CLLNode<int>* pCurrUnitNode = headGroupCycleNode();
++		while (pCurrUnitNode != NULL)
++		{
++			CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
++			FAssertMsg(pLoopSelectionGroup != NULL, "(SaveFile) selection group node with NULL selection group");
++			
++			// debugging
++			if (pLoopSelectionGroup != NULL)
++			{
++				CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
++
++				//FAssertMsg(pHeadUnit != NULL, "(SaveFile) selection group with no units");
++				
++				if (true)
++				{
++					CLLNode<IDInfo>* pUnitNode = pLoopSelectionGroup->headUnitNode();
++					
++					while (pUnitNode != NULL)
++					{
++						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++						
++						FAssertMsg(pLoopUnit != NULL, "(SaveFile) unit in selection group node does not exist (corrupt save)");
++						
++						pUnitNode = pLoopSelectionGroup->nextUnitNode(pUnitNode);
++					}
++				}
++			}
++
++			pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
++		}
++	}
++#endif
+ }
+ 
+ //
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@85
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@86
+@@ -901,6 +901,9 @@
+ 				pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
+ 			}
+ 
++			// debugging
++			int iTempGroupLength = tempGroupCycle.getLength();
++
+ 			iValue = 0;
+ 
+ 			while (tempGroupCycle.getLength() > 0)
+@@ -910,6 +913,25 @@
+ 				while (pCurrUnitNode != NULL)
+ 				{
+ 					pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
++					FAssertMsg(pLoopSelectionGroup != NULL, "selection group node with NULL selection group");
++					
++#ifdef FASSERT_ENABLE
++					// debugging
++					if (pLoopSelectionGroup != NULL)
++					{
++						CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
++
++						CLLNode<IDInfo>* pUnitNode = pLoopSelectionGroup->headUnitNode();
++						while (pUnitNode != NULL)
++						{
++							CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++							
++							FAssertMsg(pLoopUnit != NULL, "unit in selection group does not exist");
++							
++							pUnitNode = pLoopSelectionGroup->nextUnitNode(pUnitNode);
++						}
++					}
++#endif
+ 
+ 					if (AI_movementPriority(pLoopSelectionGroup) <= iValue)
+ 					{
+@@ -923,6 +945,12 @@
+ 				}
+ 
+ 				iValue++;
++			}
++
++			// debugging
++			if (true)
++			{
++				DEBUGLOG("AI_unitUpdate: (%d = %d) groups\n", iTempGroupLength, finalGroupCycle.getLength());
+ 			}
+ 
+ 			pCurrUnitNode = finalGroupCycle.head();
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@85
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@86
+@@ -251,6 +251,8 @@
+ 
+ 	if (getNumUnits() == 0)
+ 	{
++		DEBUGLOG("Removing empty group(%d)\n", ShortenID(m_iID));
++
+ 		kill();
+ 		return true;
+ 	}
+@@ -1805,7 +1807,9 @@
+ 			pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 			pUnitNode = nextUnitNode(pUnitNode);
+ 
+-			if (!(pLoopUnit->canMove()))
++			FAssertMsg(pLoopUnit != NULL, "existing node, but NULL unit");
++
++			if (pLoopUnit != NULL && !(pLoopUnit->canMove()))
+ 			{
+ 				return false;
+ 			}
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@85
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@86
+@@ -8,6 +8,7 @@
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvGameCoreUtils.h"
+ #include "FProfiler.h"
++#include "CVInfos.h"
+ 
+ // Public Functions...
+ 
+@@ -56,6 +57,12 @@
+ {
+ 	CLLNode<IDInfo>* pEntityNode;
+ 	CvUnit* pLoopUnit;
++
++	// debugging
++	if (true)
++	{
++		DEBUGLOG("AI_separate(%d) [size %d]\n", ShortenID(m_iID), getNumUnits());
++	}
+ 
+ 	pEntityNode = headUnitNode();
+ 
+@@ -90,6 +97,25 @@
+ 	if (getNumUnits() == 0)
+ 	{
+ 		return false;
++	}
++
++	// debugging
++	if (true)
++	{
++		pHeadUnit = getHeadUnit();
++		CvWString szUnitString;
++		if (pHeadUnit != NULL)
++		{
++			CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++			szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++		}
++		else
++			szUnitString.Format(L"--no unit--");
++
++		DEBUGLOG("AI_update: group(%d), lead by %S [size %d%s%s]\n", 
++			ShortenID(getID()), szUnitString.GetCString(), getNumUnits(), 
++			AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++			isForceUpdate() ? ",WILL_FORCE_UPDATE" : "");
+ 	}
+ 
+ 	if (isForceUpdate())
+
+Index: /trunk/CvGameCoreDLL/CvUnit.cpp
+--- /trunk/CvGameCoreDLL/CvUnit.cpp@85
++++ /trunk/CvGameCoreDLL/CvUnit.cpp@86
+@@ -6778,7 +6778,12 @@
+ bool CvUnit::canJoinGroup(const CvPlot* pPlot, CvSelectionGroup* pSelectionGroup) const
+ {
+ 	CvUnit* pHeadUnit;
+-
++	
++	// do not allow someone to join a group that is about to be split apart
++	// this prevents a case of a never-ending turn
++	if (pSelectionGroup->AI_isForceSeparate())
++		return false;
++	
+ 	if (pSelectionGroup->getOwnerINLINE() == NO_PLAYER)
+ 	{
+ 		pHeadUnit = pSelectionGroup->getHeadUnit();
+@@ -6826,6 +6831,19 @@
+ 
+ 	if ((pSelectionGroup != pOldSelectionGroup) || (pOldSelectionGroup == NULL))
+ 	{
++		//// is the unit already in a group, and the destination will be a newly created group?
++		//if (pOldSelectionGroup != NULL && pSelectionGroup == NULL && bRejoin)
++		//{
++		//	// does our current group only have one unit?
++		//	if (pOldSelectionGroup->getNumUnits() == 1)
++		//	{
++		//		FAssertMsg(false, "Spliting a unit off from a group that is already size 1");
++		//		
++		//		// do nothing, we already are in a size one group, no need to make a new one and delete the old one
++		//		return;
++		//	}
++		//}
++		
+ 		pPlot = plot();
+ 
+ 		if (pSelectionGroup != NULL)
+@@ -6895,6 +6913,44 @@
+ 			if (pPlot == gDLL->getInterfaceIFace()->getSelectionPlot())
+ 			{
+ 				gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
++			}
++
++			// debugging
++			if (true)
++			{
++				CvWString szOldGroupString;
++				CvWString szNewGroupString;
++				if (pOldSelectionGroup != NULL)
++				{
++					szOldGroupString.Format(L"left group(%d) [size %d%s] to join", 
++						ShortenID(pOldSelectionGroup->getID()), pOldSelectionGroup->getNumUnits(), 
++						pOldSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				}
++				else
++					szOldGroupString.Format(L"joining");
++
++				if (pNewSelectionGroup != NULL)
++				{
++					CvUnit* pHeadUnit = pNewSelectionGroup->getHeadUnit();
++					CvWString szUnitString;
++					if (pHeadUnit != NULL)
++					{
++						CvWString szUnitName = GC.getUnitInfo(pHeadUnit->getUnitType()).getDescription();
++						szUnitString.Format(L"%s(%d)", szUnitName.GetCString(), ShortenID(pHeadUnit->getID()));
++					}
++					else
++						szUnitString.Format(L"--no unit--");
++
++					szNewGroupString.Format(L"%s's group(%d) [size %d%s]", szUnitString.GetCString(),
++						ShortenID(pNewSelectionGroup->getID()), pNewSelectionGroup->getNumUnits(), 
++						pNewSelectionGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++				}
++				else
++					szNewGroupString.Format(L"--no group--");
++
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				DEBUGLOG("%S(%d) %S %S\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					szOldGroupString.GetCString(), szNewGroupString.GetCString());
+ 			}
+ 		}
+ 
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@85
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@86
+@@ -1293,12 +1293,12 @@
+ 			return;
+ 		}
+ 
+-		if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 3, true))
++		if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 3, true))
+ 		{
+ 			return;
+ 		}
+ 
+-		if (AI_group(UNITAI_SETTLE, 2, -1, -1, false, false, false, 3, true))
++		if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 2, -1, -1, false, false, false, /*iMaxPath*/ 3, true))
+ 		{
+ 			return;
+ 		}
+@@ -1412,22 +1412,22 @@
+ 
+ 		if ((GET_PLAYER(getOwnerINLINE()).AI_getNumAIUnits(UNITAI_CITY_DEFENSE) > 0) || (GET_TEAM(getTeam()).getAtWarCount(true) > 0))
+ 		{
+-			if (AI_group(UNITAI_ATTACK_CITY, 1, 1, -1, true, true, true, 5))
++			if (AI_group(UNITAI_ATTACK_CITY, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, true, true, true, /*iMaxPath*/ 5))
+ 			{
+ 				return;
+ 			}
+ 
+-			if (AI_group(UNITAI_ATTACK, 1, 1, -1, true, true, true, 4))
++			if (AI_group(UNITAI_ATTACK, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, true, true, true, /*iMaxPath*/ 4))
+ 			{
+ 				return;
+ 			}
+ 
+-			if (AI_group(UNITAI_ATTACK, 1, 1, -1, false, true, true, 3))
++			if (AI_group(UNITAI_ATTACK, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, false, true, true, /*iMaxPath*/ 3))
+ 			{
+ 				return;
+ 			}
+ 
+-			if (AI_group(UNITAI_ATTACK, 1, 1, -1, false, false, true, 2))
++			if (AI_group(UNITAI_ATTACK, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, false, false, true, /*iMaxPath*/ 2))
+ 			{
+ 				return;
+ 			}
+@@ -1641,7 +1641,7 @@
+ 		}
+ 	}
+ 
+-	if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, true, true, true, 10, true))
++	if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, true, true, true, /*iMaxPath*/ 10, /*bAllowRegrouping*/ false))
+ 	{
+ 		return;
+ 	}
+@@ -1765,7 +1765,7 @@
+ 		return;
+ 	}
+ 
+-    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, true))
++    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, /*bIgnoreFaster*/ true))
+ 	{
+ 		return;
+ 	}
+@@ -1853,7 +1853,7 @@
+ 		}
+ 	}
+ 
+-	if (AI_group(UNITAI_PILLAGE, 1, 1, -1, true, false, false, 3))
++	if (AI_group(UNITAI_PILLAGE, /*iMaxGroup*/ 1, /*iMaxOwnUnitAI*/ 1, -1, /*bIgnoreFaster*/ true, false, false, /*iMaxPath*/ 3))
+ 	{
+ 		return;
+ 	}
+@@ -1953,7 +1953,7 @@
+ 		}
+ 	}
+ 
+-	if (AI_group(UNITAI_COLLATERAL, 1, -1, -1, false, false, false, 4))
++	if (AI_group(UNITAI_COLLATERAL, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 4))
+ 	{
+ 		return;
+ 	}
+@@ -2033,17 +2033,17 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_ATTACK_CITY, 2, -1, -1, false, true, true, 6))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_ATTACK, 2, -1, -1, false, true, true, 5))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_PILLAGE, 1, -1, -1, false, true, false, 4))
++	if (AI_group(UNITAI_ATTACK_CITY, /*iMaxGroup*/ 2, -1, -1, false, /*bIgnoreOwnUnitType*/ true, /*bStackOfDoom*/ true, /*iMaxPath*/ 6))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ATTACK, /*iMaxGroup*/ 2, -1, -1, false, /*bIgnoreOwnUnitType*/ true, /*bStackOfDoom*/ true, /*iMaxPath*/ 5))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_PILLAGE, /*iMaxGroup*/ 1, -1, -1, false, /*bIgnoreOwnUnitType*/ true, false, /*iMaxPath*/ 4))
+ 	{
+ 		return;
+ 	}
+@@ -2102,12 +2102,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 2, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_SETTLE, 2, -1, -1, false, false, false, 2, true))
++	if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 2, /*bAllowRegrouping*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 2, -1, -1, false, false, false, /*iMaxPath*/ 2, /*bAllowRegrouping*/ true))
+ 	{
+ 		return;
+ 	}
+@@ -2143,7 +2143,7 @@
+ 		return;
+ 	}
+ 
+-    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, true))
++    if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, /*bIgnoreFaster*/ true))
+ 	{
+ 		return;
+ 	}
+@@ -2184,12 +2184,12 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_SETTLE, 1, -1, -1, false, false, false, 2, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_SETTLE, 2, -1, -1, false, false, false, 2, true))
++	if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 2, /*bAllowRegrouping*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_SETTLE, /*iMaxGroup*/ 2, -1, -1, false, false, false, /*iMaxPath*/ 2, /*bAllowRegrouping*/ true))
+ 	{
+ 		return;
+ 	}
+@@ -3047,7 +3047,7 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_ATTACK_SEA, 1, -1, -1, false, false, false, 3))
++	if (AI_group(UNITAI_ATTACK_SEA, /*iMaxGroup*/ 1, -1, -1, false, false, false, /*iMaxPath*/ 3))
+ 	{
+ 		return;
+ 	}
+@@ -3189,7 +3189,7 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_ASSAULT_SEA, -1, 0, -1, true, false, false, 3))
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 0, -1, /*bIgnoreFaster*/ true, false, false, /*iMaxPath*/ 3))
+ 	{
+ 		return;
+ 	}
+@@ -3204,27 +3204,27 @@
+ 		return;
+ 	}
+ 
+-	if (AI_group(UNITAI_CARRIER_SEA, -1, 0, -1, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_ASSAULT_SEA, -1, 2, 3, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_ASSAULT_SEA, -1, 1, 2, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_ASSAULT_SEA, -1, 0, 1, true))
+-	{
+-		return;
+-	}
+-
+-	if (AI_group(UNITAI_CARRIER_SEA, -1, 1, -1, true))
++	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 0, -1, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 2, /*iMinUnitAI*/ 3, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1, /*iMinUnitAI*/ 2, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 0, /*iMinUnitAI*/ 1, /*bIgnoreFaster*/ true))
++	{
++		return;
++	}
++
++	if (AI_group(UNITAI_CARRIER_SEA, -1, /*iMaxOwnUnitAI*/ 1, -1, /*bIgnoreFaster*/ true))
+ 	{
+ 		return;
+ 	}
+@@ -3364,12 +3364,12 @@
+ 			}
+ 		}
+ 
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, 2))
++		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 2))
+ 		{
+ 			return;
+ 		}
+ 
+-		if (AI_group(UNITAI_ASSAULT_SEA, -1, 1))
++		if (AI_group(UNITAI_ASSAULT_SEA, -1, /*iMaxOwnUnitAI*/ 1))
+ 		{
+ 			return;
+ 		}
+@@ -4491,7 +4491,8 @@
+ 
+ 
+ // Returns true if a group was joined or a mission was pushed...
+-bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping)
++bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, 
++						bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -4517,31 +4518,33 @@
+ 	{
+ 		if (pLoopUnit != this)
+ 		{
+-			if (AI_plotValid(pLoopUnit->plot()))
+-			{
+-			    if (((iMaxPath > 0) || (pLoopUnit->plot() == plot())) && (pLoopUnit->isGroupHead()))
++			CvPlot* pPlot = pLoopUnit->plot();
++			if (AI_plotValid(pPlot))
++			{
++			    if (((iMaxPath > 0) || (pPlot == plot())) && (pLoopUnit->isGroupHead()))
+ 				{
+ 					if (!(pLoopUnit->isCargo()))
+ 					{
+ 						if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+ 						{
+-						    if (!atWar(pLoopUnit->plot()->getTeam(), getTeam()))
++						    if (!atWar(pPlot->getTeam(), getTeam()))
+ 						    {
+-                                if (canJoinGroup(pLoopUnit->plot(), pLoopUnit->getGroup()))
++								CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
++								if (canJoinGroup(pPlot, pLoopGroup))
+                                 {
+-                                    if ((iMaxGroup == -1) || ((pLoopUnit->getGroup()->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
++                                    if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+                                     {
+-                                        if ((iMaxOwnUnitAI == -1) || (pLoopUnit->getGroup()->countNumUnitAIType(AI_getUnitAIType()) <= (iMaxOwnUnitAI + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
++                                        if ((iMaxOwnUnitAI == -1) || (pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <= (iMaxOwnUnitAI + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+                                         {
+-                                            if ((iMinUnitAI == -1) || (pLoopUnit->getGroup()->countNumUnitAIType(eUnitAI) >= iMinUnitAI))
++                                            if ((iMinUnitAI == -1) || (pLoopGroup->countNumUnitAIType(eUnitAI) >= iMinUnitAI))
+                                             {
+-                                                if (!bIgnoreFaster || (pLoopUnit->getGroup()->baseMoves() <= baseMoves()))
++                                                if (!bIgnoreFaster || (pLoopGroup->baseMoves() <= baseMoves()))
+                                                 {
+                                                     if (!bIgnoreOwnUnitType || (pLoopUnit->getUnitType() != getUnitType()))
+                                                     {
+-                                                        if (!(pLoopUnit->plot()->isVisibleEnemyUnit(getOwnerINLINE())))
++                                                        if (!(pPlot->isVisibleEnemyUnit(getOwnerINLINE())))
+                                                         {
+-                                                            if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
++                                                            if (generatePath(pPlot, 0, true, &iPathTurns))
+                                                             {
+                                                                 if (iPathTurns <= iMaxPath)
+                                                                 {
+@@ -4573,6 +4576,19 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
++				DEBUGLOG("AI_group:%S(%d) leaving group(%d) [size %d%s] to switch into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
++					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++
+ 			joinGroup(pBestUnit->getGroup());
+ 			return true;
+ 		}
+@@ -4590,15 +4606,8 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvUnit* pLoopUnit;
+-	CvUnit* pBestUnit;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	
+     CLLNode<IDInfo>* pUnitNode;
+ 	CvPlot* pLoopPlot;
+-	int iDX, iDY;
+ 	
+     if (!bAllowRegrouping)
+ 	{
+@@ -4608,27 +4617,96 @@
+ 		}
+ 	}
+ 
+-	iBestValue = MAX_INT;
+-	pBestUnit = NULL;
+-
+-
+-    for (iDX = -(iRange); iDX <= iRange; iDX++)
+-	{
+-		for (iDY = -(iRange); iDY <= iRange; iDY++)
++	// going to tie off the way city plots are numbered, to look from the center out
++	// this means that the max range is two
++	FAssertMsg(iRange <= 2, "AI_groupMergeRange has a max range of 2");
++	
++	// cached values
++	CvPlot* pPlot = plot();
++	CvArea*	pArea = pPlot->area();
++	CvSelectionGroup* pGroup = getGroup();
++	int iX = pPlot->getX_INLINE(), iY = pPlot->getY_INLINE();
++	
++	// best match
++	CvUnit* pBestUnit = NULL;
++	int iBestValue = MAX_INT;
++	int iBestRange = -1;
++
++	//for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
++	//{
++	//	int iRange = (iI % 1) + (iI % 9);
++	//	
++	//	if (iRange > iBestRange)
++	//		break;
++
++	//	pLoopPlot = plotCity(iX, iY, iI);
++	//	if (pLoopPlot != NULL && pLoopPlot->area() == pArea)
++	//	{
++	//		pUnitNode = pLoopPlot->headUnitNode();
++	//		while (pUnitNode != NULL)
++	//		{
++	//		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++	//		pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++	//		CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
++	//		if ((pLoopUnit != this) && (pLoopGroup != pGroup))
++	//		{
++	//		if (pLoopUnit->isGroupHead())
++	//		{
++	//		if (!(pLoopUnit->isCargo()))
++	//		{
++	//			if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
++	//			{
++	//				if (canJoinGroup(pLoopUnit->plot(), pLoopGroup))
++	//				{
++	//					if (((pLoopGroup->AI_getMissionAIType()) != MISSIONAI_GROUP))
++	//					{
++	//						if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
++	//						{
++	//							int iPathTurns;
++	//							if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
++	//							{
++	//								if (iPathTurns <= (iRange + 2))
++	//								{
++	//									int iValue = iPathTurns;
++
++	//									if (iValue < iBestValue)
++	//									{
++	//										iBestValue = iValue;
++	//										pBestUnit = pLoopUnit;
++	//									}
++	//								}
++	//							}
++	//						}
++	//					}
++	//				}
++	//			}
++	//		}
++	//		}
++	//		}
++	//		}
++	//		}
++	//	}
++	//}
++
++    for (int iDX = -(iRange); iDX <= iRange; iDX++)
++	{
++		for (int iDY = -(iRange); iDY <= iRange; iDY++)
+ 		{
+ 			pLoopPlot = plotXY(plot()->getX_INLINE(), plot()->getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{
+-				if (pLoopPlot->area() == plot()->area())
++				if (pLoopPlot->area() == pArea)
+ 				{
+ 					pUnitNode = pLoopPlot->headUnitNode();
+ 					while (pUnitNode != NULL)
+ 					{
+-						pLoopUnit = ::getUnit(pUnitNode->m_data);
++						CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+ 
+-                        if ((pLoopUnit != this) && (pLoopUnit->getGroup() != getGroup()))
++						CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
++                        if ((pLoopUnit != this) && (pLoopGroup != pGroup))
+                         {
+                             if (pLoopUnit->isGroupHead())
+                             {
+@@ -4636,17 +4714,18 @@
+                                 {
+                                     if (pLoopUnit->AI_getUnitAIType() == eUnitAI)
+                                     {
+-                                        if (canJoinGroup(pLoopUnit->plot(), pLoopUnit->getGroup()))
++                                        if (canJoinGroup(pLoopUnit->plot(), pLoopGroup))
+                                         {
+-                                            if (((pLoopUnit->getGroup()->AI_getMissionAIType()) != MISSIONAI_GROUP))
++                                            if (((pLoopGroup->AI_getMissionAIType()) != MISSIONAI_GROUP))
+                                             {
+-                                                if (!bBiggerOnly || (pLoopUnit->getGroup()->getNumUnits() > getGroup()->getNumUnits()))
++                                                if (!bBiggerOnly || (pLoopGroup->getNumUnits() > pGroup->getNumUnits()))
+                                                 {
+-                                                    if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
++                                                    int iPathTurns;
++													if (generatePath(pLoopUnit->plot(), 0, true, &iPathTurns))
+                                                     {
+                                                         if (iPathTurns <= (iRange + 2))
+                                                         {
+-                                                            iValue = iPathTurns;
++                                                            int iValue = iPathTurns;
+ 
+                                                             if (iValue < iBestValue)
+                                                             {
+@@ -4672,7 +4751,20 @@
+ 	{
+ 		if (atPlot(pBestUnit->plot()))
+ 		{
+-			joinGroup(pBestUnit->getGroup());
++			// debugging
++			if (true)
++			{
++				CvSelectionGroup* pBestGroup = pBestUnit->getGroup();
++				CvSelectionGroup* pCurrentGroup = getGroup();
++				CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++				CvWString szBestUnitName = GC.getUnitInfo(pBestUnit->getUnitType()).getDescription();
++				DEBUGLOG("AI_groupMergeRange:%S(%d) leaving group(%d) [size %d%s] to merge into %S(%d)'s group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++					ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "",
++					szBestUnitName.GetCString(), ShortenID(pBestUnit->getID()), 
++					ShortenID(pBestGroup->getID()), pBestGroup->getNumUnits(), pBestGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++			}
++
++			joinGroup(pBestUnit->getGroup()); // note, this moves just us, not our whole group into the new group, is this intended??
+ 			return true;
+ 		}
+ 		else
+@@ -5573,7 +5665,7 @@
+ 	{
+ 		pLoopUnit = ::getUnit(pEntityNode->m_data);
+ 		FAssert(pLoopUnit != NULL);
+-		pEntityNode = getGroup()->nextUnitNode(pEntityNode);
++		pEntityNode = pGroup->nextUnitNode(pEntityNode);
+ 
+ 		int iDamageThreshold = (pLoopUnit->maxHitPoints() * iDamagePercent) / 100;
+ 
+@@ -5613,17 +5705,22 @@
+ 	
+     if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+-        for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
+-        {
+-            //FAssert(aeDamagedUnits[iI] != this);
+-            aeDamagedUnits[iI]->joinGroup(NULL);
+-            iHurtUnitCount--;	    
+-        }
++		FAssertMsg(((int) aeDamagedUnits.size()) <= iHurtUnitCount, "damaged units array is larger than our hurt unit count");
++
++		for (unsigned int iI = 0; iI < aeDamagedUnits.size(); iI++)
++		{
++			//FAssert(aeDamagedUnits[iI] != this); 
++			// note, removing the head unit from a group will force the group to be completely set if non-human
++			aeDamagedUnits[iI]->joinGroup(NULL);
++			iHurtUnitCount--;	    
++		}
+ 	}
+ 	
+ 	if ((iHurtUnitCount * 2) > pGroup->getNumUnits())
+ 	{
+-	    if (healRate(plot()) >= 10)
++		FAssertMsg(pGroup->getNumUnits() > 0, "group now has zero units");
++	
++		if (healRate(plot()) >= 10)
+ 	    {
+             pGroup->pushMission(MISSION_SKIP);
+             return true;
+@@ -9494,6 +9591,15 @@
+ 					{
+ 						if (!(pCity->plot()->isVisibleEnemyUnit(getOwnerINLINE())))
+ 						{
++							// debugging
++							if (true)
++							{
++								CvSelectionGroup* pCurrentGroup = getGroup();
++								CvWString szUnitName = GC.getUnitInfo(m_eUnitType).getDescription();
++								DEBUGLOG("AI_retreatToCity:%S(%d) already in city, will skip. Group(%d) [size %d%s]\n", szUnitName.GetCString(), ShortenID(m_iID), 
++									ShortenID(m_iGroupID), pCurrentGroup->getNumUnits(), pCurrentGroup->AI_isForceSeparate() ? ",WILL_SEPARATE" : "");
++							}
++
+ 							getGroup()->pushMission(MISSION_SKIP);
+ 							return true;
+ 						}
+@@ -10678,12 +10784,14 @@
+ 	    return false;
+ 	}
+ 
++	iSearchRange = AI_searchRange(iRange);
++
+ 	for (iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+ 	{
+ 		for (iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
+ 		{
+ 			pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+-
++			
+ 			if (pLoopPlot != NULL)
+ 			{
+ 				if (AI_plotValid(pLoopPlot) && (!atWar(getTeam(),pLoopPlot->getTeam())))
+

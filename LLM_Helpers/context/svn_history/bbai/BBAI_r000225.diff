@@ -1,0 +1,65 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 225
+# Author: iustus
+# Date: 2006-12-21T16:59:09.817273Z
+# Coverage: full
+# Message:
+#   upgrade unit changes were falling through switch statement, fixed that and cleaned up code so AI_getPlotDanger is called less frequently
+# Changed paths (1):
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@224
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@225
+@@ -343,7 +343,7 @@
+ 	PROFILE_FUNC();
+ 
+ 	CvUnit* pLoopUnit;
+-	CvPlot* pLastUpgradePlot;
++	CvPlot* pUnitPlot;
+ 	bool bValid;
+ 	int iPass;
+ 	int iLoop;
+@@ -361,7 +361,7 @@
+ 		return;
+ 	}
+ 
+-	pLastUpgradePlot = NULL;
++	CvPlot* pLastUpgradePlot = NULL;
+ 	for (iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+@@ -377,21 +377,23 @@
+ 				}
+ 				break;
+ 			case 1:
+-				if (pLoopUnit->plot()->isCity())
+-				{
+-					//try to upgrade units which are in danger... but don't get obsessed
+-					if (((AI_getPlotDanger(pLoopUnit->plot(), 1, false)) > 0) && (pLastUpgradePlot != pLoopUnit->plot()))
++				pUnitPlot = pLoopUnit->plot();
++				if (pUnitPlot->isCity())
++				{
++					if (pUnitPlot->getBestDefender(getID()) == pLoopUnit)
+ 					{
+ 						bValid = true;
+-						pLastUpgradePlot = pLoopUnit->plot();
+-						break;
++						pLastUpgradePlot = pUnitPlot;
+ 					}
+-					if (pLoopUnit->plot()->getBestDefender(getID()) == pLoopUnit)
++
++					// try to upgrade units which are in danger... but don't get obsessed
++					if (!bValid && (pLastUpgradePlot != pUnitPlot) && ((AI_getPlotDanger(pUnitPlot, 1, false)) > 0))
+ 					{
+ 						bValid = true;
+-						break;
++						pLastUpgradePlot = pUnitPlot;
+ 					}
+ 				}
++				break;
+ 			case 2:
+ 				if (pLoopUnit->cargoSpace() > 0)
+ 				{
+

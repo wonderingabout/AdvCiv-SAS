@@ -1,0 +1,110 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 305
+# Author: iustus
+# Date: 2007-01-27T17:22:10.302573Z
+# Coverage: full
+# Message:
+#   fixed bug where a stack does not follow through with the attack
+# Changed paths (3):
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+#   M /trunk/CvGameCoreDLL/CvSelectionGroup.h
+#   M /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@304
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.cpp@305
+@@ -1149,7 +1149,8 @@
+ 	{
+ 		if (headMissionQueueNode()->m_data.eMissionType == MISSION_MOVE_TO)
+ 		{
+-			if (groupAttack(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2, headMissionQueueNode()->m_data.iFlags))
++			bool bFailedAlreadyFighting;
++			if (groupAttack(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2, headMissionQueueNode()->m_data.iFlags, bFailedAlreadyFighting))
+ 			{
+ 				bDone = true;
+ 			}
+@@ -2511,7 +2512,7 @@
+ 
+ 
+ // Returns true if attack was made...
+-bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags)
++bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlreadyFighting)
+ {
+ 	CvPlot* pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+@@ -2519,6 +2520,7 @@
+ 	bool bStack = (isHuman() && ((getDomainType() == DOMAIN_AIR) || GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_STACK_ATTACK)));
+     
+ 	bool bAttack = false;
++	bFailedAlreadyFighting = false;
+ 
+ 	if (getNumUnits() > 0)
+ 	{
+@@ -2576,10 +2578,12 @@
+ 						{
+ 							if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
+ 							{
+-								break;
++								bFailedAlreadyFighting = true;
+ 							}
+-
+-							pBestAttackUnit->attack(pDestPlot, bStack);
++							else
++							{
++								pBestAttackUnit->attack(pDestPlot, bStack);
++							}
+ 						}
+ 						else
+ 						{
+@@ -2587,7 +2591,7 @@
+ 							break;
+ 						}
+ 
+-						if (!bStack)
++						if (bFailedAlreadyFighting || !bStack)
+ 						{
+ 							// if this is AI stack, follow through with the attack to the end
+ 							if (!isHuman() && getNumUnits() > 1)
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroup.h
+--- /trunk/CvGameCoreDLL/CvSelectionGroup.h@304
++++ /trunk/CvGameCoreDLL/CvSelectionGroup.h@305
+@@ -91,7 +91,7 @@
+ 	RouteTypes getBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL);	// Exposed to Python
+ 
+ 	bool groupDeclareWar(CvPlot* pPlot, bool bForce = false);
+-	bool groupAttack(int iX, int iY, int iFlags);
++	bool groupAttack(int iX, int iY, int iFlags, bool& bFailedAlreadyFighting);
+ 	void groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit = NULL);
+ 	bool groupPathTo(int iX, int iY, int iFlags);
+ 	bool groupRoadTo(int iX, int iY, int iFlags);
+
+Index: /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp
+--- /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@304
++++ /trunk/CvGameCoreDLL/CvSelectionGroupAI.cpp@305
+@@ -170,7 +170,8 @@
+ 
+ 	bDead = false;
+ 	
+-	while (m_bGroupAttack || readyToMove())
++	bool bFailedAlreadyFighting = false;
++	while ((m_bGroupAttack && !bFailedAlreadyFighting) || readyToMove())
+ 	{
+ 		iTempHack++;
+ 		if (iTempHack > 100)
+@@ -182,10 +183,10 @@
+ 
+ 		// if we want to force the group to attack, force another attack
+ 		if (m_bGroupAttack)
+-		{
++		{			
+ 			m_bGroupAttack = false;
+-			
+-			bool bGroupAttacked = groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK);
++
++			bool bGroupAttacked = groupAttack(m_iGroupAttackX, m_iGroupAttackY, MOVE_DIRECT_ATTACK, bFailedAlreadyFighting);
+ 		}
+ 		// else pick AI action
+ 		else
+

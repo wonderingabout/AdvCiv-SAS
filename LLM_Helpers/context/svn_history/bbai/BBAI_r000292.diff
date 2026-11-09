@@ -1,0 +1,889 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 292
+# Author: blakeciv
+# Date: 2007-01-25T10:06:12.771849Z
+# Coverage: full
+# Message:
+#   Added GET_BETTER_UNITS strategy - as long as it is in force the AI wont commit to real war-type stuff...
+#   Tweaked the floatingDefenders needed.
+#   Heavily tweaked the chooseProduction stuff with units and also wonders. Did some cleanup too.
+#   Eliminated nearly all of the AI_doEmphasize code - trusting in the governor and special yield stuff instead.
+#   Added some better understanding of the value of food to the governor. Some of this may work poorly when the city is unhappy...
+#   Multiple workers will work together to hook up strategics.
+# Changed paths (8):
+#   M /trunk/CvGameCoreDLL/AI_Defines.h
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvUnitAI.cpp
+
+Index: /trunk/CvGameCoreDLL/AI_Defines.h
+--- /trunk/CvGameCoreDLL/AI_Defines.h@291
++++ /trunk/CvGameCoreDLL/AI_Defines.h@292
+@@ -17,6 +17,7 @@
+ #define AI_STRATEGY_CRUSH				(1 << 11)  //convert units to City Attack
+ #define AI_STRATEGY_PRODUCTION          (1 << 12)
+ #define AI_STRATEGY_PEACE				(1 << 13)  //lucky... neglect defenses.
++#define AI_STRATEGY_GET_BETTER_UNITS	(1 << 14)
+ 
+ 
+ #define AI_CITY_ROLE_VALID              (1 <<  1)    //zero is bad
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@291
++++ /trunk/CvGameCoreDLL/CvCity.cpp@292
+@@ -4246,7 +4246,7 @@
+ 	return (getProductionNeeded() - getProduction());
+ }
+ 
+-int CvCity::getHurryCostModifier() const
++int CvCity::getHurryCostModifier(bool bIgnoreNew) const
+ {
+ 	int iModifier = 100;
+ 	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
+@@ -4256,11 +4256,11 @@
+ 		switch (pOrderNode->m_data.eOrderType)
+ 		{
+ 		case ORDER_TRAIN:
+-			iModifier = getHurryCostModifier((UnitTypes) pOrderNode->m_data.iData1, false);
++			iModifier = getHurryCostModifier((UnitTypes) pOrderNode->m_data.iData1, bIgnoreNew);
+ 			break;
+ 
+ 		case ORDER_CONSTRUCT:
+-			iModifier = getHurryCostModifier((BuildingTypes) pOrderNode->m_data.iData1, false);
++			iModifier = getHurryCostModifier((BuildingTypes) pOrderNode->m_data.iData1, bIgnoreNew);
+ 			break;
+ 
+ 		case ORDER_CREATE:
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@291
++++ /trunk/CvGameCoreDLL/CvCity.h@292
+@@ -189,7 +189,7 @@
+ 
+ 	int productionLeft() const;																							// Exposed to Python
+ 	int hurryCost(bool bExtra) const;																				// Exposed to Python
+-	int getHurryCostModifier() const;
++	int getHurryCostModifier(bool bIgnoreNew = false) const;
+ 	DllExport int hurryGold(HurryTypes eHurry) const;												// Exposed to Python
+ 	DllExport int hurryPopulation(HurryTypes eHurry) const;									// Exposed to Python
+ 	int hurryProduction(HurryTypes eHurry) const;														// Exposed to Python
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@291
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@292
+@@ -791,6 +791,8 @@
+ 	bool bBigCultureCity = false;
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++    
++    bool bGetBetterUnits = GET_PLAYER(getOwner()).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS);
+ 
+ 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / max(1, kPlayer.calculatePreInflatedCosts());
+ 
+@@ -924,39 +926,39 @@
+ 			}
+ 		}
+ 	}
+-	else
+-	{
+-        if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
+-        {
+-            if (AI_chooseDefender())
+-            {
+-                return;
+-            }
+-
+-            if (AI_chooseUnit(UNITAI_ATTACK))
+-            {
+-                return;
+-            }
+-        }
+-
+-
+-		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()) != NULL)
+-		{
+-			if (!AI_isDefended())
+-			{
+-				if (AI_chooseDefender())
+-				{
+-					return;
+-				}
+-			}
+-		}
+-	}
++//	else
++//	{
++//        if (!AI_isDefended(plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwnerINLINE()))) // XXX check for other team's units?
++//        {
++//            if (AI_chooseDefender())
++//            {
++//                return;
++//            }
++//
++//            if (AI_chooseUnit(UNITAI_ATTACK))
++//            {
++//                return;
++//            }
++//        }
++//
++//
++//		if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwnerINLINE()) != NULL)
++//		{
++//			if (!AI_isDefended())
++//			{
++//				if (AI_chooseDefender())
++//				{
++//					return;
++//				}
++//			}
++//		}
++//	}
+ 	
+ 	
+ 	int iNeededFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefendersNeeded(area());
+  	int iTotalFloatingDefenders = GET_PLAYER(getOwner()).AI_getTotalFloatingDefenders(area());
+ 	
+-	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
++	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+ 		if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
+ 		{
+@@ -1198,7 +1200,7 @@
+         
+         if (bDefenseWar)
+         {
+-        	if (GC.getGameINLINE().getSorenRandNum(100, "AI Train Defensive Unit (Panic)") > 20)
++        	if (GC.getGameINLINE().getSorenRandNum(100, "AI Train Defensive Unit (Panic)") > (bGetBetterUnits ? 50 : 35))
+         	{
+         		switch (GC.getGameINLINE().getSorenRandNum(4, "AI Choose Defense Panic Unit"))
+         		{
+@@ -1247,7 +1249,7 @@
+ 			}
+         }
+ 
+-        if (!bFinancialTrouble && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
++        if (!bFinancialTrouble && !bGetBetterUnits && kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
+         {
+             if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Train Unit") > 25)
+             {
+@@ -1291,7 +1293,7 @@
+                 	}
+                 }
+                 
+-                if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 30)
++                if (GC.getGameINLINE().getSorenRandNum(100, "AI Dagger Choose Unit") > 40)
+                 {
+                     if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+ 					{
+@@ -1334,21 +1336,6 @@
+                 {
+                     if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
+                     {
+-                        if ((kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) + kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_ATTACK)) < (AI_neededDefenders() + iNumCitiesInArea))
+-                        {
+-                            if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
+-                            {
+-                                return;
+-                            }
+-
+-                            if (AI_chooseUnit(UNITAI_ATTACK))
+-                            {
+-                                return;
+-                            }
+-                        }
+-                        
+-                        
+-
+                         if (AI_chooseUnit(UNITAI_SETTLE))
+                         {
+                             return;
+@@ -1358,7 +1345,30 @@
+             }
+         }
+     }
+-	
++    
++	if (iTotalFloatingDefenders < iNeededFloatingDefenders)
++	{
++		if (AI_chooseFloatingDefender(iNeededFloatingDefenders))
++		{
++			return;
++		}
++	}
++	if (bLandWar)
++	{
++		if (kPlayer.AI_totalAreaUnitAIs(area(), UNITAI_SETTLE) == 0)
++		{
++			if (!bFinancialTrouble)
++			{
++				if (area()->getBestFoundValue(getOwnerINLINE()) > 500)
++				{
++					if (AI_chooseUnit(UNITAI_SETTLE))
++					{
++						return;
++					}
++				}
++			}
++		}
++	}
+ 	if (!bLandWar)
+ 	{		
+ 		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY) && (iNumCitiesInArea > 1))
+@@ -1450,6 +1460,10 @@
+ 		if (iWonderRoll < iWonderRand)
+ 		{
+ 			int iWonderMaxTurns = 20 + ((iWonderRand - iWonderRoll) * 2);
++			if (bLandWar)
++			{
++				iWonderMaxTurns /= 2;
++			}
+ 			
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
+ 			{
+@@ -1480,14 +1494,6 @@
+ 
+ 	if (!isHuman())
+ 	{
+-		if (!AI_isDefended())
+-		{
+-			if (AI_chooseDefender())
+-			{
+-				return;
+-			}
+-		}
+-
+ 		if (getPopulation() > 6)
+ 		{
+ 			if (!AI_isAirDefended())
+@@ -1576,49 +1582,6 @@
+ 			return;
+ 		}
+ 
+-		
+-		
+-//		if (bFinancialTrouble && iBaseGoldRate >= 12)
+-//		{
+-//			if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 40 + kPlayer.getCommercePercent(COMMERCE_GOLD)))
+-//			{
+-//				return;
+-//			}
+-//		}
+-//
+-//		if (getMaintenance() >= (bFinancialTrouble ? 6 : 8))
+-//		{
+-//			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 40))
+-//			{
+-//				return;
+-//			}
+-//		}
+-//
+-//		if (angryPopulation(1) > 0)
+-//		{
+-//			if (AI_chooseBuilding(BUILDINGFOCUS_HAPPY, 40))
+-//			{
+-//				return;
+-//			}
+-//		}
+-//
+-//		if (healthRate(/*bNoAngry*/ true, 1) < 0)
+-//		{
+-//			if (AI_chooseBuilding(BUILDINGFOCUS_HEALTHY, 40))
+-//			{
+-//				return;
+-//			}
+-//		}
+-//
+-//
+-//		if (getMaintenance() >= (bFinancialTrouble ? 4 : 6))
+-//		{
+-//			if (AI_chooseBuilding(BUILDINGFOCUS_MAINTENANCE, 60))
+-//			{
+-//				return;
+-//			}
+-//		}
+-
+ 		if (iCulturePressure > 50)
+ 		{
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 60))
+@@ -1626,39 +1589,6 @@
+ 				return;
+ 			}
+ 		}
+-
+-//		if (GC.getDefineINT("DEFAULT_SPECIALIST") != NO_SPECIALIST)
+-//		{
+-//			if (getSpecialistCount((SpecialistTypes)(GC.getDefineINT("DEFAULT_SPECIALIST"))) > 0)
+-//			{
+-//				if (AI_chooseBuilding(BUILDINGFOCUS_SPECIALIST, 60))
+-//				{
+-//					return;
+-//				}
+-//			}
+-//		}
+-//
+-//		if (bFinancialTrouble || (iBaseGoldRate > 25))
+-//		{
+-//			if (iBaseGoldRate >= 12)
+-//			{
+-//				if (AI_chooseBuilding(BUILDINGFOCUS_GOLD, 30 + iBaseGoldRate))
+-//				{
+-//					return;
+-//				}
+-//			}
+-//		}
+-//
+-//		if (!(kPlayer.AI_avoidScience()))
+-//		{
+-//			if (iBaseResearchRate >= 12)
+-//			{
+-//				if (AI_chooseBuilding(BUILDINGFOCUS_RESEARCH, 30 + iBaseResearchRate))
+-//				{
+-//					return;
+-//				}
+-//			}
+-//		}
+ 
+ 		if (!bDanger)
+ 		{
+@@ -4834,54 +4764,11 @@
+ 
+ 	bool bFirstTech;
+ 	bool bEmphasize;
+-	bool bGrow;
+-	bool bUrgentBuild;
+ 	bool bCultureVictory = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CULTURE2);
+ 	int iI;
+ 	
+ 	int iBadHealth = -healthRate();
+ 
+-	bool bPopRush = false;
+-	for (iI = 0; iI < GC.getNumHurryInfos(); ++iI)
+-	{
+-		if (canHurry((HurryTypes)iI))
+-		{
+-			if (AI_getHappyFromHurry((HurryTypes)iI) > 0)
+-			{
+-				bPopRush = true;
+-				break;
+-			}
+-		}
+-	}
+-
+-//	bGrow = (0 == angryPopulation(bPopRush ? 0 : 1));
+-//	
+-//	if (bGrow)
+-//	{
+-//	    if (AI_countGoodTiles(iBadHealth <= 0, true, 100) == 0)
+-//	    {
+-//	        bGrow = false;
+-//	    }
+-//	}
+-	bGrow = false;
+-
+-	bUrgentBuild = AI_isDanger();
+-	if (!bUrgentBuild)
+-	{
+-		ProjectTypes eProductionProject = getProductionProject();
+-		bUrgentBuild = (eProductionProject != NO_PROJECT && AI_projectValue(eProductionProject) > 0);
+-	}
+-//	if (!bUrgentBuild)
+-//	{
+-//		BuildingTypes eProductionBuilding = getProductionBuilding();
+-//		bUrgentBuild = (eProductionBuilding != NO_BUILDING && isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eProductionBuilding).getBuildingClassType())));
+-//	}
+-	if (!bUrgentBuild)
+-	{
+-		UnitTypes eProductionUnit = getProductionUnit();
+-		bUrgentBuild = (eProductionUnit != NO_UNIT && GC.getUnitInfo(eProductionUnit).isFound());
+-	}
+-
+ 	if (GET_PLAYER(getOwnerINLINE()).getCurrentResearch() != NO_TECH)
+ 	{
+ 		bFirstTech = GC.getGameINLINE().AI_isFirstTech(GET_PLAYER(getOwnerINLINE()).getCurrentResearch());
+@@ -4902,18 +4789,12 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_FOOD) > 0)
+ 		{
+-			if (bGrow && !bUrgentBuild && !bFirstTech)
+-			{
+-				bEmphasize = true;
+-			}
++
+ 		}
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_PRODUCTION) > 0)
+ 		{
+-			if (bUrgentBuild)
+-			{
+-				bEmphasize = true;
+-			}
++
+ 		}
+ 		
+ 		if (AI_specialYieldMultiplier(YIELD_PRODUCTION) < 50)
+@@ -4928,7 +4809,7 @@
+ 
+ 			if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getCommerceChange(COMMERCE_RESEARCH) > 0)
+ 			{
+-				if (bFirstTech && !bUrgentBuild && !bCultureVictory)
++				if (bFirstTech && !bCultureVictory)
+ 				{
+ 					if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 4) + 1))
+ 					{
+@@ -4939,14 +4820,11 @@
+ 
+ 			if (GC.getEmphasizeInfo((EmphasizeTypes)iI).isGreatPeople())
+ 			{
+-				if (!bUrgentBuild)
+-				{
+-					if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1))
+-					{
+-						if (!bCultureVictory || iCultureRateRank > (iCulturalVictoryNumCultureCities + 1))
+-						{
+-							bEmphasize = true;
+-						}
++				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1))
++				{
++					if (!bCultureVictory || iCultureRateRank > (iCulturalVictoryNumCultureCities + 1))
++					{
++						bEmphasize = true;
+ 					}
+ 				}
+ 			}
+@@ -4958,17 +4836,17 @@
+ 	// force emphasize culture for cultural victories
+ 	// there is no emphasize type for this, so we have to force it
+ 	
+-    bEmphasize = false;
+-	if (!bGrow)
+-	{
+-		
+-		// emphasize culture in our top 4 cities (1 more than what is needed for cultural victory)
+-		if (bCultureVictory && iCultureRateRank <= (iCulturalVictoryNumCultureCities + 1))
+-		{
+-			bEmphasize = true;
+-		}
+-	}
+-	AI_forceEmphasizeCulture(bEmphasize);
++//    bEmphasize = false;
++//	if (!bGrow)
++//	{
++//		
++//		// emphasize culture in our top 4 cities (1 more than what is needed for cultural victory)
++//		if (bCultureVictory && iCultureRateRank <= (iCulturalVictoryNumCultureCities + 1))
++//		{
++//			bEmphasize = true;
++//		}
++//	}
++//	AI_forceEmphasizeCulture(bEmphasize);
+ }
+ 
+ 
+@@ -5623,6 +5501,7 @@
+ 	
+ 	bool bEmphasizeFood = AI_isEmphasizeYield(YIELD_FOOD);
+ 	bool bFoodIsProduction = isFoodProduction();
++	bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 	
+ 	for (int iJ = 0; iJ < NUM_COMMERCE_TYPES; iJ++)
+ 	{
+@@ -5691,6 +5570,9 @@
+ 	}
+ 
+ 	int iValue = 0;
++	int iSlaveryValue = 0;
++	
++	int iFoodGrowthValue = 0;
+ 	
+ 	if (!bIgnoreFood && aiYields[YIELD_FOOD] != 0)
+ 	{
+@@ -5756,7 +5638,6 @@
+ 				// the emp food case will just give a big boost to all food under all circumstances
+ 				if (!bIgnoreGrowth && !bEmphasizeFood)
+ 				{
+-					bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 					// also avail: iFoodLevel, iFoodToGrow
+ 					
+ 					// adjust iFoodPerTurn assuming that we work plots all equal to iConsumtionPerPop
+@@ -5773,11 +5654,11 @@
+ 							iHappinessLevel += ((GC.getDefineINT("NO_MILITARY_PERCENT_ANGER") * (iPopulation + 1)) / GC.getDefineINT("PERCENT_ANGER_DIVISOR"));
+ 						}
+ 
+-						// if we can pop rush, let us grow one over the limit
+-						if (bCanPopRush)
+-						{
+-							iHappinessLevel++;
+-						}
++//						// if we can pop rush, let us grow one over the limit
++//						if (bCanPopRush)
++//						{
++//							iHappinessLevel++;
++//						}
+ 
+ 						// currently we can at most increase happy by 2 in the following checks
+ 						const int kMaxHappyIncrease = 2;
+@@ -5841,7 +5722,7 @@
+ 						int iUnhealthLosses = max(0, iPopToGrow - iHealthLevel);
+ 						
+ 						// will mulitply this by factors
+-						int iTempValue = aiYields[YIELD_FOOD] * 3;
++						iFoodGrowthValue += aiYields[YIELD_FOOD] * 3;
+ 
+ 						// (range 1-25) - we want to grow more if we have a lot of growth to do
+ 						// factor goes up like this: 0:1, 1:8, 2:9, 3:10, 4:11, 5:13, 6:14, 7:15, 8:16, 9:17, ... 17:25
+@@ -5862,21 +5743,21 @@
+ 						{
+ 							iFactorPopToGrow = 1;
+ 						}
+-						iTempValue *= iFactorPopToGrow;
++						iFoodGrowthValue *= iFactorPopToGrow;
+ 						
+ 						// (range 51-100) - we will grown slightly slower if we running unhealthy
+ 						if (iUnhealthLosses > 0)
+ 						{
+ 							int iFactorUnhealth = 26 + max(0, 49 - iUnhealthLosses);
+-							iTempValue *= iFactorUnhealth;
+-							iTempValue /= 100;
++							iFoodGrowthValue *= iFactorUnhealth;
++							iFoodGrowthValue /= 100;
+ 						}
+ 						
+ 						// (range 8-20ish)[20ish = (6*iConsumtionPerPop)+8] - our min goal is (2*iConsumtionPerPop)
+ 						//													 per turn, if we under, give food a bonus
+ 						int iFactorSlowRate = 8 + (3 * max(0, (2 * iConsumtionPerPop) - iFoodPerTurn));
+-						iTempValue *= iFactorSlowRate;
+-						iTempValue /= (3 * iConsumtionPerPop) + 4;
++						iFoodGrowthValue *= iFactorSlowRate;
++						iFoodGrowthValue /= (3 * iConsumtionPerPop) + 4;
+ 
+ 						// (range 71-100) - the faster our current rate, the less valueble adding more is
+ 						int iFactorFastRate;
+@@ -5886,39 +5767,50 @@
+ 							iFactorFastRate = 90 - iFoodPerTurn;
+ 						else // iFoodPerTurn >= 19
+ 							iFactorFastRate = 71;
+-						iTempValue *= iFactorFastRate;
+-						iTempValue /= 100;
++						iFoodGrowthValue *= iFactorFastRate;
++						iFoodGrowthValue /= 100;
+ 						
+ 						// (range 4-16)[under normal conditions, 12 will be the highest]
+ 						int iFactorHighYield = 4 + (2 * min(iConsumtionPerPop * 3, max(0, aiYields[YIELD_FOOD] - iConsumtionPerPop)));
+-						iTempValue *= iFactorHighYield * 16;
+-						iTempValue /= (4 + (iConsumtionPerPop * 6)); // if (iConsumtionPerPop == 2), this cancels out with the 16 above
++						iFoodGrowthValue *= iFactorHighYield * 16;
++						iFoodGrowthValue /= (4 + (iConsumtionPerPop * 6)); // if (iConsumtionPerPop == 2), this cancels out with the 16 above
+ 
+ 						// (range 76-100) - exclusively growing is less important in big cities
+ 						int	iFactorPopulation = 75 + max(0, 25 - max(0, iPopulation - 10));
+-						iTempValue *= iFactorPopulation;
+-						iTempValue /= 500;
++						iFoodGrowthValue *= iFactorPopulation;
++						iFoodGrowthValue /= 500;
+ 
+ 						// (range 0-158) * yield
+-						iValue += iTempValue;
+ 
+ 						// if this is our last plot to assign and stagnant, give an equal boost to any food tile
+ 						iFoodPerTurn -= (iExtraPopulationThatCanWork * iConsumtionPerPop);
+ 						if (iExtraPopulationThatCanWork <= 1 && (iFoodPerTurn <= 0) && aiYields[YIELD_FOOD] > 0)
+ 						{
+-							iValue += 180;
++							iFoodGrowthValue += 180;
+ 						}
+ 					}
+ 				}
+ 			}
+ 			
++			//very high food override
+ 			if (!(bAvoidGrowth && isHuman()))
+ 			{
+ 				//very high food override
+-				int iTempValue = 30 * max(0, (aiYields[YIELD_FOOD]) - (2 * iConsumtionPerPop));
+-				iTempValue *= max(0, (3 * iConsumtionPerPop) - iAdjustedFoodDifference);
++				int iTempValue = max(0, 30 * aiYields[YIELD_FOOD] - 15 * iConsumtionPerPop);
++				iTempValue *= max(0, 3 * iConsumtionPerPop) - iAdjustedFoodDifference;
+ 				iTempValue /= 3 * iConsumtionPerPop;
+-				iValue += iTempValue;
++				iFoodGrowthValue += iTempValue;
++			
++				//Slavery Override
++				if (bCanPopRush && (iHappinessLevel > 0) && (iHealthLevel > 0))
++				{
++					iSlaveryValue = 25 * aiYields[YIELD_FOOD];
++					iSlaveryValue *= 100;
++					iSlaveryValue /= getHurryCostModifier(true);
++					
++					iSlaveryValue *= iConsumtionPerPop * 2;
++					iSlaveryValue /= iConsumtionPerPop * 2 + max(0, iAdjustedFoodDifference);
++				}
+ 			}
+ 		}
+ 	}
+@@ -5926,10 +5818,10 @@
+ 	
+ 	int iProductionValue = 0;
+ 	int iCommerceValue = 0;
+-	int iFoodValue = 0;
++	int iFoodValue = iFoodGrowthValue;
+ 	// if food is production, the count it
+ 	int adjustedYIELD_PRODUCTION = (((bFoodIsProduction) ? aiYields[YIELD_FOOD] : 0) + aiYields[YIELD_PRODUCTION]);
+-
++			
+ 	// value production medium(15)
+ 	iProductionValue += (adjustedYIELD_PRODUCTION * 15);
+ 	
+@@ -5948,11 +5840,23 @@
+ 			iFoodValue += (aiYields[YIELD_FOOD] * 180);
+ 		}
+ 	}
+-
++	
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+ 		// value production high(80)
+ 		iProductionValue += (adjustedYIELD_PRODUCTION * 80);
++	}
++	
++	//Slavery translation
++	if ((iSlaveryValue > adjustedYIELD_PRODUCTION) && (iSlaveryValue > iFoodValue))
++	{
++		//treat the food component as production
++		iFoodValue = 0;
++	}
++	else
++	{
++		//treat it as just food
++		iSlaveryValue = 0;
+ 	}
+ 
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+@@ -5990,6 +5894,7 @@
+ 		iProductionValue *= (100 + AI_specialYieldMultiplier(YIELD_PRODUCTION));
+ 		iProductionValue *= iBaseProductionModifier;
+ 		iProductionValue /= (iBaseProductionModifier + iExtraProductionModifier);
++		iProductionValue += 100 * iSlaveryValue;
+ 		iProductionValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
+ 	}
+ 	iValue += iProductionValue;
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@291
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@292
+@@ -2099,6 +2099,11 @@
+ 			if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_PEACE))
+             {
+                 szTempBuffer.Format(L"\n AI Peace Strategy");
++                szString+=szTempBuffer;
++            }
++            if (GET_PLAYER(pPlot->getOwner()).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++            {
++                szTempBuffer.Format(L"\n AI Get Better Units Strategy");
+                 szString+=szTempBuffer;
+             }
+             
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@291
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@292
+@@ -10120,12 +10120,33 @@
+     	m_iStrategyHash |= AI_STRATEGY_PEACE;
+     }
+     
++    //Unit Analysis
++    int iAttackUnitCount = 0;
++	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++	{
++		eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
++
++		if (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_RESERVE) || GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY))
++		{
++			if (getCapitalCity() != NULL)
++			{
++				if (getCapitalCity()->canTrain(eLoopUnit))
++				{
++					iAttackUnitCount++;
++				}
++			}
++		}
++	}
++	
++	if (iAttackUnitCount <= 1)
++	{
++		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
++	}
+     
+     //dagger
+     if ((iCurrentEra <= (2+(iNonsense%2)) && (iMetCount > 0)) && (iParanoia > 0))
+     {	    
+ 	    int iDagger = 0;
+-	    int iAttackUnitCount = 0;
+ 	    iDagger += 3000 / max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+ 	    iDagger += 5 * AI_getFlavorValue(AI_FLAVOR_MILITARY);
+ 	    
+@@ -10219,28 +10240,10 @@
+                         }
+                     }
+                 }
+-        
+-                //normal units                
+-                if ((GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK)) || (GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_ATTACK_CITY)))
+-                {
+-                    if (!GC.getUnitInfo(eLoopUnit).getUnitAIType(UNITAI_CITY_DEFENSE))
+-                    {
+-                        if (GC.getUnitInfo(eLoopUnit).getPrereqAndTech() != NO_TECH)
+-                        {
+-                            if (getCapitalCity() != NULL)
+-                            {
+-                                if (getCapitalCity()->canTrain(eLoopUnit))
+-                                {
+-                                    iAttackUnitCount++;
+-                                }
+-                            }
+-                        }
+-                    }
+-                }
+             }
+         }
+         
+-        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 40 : 0);
++        iDagger += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+         iDagger += ((iNonsense % 6) * 10);
+         iDagger -= ((iAttackUnitCount == 0) ? 60 : 0);
+         
+@@ -10997,23 +11000,26 @@
+ 	int iDefenders;
+ 	int iCurrentEra = getCurrentEra();
+ 	
+-	iDefenders = 1 + ((iCurrentEra + 1) * pArea->getCitiesPerPlayer(getID()));
+-	iDefenders /= 2;
+-	iDefenders += pArea->getPopulationPerPlayer(getID()) / 5;	
++	iDefenders = 1 + ((iCurrentEra + 2) * pArea->getCitiesPerPlayer(getID()));
++	iDefenders /= 3;
++	iDefenders += pArea->getPopulationPerPlayer(getID()) / 5;
++	
++	iDefenders *= 100;
++	iDefenders /= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAITrainPercent();
++	
++	if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++	{
++		iDefenders *= 2;
++	}
++	else if (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
++	{
++		iDefenders *= 2;
++		iDefenders /= 3;
++	}
+ 	
+ 	if (AI_getTotalAreaCityThreat(pArea) == 0)
+ 	{
+ 		iDefenders /= 2;
+-	}
+-	
+-	if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+-	{
+-		iDefenders *= 2;
+-	}
+-	else if (pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE)
+-	{
+-		iDefenders *= 2;
+-		iDefenders /= 3;
+ 	}
+ 	
+ 	if ((iCurrentEra < 3) && (GC.getGameINLINE().isOption(GAMEOPTION_RAGING_BARBARIANS)))
+@@ -11033,7 +11039,6 @@
+ 
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COLLATERAL);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_RESERVE);
+-	//iCount += AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
+ 	iCount += max(0, (AI_totalAreaUnitAIs(pArea, UNITAI_CITY_DEFENSE) - (pArea->getCitiesPerPlayer(getID()) * 2)));
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_COUNTER);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_SPECIAL);
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@291
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@292
+@@ -3161,6 +3161,7 @@
+ 		
+ 		int iFinancialTroubleCount = 0;
+ 		int iDaggerCount = 0;
++		int iGetBetterUnitsCount = 0;
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -3171,6 +3172,10 @@
+ 					{
+ 						iDaggerCount++;
+ 						bAggressive = true;
++					}
++					if (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++					{
++						iGetBetterUnitsCount++;
+ 					}
+ 					
+ 					if (GET_PLAYER((PlayerTypes)iI).AI_isFinancialTrouble())
+@@ -3198,7 +3203,8 @@
+ 	    iDogpileWarRand *= iNumMembers;
+ 	    iDogpileWarRand /= (iNumMembers + iNumVassals);
+ 	    
+-	    int iWarRandThreshold = iHighUnitSpendingPercent;
++	    int iWarRandThreshold = iHighUnitSpendingPercent * (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
++	    iWarRandThreshold /= 3;
+ 		
+ 		// we oppose war if half the non-dagger teammates in financial trouble
+ 		bool bFinancesOpposeWar = false;
+@@ -3236,19 +3242,22 @@
+ 		
+ 		// overall war check (quite frequently true)
+ 		bool bMakeWarChecks = false;
+-		if (bFinancialProWar || !bFinancesOpposeWar)
+-		{
+-			// random overall war chance (at noble+ difficulties this is 100%)
+-			if (GC.getGameINLINE().getSorenRandNum(100, "AI Declare War 1") < GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIDeclareWarProb())
+-			{
+-				// if non-agressive, random based on number of cities (the more cities, the less war)
+-				if ((bAggressive || bFinancialProWar) ? true : (GC.getGameINLINE().getSorenRandNum(getNumCities(), "AI Declare War 2") != 0))
+-				{
+-					bMakeWarChecks = true;
+-				}
+-			}
+-		}
+-
++		if (iGetBetterUnitsCount * 3 < iNumMembers * 2)
++		{
++			if (bFinancialProWar || !bFinancesOpposeWar)
++			{
++				// random overall war chance (at noble+ difficulties this is 100%)
++				if (GC.getGameINLINE().getSorenRandNum(100, "AI Declare War 1") < GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIDeclareWarProb())
++				{
++					// if non-agressive, random based on number of cities (the more cities, the less war)
++					if ((bAggressive || bFinancialProWar) ? true : (GC.getGameINLINE().getSorenRandNum(getNumCities(), "AI Declare War 2") != 0))
++					{
++						bMakeWarChecks = true;
++					}
++				}
++			}
++		}
++		
+ 		if (bMakeWarChecks)
+ 		{
+ 			iOurPower = getPower(true);
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.cpp
+--- /trunk/CvGameCoreDLL/CvUnitAI.cpp@291
++++ /trunk/CvGameCoreDLL/CvUnitAI.cpp@292
+@@ -11409,7 +11409,7 @@
+ 								iValue *= 2;
+ 							}
+ 							
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) == 0)
++							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < min(3, (iValue / 10)))
+                         	{
+ 								if (bDoImprove)
+ 								{
+

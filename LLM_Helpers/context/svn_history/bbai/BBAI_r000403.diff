@@ -1,0 +1,1154 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 403
+# Author: jdog5000
+# Date: 2008-11-16T02:06:34.371143Z
+# Coverage: full
+# Message:
+#   Mostly formatting updates
+# Changed paths (13):
+#   M /trunk/CvGameCoreDLL/Better BTS AI.ncb
+#   M /trunk/CvGameCoreDLL/Better BTS AI.suo
+#   M /trunk/CvGameCoreDLL/CvCity.cpp
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+#   M /trunk/CvGameCoreDLL/CvGame.cpp
+#   M /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayer.cpp
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.cpp
+#   M /trunk/CvGameCoreDLL/CvTeamAI.h
+#   M /trunk/CvGameCoreDLL/CvUnitAI.h
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.ncb
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/Better BTS AI.suo
+# Binary file, contents not shown
+
+Index: /trunk/CvGameCoreDLL/CvCity.cpp
+--- /trunk/CvGameCoreDLL/CvCity.cpp@402
++++ /trunk/CvGameCoreDLL/CvCity.cpp@403
+@@ -4965,11 +4965,11 @@
+ 	return plot()->waterArea();
+ }
+ 
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+-/**																				*/
+-/**		General AI																*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
+ // Expose plot function through city
+ CvArea* CvCity::secondWaterArea() const
+ {
+@@ -5012,9 +5012,9 @@
+ 
+ 	return NULL;
+ }
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ CvPlot* CvCity::getRallyPlot() const
+ {
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@402
++++ /trunk/CvGameCoreDLL/CvCity.h@403
+@@ -244,16 +244,16 @@
+ 	int getArea() const;
+ 	DllExport CvArea* area() const;																						// Exposed to Python
+ 	CvArea* waterArea() const;																			// Exposed to Python
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 	CvArea* secondWaterArea() const;
+ 	CvArea* sharedWaterArea(CvCity* pCity) const;
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	DllExport CvPlot* getRallyPlot() const;																// Exposed to Python
+ 	void setRallyPlot(CvPlot* pPlot);
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@402
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@403
+@@ -826,18 +826,18 @@
+ 	}
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/12/08				jdog5000	*/
+-	/**																				*/
+-	/**		City AI																	*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/12/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
+ 	// Free experience for various unit domains
+ 	int iFreeLandExperience = getSpecialistFreeExperience() + getDomainFreeExperience(DOMAIN_LAND);
+ 	int iFreeSeaExperience = getSpecialistFreeExperience() + getDomainFreeExperience(DOMAIN_SEA);
+ 	int iFreeAirExperience = getSpecialistFreeExperience() + getDomainFreeExperience(DOMAIN_AIR);
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	clearOrderQueue();
+ 
+@@ -848,15 +848,6 @@
+ 	
+ 	// -------------------- BBAI Notes -------------------------
+ 	// Special circumstances
+-	
+-    // if we need to pop borders, then do that immediately if we have drama and can do it
+-	if ((iTargetCulturePerTurn > 0) && (getCultureLevel() <= (CultureLevelTypes) 1))
+-	{
+-        if (AI_chooseProcess(COMMERCE_CULTURE))
+-        {
+-            return;
+-        }
+-	}
+ 
+ /********************************************************************************/
+ /**		BETTER_BTS_AI_MOD						10/25/08			jdog5000	*/
+@@ -1068,6 +1059,16 @@
+ /********************************************************************************/
+ /**		BETTER_BTS_AI_MOD						END								*/
+ /********************************************************************************/
++
++	
++	// if we need to pop borders, then do that immediately if we have drama and can do it
++	if ((iTargetCulturePerTurn > 0) && (getCultureLevel() <= (CultureLevelTypes) 1))
++	{
++        if (AI_chooseProcess(COMMERCE_CULTURE))
++        {
++            return;
++        }
++	}
+ 
+ 	if (isOccupation())
+ 	{
+@@ -1716,18 +1717,22 @@
+ 			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK);
+ 			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_COUNTER);
+ 			
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						7/12/08				jdog5000	*/
+-			/**																				*/
+-			/**		City AI																	*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/12/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++/* original code
++			int iTransports = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ASSAULT_SEA);
++			iTransports += kPlayer.AI_totalAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA);
++*/
+ 			int iLocalTransports = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ASSAULT_SEA);
+ 			int iTransportsAtSea = kPlayer.AI_totalAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA);
+ 			int iTransports = iLocalTransports + iTransportsAtSea;
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
+-
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++			
+ 			int iEscorts = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ESCORT_SEA);
+ 			iEscorts += kPlayer.AI_totalAreaUnitAIs(pWaterArea, UNITAI_ESCORT_SEA);
+ 			
+@@ -1774,12 +1779,11 @@
+ 					return;
+ 				}
+ 			}
+-
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						7/21/08				jdog5000	*/
+-			/**																				*/
+-			/**		City AI																	*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/21/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
+ 			// Consider building more land units to invade with
+ 			if( bPrimaryArea )
+ 			{
+@@ -1885,9 +1889,9 @@
+ 					}
+ 				}
+ 			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			
+ 			int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+ 			
+@@ -1901,11 +1905,20 @@
+ 					
+ 					int iCarrierAirNeeded = iCarriers * GC.getUnitInfo(eBestCarrierUnit).getCargoSpace();
+ 					
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						7/12/08				jdog5000	*/
+-					/**																				*/
+-					/**		City AI																	*/
+-					/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/12/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++/* original code
++					if (kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_AIR) < iCarrierAirNeeded)
++					{
++						if (AI_chooseUnit(UNITAI_CARRIER_AIR))
++						{
++							return;
++						}
++					}
++*/
+ 					// Reduce chances if city gives no air experience
+ 					if( (iFreeAirExperience > 0) || (GC.getGame().getSorenRandNum(3, "AI train carrier air") == 0) )
+ 					{
+@@ -1917,19 +1930,25 @@
+ 							}
+ 						}
+ 					}
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						END								*/
+-					/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				}
+ 			}
+ 			
+ 			if (iCarriers < (kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA) / 4))
+ 			{
+-				/********************************************************************************/
+-				/**		BETTER_BTS_AI_MOD						7/21/08				jdog5000	*/
+-				/**																				*/
+-				/**		City AI																	*/
+-				/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/21/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++/* original code
++				if (AI_chooseUnit(UNITAI_CARRIER_SEA))
++				{
++					return;
++				}
++*/
+ 				// Reduce chances if city gives no sea experience, low production
+ 				if( (iFreeSeaExperience > 0) || (iProductionRank <= ((kPlayer.getNumCities() / 3) + 1)) || (GC.getGame().getSorenRandNum(3, "AI train carrier sea") == 0) )
+ 				{
+@@ -1938,9 +1957,9 @@
+ 						return;
+ 					}
+ 				}
+-				/********************************************************************************/
+-				/**		BETTER_BTS_AI_MOD						END								*/
+-				/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			}
+ 			
+ 			int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);
+@@ -1958,12 +1977,18 @@
+ 					if ((kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded) || 
+ 						(bPrimaryArea && (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_CARRIER_SEA) * GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace() < kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_AIR))))
+ 					{
+-						/********************************************************************************/
+-						/**		BETTER_BTS_AI_MOD						7/12/08				jdog5000	*/
+-						/**																				*/
+-						/**		City AI																	*/
+-						/********************************************************************************/
+-						// Don't always build missles unless really low
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/12/08                                jdog5000      */
++/**                                                                                              */
++/** City AI                                                                                      */
++/*************************************************************************************************/
++/* original code
++						if (AI_chooseUnit(UNITAI_MISSILE_AIR))
++						{
++							return;
++						}
++*/
++						// Don't always build missiles unless really low
+ 						if( (kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded/2) || (GC.getGame().getSorenRandNum(3, "AI train missile air") == 0) )
+ 						{
+ 							if (AI_chooseUnit(UNITAI_MISSILE_AIR))
+@@ -1971,9 +1996,9 @@
+ 								return;
+ 							}
+ 						}
+-						/********************************************************************************/
+-						/**		BETTER_BTS_AI_MOD						END								*/
+-						/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 					}
+ 				}
+ 			}
+@@ -4826,15 +4851,38 @@
+ 			iDefenders++;
+ 		}
+ 	}
+-
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						5/22/08				jdog5000	*/
+-	/**																				*/
+-	/**		Bug fix																*/
+-	/********************************************************************************/
+-	// Fixed bug where holy cities were defended less, cleaned up code
++	
+ 	if ((GC.getGame().getGameTurn() - getGameTurnAcquired()) < 10)
+ 	{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      05/22/08                                jdog5000      */
++/**                                                                                              */
++/** Bugfix                                                                                       */
++/*************************************************************************************************/
++		// Fixed bug where holy cities were defended less, cleaned up code
++/* original code
++		if (bOffenseWar)
++		{
++			if (!hasActiveWorldWonder() || isHolyCity())
++			{
++				iDefenders /= 2;
++				iDefenders = std::max(1, iDefenders);
++			}
++		}		
++	}
++	
++	if (GC.getGame().getGameTurn() - getGameTurnAcquired() < 10)
++	{
++		iDefenders = std::max(2, iDefenders);
++		if (AI_isDanger())
++		{
++			iDefenders ++;
++		}
++		if (bDefenseWar)
++		{
++			iDefenders ++;
++		}
++*/
+ 		iDefenders = std::max(2, iDefenders);
+ 
+ 		if (bOffenseWar)
+@@ -4853,10 +4901,10 @@
+ 		{
+ 			iDefenders++;
+ 		}
+-	}
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						End								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++	}
+ 	
+ 	if (GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
+ 	{
+
+Index: /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp
+--- /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@402
++++ /trunk/CvGameCoreDLL/CvDLLWidgetData.cpp@403
+@@ -3517,22 +3517,19 @@
+ {
+ 	CvWString szTempBuffer;
+ 
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						11/02/08			jdog5000	*/
+-	/**																				*/
+-	/**																				*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      11/02/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
+ 	// Add string showing version number
+-	szTempBuffer.Format(SETCOLR L"%S" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), "Better BTS AI v0.41B");
++	szTempBuffer.Format(L"%S", "Better BTS AI v0.45A");
+ 	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+-	szTempBuffer.Format(L"==========================");
+-	szBuffer.append(szTempBuffer);
+ 	szBuffer.append(NEWLINE);
+-
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getCivilizationInfo(GC.getGameINLINE().getActiveCivilizationType()).getDescription());
+ 	szBuffer.append(szTempBuffer);
+
+Index: /trunk/CvGameCoreDLL/CvGame.cpp
+--- /trunk/CvGameCoreDLL/CvGame.cpp@402
++++ /trunk/CvGameCoreDLL/CvGame.cpp@403
+@@ -3975,31 +3975,29 @@
+ 	{
+ 		m_iAIAutoPlay = std::max(0, iNewValue);
+ 
+-		/********************************************************************************/
+-		/**		AI_AUTO_PLAY_MOD						7/9/08				jdog5000	*/
+-		/**																				*/
+-		/**																				*/
+-		/********************************************************************************/
+-		// Multiplayer compatibility idea from Jeckel
+-		for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
+-		{
+-			if( GET_PLAYER((PlayerTypes)iI).isHuman() || GET_PLAYER((PlayerTypes)iI).isHumanDisabled() )
+-			{
+-				GET_PLAYER(getActivePlayer()).setHumanDisabled((getAIAutoPlay() != 0));
+-			}
+-		}
+-
+-		// Commented out section below
+-		/*
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                           07/09/08                            jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++// Multiplayer compatibility idea from Jeckel
++/* original code
+ 		if ((iOldValue == 0) && (getAIAutoPlay() > 0))
+ 		{
+ 			GET_PLAYER(getActivePlayer()).killUnits();
+ 			GET_PLAYER(getActivePlayer()).killCities();
+ 		}
+-		*/
+-		/********************************************************************************/
+-		/**		AI_AUTO_PLAY_MOD						End								*/
+-		/********************************************************************************/
++*/
++		for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
++		{
++			if( GET_PLAYER((PlayerTypes)iI).isHuman() || GET_PLAYER((PlayerTypes)iI).isHumanDisabled() )
++			{
++				GET_PLAYER(getActivePlayer()).setHumanDisabled((getAIAutoPlay() != 0));
++			}
++		}
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                            END                                              */
++/*************************************************************************************************/
+ 	}
+ }
+ 
+@@ -4753,15 +4751,15 @@
+ 		m_eWinner = eNewWinner;
+ 		m_eVictory = eNewVictory;
+ 
+-		/********************************************************************************/
+-		/**		AI_AUTO_PLAY_MOD						7/9/08				jdog5000	*/
+-		/**																				*/
+-		/**																				*/
+-		/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                        07/09/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ 		gDLL->getEventReporterIFace()->victory(eNewWinner, eNewVictory);
+-		/********************************************************************************/
+-		/**		AI_AUTO_PLAY_MOD						End								*/
+-		/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                        END                                                  */
++/*************************************************************************************************/
+ 
+ 		if (getVictory() != NO_VICTORY)
+ 		{
+@@ -4783,7 +4781,17 @@
+ 
+ 		gDLL->getInterfaceIFace()->setDirty(Center_DIRTY_BIT, true);
+ 
+-		
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                        07/09/08                                jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++/* original code
++		gDLL->getEventReporterIFace()->victory(eNewWinner, eNewVictory);
++*/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                        END                                                  */
++/*************************************************************************************************/
+ 
+ 		gDLL->getInterfaceIFace()->setDirty(Soundtrack_DIRTY_BIT, true);
+ 	}
+
+Index: /trunk/CvGameCoreDLL/CvGameTextMgr.cpp
+--- /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@402
++++ /trunk/CvGameCoreDLL/CvGameTextMgr.cpp@403
+@@ -1432,12 +1432,12 @@
+ 							}
+ 						}
+ 					}
+-
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						6/10/08				jdog5000	*/
+-					/**																				*/
+-					/**		Debug																	*/
+-					/********************************************************************************/
++					
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/10/08                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
+ 					if( pPlot->getTeam() == NO_TEAM || GET_TEAM(pHeadGroup->getTeam()).isAtWar(pPlot->getTeam()) )
+ 					{
+ 						szString.append(NEWLINE);
+@@ -1563,10 +1563,10 @@
+ 							szString.append(CvWString::format(L"\nTarget City: None"));
+ 						}
+ 					}
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						END								*/
+-					/********************************************************************************/
+-					
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++
+ 					// double space non-empty groups
+ 					if (pHeadGroup->getNumUnits() > 1 || pHeadUnit->hasCargo())
+ 					{
+@@ -1765,20 +1765,19 @@
+ {
+ 	PROFILE_FUNC();
+ 
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						5/22/08				jdog5000	*/
+-	/**																				*/
+-	/**		Debug																	*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                         05/22/08                             jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
+ 	if (gDLL->altKey() && (gDLL->getChtLvl() > 0))
+ 	{
+ 		setPlotHelp( szString, pPlot );
+ 		return true;
+ 	}
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						End								*/
+-	/********************************************************************************/
+-
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                          END                                               */
++/*************************************************************************************************/
+ 	CvUnit* pAttacker;
+ 	CvUnit* pDefender;
+ 	CvWString szTempBuffer;
+@@ -2204,17 +2203,19 @@
+ 				szString.append(gDLL->getText("TXT_KEY_COMBAT_PLOT_HP", pDefender->currHitPoints(), pDefender->maxHitPoints()));
+ 			}
+ 
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						6/20/08				jdog5000	*/
+-			/**																				*/
+-			/**		Debug																	*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/20/08                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
++/* original code
++			if ((gDLL->getChtLvl() > 0))
++*/
+ 			// Only display this info in debug mode so game can be played with cheat code entered
+-			//if ((gDLL->getChtLvl() > 0))
+ 			if( GC.getGameINLINE().isDebugMode() )
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						End								*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			{
+ 				szTempBuffer.Format(L"\nStack Compare Value = %d",
+ 					gDLL->getInterfaceIFace()->getSelectionList()->AI_compareStacks(pPlot, false));
+@@ -2344,11 +2345,34 @@
+ 				CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+ 				if ((eLoopPlayer != ePlayer) && kLoopPlayer.isAlive())
+ 				{
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						6/16/08				jdog5000	*/
+-					/**																				*/
+-					/**		Debug																	*/
+-					/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/16/08                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
++/* original code
++					int iCloseness = pPlotCity->AI_playerCloseness(eLoopPlayer, 7);
++					if (iCloseness != 0)
++					{
++						if (bFirst)
++						{
++							bFirst = false;
++						
++							szString.append(CvWString::format(L"\n\nCloseness:"));
++						}
++
++						szString.append(CvWString::format(L"\n%s(7) : %d", kLoopPlayer.getName(), iCloseness));
++						szString.append(CvWString::format(L" (%d, ", kPlayer.AI_playerCloseness(eLoopPlayer, 7)));
++						if (kPlayer.getTeam() != kLoopPlayer.getTeam())
++						{
++							szString.append(CvWString::format(L"%d)", GET_TEAM(kPlayer.getTeam()).AI_teamCloseness(kLoopPlayer.getTeam(), 7)));
++						}
++						else
++						{
++							szString.append(CvWString::format(L"-)"));
++						}
++					}
++*/
+ 					if( pPlotCity->isCapital() )
+ 					{
+ 						if( true )
+@@ -2444,9 +2468,9 @@
+ 							
+ 						}
+ 					}
+-					/********************************************************************************/
+-					/**		BETTER_BTS_AI_MOD						END								*/
+-					/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 				}
+ 			}
+ 
+@@ -2773,12 +2797,11 @@
+             }
+             
+ 			szString.append(szTempBuffer);
+-
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						6/11/08				jdog5000	*/
+-			/**																				*/
+-			/**		Debug																	*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                         06/11/08                                jdog5000      */
++/**                                                                                              */
++/** Debug                                                                                        */
++/*************************************************************************************************/
+ 			szString.append(CvWString::format(L"\n\nNum Wars: %d + %d minor", GET_TEAM(pPlot->getTeam()).getAtWarCount(true), GET_TEAM(pPlot->getTeam()).getAtWarCount(false) - GET_TEAM(pPlot->getTeam()).getAtWarCount(true)));
+ 			szString.append(CvWString::format(L"\nWarplans:"));
+ 			for (int iK = 0; iK < MAX_TEAMS; ++iK)
+@@ -2842,9 +2865,9 @@
+ 			{
+ 				szString.append(CvWString::format(L"\nTarget City: None"));
+ 			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						End								*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	    }
+ 
+ 		bool bFirst = true;
+@@ -3083,11 +3106,6 @@
+ 			}
+ 		}
+ 	
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						7/11/08				jdog5000	*/
+-		/**																				*/
+-		/**		Debug																	*/
+-		/********************************************************************************/
+ 		// calc some bonus info
+ 		if (GC.getGameINLINE().isDebugMode())
+ 		{
+@@ -3097,7 +3115,6 @@
+ 		{
+ 			eBonus = pPlot->getBonusType(GC.getGameINLINE().getActiveTeam());
+ 		}
+-		
+ 		if (eBonus != NO_BONUS)
+ 		{
+ 			szString.append(CvWString::format(L"\n%s values:", GC.getBonusInfo(eBonus).getDescription()));
+@@ -3107,6 +3124,14 @@
+ 				CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes) iPlayerIndex);
+ 				if (kLoopPlayer.isAlive())
+ 				{
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/11/08                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
++/* original code
++					szString.append(CvWString::format(L"\n %s: %d", kLoopPlayer.getName(), kLoopPlayer.AI_bonusVal(eBonus)));
++*/
+ 					BonusTypes eNonObsBonus = pPlot->getNonObsoleteBonusType(kLoopPlayer.getTeam());
+ 					if( eNonObsBonus != NO_BONUS )
+ 					{
+@@ -3116,12 +3141,12 @@
+ 					{
+ 						szString.append(CvWString::format(L"\n %s: unknown (%d)", kLoopPlayer.getName(), kLoopPlayer.AI_bonusVal(eBonus)));
+ 					}
+-				}
+-			}
+-		}
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						END								*/
+-		/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
++				}
++			}
++		}
+ 	}
+ 	else
+ 	{
+@@ -3381,11 +3406,14 @@
+ 			szString.append(GC.getRouteInfo(pPlot->getRevealedRouteType(GC.getGameINLINE().getActiveTeam(), true)).getDescription());
+ 		}
+ 
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						6/24/08				jdog5000	*/
+-		/**																				*/
+-		/**		Debug																	*/
+-		/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/11/08                                jdog5000      */
++/**                                                                                              */
++/** DEBUG                                                                                        */
++/*************************************************************************************************/
++/* original code
++		if (pPlot->getBlockadedCount(GC.getGameINLINE().getActiveTeam()) > 0)
++*/
+ 		if( GC.getGameINLINE().isDebugMode() )
+ 		{
+ 			bool bFirst = true;
+@@ -3409,15 +3437,15 @@
+ 			}
+ 		}
+ 		else if (pPlot->getBlockadedCount(GC.getGameINLINE().getActiveTeam()) > 0)
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 		{
+ 			szString.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT")));
+ 			szString.append(NEWLINE);
+ 			szString.append(gDLL->getText("TXT_KEY_PLOT_BLOCKADED"));
+ 			szString.append(CvWString::format( ENDCOLR));
+ 		}
+-		/********************************************************************************/
+-		/**		BETTER_BTS_AI_MOD						End								*/
+-		/********************************************************************************/
+ 
+ 	}
+ 
+@@ -11855,6 +11883,12 @@
+ 	CvPlayer& kThisPlayer = GET_PLAYER(eThisPlayer);
+ 	CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+ 
++/*************************************************************************************************/
++/** BETTER_BTS_AI                         11/08/08                                jdog5000       */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
++/* original code
+ 	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 	{
+ 		CvTeamAI& kTeam = GET_TEAM((TeamTypes) iTeam);
+@@ -11876,6 +11910,56 @@
+ 			}
+ 		}
+ 	}
++*/
++	// Put all war, worst enemy strings on one line
++	CvWStringBuffer szWarWithString;
++	CvWStringBuffer szWorstEnemyString;
++	bool bFirst = true;
++	bool bFirst2 = true;
++	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++	{
++		CvTeamAI& kTeam = GET_TEAM((TeamTypes) iTeam);
++		if (kTeam.isAlive() && !kTeam.isMinorCiv() && iTeam != kThisPlayer.getTeam() && iTeam != kOtherPlayer.getTeam())
++		{
++			if (kTeam.isHasMet(kOtherPlayer.getTeam()))
++			{
++				if (::atWar((TeamTypes) iTeam, kThisPlayer.getTeam()))
++				{
++					setListHelp(szWarWithString, L"", kTeam.getName().GetCString(), L", ", bFirst);
++					bFirst = false;
++				}
++
++				if (kTeam.AI_getWorstEnemy() == kThisPlayer.getTeam() && !kTeam.isHuman())
++				{
++					setListHelp(szWorstEnemyString, L"", kTeam.getName().GetCString(), L", ", bFirst2);
++					bFirst2 = false;
++				}
++			}
++		}
++	}
++
++	if( !szWorstEnemyString.isEmpty() )
++	{
++		CvWString szTempBuffer;
++
++		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_WORST_ENEMY_OF", szWorstEnemyString));
++
++		szString.append(NEWLINE);
++		szString.append(szTempBuffer);
++	}
++	if( !szWarWithString.isEmpty() )
++	{
++		CvWString szTempBuffer;
++
++		szTempBuffer.assign(gDLL->getText(L"TXT_KEY_AT_WAR_WITH", szWarWithString));
++
++		szString.append(NEWLINE);
++		szString.append(szTempBuffer);
++	}
++
++/*************************************************************************************************/
++/** BETTER_BTS_AI                          END                                                   */
++/*************************************************************************************************/
+ }
+ 
+ void CvGameTextMgr::buildHintsList(CvWStringBuffer& szBuffer)
+
+Index: /trunk/CvGameCoreDLL/CvPlayer.cpp
+--- /trunk/CvGameCoreDLL/CvPlayer.cpp@402
++++ /trunk/CvGameCoreDLL/CvPlayer.cpp@403
+@@ -2660,23 +2660,23 @@
+ 	return GC.getLeaderHeadInfo(getLeaderType()).hasTrait(eTrait);
+ }
+ 
+-/********************************************************************************/
+-/**		AI_AUTO_PLAY_MOD						7/9/08				jdog5000	*/
+-/**																				*/
+-/**																				*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                           07/09/08                            jdog5000      */
++/**                                                                                              */
++/**                                                                                              */
++/*************************************************************************************************/
+ void CvPlayer::setHumanDisabled( bool newVal )
+ {
+ 	m_bDisableHuman = newVal;
+-	updateHuman();		//MRGENIE fix for BtS 3.13
++	updateHuman();
+ }
+ bool CvPlayer::isHumanDisabled( )
+ {
+ 	return m_bDisableHuman;
+ }
+-/********************************************************************************/
+-/**		AI_AUTO_PLAY_MOD						End								*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** AI_AUTO_PLAY_MOD                            END                                              */
++/*************************************************************************************************/
+ 
+ bool CvPlayer::isHuman() const
+ {
+@@ -2692,8 +2692,8 @@
+ 	else
+ 	{
+ /*************************************************************************************************/
+-/**	AI_AUTO_PLAY_MOD							09/01/07							MRGENIE      */
+-/**					                                                                             */
++/** AI_AUTO_PLAY_MOD                            09/01/07                        MRGENIE          */
++/**                                                                                              */
+ /**                                                                                              */
+ /*************************************************************************************************/
+ /*
+@@ -2708,7 +2708,7 @@
+ 			m_bHuman = GC.getInitCore().getHuman(getID());
+ 		}
+ /*************************************************************************************************/
+-/**	AI_AUTO_PLAY_MOD						END												   ***/
++/** AI_AUTO_PLAY_MOD                            END                                              */
+ /*************************************************************************************************/	
+ 	}
+ }
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@402
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@403
+@@ -2760,16 +2760,18 @@
+ 		{
+ 			if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 			{
+-				/********************************************************************************/
+-				/**		BETTER_BTS_AI_MOD						7/11/08				jdog5000	*/
+-				/**																				*/
+-				/**		War strategy AI															*/
+-				/********************************************************************************/
+-				//iValue++;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/11/08                                jdog5000      */
++/**                                                                                              */
++/** War strategy AI                                                                              */
++/*************************************************************************************************/
++/* original code
++				iValue++;
++*/
+ 				iValue += std::min(4,std::max(1, AI_bonusVal(pLoopPlot->getBonusType(getTeam()))/10));
+-				/********************************************************************************/
+-				/**		BETTER_BTS_AI_MOD						END								*/
+-				/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			}
+ 
+ 			if (pLoopPlot->getOwnerINLINE() == getID())
+@@ -10837,8 +10839,7 @@
+ 		/**																				*/
+ 		/**		Espionage AI															*/
+ 		/********************************************************************************/
+-		/*
+-		// original BTS code
++		/* original BTS code
+ 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+ 		{
+ 			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+@@ -15352,19 +15353,22 @@
+ 	FAssert(GET_PLAYER(eIndex).isAlive());
+ 	FAssert(eIndex != getID());
+ 	
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						6/17/08				jdog5000	*/
+-	/**																				*/
+-	/**		Bug fix, closeness changes												*/
+-	/********************************************************************************/
+ 	iValue = 0;
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
++/**                                                                                              */
++/** Bug Fix                                                                                      */
++/*************************************************************************************************/
++/* original code
++	for (pLoopCity = GET_PLAYER(eIndex).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eIndex).nextCity(&iLoop))
++*/
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	{
+ 		iValue += pLoopCity->AI_playerCloseness(eIndex, iMaxDistance);
+ 	}
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
+ 	
+ 	return iValue;
+ }
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.cpp
+--- /trunk/CvGameCoreDLL/CvTeamAI.cpp@402
++++ /trunk/CvGameCoreDLL/CvTeamAI.cpp@403
+@@ -600,34 +600,34 @@
+ 				iValue += 4;
+ 			}
+ 
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
+-			/**																				*/
+-			/**		Notes																	*/
+-			/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      06/17/08                                jdog5000      */
++/**                                                                                              */
++/** Notes                                                                                        */
++/*************************************************************************************************/
+ 			// This section of code does nothing without XML modding as AIObjective is 0 for all bonuses
+ 			// Left alone for mods to use
+ 			// Resource driven war in BBAI is done with CvTeamAI::AI_calculateBonusWarValue
+ 			// without using the XML variable AIObjective
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 			BonusTypes eBonus = pLoopPlot->getBonusType(getID());
+ 			if (NO_BONUS != eBonus)
+ 			{
+ 				iValue += 40 * GC.getBonusInfo(eBonus).getAIObjective();
+ 			}
+-			/********************************************************************************/
+-			/**		BETTER_BTS_AI_MOD						END								*/
+-			/********************************************************************************/
+ 		}
+ 	}
+ 
+ 	return iValue;
+ }
+ 
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						7/21/08				jdog5000	*/
+-/**																				*/
+-/**		War strategy AI															*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/21/08                                jdog5000      */
++/**                                                                                              */
++/** War Strategy AI                                                                              */
++/*************************************************************************************************/
+ int CvTeamAI::AI_calculateBonusWarValue(TeamTypes eTeam) const
+ {
+ 	FAssert(eTeam != getID());
+@@ -691,9 +691,9 @@
+ 
+ 	return iValue;
+ }
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ int CvTeamAI::AI_calculateCapitalProximity(TeamTypes eTeam) const
+ {
+@@ -1029,19 +1029,21 @@
+ 	iValue += (3 * AI_calculateCapitalProximity(eTeam)) / ((iValue > 0) ? 2 : 3);
+ 	
+ 	int iClosenessValue = AI_teamCloseness(eTeam);
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
+-	/**																				*/
+-	/**		War Strategy AI, closeness changes										*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/10/08                                jdog5000      */
++/**                                                                                              */
++/** War Strategy AI                                                                              */
++/*************************************************************************************************/
++/* original code
++	if (iClosenessValue == 0)
++	{
++		iValue /= 4;
++	}
++	iValue += iClosenessValue / 4;
++*/
+ 	// Dividing iValue by 4 is a drastic move, will result in more backstabbing between friendly neighbors
+ 	// which is appropriate for Aggressive
+ 	// Closeness values are much smaller after the fix to CvPlayerAI::AI_playerCloseness, no need to divide by 4
+-	/*if (iClosenessValue == 0)
+-	{
+-		iValue /= 4;
+-	}
+-	iValue += iClosenessValue / 4;*/
+ 	if (iClosenessValue == 0)
+ 	{
+ 		iValue /= (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 4 : 2);
+@@ -1049,9 +1051,9 @@
+ 	iValue += iClosenessValue;
+ 
+ 	iValue += AI_calculateBonusWarValue(eTeam);
+-	/********************************************************************************/
+-	/**		BETTER_BTS_AI_MOD						END								*/
+-	/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 	
+ 	int iOurVictoryCountdown = AI_getLowestVictoryCountdown();
+ 	int iTheirVictoryCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+
+Index: /trunk/CvGameCoreDLL/CvTeamAI.h
+--- /trunk/CvGameCoreDLL/CvTeamAI.h@402
++++ /trunk/CvGameCoreDLL/CvTeamAI.h@403
+@@ -62,15 +62,15 @@
+ 	int AI_calculateAdjacentLandPlots(TeamTypes eTeam) const;
+ 	int AI_calculateCapitalProximity(TeamTypes eTeam) const;
+ 	int AI_calculatePlotWarValue(TeamTypes eTeam) const;
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						7/10/08				jdog5000	*/
+-/**																				*/
+-/**																				*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                      07/10/08                                jdog5000      */
++/**                                                                                              */
++/** General AI                                                                                   */
++/*************************************************************************************************/
+ 	int AI_calculateBonusWarValue(TeamTypes eTeam) const;
+-/********************************************************************************/
+-/**		BETTER_BTS_AI_MOD						END								*/
+-/********************************************************************************/
++/*************************************************************************************************/
++/** BETTER_BTS_AI_MOD                       END                                                  */
++/*************************************************************************************************/
+ 
+ 	bool AI_isWarPossible() const;
+ 	bool AI_isLandTarget(TeamTypes eTeam) const;
+
+Index: /trunk/CvGameCoreDLL/CvUnitAI.h
+--- /trunk/CvGameCoreDLL/CvUnitAI.h@402
++++ /trunk/CvGameCoreDLL/CvUnitAI.h@403
+@@ -14,10 +14,10 @@
+ 
+ public:
+ 
+-  CvUnitAI();
+-  virtual ~CvUnitAI();
+-
+-  void AI_init(UnitAITypes eUnitAI);
++	CvUnitAI();
++	virtual ~CvUnitAI();
++
++	void AI_init(UnitAITypes eUnitAI);
+ 	void AI_uninit();
+ 	void AI_reset(UnitAITypes eUnitAI = NO_UNITAI);
+ 
+

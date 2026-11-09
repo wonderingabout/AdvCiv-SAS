@@ -1,0 +1,147 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 158
+# Author: iustus
+# Date: 2006-12-09T12:14:44.688211Z
+# Coverage: full
+# Message:
+#   merge from trunk, revs 155-157
+# Changed paths (3):
+#   M /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvGame.cpp
+#   M /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@157
++++ /branches/vanilla/CvGameCoreDLL/CvCityAI.cpp@158
+@@ -149,6 +149,11 @@
+ 			setForceSpecialistCount(((SpecialistTypes)iI), 0);
+ 		}
+ 	}
++	
++    if (!isHuman())
++	{
++	    AI_stealPlots();
++	}
+ 
+ 	AI_assignWorkingPlots();
+ 
+@@ -188,10 +193,6 @@
+ 		{
+ 			setWorkingPlot(iI, false);
+ 		}
+-	}
+-	if (!isHuman())
+-	{
+-	    AI_stealPlots();
+ 	}
+ 	
+ 	// remove any plots we can no longer work for any reason
+@@ -6176,28 +6177,42 @@
+ 
+ void CvCityAI::AI_stealPlots()
+ {
++    PROFILE_FUNC();
+     CvPlot* pLoopPlot;
+     CvCityAI* pWorkingCity;
+     int iI;
+     int iOtherImportance;
+     
+     int iImportance = AI_getCityImportance(true, false);
+-    if (iImportance > 0)
++
++    for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+     {
+-        for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++        pLoopPlot = plotCity(getX_INLINE(),getY_INLINE(),iI);
++        
++        if (pLoopPlot != NULL)
+         {
+-            pLoopPlot = plotCity(getX_INLINE(),getY_INLINE(),iI);
+-            
+-            if (pLoopPlot != NULL)
++            if (iImportance > 0)
+             {
+-                pWorkingCity = static_cast<CvCityAI*>(pLoopPlot->getWorkingCity());
+-                if (pWorkingCity != this)
++                if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE())
+                 {
+-                    iOtherImportance = pWorkingCity->AI_getCityImportance(true, false);
+-                    if (iImportance > iOtherImportance)
++                    pWorkingCity = static_cast<CvCityAI*>(pLoopPlot->getWorkingCity());
++                    if ((pWorkingCity != this) && (pWorkingCity != NULL))
+                     {
+-                        pLoopPlot->setWorkingCityOverride(this);
++                        FAssert(pWorkingCity->getOwnerINLINE() == getOwnerINLINE());
++                        iOtherImportance = pWorkingCity->AI_getCityImportance(true, false);
++                        if (iImportance > iOtherImportance)
++                        {
++                            pLoopPlot->setWorkingCityOverride(this);
++                        }
+                     }
++                }
++            }
++                
++            if (pLoopPlot->getWorkingCityOverride() == this)
++            {
++                if (pLoopPlot->getOwnerINLINE() != getOwnerINLINE())
++                {
++                    pLoopPlot->setWorkingCityOverride(NULL);                    
+                 }
+             }
+         }
+
+Index: /branches/vanilla/CvGameCoreDLL/CvGame.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvGame.cpp@157
++++ /branches/vanilla/CvGameCoreDLL/CvGame.cpp@158
+@@ -1147,7 +1147,12 @@
+                                     {
+                                         iTargetFood = 1;
+                                         iTargetTotal = 1;
+-                                        if ((iPlotFood == 1) || (iDistance <= iCityRange))
++                                        if (pLoopPlot->getBonusType(GET_PLAYER((PlayerTypes)iI).getTeam()) != NO_BONUS)
++                                        {
++                                            iTargetFood = 1;
++                                            iTargetTotal = 2;
++                                        }
++                                        else if ((iPlotFood == 1) || (iDistance <= iCityRange))
+                                         {
+                                             iTargetFood = 1 + getSorenRandNum(2, "Map Upgrade Terrain Food");
+                                             iTargetTotal = 2;
+@@ -1456,7 +1461,7 @@
+ 			if (pStartingPlot != NULL)
+ 			{
+ 				iValue = GET_PLAYER((PlayerTypes)iI).AI_foundValue(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), -1, true);
+-				iTotalValue++;
++				iTotalValue += iValue;
+                 iPlayerCount++;
+                 
+                 iBestValue = max(iValue, iBestValue);
+@@ -1466,9 +1471,10 @@
+ 		}
+ 	}
+ 
+-	iTargetValue = (((iTotalValue + (iBestValue - iWorstValue)) * 3) / iPlayerCount);
+-	iTargetValue += iBestValue;
+-	iTargetValue /= 5; //somewhere around 3/5th of bestvalue...
++	//iTargetValue = (iTotalValue + iBestValue) / (iPlayerCount + 1);
++	
++	iTargetValue = (iBestValue * 3) / 5;
++		
+ 
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+
+Index: /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp
+--- /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@157
++++ /branches/vanilla/CvGameCoreDLL/CvPlayerAI.cpp@158
+@@ -6561,7 +6561,7 @@
+ 	iValue += (GC.getCivicInfo(eCivic).getFreeSpecialist() * getNumCities() * 12);
+ 	iValue += ((GC.getCivicInfo(eCivic).getTradeRoutes() * max(0, iConnectedForeignCities - getNumCities() * 3) * 6) + (getNumCities() * 2));
+ 	iValue += -((GC.getCivicInfo(eCivic).isNoForeignTrade()) ? (iConnectedForeignCities * 3) : 0);
+-	iValue += (min(20, ((GC.getCivicInfo(eCivic).getCivicPercentAnger() * (GC.getGameINLINE().getNumCities() - getNumCities())) / 10)) / (bCultureVictory3 ? 5 : 1));
++	iValue += ((min(20, GC.getCivicInfo(eCivic).getCivicPercentAnger()) * (GC.getGameINLINE().getNumCities() - getNumCities())) / 10) / (bCultureVictory3 ? 5 : 1);
+ 	iValue += (GC.getCivicInfo(eCivic).getNonStateReligionHappiness() * (iTotalReligonCount - iHighestReligionCount) * 5);
+ 
+ 	if (GC.getCivicInfo(eCivic).isStateReligion())
+

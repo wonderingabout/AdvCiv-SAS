@@ -1,0 +1,487 @@
+# SVN revision diff
+# Source: https://svn.code.sf.net/p/civ4betterai/code/
+# Revision: 201
+# Author: blakeciv
+# Date: 2006-12-18T20:41:59.890223Z
+# Coverage: full
+# Message:
+#   The second big "City Specialization" commit, it's been integrated into more subsystems like terrain improvement is the big one, but also a little build governor stuff. Added to CvCityAI "AI_yieldMultiplier" which is what the AI thinks the average multiplier is for that city... it's a reasonable approximation for long-term decision making...
+#   Also made some other tweaks - fixed an irrigation chaining bug (i think it's fixed anyway) and made sure the AI builds military academy in the instructor city. 
+#   Fixed some really braindead bugs introduced by me in the last checkin or two...
+# Changed paths (4):
+#   M /trunk/CvGameCoreDLL/CvCity.h
+#   M /trunk/CvGameCoreDLL/CvCityAI.cpp
+#   M /trunk/CvGameCoreDLL/CvCityAI.h
+#   M /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+
+Index: /trunk/CvGameCoreDLL/CvCity.h
+--- /trunk/CvGameCoreDLL/CvCity.h@200
++++ /trunk/CvGameCoreDLL/CvCity.h@201
+@@ -778,6 +778,7 @@
+ 	virtual int AI_calculateCulturePressure(bool bGreatWork = false) = 0;
+ 	virtual int AI_calculateWaterWorldPercent() = 0;
+ 	virtual int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true) = 0;
++	virtual int AI_yieldMultiplier(YieldTypes eYield) = 0;
+ 
+ protected:
+ 
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.cpp
+--- /trunk/CvGameCoreDLL/CvCityAI.cpp@200
++++ /trunk/CvGameCoreDLL/CvCityAI.cpp@201
+@@ -2668,7 +2668,7 @@
+ 					// either not a wonder, or a wonder and we are a high production city
+ 					if (!bIsLimitedWonder || bIsHighProductionCity)
+ 					{
+-						iValue += (iMilitaryProductionModifier / 3);
++						iValue += (iMilitaryProductionModifier / 4);
+ 
+ 						// if a wonder, then pick one of the best cities
+ 						if (bIsLimitedWonder)
+@@ -2676,14 +2676,15 @@
+ 							// if one of the top 3 production cities, give a big boost
+ 							if (aiYieldRank[YIELD_PRODUCTION] <= (2 + iLimitedWonderLimit))
+ 							{
+-								iValue += (iMilitaryProductionModifier / aiYieldRank[YIELD_PRODUCTION]);
++								iValue += (2 * iMilitaryProductionModifier) / (2 + aiYieldRank[YIELD_PRODUCTION]);
+ 							}
+ 						}
+ 						// otherwise, any of the top half of cities will do
+ 						else if (bIsHighProductionCity)
+ 						{
+-							iValue += iMilitaryProductionModifier / 3;
++							iValue += iMilitaryProductionModifier / 4;
+ 						}
++						iValue += ((iMilitaryProductionModifier * (getFreeExperience() + getSpecialistFreeExperience())) / 10);
+ 					}
+ 					// otherwise, this is a limited wonder (aka Heroic Epic), we _really_ do not want to build this here
+ 					// subtract from the value (if this wonder has a lot of other stuff, we still might build it)
+@@ -3871,9 +3872,9 @@
+ 	int iFoodTotal = GC.getYieldInfo(YIELD_FOOD).getMinCity();
+ 	int iProductionTotal = GC.getYieldInfo(YIELD_PRODUCTION).getMinCity();
+ 	BonusTypes eBonus;
+-	int iFoodPriority = 0;
+-	int iCommercePriority = 0;
+-	int iProductionPriority = 0;
++	int iFoodMultiplier = 100;
++	int iCommerceMultiplier = 100;
++	int iProductionMultiplier = 100;
+ 	int iWorkerCount = 0;
+ 
+ 	bool bChop = false;
+@@ -3959,47 +3960,65 @@
+ 
+ 	if (iBonusFoodDiff < 3)
+ 	{
+-		iFoodPriority = max(1, 1 - (iBonusFoodDiff / 3));
++		iFoodMultiplier += 10 * (3 - iBonusFoodDiff);
+ 	}
+ 
+ 	if (iFoodTotal < ((iTargetSize + ((getPopulation() < iTargetSize) ? 1 : 0)) * GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+ 	{
+-		iFoodPriority ++;
+-	}
+-
+-//    else if ((getPopulation() >= NUM_CITY_PLOTS) && (iFoodTotal > iFoodEaten))
+-//    {
+-//        iFoodPriority--;
+-//    }
+-//	else
+-//	{
+-//	    iCommercePriority += 1;
+-//	}
++		iFoodMultiplier += 30;
++	}
+ 
+ 	if (iProductionTotal < 10)
+ 	{
+-	    iProductionPriority += 1;
++	    iProductionMultiplier += (40 - 4 * iProductionTotal);
+ 	}
+ 	if (iProductionTotal < getPopulation())
+ 	{
+-	    iProductionPriority += 1;
+-	}
+-
+-//	if (((iBonusFoodSurplus + iFeatureFoodSurplus) > 1) && ((iBonusFoodDeficit + iHillFoodDeficit) < 5) && (iProductionTotal > 8))
+-//	{
+-//		iCommercePriority = 1;
+-//	}
++	    iProductionMultiplier += 5 * (iProductionTotal - getPopulation());
++	}
+ 
+ 	if ((iBonusFoodSurplus + iFeatureFoodSurplus > 5) && ((iBonusFoodDeficit + iHillFoodDeficit) > 5))
+ 	{
+ 		if ((iBonusFoodDeficit + iHillFoodDeficit) > 8)
+ 		{
+ 			//probably a good candidate for a wonder pump
+-			iProductionPriority = 1;
+-			iCommercePriority = (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) ? 0 : -1;
+-		}
+-	}
+-
++			iProductionMultiplier += 20;
++			iCommerceMultiplier += (GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble()) ? 0 : -40;
++		}
++	}
++	
++	int iProductionAdvantage = 100 * AI_yieldMultiplier(YIELD_PRODUCTION);
++	iProductionAdvantage /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_PRODUCTION);
++	iProductionAdvantage *= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_COMMERCE);
++	iProductionAdvantage /= AI_yieldMultiplier(YIELD_COMMERCE);
++	
++	//now we normalize the effect by # of cities
++	
++	int iNumCities = GET_PLAYER(getOwnerINLINE()).getNumCities();
++	FAssert(iNumCities > 0);//superstisious?
++	
++	//in short in an OCC the relative multipliers should *never* make a difference
++	//so this indeed equals "100" for the iNumCities == 0 case.
++	iProductionAdvantage = ((iProductionAdvantage * (iNumCities - 1) + 200) / (iNumCities + 1));
++	
++	iProductionMultiplier *= iProductionAdvantage;
++	iProductionMultiplier /= 100;
++	
++	iCommerceMultiplier *= 100;
++	iCommerceMultiplier /= iProductionAdvantage;
++	
++	int iGreatPeopleAdvantage = 100 * getTotalGreatPeopleRateModifier();
++	iGreatPeopleAdvantage /= GET_PLAYER(getOwnerINLINE()).AI_averageGreatPeopleMultiplier();
++	iGreatPeopleAdvantage = ((iGreatPeopleAdvantage * (iNumCities - 1) + 200) / (iNumCities + 1));
++	iGreatPeopleAdvantage += 200; //gpp multipliers are larger than others so lets not go overboard
++	iGreatPeopleAdvantage /= 3;
++	
++	//With great people we want to slightly increase food priority at the expense of commerce
++	//this gracefully handles both wonder and specialist based GPP...
++	iCommerceMultiplier *= 100;
++	iCommerceMultiplier /= iGreatPeopleAdvantage;
++	iFoodMultiplier *= iGreatPeopleAdvantage;
++	iFoodMultiplier /= 100;	
+ 
+     if (!bChop)
+ 	{
+@@ -4034,7 +4053,7 @@
+ 
+ 			if (NULL != pLoopPlot && pLoopPlot->getWorkingCity() == this)
+ 			{
+-				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodPriority, iProductionPriority, iCommercePriority, bChop);
++				AI_bestPlotBuild(pLoopPlot, &(m_aiBestBuildValue[iI]), &(m_aeBestBuild[iI]), iFoodMultiplier, iProductionMultiplier, iCommerceMultiplier, bChop);
+ 				m_aiBestBuildValue[iI] *= 4;
+ 				m_aiBestBuildValue[iI] /= (4 + iWorkerCount);
+ 				FAssert(AI_getBestBuildValue(iI) >= 0);
+@@ -4449,6 +4468,12 @@
+ 			//this overrides everything.
+ 			if (bGrowth)
+ 			{
++				int iHurryGold = hurryGold((HurryTypes)iI);
++				if ((iHurryGold > 0) && ((iHurryGold * 16) > GET_PLAYER(getOwnerINLINE()).getGold()))
++				{
++					hurry((HurryTypes)iI);
++					break;					
++				}
+ 				if (AI_countGoodTiles((healthRate(0) == 0), false, 90) <= (getPopulation() - iHurryPopulation))
+ 				{
+ 					hurry((HurryTypes)iI);
+@@ -4616,7 +4641,7 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_PRODUCTION) > 0)
+ 		{
+-			if (bUrgentBuild || (iBadHealth > 5))
++			if (bUrgentBuild)
+ 			{
+ 				bEmphasize = true;
+ 			}
+@@ -4624,7 +4649,7 @@
+ 
+ 		if (GC.getEmphasizeInfo((EmphasizeTypes)iI).getYieldChange(YIELD_COMMERCE) > 0)
+ 		{
+-			if (bFirstTech || (iBadHealth > 5))
++			if (bFirstTech)
+ 			{
+ 				bEmphasize = true;
+ 			}
+@@ -4645,7 +4670,7 @@
+ 		{
+ 			if (!bUrgentBuild)
+ 			{
+-				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1) || (iBadHealth > 5))
++				if (iPopulationRank < ((GET_PLAYER(getOwnerINLINE()).getNumCities() / 5) + 1))
+ 				{
+ 				    if (!bCultureVictory || iCultureRateRank > (iCulturalVictoryNumCultureCities + 1))
+ 				    {
+@@ -5357,7 +5382,8 @@
+ 		int iFoodPerTurn = (foodDifference(false) - ((bRemove) ? aiYields[YIELD_FOOD] : 0));
+ 		int iFoodLevel = getFood();
+ 		int iFoodToGrow = growthThreshold();
+-		int iHappinessLevel = (isNoUnhappiness() ? 5 : happyLevel() - unhappyLevel(0));
++		int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
++		int iHappinessLevel = (isNoUnhappiness() ? max(3, iHealthLevel + 5) : happyLevel() - unhappyLevel(0));
+ 		int iPopulation = getPopulation();
+ 		int iWorkingPopulation = getWorkingPopulation();
+ 		int	iExtraPopulationThatCanWork = min(iPopulation - range(-iHappinessLevel, 0, iPopulation) + min(0, extraFreeSpecialists()) , NUM_CITY_PLOTS) - getWorkingPopulation() + ((bRemove) ? 1 : 0);
+@@ -5398,7 +5424,6 @@
+ 				// the emp food case will just give a big boost to all food under all circumstances
+ 				if (!bIgnoreGrowth && !bEmphasizeFood)
+ 				{
+-				    int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, 1);
+ 					int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 					bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
+ 					// also avail: iFoodLevel, iFoodToGrow
+@@ -5848,8 +5873,11 @@
+ 
+                                             if ((pAdjacantPlot2->isCity()) || (eTempBonus != NO_BONUS) || (!pAdjacantPlot2->isCityRadius()))
+                                             {
+-                                                //these are all ideal for irrigation chains so stop looking.
+-                                                break;
++                                            	if (pAdjacantPlot2->isFreshWater())
++                                            	{
++                                                	//these are all ideal for irrigation chains so stop looking.
++                                                	break;
++                                            	}
+                                             }
+                                         }
+ 
+@@ -6024,9 +6052,9 @@
+ 					}
+ 
+ 
+-					iValue += ((aiDiffYields[YIELD_FOOD] * (100 + 45 * iFoodPriority)));
+-					iValue += ((aiDiffYields[YIELD_PRODUCTION] * (60 + 27 * iProductionPriority)));
+-					iValue += ((aiDiffYields[YIELD_COMMERCE] * (40 + 18 * iCommercePriority)));
++					iValue += (aiDiffYields[YIELD_FOOD] * ((100 * iFoodPriority) / 100));
++					iValue += (aiDiffYields[YIELD_PRODUCTION] * ((60 * iProductionPriority) / 100));
++					iValue += (aiDiffYields[YIELD_COMMERCE] * ((40 * iCommercePriority) / 100));
+ 
+ 
+ 					// this is mainly to make it improve better tiles first
+@@ -6048,10 +6076,10 @@
+ 					if (aiFinalYields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 					{
+ 						//this is a food yielding tile
+-						if (iFoodPriority > 0)
++						if (iFoodPriority > 100)
+ 						{
+-							iValue *= (2 + iFoodPriority);
+-							iValue /= 2;
++							iValue *= iFoodPriority;
++							iValue /= 100;							
+ 						}
+ 					}
+ 					else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION())
+@@ -6060,23 +6088,26 @@
+ 						{
+ 						    if (eNonObsoleteBonus == NO_BONUS)
+ 						    {
+-                                iValue *= 2;
+-                                iValue /= (3 + iFoodPriority);
++                                iValue *= 75;
++                                iValue /= iFoodPriority;
+                                 //if the city needs food there's little sense in improving tiles
+                                 //which can't be worked.
+ 						    }
+ 						}
+ 						else
+ 						{
+-                            //value booster for mines on hills
+-                            iValue *= (100 + 20 * aiDiffYields[YIELD_PRODUCTION]);
+-                            iValue /= 100;
++							if (aiFinalYields[YIELD_PRODUCTION] > 0)
++							{
++								//value booster for mines on hills
++								iValue *= (100 + 20 * aiDiffYields[YIELD_PRODUCTION]);
++								iValue /= 100;
++							}
+ 						}
+ 
+-						if ((iFoodPriority < 0) && (iProductionPriority > 0))
++						if ((iFoodPriority < 100) && (iProductionPriority > 100))
+ 						{
+-						    iValue *= 3+iProductionPriority;
+-						    iValue /= 3;
++						    iValue *= (100 + iProductionPriority);
++						    iValue /= 200;
+ 						}
+ 					}
+ 
+@@ -6362,7 +6393,7 @@
+ 		int iOurDefense = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, true, false);
+ 		int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), 2, false, false);
+ 		int iRatio = (100 * iEnemyOffense) / (max(1, iOurDefense));
+-		AI_doDraft(true);
++
+ 		if (iRatio > 100)
+ 		{
+ 			UnitTypes eProductionUnit = getProductionUnit();
+@@ -6534,22 +6565,22 @@
+ 		}
+ 	}
+ 
++	if ((AI_countNumBonuses(NO_BONUS, false, true, 10) > 0)
++		&& (getPopulation() > AI_countNumBonuses(NO_BONUS, true, false, -1)))
++	{
++		if (getCommerceRate(COMMERCE_CULTURE) == 0)
++		{
++			AI_chooseBuilding(BUILDINGFOCUS_CULTURE);
++		}
++	}
++
+     // pick granary or lighthouse, any duration
+     if (AI_chooseBuilding(BUILDINGFOCUS_FOOD))
+     {
+         return;
+     }
+     
+-    if (((getCommerceRateTimes100(COMMERCE_CULTURE) == 0) && (iCulturePressure != 0))
+-        || (iCulturePressure > 100))
+-    {
+-        if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
+-        {
+-            return;
+-        }
+-    }
+-
+-    if (angryPopulation(1) > 0)
++    if (angryPopulation(1) > 1)
+     {
+         if (AI_chooseBuilding(BUILDINGFOCUS_HAPPY, 40))
+         {
+@@ -6570,7 +6601,20 @@
+         }
+     }
+     
+-
++	if (((getCommerceRateTimes100(COMMERCE_CULTURE) == 0) && (iCulturePressure != 0))
++        || (iCulturePressure > 100))
++    {
++        if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
++        {
++            return;
++        }
++    }
++
++    
++	if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 8))
++    {
++        return;
++    }
+     
+     {
+         int iFlags = BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_GOLD | BUILDINGFOCUS_RESEARCH;
+@@ -6590,12 +6634,6 @@
+                 return;
+             }
+         }
+-    }
+-
+-
+-    if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 15))
+-    {
+-        return;
+     }
+ 
+ 	if (AI_chooseBuilding())
+@@ -6816,6 +6854,9 @@
+     }
+ }
+ 
++
++
++
+ // +1/+3/+5 plot based on base food yield (1/2/3)
+ // +4 if being worked.
+ // +4 if a bonus.
+@@ -6858,6 +6899,34 @@
+ }
+ 
+ 
++int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
++{
++	int iI;
++	
++	int iMultiplier = getBaseYieldRateModifier(eYield);
++	
++	if (eYield == YIELD_PRODUCTION)
++	{
++		iMultiplier += (getMilitaryProductionModifier() / 2);
++	}
++	else if (eYield == YIELD_COMMERCE)
++	{
++		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		{
++			if ((iI == COMMERCE_GOLD) || (iI == COMMERCE_RESEARCH))
++			{
++				//use the average of science and gold. To be strictly correct these should be
++				//weighted by the *sustainable* slider allocation, using the present slider
++				//is fallacious logic. However an average is probably good enough....
++				iMultiplier += ((getTotalCommerceRateModifier((CommerceTypes)iI) - 100) / 2);
++			}
++		}
++	}
++	
++	return iMultiplier;	
++}
++
++
+ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand, bool bWater)
+ {
+     CvPlot* pLoopPlot;
+
+Index: /trunk/CvGameCoreDLL/CvCityAI.h
+--- /trunk/CvGameCoreDLL/CvCityAI.h@200
++++ /trunk/CvGameCoreDLL/CvCityAI.h@201
+@@ -91,9 +91,11 @@
+     
+     bool AI_isCityRole(int iFlag) const;
+ 
+-    void CvCityAI::AI_setCityRole(int iOnFlags, int iOffFlags = 0);
++    void AI_setCityRole(int iOnFlags, int iOffFlags = 0);
+     void AI_resetCityRoles();
+     int AI_getCityImportance(bool bEconomy, bool bMilitary);
++    
++    int AI_yieldMultiplier(YieldTypes eYield);
+     
+     int AI_countNumBonuses(BonusTypes eBonus, bool bIncludeOurs, bool bIncludeNeutral, int iOtherCultureThreshold, bool bLand = true, bool bWater = true);
+ 
+
+Index: /trunk/CvGameCoreDLL/CvPlayerAI.cpp
+--- /trunk/CvGameCoreDLL/CvPlayerAI.cpp@200
++++ /trunk/CvGameCoreDLL/CvPlayerAI.cpp@201
+@@ -9782,6 +9782,13 @@
+ 	if ((eCivic != NO_CIVIC) && (GC.getCivicInfo(eCivic).isNoNonStateReligionSpread()))
+ 	{
+ 		iValue -= 3;		
++	}
++	
++	iValue += countHolyCities();
++	if (GET_TEAM(getTeam()).isAVassal())
++	{
++		iValue += 2;
++		iValue += ((2 * countTotalHasReligion()) + 1) / getNumCities();
+ 	}
+ 
+     //atleast I'm honest
+@@ -10383,22 +10390,11 @@
+ 		
+ 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 		{
+-			m_aiAverageYieldMultiplier[iI] += iPopulation * pLoopCity->getBaseYieldRateModifier((YieldTypes)iI);
+-			if (iI == YIELD_PRODUCTION)
+-			{
+-				m_aiAverageYieldMultiplier[iI] += (iPopulation * getMilitaryProductionModifier()) / 2;
+-			}
++			m_aiAverageYieldMultiplier[iI] += iPopulation * pLoopCity->AI_yieldMultiplier((YieldTypes)iI);
+ 		}
+ 		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			m_aiAverageCommerceMultiplier[iI] += iPopulation * pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI);
+-			if ((iI == COMMERCE_GOLD) || (iI == COMMERCE_RESEARCH))
+-			{
+-				//use the average of science and gold. To be strictly correct these should be
+-				//weighted by the *sustainable* slider allocation, using the present slider
+-				//is fallacious logic. However an average is probably good enough....
+-				m_aiAverageYieldMultiplier[YIELD_COMMERCE] += (iPopulation * (pLoopCity->getTotalCommerceRateModifier((CommerceTypes)iI) - 100)) / 2;
+-			}
+ 		}
+ 		m_iAverageGreatPeopleMultiplier += iPopulation * pLoopCity->getTotalGreatPeopleRateModifier();
+ 	}
+
