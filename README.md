@@ -95,12 +95,17 @@ They are standalone Python 3 command-line scripts in [`LLM_Helpers/`](/LLM_Helpe
 - `.kfm` animation event lists and `.kf` clip previews, including GIFs of leader greetings, unit attacks, and animated bonuses
 - Movie audio and standalone `.mp3` or `.wav` files as waveforms with volume readings
 - Any installed mod's leaders and units by their art define name, found as the game finds them in the mod's loose files and FPKs and the base game's, so mods that mix their own and BtS art need no extraction; units appear in their Sevopedia land, sea or air scene
-- Grid sheets of a mod's leaders or units, filterable by domain, unit combat and era, to browse a mod's art at a glance
+- Any building by its Type in the game's own Sevopedia land or coast scene, with its shadow, as a still from any side or a GIF turning around it
+- Grid sheets of a mod's leaders, units or buildings, filterable by domain, unit combat, kind of building and era, to browse a mod's art at a glance
 - Map plots of any terrain, feature and plot type, with a unit, bonus or improvement standing on the one its XML allows or on any other chosen to try
 - A whole mod's terrains, plot types and features on one sheet, with each mod's own art, such as Caveman2Cosmos's dozens of terrains
 - Glowing and animated features such as Fallout, as a still at any brightness or a GIF of their own loop, found in each mod's models rather than from a list
-- A search across every installed mod for a kind of terrain or feature, such as marshes, swamps and wetlands, drawn side by side in a grid labelled with each mod, to compare how mods draw the same thing at a glance or to look for art and ideas for a new one, as when SAS designed its Marsh
+- A search across every installed mod for a kind of terrain, feature, building or unit, such as marshes, swamps and wetlands, drawn side by side in a grid labelled with each mod, to compare how mods draw the same thing at a glance or to look for art and ideas for a new one, as when SAS designed its Marsh
 - Movies and religion-founding scenes as `.mp4` videos with their sound
+
+Because these tools read a mod's files directly, a mod only has to be extracted into the Mods folder for an agent to view its art and compare it with any other mod's, without launching the game. That includes mods that are partially broken or that no longer start. For example, drawing 26 women units from 11 mods side by side takes about 15 seconds.
+
+Note: some/many of these previews, especially on grids, were not always compared with the game one by one, so they can differ from it.
 
 See [Agent tools for Civ4 file formats](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav) below for stills, frame sheets, and animated examples.
 
@@ -1401,6 +1406,22 @@ Other mods' animated features are found in their models the same way, with no li
 Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cosmos's swamp, mangrove and peat bog to Sengoku's marsh and Realism Invictus's swamp; when SAS designed its Marsh, that comparison was done by hand from screenshots. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_marshes.png" alt="llm_search_marshes.png" width="600">
+
+**Buildings**: `nif_preview.py` also draws a building in its Sevopedia scene, on land or on the coast as its XML says, turning at the game's pace. See [Buildings](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#buildings).
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_ziggurat.gif" alt="llm_animation_building_ziggurat.gif" width="280"> <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_drydock.gif" alt="llm_animation_building_drydock.gif" width="280">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_sas_ancient_buildings.png" alt="llm_gallery_sas_ancient_buildings.png" width="600">
+
+**Hunting for art**: the same search finds buildings or units across mods, drawing a model that several mods share only once. Here are labs, farms and reactors for a future era.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_future_buildings.png" alt="llm_search_future_buildings.png" width="600">
+
+**Units across mods**: a unit stands in its idle pose and scene, with the player colour on its tabard or shield. Here are women units from 11 mods, then Ashes of Erebus's beasts.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_female_units.png" alt="llm_search_female_units.png" width="600">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_erebus_beasts.png" alt="llm_gallery_erebus_beasts.png" width="600">
 
 **Videos with sound**: Bink movies and religion-founding scenes can be written as `.mp4` with their sound, whole or as a slice in seconds or percent, to play in VLC or a browser; these copy Firaxis's movies, so they are kept out of the repository. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#videos-with-sound).
 

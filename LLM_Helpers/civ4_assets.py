@@ -81,6 +81,11 @@ def lenient_records(data):
 	return [dict(re.findall(r"<(\w+)>([^<]*)</\1>", block)) for _, block in re.findall(r"<(\w*ArtInfo)>(.*?)</\1>", text, re.DOTALL)]
 
 
+def field_text(body, tag):
+	match = re.search(r"<%s>\s*([^<\s]+)" % tag, body or "")
+	return match.group(1) if match else None
+
+
 class Civ4Assets:
 	def __init__(self, mod=None, root=DEFAULT_ROOT):
 		self.root = Path(root)
@@ -95,6 +100,9 @@ class Civ4Assets:
 		self.xml_roots = []
 		self.art_records = None
 		self.unit_records = None
+		self.building_records = None
+		# <!-- custom: Each building's or unit's art define by its Type, as several Types can share one art define, which the records above list once. (Claude code Opus 5.5) -->
+		self.type_art = {}
 		# <!-- custom: Loose files come before a folder's own FPKs, as when a mod ships an unpacked fix over its packed art.
 		# Within one folder, FPKs are searched in name order; the game's order between two archives holding the same file was not verified. (Claude code Opus 5.5) -->
 		for label, assets in (("mod", self.mod_assets), ("BtS", bts / "Assets"), ("Warlords", self.root / "Warlords" / "Assets"), ("Civ4", self.root / "Assets")):
@@ -238,16 +246,44 @@ class Civ4Assets:
 					else:
 						fields = {tag: (re.search(r"<%s>\s*([^<\s]+)" % tag, body) or [None, None])[1] for tag in ("Domain", "Combat", "PrereqTech")}
 						fields["Unit"] = info_type.group(1)
+						# <!-- custom: Fall from Heaven's descendants leave out <Domain> for land units, which then had no Sevopedia scene. (Claude code Opus 5.5) -->
+						fields["Domain"] = fields["Domain"] or "DOMAIN_LAND"
 						# <!-- custom: Realism Invictus lists a unit's techs as <PrereqTechs><TechType>...</TechType></PrereqTechs> instead of one <PrereqTech>, which left every RI unit without an era; take the first listed tech then. (Claude code Opus 5.5) -->
 						listed = re.search(r"<PrereqTechs>\s*<TechType>\s*([^<\s]+)", body)
 						if fields["PrereqTech"] in (None, "NONE") and listed:
 							fields["PrereqTech"] = listed.group(1)
 						for art in re.findall(r"<(?:Early|Middle|Late)ArtDefineTag>\s*([^<\s]+)", body):
 							store.setdefault(art, fields)
+							self.type_art.setdefault(info_type.group(1), art)
 		for fields in units.values():
 			fields["Era"] = eras.get(fields["PrereqTech"])
 		self.unit_records = units
 		return units
+
+	def buildings(self):
+		# <!-- custom: Each building art define's building, with its kind (building, national or world wonder, from its class's instance limits), whether it stands on the coast (bWater), and its prerequisite tech's era, to pick a Sevopedia scene and to filter galleries. (Claude code Opus 5.5) -->
+		if self.building_records is not None:
+			return self.building_records
+		eras = {kind: field_text(body, "Era") for kind, body in self.infos("Technologies", "techinfos", "TechInfo").items()}
+		classes = self.infos("Buildings", "buildingclassinfos", "BuildingClassInfo")
+		records = {}
+		for building, body in self.infos("Buildings", "buildinginfos", "BuildingInfo").items():
+			art = field_text(body, "ArtDefineTag")
+			if not art or art == "NONE":
+				continue
+			# <!-- custom: Caveman2Cosmos dropped most building classes and keeps the instance limits in the building, so all its wonders came out as plain buildings. (Claude code Opus 5.5) -->
+			kind_body = classes.get(field_text(body, "BuildingClass"), "") or body
+			# <!-- custom: A list rather than a local lambda, which Ruff flags as E731; the same values. (Claude code Opus 5.5) -->
+			limits = [int(field_text(kind_body, tag) or -1) for tag in ("iMaxGlobalInstances", "iMaxTeamInstances", "iMaxPlayerInstances")]
+			kind = "world wonder" if limits[0] != -1 else "team wonder" if limits[1] != -1 else "national wonder" if limits[2] != -1 else "building"
+			tech = field_text(body, "PrereqTech")
+			# <!-- custom: Realism Invictus lists a building's techs in <PrereqAndTechs>, which left every RI building without an era; take the first listed then. (Claude code Opus 5.5) -->
+			if tech in (None, "NONE"):
+				tech = field_text((re.search(r"<PrereqAndTechs>(.*?)</PrereqAndTechs>", body, re.DOTALL) or [None, ""])[1], "TechType")
+			self.type_art.setdefault(building, art)
+			records.setdefault(art, {"Building": building, "Kind": kind, "Water": field_text(body, "bWater") == "1", "PrereqTech": tech, "Era": eras.get(tech)})
+		self.building_records = records
+		return records
 
 	def locate_in_siblings(self, folder, name):
 		parent = normalized(folder).rpartition("/")[0]

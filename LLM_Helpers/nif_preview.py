@@ -330,13 +330,14 @@ def animation_range(blocks):
 # <!-- custom: load_texture first read only a shape's base texture.
 # slot now names another texturing slot too: the detail texture that holds the painted airframe under Civ4's mechanical shader, and the decal on the Civilopedia water surface. (Claude code Opus 5.5) -->
 def team_color_base(shape):
-	return any(isinstance(prop, NifFormat.NiTexturingProperty) and prop.has_base_texture and prop.base_texture.source and os.path.basename(prop.base_texture.source.file_name.decode("latin-1").replace("\\", "/")).lower().startswith("teamcolor") for prop in shape.properties)
+	return any(isinstance(prop, NifFormat.NiTexturingProperty) and prop.has_base_texture and prop.base_texture.source and prop.base_texture.source.file_name.decode("latin-1").replace("\\", "/").rpartition("/")[2].lower().startswith("teamcolor") for prop in shape.properties)
 
 
 def load_texture(shape, folder, cache, slot="base_texture"):
 	for prop in shape.properties:
 		if isinstance(prop, NifFormat.NiTexturingProperty) and getattr(prop, "has_" + slot) and getattr(prop, slot).source:
-			name = os.path.basename(getattr(prop, slot).source.file_name.decode("latin-1").replace("\\", "/"))
+			# <!-- custom: The last part of the name rather than os.path.basename, which on Windows reads the name //eldercouncil.dds, in the Metsehaf Bet's model, as a network path with no file and drew only its shadow. (Claude code Opus 5.5) -->
+			name = getattr(prop, slot).source.file_name.decode("latin-1").replace("\\", "/").rpartition("/")[2]
 			if name not in cache:
 				# <!-- custom: Civ4 finds a model's textures by name in its own folder, ignoring case, so look there the same way. (Claude code Opus 5.5) -->
 				match = [entry for entry in os.listdir(folder) if entry.lower() == name.lower()]
@@ -521,6 +522,14 @@ def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=
 			if decal is not None:
 				alpha = decal[..., 3:4]
 				texture = np.concatenate([decal[..., :3] * alpha + np.array(args.team_color, dtype=np.float32) / 255 * (1 - alpha), np.ones_like(alpha)], axis=2)
+		team = np.array(args.team_color, dtype=np.float32) / 255
+		if texture is not None and node.shader_name.startswith(b"TCiv4Skinning") and b"NoTeamC" not in node.shader_name:
+			# <!-- custom: The skinning shaders paint the player's colour where the base texture's alpha is low: the Champion's tabard came out grey-brown without it. (Claude code Opus 5.5) -->
+			alpha = texture[..., 3:4]
+			texture = np.concatenate([texture[..., :3] * alpha + team * (1 - alpha), np.ones_like(alpha)], axis=2)
+		elif texture is not None and node.shader_name.startswith(b"TFlag"):
+			# <!-- custom: A flag shader tints its picture with the player's colours, from PlayerColor01 and 02, which the game supplies and no file holds; the Champion's shield drew white. (Claude code Opus 5.5) -->
+			texture = np.concatenate([texture[..., :3] * team, texture[..., 3:4]], axis=2)
 		data = node.data
 		# <!-- custom: Untextured shapes are usually hidden helpers; the Peat bonus model has two grey "Sphere" shapes the game does not draw, which the first render showed as pyramids. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		triangles = list(data.get_triangles())
@@ -538,6 +547,9 @@ def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=
 			blend = bool(alpha and alpha[0].flags & 1)
 			if blend and (alpha[0].flags & 0x1ff) in (1, 13):
 				blend = "add" if (alpha[0].flags & 0x1ff) == 1 else "add-alpha"
+			# <!-- custom: The BtS Walls' shadow quad multiplies what is under it (source factor zero, destination factor source colour); drawn as an ordinary blend, it was a pale square. (Claude code Opus 5.5) -->
+			if blend and (alpha[0].flags & 0x1ff) == 0x43:
+				blend = "multiply"
 			threshold = alpha[0].threshold / 255.0 if alpha and alpha[0].flags & 0x200 else (0.5 if blend else -1.0)
 			if scrolling and texture is not None:
 				texture = scrolled_surface(node, folder, cache, texture, at, getattr(args, "ground_colour", None))
@@ -581,11 +593,14 @@ def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=
 # The defaults keep earlier previews unchanged. (Claude code Opus 5.5) -->
 # <!-- custom: The blends "glow" and "haze" are effect_surface's: unshaded and drawn over whatever is there, but only where something is, since past a lone plot they drew detached smudges on the backdrop, where in game a neighbouring plot would catch them.
 # A third texture coordinate column is a haze card's vertex alpha. (Claude code Opus 5.5) -->
-def rasterize(meshes, project, width, height, shaded, color, depth, additive=False, perspective=False, opacity_multiplier=1):
+# <!-- custom: Added near, the camera's near distance: triangles crossing it are cut there, where they were skipped whole, as a Sevopedia scene's few large ground triangles left half the view black once the camera turned. (Claude code Opus 5.5) -->
+def rasterize(meshes, project, width, height, shaded, color, depth, additive=False, perspective=False, opacity_multiplier=1, near=None):
 	light = np.array([0.3, -0.5, 0.8])
 	light /= np.linalg.norm(light)
 	drawn = 0
 	for points, uvs, triangles, texture, blend, threshold in meshes:
+		if near is not None:
+			points, uvs, triangles = clip_near(points, uvs, triangles, project(points)[2], near * 1.001)
 		sx, sy, sz, usable = project(points)
 		for i0, i1, i2 in triangles:
 			if not (usable[i0] and usable[i1] and usable[i2]):
@@ -644,13 +659,38 @@ def rasterize(meshes, project, width, height, shaded, color, depth, additive=Fal
 			target = color[top:bottom, left:right]
 			opacity *= opacity_multiplier
 			add = additive or blend in ("add", "add-alpha", "glow")
-			mixed = rgb * shade * (1 if blend == "add" else opacity) + (target if add else target * (1.0 - opacity))
+			mixed = target * rgb if blend == "multiply" else rgb * shade * (1 if blend == "add" else opacity) + (target if add else target * (1.0 - opacity))
 			target[visible] = mixed[visible]
-			if not add and blend != "haze":
+			if not add and blend not in ("haze", "multiply", "water"):
 				solid = visible & (opacity[:, :, 0] >= 0.5)
 				block[solid] = z[solid]
 			drawn += 1
 	return drawn
+
+
+def clip_near(points, uvs, triangles, distance, near):
+	# <!-- custom: Cut each triangle crossing the near plane, adding the crossing points as vertices. (Claude code Opus 5.5) -->
+	crossing = (distance[triangles] > near).sum(axis=1)
+	mixed = np.flatnonzero((crossing > 0) & (crossing < 3))
+	if not len(mixed):
+		return points, uvs, triangles
+	points, uvs = list(points), list(uvs)
+	distance = list(distance)
+	kept = list(triangles[crossing == 3])
+	for corners in triangles[mixed]:
+		polygon = []
+		for k in range(3):
+			a, b = int(corners[k]), int(corners[(k + 1) % 3])
+			if distance[a] > near:
+				polygon.append(a)
+			if (distance[a] > near) != (distance[b] > near):
+				f = (near - distance[a]) / (distance[b] - distance[a])
+				points.append(points[a] + (points[b] - points[a]) * f)
+				uvs.append(uvs[a] + (uvs[b] - uvs[a]) * f)
+				distance.append(near)
+				polygon.append(len(points) - 1)
+		kept += [(polygon[0], polygon[k], polygon[k + 1]) for k in range(1, len(polygon) - 1)]
+	return np.array(points), np.array(uvs), np.array(kept)
 
 
 def particle_billboards(blocks, worlds, textures, at, right, up):
@@ -743,7 +783,9 @@ def render(data, folder, args, at, use_camera, transforms, visibility, backdrop=
 			overlays = []
 			worlds, environment_meshes = scene_geometry(camera_data, folder, args, at, {}, {}, overlays, cache=cache)
 		offset = np.array(args.model_offset)
-		meshes = environment_meshes + [(points * args.model_scale + offset, *surface) for points, *surface in meshes]
+		spin = math.radians(args.model_yaw or 0)
+		turned = np.array([[math.cos(spin), math.sin(spin), 0], [-math.sin(spin), math.cos(spin), 0], [0, 0, 1]])
+		meshes = environment_meshes + [((points @ turned) * args.model_scale + offset, *surface) for points, *surface in meshes]
 	camera = next((b for b in camera_data.blocks if isinstance(b, NifFormat.NiCamera) and id(b) in worlds), None) if use_camera else None
 	camera_worlds = worlds
 	if camera is None and use_camera and camera_source is not None:
@@ -780,20 +822,60 @@ def render(data, folder, args, at, use_camera, transforms, visibility, backdrop=
 			vertical_span = span * height / width
 			top = y.max() + 0.16 * vertical_span
 			bottom = top - vertical_span
+		if environment is not None and args.aspect:
+			# <!-- custom: The Sevopedia's building pane is wider than the scene camera's 4:3, and the game keeps the camera's width, so the picture loses height. (Claude code Opus 5.5) -->
+			middle, half = (top + bottom) / 2, (right_edge - left) / args.aspect / 2
+			top, bottom = middle + half, middle - half
+			height = int(round(width / args.aspect))
 		if args.frame_shift_y:
 			shift = args.frame_shift_y * (top - bottom)
 			top += shift
 			bottom += shift
-		view_yaw = (args.yaw or 0) + yaw_offset
-		if (view_yaw or args.pitch) and (backdrop is not None or environment is not None):
-			yaw = math.radians(view_yaw) / 2
-			pitch = -math.radians(args.pitch or 0) / 2
-			turn = quaternion_rows(math.cos(pitch), *(right * math.sin(pitch))) @ quaternion_rows(math.cos(yaw), 0, 0, math.sin(yaw))
+		scene_pivot = np.array(args.scene_pivot if args.scene_pivot is not None else args.model_offset)
+		if environment is not None and args.dolly not in (None, 1):
+			position = scene_pivot + (position - scene_pivot) * args.dolly
+		yaw_offset += args.turn
+		view_yaw, view_pitch = (args.yaw or 0) + yaw_offset, args.pitch
+		if args.scene_pivot is not None:
+			position, forward, up, right = orbit_camera(position, forward, up, right, args.yaw or 0, args.pitch or 0, scene_pivot)
+			view_yaw, view_pitch = yaw_offset, 0
+		if (view_yaw or view_pitch) and (backdrop is not None or environment is not None):
 			# <!-- custom: Rotate the camera around the subject at a fixed distance.
 			# A leader's separately rendered backdrop stays fixed. (GPT-6.1-Sol) -->
 			pivot = position + forward * np.median(distances) if backdrop is not None else np.array(args.model_offset)
-			position = pivot + (position - pivot) @ turn
-			forward, up, right = np.array((forward, up, right)) @ turn
+			position, forward, up, right = orbit_camera(position, forward, up, right, view_yaw, view_pitch or 0, pivot)
+
+		if environment is not None:
+			# <!-- custom: Draw the scene's parts far to near: the coast scene lists its water before its sky, and the sky then covered the water's translucent texels, which write no depth, in white patches. (Claude code Opus 5.5) -->
+			meshes[:len(environment_meshes)] = sorted(environment_meshes, key=lambda mesh: -np.linalg.norm(mesh[0] - position, axis=1).max())
+			if args.scene_floor is not None:
+				kept = []
+				for index, mesh in enumerate(meshes):
+					# <!-- custom: Flat parts stay: the water, which writes no depth so a shadow can lie on it, and a building's shadow quad, which the cut would remove. (Claude code Opus 5.5) -->
+					if np.ptp(mesh[0][:, 2]) < 1:
+						kept.append(mesh[:4] + ("water", mesh[5]) if index < len(environment_meshes) else mesh)
+						continue
+					points, uvs, triangles = clip_near(mesh[0], mesh[1], mesh[2], mesh[0][:, 2], args.scene_floor)
+					above = (points[triangles][:, :, 2] >= args.scene_floor).all(axis=1)
+					kept.append((points, uvs, triangles[above], *mesh[3:]))
+				meshes = kept
+				overlays = [overlay[:4] + ("water", overlay[5]) for overlay in overlays]
+			if args.environment.stem.lower() == "ancientbattlefield":
+				# <!-- custom: The land scene's sky came out darker than the game's: the top of the Champion's view had a median of 115 122 139 against 143 160 191 in screenshots of 2026-11-09.
+				# Brightening its three sky layers by 1.3 gives 150 159 181.
+				# Why the game's is brighter was not determined. (Claude code Opus 5.5) -->
+				for k in range(len(environment_meshes)):
+					if meshes[k][0][:, 2].max() > 700 and meshes[k][3] is not None:
+						texture = meshes[k][3].copy()
+						texture[..., :3] = np.clip(texture[..., :3] * 1.3, 0, 1)
+						meshes[k] = meshes[k][:3] + (texture,) + meshes[k][4:]
+			if args.scene_sky != 1:
+				# <!-- custom: The coast scene's sky reaches far above its land; drawn at its texture's full opacity it was grey and white where the game's is mostly blue. (Claude code Opus 5.5) -->
+				for k in range(len(environment_meshes)):
+					if meshes[k][0][:, 2].max() > 100 and meshes[k][3] is not None:
+						texture = meshes[k][3].copy()
+						texture[..., 3] *= args.scene_sky
+						meshes[k] = meshes[k][:3] + (texture,) + meshes[k][4:]
 
 		def project(points):
 			relative = points - position
@@ -803,10 +885,18 @@ def render(data, folder, args, at, use_camera, transforms, visibility, backdrop=
 			sx = ((relative @ right) / safe - left) / (right_edge - left) * width
 			sy = (top - (relative @ up) / safe) / (top - bottom) * height
 			return sx, sy, distance, usable
-		color = backdrop.copy() if backdrop is not None else np.zeros((height, width, 3), dtype=np.float32)
+		color = backdrop.copy() if backdrop is not None else np.full((height, width, 3), args.clear_colour or (0, 0, 0), dtype=np.float32)
 		depth = np.full((height, width), np.inf)
 		# <!-- custom: Such scenes bake their lighting into textures, so they are drawn unshaded. (Claude code Opus 5.5) -->
-		drawn = rasterize(meshes, project, width, height, False, color, depth, perspective=environment is not None)
+		if environment is not None and args.scene_floor is not None:
+			# <!-- custom: The water's translucent layer goes under the building: drawn last, it painted over the Drydock's shadow, which lies just above the water and writes no depth.
+			# See README_Art_Tools.md. (Claude code Opus 5.5) -->
+			count = len(environment_meshes)
+			drawn = rasterize(meshes[:count], project, width, height, False, color, depth, perspective=True, near=near)
+			drawn += rasterize(overlays, project, width, height, False, color, depth, perspective=True, opacity_multiplier=args.water_opacity)
+			drawn += rasterize(meshes[count:], project, width, height, False, color, depth, perspective=True, near=near)
+			return color, drawn, len(meshes)
+		drawn = rasterize(meshes, project, width, height, False, color, depth, perspective=environment is not None, near=near if environment is not None else None)
 		if environment is not None:
 			drawn += rasterize(overlays, project, width, height, False, color, depth, perspective=True, opacity_multiplier=args.water_opacity)
 		if args.particle_textures:
@@ -881,6 +971,24 @@ def render_grid(meshes, framing_meshes, args, yaw_offset):
 	return color, drawn, len(meshes)
 
 
+# <!-- custom: Moved out of main so a unit's default pose finds its idle the same way --clip does. (Claude code Opus 5.5) -->
+def clip_entries(kfm, wanted):
+	name = wanted.casefold()
+	name = {"greet": "greeting", "agree": "affirmative", "disagree": "negative"}.get(name, name)
+	entries = []
+	for candidate in kfm.animations:
+		stem = Path(candidate.kf_file_name.decode("latin-1").replace("\\", "/")).stem.casefold()
+		# <!-- custom: Fall from Heaven's dragons have IdleA, IdleB and IdleC rather than Idle, so "idle" found only their fortify idles. (Claude code Opus 5.5) -->
+		if stem == name or stem.endswith("_" + name) or (name == "idle" and stem.endswith("_md_idlea")):
+			entries.append(candidate)
+	# <!-- custom: "idle" matched HeavySpearman_MD_Idle, _MD_FortifyA_Idle and _MD_FortifyB_Idle, so the Immortal's idle needed its event number.
+	# When several clips match, keep the one whose whole name after _MD_ is the requested name. (Claude code Opus 5.5) -->
+	exact = [candidate for candidate in entries if Path(candidate.kf_file_name.decode("latin-1").replace("\\", "/")).stem.casefold().rpartition("_md_")[2] in (name, name + "a")]
+	if len(entries) > 1 and len(exact) == 1:
+		entries = exact
+	return entries
+
+
 def to_image(color):
 	return Image.fromarray((np.clip(color, 0, 1) * 255).astype(np.uint8)).resize((color.shape[1] // 2, color.shape[0] // 2), Image.LANCZOS)
 
@@ -894,6 +1002,33 @@ DOMAIN_SCENES = {
 	"DOMAIN_SEA": ("CIVILOPEDIA_WATER_ENVIRONMENT", 160, (0, -28, 0), None, 60, 0.1),
 	"DOMAIN_AIR": ("CIVILOPEDIA_SKY_ENVIRONMENT", 190, (55, -70, -490), 20, None, 0),
 }
+
+
+# <!-- custom: A building's Sevopedia view: the land scene, or the coast scene for a building whose XML sets bWater; buildings have no domain, and no building is drawn in the sky.
+# Fitted by eye to in-game screenshots (2026-11-09) of the expanded Sevopedia pane, with the camera's turn, pitch and distance matched against the coast's outline.
+# art is what the art define's fScale times fInterfaceScale is multiplied by, as for a unit, up to a bounding sphere of reach, since the Drydock's fScale of 3 came out a third too large; it matched ten buildings within about 20%.
+# pivot is the point the scene's camera turns around, and offset the model's place.
+# sky keeps that fraction of the sky's opacity.
+# aspect is the pane's shape.
+# clear is the colour behind the coast scene, seen through its sky and water; without it the water was almost black and the sky grey.
+# floor cuts away whatever of the scene or the building lies under the water: the cliff otherwise showed through it as orange islands, and in game a building's lower walls are hidden there, the Drydock's showing about 60% of its full height. (Claude code Opus 5.5) -->
+BUILDING_SCENES = {
+	False: {"scene": "CIVILOPEDIA_ANCIENT_BATTLEGROUND", "art": 1.5, "reach": 10000, "pivot": (0, 0, 0), "offset": (-335, -404, 0), "pitch": None, "yaw": 0, "shift": -0.1, "model_yaw": -12, "dolly": 1, "aspect": 1.68, "clear": (0, 0, 0), "floor": None, "sky": 1},
+	True: {"scene": "CIVILOPEDIA_AMPHIB_ENVIRONMENT", "art": 0.9, "reach": 135, "pivot": (40, 40, 0), "offset": (245, 110, 5), "pitch": -17, "yaw": -50, "shift": -0.1, "model_yaw": -140, "dolly": 0.45, "aspect": 1.68, "clear": (60 / 255.0, 165 / 255.0, 225 / 255.0), "floor": 0, "sky": 0.45},
+}
+
+
+SEVOPEDIA_TURN_RATE = 2.6
+
+
+def orbit_camera(position, forward, up, right, yaw_degrees, pitch_degrees, pivot):
+	# <!-- custom: render's camera turn around a point, split out because a building's scene turns about one point before the view orbits the model at another. (Claude code Opus 5.5) -->
+	yaw = math.radians(yaw_degrees) / 2
+	pitch = -math.radians(pitch_degrees) / 2
+	turn = quaternion_rows(math.cos(pitch), *(right * math.sin(pitch))) @ quaternion_rows(math.cos(yaw), 0, 0, math.sin(yaw))
+	position = pivot + (position - pivot) @ turn
+	forward, up, right = np.array((forward, up, right)) @ turn
+	return position, forward, up, right
 
 
 def write_video(images, out, fps, sound=None):
@@ -934,6 +1069,14 @@ def resolve_mod_assets(args, parser):
 
 	name = str(args.asset)
 	subject = name.upper()
+	if subject.startswith(("BUILDING_", "UNIT_")) and not subject.startswith(("BUILDINGCLASS_", "UNITCLASS_", "UNITCOMBAT_")):
+		# <!-- custom: A BUILDING_ or UNIT_ type stands for its art define, a unit's first when it has several. (Claude code Opus 5.5) -->
+		assets.buildings() if subject.startswith("BUILDING_") else assets.units()
+		name = assets.type_art.get(subject)
+		if name is None:
+			parser.error("%s has no art define in %s" % (subject, args.mod))
+		args.asset = Path(name)
+		subject = name
 	wants_plot = bool(args.terrain or args.feature or args.plot or args.on_plot or subject.startswith(("TERRAIN_", "FEATURE_", "BONUS_", "IMPROVEMENT_")))
 	if subject.startswith(("BONUS_", "IMPROVEMENT_")):
 		# <!-- custom: A BONUS_ or IMPROVEMENT_ type stands for its art define, placed on a plot it may appear on. (Claude code Opus 5.5) -->
@@ -965,6 +1108,13 @@ def resolve_mod_assets(args, parser):
 		print("%s from %s" % (name.upper(), fields["_xml"]))
 		# <!-- custom: Take the first of these that exists: CIV Gold names NoShaderNIF files it does not ship, such as Abu Bakr's frederick_the_great_noshader.nif and Akbar's "Zara Yaqob.nif.nif", while with shaders on the game draws the NIF, which is there. (Claude code Opus 5.5) -->
 		model = next((fields[key] for key in ("NoShaderNIF", "SHADERNIF", "NIF") if fields.get(key) and assets.locate(fields[key])[0] is not None), None)
+		# <!-- custom: A unit's still shows the first moment of its idle, as the Sevopedia plays it: the file's rest pose spread the arms of Ashes of Erebus's Champion, Adjunct and Centaur and of Realism Invictus's Dahomey Amazon, and sank Master of Mana's Shrine Maiden into the ground.
+		# 16 Erebus units compared with screenshots on 2026-11-09 stood as in game.
+		# --rest-pose keeps the file's pose. (Claude code Opus 5.5) -->
+		if args.clip is None and not args.rest_pose and str(args.out or "").lower().endswith(".png") and not args.frames and not args.orbit and not args.sway and not wants_plot and name.upper() in assets.units() and fields.get("KFM") and assets.locate(fields["KFM"])[0] is not None and len(clip_entries(read_kfm(local(fields["KFM"])), "idle")) == 1:
+			args.clip = "idle"
+			args.frames = 1
+			args.standing_still = True
 		if args.clip is not None or (args.out is None and fields.get("KFM")):
 			if not fields.get("KFM"):
 				parser.error("%s has no KFM for --clip" % name)
@@ -988,6 +1138,13 @@ def resolve_mod_assets(args, parser):
 					args.auto_fit = preset
 					if fields.get("fScale"):
 						args.auto_scale = DOMAIN_ART_SCALE[unit["Domain"]] * float(fields["fScale"]) * float(fields.get("fInterfaceScale") or 1)
+	building = assets.buildings().get(name.upper()) if name.upper().startswith("ART_DEF_") else None
+	if building is not None:
+		print("%s: %s, %s, %s" % (building["Building"], building["Kind"], "coast" if building["Water"] else "land", building["Era"] or "no era"))
+		if not wants_plot and args.environment is None and not args.no_environment and args.out and not args.scene_camera:
+			args.building_fit = BUILDING_SCENES[building["Water"]]
+			args.art_scale = float(fields.get("fScale") or 1) * float(fields.get("fInterfaceScale") or 1)
+			args.environment = assets.art_defines(args.building_fit["scene"])[args.building_fit["scene"]]["Path"]
 	if wants_plot:
 		# <!-- custom: Start from the terrain, feature and plot type the XML allows for the subject, and let --terrain, --feature and --plot force any other, even one the XML forbids, to see how it would look. (Claude code Opus 5.5) -->
 		import plot_scene
@@ -1025,6 +1182,7 @@ def main():
 	parser = argparse.ArgumentParser(description="Draw a Civ4 .nif model as a PNG, textured and lit, over a floor grid, or a scene through its own camera.")
 	parser.add_argument("asset", type=Path, help="NIF model, KFM animation set, or KF clip to inspect")
 	parser.add_argument("out", nargs="?", help="PNG output (omit to inspect a KFM or KF)")
+	parser.add_argument("--rest-pose", action="store_true", help="draw a unit's still in its file's rest pose rather than the first moment of its idle")
 	parser.add_argument("--clip", help="KFM event code or clip name, such as pleased, greet, agree or disagree")
 	parser.add_argument("--kf", type=Path, help="apply this KF to the input NIF")
 	parser.add_argument("--model", type=Path, help="override the NIF referenced by a KFM, for example an FX variant")
@@ -1040,6 +1198,11 @@ def main():
 	parser.add_argument("--environment", type=Path, help="place the model in a separate NIF scene, using the scene camera; with --mod a unit gets its domain's Sevopedia scene unless this is none")
 	parser.add_argument("--model-offset", type=float, nargs=3, default=(0, 0, 0), metavar=("X", "Y", "Z"), help="translate the model within --environment")
 	parser.add_argument("--model-scale", type=float, default=1, help="scale the model within --environment")
+	parser.add_argument("--model-yaw", type=float, help="with --environment, turn the model about its vertical axis, in degrees, without moving the scene")
+	parser.add_argument("--turn", type=float, default=0, help="with --environment, turn the view around the model, in degrees, as dragging the Sevopedia's picture does")
+	parser.add_argument("--dolly", type=float, help="with --environment, the camera's distance from the model as a fraction of the scene's own")
+	parser.add_argument("--aspect", type=float, help="with --environment, the picture's width over height; default: the scene camera's")
+	parser.add_argument("--clear-colour", type=lambda text: tuple(int(part) / 255.0 for part in text.split(",")), metavar="R,G,B", help="with --environment, the colour behind the scene")
 	parser.add_argument("--frame-shift-y", type=float, default=0, help="move the subject down by this fraction of the environment frame height")
 	parser.add_argument("--water-opacity", type=float, default=1, help="multiplier for the Civilopedia water surface's texture alpha")
 	parser.add_argument("--opacity-gain", type=float, default=1, help="multiplier for animated material opacity, such as splash ripples")
@@ -1064,6 +1227,12 @@ def main():
 	args = parser.parse_args()
 	args.no_environment = args.environment is not None and str(args.environment).lower() == "none"
 	args.auto_fit = None
+	args.building_fit = None
+	args.scene_floor = None
+	args.scene_pivot = None
+	args.scene_sky = 1
+	args.standing_still = False
+	args.art_scale = None
 	args.auto_scale = None
 	args.plot_ground = None
 	args.plot_only = False
@@ -1158,18 +1327,7 @@ def main():
 			code = int(args.clip)
 			entries = [entry for entry in kfm.animations if entry.event_code == code]
 		except ValueError:
-			name = args.clip.casefold()
-			name = {"greet": "greeting", "agree": "affirmative", "disagree": "negative"}.get(name, name)
-			entries = []
-			for candidate in kfm.animations:
-				stem = Path(candidate.kf_file_name.decode("latin-1").replace("\\", "/")).stem.casefold()
-				if stem == name or stem.endswith("_" + name):
-					entries.append(candidate)
-			# <!-- custom: "idle" matched HeavySpearman_MD_Idle, _MD_FortifyA_Idle and _MD_FortifyB_Idle, so the Immortal's idle needed its event number.
-			# When several clips match, keep the one whose whole name after _MD_ is the requested name. (Claude code Opus 5.5) -->
-			exact = [candidate for candidate in entries if Path(candidate.kf_file_name.decode("latin-1").replace("\\", "/")).stem.casefold().rpartition("_md_")[2] == name]
-			if len(entries) > 1 and len(exact) == 1:
-				entries = exact
+			entries = clip_entries(kfm, args.clip)
 		if len(entries) != 1:
 			parser.error("clip %r must match one event in %s. List the KFM to see its events" % (args.clip, args.asset))
 		entry = entries[0]
@@ -1213,6 +1371,11 @@ def main():
 		geometry = scene_geometry(scene, scene_folder, args, None, {}, {}, overlays, cache=cache)
 		animated_textures = (scene_folder, cache) if any(isinstance(block, NifFormat.NiTextureTransformController) for block in scene.blocks) else None
 		environment = scene, geometry, overlays, animated_textures
+		if args.environment.stem.lower() == "waterenvironment" and args.building_fit is None:
+			# <!-- custom: The water scene's sky, drawn at full opacity over black, came out white with black patches where the game's is pale blue with soft clouds (Master of Mana's Sea Serpent and MongooseMod's Mermaid, 2026-11-09).
+			# The coast scene needed the same two settings. (Claude code Opus 5.5) -->
+			args.scene_sky = 0.45
+			args.clear_colour = args.clear_colour or (60 / 255.0, 165 / 255.0, 225 / 255.0)
 		if args.auto_fit is not None:
 			# <!-- custom: Scale a unit placed in its domain's scene by --mod so its largest dimension matches the scene's preset, unless the size or placement was given. (Claude code Opus 5.5) -->
 			_, target, offset, pitch, yaw, shift = args.auto_fit
@@ -1228,6 +1391,24 @@ def main():
 			if not args.frame_shift_y:
 				args.frame_shift_y = shift
 			print("scene %s, model scale %.2f" % (args.environment.name, args.model_scale))
+	if args.building_fit is not None:
+		# <!-- custom: Each setting of a building's view unless it was given on the command line. (Claude code Opus 5.5) -->
+		fit = args.building_fit
+		points = np.vstack([mesh[0] for mesh in scene_geometry(data, folder, args, None, {}, {})[1]])
+		if args.model_scale == 1:
+			args.model_scale = min(fit["art"] * (args.art_scale or 1), fit["reach"] / np.linalg.norm(points, axis=1).max())
+		args.model_offset = (fit["offset"] if not any(args.model_offset) else args.model_offset)
+		args.pitch = fit["pitch"] if args.pitch is None else args.pitch
+		args.yaw = fit["yaw"] if args.yaw is None else args.yaw
+		args.frame_shift_y = args.frame_shift_y or fit["shift"]
+		args.model_yaw = args.model_yaw if args.model_yaw is not None else fit["model_yaw"]
+		args.dolly = args.dolly if args.dolly is not None else fit["dolly"]
+		args.aspect = args.aspect or fit["aspect"]
+		args.clear_colour = args.clear_colour or fit["clear"]
+		args.scene_floor = fit["floor"]
+		args.scene_pivot = fit["pivot"]
+		args.scene_sky = fit["sky"]
+		print("scene %s, model scale %.2f" % (args.environment.name, args.model_scale))
 	use_camera = args.scene_camera or backdrop is not None or environment is not None
 	if args.frames <= 0 and sequence is None and not is_video:
 		if args.speed is not None or moves_camera or args.cycles != 1:
@@ -1237,6 +1418,10 @@ def main():
 		print("wrote %s: %d triangles drawn from %d shape(s)" % (args.out, drawn, shapes))
 		return
 	span = (sequence.start_time, sequence.stop_time) if sequence is not None else animation_range(data.blocks)
+	# <!-- custom: A still building turning in its scene has no keys of its own, so its GIF turns at the game's pace: timed screenshots of the Drydock and the Ziggurat (2026-11-09) measured 2.4 to 2.8 degrees per second while dragging, where a first 360 degrees in 4 s was about 35 times too fast.
+	# --speed shortens it. (Claude code Opus 5.5) -->
+	if span is None and moves_camera and environment is not None:
+		span = (0.0, max(abs(args.orbit), 2 * math.pi * abs(args.sway)) / SEVOPEDIA_TURN_RATE)
 	if span is None:
 		raise SystemExit("no keyframed animation in this file")
 	duration = span[1] - span[0]
@@ -1262,6 +1447,10 @@ def main():
 	if is_gif:
 		images[0].save(args.out, save_all=True, append_images=images[1:], duration=delays, loop=0)
 		print("wrote %s: %d samples over %.2f s, %.2f s playback" % (args.out, frames, duration, sum(delays) / 1000))
+		return
+	if args.standing_still:
+		images[0].save(args.out)
+		print("wrote %s: the first moment of its idle" % args.out)
 		return
 	width, height = images[0].size
 	sheet = Image.new("RGB", (width * len(images) + 8 * (len(images) - 1), height + 20), (30, 30, 30))

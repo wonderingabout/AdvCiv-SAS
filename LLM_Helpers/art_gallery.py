@@ -71,9 +71,10 @@ def main():
 	parser.add_argument("out", type=Path, help="folder for the pictures and sheets")
 	parser.add_argument("--mod", required=True, help="mod folder name under Beyond the Sword/Mods, or bts for the base game")
 	parser.add_argument("--pattern", default="ART_DEF_LEADER_*", help="art define pattern, such as ART_DEF_UNIT_* (default: leaders)")
-	parser.add_argument("--domain", help="units only: domains to keep, such as land or sea,air")
+	parser.add_argument("--domain", help="domains to keep, such as land or sea,air for units, or land or coast for buildings")
 	parser.add_argument("--combat", help="units only: unit combats to keep, such as melee,mounted")
-	parser.add_argument("--era", help="units only: eras of the unit's prerequisite tech to keep, such as ancient,classical")
+	parser.add_argument("--era", help="eras of the prerequisite tech to keep, such as ancient,classical")
+	parser.add_argument("--building-kind", help="buildings only: kinds to keep, of building, national wonder, team wonder and world wonder")
 	parser.add_argument("--limit", type=int, help="render at most this many")
 	parser.add_argument("--clip", help="also render this clip as a GIF per entry, such as greeting or idle; the sheet shows each GIF's first frame")
 	parser.add_argument("--frames", type=int, default=16, help="GIF frames with --clip")
@@ -84,16 +85,18 @@ def main():
 	parser.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2), help="previews rendered at once")
 	args = parser.parse_args()
 	assets = Civ4Assets(args.mod)
-	facts = assets.units()
+	# <!-- custom: A building's facts in the unit's fields: coast or land as its domain and its kind as its unit combat, so one filter and one label serve both. (Claude code Opus 5.5) -->
+	facts = dict(assets.units())
+	facts.update({art: {"Domain": "coast" if record["Water"] else "land", "Era": record["Era"], "Combat": record["Kind"]} for art, record in assets.buildings().items()})
 	defines = assets.art_defines(args.pattern)
 	selected = []
 	for art_type in sorted(defines):
 		fields = defines[art_type]
 		if not any(fields.get(key) for key in ("KFM", "NIF", "NoShaderNIF", "SHADERNIF")):
 			continue
-		if args.domain or args.combat or args.era:
+		if args.domain or args.combat or args.era or args.building_kind:
 			fact = facts.get(art_type)
-			if fact is None or not (matches(fact["Domain"], args.domain) and matches(fact["Combat"], args.combat) and matches(fact["Era"], args.era)):
+			if fact is None or not (matches(fact["Domain"], args.domain) and matches(fact["Combat"], args.combat or args.building_kind) and matches(fact["Era"], args.era)):
 				continue
 		selected.append(art_type)
 	if args.limit:

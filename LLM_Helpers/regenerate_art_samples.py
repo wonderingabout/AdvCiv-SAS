@@ -57,8 +57,8 @@ SAMPLES = [
 	("llm_kf_frames_catapult_strike.PNG", ["art:Art/Units/Catapult/Catapult.kfm", "--clip", "1032", "--model", "art:Art/Units/Catapult/Catapult_FX.nif", "--size", "200"]),
 	("llm_animation_catapult.gif", ["art:Art/Units/Catapult/Catapult.kfm", "--clip", "1032", "--model", "art:Art/Units/Catapult/Catapult_FX.nif", "--frames", "24", "--size", "200", "--speed", "0.45"]),
 	("llm_nif_leaderhead_grace.png", [GRACE + "John II.nif", "--leader-background", GRACE + "mansa_musa_bg.kfm", "--size", "480"]),
-	("llm_animation_grace.gif", [GRACE + "John II.kfm", "--clip", "6553600", "--leader-background", GRACE + "mansa_musa_bg.kfm", "--frames", "32", "--size", "230", "--speed", "1.8"]),
-	("llm_animation_grace_disagree.gif", [GRACE + "John II.kfm", "--clip", "disagree", "--leader-background", GRACE + "mansa_musa_bg.kfm", "--frames", "30", "--size", "230", "--speed", "1.5"]),
+	("llm_animation_grace.gif", [GRACE + "John II.kfm", "--clip", "6553600", "--leader-background", GRACE + "mansa_musa_bg.kfm", "--frames", "60", "--size", "230"]),
+	("llm_animation_grace_disagree.gif", [GRACE + "John II.kfm", "--clip", "disagree", "--leader-background", GRACE + "mansa_musa_bg.kfm", "--frames", "40", "--size", "230"]),
 	("llm_nif_leaderhead_gandhi.png", [GANDHI + "Gandhi_noshader.nif", "--leader-background", GANDHI + "Gandhi_BG.kfm", "--size", "440"]),
 	("llm_animation_gandhi_greeting.gif", [GANDHI + "Gandhi.kfm", "--clip", "0", "--model", GANDHI + "Gandhi_noshader.nif", "--leader-background", GANDHI + "Gandhi_BG.kfm", "--frames", "24", "--size", "200"]),
 	("llm_animation_gandhi_refusal.gif", [GANDHI + "Gandhi.kfm", "--clip", "6", "--model", GANDHI + "Gandhi_noshader.nif", "--leader-background", GANDHI + "Gandhi_BG.kfm", "--frames", "24", "--size", "200"]),
@@ -71,10 +71,29 @@ SAMPLES = [
 	("llm_animation_bomber.gif", ["art:Art/Units/Bomber/Bomber.kfm", "--clip", "idle", "--model", "art:Art/Units/Bomber/Bomber_FX.nif", "--environment", SKY, "--model-offset", "55", "-70", "-490", "--pitch", "20", "--sway", "26", "--cycles", "36", "--frames", "157", "--size", "240"]),
 	("llm_animation_fallout.gif", ["FEATURE_FALLOUT", "--mod", REPO.name, "--frames", "32", "--size", "280"]),
 	("llm_animation_oasis.gif", ["FEATURE_OASIS", "--mod", REPO.name, "--frames", "40", "--size", "400"]),
+	("llm_animation_building_ziggurat.gif", ["BUILDING_SUMERIAN_ZIGGURAT", "--mod", REPO.name, "--orbit", "60", "--frames", "64", "--size", "300"]),
+	("llm_animation_building_drydock.gif", ["BUILDING_DRYDOCK", "--mod", REPO.name, "--orbit", "60", "--frames", "64", "--size", "300"]),
 	("llm_mod_hr_alexander_greeting.gif", ["ART_DEF_LEADER_ALEXANDER", "--mod", "History Rewritten", "--clip", "greeting", "--frames", "24", "--size", "200"]),
 	("llm_mod_ri_apache_raiders_idle.gif", ["ART_DEF_UNIT_APACHE_RAIDERS", "--mod", "Realism Invictus", "--clip", "idle", "--frames", "24", "--size", "200", "--orbit", "360", "--environment", "none"]),
 ]
 GALLERY = "llm_gallery_civgold_leaders.png"
+# <!-- custom: The other art_gallery.py examples of the Art Tools Guide: a mod's Ancient buildings, and the beasts of a mod with many monsters. (Claude code Opus 5.5) -->
+BUILDINGS = "llm_gallery_sas_ancient_buildings.png"
+BEASTS = "llm_gallery_erebus_beasts.png"
+OTHER_GALLERIES = {
+	BUILDINGS: ["--mod", REPO.name, "--pattern", "ART_DEF_BUILDING_*", "--era", "ancient", "--limit", "20", "--labels", "--size", "200", "--jobs", "1"],
+	BEASTS: ["--mod", "Ashes of Erebus", "--pattern", "ART_DEF_UNIT_*", "--combat", "beast,animal", "--limit", "20", "--labels", "--size", "200", "--jobs", "1"],
+}
+FEMALE = "llm_search_female_units.png"
+# <!-- custom: The art_search.py example for units: units across the installed mods whose Types name women, so an agent can look for such art. (Claude code Opus 5.5) -->
+FEMALE_PATTERN = "FEMALE_(PROPHET|GREAT)|AMAZON|VALKYR|MAIDEN|_ONNA|GEISHA|BLADEDANCER|MERMAID|SORCERESS|WISE_WOMAN|PRIESTESS|HEROINE|LADY$|MOBIUS_WITCH|WITCH_MISSIONARY"
+FUTURE = "llm_search_future_buildings.png"
+# <!-- custom: The art_search.py example of hunting for art to use: labs, farms and embassies across the installed mods, for ideas for a future era. (Claude code Opus 5.5) -->
+FUTURE_PATTERN = "QUANTUM_LAB|QUANTUM_SUPERCOMPUTER|EXPERIMENTAL_QUANTUM|SCIENCE_QUANTUM|BIODOME|BIOFARM|BIOLAB|GENE_FARMING|HYDROPONIC|AGRODOME|DIGITAL_EMBASSY|ALIEN_EMBASSY|ARCOLOGY$|CLONING|FUSION_?PLANT|FUSION_REACTOR|SUPERCOLLIDER|COLLIDER|NANOFACTORY|NANOTECH_COMPLEX|NANOPUTER|MEGANANO|ORBITAL_RING|ORBITAL_FACTORY|ORBITAL_OBSERVATORY|ANDROID_FACTORY|ROBOTICS_LAB|ROBOT_FACTORY|PRIME_ROBOT|ANTIMATTER_?(PLANT|FACTORY)|HOLODECK|HOLO_COMBAT|SURVIVAL_DOME|GEODESIC_DOME|RESEARCH_LAB|SINGULARITY_BRAIN"
+WONDERS = "llm_search_ancient_wonders.png"
+# <!-- custom: The art_search.py example for buildings: Ancient wonders whose art differs from the base game's, in three mods. (Claude code Opus 5.5) -->
+WONDERS_PATTERN = "PYRAMID|STONEHENGE|ORACLE|LIGHTHOUSE|HANGING"
+WONDERS_MODS = ["Caveman2Cosmos", "History Rewritten", "Realism Invictus"]
 SIZE_COMPARISON = "llm_nif_resolution_gandhi.png"
 PLOTS = "llm_plot_previews.png"
 TERRAINS = "llm_plot_terrains.png"
@@ -199,7 +218,7 @@ def main():
 	parser.add_argument("--list", action="store_true", help="list the samples and their commands without rendering")
 	parser.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))
 	args = parser.parse_args()
-	names = [name for name, _ in SAMPLES] + [GALLERY, SIZE_COMPARISON, PLOTS, TERRAINS, FALLOUT, MARSHES, EFFECTS, SCALE]
+	names = [name for name, _ in SAMPLES] + [GALLERY, SIZE_COMPARISON, PLOTS, TERRAINS, FALLOUT, MARSHES, EFFECTS, SCALE, WONDERS, FEMALE, FUTURE] + list(OTHER_GALLERIES)
 	chosen = [name for name in names if fnmatch.fnmatch(name.lower(), args.pattern.lower())]
 	if not chosen:
 		raise SystemExit("no sample matches %s" % args.pattern)
@@ -207,6 +226,15 @@ def main():
 		for name, arguments in SAMPLES:
 			if name in chosen:
 				print("%s: nif_preview.py %s" % (name, " ".join('"%s"' % value if " " in value else value for value in arguments)))
+		for name, arguments in OTHER_GALLERIES.items():
+			if name in chosen:
+				print("%s: art_gallery.py %s" % (name, " ".join('"%s"' % value if " " in value else value for value in arguments)))
+		if FEMALE in chosen:
+			print("%s: art_search.py \"%s\" --kind unit --exclude %s" % (FEMALE, FEMALE_PATTERN, " ".join('"%s"' % mod for mod in MARSH_EXCLUDED)))
+		if FUTURE in chosen:
+			print("%s: art_search.py \"%s\" --kind building --exclude %s" % (FUTURE, FUTURE_PATTERN, " ".join('"%s"' % mod for mod in MARSH_EXCLUDED)))
+		if WONDERS in chosen:
+			print("%s: art_search.py \"%s\" --kind building --era ancient --mods %s" % (WONDERS, WONDERS_PATTERN, " ".join('"%s"' % mod for mod in WONDERS_MODS)))
 		for name in (GALLERY, SIZE_COMPARISON, PLOTS, TERRAINS, FALLOUT, MARSHES, EFFECTS, SCALE):
 			if name in chosen:
 				print("%s: %s" % (name, {GALLERY: "art_gallery.py --mod \"CIV Gold\" --limit 20 --labels --size 140", SIZE_COMPARISON: "Gandhi at --size 300 and 1200, cropped", PLOTS: "nif_preview.py --mod %s --size 200 for %s" % (REPO.name, ", ".join(" ".join([subject] + extra) for subject, extra in PLOT_SAMPLES)), TERRAINS: "nif_preview.py --mod %s --size 200 --terrain --plot --feature for every terrain and plot type, then every feature on its allowed terrains" % REPO.name, FALLOUT: "nif_preview.py FEATURE_FALLOUT --glow 0 to 100 on Grassland, and 50 on Desert", MARSHES: "art_search.py \"%s\" --exclude %s" % (MARSH_PATTERN, " ".join('"%s"' % mod for mod in MARSH_EXCLUDED)), EFFECTS: "art_search.py \"%s\" --kind feature --mods %s" % (EFFECTS_PATTERN, " ".join(EFFECTS_MODS)), SCALE: "nif_preview.py --size 200 for %s" % ", ".join("%s --mod %s" % (art_type, mod) for mod, art_type in SCALE_SAMPLES)}[name]))
@@ -220,6 +248,9 @@ def main():
 	scratch.mkdir(parents=True, exist_ok=True)
 	if GALLERY in chosen:
 		jobs.append((GALLERY, [sys.executable, str(HERE / "art_gallery.py"), str(scratch / "gallery"), "--mod", "CIV Gold", "--limit", "20", "--labels", "--size", "140", "--jobs", "1"]))
+	for name, arguments in OTHER_GALLERIES.items():
+		if name in chosen:
+			jobs.append((name, [sys.executable, str(HERE / "art_gallery.py"), str(scratch / name)] + arguments))
 	print("rendering %d sample(s) into %s" % (len(jobs) + (SIZE_COMPARISON in chosen), IMAGES))
 	with ThreadPoolExecutor(args.jobs) as pool:
 		results = dict(zip([name for name, _ in jobs], pool.map(lambda job: run(job[1]), jobs)))
@@ -229,6 +260,15 @@ def main():
 			results[name] = run(command)
 	if GALLERY in chosen and not results[GALLERY]:
 		(IMAGES / GALLERY).write_bytes((scratch / "gallery" / "sheet_01.png").read_bytes())
+	for name in OTHER_GALLERIES:
+		if name in chosen and not results[name]:
+			(IMAGES / name).write_bytes((scratch / name / "sheet_01.png").read_bytes())
+	if WONDERS in chosen:
+		results[WONDERS] = run([sys.executable, str(HERE / "art_search.py"), WONDERS_PATTERN, str(IMAGES / WONDERS), "--kind", "building", "--era", "ancient", "--mods"] + WONDERS_MODS + ["--columns", "5", "--size", "260"])
+	if FUTURE in chosen:
+		results[FUTURE] = run([sys.executable, str(HERE / "art_search.py"), FUTURE_PATTERN, str(IMAGES / FUTURE), "--kind", "building", "--exclude"] + MARSH_EXCLUDED + ["--columns", "6", "--size", "260"])
+	if FEMALE in chosen:
+		results[FEMALE] = run([sys.executable, str(HERE / "art_search.py"), FEMALE_PATTERN, str(IMAGES / FEMALE), "--kind", "unit", "--exclude"] + MARSH_EXCLUDED + ["--columns", "6", "--size", "200"])
 	if PLOTS in chosen:
 		results[PLOTS] = plot_sheet(scratch)
 	if TERRAINS in chosen:

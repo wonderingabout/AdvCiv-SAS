@@ -25,6 +25,8 @@ These tools were built with Claude code Opus 5.5 and Codex (GPT-6.1-Sol), taking
   - [Mods' own terrains and plot types](#mods-own-terrains-and-plot-types)
   - [How a plot is drawn](#how-a-plot-is-drawn)
   - [Known gaps](#known-gaps)
+- [Buildings](#buildings)
+  - [How the view was fitted](#how-the-view-was-fitted)
 - [Searching mods](#searching-mods)
 - [Videos with sound](#videos-with-sound)
 - [Preview size and detail](#preview-size-and-detail)
@@ -254,6 +256,8 @@ python LLM_Helpers/nif_preview.py catapult_assets/art/units/catapult/catapult.kf
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_catapult_strike.PNG" alt="llm_kf_frames_catapult_strike.PNG" width="600">
 
+A GIF without `--speed` plays a clip at its file's own rate. On 2026-11-09 the motion in timed screenshot volleys of Gandhi's, Grace's and Montezuma's greetings fitted that rate within 8%, so it is the game's pace. The Grace samples had been sped up 1.5 to 1.8 times and now play at that rate.
+
 For NIF GIFs, `--speed` sets the playback multiplier. The Catapult example slows its 0.7-second clip to about 1.6 seconds. `--frames` still sets how many poses to sample.
 
 **Leaderhead portraits.** Use the `NIF` and `BackgroundKFM` paths from the leader's entry in `CIV4ArtDefines_Leaderhead.xml`. The tool renders the backdrop through its own camera and reframes the leader's camera for a chest-up still.
@@ -269,8 +273,8 @@ Grace's still uses the same lakeside backdrop and a similar chest-up crop as her
 Pass `John II.kfm` without an output path to list the clips. With `--clip`, a `.png` output gives a frame sheet and a `.gif` output loops the sampled poses over the fixed backdrop. In the greeting she looks toward her raised hand, then turns to face the camera.
 
 ```bash
-python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_greeting.gif --clip 6553600 --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 32 --size 230 --speed 1.8
-python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_disagree.gif --clip disagree --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 30 --size 230 --speed 1.5
+python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_greeting.gif --clip 6553600 --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 60 --size 230
+python LLM_Helpers/nif_preview.py "Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm" grace_disagree.gif --clip disagree --leader-background Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm --frames 40 --size 230
 ```
 
 **Original Civ IV Gandhi.** Extract Gandhi's art from the original game's `Art0.FPK`. Here `NoShaderNIF` gives the software renderer more skin and clothing detail than the main NIF. The glasses follow the face in both the still and the animated poses.
@@ -382,7 +386,29 @@ Its size follows its art define, as in the Sevopedia: `fScale` times `fInterface
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_scene_unit_scale.png" alt="llm_scene_unit_scale.png" width="600">
 
-Units painted through `TeamColor.bmp` show the player colour as `--team-color`, by default a blue.
+A unit's still shows the first moment of its idle, since that is what the Sevopedia plays. `--rest-pose` keeps the file's own pose.
+
+- The rest pose spread the arms of Ashes of Erebus's Champion and Realism Invictus's Dahomey Amazon, and sank Master of Mana's Shrine Maiden into the ground.
+- Sixteen Erebus units compared with screenshots on 2026-11-09 then stood as in game.
+- Fall from Heaven's dragons have clips named IdleA to IdleC, and the first is used.
+
+`--team-color` sets the player colour, by default a blue. It reaches three kinds of model part:
+
+- A part painted through `TeamColor.bmp`, as before.
+- A part with a `TCiv4Skinning` shader, where the base texture's low alpha shows the colour. `TCiv4SkinningNoTeamColor` parts keep their texture.
+- A part with a `TFlag` shader, whose picture is tinted. The game supplies its `PlayerColor01` and `02` textures, which no file holds.
+
+On the Champion, a purple and a teal player colour matched screenshots taken with each.
+
+The same unit can look different in game for other reasons. The Champion also appeared with a black tabard and a dragon shield, the Elephant brown or grey, and the Griffon brown or green. Ashes of Erebus has civilization-specific art such as `ART_DEF_UNIT_CHAMPION_BANNOR`, which may explain these, but that was not checked.
+
+How much of the pane a unit fills depends on the mod's own Sevopedia. Ashes of Erebus's pane is 350 by 398 at 1280 by 720, and shows units about 1.4 times larger than this frame, fitted to SAS's wider pane, and crops large ones. At the same size the textures looked equally detailed, so a smaller unit here is size rather than lost detail.
+
+The land scene's sky is brightened to the game's level, but its clouds keep a hard edge against the blue that the game's do not. The water scene's sky is drawn thinner over blue, as the coast scene's is.
+
+- Sea units can come out too large: Master of Mana's Sea Serpent fills more of the frame than in game. The sea size was fitted to one ship, the Galley, and was left as it is.
+- Submerged parts show through the water as in game, on the Sea Serpent and MongooseMod's Mermaid.
+- Caveman2Cosmos's active volcano matched in-game screenshots of 2026-11-09 in its cone, side peak, crater and lava flow.
 
 The cache keeps copies between previews. A copy is replaced when its source differs in size or is newer, so an edited texture or a newly added loose override shows at the next render, as Codex (GPT-6.1-Sol) pointed out was needed for iterative testing. `--refresh` replaces every copy, for an edit that kept the size and an older date, such as a file copied in with its original date.
 
@@ -401,7 +427,7 @@ History Rewritten's Alexander greets from the mod's own loose art. Realism Invic
 
 ### Galleries
 
-[`art_gallery.py`](/LLM_Helpers/art_gallery.py) renders every art define matching a pattern, leaders by default, in parallel. It keeps each picture as its own PNG, so a folder can be browsed with Windows thumbnails, and lays them out on numbered grid sheets of 20. `--domain`, `--combat` and `--era` keep units whose XML matches any listed word, the era coming from the unit's first prerequisite tech. `--labels` writes each name, and a unit's domain, era and unit combat, in a strip under its picture. `--clip` also renders a GIF per entry.
+[`art_gallery.py`](/LLM_Helpers/art_gallery.py) renders every art define matching a pattern, leaders by default, in parallel. It keeps each picture as its own PNG, so a folder can be browsed with Windows thumbnails, and lays them out on numbered grid sheets of 20. `--domain`, `--combat` and `--era` keep units whose XML matches any listed word, the era coming from the unit's first prerequisite tech; buildings take `--domain land` or `coast`, `--era` and `--building-kind`. `--labels` writes each name, and a unit's domain, era and unit combat, in a strip under its picture. `--clip` also renders a GIF per entry.
 
 ```powershell
 python LLM_Helpers/art_gallery.py "$env:TEMP/civgold_leaders" --mod "CIV Gold" --labels
@@ -547,7 +573,6 @@ Compared with in-game screenshots (2026-11-08 and 2026-11-09):
 - In game the water next to a shore is lighter, almost sky blue, and a lake, which is Coast surrounded by land, is mostly such shallows: one averaged 82 120 136. A lone water plot here has no shore, so it shows the open Coast colour.
 - A Coast plot in game can show Ocean's deeper blue reaching into it, which is not drawn. Water plots show scattered white glints even without a bonus, about 0.04% of a Coast view's pixels, uneven in size, shape and spacing; a fixed few such are drawn here.
 - Five in-game Coast views averaged about 47 91 119, which this Coast matches; a lake is not one colour: in one view its darker tenth was about 43 89 115 and its lighter tenth a whitish sky blue of 94 134 142, while the river beside it, about 77 123 147, is a deeper blue than those light shallows (2026-11-09).
-- Buildings are not placed on plots or in Sevopedia scenes, including coastal ones in the Sevopedia's coastal backdrop (`CIVILOPEDIA_AMPHIB_ENVIRONMENT`).
 - In game a plot's edges blend into its neighbours: a plains plot beside grassland, a peak and an oasis shows each of them reaching into it, and nearby jungle or forest trees climb a peak's foot. Snow beside the coast shows sandy, gnawed-looking edges. Here a plot stands alone.
 - The `Detail` texture is laid once over a plot's tile; how often the engine repeats it was not measured.
 - Fallout on several plots in game overlaps and starts each plot at its own moment, so large areas shift between patches; one plot here shows one plot's cards only.
@@ -555,13 +580,69 @@ Compared with in-game screenshots (2026-11-08 and 2026-11-09):
 
 Units and bonuses keep the game's sizes on plots: the Crab pair spans about a third of a coast plot's side in game (2026-11-09) and here. Leaderheads are not stretched either: the renderer keeps square pixels, and Gandhi's face is if anything slightly narrower here than in the Sevopedia panel.
 
-Realism Invictus's SVN version (2026) also shows buildings' underwater parts: its DLL patches the EXE so the Sevopedia's coastal backdrop draws the building before the water, and the map draws city geometry in the underwater pass. Here water is always drawn after the models as a translucent layer, so underwater parts show through it.
+Realism Invictus's SVN version (2026) also shows buildings' underwater parts: its DLL patches the EXE so the Sevopedia's coastal backdrop draws the building before the water, and the map draws city geometry in the underwater pass.
+
+Here a plot's water is drawn after its models as a translucent layer, so underwater parts show through it, while a building's coast scene cuts them away at the waterline.
+
+## Buildings
+
+With `--mod`, a `BUILDING_` type or its `ART_DEF_BUILDING_` art define is drawn as in the expanded Sevopedia pane, on the game's own land or coast scene. `--on-plot` stands it on a map plot instead, and `--environment none` keeps the plain grid.
+
+- Buildings have no domain. The scene follows the building's `bWater` in its XML: the coast scene for the Harbor, Lighthouse or Moai Statues, the land scene otherwise. No building uses the sky scene.
+- Its size is `fScale` times `fInterfaceScale` times a factor per scene, as for units.
+- A building's shadow is part of its model: a flat quad such as `SHADOW` or `level_2_wall_shdw` with its own shadow texture, not something the engine casts. Most blend it normally; the BtS Walls' multiplies what is under it.
+- A building set `bAnimated` in its art define can animate in game; a preview here shows it at rest, and `--orbit` turns the view around it.
+
+Mods that organise their XML differently work too, tried on 2026-11-09 across the 60 or so installed mods. Realism Invictus keeps its buildings in several files and lists techs in `<PrereqAndTechs>`, and Caveman2Cosmos keeps instance limits in the building itself.
+
+- Caveman2Cosmos gives 2,527 of its 4,935 building art defines no `NIF` at all, which is why most of its Sevopedia pictures are empty; others name a placeholder with nothing to draw, and a gallery reports those as `no drawable shapes` and leaves them out.
+- A few art defines name a model the mod does not ship, or one from a mod that is not installed, such as futuremod's `Mods/The Road to War/...` paths.
+- A texture is found by its name in the model's folder, as the game does. SAS's Robotic Infantry names `art\units\androidinfantry\t800_full1.dds`, which is not where the file is: it is beside the model, and it draws here in its colours.
+
+`--turn` turns the view around the model as dragging the picture does, for a still from behind, and `--orbit` makes a GIF of a turn.
+
+- A GIF turns at the game's pace, about 2.6 degrees per second. Timed screenshots of the Drydock and the Ziggurat on 2026-11-09 measured 2.4 to 2.8 degrees per second.
+- A whole turn takes over two minutes at that pace, so the samples turn 60 degrees. `--speed` shortens one, such as `--orbit 360 --speed 20`.
+
+```powershell
+python LLM_Helpers/nif_preview.py BUILDING_SUMERIAN_ZIGGURAT ziggurat.png --mod AdvCiv-SAS --size 560
+python LLM_Helpers/nif_preview.py BUILDING_DRYDOCK drydock_behind.png --mod AdvCiv-SAS --turn -150 --size 560
+python LLM_Helpers/nif_preview.py BUILDING_DRYDOCK drydock.gif --mod AdvCiv-SAS --orbit 60 --frames 64 --size 300
+python LLM_Helpers/art_gallery.py "$env:TEMP/sas_buildings" --mod AdvCiv-SAS --pattern "ART_DEF_BUILDING_*" --era ancient --building-kind building --labels
+python LLM_Helpers/art_gallery.py "$env:TEMP/erebus_beasts" --mod "Ashes of Erebus" --pattern "ART_DEF_UNIT_*" --combat beast,animal --labels
+python LLM_Helpers/art_gallery.py "$env:TEMP/erebus_female" --mod "Ashes of Erebus" --pattern "*FEMALE*" --labels
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_ziggurat.gif" alt="llm_animation_building_ziggurat.gif" width="300">
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_drydock.gif" alt="llm_animation_building_drydock.gif" width="300">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_sas_ancient_buildings.png" alt="llm_gallery_sas_ancient_buildings.png" width="600">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_erebus_beasts.png" alt="llm_gallery_erebus_beasts.png" width="600">
+
+### How the view was fitted
+
+The camera and placement were fitted by eye to in-game screenshots of ten buildings on 2026-11-09, with no access to how the EXE places them.
+
+- The coast scene's NiCamera looks down from high up, and the game's view is lower and closer. Drawing the scene from above located the coast's bulge at the origin, which gave the camera's turn.
+- Without a colour behind the coast scene, its water was nearly black and its sky grey. A blue behind both matched the game's turquoise water and blue sky.
+- The sky listed after the water covered the water's translucent texels in white patches, so scene parts are now drawn far to near.
+- Large ground triangles behind the camera were skipped whole, which left half a turned view black. They are now cut at the near plane.
+- The cliff under the water showed through it as orange islands, so whatever lies under the waterline is cut away.
+- A building's lower walls are hidden there as well. The Drydock shows about 60% of its full height in game.
+- The water's translucent layer was first drawn over the building's shadow, which lies on the water, and hid it. The layer now goes under the building.
+- The Metsehaf Bet's model names its texture `//eldercouncil.dds`, which Python's Windows path handling reads as a network path, so only its shadow was drawn until the name was split by hand.
+
+Sizes matched within about 20%. Lighting is approximate, as the scene's lights are not applied.
 
 ## Searching mods
 
-[`art_search.py`](/LLM_Helpers/art_search.py) finds a kind of terrain or feature across every installed mod and draws them side by side, each on a plot through its own mod's art and labelled with the mod. Designing the Marsh feature meant searching mods for marshes, swamps and wetlands by hand and comparing them from screenshots; this does that search in one command for any pattern.
+[`art_search.py`](/LLM_Helpers/art_search.py) finds a kind of terrain, feature, building or unit across every installed mod and draws them side by side, each on a plot through its own mod's art and labelled with the mod. Designing the Marsh feature meant searching mods for marshes, swamps and wetlands by hand and comparing them from screenshots; this does that search in one command for any pattern.
 
 - It matches Types against a regular expression in each mod's TerrainInfos and FeatureInfos, skipping entries a mod inherits unchanged from the base game, so the base game's own are listed once, under BtS. `--list` lists the matches without drawing them.
+- `--kind building` or `--kind unit` searches those instead, and `--era` keeps those of the given eras. A mod's buildings and units are nearly all edited copies of the base game's, so one is skipped when its art file is the base game's.
+- A model several mods share is drawn once, and its label counts the others, such as `(2100 +17)`. `--all-copies` draws each one.
+- Previews are not checked against the game one by one, least of all on a grid. They show what the tools expect from a mod's files; a surprising cell may be a drawing limit rather than the mod's art.
 - A feature stands on the first terrain its XML allows; a terrain is drawn flat. A match that fails to draw is reported and left off the sheet, as some mods' XML or art does not load.
 - Mods nested inside another mod's folder, such as Beyond the Game's own mods, are not searched.
 
@@ -579,6 +660,32 @@ The sheet below leaves out two installed mods by the maintainer's choice: RFC Da
 Other mods' animated features, with no list of names behind them: glowing cards, fog, storms, meteors and volcanoes.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_effects.png" alt="llm_search_effects.png" width="600">
+
+Ancient wonders and the Lighthouse, searched in three mods, with the base game's first; only art files that differ from the base game's are listed, so Realism Invictus adds none here:
+
+```powershell
+python LLM_Helpers/art_search.py "PYRAMID|STONEHENGE|ORACLE|LIGHTHOUSE|HANGING" wonders.png --kind building --era ancient --mods Caveman2Cosmos "History Rewritten" "Realism Invictus" --columns 5 --size 260
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_ancient_wonders.png" alt="llm_search_ancient_wonders.png" width="600">
+
+Units whose Types name women, across every installed mod but the two left out above. Each cell uses its own mod's Sevopedia scene. Drawing all 26, from 11 mods, took about 15 seconds; Women of the Sword changes leaders rather than units, so it adds none.
+
+```powershell
+python LLM_Helpers/art_search.py "AMAZON|VALKYR|MAIDEN|_ONNA|GEISHA|BLADEDANCER|MERMAID|SORCERESS" women.png --kind unit --columns 6 --size 200
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_female_units.png" alt="llm_search_female_units.png" width="600">
+
+On a sheet holding two or more mods, each label ends with its mod in brackets.
+
+A hunt for art to use: labs, farms, reactors and embassies for a future era, from the mods that have them.
+
+- The pattern came from listing names with `--list` first, then keeping the ones that sounded useful.
+- Caveman2Cosmos names many more, but most of its building art defines have no model, so they are reported and left off.
+- futuremod's and Chronicles of Mankind's art looks the roughest here, and Chronicles of Mankind's Fusion Plant has a bright yellow ball drawn far too large, which may be an animated part this preview does not scale.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_future_buildings.png" alt="llm_search_future_buildings.png" width="600">
 
 ## Videos with sound
 
@@ -734,4 +841,5 @@ Enlarged previews of the bonus rows, made with `preview` by Claude Code Opus 5.5
 - Change both fonts, and the matching `FontButtonIndex` values, in one change.
 - Keep a copy of a file before replacing it; a staged copy in Git's index also works.
 - Check results in an enlarged preview, and in the game, which loads art and fonts at startup.
-- A `.nif` render shows the model's stored pose only; judge a model in the game before keeping it.
+- A `.nif` render shows the model's stored pose unless a clip or a unit's default idle applies; judge a model in the game before keeping it.
+- Civ4 names a screenshot with the first free number, so older files can sit among new ones: on 2026-11-09 August's 2299 to 2306 lay among that day's. Name and time otherwise agreed, so sort by either and skip such files.

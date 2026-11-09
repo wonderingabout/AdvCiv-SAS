@@ -1308,7 +1308,7 @@ python LLM_Helpers/civ4_assets.py --mod "Realism Invictus" defines "ART_DEF_UNIT
 ### `art_gallery.py`
 
 - Renders a mod's leaders, units or other art defines in bulk through `nif_preview.py --mod`, keeps each as a PNG for Windows thumbnails, and lays them out on grid sheets; needs what `nif_preview.py` needs.
-- Filters units by domain, unit combat and era from the mod's XML; `--labels` writes names and those facts under each picture. See [Galleries](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#galleries).
+- Filters units and buildings by domain, unit combat or kind of building, and era from the mod's XML; `--labels` writes names and those facts under each picture. See [Galleries](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#galleries).
 
 ```bash
 python LLM_Helpers/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --labels
@@ -1316,7 +1316,7 @@ python LLM_Helpers/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --lab
 
 ### `art_search.py`
 
-- Finds the terrains or features whose Type matches a regular expression in every installed mod, skipping entries a mod inherits unchanged from the base game, and draws each on a plot through its own mod's art, as one sheet labelled with the mod; `--list` lists the matches only. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
+- Finds the terrains, features, buildings or units (`--kind`, with `--era` for the last two) whose Type matches a regular expression in every installed mod, skipping entries a mod inherits unchanged from the base game, and draws each through its own mod's art, as one sheet labelled with the mod; `--list` lists the matches only. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
 
 ```bash
 python LLM_Helpers/art_search.py "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD" marshes.png

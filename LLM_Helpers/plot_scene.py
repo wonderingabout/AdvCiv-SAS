@@ -102,7 +102,7 @@ def fallback_terrains(assets):
 
 
 def defaults(assets, subject):
-	# <!-- custom: The terrain, feature and plot type a preview starts from, taken from what the XML allows: a bonus's first allowed feature on a terrain that feature allows, else its first terrain, flat when it allows flatlands; a feature's first terrain; an improvement's first valid terrain or feature; a unit's domain, land on Grassland and sea on Coast. (Claude code Opus 5.5) -->
+	# <!-- custom: The terrain, feature and plot type a preview starts from, taken from what the XML allows: a bonus's first allowed feature on a terrain that feature allows, else its first terrain, flat when it allows flatlands; a feature's first terrain; an improvement's first valid terrain or feature; a unit's domain, land on Grassland and sea on Coast; a building, on Coast when its XML sets bWater. (Claude code Opus 5.5) -->
 	subject = subject.upper()
 	land, sea = fallback_terrains(assets)
 	if subject.startswith("TERRAIN_"):
@@ -140,6 +140,9 @@ def defaults(assets, subject):
 			on = listed(features.get(features_valid[0]), "TerrainBooleans", "TerrainType", "bTerrain")
 			return (on[0] if on else land), features_valid[0], "flat"
 		return land, None, "hills" if field(improvement, "bHillsMakesValid") == "1" else "flat"
+	building = assets.buildings().get(subject)
+	if building is not None and building["Water"]:
+		return sea, None, "flat"
 	unit = assets.units().get(subject)
 	if unit is not None and unit["Domain"] == "DOMAIN_SEA":
 		return sea, None, "flat"
@@ -540,12 +543,13 @@ def sheet_label(terrain, feature, plot):
 
 
 def labelled_sheet(pictures, columns, path):
-	width, height = pictures[0][1].size
+	# <!-- custom: Cells take the largest picture's size, each picture centred in its cell: a search over units mixes 4:3 scenes and square previews. (Claude code Opus 5.5) -->
+	width, height = max(picture.size[0] for _, picture in pictures), max(picture.size[1] for _, picture in pictures)
 	sheet = Image.new("RGB", (width * columns, (height + 14) * ((len(pictures) + columns - 1) // columns)), (20, 20, 20))
 	draw = ImageDraw.Draw(sheet)
 	for k, (label, picture) in enumerate(pictures):
 		x, y = (k % columns) * width, (k // columns) * (height + 14)
-		sheet.paste(picture, (x, y))
+		sheet.paste(picture, (x + (width - picture.size[0]) // 2, y + (height - picture.size[1]) // 2))
 		draw.text((x + 4, y + height + 1), label, fill=(230, 230, 230))
 	sheet.save(path)
 

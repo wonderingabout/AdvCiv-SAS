@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 193 - SAS practical 6738
 
 - **Date:** 2026-11-09
-- **Git commit:** pending
+- **Git commit:** `2126df30a1f2795369c2c53d4d34a32f1e3abc4a`
 - **Change:** Record native city and unit requests at dispatch so they can be compared with the subsequent game outcomes.
   - The coverage audit drew on [CIVAI](https://github.com/noreff/civai), whose player bridge distinguishes submitted commands from resulting state. Direct Python city mutations illustrate why a native dispatch record cannot identify every caller.
   - `GAME_RECORD_PLAYER_CITY_TASK` observes `CvNetDoTask` before `CvCity::doTask`, retaining the native task ID/name, raw payload/modifier flags, city identity and direct typed target where the task itself defines one (player, emphasize, specialist, city plot, hurry or rally plot).
