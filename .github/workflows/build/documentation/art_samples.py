@@ -17,7 +17,7 @@ import tokenize
 ROOT = Path(__file__).resolve().parents[4]
 FINGERPRINT = "LLM_Helpers/art_samples_fingerprint.json"
 # <!-- custom: The scripts whose code decides what the samples look like, including the sample list itself. (Claude code Opus 5.5) -->
-RENDERER_FILES = ("LLM_Helpers/nif_preview.py", "LLM_Helpers/civ4_assets.py", "LLM_Helpers/fpk_tool.py", "LLM_Helpers/art_gallery.py", "LLM_Helpers/regenerate_art_samples.py")
+RENDERER_FILES = ("LLM_Helpers/nif_preview.py", "LLM_Helpers/civ4_assets.py", "LLM_Helpers/fpk_tool.py", "LLM_Helpers/plot_scene.py", "LLM_Helpers/art_gallery.py", "LLM_Helpers/art_search.py", "LLM_Helpers/regenerate_art_samples.py")
 
 
 def code_tokens(text):

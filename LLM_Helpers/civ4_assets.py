@@ -148,6 +148,70 @@ class Civ4Assets:
 				found[art_type] = fields
 		return found
 
+	def define(self, name):
+		# <!-- custom: A GlobalDefines value, the mod's first; PLOT_SIZE, for example, sizes the ground of a plot preview. (Claude code Opus 5.5) -->
+		for _, assets in self.xml_roots:
+			for path in sorted((assets / "XML").glob("GlobalDefines*.xml")) if (assets / "XML").is_dir() else []:
+				match = re.search(r"<DefineName>\s*%s\s*</DefineName>\s*<\w+>\s*([^<\s]+)" % re.escape(name), path.read_bytes().decode("latin-1"))
+				if match:
+					return match.group(1)
+		return None
+
+	def infos(self, folder, name_part, block):
+		# <!-- custom: Each <block> entry's text by its Type, such as TerrainInfo in XML/Terrain/CIV4TerrainInfos.xml.
+		# As in units(), the first XML layer holding the file replaces the base game's and the mod's Modules add to it; read with patterns, which tolerate the mods' malformed files. (Claude code Opus 5.5) -->
+		# <!-- custom: Caveman2Cosmos's Modules also hold partial entries for Types its XML folder defines, such as a TERRAIN_GRASSLAND with only property changes; read first, they replaced the full entry, whose ArtDefineTag went missing.
+		# So the XML folder's files are read before Modules, and a repeated Type's text is appended to the first, whose fields field() finds first. (Claude code Opus 5.5) -->
+		found, chosen = {}, None
+		files = sorted(self.xml_files(folder, name_part), key=lambda item: (item[0] != "mod", "modules" in [part.lower() for part in item[1].parts]))
+		for label, path in files:
+			if label != "mod" and chosen not in (None, label):
+				continue
+			if label != "mod" and not path.name.lower().startswith("civ4"):
+				continue
+			chosen = chosen or label
+			text = re.sub(r"<!--.*?--\s*>", "", path.read_bytes().decode("latin-1"), flags=re.DOTALL)
+			for body in re.findall(r"<%s>(.*?)</%s>" % (block, block), text, re.DOTALL):
+				info_type = re.search(r"<Type>\s*([^<\s]+)", body)
+				if info_type is not None:
+					found[info_type.group(1)] = found[info_type.group(1)] + "\n" + body if info_type.group(1) in found else body
+		return found
+
+	def art_body(self, art_type):
+		# <!-- custom: The whole text of an art define, mod first, for definitions that nest their files, such as a feature's varieties of art pieces, which art_defines() flattens away. (Claude code Opus 5.5) -->
+		for _, path in self.xml_files("Art", "artdefines"):
+			text = re.sub(r"<!--.*?--\s*>", "", path.read_bytes().decode("latin-1"), flags=re.DOTALL)
+			for _, body in re.findall(r"<(\w*ArtInfo)>(.*?)</\1>", text, re.DOTALL):
+				if re.search(r"<Type>\s*%s\s*</Type>" % re.escape(art_type), body):
+					return body
+		return None
+
+	def stage_matching(self, folder, pattern, cache):
+		# <!-- custom: Copy only the files of a folder matching pattern, such as the religion scenes' fire sprites art/shared/fx_fire*.dds, rather than the whole large Art/Shared. (Claude code Opus 5.5) -->
+		target = Path(cache) / normalized(folder)
+		target.mkdir(parents=True, exist_ok=True)
+		for layer in self.layers:
+			for name in layer.names_in(folder):
+				if fnmatch.fnmatch(name, pattern) and not (target / name).exists():
+					write_atomically(target / name, layer.read(folder + "/" + name))
+		return target
+
+	def sound(self, name):
+		# <!-- custom: The file behind a sound script such as AS2D_BUILD_TAOIST_MOVIE, a religion's MovieSound: Audio2DScripts maps it to SND_BUILD_TAOIST_MOVIE, AudioDefines to Sounds/Buildings/Taoist, and the extension, left out of the XML, is found among the files: Taoist.mp3 in the original game's Assets. (Claude code Opus 5.5) -->
+		sound_id = name
+		for _, path in self.xml_files("Audio", "audio2dscripts"):
+			match = re.search(r"<ScriptID>\s*%s\s*</ScriptID>\s*<SoundID>\s*([^<\s]+)" % re.escape(name), path.read_bytes().decode("latin-1"))
+			if match:
+				sound_id = match.group(1)
+				break
+		for _, path in self.xml_files("Audio", "audiodefines"):
+			match = re.search(r"<SoundID>\s*%s\s*</SoundID>\s*<Filename>\s*([^<]+?)\s*</Filename>" % re.escape(sound_id), path.read_bytes().decode("latin-1"))
+			if match:
+				for extension in ("", ".mp3", ".ogg", ".wav"):
+					if self.locate(match.group(1) + extension)[0] is not None:
+						return match.group(1) + extension
+		return None
+
 	def units(self):
 		# <!-- custom: Each unit art define's unit, with its domain, unit combat, prerequisite tech and that tech's era, to pick a Sevopedia scene and to filter galleries.
 		# The first XML layer holding CIV4UnitInfos.xml or CIV4TechInfos.xml replaces the base game's, as a mod's full copy does; the mod's Modules add to it.
@@ -185,6 +249,21 @@ class Civ4Assets:
 		self.unit_records = units
 		return units
 
+	def locate_in_siblings(self, folder, name):
+		parent = normalized(folder).rpartition("/")[0]
+		for layer in self.layers:
+			if layer.archive is not None:
+				key = next((key for key in layer.index if key.startswith(parent + "/") and key.endswith("/" + name) and key.count("/") == parent.count("/") + 2), None)
+				if key is not None:
+					return layer.label, layer.archive.read(layer.index[key])
+			else:
+				base = find_case_insensitive(layer.assets, parent) if parent else None
+				for sibling in (entry for entry in base.iterdir() if entry.is_dir()) if base is not None and base.is_dir() else []:
+					match = next((entry for entry in sibling.iterdir() if entry.name.lower() == name), None)
+					if match is not None and match.is_file():
+						return layer.label, match.read_bytes()
+		return None, None
+
 	def stage(self, relative, cache, refresh=False):
 		# <!-- custom: Copy the folder of relative from every layer into cache, the first layer holding a name winning, so a KFM finds its clips and a NIF its textures beside it.
 		# Then copy each texture (.dds, or .tga as CIV Gold's leaders use) a staged NIF names from another folder, such as a shared BtS texture, beside it too, since nif_preview.py looks for textures by name in the model's folder. (Claude code Opus 5.5) -->
@@ -215,10 +294,14 @@ class Civ4Assets:
 				if data is None:
 					# <!-- custom: A texture named without its folder, such as musket.dds in Realism Invictus's Apache Raiders, comes from the shared Art/Shared folder, here RI_381_Shared4.FPK. (Claude code Opus 5.5) -->
 					label, data = self.locate("art/shared/" + base)
+				if data is None:
+					# <!-- custom: The mountain models in Art/Terrain/Features/Peak name Mountain.dds and Hill.dds, kept in the neighbouring Hills folder, so a folder's siblings are searched last. (Claude code Opus 5.5) -->
+					label, data = self.locate_in_siblings(folder, base)
 				if data is not None:
 					if refresh or not (target / base).exists() or (target / base).read_bytes() != data:
 						write_atomically(target / base, data)
-				else:
+				elif nif == relative.rpartition("/")[2].lower():
+					# <!-- custom: Warn only for the requested model; every NIF in its folder is scanned, and warnings about unrelated ones buried the useful line. (Claude code Opus 5.5) -->
 					print("texture %s named by %s was not found" % (texture, nif), file=sys.stderr)
 		return target / relative.rpartition("/")[2].lower(), sources[relative.rpartition("/")[2].lower()].label
 

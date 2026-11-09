@@ -51,22 +51,32 @@ def render_audio(ffmpeg, source, target):
 def main():
 	parser = argparse.ArgumentParser(description="Preview a Civ4 movie as a contact sheet, looping GIF or audio waveform.")
 	parser.add_argument("movie")
-	parser.add_argument("out", help="PNG contact sheet, looping GIF, or waveform with --audio-only")
+	parser.add_argument("out", help="PNG contact sheet, looping GIF, MP4 video with sound, or waveform with --audio-only")
 	parser.add_argument("--frames", type=int, default=6)
 	parser.add_argument("--width", type=int, default=320, help="width of each frame")
-	parser.add_argument("--start", type=float, help="GIF start time in seconds (default: 0)")
-	parser.add_argument("--duration", type=float, help="GIF length in seconds (default: through the end)")
+	parser.add_argument("--start", help="GIF or MP4 start, in seconds or as a percentage of the movie such as 25%% (default: 0)")
+	parser.add_argument("--duration", help="GIF or MP4 length, in seconds or as a percentage of the movie such as 10%% (default: through the end)")
 	parser.add_argument("--fps", type=int, help="GIF frames per second (default: 12)")
 	audio = parser.add_mutually_exclusive_group()
 	audio.add_argument("--audio", help="also write the audio's waveform as this PNG and print its loudness")
 	audio.add_argument("--audio-only", action="store_true", help="write a waveform and print loudness without sampling video")
 	args = parser.parse_args()
 	is_gif = args.out.lower().endswith(".gif") and not args.audio_only
-	if not is_gif and any(value is not None for value in (args.start, args.duration, args.fps)):
-		parser.error("--start, --duration and --fps require GIF output")
-	if args.start is not None and (not math.isfinite(args.start) or args.start < 0):
+	is_video = args.out.lower().endswith(".mp4") and not args.audio_only
+	if not (is_gif or is_video) and any(value is not None for value in (args.start, args.duration)):
+		parser.error("--start and --duration require GIF or MP4 output")
+	if not is_gif and args.fps is not None:
+		parser.error("--fps requires GIF output")
+	for option in ("start", "duration"):
+		value = getattr(args, option)
+		if value is not None:
+			try:
+				setattr(args, option, (float(value[:-1]), "%") if value.endswith("%") else (float(value), "s"))
+			except ValueError:
+				parser.error("--%s takes seconds or a percentage, such as 12.5 or 25%%" % option)
+	if args.start is not None and (not math.isfinite(args.start[0]) or args.start[0] < 0):
 		parser.error("--start must be finite and nonnegative")
-	if args.duration is not None and (not math.isfinite(args.duration) or args.duration <= 0):
+	if args.duration is not None and (not math.isfinite(args.duration[0]) or args.duration[0] <= 0):
 		parser.error("--duration must be finite and positive")
 	if args.fps is not None and not 1 <= args.fps <= 50:
 		parser.error("--fps must be between 1 and 50")
@@ -77,6 +87,21 @@ def main():
 		render_audio(ffmpeg, args.movie, args.out)
 		return
 	length = duration_of(find_tool("ffprobe"), args.movie)
+	# <!-- custom: A percentage is of the whole movie, so --start 50% --duration 10% picks the same slice of a 20-second and a 3-minute movie. (Claude code Opus 5.5) -->
+	for option in ("start", "duration"):
+		value = getattr(args, option)
+		if value is not None:
+			setattr(args, option, value[0] * length / 100 if value[1] == "%" else value[0])
+	if is_video:
+		# <!-- custom: A GIF has no sound, and a .bik opens only in players that decode Bink, so write H.264 video with AAC sound, which VLC, browsers and Windows' own player open.
+		# Keep such videos of the game's movies outside the repository, as they copy Firaxis's work in full. (Claude code Opus 5.5) -->
+		start = args.start or 0
+		if start >= length:
+			parser.error("--start must be before the end of the movie")
+		duration = min(args.duration or length, length - start)
+		subprocess.run([ffmpeg, "-v", "error", "-y", "-ss", str(start), "-i", args.movie, "-t", str(duration), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", args.out], check=True)
+		print("wrote %s: %.2f to %.2f s with sound" % (args.out, start, start + duration))
+		return
 	if is_gif:
 		start = args.start or 0
 		if start >= length:

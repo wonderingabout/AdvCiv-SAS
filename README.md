@@ -96,6 +96,11 @@ They are standalone Python 3 command-line scripts in [`LLM_Helpers/`](/LLM_Helpe
 - Movie audio and standalone `.mp3` or `.wav` files as waveforms with volume readings
 - Any installed mod's leaders and units by their art define name, found as the game finds them in the mod's loose files and FPKs and the base game's, so mods that mix their own and BtS art need no extraction; units appear in their Sevopedia land, sea or air scene
 - Grid sheets of a mod's leaders or units, filterable by domain, unit combat and era, to browse a mod's art at a glance
+- Map plots of any terrain, feature and plot type, with a unit, bonus or improvement standing on the one its XML allows or on any other chosen to try
+- A whole mod's terrains, plot types and features on one sheet, with each mod's own art, such as Caveman2Cosmos's dozens of terrains
+- Glowing and animated features such as Fallout, as a still at any brightness or a GIF of their own loop, found in each mod's models rather than from a list
+- A search across every installed mod for a kind of terrain or feature, such as marshes, swamps and wetlands, drawn side by side in a grid labelled with each mod, to compare how mods draw the same thing at a glance or to look for art and ideas for a new one, as when SAS designed its Marsh
+- Movies and religion-founding scenes as `.mp4` videos with their sound
 
 See [Agent tools for Civ4 file formats](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav) below for stills, frame sheets, and animated examples.
 
@@ -1372,6 +1377,32 @@ History Rewritten's Alexander comes from its own loose art; Realism Invictus's A
 [`art_gallery.py`](/LLM_Helpers/README.md#art_gallerypy) renders a mod's leaders or units in bulk onto labelled grid sheets, here the first 20 of CIV Gold's 287 leaders in about 9 seconds. A survey of 59 installed mods found layouts such as art borrowed from another mod's folder, flat `.dds` leaders and broken XML, which the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art) lists with the commands.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_civgold_leaders.png" alt="llm_gallery_civgold_leaders.png" width="400">
+
+**Plots**: `nif_preview.py` can also draw a map plot of any terrain, feature and plot type, from the game's own textures and models, with a unit, bonus or improvement standing on the one its XML allows first or on any other chosen.
+
+Here SAS's Marsh, Forest, Flood Plains, Hill and Peak, the Deer on its snowy Tundra forest, and the Llama Kamayuq on desert hills. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types) lists what is approximated.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_previews.png" alt="llm_plot_previews.png" width="600">
+
+**All terrains and features**: [`plot_scene.py`](/LLM_Helpers/README.md#plot_scenepy) draws a mod's every terrain, flat and as hills and peak, then every feature on the terrains it allows, as one sheet read from the XML; here SAS's own, and the same command works for any mod.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_terrains.png" alt="llm_plot_terrains.png" width="600">
+
+**Glowing and animated features**: Fallout's light swells and fades over 8 seconds, so `--glow` sets a still's brightness from 0 to 100% and a GIF plays the model's own loop, fitted to a burst of in-game screenshots; the Oasis's water slides over 10 seconds the same way.
+
+Other mods' animated features are found in their models the same way, with no list of names. See [How a plot is drawn](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#how-a-plot-is-drawn).
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_fallout.gif" alt="llm_animation_fallout.gif" width="280"> <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_oasis.gif" alt="llm_animation_oasis.gif" width="280">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_fallout.png" alt="llm_plot_fallout.png" width="600">
+
+**Comparing mods**: [`art_search.py`](/LLM_Helpers/README.md#art_searchpy) searches every installed mod for terrains or features whose name matches a pattern and draws them side by side, each on a plot with its own mod's art and labelled with the mod.
+
+Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cosmos's swamp, mangrove and peat bog to Sengoku's marsh and Realism Invictus's swamp; when SAS designed its Marsh, that comparison was done by hand from screenshots. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_marshes.png" alt="llm_search_marshes.png" width="600">
+
+**Videos with sound**: Bink movies and religion-founding scenes can be written as `.mp4` with their sound, whole or as a slice in seconds or percent, to play in VLC or a browser; these copy Firaxis's movies, so they are kept out of the repository. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#videos-with-sound).
 
 [`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) renders all of these samples again with the current renderer, so none falls behind its fixes, as Grace's still once kept eyes the skinning fix had corrected in her GIFs.
 

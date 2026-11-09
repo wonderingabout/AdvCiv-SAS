@@ -345,7 +345,8 @@ def load_texture(shape, folder, cache, slot="base_texture"):
 	return None
 
 
-def world_matrices(node, parent, out, at, transforms, look_targets=None, bound_names=None):
+# <!-- custom: Added facing, the camera's right, up and toward rows that billboard nodes turn to; None leaves them as stored, for every preview but a plot's effects. (Claude code Opus 5.5) -->
+def world_matrices(node, parent, out, at, transforms, look_targets=None, bound_names=None, facing=None):
 	if bound_names is None:
 		bound_names = set()
 	track = transforms.get(node.name)
@@ -358,6 +359,9 @@ def world_matrices(node, parent, out, at, transforms, look_targets=None, bound_n
 		else:
 			bound_names.add(node.name)
 	matrix = local_matrix(node, at, track) @ parent
+	if facing is not None and isinstance(node, NifFormat.NiBillboardNode):
+		# <!-- custom: A billboard's cards lie flat at height 0 in the file and the engine turns them to the camera; left flat, the ground hid Fallout's glow and only its corners poked through hills, as gold bars. (Claude code Opus 5.5) -->
+		matrix[:3, :3] = facing * np.linalg.norm(matrix[0, :3])
 	if look_targets is not None and isinstance(node.controller, NifFormat.NiTransformController):
 		look = node.controller.interpolator
 		if isinstance(look, NifFormat.NiLookAtInterpolator) and look.unknown_short == 4 and id(look.look_at) in look_targets:
@@ -380,7 +384,7 @@ def world_matrices(node, parent, out, at, transforms, look_targets=None, bound_n
 	if isinstance(node, NifFormat.NiNode):
 		for child in node.children:
 			if child is not None:
-				world_matrices(child, matrix, out, at, transforms, look_targets, bound_names)
+				world_matrices(child, matrix, out, at, transforms, look_targets, bound_names, facing)
 
 
 def skinned_points(node, vertices, worlds):
@@ -426,7 +430,83 @@ def texture_scroll(node, slot, at):
 	return offset
 
 
-def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=None, opacity=None):
+# <!-- custom: Fallout's cards add a texture of 247 188 79 times a key of 1 0.78 0.33, which is green 0.6 and blue 0.1 of red and about 0.8 of the game's strength; this per-channel factor fits a 56-screenshot in-game burst covering its whole 8 s loop (2026-11-09), whose light added green 0.63 and blue 0.2 of red, red saturating on bright ground.
+# A first fit (1, 1.2, 1.8) to a 5 s burst measured against each pixel's tenth percentile rather than its darkest moment gave too yellow a green of 0.72. (Claude code Opus 5.5) -->
+EFFECT_GLOW_TINT = np.array((1.25, 1.33, 2.5), dtype=np.float32)
+
+
+# <!-- custom: How strongly the two sliding layers of a feature's water show: their stored alpha of 0.2 left the Oasis almost still, with no crossing lines, while an in-game burst (2026-11-09) shows them plainly.
+# An even mix lit as the terrain is, at 0.4 opacity, averages 72 131 145 in the pool against the game's 72 127 136; 0.5 unlit gave a duller pool and spread the layer's outline over the dark rim. (Claude code Opus 5.5) -->
+WATER_LAYER_MIX = 0.5
+WATER_LAYER_OPACITY = 0.4
+# <!-- custom: How far a scrolling feature's soil moves toward the ground's colour, its greens kept: the Oasis's rim had a darkest tenth of 104, now 114, against the game's 128, and a mean of 158 152 120, now 165 158 124, against 182 160 126.
+# Lightening only the half-transparent texels barely moved it, to 109, as the rim is mostly painted opaque. (Claude code Opus 5.5) -->
+GROUND_EDGE_LIGHTEN = 0.25
+
+
+def scrolled_surface(node, folder, cache, texture, at, ground_colour):
+	# <!-- custom: A plot feature's scrolling texture at time at, or at its start: each layer is shifted by its own keys and static offset, then the decal is laid over the base by its alpha.
+	# The Oasis water slides two copies of oasis_water.dds in opposite directions, which makes the crossing lines seen in game; the rasterizer takes one texture per shape, so they are composited here. (Claude code Opus 5.5) -->
+	prop = next((prop for prop in node.properties if isinstance(prop, NifFormat.NiTexturingProperty)), None)
+	if prop is None:
+		return texture
+	# <!-- custom: plot_scene lights the terrain; imported here because it imports this module. (Claude code Opus 5.5) -->
+	from plot_scene import map_light
+
+	def placed(image, layer, slot):
+		offset = texture_scroll(node, slot, at or 0.0)
+		if layer.has_texture_transform:
+			offset += (layer.translation.u, layer.translation.v)
+		height, width = image.shape[:2]
+		return np.roll(image, (-int(round(offset[1] * height)), -int(round(offset[0] * width))), axis=(0, 1))
+	base = placed(texture, prop.base_texture, 0)
+	decal = load_texture(node, folder, cache, "decal_0_texture") if prop.has_decal_0_texture else None
+	if decal is None:
+		lit = map_light(base)
+		if ground_colour is not None:
+			# <!-- custom: Graded, as a hard cut between soil and green texels drew blocky patches in the rim. (Claude code Opus 5.5) -->
+			edge = np.clip((lit[..., 0:1] + 0.06 - lit[..., 1:2]) / 0.06, 0, 1) * GROUND_EDGE_LIGHTEN
+			lit[..., :3] = lit[..., :3] * (1 - edge) + ground_colour * edge
+		return lit
+	decal = placed(decal, prop.decal_0_texture, 6)
+	result = base.copy()
+	result[..., :3] = base[..., :3] * (1 - WATER_LAYER_MIX) + decal[..., :3] * WATER_LAYER_MIX
+	result[..., 3] = WATER_LAYER_OPACITY
+	return map_light(result)
+
+
+def glow_track(node):
+	# <!-- custom: A card's animated self-illumination keys, or None; a survey of 59 installed mods found effect cards with no material and with other controllers chained before this one. (Claude code Opus 5.5) -->
+	for prop in node.properties:
+		controller = prop.controller if isinstance(prop, NifFormat.NiMaterialProperty) else None
+		while controller is not None:
+			if isinstance(controller, NifFormat.NiMaterialColorController) and controller.target_color == 3 and controller.interpolator is not None and controller.interpolator.data is not None:
+				return controller.interpolator.data.data
+			controller = controller.next_controller
+	return None
+
+
+def effect_surface(node, data, uvs, texture, blend, glow, at):
+	# <!-- custom: A billboard effect's card, as Fallout's: a card whose self-illumination is animated adds light, at glow, a fraction of its brightest key; any other is haze, faded by its vertex alpha, which the first preview ignored and so drew Fallout's smoke as a hard-edged grey polygon.
+	# Both ignore the depth buffer, as their NiZBufferProperty asks.
+	# With a time at, as in a GIF, the card follows the file's own 8 s colour keys, which swell and fade each card on its own beat, and the haze scrolls; the keys may dip just below zero. (Claude code Opus 5.5) -->
+	track = glow_track(node)
+	if track is not None:
+		colour = np.clip(curve_sample(track.keys, at, track.interpolation), 0, None) if at is not None else vector(max(track.keys, key=lambda key: key.value.x + key.value.y + key.value.z).value) * glow
+		painted = texture.copy()
+		painted[..., :3] *= colour.astype(np.float32) * EFFECT_GLOW_TINT
+		return uvs, painted, "glow", 0.0
+	if blend in ("add", "add-alpha"):
+		return uvs, texture, "glow", 0.0
+	if at is not None:
+		uvs = uvs + texture_scroll(node, 0, at)
+	if data.has_vertex_colors:
+		uvs = np.column_stack([uvs, [colour.a for colour in data.vertex_colors]])
+	return uvs, texture, "haze", 0.0
+
+
+# <!-- custom: Added glow, a billboard effect's light fraction, and scrolling, for a plot feature's sliding textures; their defaults leave other previews unchanged. (Claude code Opus 5.5) -->
+def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=None, opacity=None, glow=None, scrolling=False):
 	world = worlds[id(node)]
 	# <!-- custom: Triangle strips too: the Peat bonus model has one NiTriStrips part, which the first version skipped. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if isinstance(node, (NifFormat.NiTriShape, NifFormat.NiTriStrips)) and node.data:
@@ -459,6 +539,10 @@ def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=
 			if blend and (alpha[0].flags & 0x1ff) in (1, 13):
 				blend = "add" if (alpha[0].flags & 0x1ff) == 1 else "add-alpha"
 			threshold = alpha[0].threshold / 255.0 if alpha and alpha[0].flags & 0x200 else (0.5 if blend else -1.0)
+			if scrolling and texture is not None:
+				texture = scrolled_surface(node, folder, cache, texture, at, getattr(args, "ground_colour", None))
+			if glow is not None and texture is not None and blend:
+				uvs, texture, blend, threshold = effect_surface(node, data, uvs, texture, blend, glow, at)
 			if texture is not None and opacity and node.name in opacity:
 				# <!-- custom: The Fish clip animates material alpha on its splash rings, which otherwise stay bright through the whole clip. (GPT-6.1-Sol) -->
 				track = opacity[node.name]
@@ -489,12 +573,14 @@ def collect(node, folder, cache, args, meshes, worlds, visibility, at, overlays=
 			track = visibility.get(child.name)
 			visible = bool_value(track, at) if track is not None else not (child.flags & 1)
 			if visible:
-				collect(child, folder, cache, args, meshes, worlds, visibility, at, overlays, opacity)
+				collect(child, folder, cache, args, meshes, worlds, visibility, at, overlays, opacity, glow, scrolling)
 
 
 # <!-- custom: rasterize first drew opaque or alpha-blended triangles with affine texture coordinates.
 # additive draws particles and effects that add light, perspective corrects texture coordinates for a Civilopedia scene's camera, and opacity_multiplier applies --water-opacity to the water overlay.
 # The defaults keep earlier previews unchanged. (Claude code Opus 5.5) -->
+# <!-- custom: The blends "glow" and "haze" are effect_surface's: unshaded and drawn over whatever is there, but only where something is, since past a lone plot they drew detached smudges on the backdrop, where in game a neighbouring plot would catch them.
+# A third texture coordinate column is a haze card's vertex alpha. (Claude code Opus 5.5) -->
 def rasterize(meshes, project, width, height, shaded, color, depth, additive=False, perspective=False, opacity_multiplier=1):
 	light = np.array([0.3, -0.5, 0.8])
 	light /= np.linalg.norm(light)
@@ -528,11 +614,11 @@ def rasterize(meshes, project, width, height, shaded, color, depth, additive=Fal
 			else:
 				z = w0 * sz[i0] + w1 * sz[i1] + w2 * sz[i2]
 			block = depth[top:bottom, left:right]
-			visible = inside & (z < block)
+			visible = inside & np.isfinite(block) if blend in ("glow", "haze") else inside & (z < block)
 			if not visible.any():
 				continue
 			shade = 1.0
-			if shaded:
+			if shaded and blend not in ("glow", "haze"):
 				normal = np.cross(points[i1] - points[i0], points[i2] - points[i0])
 				norm = np.linalg.norm(normal)
 				shade = 0.55 + 0.45 * abs(float(normal @ light) / norm) if norm else 1.0
@@ -549,16 +635,18 @@ def rasterize(meshes, project, width, height, shaded, color, depth, additive=Fal
 				visible &= texel[:, :, 3] > threshold
 				rgb = texel[:, :, :3]
 				opacity = texel[:, :, 3:4] if blend else np.ones(inside.shape + (1,))
+				if uvs.shape[1] == 3:
+					opacity = opacity * (w0 * uvs[i0, 2] + w1 * uvs[i1, 2] + w2 * uvs[i2, 2])[:, :, None]
 			else:
 				rgb = np.full(inside.shape + (3,), 0.6)
 				opacity = np.ones(inside.shape + (1,))
 			# <!-- custom: Blended texels mix with what is behind them; only mostly opaque ones hide later, farther triangles. (Claude code Opus 5.5) -->
 			target = color[top:bottom, left:right]
 			opacity *= opacity_multiplier
-			add = additive or blend in ("add", "add-alpha")
+			add = additive or blend in ("add", "add-alpha", "glow")
 			mixed = rgb * shade * (1 if blend == "add" else opacity) + (target if add else target * (1.0 - opacity))
 			target[visible] = mixed[visible]
-			if not add:
+			if not add and blend != "haze":
 				solid = visible & (opacity[:, :, 0] >= 0.5)
 				block[solid] = z[solid]
 			drawn += 1
@@ -623,13 +711,15 @@ def particle_billboards(blocks, worlds, textures, at, right, up):
 			yield center + radius * corners, uvs, triangles, sprite, True, 0.0
 
 
-def scene_geometry(data, folder, args, at, transforms, visibility, overlays=None, opacity=None, cache=None):
+def scene_geometry(data, folder, args, at, transforms, visibility, overlays=None, opacity=None, cache=None, effect=None, scrolling=False):
+	# <!-- custom: effect is a billboard effect's (facing, glow): the camera's right, up and toward rows, and its light as a fraction of the brightest key. (Claude code Opus 5.5) -->
+	facing, glow = effect or (None, None)
 	worlds = {}
-	world_matrices(data.roots[0], np.identity(4), worlds, at, transforms)
+	world_matrices(data.roots[0], np.identity(4), worlds, at, transforms, facing=facing)
 	if at is not None and any(isinstance(block, NifFormat.NiLookAtInterpolator) for block in data.blocks):
 		world_matrices(data.roots[0], np.identity(4), worlds, at, transforms, worlds.copy())
 	meshes = []
-	collect(data.roots[0], folder, {} if cache is None else cache, args, meshes, worlds, visibility, at, overlays, opacity)
+	collect(data.roots[0], folder, {} if cache is None else cache, args, meshes, worlds, visibility, at, overlays, opacity, glow, scrolling)
 	if not meshes:
 		raise SystemExit("no drawable shapes")
 	return worlds, meshes
@@ -723,29 +813,53 @@ def render(data, folder, args, at, use_camera, transforms, visibility, backdrop=
 			particles = particle_billboards(data.blocks, worlds, args.particle_textures, at or 0.0, right, up)
 			drawn += rasterize(particles, project, width, height, False, color, depth, additive=True)
 		return color, drawn, len(meshes)
+	return render_grid(meshes, framing_meshes, args, yaw_offset)
+
+
+def grid_view(args, yaw_offset, plot):
 	# <!-- custom: Orthographic camera: turn around the vertical axis (z is up in Civ4 models), then tilt down; screen x right, screen y up, depth into the screen. (Claude code Opus 5.5) -->
 	yaw = math.radians((30 if args.yaw is None else args.yaw) + yaw_offset)
-	pitch = math.radians(25 if args.pitch is None else args.pitch)
+	# <!-- custom: A plot is seen from higher, as on the game's map; the model view's 25 degrees showed plots as thin slivers. (Claude code Opus 5.5) -->
+	pitch = math.radians((40 if plot else 25) if args.pitch is None else args.pitch)
 	turn = np.array([[math.cos(yaw), -math.sin(yaw), 0], [math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
 	tilt = np.array([[1, 0, 0], [0, math.sin(pitch), math.cos(pitch)], [0, math.cos(pitch), -math.sin(pitch)]])
-	view = tilt @ turn
-	model = np.vstack([mesh[0] for mesh in meshes])
+	return tilt @ turn
+
+
+def render_grid(meshes, framing_meshes, args, yaw_offset):
+	# <!-- custom: render's orthographic view, split out so a plot preview can draw a ground without a model. (Claude code Opus 5.5) -->
+	plot = getattr(args, "plot_ground", None)
+	if plot is not None:
+		# <!-- custom: On a plot, the model stands at its art define's fScale on the plot's centre, framed by the ground rather than by itself, without the floor grid. (Claude code Opus 5.5) -->
+		ground_meshes, lift = plot
+		meshes = ground_meshes + [(points * args.plot_model_scale + np.array([0, 0, lift]), *surface) for points, *surface in meshes]
+		# <!-- custom: Effect cards do not frame the plot: Chronicles of Mankind's Sandstorm cards reach far past their plot and shrank it to a speck. (Claude code Opus 5.5) -->
+		framing_meshes = [mesh for mesh in ground_meshes if mesh[4] not in ("glow", "haze")]
+	view = grid_view(args, yaw_offset, plot is not None)
+	model = np.vstack([mesh[0] for mesh in (framing_meshes if plot is not None else meshes)])
 	flat = model @ view.T
 	low, high = flat[:, :2].min(axis=0), flat[:, :2].max(axis=0)
 	# <!-- custom: Draw at twice the size and shrink at the end, which smooths edges much as NifSkope's antialiasing does. (Claude code Opus 5.5) -->
 	size = args.size * 2
 	scale = size * 0.8 / max(high - low)
 	offset = np.array([size / 2.0, size / 2.0]) - (low + high) / 2.0 * scale
-	if args.orbit or args.sway:
+	if args.orbit or args.sway or plot is not None:
 		# <!-- custom: Use a yaw-independent radius for the orbit, so the view does not zoom as the model turns. (GPT-6.1-Sol) -->
 		rest_points = np.vstack([mesh[0] for mesh in framing_meshes])
 		center = (rest_points.min(axis=0) + rest_points.max(axis=0)) / 2
 		radius = np.linalg.norm(rest_points - center, axis=1).max()
-		scale = size * 0.8 / max(2 * radius, 1e-9)
+		scale = size * (0.95 if plot is not None else 0.8) / max(2 * radius, 1e-9)
 		offset = size / 2.0 - (center @ view.T)[:2] * scale
 	color = np.zeros((size, size, 3), dtype=np.float32)
 	color[:] = (0.18, 0.18, 0.18)
 	depth = np.full((size, size), np.inf)
+
+	def project(points):
+		screen = points @ view.T
+		return screen[:, 0] * scale + offset[0], size - 1 - (screen[:, 1] * scale + offset[1]), screen[:, 2], np.ones(len(points), dtype=bool)
+	if plot is not None:
+		drawn = rasterize(meshes, project, size, size, True, color, depth)
+		return color, drawn, len(meshes)
 	# <!-- custom: A floor grid at the model's lowest point, like NifSkope's, about four cells across the model; the first draft mixed screen and model units and drew only a few stray lines. (Claude code Opus 5.5) -->
 	floor_z = model[:, 2].min()
 	extent = float(max(model[:, 0].max() - model[:, 0].min(), model[:, 1].max() - model[:, 1].min(), 1e-6))
@@ -763,10 +877,6 @@ def render(data, folder, args, at, use_camera, transforms, visibility, backdrop=
 			ys = (size - 1 - np.linspace(y0, y1, n)).astype(int)
 			inside = (xs >= 0) & (xs < size) & (ys >= 0) & (ys < size)
 			color[ys[inside], xs[inside]] = (0.27, 0.27, 0.27)
-
-	def project(points):
-		screen = points @ view.T
-		return screen[:, 0] * scale + offset[0], size - 1 - (screen[:, 1] * scale + offset[1]), screen[:, 2], np.ones(len(points), dtype=bool)
 	drawn = rasterize(meshes, project, size, size, True, color, depth)
 	return color, drawn, len(meshes)
 
@@ -786,6 +896,27 @@ DOMAIN_SCENES = {
 }
 
 
+def write_video(images, out, fps, sound=None):
+	# <!-- custom: A GIF has no sound, so a scene such as a religion's founding movie is written as H.264 video, with its MovieSound as AAC when given; ffmpeg encodes it, as for the Bink movies in movie_frames.py. (Claude code Opus 5.5) -->
+	import subprocess
+	import tempfile
+	from movie_frames import find_tool
+	with tempfile.TemporaryDirectory() as folder:
+		for k, image in enumerate(images):
+			# <!-- custom: H.264 in yuv420p needs even dimensions. (Claude code Opus 5.5) -->
+			image.crop((0, 0, image.size[0] // 2 * 2, image.size[1] // 2 * 2)).save(os.path.join(folder, "%05d.png" % k))
+		command = [find_tool("ffmpeg"), "-v", "error", "-y", "-framerate", "%f" % fps, "-i", os.path.join(folder, "%05d.png")]
+		if sound:
+			# <!-- custom: The Taoism scene animates for 5 s while its Taoist.mp3 lasts 10.8 s, and ending at the scene cut the music in half; hold the last frame until the sound ends. (Claude code Opus 5.5) -->
+			command += ["-i", str(sound), "-vf", "tpad=stop_mode=clone:stop=-1", "-c:a", "aac", "-b:a", "192k", "-shortest"]
+		subprocess.run(command + ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(out)], check=True)
+
+
+# <!-- custom: Scaling every unit to one size hid what its art define says: futuremod's Warbot uses the Assault Mech's model at fScale 0.10 and fInterfaceScale 0.5 against 0.35 and 0.6, and its Sevopedia shows it about four times smaller, close to the 4.2 of fScale times fInterfaceScale.
+# So a unit with an fScale is drawn at that product times a factor per scene, from the hand-fitted Immortal (2.15 at 0.44), Galley (0.40 at 0.102) and Bomber (1 at 0.5). (Claude code Opus 5.5) -->
+DOMAIN_ART_SCALE = {"DOMAIN_LAND": 4.9, "DOMAIN_IMMOBILE": 4.9, "DOMAIN_SEA": 3.9, "DOMAIN_AIR": 2.0}
+
+
 def resolve_mod_assets(args, parser):
 	# <!-- custom: Replace art names with local copies so the rest of the preview reads ordinary files.
 	# An ART_DEF_ type picks its files from the art XML: the KFM when a clip is chosen, its own model rather than the KFM's, a leaderhead's NoShaderNIF first as the Gandhi and Montezuma previews do, else a unit's SHADERNIF, since the BtS Warrior's plain NIF textures its body with TeamColor.bmp and drew only the club, and its BackgroundKFM unless --leader-background is given.
@@ -802,6 +933,31 @@ def resolve_mod_assets(args, parser):
 		return path
 
 	name = str(args.asset)
+	subject = name.upper()
+	wants_plot = bool(args.terrain or args.feature or args.plot or args.on_plot or subject.startswith(("TERRAIN_", "FEATURE_", "BONUS_", "IMPROVEMENT_")))
+	if subject.startswith(("BONUS_", "IMPROVEMENT_")):
+		# <!-- custom: A BONUS_ or IMPROVEMENT_ type stands for its art define, placed on a plot it may appear on. (Claude code Opus 5.5) -->
+		from plot_scene import field
+		kind = "Bonus" if subject.startswith("BONUS_") else "Improvement"
+		info = assets.infos("Terrain", kind.lower() + "infos", kind + "Info").get(subject)
+		if info is None:
+			parser.error("%s is not %s of %s" % (name, "a bonus" if kind == "Bonus" else "an improvement", args.mod))
+		name = field(info, "ArtDefineTag")
+	args.plot_only = subject.startswith(("TERRAIN_", "FEATURE_"))
+	if subject.startswith("RELIGION_"):
+		# <!-- custom: A RELIGION_ type stands for its founding movie: the scene its XML names as MovieFile, seen through its own camera with its candle sprites, and its MovieSound for an MP4. (Claude code Opus 5.5) -->
+		from plot_scene import field
+		religion = assets.infos("GameInfo", "religioninfo", "ReligionInfo").get(subject)
+		if religion is None:
+			parser.error("%s is not a religion of %s" % (name, args.mod))
+		name = field(religion, "MovieFile")
+		args.scene_camera = True
+		if args.sound is None and field(religion, "MovieSound"):
+			args.sound = field(religion, "MovieSound")
+		if args.particle_textures is None:
+			args.particle_textures = assets.stage_matching("art/shared", "fx_fire*.dds", cache)
+	args.asset = Path(name) if subject.startswith("RELIGION_") else args.asset
+	fields = {}
 	if name.upper().startswith("ART_DEF_"):
 		fields = assets.art_defines(name).get(name.upper())
 		if fields is None:
@@ -825,12 +981,40 @@ def resolve_mod_assets(args, parser):
 		if unit is not None:
 			print("%s: %s, %s, %s" % (unit["Unit"], unit["Domain"], unit["Combat"], unit["Era"] or "no era"))
 			preset = DOMAIN_SCENES.get(unit["Domain"])
-			if preset and args.environment is None and not args.no_environment and args.out and not args.scene_camera and not str(args.asset).lower().endswith(".dds"):
+			if preset and not wants_plot and args.environment is None and not args.no_environment and args.out and not args.scene_camera and not str(args.asset).lower().endswith(".dds"):
 				scene = assets.art_defines(preset[0]).get(preset[0])
 				if scene is not None:
 					args.environment = scene["Path"]
 					args.auto_fit = preset
+					if fields.get("fScale"):
+						args.auto_scale = DOMAIN_ART_SCALE[unit["Domain"]] * float(fields["fScale"]) * float(fields.get("fInterfaceScale") or 1)
+	if wants_plot:
+		# <!-- custom: Start from the terrain, feature and plot type the XML allows for the subject, and let --terrain, --feature and --plot force any other, even one the XML forbids, to see how it would look. (Claude code Opus 5.5) -->
+		import plot_scene
+		terrain, feature, plot = plot_scene.defaults(assets, subject)
+		terrain = (args.terrain or terrain).upper()
+		feature = None if (args.feature or "").lower() == "none" else (args.feature or feature)
+		feature = feature.upper() if feature else None
+		plot = args.plot or plot
+		# <!-- custom: Kept as a function so a GIF of an effect can rebuild the plot at each moment. (Claude code Opus 5.5) -->
+		def rebuild():
+			ground, _, height = plot_scene.build(assets, cache, args, terrain, feature, plot)
+			return ground, height
+		args.plot_ground = rebuild()
+		args.plot_rebuild = rebuild
+		# <!-- custom: The game draws a lone unit SINGLE_UNIT_GFX_EXTRA_SCALE times its fScale (1.22 in SAS, 1.25 in BtS); without it the Llama Kamayuq stood about a third of a plot tall where in-game screenshots show it near half.
+		# Bonuses and improvements keep their fScale. (Claude code Opus 5.5) -->
+		args.plot_model_scale = float(fields.get("fScale") or 1) * (float(assets.define("SINGLE_UNIT_GFX_EXTRA_SCALE") or 1) if assets.units().get(name.upper()) else 1)
+		print("plot: %s" % plot_scene.describe(terrain, feature, plot))
+		if args.plot_only:
+			return
 	args.asset = Path(local(args.asset))
+	if args.sound and not Path(args.sound).exists():
+		# <!-- custom: --sound takes a file or, with --mod, a sound script such as AS2D_BUILD_TAOIST_MOVIE. (Claude code Opus 5.5) -->
+		found = assets.sound(args.sound)
+		if found is None:
+			parser.error("no sound file for %s in %s" % (args.sound, args.mod))
+		args.sound = local(found)
 	for option in ("model", "kf", "leader_background", "environment"):
 		value = getattr(args, option)
 		if value is not None:
@@ -865,15 +1049,52 @@ def main():
 	parser.add_argument("--cycles", type=int, default=1, help="animation repetitions within one GIF camera loop")
 	parser.add_argument("--mod", help="find art as the game does for this mod (a folder under Beyond the Sword/Mods, or bts for the base game): the asset may then be an ART_DEF_ type or an Art/... path, as may --model, --kf, --leader-background and --environment")
 	parser.add_argument("--team-color", type=lambda text: tuple(int(part) for part in text.split(",")), default=(70, 100, 170), metavar="R,G,B", help="the player colour shown on units painted through TeamColor.bmp (default: 70,100,170)")
+	parser.add_argument("--terrain", help="with --mod, stand the subject on a plot of this terrain, such as TERRAIN_PLAINS; a TERRAIN_ or FEATURE_ asset draws the plot alone")
+	parser.add_argument("--feature", help="with --mod, the plot's feature, such as FEATURE_FOREST, or none")
+	parser.add_argument("--plot", choices=("flat", "hills", "peak"), help="with --mod, the plot type")
+	parser.add_argument("--variety", type=int, help="with --feature, the feature art variety, such as 1 for the evergreen Forest")
+	parser.add_argument("--latitude", type=int, help="with --feature, pick the art variety the game would for a plot at this latitude, such as 40 for the evergreen Forest")
+	parser.add_argument("--river", action="store_true", help="with --mod, run a river along the plot's east edge; a feature that requires one, such as Flood Plains, gets it anyway")
+	parser.add_argument("--glow", type=int, default=50, metavar="PERCENT", help="with --mod, a still of a glowing feature, such as Fallout: its light as a percentage of its brightest moment (default: 50); a GIF plays the file's own loop instead")
+	parser.add_argument("--on-plot", action="store_true", help="with --mod, stand the subject on the terrain, feature and plot type its XML allows first")
+	parser.add_argument("--sound", help="with an .mp4 output, its sound: a file, or with --mod a sound script such as AS2D_BUILD_TAOIST_MOVIE")
+	parser.add_argument("--fps", type=float, help="frames per second of an .mp4 output (default: 24)")
 	parser.add_argument("--refresh", action="store_true", help="with --mod, replace every cached copy; changed sources are replaced anyway")
 	parser.add_argument("--cache", type=Path, help="with --mod, where to copy the art (default: per mod under the system temporary folder)")
 	args = parser.parse_args()
 	args.no_environment = args.environment is not None and str(args.environment).lower() == "none"
 	args.auto_fit = None
+	args.auto_scale = None
+	args.plot_ground = None
+	args.plot_only = False
+	args.plot_time = None
+	args.plot_span = None
+	if (args.terrain or args.feature or args.plot or args.on_plot or args.variety is not None or args.latitude is not None or args.river) and args.mod is None:
+		parser.error("--terrain, --feature, --plot, --variety, --latitude, --river and --on-plot require --mod, to read the terrain art")
+	if not 0 <= args.glow <= 100:
+		parser.error("--glow must be between 0 and 100")
 	if args.no_environment:
 		args.environment = None
 	if args.mod is not None:
 		resolve_mod_assets(args, parser)
+		if args.plot_only:
+			# <!-- custom: A terrain or feature alone: draw the plot, turning with --orbit or --sway into a GIF. (Claude code Opus 5.5) -->
+			if not args.out:
+				parser.error("a plot preview needs an output path")
+			is_gif = Path(args.out).suffix.lower() == ".gif"
+			# <!-- custom: A GIF of an animated feature plays its own loop, as Fallout's 8 s or the Oasis water's 10 s, at real speed; otherwise a GIF only turns the camera. (Claude code Opus 5.5) -->
+			span = args.plot_span if is_gif else None
+			frames = (args.frames or 32 if span else max(args.frames, 1)) if is_gif else 1
+			images = []
+			for k in range(frames):
+				if span:
+					args.plot_time = span * k / frames
+					args.plot_ground = args.plot_rebuild()
+				images.append(to_image(render_grid([], [], args, args.orbit * k / frames + args.sway * math.sin(2 * math.pi * k / frames))[0]))
+			delay = 1000 * span / frames / (args.speed or 1) if span else 1000 * (args.speed or 1) * 4 / frames
+			images[0].save(args.out, save_all=frames > 1, append_images=images[1:], duration=int(delay) if frames > 1 else None, loop=0)
+			print("wrote %s: a plot preview" % args.out)
+			return
 	elif args.cache is not None:
 		parser.error("--cache requires --mod")
 	if args.particle_textures and (not args.scene_camera or not args.particle_textures.is_dir()):
@@ -886,7 +1107,11 @@ def main():
 		print("wrote %s: a flat %s image" % (args.out, args.asset.name))
 		return
 	kind = args.asset.suffix.lower()
-	is_gif = bool(args.out and Path(args.out).suffix.lower() == ".gif")
+	# <!-- custom: An .mp4 output is an animation like a GIF, with the frame rate --fps and the sound --sound; the GIF rules below apply to both. (Claude code Opus 5.5) -->
+	is_video = bool(args.out and Path(args.out).suffix.lower() == ".mp4")
+	is_gif = bool(args.out and Path(args.out).suffix.lower() == ".gif") or is_video
+	if (args.sound or args.fps) and not is_video:
+		parser.error("--sound and --fps require MP4 output")
 	moves_camera = bool(args.orbit or args.sway)
 	if not all(map(math.isfinite, (args.orbit, args.sway))) or (moves_camera and (not is_gif or args.scene_camera)):
 		parser.error("--orbit and --sway require a finite angle and GIF output without --scene-camera")
@@ -993,7 +1218,7 @@ def main():
 			_, target, offset, pitch, yaw, shift = args.auto_fit
 			points = np.vstack([mesh[0] for mesh in scene_geometry(data, folder, args, None, {}, {})[1]])
 			if args.model_scale == 1:
-				args.model_scale = target / max(np.ptp(points, axis=0))
+				args.model_scale = args.auto_scale or target / max(np.ptp(points, axis=0))
 			if not any(args.model_offset):
 				args.model_offset = offset
 			if args.pitch is None:
@@ -1004,7 +1229,7 @@ def main():
 				args.frame_shift_y = shift
 			print("scene %s, model scale %.2f" % (args.environment.name, args.model_scale))
 	use_camera = args.scene_camera or backdrop is not None or environment is not None
-	if args.frames <= 0 and sequence is None:
+	if args.frames <= 0 and sequence is None and not is_video:
 		if args.speed is not None or moves_camera or args.cycles != 1:
 			parser.error("GIF playback options require an animation clip or scene animation with --frames")
 		color, drawn, shapes = render(data, folder, args, None, use_camera, transforms, visibility, backdrop, environment=environment)
@@ -1014,12 +1239,12 @@ def main():
 	span = (sequence.start_time, sequence.stop_time) if sequence is not None else animation_range(data.blocks)
 	if span is None:
 		raise SystemExit("no keyframed animation in this file")
-	frames = args.frames if args.frames > 0 else 24 * args.cycles if is_gif else 4
 	duration = span[1] - span[0]
+	frames = args.frames if args.frames > 0 else round(duration * args.cycles / (args.speed or 1) * (args.fps or 24)) if is_video else 24 * args.cycles if is_gif else 4
 	steps = frames if is_gif else max(frames - 1, 1)
 	if is_gif:
 		playback = duration * args.cycles / (args.speed or 1)
-		if playback > 655.35:
+		if playback > 655.35 and not is_video:
 			parser.error("GIF playback exceeds 655.35 seconds. Use a higher --speed")
 		# <!-- custom: GIF delays are stored in centiseconds.
 		# Round elapsed time before taking differences so rounding does not accumulate each frame. (GPT-6.1-Sol) -->
@@ -1030,6 +1255,10 @@ def main():
 		rest_geometry = scene_geometry(data, folder, args, None, {}, {})
 	yaw_offsets = [args.orbit * k / steps + args.sway * math.sin(2 * math.pi * k / steps) for k in range(frames)]
 	images = [to_image(render(data, folder, args, at, use_camera, transforms, visibility, backdrop, rest_geometry, yaw, environment, opacity)[0]) for at, yaw in zip(times, yaw_offsets)]
+	if is_video:
+		write_video(images, args.out, frames / playback, args.sound)
+		print("wrote %s: %d frames over %.2f s%s" % (args.out, frames, playback, ", with " + os.path.basename(args.sound) if args.sound else ""))
+		return
 	if is_gif:
 		images[0].save(args.out, save_all=True, append_images=images[1:], duration=delays, loop=0)
 		print("wrote %s: %d samples over %.2f s, %.2f s playback" % (args.out, frames, duration, sum(delays) / 1000))

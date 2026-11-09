@@ -74,6 +74,8 @@ Always review diffs before committing generated source changes.
   - [`fpk_tool.py`](#fpk_toolpy)
   - [`civ4_assets.py`](#civ4_assetspy)
   - [`art_gallery.py`](#art_gallerypy)
+  - [`art_search.py`](#art_searchpy)
+  - [`plot_scene.py`](#plot_scenepy)
   - [`regenerate_art_samples.py`](#regenerate_art_samplespy)
   - [`nif_preview.py`](#nif_previewpy)
   - [`movie_frames.py`](#movie_framespy)
@@ -1294,6 +1296,22 @@ python LLM_Helpers/civ4_assets.py --mod "Realism Invictus" defines "ART_DEF_UNIT
 python LLM_Helpers/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --labels
 ```
 
+### `art_search.py`
+
+- Finds the terrains or features whose Type matches a regular expression in every installed mod, skipping entries a mod inherits unchanged from the base game, and draws each on a plot through its own mod's art, as one sheet labelled with the mod; `--list` lists the matches only. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
+
+```bash
+python LLM_Helpers/art_search.py "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD" marshes.png
+```
+
+### `plot_scene.py`
+
+- Builds the map plots `nif_preview.py` draws, from the mod's XML and art; run on its own, it draws a mod's every terrain, plot type and feature as one labelled sheet, `--match` keeping the plots whose label matches. See [Plots](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
+
+```bash
+python LLM_Helpers/plot_scene.py c2c_peaks.png --mod Caveman2Cosmos --match "^peak"
+```
+
 ### `regenerate_art_samples.py`
 
 - Renders again every sample picture in `_1_AdvCiv-SAS/Images/LLM` that `nif_preview.py` or `art_gallery.py` made, with the Art Tools Guide's commands, finding base-game files through this mod as the game does; run it after renderer changes and review the pictures before committing.
@@ -1311,6 +1329,8 @@ python LLM_Helpers/regenerate_art_samples.py "*leaderhead*"
 - With `--leader-background BACKGROUND.kfm`, draws a leaderhead over its backdrop. Add a clip to sample poses with fixed framing, or use a `.gif` output to loop those samples. See the [Grace O’Malley example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
 - Pass a `.kfm` to list event codes, add `--clip EVENT` to inspect a clip, or add a PNG output path to render it. Pass a `.kf` on its own to inspect it, or use `--kf FILE` with a NIF and a PNG output path. See the [Peat Works and Llama Kamayuq examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
 - With `--mod MOD`, the asset may be an `ART_DEF_` type or an `Art/...` path from another mod, found through [`civ4_assets.py`](#civ4_assetspy).
+- With `--mod`, a `TERRAIN_`, `FEATURE_`, `BONUS_` or `IMPROVEMENT_` asset, or `--on-plot`, `--terrain`, `--feature` and `--plot`, draws a map plot through `plot_scene.py`, starting from what the XML allows; see [Plots](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
+- An `.mp4` output is a video at `--fps` with `--sound`; a `RELIGION_` asset with `--mod` gives its founding scene with its sound. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#videos-with-sound).
 - Not the game's particles, effects or exact lighting; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#nif-models) for how it was built and its limits.
 
 ```bash
@@ -1322,6 +1342,7 @@ python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/
 - Turns a movie (Bink `.bik`, or anything ffmpeg reads) into a sheet of evenly spaced frames, and with `--audio` its sound into a waveform picture with mean and peak loudness, since agents can see images but not watch or hear; needs ffmpeg and Pillow.
 - A `.gif` output loops the movie or an excerpt selected with `--start` and `--duration`. Set `--fps` and `--width` to control the preview size and smoothness.
 - With `--audio-only`, takes an audio file such as an MP3 or WAV and writes its waveform to the output path.
+- An `.mp4` output converts the movie with its sound, playable in VLC, browsers and Windows' own player; write it outside the repository.
 - See the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) for the Natya Shastra example.
 
 ```bash

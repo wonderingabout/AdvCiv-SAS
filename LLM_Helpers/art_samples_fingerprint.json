@@ -1,10 +1,12 @@
 {
- "fingerprint": "2bdd2f6b877fa1b60801c7939596f591e1d66548d4642081e795713b207c46b6",
+ "fingerprint": "3762febe267749bd6bed0eb1af518230ffbcc751514500dbbe5dabc7e102cdb1",
  "files": [
   "LLM_Helpers/nif_preview.py",
   "LLM_Helpers/civ4_assets.py",
   "LLM_Helpers/fpk_tool.py",
+  "LLM_Helpers/plot_scene.py",
   "LLM_Helpers/art_gallery.py",
+  "LLM_Helpers/art_search.py",
   "LLM_Helpers/regenerate_art_samples.py"
  ]
 }

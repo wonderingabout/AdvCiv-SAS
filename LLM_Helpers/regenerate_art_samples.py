@@ -19,6 +19,8 @@ import sys
 
 # <!-- custom: civ4_assets finds base-game and mod art as the game does and gives the cache folder. (Claude code Opus 5.5) -->
 from civ4_assets import Civ4Assets, default_cache
+# <!-- custom: plot_scene draws the plot sheets and their labelled sheet layout, shared with its own command. (Claude code Opus 5.5) -->
+from plot_scene import labelled_sheet
 
 # <!-- custom: Pillow crops and joins the size comparison; fail with the install command if it is missing. (Claude code Opus 5.5) -->
 try:
@@ -67,11 +69,34 @@ SAMPLES = [
 	("llm_animation_fish.gif", ["art:Art/Terrain/Resources/Fish/Fish.kfm", "--clip", "normal", "--environment", WATER, "--model-scale", "1.6", "--model-offset", "0", "-45", "0", "--water-opacity", "0.55", "--opacity-gain", "2.7", "--sway", "8", "--frames", "56", "--size", "280"]),
 	("llm_animation_whale.gif", ["art:Art/Terrain/Resources/Whale/Whale.kfm", "--clip", "normal", "--environment", WATER, "--model-scale", "1.35", "--model-offset", "0", "-28", "0", "--water-opacity", "0.55", "--frames", "50", "--size", "280"]),
 	("llm_animation_bomber.gif", ["art:Art/Units/Bomber/Bomber.kfm", "--clip", "idle", "--model", "art:Art/Units/Bomber/Bomber_FX.nif", "--environment", SKY, "--model-offset", "55", "-70", "-490", "--pitch", "20", "--sway", "26", "--cycles", "36", "--frames", "157", "--size", "240"]),
+	("llm_animation_fallout.gif", ["FEATURE_FALLOUT", "--mod", REPO.name, "--frames", "32", "--size", "280"]),
+	("llm_animation_oasis.gif", ["FEATURE_OASIS", "--mod", REPO.name, "--frames", "40", "--size", "400"]),
 	("llm_mod_hr_alexander_greeting.gif", ["ART_DEF_LEADER_ALEXANDER", "--mod", "History Rewritten", "--clip", "greeting", "--frames", "24", "--size", "200"]),
 	("llm_mod_ri_apache_raiders_idle.gif", ["ART_DEF_UNIT_APACHE_RAIDERS", "--mod", "Realism Invictus", "--clip", "idle", "--frames", "24", "--size", "200", "--orbit", "360", "--environment", "none"]),
 ]
 GALLERY = "llm_gallery_civgold_leaders.png"
 SIZE_COMPARISON = "llm_nif_resolution_gandhi.png"
+PLOTS = "llm_plot_previews.png"
+TERRAINS = "llm_plot_terrains.png"
+FALLOUT = "llm_plot_fallout.png"
+MARSHES = "llm_search_marshes.png"
+# <!-- custom: The art_search.py example of the Art Tools Guide: marsh-like terrains and features across the installed mods. (Claude code Opus 5.5) -->
+MARSH_PATTERN = "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD"
+# <!-- custom: Left out of this sample by the maintainer's choice: RFC Dawn of Civilization (see its section in LICENSE.md), and Dawn of Civilization: America, whose bog and swamp models are byte-identical to RFC Dawn of Civilization's marsh models under other names. (Claude code Opus 5.5) -->
+MARSH_EXCLUDED = ["RFC Dawn of Civilization", "DOCAmerica-0.0.15"]
+EFFECTS = "llm_search_effects.png"
+# <!-- custom: Other mods' animated features, which the plot preview finds in their models rather than from a list: glowing cards, fog, storms, meteors and volcanoes. (Claude code Opus 5.5) -->
+EFFECTS_PATTERN = "HAUNTED|QUASAR|^FEATURE_RADIATION$|^FEATURE_STORM$|SANDSTORM|^FEATURE_BLIZZARD$|NEBEL|^FEATURE_MIST$|VOLCANO|METEORS"
+EFFECTS_MODS = ["Caveman2Cosmos", "Master of Mana", "Rise of Mankind", "Chronicles of Mankind", "The Eugenics Wars", "Ashes of Erebus", "Pie'sAncientEurope", "Sengoku"]
+SCALE = "llm_scene_unit_scale.png"
+# <!-- custom: Units in their Sevopedia scenes at their art define's size: futuremod's Warbot is its Assault Mech's model at a quarter of the size, and the Frigate outsizes the Galley. (Claude code Opus 5.5) -->
+SCALE_SAMPLES = [("futuremod", "ART_DEF_UNIT_ASSAULT_MECH"), ("futuremod", "ART_DEF_UNIT_WARBOT"), (REPO.name, "ART_DEF_UNIT_GALLEY"), (REPO.name, "ART_DEF_UNIT_FRIGATE")]
+# <!-- custom: Plot previews on one labelled sheet: features, plot types, bonuses and an improvement on the plot their XML allows first, Iron forced onto hills, and units standing on desert and plains hills. (Claude code Opus 5.5) -->
+PLOT_SAMPLES = [
+	("FEATURE_MARSH", []), ("FEATURE_FOREST", []), ("FEATURE_FLOOD_PLAINS", []), ("TERRAIN_HILL", []),
+	("TERRAIN_PEAK", []), ("BONUS_DEER", []), ("BONUS_IRON", ["--plot", "hills"]), ("IMPROVEMENT_FISHING_BOATS", []),
+	("ART_DEF_UNIT_INCAN_LLAMA_KAMAYUQ", ["--terrain", "TERRAIN_DESERT", "--plot", "hills"]), ("ART_DEF_UNIT_WARRIOR", ["--terrain", "TERRAIN_PLAINS", "--plot", "hills"]),
+]
 
 
 class Resolver:
@@ -97,6 +122,53 @@ class Resolver:
 def run(command):
 	result = subprocess.run(command, capture_output=True, text=True, errors="replace", cwd=REPO)
 	return None if result.returncode == 0 else (result.stderr.strip() or result.stdout.strip()).splitlines()[-1:]
+
+
+def plot_sheet(scratch):
+	pictures = []
+	for subject, extra in PLOT_SAMPLES:
+		out = scratch / ("plot_%s.png" % subject.lower())
+		result = subprocess.run([sys.executable, str(HERE / "nif_preview.py"), subject, str(out), "--mod", REPO.name, "--size", "200"] + extra, capture_output=True, text=True, errors="replace", cwd=REPO)
+		if result.returncode:
+			return (result.stderr.strip() or result.stdout.strip()).splitlines()[-1:]
+		# <!-- custom: Label with the plot nif_preview.py reports, so TERRAIN_HILL reads "hills + grass", the plot type over its terrain, rather than the subject alone. (Claude code Opus 5.5) -->
+		plot = next(line[6:] for line in result.stdout.splitlines() if line.startswith("plot: "))
+		label = "%s: %s" % (subject.replace("ART_DEF_UNIT_", "").replace("IMPROVEMENT_", "").replace("FEATURE_", "").replace("TERRAIN_", "").replace("BONUS_", "").lower(), plot.replace("TERRAIN_", "").replace("FEATURE_", "").lower())
+		pictures.append((label, Image.open(out).convert("RGB")))
+	labelled_sheet(pictures, 5, IMAGES / PLOTS)
+	return None
+
+
+def terrain_sheet(resolve, scratch, workers):
+	# <!-- custom: plot_scene.py draws the sheet from the XML, as its own command does for any mod. (Claude code Opus 5.5) -->
+	import plot_scene
+	labelled_sheet(plot_scene.sheet_pictures(resolve.assets, REPO.name, scratch / "terrains", workers), 6, IMAGES / TERRAINS)
+	return None
+
+
+def fallout_sheet(scratch):
+	# <!-- custom: Fallout's light swells and fades, so one still cannot show it: a strip from none to its brightest, and 50% on Desert, the moment the terrain sheet shows. (Claude code Opus 5.5) -->
+	pictures = []
+	for terrain, glow in [("TERRAIN_GRASS", glow) for glow in range(0, 101, 10)] + [("TERRAIN_DESERT", 50)]:
+		out = scratch / ("fallout_%s_%d.png" % (terrain.lower(), glow))
+		error = run([sys.executable, str(HERE / "nif_preview.py"), "FEATURE_FALLOUT", str(out), "--mod", REPO.name, "--size", "200", "--terrain", terrain, "--glow", str(glow)])
+		if error:
+			return error
+		pictures.append(("%s, %d%% glow" % (terrain.replace("TERRAIN_", "").lower(), glow), Image.open(out).convert("RGB")))
+	labelled_sheet(pictures, 6, IMAGES / FALLOUT)
+	return None
+
+
+def scale_sheet(scratch):
+	pictures = []
+	for mod, art_type in SCALE_SAMPLES:
+		out = scratch / ("scale_%s.png" % art_type.lower())
+		error = run([sys.executable, str(HERE / "nif_preview.py"), art_type, str(out), "--mod", mod, "--size", "200"])
+		if error:
+			return error
+		pictures.append(("%s (%s)" % (art_type.replace("ART_DEF_UNIT_", ""), "SAS" if mod == REPO.name else mod), Image.open(out).convert("RGB")))
+	labelled_sheet(pictures, 4, IMAGES / SCALE)
+	return None
 
 
 def size_comparison(resolve, scratch):
@@ -127,7 +199,7 @@ def main():
 	parser.add_argument("--list", action="store_true", help="list the samples and their commands without rendering")
 	parser.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))
 	args = parser.parse_args()
-	names = [name for name, _ in SAMPLES] + [GALLERY, SIZE_COMPARISON]
+	names = [name for name, _ in SAMPLES] + [GALLERY, SIZE_COMPARISON, PLOTS, TERRAINS, FALLOUT, MARSHES, EFFECTS, SCALE]
 	chosen = [name for name in names if fnmatch.fnmatch(name.lower(), args.pattern.lower())]
 	if not chosen:
 		raise SystemExit("no sample matches %s" % args.pattern)
@@ -135,9 +207,9 @@ def main():
 		for name, arguments in SAMPLES:
 			if name in chosen:
 				print("%s: nif_preview.py %s" % (name, " ".join('"%s"' % value if " " in value else value for value in arguments)))
-		for name in (GALLERY, SIZE_COMPARISON):
+		for name in (GALLERY, SIZE_COMPARISON, PLOTS, TERRAINS, FALLOUT, MARSHES, EFFECTS, SCALE):
 			if name in chosen:
-				print("%s: %s" % (name, "art_gallery.py --mod \"CIV Gold\" --limit 20 --labels --size 140" if name == GALLERY else "Gandhi at --size 300 and 1200, cropped"))
+				print("%s: %s" % (name, {GALLERY: "art_gallery.py --mod \"CIV Gold\" --limit 20 --labels --size 140", SIZE_COMPARISON: "Gandhi at --size 300 and 1200, cropped", PLOTS: "nif_preview.py --mod %s --size 200 for %s" % (REPO.name, ", ".join(" ".join([subject] + extra) for subject, extra in PLOT_SAMPLES)), TERRAINS: "nif_preview.py --mod %s --size 200 --terrain --plot --feature for every terrain and plot type, then every feature on its allowed terrains" % REPO.name, FALLOUT: "nif_preview.py FEATURE_FALLOUT --glow 0 to 100 on Grassland, and 50 on Desert", MARSHES: "art_search.py \"%s\" --exclude %s" % (MARSH_PATTERN, " ".join('"%s"' % mod for mod in MARSH_EXCLUDED)), EFFECTS: "art_search.py \"%s\" --kind feature --mods %s" % (EFFECTS_PATTERN, " ".join(EFFECTS_MODS)), SCALE: "nif_preview.py --size 200 for %s" % ", ".join("%s --mod %s" % (art_type, mod) for mod, art_type in SCALE_SAMPLES)}[name]))
 		return
 	resolve = Resolver()
 	jobs = []
@@ -157,6 +229,18 @@ def main():
 			results[name] = run(command)
 	if GALLERY in chosen and not results[GALLERY]:
 		(IMAGES / GALLERY).write_bytes((scratch / "gallery" / "sheet_01.png").read_bytes())
+	if PLOTS in chosen:
+		results[PLOTS] = plot_sheet(scratch)
+	if TERRAINS in chosen:
+		results[TERRAINS] = terrain_sheet(resolve, scratch, args.jobs)
+	if FALLOUT in chosen:
+		results[FALLOUT] = fallout_sheet(scratch)
+	if MARSHES in chosen:
+		results[MARSHES] = run([sys.executable, str(HERE / "art_search.py"), MARSH_PATTERN, str(IMAGES / MARSHES), "--exclude"] + MARSH_EXCLUDED)
+	if EFFECTS in chosen:
+		results[EFFECTS] = run([sys.executable, str(HERE / "art_search.py"), EFFECTS_PATTERN, str(IMAGES / EFFECTS), "--kind", "feature", "--mods"] + EFFECTS_MODS + ["--columns", "6", "--size", "200"])
+	if SCALE in chosen:
+		results[SCALE] = scale_sheet(scratch)
 	if SIZE_COMPARISON in chosen:
 		results[SIZE_COMPARISON] = size_comparison(resolve, scratch)
 	failed = {name: error for name, error in results.items() if error}

@@ -21,6 +21,12 @@ These tools were built with Claude code Opus 5.5 and Codex (GPT-6.1-Sol), taking
 - [Other mods' art](#other-mods-art)
   - [Galleries](#galleries)
   - [What the tests showed](#what-the-tests-showed)
+- [Plots: terrain, features and plot types](#plots-terrain-features-and-plot-types)
+  - [Mods' own terrains and plot types](#mods-own-terrains-and-plot-types)
+  - [How a plot is drawn](#how-a-plot-is-drawn)
+  - [Known gaps](#known-gaps)
+- [Searching mods](#searching-mods)
+- [Videos with sound](#videos-with-sound)
 - [Preview size and detail](#preview-size-and-detail)
 - [Regenerating the samples](#regenerating-the-samples)
 - [Example: Peat Works' art](#example-peat-works-art)
@@ -370,7 +376,13 @@ With `--mod`, [`nif_preview.py`](/LLM_Helpers/nif_preview.py) accepts an `ART_DE
 
 A unit is placed in its domain's Sevopedia scene, read from the mod's unit XML and the game's interface art: land units on the battlefield, ships on the water and aircraft in the sky.
 
-Its largest dimension is scaled to a size taken from the hand-fitted Immortal, Houfnice and Bomber previews; `--environment none` keeps the plain grid. Units painted through `TeamColor.bmp` show the player colour as `--team-color`, by default a blue.
+Its size follows its art define, as in the Sevopedia: `fScale` times `fInterfaceScale`, times a factor per scene taken from the hand-fitted Immortal, Galley and Bomber previews; a unit without an `fScale` is fitted to a common size instead. `--environment none` keeps the plain grid.
+
+- Scaling every unit to one size first hid that: futuremod's Warbot uses the Assault Mech's model at `fScale` 0.10 and `fInterfaceScale` 0.5, against 0.35 and 0.6. Its Sevopedia shows it about four times smaller, close to the 4.2 of those products, so both scales are applied.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_scene_unit_scale.png" alt="llm_scene_unit_scale.png" width="600">
+
+Units painted through `TeamColor.bmp` show the player colour as `--team-color`, by default a blue.
 
 The cache keeps copies between previews. A copy is replaced when its source differs in size or is newer, so an edited texture or a newly added loose override shows at the next render, as Codex (GPT-6.1-Sol) pointed out was needed for iterative testing. `--refresh` replaces every copy, for an edit that kept the size and an older date, such as a file copied in with its original date.
 
@@ -421,6 +433,171 @@ A survey of the 59 installed mods (2026-11-08) found more layouts, each now hand
 - Realism Invictus lists a unit's techs as `<PrereqTechs><TechType>`, so its units' eras come from the first listed tech. It also replaces the Sevopedia battlefield scene in `RI_381_Shared3.FPK`, so its units stand in RI's own scene.
 
 The game's order between two FPKs of the same folder holding the same file was not verified; they are searched in name order. `My Games/Beyond the Sword/CustomAssets` is not searched.
+
+## Plots: terrain, features and plot types
+
+With `--mod`, [`nif_preview.py`](/LLM_Helpers/nif_preview.py) can stand a subject on a map plot built by [`plot_scene.py`](/LLM_Helpers/plot_scene.py), or draw a plot alone.
+
+The Sevopedia's terrain and feature pages show only their buttons, and the game draws a real plot only for a revealed map plot in a loaded game.
+
+Adding the Marsh feature meant judging `bog.nif` and its fit on Grassland from in-game screenshots alone; a plot preview shows such art on any terrain without the game.
+
+- A `TERRAIN_` or `FEATURE_` asset draws that plot. `BONUS_`, `IMPROVEMENT_` and unit or bonus `ART_DEF_` assets stand on one with `--on-plot`, a bonus or improvement type on its own.
+- The plot starts from what the XML allows first: a bonus's first allowed feature on a terrain that feature allows, so the Deer gets a snowy Forest on Tundra; an improvement's first valid terrain or feature, or hills for the Mine; a feature's first terrain. `--terrain`, `--feature` (or `none`) and `--plot flat|hills|peak` force any other, even one the XML forbids, to see how it would look.
+- Units and bonuses stand at their art define's `fScale`, and a unit, as the game draws a lone one, also at `SINGLE_UNIT_GFX_EXTRA_SCALE` (1.22 in SAS): the Llama Kamayuq is about 81 units tall on a 180-unit plot, the game's `PLOT_SIZE`, close to half a plot as in-game screenshots show. Zooming out enlarges units in game too, which a preview does not follow.
+- They stand on the highest ground, hill or peak point near the plot's middle, so the Llama Kamayuq stands on a peak's summit; the feature is left out of that, or a forest would lift them onto the treetops.
+
+```powershell
+python LLM_Helpers/nif_preview.py FEATURE_MARSH marsh.png --mod AdvCiv-SAS
+python LLM_Helpers/nif_preview.py BONUS_DEER deer.png --mod AdvCiv-SAS --feature none
+python LLM_Helpers/nif_preview.py ART_DEF_UNIT_WARRIOR warrior.png --mod AdvCiv-SAS --terrain TERRAIN_PLAINS --plot hills
+python LLM_Helpers/nif_preview.py TERRAIN_PLAINS river.png --mod AdvCiv-SAS --river
+python LLM_Helpers/nif_preview.py FEATURE_FOREST forest.gif --mod "Realism Invictus" --orbit 360 --frames 24
+python LLM_Helpers/nif_preview.py FEATURE_FALLOUT fallout.png --mod AdvCiv-SAS --glow 80
+python LLM_Helpers/nif_preview.py FEATURE_FALLOUT fallout.gif --mod AdvCiv-SAS --frames 32
+```
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_previews.png" alt="llm_plot_previews.png" width="600">
+
+Every terrain the XML has, flat and, on land, as hills and peak, then every feature on each terrain it allows, and once on hills unless it requires flatlands. The sheet is read from the XML, so a new terrain or feature joins it on the next regeneration:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_terrains.png" alt="llm_plot_terrains.png" width="600">
+
+Fallout's light swells and fades, so that sheet shows it at 50%. `--glow` sets a still's light from 0 to 100% of its brightest moment, and a GIF of an animated feature plays the model's own loop, Fallout's 8 seconds or the Oasis water's 10:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_fallout.png" alt="llm_plot_fallout.png" width="600">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_fallout.gif" alt="llm_animation_fallout.gif" width="280"> <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_oasis.gif" alt="llm_animation_oasis.gif" width="280">
+
+`plot_scene.py` draws the same sheet for any mod, its art found in loose files or FPKs as usual; `--match` keeps the plots whose label matches a regular expression, as many mods have dozens of terrains:
+
+```powershell
+python LLM_Helpers/plot_scene.py sengoku_terrains.png --mod Sengoku
+python LLM_Helpers/plot_scene.py c2c_peaks.png --mod Caveman2Cosmos --match "^peak"
+```
+
+### Mods' own terrains and plot types
+
+Art comes from the mod's XML wherever the game defines it there, so a mod's own art shows: each terrain's `Blend` and `Detail` textures, the Hill and Peak terrains' art for hills and peaks, features, the river pieces of `CIV4RiverModelInfos.xml`, and the river and flood plain textures named in `CIV4ArtDefines_Misc.xml`.
+
+- Plot types are fixed in the game: peak, hills, flat land and water. The installed mods (2026-11-09) add none; they add terrains, which can be drawn under any plot type with `--terrain`.
+  - The closest is Sengoku: its graphical-only `TERRAIN_SNOW_PEAK` has its own snow-covered sheet, which its scenarios put under peaks, and its Peak terrain has mossy green rock instead of the base game's brown.
+- Caveman2Cosmos needed two changes, now general:
+  - Its water terrains have `iDistanceToLand` but no `bWater`, so either marks water.
+  - Its Modules hold partial entries for terrains its XML folder defines, such as a `TERRAIN_GRASSLAND` with only property changes. Read first, they hid the full entry and its art, so the XML folder is now read first and a module's entry adds to it.
+- A preview falls back on Grassland and Coast, or on the mod's first land and water terrain when it has neither, as Caveman2Cosmos names Grassland `TERRAIN_GRASSLAND`.
+- The peak's heightmaps are named in no XML: the engine loads `Art/Terrain/Features/Peak/PeakHeightA.tga` and its siblings by path, so a mod changes them only by replacing those files, which the preview then finds.
+- Hills and peaks have no plot-type field to read either. `TERRAIN_HILL` and `TERRAIN_PEAK` are ordinary TerrainInfos whose art paints those plot types, and every installed mod keeps those two Type names.
+  - `bGraphicalOnly` does not single them out: it also marks Sengoku's snow peak terrain, The Sword of Islam's salt lake and wasteland, and every terrain of Final Frontier Plus.
+  - So those two Type names are the one fixed point, and everything else is read through them.
+
+### How a plot is drawn
+
+The engine draws terrain from texture sheets and heightmaps rather than models, so the plot is an approximation built from the game's pieces:
+
+- **Ground**: one terrain's solid tile. A land terrain's `Blend` sheet holds alpha-masked edge pieces in its top half and solid terrain in its bottom half; Coast's and Ocean's are nearly all edge pieces, so their most opaque cell is used.
+  - The engine multiplies the tile by its `Detail` texture at twice its value. The base game's average about 128, which keeps the tile's colour, while Caveman2Cosmos's Lush and Rocky tiles are plain grey and take their colour from their `Detail`; without it they came out blue-grey.
+  - The game also lights terrain paler and bluer: in-game screenshots (2026-11-09) averaged desert 235 207 163, plains 158 151 118, grassland 113 131 73, tundra 98 102 82 and snow 186 213 236. A per-channel gain and offset fitted to those five gives pale cream desert and greener grassland, rather than brownish desert and plains and yellowish grassland.
+    - A first fit to desert, plains and grassland alone added more blue and turned tundra blue-grey (110 120 114). No one gain and offset fits all five exactly; tundra stays a little bluer than in game (107 113 106).
+- **Water**: water terrains get the ground lowered under a translucent surface, so the Fish swim and ships float. The surface has the ripples of `ART_WATER` in one colour and opacity fitted to in-game averages (2026-11-09): Coast comes out at 46 90 119 against the game's 45 88 116, and Ocean at 30 72 95 against 30 71 97.
+  - The first surface, a flat blue at 0.6 opacity, gave 32 80 116 and 16 62 95, a deeper, more saturated blue than the game's.
+- **Hills** are a plot type over a terrain, labelled so: "hills + plains". The Hill terrain's `Blend` sheet is an overlay the engine paints over the base terrain (its `LayerOrder` 79 sits above the land terrains'), grey rock streaks over rolling ground.
+  - The first version put the grassy `Hills_GrassA.nif` mounds on one smooth bump, with the hill decal `hill_all_01.dds` blended toward the middle. In-game screenshots (2026-11-09) showed plains hills as sandy-brown rolling ground cut by grey rock streaks over the whole plot, desert hills likewise and tundra hills mostly grey rock, which the overlay gives.
+- **Peaks** are the ground itself, raised by the game's 10 by 10 heightmap `PeakHeightA.tga` over a plot and a half: one summit whose slopes fall in ridges and do not reach zero at the edges, so a peak spills a little into its neighbours, as in-game screenshots show.
+  - Its 10 by 10 points are joined by flat faces, as in-game peaks are faceted, with a sharp summit and a few broad ridges. Heights are raised to the power 1.4, so the slopes curve outward toward the foot, steep near the summit and flaring at the base, rather than running as a straight ramp.
+  - The slopes take the Peak terrain's rock with its `Detail` texture, lit as the terrain is and with its contrast raised, covered at half opacity by `ART_PEAK_DECAL` from `CIV4ArtDefines_Misc.xml`, a peak seen from above. It is painted at 1024 pixels over a plot and a half, as at 512 the rock looked blurred when magnified.
+    - The rock fades gradually into the base terrain over the lower slopes, and snow covers only the tip.
+  - The first versions stood a model on the plot: `Peak_MountainA.nif`, untextured spires that came out as a low tan cluster, then `Peak_Single.nif`, a cone drawn 1.6 times larger. In-game screenshots (2026-11-09) showed the cone was too steep and narrow, like a tooth, while in game a peak is a wider pyramid.
+  - The first heightmap peak, smoothed up bicubically to 40 by 40, was round, and smoothly coloured: it filled the Peak sheet's transparent texels with their average colour, while the sheet's colour is rock everywhere.
+  - A second pass overcorrected: dozens of added sine ridges made it wavy, and `PeakDarkMap2.dds`, a dark blotch the engine also loads by path, laid around the summit made the slopes average 94 78 64 against the game's light tan-brown of about 124 113 99.
+    - In game the dark streaks fall on gullies and shadowed faces, sometimes low on the peak and sometimes absent, so that map is left out; how the engine uses it is not known.
+    - A hard-edged dark band under the snow remained; it was the decal's dark ring around its snowy middle at full opacity, which half opacity removes. Blurring the rock instead had only made the whole peak blurrier than the game's detailed rock.
+    - Softening only the dark streaks was also tried: their darkening taken from a blurred copy of the rock, so their edges faded out, with a third of the crisp detail kept inside. It faded their hard edges, but the crisp rock was preferred as closer to the game overall, so it was left out.
+- **Rivers** run along the plot's east edge with `--river`, or when the feature requires one through `bRequiresRiver`, as Flood Plains do. The piece is the straight one (`N S`) of `CIV4RiverModelInfos.xml`: a plane of one plot cut from the river sheet, `RIVER_BASE_TEXTURE`, whose meanders follow the river's own art.
+  - Its white wisps are drawn at a third of their strength: in game they animate, so a still picture catches only part of them, sparse thin zigzags along the middle of the flow, while at full strength they drew dense white blobs over the whole river.
+- **Flood Plains** follow their river: `RIVER_FLOOD_PLAIN_TEXTURE` has the river sheet's layout, a green band around each river piece, so the river piece's own texture coordinates lay it along the river. `RIVER_FLOOD_PLAIN_MASK_TEXTURE` thins it, which leaves the desert gaps in-game screenshots show between green patches.
+  - The first version laid the flood plain sheet over the whole plot as crisp rows of grass, then one cell of it blurred, which came out as a round green patch beside a straight blue strip.
+- **Features**: the art piece joining the most neighbours, such as the Forest's `NW NE SE SW`.
+  - A model that dips below the ground is lifted by that much: the Oasis's pool sits in a bowl about 5 units deep, and our flat ground covered most of its water. The engine sinks the plot's ground there instead, which is not drawn. The Oasis sits in its plot's north-east quarter, as in game.
+  - Ice is a half-tiling feature (`TILE_ART_TYPE_HALF_TILING`): its pieces sit on the plot's corners, each filling the quarters its `Connections` name among the four plots around that corner. A lone plot takes, on each corner, the piece joining only toward itself, which gives a floe with cliffs on every side. The piece joining the most, the inside of a large ice cap, had drawn a flat white square.
+  - The game picks the variety from the plot's latitude, not its terrain, in `CvPlot::setFeatureType`: varieties × (latitude × 9 / 8) / 90, so the Forest is leafy below 27 degrees, evergreen to 53 and snowy beyond. `--latitude` follows that rule and `--variety` picks one directly; without either, the snowy variety goes on Tundra and Snow and the first elsewhere.
+- **Fallout** is an effect rather than an object: `fx_cities_iradiated.nif` holds ten camera-facing `NiBillboardNode` cards of `fx_fire_glow.dds` that add light, and six of `fx_smokedrift00.dds` that lay a faint grey haze. All ignore the depth buffer, and a card's self-illumination colour follows its own 8-second keys, which is the swelling and fading seen in game.
+  - The first preview drew these cards flat as the file stores them, at height 0 and black at time 0, so the ground hid the glow and only their corners poked through hills, as stray gold bars. It also ignored the smoke's vertex alpha, drawing a hard-edged grey polygon, which fading by that alpha turned into the soft border in-game screenshots show.
+  - A burst of 56 in-game screenshots about 0.19 s apart, over 10.6 s (2026-11-09), confirmed the file's timing: the whole glow pattern repeats at 8.0 s (correlation 0.98), with weaker echoes near 2.7 and 5.5 s from the central cards' 2.67 s pulses, and each plot starts at its own moment.
+  - Every card is dark at the loop's start, so each pixel's darkest moment in that burst is a clean baseline. Against it the game's light adds green 0.63 and blue 0.2 of red, and red saturates on bright ground while green keeps rising, which yellows the hot spots.
+    - The texture times its key gives 0.6 and 0.1 at about 0.8 of the strength, so the preview applies a per-channel factor fitted to these, which brings six plots' centres to between 0.70 and 1.10 of the game's, averaging about 0.95. Why the game's light has more blue was not determined.
+    - A first fit to a 5 s burst, against each pixel's tenth percentile rather than its darkest moment, gave a green of 0.72, a paler yellow than the game's orange halos.
+  - The peak light over the loop forms the same four-lobed shape in game and here, with the hottest spot right of the plot's centre, so the cards' layout needed no change.
+  - The cards reach past their plot, onto its neighbours in game. On a lone plot they are drawn only over the ground, as beyond it they made detached smudges on the backdrop.
+- **The Oasis's water** is two copies of `oasis_water.dds` sliding in opposite directions over 10 seconds, the model's base and decal layers; a burst of 62 in-game screenshots (2026-11-09) repeats at 10 s (correlation 0.50, about 0 at the other lags). Fallout and the Oasis are SAS's only features with animated art.
+  - Their stored alpha of 0.2 left the pool nearly still, with no crossing lines. An even mix lit as the terrain is, at 0.4 opacity, averages 72 131 145 in the pool against the game's 72 127 136; 0.5 unlit gave a duller pool and spread the water's outline over the dark rim. These two weights are fitted, and how the engine combines the layers was not determined.
+  - The Oasis's size is right: measured against the plot's width in the same in-game view, its pool is 37.2 units wide in game and 39.8 here. It looks smaller in a preview because a preview shows the whole plot.
+  - The model's land is lit as the terrain is and its soil lightened a quarter of the way toward the plot's ground colour, as its rim was too dark: its darkest tenth was 104 and is now 114, against the game's 128. Lightening only half-transparent texels barely moved it, as the rim is mostly painted opaque.
+  - A faint straight edge of the water's mesh shows at the pool's lower right, which the game does not show. Letting the soil write depth at its alpha test, rather than at half opacity, did not hide it, so its cause was not found.
+- **Effects in other mods** need no list of names, as no XML field marks a glowing feature: `bAnimated` is also set on the Oasis, whose water only scrolls, and `EffectType` is the feature's separate spawned effect.
+  - So the preview looks inside the model: a `NiBillboardNode` makes it an effect, and an animated self-illumination (`NiMaterialColorController`) makes a card glow; only the colour factor above is fitted, to Fallout.
+  - A scan of 59 installed mods' features (2026-11-09) found 77 distinct effect entries. Fallout's model is the one in 52 mods, and is reused for Caveman2Cosmos's Quasar and galaxies, The Eugenics Wars' Radiation and Better Tomorrow's Pollution. Others are Master of Mana's and Ashes of Erebus's Haunted Lands, and fog, storm, blizzard and sandstorm cards.
+  - Volcanoes, in about a dozen mods, are a textured model with `NiParticleSystem` smoke, and no glowing cards: the model is drawn and the particles are not.
+- Not drawn: blending into neighbouring terrains, river bends and deltas, the engine's farm fields and other ground painting, and the Cottage's and other improvements' surroundings. Realism Invictus's own terrain textures come from its `RealisticTerrain.FPK`.
+
+### Known gaps
+
+Compared with in-game screenshots (2026-11-08 and 2026-11-09):
+
+- In game the water next to a shore is lighter, almost sky blue, and a lake, which is Coast surrounded by land, is mostly such shallows: one averaged 82 120 136. A lone water plot here has no shore, so it shows the open Coast colour.
+- A Coast plot in game can show Ocean's deeper blue reaching into it, which is not drawn. Water plots show scattered white glints even without a bonus, about 0.04% of a Coast view's pixels, uneven in size, shape and spacing; a fixed few such are drawn here.
+- Five in-game Coast views averaged about 47 91 119, which this Coast matches; a lake is not one colour: in one view its darker tenth was about 43 89 115 and its lighter tenth a whitish sky blue of 94 134 142, while the river beside it, about 77 123 147, is a deeper blue than those light shallows (2026-11-09).
+- Buildings are not placed on plots or in Sevopedia scenes, including coastal ones in the Sevopedia's coastal backdrop (`CIVILOPEDIA_AMPHIB_ENVIRONMENT`).
+- In game a plot's edges blend into its neighbours: a plains plot beside grassland, a peak and an oasis shows each of them reaching into it, and nearby jungle or forest trees climb a peak's foot. Snow beside the coast shows sandy, gnawed-looking edges. Here a plot stands alone.
+- The `Detail` texture is laid once over a plot's tile; how often the engine repeats it was not measured.
+- Fallout on several plots in game overlaps and starts each plot at its own moment, so large areas shift between patches; one plot here shows one plot's cards only.
+- Particle systems on plots are not drawn, such as a volcano's smoke. Middle-earth's `FEATURE_MT_DOOM` comes out as a nearly empty plot; why was not examined.
+
+Units and bonuses keep the game's sizes on plots: the Crab pair spans about a third of a coast plot's side in game (2026-11-09) and here. Leaderheads are not stretched either: the renderer keeps square pixels, and Gandhi's face is if anything slightly narrower here than in the Sevopedia panel.
+
+Realism Invictus's SVN version (2026) also shows buildings' underwater parts: its DLL patches the EXE so the Sevopedia's coastal backdrop draws the building before the water, and the map draws city geometry in the underwater pass. Here water is always drawn after the models as a translucent layer, so underwater parts show through it.
+
+## Searching mods
+
+[`art_search.py`](/LLM_Helpers/art_search.py) finds a kind of terrain or feature across every installed mod and draws them side by side, each on a plot through its own mod's art and labelled with the mod. Designing the Marsh feature meant searching mods for marshes, swamps and wetlands by hand and comparing them from screenshots; this does that search in one command for any pattern.
+
+- It matches Types against a regular expression in each mod's TerrainInfos and FeatureInfos, skipping entries a mod inherits unchanged from the base game, so the base game's own are listed once, under BtS. `--list` lists the matches without drawing them.
+- A feature stands on the first terrain its XML allows; a terrain is drawn flat. A match that fails to draw is reported and left off the sheet, as some mods' XML or art does not load.
+- Mods nested inside another mod's folder, such as Beyond the Game's own mods, are not searched.
+
+```powershell
+python LLM_Helpers/art_search.py "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD" marshes.png
+python LLM_Helpers/art_search.py "MARSH|SWAMP" marshes.png --kind feature --mods Caveman2Cosmos "Realism Invictus"
+```
+
+`--exclude` leaves named mods out of a search. On 2026-11-09 the first pattern found 35 marsh-like terrains and features in 20 mods: Caveman2Cosmos alone has a swamp, a mangrove and a peat bog as features and a marsh and muddy ground as terrains, and Sengoku and RFCEurope have a marsh feature and a wetland terrain.
+
+The sheet below leaves out two installed mods by the maintainer's choice: RFC Dawn of Civilization, as under its [section of the license](/LICENSE.md#rfc-dawn-of-civilization-and-leoreth-controlled-project-restrictions), and Dawn of Civilization: America, whose bog and swamp models are byte-identical to RFC Dawn of Civilization's marsh models under other names.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_marshes.png" alt="llm_search_marshes.png" width="600">
+
+Other mods' animated features, with no list of names behind them: glowing cards, fog, storms, meteors and volcanoes.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_effects.png" alt="llm_search_effects.png" width="600">
+
+## Videos with sound
+
+A GIF has no sound and `.bik` movies open only in players that decode Bink, so both helpers write `.mp4` video with sound, which VLC, browsers and Windows' own player open. Write them outside the repository, for example to `Downloads`: they copy Firaxis's movies in full.
+
+- [`movie_frames.py`](/LLM_Helpers/movie_frames.py) converts a Bink movie with its sound; `--start` and `--duration` select an excerpt, in seconds or as a percentage of the movie, such as `--start 40% --duration 20%`.
+- `nif_preview.py` writes an animated scene as `.mp4` at `--fps` (24 by default) with `--sound`, a file or a sound script. A `RELIGION_` asset takes its founding scene and `MovieSound` from the religion's XML: the Taoism scene animates for 5 seconds and its `Taoist.mp3` lasts 10.8, so the last frame holds until the sound ends.
+
+```powershell
+python LLM_Helpers/movie_frames.py "$civ4Assets/Art/Movies/Wonders/GreatLibrary.bik" "$HOME/Downloads/great_library.mp4"
+python LLM_Helpers/nif_preview.py RELIGION_TAOISM "$HOME/Downloads/taoism.mp4" --mod AdvCiv-SAS --size 400
+```
+
+A 400-pixel religion scene took about 3 minutes for its 120 frames, with the candle sprites drawn at twice the size.
+
+No video sample is committed, although the videos play well:
+
+- They copy Firaxis's movies and music in full, sound included, while the GIF samples show a few seconds of motion without sound.
+- GitHub's Markdown plays videos uploaded as attachments; as far as known here, an `.mp4` kept in the repository and linked from a README shows as a link to download rather than playing, so it would add little for readers. This was not tested on GitHub.
 
 ## Preview size and detail
 
