@@ -2,7 +2,7 @@
 
 This folder archives AdvCiv-SAS release/update text manually copied from public web publication pages.
 
-It preserves how releases were described at publication time and complements the detailed commit history in [`../git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs) and the current-state [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+It preserves how releases were described at publication time and complements the [detailed commit history (git_logs)](/_1_AdvCiv-SAS/Docs/git_logs) and the current-state [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
 
 Older files include the former CivFanatics (CFC) publication period; AdvCiv-SAS as of now detached from CivFanatics in November 2026, so no new CivFanatics publication text should be expected after that point.
 

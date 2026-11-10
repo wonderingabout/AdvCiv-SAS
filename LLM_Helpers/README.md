@@ -901,7 +901,8 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
 
 - Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
   - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
-  - `off` writes the shipped values, giving a committable XML; `status` prints the current values without writing.
+  - `on` includes All, Team and Direct chat text in local SGR logs. For a channel-isolation test, enable only the desired chat switch in XML instead.
+  - `off` restores the shipped values, including withholding text for all three chat channels. Use `status` to print the current values without writing.
 - Edits only those values in place and preserves the file's CRLF line endings.
 - Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
 
@@ -1762,6 +1763,7 @@ python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README
 - Includes selected screenshot folders for LLM/UI/rendered-map-text review:
   - [Advisors](/_1_AdvCiv-SAS/Images/advisors/), [main menu](/_1_AdvCiv-SAS/Images/main_menu/), [Sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/) and [common UI](/_1_AdvCiv-SAS/Images/ui_other/) show the mod's interface for development and review.
   - [Diagnostics](/_1_AdvCiv-SAS/Images/diagnostics/) contains game-generated output, including SGR log/text-map screenshots and runtime failure dialogs.
+  - [Multiple instances](/_1_AdvCiv-SAS/Images/multiple_instances/) holds the walkthrough of two Civ4 clients on the same Windows computer from [README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md).
   - The `1.291_SASGameRecord_map_text` screenshots help reconstruct the visual/geographical layout that an LLM may miss when reading the raw characters alone.
   - Local agentic tools can inspect these folders directly; external/ZIP-only LLMs depend on the archive contents. Including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
 - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.

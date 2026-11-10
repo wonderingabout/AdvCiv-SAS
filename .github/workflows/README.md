@@ -547,9 +547,9 @@ Validates local images in maintained Markdown: their files must exist, alt text 
 
 Existing descriptive and stale pre-rename alts were normalized in the initial sweep. External badges/URLs and fenced-code, inline-code or comment examples remain outside this local-image policy; ignored/generated review copies are excluded through shared maintained-document discovery.
 
-Repository-root paths and paths relative to each Markdown file are both supported.
+Local image paths must start at the repository root, for example `/_1_AdvCiv-SAS/Images/sevopedia/1.710_sevopedia_techs%20(1).JPG`. This keeps screenshot links valid when their Markdown guide moves and gives contributors one path convention to follow. If the image itself moves or is renamed, update its references.
 
-This prevents documentation image links from silently breaking when image folders or files are moved or renamed.
+The check also applies the repo-root path rule to HTML image examples in `.markdownlint*.jsonc` so config comments demonstrate the same convention.
 
 #### `build/documentation/markdown_links.py`
 
@@ -558,6 +558,8 @@ Local file links must begin with `/`; same-page anchors and external URLs remain
 Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors.
 
 It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`.
+
+A standalone backticked path such as `../tests/` is also flagged when it resolves inside the repository. Use a repo-root path or a descriptive link label so the reference stays clear when the guide moves.
 
 Local links must use repository-root paths beginning with `/` (for example `/_1_AdvCiv-SAS/Docs/README_Known_Issues.md`); document-relative links such as `../README.md` are rejected so moving a Markdown file does not silently retarget them. Same-page anchors and external URLs remain valid.
 

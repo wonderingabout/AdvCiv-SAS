@@ -32,6 +32,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#5 - (seemingly worked around now) player name same as windows (10's for example) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5)\
 [KI#6 - (now worked around) Too long XML code comments cause errors or game crashes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-6)\
 [KI#7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen as well) don't work if not taken in primary screen](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7)\
+[KI#7.2 - (Observed) Native screenshots showed only one of two local Civ4 clients](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7.2)\
 [KI#8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-8)\
 [KI#9 - Art (and maybe other assets too or not) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-9)\
 [KI#10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example), while some like `&` cause an XML error and asset failing to load entirely](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-10)\
@@ -1161,6 +1162,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#994 - (Provisional Pending inherited ACO probability defect) Attacker Unharmed omits lethal-hit retreats](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-994)\
 [KI#995 - (Provisional Pending inherited K-Mod ACO localization defect) Condensed defender health duplicates the HP token](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-995)\
 [KI#996 - (Provisional Pending AdvCiv multiplayer diagnostic defect) One matching FP checksum masks later incompatible peers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-996)\
+[KI#996.2 - (Observed) Initial autosave can fail when two LAN clients run on the same Windows computer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-996.2)\
 [KI#997 - (Provisional Pending inherited BtS network group-state defect) A stale JoinGroup target becomes an ungroup command](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-997)\
 [KI#998 - (Provisional Pending AdvCiv XML-loader regression partly masked by SAS) Great Wall conditional abilities never switch](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-998)\
 [KI#999 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Taurus version 132 is parsed as AdvC format](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-999)\
@@ -1548,6 +1550,18 @@ More details here too in: [Long_Comments_XML.txt](/_1_AdvCiv-SAS/Docs/Long_Comme
 ## KI#7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen as well) don't work if not taken in primary screen
 
 On windows 10 at least if not in other systems as well, at least in my machine, since i play in windowed while debugging and such or other dev needs or not which is much more convenient, if i put the game window on my second (or any alternative/equivalent or not that may or not exist and that is not main screen) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (replace with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG as of now.
+
+<a id="ki-7.2"></a>
+
+## KI#7.2 - (Observed) Native screenshots showed only one of two local Civ4 clients
+
+On 2026-11-10, two windowed Steam clients ran AdvCiv-SAS on the same Windows computer with the `multiple` argument. While both clients were open, the native screenshots we found (`Civ4ScreenShot3251.JPG` through `Civ4ScreenShot3253.JPG`) showed Second's view, even after the LAN host was changed. Both Runtime screenshot observers saw the same files in the shared `ScreenShots` folder.
+
+After Second exited to Windows, First remained in the game and showed a dialog waiting for Second to reconnect. Two more Print Screen attempts produced `Civ4ScreenShot3254.JPG` and `Civ4ScreenShot3255.JPG`, both showing First's view.
+
+First's observer recorded them, but the shared `SASRuntimeStatus.json` still described Second's clean exit, so those rows reported `STATUS_IDENTITY_MISMATCH` for the Runtime context.
+
+The reason First's view was missing while both clients ran is unconfirmed, as is any connection to the monitor-specific behavior in KI#7. [Two-client LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md#screenshot-and-exit-observations)
 
 <a id="ki-8"></a>
 
@@ -35832,6 +35846,18 @@ A sender's matching self-message, or the first compatible peer in a game with th
 Pending tracking the relevant senders or otherwise continuing comparisons until every participating network human has been checked.
 
 Found as F674/provisional KI#996 during ChatGPT-5.6-Sol's C031-WIP541 `CvMessageData.cpp` audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-996.2"></a>
+
+## KI#996.2 - (Observed) Initial autosave can fail when two LAN clients run on the same Windows computer
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1rFvzNX7hYv2IZvHQ9CFRtKOu3i6-n7zn?usp=sharing).
+
+In two local Steam LAN tests on 2026-11-10, the right window showed a **Save Error** at Dawn of Man when Civ4 tried to create the initial multiplayer autosave. Both clients continued into the game after the dialog was dismissed in the first run. A separate rerun after exiting both clients to Windows reached Dawn of Man without the error.
+
+The first run left an initial autosave in the shared saves directory. The cause of the error and the identity of the client that wrote the file are unconfirmed. A useful comparison is to repeat the setup with shared and verified separate save directories.
+
+The same two-client setup also exposed a separate screenshot behavior. [KI#7.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7.2) [Two-client LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md#host-and-join-a-lan-match)
 
 <a id="ki-997"></a>
 

@@ -11745,6 +11745,11 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
 		gDLL->UI().clearEventMessages();
 	} // </advc.706>
 	m_listGameMessages.push_back(kMessage);
+	// <!-- custom: The inherited Python chat event receives only message text; the EXE-delivered archive object also retains sender and ChatTargetTypes.
+	// Record only MESSAGE_TYPE_CHAT insertions for the active player's archive, then let the recorder independently enforce ALL/TEAM/direct-player target scope before retaining metadata or optional text.
+	// This is archive evidence rather than proof that the EXE rendered the line, and repeated identical insertions remain distinct so a multiplayer test can reveal local-echo/receive behavior.
+	// Check the cached level and action-trace settings first so an inactive trace skips the message type and archive-owner checks. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled() && kMessage.getMessageType() == MESSAGE_TYPE_CHAT && isActive()) logSASGameRecordPlayerChat(getID(), kMessage);
 	// <advc.106b>
 	// Special treatment only for events in other civs' turns.
 	if (!kGame.isInBetweenTurns() && isActive())

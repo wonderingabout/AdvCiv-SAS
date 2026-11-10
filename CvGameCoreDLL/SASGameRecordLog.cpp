@@ -9,6 +9,7 @@
 #include "SASSaveStreamFormat.h" // <!-- custom: Generate the current-writer marker profile from the same list used by native serializers. (GPT-6.1-Sol) -->
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPopupInfo.h" // <!-- custom: Decode native ButtonPopup type/data fields for privacy-bounded player-choice rows; popup text and edit-box contents are deliberately never read. (ChatGPT-5.6-Sol) -->
+#include "CvTalkingHeadMessage.h" // <!-- custom: Typed chat archive observations need the EXE-delivered sender/target metadata that the inherited Python chat event discards. (ChatGPT-5.6-Sol) -->
 #include "CvDeal.h" // <!-- custom: Needed directly for canonical state-checkpoint deal identities and persisted trade-item lists; do not rely on CvGame headers to complete CvDeal transitively. (ChatGPT-5.6-Sol) -->
 #include "CvCity.h" // <!-- custom: Needed by game-record city action/BFC rows; SASGameRecordLog.h only forward-declares CvCity. (GPT-5.5) -->
 #include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
@@ -2568,6 +2569,9 @@ static CvString getSASGameRecordLogSettingFields()
 		{ "SAS_SGR_TRADE_MARKET_AI_TECH_VALS_ON", isSASGameRecordTradeMarketAITechValuesEnabled() },
 		{ "SAS_SGR_ACTION_TRACE_ON", isSASGameRecordActionTraceEnabled() },
 		{ "SAS_SGR_MAP_ANNOTATION_TEXT_ON", GC.getDefineBOOL("SAS_SGR_MAP_ANNOTATION_TEXT_ON") },
+		{ "SAS_SGR_CHAT_ALL_TEXT_ON", GC.getDefineBOOL("SAS_SGR_CHAT_ALL_TEXT_ON") },
+		{ "SAS_SGR_CHAT_TEAM_TEXT_ON", GC.getDefineBOOL("SAS_SGR_CHAT_TEAM_TEXT_ON") },
+		{ "SAS_SGR_CHAT_DIRECT_TEXT_ON", GC.getDefineBOOL("SAS_SGR_CHAT_DIRECT_TEXT_ON") },
 		{ "SAS_SGR_PERFORMANCE_METRICS_ON", isSASGameRecordPerformanceMetricsEnabled() },
 		{ "SAS_SGR_SYSTEM_CONTEXT_LVL", getSASGameRecordSystemContextLevel() },
 		{ "SAS_SGR_HARDWARE_IDENTITY_ON", isSASGameRecordHardwareIdentityEnabled() },
@@ -16418,6 +16422,77 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 			kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
 			getSASButtonPopupTypeName(eType), (int)eType, iButtonClicked, szChoice, szTargetKind, szTarget.GetCString());
 	}
+}
+
+// <!-- custom: ChatTargetTypes carries ALL/TEAM or a direct-player ID; enforce that target locally before recording so the recorder does not trust broader EXE archive routing for privacy.
+// NO_CHATTARGET and unknown target values are deliberately skipped because their intended audience is not established here. (ChatGPT-5.6-Sol) -->
+static bool getSASGameRecordPlayerChatTarget(PlayerTypes eArchivePlayer, PlayerTypes eSender, ChatTargetTypes eTarget, char const*& szTargetKind, PlayerTypes& eTargetPlayer)
+{
+	eTargetPlayer = NO_PLAYER;
+	if (eTarget == CHATTARGET_ALL)
+	{
+		szTargetKind = "ALL";
+		return true;
+	}
+	if (eTarget == CHATTARGET_TEAM)
+	{
+		szTargetKind = "TEAM";
+		TeamTypes const eSenderTeam = GET_PLAYER(eSender).getTeam();
+		return eSenderTeam != NO_TEAM && eSenderTeam == GET_PLAYER(eArchivePlayer).getTeam();
+	}
+	if (eTarget >= 0 && eTarget < MAX_PLAYERS)
+	{
+		szTargetKind = "PLAYER";
+		eTargetPlayer = (PlayerTypes)eTarget;
+		return eArchivePlayer == eSender || eArchivePlayer == eTargetPlayer;
+	}
+	return false;
+}
+
+// <!-- custom: Read the capture setting only after the archived message passes audience validation.
+// Independent channel switches let a user capture one channel without including other player-authored text. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static bool isSASGameRecordPlayerChatTextEnabled(ChatTargetTypes eTarget, PlayerTypes eTargetPlayer)
+{
+	if (eTarget == CHATTARGET_ALL)
+	{
+		static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_CHAT_ALL_TEXT_ON");
+		return bEnabled;
+	}
+	if (eTarget == CHATTARGET_TEAM)
+	{
+		static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_CHAT_TEAM_TEXT_ON");
+		return bEnabled;
+	}
+	if (eTargetPlayer != NO_PLAYER)
+	{
+		static const bool bEnabled = GC.getDefineBOOL("SAS_SGR_CHAT_DIRECT_TEXT_ON");
+		return bEnabled;
+	}
+	return false;
+}
+
+void logSASGameRecordPlayerChat(PlayerTypes eArchivePlayer, CvTalkingHeadMessage const& kMessage)
+{
+	CvGame const& kGame = GC.getGame();
+	// <!-- custom: Archive insertion can precede SGR initialization.
+	// Check the private session flag before examining chat metadata or text. (GPT-6.1-Sol) -->
+	if (!g_bSASGameRecordSessionOpen || !kGame.isFinalInitialized() || eArchivePlayer < 0 || eArchivePlayer >= MAX_PLAYERS || kMessage.getMessageType() != MESSAGE_TYPE_CHAT)
+		return;
+	PlayerTypes const eSender = kMessage.getFromPlayer();
+	// <!-- custom: Require an actual player sender so MESSAGE_TYPE_CHAT cannot accidentally turn an EXE/system line with no sender into player-chat telemetry. (ChatGPT-5.6-Sol) -->
+	if (eSender < 0 || eSender >= MAX_PLAYERS)
+		return;
+	ChatTargetTypes const eTarget = kMessage.getTarget();
+	char const* szTargetKind;
+	PlayerTypes eTargetPlayer;
+	if (!getSASGameRecordPlayerChatTarget(eArchivePlayer, eSender, eTarget, szTargetKind, eTargetPlayer))
+		return;
+	TeamTypes const eSenderTeam = GET_PLAYER(eSender).getTeam();
+	bool const bRecordText = isSASGameRecordPlayerChatTextEnabled(eTarget, eTargetPlayer);
+	CvWString const szText = (bRecordText ? getSASDiagnosticQuoted(kMessage.getDescription()) : CvWString(L"-"));
+	logSASGameRecord("GAME_RECORD_PLAYER_CHAT turn=%d elapsed=%d archivePlayer=%d archiveTeam=%d sessionWallMilliseconds=%u stage=ARCHIVE_INSERT source=ACTIVE_PLAYER_ARCHIVE scope=CHAT_TARGET_MATCH senderPlayer=%d senderTeam=%d targetKind=%s targetRaw=%d targetPlayer=%d messageTurn=%d shown=%d content=%s text=%S",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), eArchivePlayer, GET_PLAYER(eArchivePlayer).getTeam(), getSASGameRecordSessionWallMilliseconds(),
+		eSender, eSenderTeam, szTargetKind, (int)eTarget, eTargetPlayer, kMessage.getTurn(), kMessage.getShown() ? 1 : 0, bRecordText ? "RECORDED" : "WITHHELD", szText.GetCString());
 }
 
 // <!-- custom: Correlate the generic popup response with the unit the live load/lead handler actually selected; do not rerun canDoCommand/canPromote, enumerate alternatives or imply that the following command completed. (GPT-6.1-Sol) -->

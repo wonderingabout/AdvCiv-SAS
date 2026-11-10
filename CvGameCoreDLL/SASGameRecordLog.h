@@ -15,6 +15,7 @@
 // <!-- custom: Revision 151 added a commerce-logging CvPlayer reference above the previous forward-declaration block; CitySiteEvaluator.cpp then failed with C2065/C2143 because CvPlayer was not declared yet.
 // Declare it before the first signature rather than relying on caller include order or adding the full player header. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 class CvPlayer;
+class CvTalkingHeadMessage; // <!-- custom: Player-chat observations accept the EXE-delivered archive object by const reference; keep this public recorder header independent of its implementation. (ChatGPT-5.6-Sol) -->
 class CvPopupInfo; // <!-- custom: Player popup-choice logging accepts the existing popup descriptor by const reference; forward-declare it to keep this lightweight public recorder header independent of popup implementation details. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Structured game-record rows for autoplay comparison, game analysis, user-assistance summaries, and external LLM review.
@@ -74,6 +75,10 @@ void logSASGameRecordPopupUnitTarget(CvPopupInfo const& kInfo, int iButtonClicke
 void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift);
 void logSASGameRecordPlayerProductionChoice(CvCity const& kCity, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition);
 void logSASGameRecordPlayerProductionRemoval(CvCity const& kCity, int iRequestedIndex);
+// <!-- custom: Observe typed MESSAGE_TYPE_CHAT insertions only after their explicit ChatTargetTypes scope matches the active player's archive.
+// Metadata stays available at level 2+ action trace; arbitrary player-authored text remains withheld unless its separate default-off opt-in is enabled.
+// This records archive delivery, not confirmed rendering or a network packet, and intentionally excludes voice/system/diplomacy message families. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordPlayerChat(PlayerTypes eArchivePlayer, CvTalkingHeadMessage const& kMessage);
 // <!-- custom: Complete the typed native command-dispatch layer with city tasks and unit group/mission/command requests.
 // Callers pre-gate at level 2+ and the action-trace switch; helpers record only direct payload/context and do not evaluate command legality or success. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordPlayerCityTask(CvCity const& kCity, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);

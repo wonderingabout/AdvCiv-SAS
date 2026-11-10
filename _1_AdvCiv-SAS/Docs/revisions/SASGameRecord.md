@@ -113,10 +113,25 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 198 - SAS practical 6745
+
+- **Date:** 2026-11-11
+- **Git commit:** pending
+- **Change:** Add privacy-bounded typed-player-chat observations at the active player's native message archive rather than the text-only Python chat event.
+  - `GAME_RECORD_PLAYER_CHAT` records archive/sender IDs and teams, the raw/decoded `ChatTargetTypes`, message turn/shown state and the exact archive-insertion boundary at level 2+ action trace.
+  - Before any row is written, the recorder requires a valid player sender plus an explicit ALL target, same-team membership for TEAM, or sender/direct-recipient membership for a nonnegative player target; `NO_CHATTARGET` and unknown values are skipped rather than guessed.
+  - The three chat text switches (`SAS_SGR_CHAT_ALL_TEXT_ON`, `SAS_SGR_CHAT_TEAM_TEXT_ON`, `SAS_SGR_CHAT_DIRECT_TEXT_ON`) default to `0`, so SGR withholds the body as `text=-`. Set a channel to `1` to capture its quoted and escaped text independently. Player names are not added as metadata.
+  - The observer is limited to `MESSAGE_TYPE_CHAT`; system notices, diplomacy text and voice chat use separate paths. Each qualifying archive insertion remains a row so the first multiplayer test can establish whether Civ4 locally echoes and later re-inserts a sent line instead of hiding that behavior with heuristic deduplication.
+  - In the 2026-11-10 single-player test of the original shared text switch, the default withheld the body and opt-in captured it. The user confirmed the chat line remained visible after save/reload.
+  - In the two-client Steam LAN test on the same Windows computer, both logs recorded one row per message for all-chat, team chat and direct messages in both directions. The two humans shared a team. An unrelated third client was not tested.
+  - Both clients advanced to turn 1. The two SGR files both recorded Moscow and Cuzco being founded and both players’ synchronized production and research choices. Native popup responses and the accepted `FORCE_END_TURN` request appeared in the acting player’s file only. See the [LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md#check-the-player-records).
+  - A later LAN run with all three text switches off recorded two all-chat messages and two direct messages in each client's file. All four rows in each file had `content=WITHHELD text=-`. In a separate LAN match with Second hosting and both players on the same team, each client recorded both Team messages as `content=WITHHELD text=-`.
+  - Civ4 serializes the existing message archive and restores it directly. SGR observes fresh insertions, so loading the archive does not duplicate old chat rows in the new record.
+
 ### Revision 197 - SAS practical 6744
 
 - **Date:** 2026-11-10
-- **Git commit:** pending
+- **Git commit:** `f926c7ab5f988920d872076656a2613b7d75ba41`
 - **Change:** Reuse the shared missing-value formatter for diagnostic lists and text fields that already treated an empty value as missing.
   - This preserves the existing output, including NULL-only defaults and pointer checks that protect unit and plot lookups.
   - Use the shared XML formatter for optional deal-cancellation denials. Trade-market observations still use `NO_DENIAL` for a completed query that returned no denial.

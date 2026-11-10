@@ -2435,6 +2435,24 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_SGR_MAP_ANNOTATION_TEXT_ON</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Typed multiplayer chat can contain arbitrary player-authored/private text.
+	All, team and direct chat bodies are independently opt-in, so enabling a channel leaves the other channels withheld.
+	0 (default) records target-filtered metadata and writes text=-; 1 records the selected channel's body as quoted/escaped diagnostic text.
+	The observer accepts only MESSAGE_TYPE_CHAT with a valid player sender inserted into the active player's archive and independently enforces ALL, same-team or sender/direct-recipient target scope; unknown/NO_CHATTARGET values are skipped.
+	This does not capture voice chat, system notices or diplomacy text and does not claim that an archived line was rendered by the EXE.
+	Each setting is cached on the first in-scope observation for its channel. Restart Civ4 after changing a setting. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_SGR_CHAT_ALL_TEXT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SGR_CHAT_TEAM_TEXT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SGR_CHAT_DIRECT_TEXT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<Define>
 		<DefineName>SAS_SGR_PERFORMANCE_METRICS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -2495,7 +2513,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>197</iDefineIntVal>
+		<iDefineIntVal>198</iDefineIntVal>
 	</Define>
 
 

@@ -276,6 +276,7 @@ Beyond the quick install guide above, AdvCiv-SAS comes with more than documentat
 - [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/README.md): Python API dumps per Sevopedia class, showing which getters the Civ4 Python objects expose
 - [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md): for example local Python 2.4 setup, the DLL Compilation Guide, the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) for viewing art and editing the game font, the Release Checklist and the [tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers), installed or worth suggesting
 - [LLM helpers](/LLM_Helpers/README.md): scripts written as tasks needed them and kept for reuse, such as the light-source ZIP maker or `gamefont_tga.py`, which let an agent view and rearrange game-font icons it cannot open as images
+- [Multiple instances and LAN multiplayer](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md) with launch commands, screenshots of hosting and joining on the same Windows computer, and notes on what still needs to be isolated for parallel autoplay
 
 Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
@@ -303,8 +304,8 @@ For a more compact and broad overview of the changes from base AdvCiv to AdvCiv-
 
 Edited the .thm files so the main menu's home page feels more modern and utlizes more of the screen for display, and in a prettier way too (removes the very ugly blue panel, adds darker and bolder text, etc.). See also [/README.md#ai-generated-images](/README.md#ai-generated-images).
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home (1).JPG" alt="1.300_main_menu_home (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home (2).JPG" alt="1.300_main_menu_home (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home%20(1).JPG" alt="1.300_main_menu_home (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.300_main_menu_home%20(2).JPG" alt="1.300_main_menu_home (2).JPG" width="250"></img>
 
 ### Multiple random Main Menu Musics
 
@@ -312,7 +313,7 @@ AdvCiv-SAS now supports randomized main menu music among a tunable list of many 
 
 These music scripts are playable via Sevopedia Music and the Sevopedia Media Player.
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music (5).JPG" alt="1.830_sevopedia_music (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music%20(5).JPG" alt="1.830_sevopedia_music (5).JPG" width="250"></img>
 
 ### Simple Game rework
 
@@ -326,12 +327,12 @@ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge,
 
 Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Mapscripts](/README.md#mapscripts).
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (1).JPG" alt="1.310_main_menu_simple_game (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (2).JPG" alt="1.310_main_menu_simple_game (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (3).JPG" alt="1.310_main_menu_simple_game (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (4).JPG" alt="1.310_main_menu_simple_game (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (5).JPG" alt="1.310_main_menu_simple_game (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (6).JPG" alt="1.310_main_menu_simple_game (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(1).JPG" alt="1.310_main_menu_simple_game (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(2).JPG" alt="1.310_main_menu_simple_game (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(3).JPG" alt="1.310_main_menu_simple_game (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(4).JPG" alt="1.310_main_menu_simple_game (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(5).JPG" alt="1.310_main_menu_simple_game (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(6).JPG" alt="1.310_main_menu_simple_game (6).JPG" width="250"></img>
 
 ## UI (Ingame)
 
@@ -351,11 +352,11 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
 
 The domestic advisor now follows the usual advisor with tabs and debug mode layout as other advisor do, and has been enhanced so it now has 4 overview tabs (plus the finance tab that is part of the domestic advisor too now).
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (2).JPG" alt="1.511_domestic_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (3).JPG" alt="1.511_domestic_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (4).JPG" alt="1.511_domestic_advisor (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (5).JPG" alt="1.511_domestic_advisor (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(2).JPG" alt="1.511_domestic_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(3).JPG" alt="1.511_domestic_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(4).JPG" alt="1.511_domestic_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(5).JPG" alt="1.511_domestic_advisor (5).JPG" width="250"></img>
 
 ##### Summary tab (Military Advisor)
 
@@ -365,7 +366,7 @@ It also notably shows wounded information (Max/Avg/Min and Full/High/Medium/Low 
 
 Also added a **legend link**. Implementation details in the Main Changes guide.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (1).JPG" alt="1.515_military_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(1).JPG" alt="1.515_military_advisor (1).JPG" width="250"></img>
 
 ##### Battles tab (Military Advisor)
 
@@ -377,13 +378,13 @@ Some columns are optional to adjust to preference or as the tab is quite loaded 
 
 Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (4).JPG" alt="1.515_military_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(4).JPG" alt="1.515_military_advisor (4).JPG" width="250"></img>
 
 ##### Compostion tab (Military Advisor)
 
 Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Current Unit, Promotion, and Unit Combat counts.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (5).JPG" alt="1.515_military_advisor (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(5).JPG" alt="1.515_military_advisor (5).JPG" width="250"></img>
 
 ##### World Advisor
 
@@ -398,10 +399,10 @@ The World Advisor brings geography, environmental information and recorded setup
 
 See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for details.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (1).JPG" alt="1.517_world_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (2).JPG" alt="1.517_world_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (3).JPG" alt="1.517_world_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (4).JPG" alt="1.517_world_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(1).JPG" alt="1.517_world_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(2).JPG" alt="1.517_world_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(3).JPG" alt="1.517_world_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(4).JPG" alt="1.517_world_advisor (4).JPG" width="250"></img>
 
 ###### Changes tab
 
@@ -424,8 +425,8 @@ Complete captured rows from the larger LOG export include `2026-10-25T19:33:28.6
 
 The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (5).JPG" alt="1.517_world_advisor (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor (6).JPG" alt="1.517_world_advisor (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(5).JPG" alt="1.517_world_advisor (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.517_world_advisor%20(6).JPG" alt="1.517_world_advisor (6).JPG" width="250"></img>
 
 ##### Timeline Tab (in the Info Screen Advisor)
 
@@ -441,12 +442,12 @@ Note: a hybrid DLL compute + Python caching version was tried but load times of 
 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>
 
 One complete captured row from the larger LOG export is `2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started`; see the [captured Timeline export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#info-screen-timeline) for more examples.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5180_info_screen_timeline_dbg_log.PNG" alt="1.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5180_info_screen_timeline_dbg_log.PNG" alt="1.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
 
 ##### Score Tab (in the Info Screen Advisor)
 
@@ -458,31 +459,31 @@ Added a clickable "Legend" text that redirects to Sevopedia Concepts' "Score Tab
 
 Added with the very nice help of GPT-5.3-Codex thanks.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (2).JPG" alt="1.518_info_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(2).JPG" alt="1.518_info_screen (2).JPG" width="250"></img>
 
 #### Advisors adjustments
 
 We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor (1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (1).JPG" alt="1.513_foreign_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (2).JPG" alt="1.513_foreign_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (3).JPG" alt="1.513_foreign_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor (2).JPG" alt="1.514_foreign_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (5).JPG" alt="1.513_foreign_advisor (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (6).JPG" alt="1.513_foreign_advisor (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor (7).JPG" alt="1.513_foreign_advisor (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (2).JPG" alt="1.515_military_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (3).JPG" alt="1.515_military_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (4).JPG" alt="1.518_info_screen (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (5).JPG" alt="1.518_info_screen (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (6).JPG" alt="1.518_info_screen (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen (1).JPG" alt="1.519_victory_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen (2).JPG" alt="1.519_victory_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen (3).JPG" alt="1.519_victory_screen (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen (4).JPG" alt="1.519_victory_screen (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.511_domestic_advisor%20(1).JPG" alt="1.511_domestic_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(1).JPG" alt="1.513_foreign_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(2).JPG" alt="1.513_foreign_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(3).JPG" alt="1.513_foreign_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.514_foreign_advisor%20(2).JPG" alt="1.514_foreign_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(4).JPG" alt="1.513_foreign_advisor (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(5).JPG" alt="1.513_foreign_advisor (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(6).JPG" alt="1.513_foreign_advisor (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.513_foreign_advisor%20(7).JPG" alt="1.513_foreign_advisor (7).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(2).JPG" alt="1.515_military_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor%20(3).JPG" alt="1.515_military_advisor (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(1).JPG" alt="1.518_info_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(4).JPG" alt="1.518_info_screen (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(5).JPG" alt="1.518_info_screen (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(6).JPG" alt="1.518_info_screen (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(1).JPG" alt="1.519_victory_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(2).JPG" alt="1.519_victory_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(3).JPG" alt="1.519_victory_screen (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(4).JPG" alt="1.519_victory_screen (4).JPG" width="250"></img>
 
 ### "Willing to become a vassal" and vassal icons in foreign advisor's glance tab
 
@@ -490,9 +491,9 @@ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too tha
 
 See [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-84).
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5131_foreign_advisor_glance_willing_vassal.jpg" alt="1.5131_foreign_advisor_glance_willing_vassal.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5132_willing_vassal_trade.jpg" alt="1.5132_willing_vassal_trade.jpg" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5133_foreign_advisor_glance_vassal_show.jpg" alt="1.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5131_foreign_advisor_glance_willing_vassal.jpg" alt="1.5131_foreign_advisor_glance_willing_vassal.jpg" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5132_willing_vassal_trade.jpg" alt="1.5132_willing_vassal_trade.jpg" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5133_foreign_advisor_glance_vassal_show.jpg" alt="1.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
 
 ### Inverted BUG options
 
@@ -500,7 +501,7 @@ We find some of the BUG advisor features valuable and not obvious to many player
 
 This means the default is now ON, and ticking the option toggles it to OFF. Applied as of now only to the Tech Advisor and Religion Advisor which we find most valuable. Updated the texts to match this new behaviour and sometimes clarify it (e.g. vague "GP Research" -> clearer "Hide bulbing indicators").
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5200_inverted_bug_advisors.JPG" alt="1.5200_inverted_bug_advisors.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5200_inverted_bug_advisors.JPG" alt="1.5200_inverted_bug_advisors.JPG" width="250"></img>
 
 Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so appear at turn 1 onwards. See [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-85).
 
@@ -508,19 +509,19 @@ Note 2: the tech bulbing indicators may be disabled at turn 0, but should if so 
 
 Beautified the Diplomacy Screen's trading rows with icons (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact, etc; also leader icons ((make peace / declare war / embargo))).
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen (1).JPG" alt="1.970_diplomacy_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen (2).JPG" alt="1.970_diplomacy_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen (3).JPG" alt="1.970_diplomacy_screen (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen%20(1).JPG" alt="1.970_diplomacy_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen%20(2).JPG" alt="1.970_diplomacy_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.970_diplomacy_screen%20(3).JPG" alt="1.970_diplomacy_screen (3).JPG" width="250"></img>
 
 ### Miscellaneous screens
 
 Some miscellaneous screens have been beautified, expanded and maximized to support text upscaling, avoid scrolling, and other enhancements: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen), [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered), [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py), [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py).
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.980_dawn_of_man_screen.JPG" alt="1.980_dawn_of_man_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.981_tech_splash_screen.JPG" alt="1.981_tech_splash_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.982_replay_screen.JPG" alt="1.982_replay_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.983_dan_qayle_screen.JPG" alt="1.983_dan_qayle_screen.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.984_hall_of_fame_screen.JPG" alt="1.984_hall_of_fame_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.980_dawn_of_man_screen.JPG" alt="1.980_dawn_of_man_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.981_tech_splash_screen.JPG" alt="1.981_tech_splash_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.982_replay_screen.JPG" alt="1.982_replay_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.983_dan_qayle_screen.JPG" alt="1.983_dan_qayle_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.984_hall_of_fame_screen.JPG" alt="1.984_hall_of_fame_screen.JPG" width="250"></img>
 
 ### Main Interface rework
 
@@ -540,9 +541,9 @@ Additionally, also added a new specialists breakdown as of now on bottom-right a
 
 The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`).
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen (1).JPG" alt="1.400_city_screen (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen (2).JPG" alt="1.400_city_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen (3).JPG" alt="1.400_city_screen (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(1).JPG" alt="1.400_city_screen (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(2).JPG" alt="1.400_city_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(3).JPG" alt="1.400_city_screen (3).JPG" width="250"></img>
 
 #### Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)
 
@@ -556,16 +557,16 @@ Besides these and other changes in the main changes guide or code only, a notabl
 
 The new + / - scoreboard scroll and scroll fast buttons, center scoreboard scroll on the active player, toggle autocenter scroll on the active player, the do not render beyond bottom of commerce sliders behaviour, toggle lock hover button, and toggle Background Style button (AdvCiv default at each save load/new game kept; tunable) (e.g., blue panel, black50, empty (transparent)) features have been added.
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard (1).JPG" alt="1.410_scoreboard (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard (2).JPG" alt="1.410_scoreboard (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard (3).JPG" alt="1.410_scoreboard (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard%20(1).JPG" alt="1.410_scoreboard (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard%20(2).JPG" alt="1.410_scoreboard (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.410_scoreboard%20(3).JPG" alt="1.410_scoreboard (3).JPG" width="250"></img>
 
 ##### Map annotations
 
 A new toggle button to show or hide map annotations (Alt + S captions or Alt + X BFC marks) in map view has been added. The toggled state persists on save and load. See details in the Main Changes guide.
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.420_annotations (1).JPG" alt="1.420_annotations (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.420_annotations (2).JPG" alt="1.420_annotations (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.420_annotations%20(1).JPG" alt="1.420_annotations (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.420_annotations%20(2).JPG" alt="1.420_annotations (2).JPG" width="250"></img>
 
 ## UI (Main Sevopedia reworks)
 
@@ -587,8 +588,8 @@ Special characters (`()_/*+-=[]'#&~;,:!?.@\|<>`) are supported for keyboard inpu
 
 The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual Sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.610_sevopedia_searchbar (1).JPG" alt="1.610_sevopedia_searchbar (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.610_sevopedia_searchbar (2).JPG" alt="1.610_sevopedia_searchbar (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.610_sevopedia_searchbar%20(1).JPG" alt="1.610_sevopedia_searchbar (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.610_sevopedia_searchbar%20(2).JPG" alt="1.610_sevopedia_searchbar (2).JPG" width="250"></img>
 
 See also [example 0.1: added a search bar. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages) or the main changes guide.
 
@@ -612,9 +613,9 @@ In particular, we now added the new Sevopedia Build's entries in the index too! 
 
 See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category).
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category (1).JPG" alt="1.611_sevopedia_index_as_category (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category (2).JPG" alt="1.611_sevopedia_index_as_category (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category (3).JPG" alt="1.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category%20(1).JPG" alt="1.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category%20(2).JPG" alt="1.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.611_sevopedia_index_as_category%20(3).JPG" alt="1.611_sevopedia_index_as_category (3).JPG" width="250"></img>
 
 #### Media File playing (e.g. Movies with audio support, Music with ~1750 audio scripts that can be listened to in Sevopedia)
 
@@ -630,12 +631,12 @@ Supports Previous Track and Next track, Toggle Movies/Music button, Fast Up and 
 
 See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (1).JPG" alt="1.810_sevopedia_media_player (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (2).JPG" alt="1.810_sevopedia_media_player (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (3).JPG" alt="1.810_sevopedia_media_player (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (4).JPG" alt="1.810_sevopedia_media_player (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (5).JPG" alt="1.810_sevopedia_media_player (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player (6).JPG" alt="1.810_sevopedia_media_player (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(1).JPG" alt="1.810_sevopedia_media_player (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(2).JPG" alt="1.810_sevopedia_media_player (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(3).JPG" alt="1.810_sevopedia_media_player (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(4).JPG" alt="1.810_sevopedia_media_player (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(5).JPG" alt="1.810_sevopedia_media_player (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.810_sevopedia_media_player%20(6).JPG" alt="1.810_sevopedia_media_player (6).JPG" width="250"></img>
 
 ##### Movies
 
@@ -643,8 +644,8 @@ Multiple categories are supported, as of now Victories, Wonders, Projects, Relig
 
 A clickable emoji-based Play Button has been provided. See [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.820_sevopedia_movies (1).JPG" alt="1.820_sevopedia_movies (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.820_sevopedia_movies (2).JPG" alt="1.820_sevopedia_movies (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.820_sevopedia_movies%20(1).JPG" alt="1.820_sevopedia_movies (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.820_sevopedia_movies%20(2).JPG" alt="1.820_sevopedia_movies (2).JPG" width="250"></img>
 
 ##### Music
 
@@ -654,9 +655,9 @@ And a play Button is provided. Among assets, notably but not only, each Tech's, 
 
 See [Sevopedia Reworks (Movies category (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support)
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music (1).JPG" alt="1.830_sevopedia_music (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music (3).JPG" alt="1.830_sevopedia_music (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music (4).JPG" alt="1.830_sevopedia_music (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music%20(1).JPG" alt="1.830_sevopedia_music (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music%20(3).JPG" alt="1.830_sevopedia_music (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.830_sevopedia_music%20(4).JPG" alt="1.830_sevopedia_music (4).JPG" width="250"></img>
 
 #### Expanded Panels
 
@@ -670,9 +671,9 @@ Similarly also added expanded leaderhead panel. It does not have a RELOAD button
 
 Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.840_sevopedia_expanded_text (2).JPG" alt="1.840_sevopedia_expanded_text (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.841_sevopedia_expanded_content (2).JPG" alt="1.841_sevopedia_expanded_content (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.842_sevopedia_expanded_lh (1).JPG" alt="1.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.840_sevopedia_expanded_text%20(2).JPG" alt="1.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.841_sevopedia_expanded_content%20(2).JPG" alt="1.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.842_sevopedia_expanded_lh%20(1).JPG" alt="1.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
 
 ### Other new categories
 
@@ -688,7 +689,7 @@ Trait links replaced the old clunky base AdvCiv `CONCEPT_TRAIT` entries, which a
 
 Routes (e.g. Road and Railroad) got their own Sevopedia Routes category page instead of linking to their Builds (see [Sevopedia Reworks: example 0.43 Routes category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-043-routes-category-routeinfo-eg-road-and-railroad)), with the help of GPT-6.1-Sol and Claude code Opus 5.5, thanks a lot!
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.721_sevopedia_builds (1).JPG" alt="1.721_sevopedia_builds (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.721_sevopedia_builds%20(1).JPG" alt="1.721_sevopedia_builds (1).JPG" width="250"></img>
 
 #### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
 
@@ -713,10 +714,10 @@ WorldInfo grid dimensions are terrain-cell units rather than final playable-plot
 
 Also, the Eras Chart page also features optional era buttons.
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.625_sevopedia_handicaps_chart (1).JPG" alt="1.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.626_sevopedia_game_speeds_chart (2).JPG" alt="1.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.627_sevopedia_world_sizes_chart.JPG" alt="1.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.628_sevopedia_eras_chart (1).JPG" alt="1.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.625_sevopedia_handicaps_chart%20(1).JPG" alt="1.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.626_sevopedia_game_speeds_chart%20(2).JPG" alt="1.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.627_sevopedia_world_sizes_chart.JPG" alt="1.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.628_sevopedia_eras_chart%20(1).JPG" alt="1.628_sevopedia_eras_chart (1).JPG" width="250"></img>
 
 ### Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)
 
@@ -740,27 +741,27 @@ Another notable addition is the new sevopedia leader Attitude (furious, annoyed,
 
 Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.620_sevopedia_leaders (1).JPG" alt="1.620_sevopedia_leaders (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.624_sevopedia_traits (1).JPG" alt="1.624_sevopedia_traits (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.630_sevopedia_unit_chart (1).JPG" alt="1.630_sevopedia_unit_chart (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.700_sevopedia_terrains (1).JPG" alt="1.700_sevopedia_terrains (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.640_sevopedia_features (1).JPG" alt="1.640_sevopedia_features (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.720_sevopedia_improvements (1).JPG" alt="1.720_sevopedia_improvements (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.650_sevopedia_bonuses (1).JPG" alt="1.650_sevopedia_bonuses (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.660_sevopedia_religions.JPG" alt="1.660_sevopedia_religions.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.670_sevopedia_civilizations (1).JPG" alt="1.670_sevopedia_civilizations (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.680_sevopedia_units (1).JPG" alt="1.680_sevopedia_units (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.690_sevopedia_buildings (1).JPG" alt="1.690_sevopedia_buildings (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.710_sevopedia_techs (2).JPG" alt="1.710_sevopedia_techs (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.730_sevopedia_promotions (3).JPG" alt="1.730_sevopedia_promotions (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.740_sevopedia_civics (1).JPG" alt="1.740_sevopedia_civics (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.750_sevopedia_projects (1).JPG" alt="1.750_sevopedia_projects (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.760_sevopedia_specialists (1).JPG" alt="1.760_sevopedia_specialists (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.770_sevopedia_corporations (2).JPG" alt="1.770_sevopedia_corporations (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.850_sevopedia_shortcuts (1).JPG" alt="1.850_sevopedia_shortcuts (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.860_sevopedia_votes (3).JPG" alt="1.860_sevopedia_votes (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.870_sevopedia_eventtriggers (3).JPG" alt="1.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (2).JPG" alt="1.880_sevopedia_routes (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.620_sevopedia_leaders%20(1).JPG" alt="1.620_sevopedia_leaders (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.624_sevopedia_traits%20(1).JPG" alt="1.624_sevopedia_traits (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.630_sevopedia_unit_chart%20(1).JPG" alt="1.630_sevopedia_unit_chart (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.700_sevopedia_terrains%20(1).JPG" alt="1.700_sevopedia_terrains (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.640_sevopedia_features%20(1).JPG" alt="1.640_sevopedia_features (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.720_sevopedia_improvements%20(1).JPG" alt="1.720_sevopedia_improvements (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.650_sevopedia_bonuses%20(1).JPG" alt="1.650_sevopedia_bonuses (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.660_sevopedia_religions.JPG" alt="1.660_sevopedia_religions.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.670_sevopedia_civilizations%20(1).JPG" alt="1.670_sevopedia_civilizations (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.680_sevopedia_units%20(1).JPG" alt="1.680_sevopedia_units (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.690_sevopedia_buildings%20(1).JPG" alt="1.690_sevopedia_buildings (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.710_sevopedia_techs%20(2).JPG" alt="1.710_sevopedia_techs (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.730_sevopedia_promotions%20(3).JPG" alt="1.730_sevopedia_promotions (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.740_sevopedia_civics%20(1).JPG" alt="1.740_sevopedia_civics (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.750_sevopedia_projects%20(1).JPG" alt="1.750_sevopedia_projects (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.760_sevopedia_specialists%20(1).JPG" alt="1.760_sevopedia_specialists (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.770_sevopedia_corporations%20(2).JPG" alt="1.770_sevopedia_corporations (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.850_sevopedia_shortcuts%20(1).JPG" alt="1.850_sevopedia_shortcuts (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.860_sevopedia_votes%20(3).JPG" alt="1.860_sevopedia_votes (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.870_sevopedia_eventtriggers%20(3).JPG" alt="1.870_sevopedia_eventtriggers (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes%20(2).JPG" alt="1.880_sevopedia_routes (2).JPG" width="250"></img>
 
 #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
 
@@ -792,8 +793,8 @@ Added new concepts, as of now:
 - concept_rivers
 - concept_scoring_system
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.800_sevopedia_conceptinfos (1).JPG" alt="1.800_sevopedia_conceptinfos (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.800_sevopedia_conceptinfos (2).JPG" alt="1.800_sevopedia_conceptinfos (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.800_sevopedia_conceptinfos%20(1).JPG" alt="1.800_sevopedia_conceptinfos (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.800_sevopedia_conceptinfos%20(2).JPG" alt="1.800_sevopedia_conceptinfos (2).JPG" width="250"></img>
 
 #### Mods Info
 
@@ -809,7 +810,7 @@ The Sevopedia "Mods Info" category (reusing the old civ4 concepts category or si
 
 Example screenshot:
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.805_sevopedia_k-mod_to_advciv.JPG" alt="1.805_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.805_sevopedia_k-mod_to_advciv.JPG" alt="1.805_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
 
 See also the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#history-lineage), for developers: how the source code itself descends from Civ4 through Better BTS AI, K-Mod and AdvCiv, with authors and dates.
 
@@ -817,9 +818,9 @@ See also the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#his
 
 We also use the Mods info category to show the legend of some tables or abbreviations, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend (1).JPG" alt="1.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend (2).JPG" alt="1.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend (3).JPG" alt="1.806_sevopedia_mods_info_legend (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend%20(1).JPG" alt="1.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend%20(2).JPG" alt="1.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.806_sevopedia_mods_info_legend%20(3).JPG" alt="1.806_sevopedia_mods_info_legend (3).JPG" width="250"></img>
 
 ## UI (Common)
 
@@ -842,7 +843,7 @@ The relevant files can be found in:
 
 For example we added the new this technology "Cannot be traded" and "Can be researched multiple times" info (displayed if still enabled in our mod after this screenshot was made, but the option is there to accommodate any XML that has this option enabled for a tech as in the screenshot) in Sevopedia tech and in the tech advisor as show below:
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5000_bTrade_bRepeat.JPG" alt="1.5000_bTrade_bRepeat.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5000_bTrade_bRepeat.JPG" alt="1.5000_bTrade_bRepeat.JPG" width="250"></img>
 
 See also:
 
@@ -854,9 +855,9 @@ See also:
 
 Before going more in depth about/in the changes and how to play or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or bigger size)
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.5160_tech_tree_merged.png" alt="1.5160_tech_tree_merged.png" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor (1).JPG" alt="1.516_technology_advisor (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor (2).JPG" alt="1.516_technology_advisor (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.5160_tech_tree_merged.png" alt="1.5160_tech_tree_merged.png" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(1).JPG" alt="1.516_technology_advisor (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.516_technology_advisor%20(2).JPG" alt="1.516_technology_advisor (2).JPG" width="250"></img>
 
 For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
@@ -864,8 +865,8 @@ For more details on how the tech tree was made, which historical timeline it fol
 
 As of now the military tree is as such in AdvCiv-SAS (please view ingame or in XML for updated version if any changes have been made since then)
 
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.60_military_tree (1).JPG" alt="1.60_military_tree (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.60_military_tree (2).JPG" alt="1.60_military_tree (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.60_military_tree%20(1).JPG" alt="1.60_military_tree (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.60_military_tree%20(2).JPG" alt="1.60_military_tree (2).JPG" width="250"></img>
 
 See [README_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md).
 
@@ -875,10 +876,10 @@ These are from autoplay or me playing them myself (for the 4986 rome AI screensh
 
 Both of these maps were pangea at monarch handicap. Later screenshots are from version 5055 and around version 5200 and 5085.
 
-<img src="./_1_AdvCiv-SAS/Images/samples/1.960_gameplay_4986_monarch_1.JPG" alt="1.960_gameplay_4986_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/samples/1.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="1.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/samples/1.962_autoplay_pre_5200_noble_1 (1).JPG" alt="1.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/samples/1.963_autoplay_pre_5385_monarch_1.JPG" alt="1.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/samples/1.960_gameplay_4986_monarch_1.JPG" alt="1.960_gameplay_4986_monarch_1.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/samples/1.961_autoplay_pre_5055_monarch_1%20(2).JPG" alt="1.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/samples/1.962_autoplay_pre_5200_noble_1%20(1).JPG" alt="1.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/samples/1.963_autoplay_pre_5385_monarch_1.JPG" alt="1.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
 
 See also the google drive link (see the [Artifacts and references section](/README.md#artifacts-and-references-docs-images-examples) for the link) for more gameplay samples, although some of these may be old/dated now.
 
@@ -1103,10 +1104,10 @@ We have added our own new mapscripts in AdvCiv-SAS, notably [`SAS_Longworld.py`]
 
 Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and player count.
 
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld (1).JPG" alt="1.3202_maps_sas_longworld (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld (2).JPG" alt="1.3202_maps_sas_longworld (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld (3).JPG" alt="1.3202_maps_sas_longworld (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld (4).JPG" alt="1.3202_maps_sas_longworld (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld%20(1).JPG" alt="1.3202_maps_sas_longworld (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld%20(2).JPG" alt="1.3202_maps_sas_longworld (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld%20(3).JPG" alt="1.3202_maps_sas_longworld (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3202_maps_sas_longworld%20(4).JPG" alt="1.3202_maps_sas_longworld (4).JPG" width="250"></img>
 
 #### SAS_Spiky_Avenues
 
@@ -1114,10 +1115,10 @@ Similarly we also added our new original [`SAS_Spiky_Avenues.py`](/PrivateMaps/S
 
 >Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
 
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues (1).JPG" alt="1.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues (2).JPG" alt="1.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues (3).JPG" alt="1.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues (4).JPG" alt="1.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues%20(1).JPG" alt="1.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues%20(2).JPG" alt="1.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues%20(3).JPG" alt="1.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3203_maps_sas_spiky_avenues%20(4).JPG" alt="1.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
 
 #### SAS_Large_Facing_Islands
 
@@ -1125,10 +1126,10 @@ Similarly we also added our new original [`SAS_Spiky_Avenues.py`](/PrivateMaps/S
 
 >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
 
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands (1).JPG" alt="1.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands (2).JPG" alt="1.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands (3).JPG" alt="1.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands (4).JPG" alt="1.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands%20(1).JPG" alt="1.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands%20(2).JPG" alt="1.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands%20(3).JPG" alt="1.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3204_maps_sas_large_facing_islands%20(4).JPG" alt="1.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
 
 #### SAS_Parallel_Lines
 
@@ -1136,10 +1137,10 @@ Similarly we also added our new original [`SAS_Spiky_Avenues.py`](/PrivateMaps/S
 
 >Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
 
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines (1).JPG" alt="1.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines (2).JPG" alt="1.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines (3).JPG" alt="1.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines (4).JPG" alt="1.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines%20(1).JPG" alt="1.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines%20(2).JPG" alt="1.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines%20(3).JPG" alt="1.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3205_maps_sas_parallel_lines%20(4).JPG" alt="1.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
 
 ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 
@@ -1151,9 +1152,9 @@ Note: we also removed some non-essential maps from the Simple Game menu; they re
 
 Some of them are selectable in the Simple Game menu, while others only via Custom Game.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game (1).JPG" alt="1.310_main_menu_simple_game (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3200_new_maps_btg_cross (1).JPG" alt="1.3200_new_maps_btg_cross (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3200_new_maps_btg_cross (2).JPG" alt="1.3200_new_maps_btg_cross (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(1).JPG" alt="1.310_main_menu_simple_game (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3200_new_maps_btg_cross%20(1).JPG" alt="1.3200_new_maps_btg_cross (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3200_new_maps_btg_cross%20(2).JPG" alt="1.3200_new_maps_btg_cross (2).JPG" width="250"></img>
 
 ### New .dds for mapscripts in Simple Game
 
@@ -1163,19 +1164,19 @@ This definitely feels like masonry but works and fun xd i guess after having ted
 
 Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
 
-<img src="./_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (1).PNG" alt="1.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (2).PNG" alt="1.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map%20(1).PNG" alt="1.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map%20(2).PNG" alt="1.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
 
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (1).JPG" alt="1.3201_maps_simple_game (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (2).JPG" alt="1.3201_maps_simple_game (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (3).JPG" alt="1.3201_maps_simple_game (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (4).JPG" alt="1.3201_maps_simple_game (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (5).JPG" alt="1.3201_maps_simple_game (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (6).JPG" alt="1.3201_maps_simple_game (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (7).JPG" alt="1.3201_maps_simple_game (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (8).JPG" alt="1.3201_maps_simple_game (8).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (9).JPG" alt="1.3201_maps_simple_game (9).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (10).JPG" alt="1.3201_maps_simple_game (10).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(1).JPG" alt="1.3201_maps_simple_game (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(2).JPG" alt="1.3201_maps_simple_game (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(3).JPG" alt="1.3201_maps_simple_game (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(4).JPG" alt="1.3201_maps_simple_game (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(5).JPG" alt="1.3201_maps_simple_game (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(6).JPG" alt="1.3201_maps_simple_game (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(7).JPG" alt="1.3201_maps_simple_game (7).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(8).JPG" alt="1.3201_maps_simple_game (8).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(9).JPG" alt="1.3201_maps_simple_game (9).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(10).JPG" alt="1.3201_maps_simple_game (10).JPG" width="250"></img>
 
 ## SASFastSave
 
@@ -1513,9 +1514,9 @@ A [test run confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/act
 
 See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow). Added with the very nice help of GPT-5.5 (on Codex) and ChatGPT-5.5 thanks a lot.
 
-<img src="./_1_AdvCiv-SAS/Images/tools/1.280_py_2.4_pass_previously.PNG" alt="1.280_py_2.4_pass_previously.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.280_py_2.4_pass_previously.PNG" alt="1.280_py_2.4_pass_previously.PNG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/tools/1.281_break_test_ternary_vs_code.PNG" alt="1.281_break_test_ternary_vs_code.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/tools/1.282_py_2.4_successfully_broken.PNG" alt="1.282_py_2.4_successfully_broken.PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/tools/1.282_py_2.4_successfully_broken.PNG" alt="1.282_py_2.4_successfully_broken.PNG" width="250"></img>
 
 ### Light-source ZIP
 
@@ -1994,7 +1995,7 @@ Non-exhaustive list below:
 - the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
 - Legacy Civilopedia: AdvCiv-SAS supports Sevopedia, which is enabled by default. The older Civilopedia option remains in the inherited code but has not been validated in this work; it may function partly and omit SAS information, including Sevopedia-only categories such as Music, Votes and Event Triggers.
 - BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).
-- Multiplayer gameplay: we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we don't use multiplayer so no need to support it).
+- **Multiplayer gameplay** is unsupported and may have issues. The [two-client LAN walkthrough](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md) shows how we adapted the base AdvCiv instructions to run two Steam clients on the same Windows computer and join the same LAN game.
 - Base AdvCiv previous behaviour and now an issue in AdvCiv-SAS of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): AdvCiv-SAS changes raw XML ids for game speeds, world sizes, handicaps, and other modded data; we also do not want AdvCiv-SAS data to tediously and needlessly be supported in unmodded BTS or vice-versa (launch from AdvCiv-SAS or unmodded BTS depending on data rather than make them tediously/needlessly vanilla BtS-compatible).
   - This does not affect normal saves or gameplay.
   - See also [KI#166](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166).
@@ -2035,10 +2036,10 @@ Extracted archives use `dirty=-1` because post-download edits cannot be verified
 
 The current runtime source and, where relevant, a loaded save's persisted source-revision history are also visible in-game, notably in the Victory Screen Settings tab, Sevopedia **Mods Info -> Mod Version / Source**, the BUG options **System** tab, and Replay.
 
-<img src="./_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen (2).JPG" alt="1.519_victory_screen (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/sevopedia/1.807_sevopedia_mods_info_version.JPG" alt="1.807_sevopedia_mods_info_version.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.430_bug_menu_version.JPG" alt="1.430_bug_menu_version.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/1.982_replay_screen.JPG" alt="1.982_replay_screen.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/advisors/1.519_victory_screen%20(2).JPG" alt="1.519_victory_screen (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/sevopedia/1.807_sevopedia_mods_info_version.JPG" alt="1.807_sevopedia_mods_info_version.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.430_bug_menu_version.JPG" alt="1.430_bug_menu_version.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.982_replay_screen.JPG" alt="1.982_replay_screen.JPG" width="250"></img>
 
 Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so.
 
@@ -2062,8 +2063,8 @@ See:
 
 - [CFC forum CuCuGS topic](https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/post-16903059)
 
-<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS%20(1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS%20(2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
 
 ## CivFanatics (CFC) development discontinuation
 

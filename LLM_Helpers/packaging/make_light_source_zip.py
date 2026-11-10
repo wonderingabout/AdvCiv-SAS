@@ -60,11 +60,13 @@ EXTRA_SUBDIRS = (
 
 # <!-- custom: Optional screenshot folders supply visual LLM/code-agent context.
 # diagnostics groups game-generated output (SGR/map text and runtime failure dialogs), distinct from external tools or LLM conversations.
-# Keep this explicit instead of including all image folders so broad image additions do not silently bloat the archive. (GPT-6.1-Sol) -->
+# multiple_instances holds the two-client LAN walkthrough, kept apart from diagnostics since it shows the game's menus and chat, not diagnostic output.
+# Keep this explicit instead of including all image folders so broad image additions do not silently bloat the archive. (GPT-6.1-Sol + Claude Code Opus 5.5) -->
 IMAGE_SUBDIRS = (
     "_1_AdvCiv-SAS/Images/advisors",
     "_1_AdvCiv-SAS/Images/main_menu",
     "_1_AdvCiv-SAS/Images/diagnostics",
+    "_1_AdvCiv-SAS/Images/multiple_instances",
     "_1_AdvCiv-SAS/Images/sevopedia",
     "_1_AdvCiv-SAS/Images/ui_other",
 )

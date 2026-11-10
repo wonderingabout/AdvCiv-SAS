@@ -22,6 +22,10 @@ DEFINES_PATH = next(path for path in Path(__file__).resolve().parents if path.na
 DEV_DIAGNOSTICS = {
     "SAS_SGR_LOG": (0, 3),
     "SAS_SGR_MAP_ANNOTATION_TEXT_ON": (0, 1),
+    # <!-- custom: The local chat test profile captures all three channels; off restores each privacy default. (GPT-6.1-Sol) -->
+    "SAS_SGR_CHAT_ALL_TEXT_ON": (0, 1),
+    "SAS_SGR_CHAT_TEAM_TEXT_ON": (0, 1),
+    "SAS_SGR_CHAT_DIRECT_TEXT_ON": (0, 1),
     "SAS_RUNTIME_STATUS_ON": (0, 1),
     "SAS_RUNTIME_SCREENSHOT_WATCH_ON": (0, 1),
     "SAS_RUNTIME_SOURCE_WATCH_ON": (0, 1),

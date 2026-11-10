@@ -4,10 +4,10 @@
     "configuration":  "Release",
     "target":  "Release",
     "request":  "BUILD",
-    "startedUtc":  "2026-11-08T17:23:44.716Z",
+    "startedUtc":  "2026-11-10T15:10:16.929Z",
     "branch":  "main",
-    "commit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-    "workingTreeStatus":  "M  AGENTS.md\nM  Assets/CvGameCoreDLL.dll\nM  Assets/CvGameCoreDLL.dll.build.json\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaMain.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py\nA  Assets/Python/Contrib/Sevopedia/SevoPediaRoute.py\nA  Assets/Python/Contrib/Sevopedia/SevoPediaRouteUtils.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaTech.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py\nMM Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py\nM  Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py\nMM Assets/Python/EntryPoints/CvScreensInterface.py\nM  Assets/Python/SASMagicNumbers.py\nM  Assets/Python/Screens/CvScreenEnums.py\nMM Assets/Python/Screens/CvTechChooser.py\nM  Assets/Python/Screens/CvWorldAdvisorScreen.py\nM  Assets/XML/BasicInfos/CIV4NewConceptInfos.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Misc/CIV4RouteInfos.xml\nM  Assets/XML/Text/AdvCiv-SAS_Core.xml\nM  Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml\nM  Assets/XML/Text/AdvCiv-SAS_main.xml\nMM CvGameCoreDLL/CvDLLWidgetData.cpp\nM  CvGameCoreDLL/CvDLLWidgetData.h\nM  CvGameCoreDLL/CvEnums.h\nMM CvGameCoreDLL/CvGameTextMgr.cpp\nM  CvGameCoreDLL/CvGameTextMgr.h\nM  CvGameCoreDLL/CyEnumsInterface.cpp\nM  CvGameCoreDLL/CyGameTextMgr.cpp\nM  CvGameCoreDLL/CyGameTextMgr.h\nM  CvGameCoreDLL/CyGameTextMgrInterface.cpp\nM  README.md\nMM _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nMM _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md\nA  _1_AdvCiv-SAS/Docs/Sevopedia/Debug/__SevoPediaRoute-gc-inner.txt\nA  \"_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (1).JPG\"\nA  \"_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (2).JPG\"",
+    "commit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+    "workingTreeStatus":  "M  .github/workflows/README.md\nM  .github/workflows/build/README.md\nM  .github/workflows/build/diagnostics/sas_game_record_log.py\nM  .github/workflows/build/documentation/markdown_images.py\nM  .github/workflows/build/documentation/markdown_links.py\nM  .markdownlint.jsonc\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/CvPlayer.cpp\nM  CvGameCoreDLL/SASGameRecordLog.cpp\nM  CvGameCoreDLL/SASGameRecordLog.h\nM  LLM_Helpers/README.md\nM  LLM_Helpers/diagnostics/toggle_dev_diagnostics.py\nM  README.md\nM  _1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Military_Tree.md\nA  _1_AdvCiv-SAS/Docs/README_Multiple_Instances.md\nM  _1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md\nM  _1_AdvCiv-SAS/Docs/README_Tech_Tree.md\nM  _1_AdvCiv-SAS/Docs/changelogs_web/README.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASRuntime.md\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_00a_custom_single_first_second.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_00b_left_right_windows.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_01_left_multiplayer.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_02_left_lan_lobby.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_03_left_new_game.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_04_right_multiplayer.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_05_right_lan_lobby.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_06_left_map_change.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_07_right_refresh.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_08_right_join.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_09_right_ready_left_ready_multiplayer_tab.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_10_both_dawn_of_man.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_11_left_all_chat.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_12_right_all_chat_reply.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_13_both_chat_private.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_14_left_t0_finished.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_15_right_t0_finished.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_16_both_chat_logs_team.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_16_right_t0_ended.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_17_t1_left_ended_right_still_playing.JPG",
     "invocation":  {
                        "entryMode":  "IDE_SWITCH",
                        "powershellVersion":  "5.1.19041.6456",
@@ -17,21 +17,21 @@
                        "ancestorState":  "OBSERVED",
                        "ancestors":  [
                                          {
-                                             "processId":  34124,
+                                             "processId":  10332,
                                              "name":  "cmd.exe",
                                              "path":  "C:\\Windows\\SysWOW64\\cmd.exe",
                                              "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
                                              "productVersion":  "10.0.19041.4522"
                                          },
                                          {
-                                             "processId":  12244,
+                                             "processId":  22400,
                                              "name":  "MSBuild.exe",
                                              "path":  "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe",
                                              "fileVersion":  "4.8.9037.0 built by: NET481REL1",
                                              "productVersion":  "4.8.9037.0"
                                          },
                                          {
-                                             "processId":  37460,
+                                             "processId":  20788,
                                              "name":  "VCExpress.exe",
                                              "path":  "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\VCExpress.exe",
                                              "fileVersion":  "10.0.30319.1 built by: RTMRel",
@@ -81,304 +81,59 @@
                   },
     "sourceProvenance":  {
                              "available":  true,
-                             "commit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
+                             "commit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
                              "branch":  "main",
-                             "version":  "6733",
+                             "version":  "6744",
                              "history":  "FULL",
                              "defaultBranch":  "main",
-                             "defaultCommit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-                             "defaultVersion":  "6733",
+                             "defaultCommit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+                             "defaultVersion":  "6744",
                              "defaultRefSource":  "LOCAL_BRANCH",
-                             "mergeBaseCommit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-                             "mergeBaseVersion":  "6733",
+                             "mergeBaseCommit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+                             "mergeBaseVersion":  "6744",
                              "branchRelation":  "AT_DEFAULT",
                              "currentOnlyCommits":  0,
                              "defaultOnlyCommits":  0,
                              "stagedCodeRulesDiff":  {
                                                          "available":  true,
                                                          "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                         "diffBytes":  173877,
-                                                         "sha256":  "B97A3B03DD919EBC88F8CA567F30AF14BABADB1C240EBC66450717DD6F07E79C",
-                                                         "fileCount":  44,
+                                                         "diffBytes":  13150,
+                                                         "sha256":  "81D46487B4E9A65A9924ED3EB9C9046DC0A8A80BF80C24105EFF43EDD372E2CC",
+                                                         "fileCount":  4,
                                                          "files":  [
                                                                        {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py",
-                                                                           "diffBytes":  3891,
-                                                                           "sha256":  "4BFD2E398A8A469705D119ACCAA8C14B04463629EBD0D4FA80D1D852D7C434A0"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py",
-                                                                           "diffBytes":  9270,
-                                                                           "sha256":  "4441104ABAE27A4499E4F571C2F9760DC7008CEF2FEFE14A23954367F1B97565"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py",
-                                                                           "diffBytes":  2708,
-                                                                           "sha256":  "C81F73685FF25A65C5A8F578E199657E83D7DE0215518B3585A029537BFBB2B1"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py",
-                                                                           "diffBytes":  1599,
-                                                                           "sha256":  "DC6EC7AB8F7DF209D3E434BEF8CFA78B4D3117ECA039865EAC49CA5429EA15BC"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py",
-                                                                           "diffBytes":  7539,
-                                                                           "sha256":  "B72058AA1A03FC84A5F7656F41A08C6C823F8B845F7C1C769020A4F1B6184750"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py",
-                                                                           "diffBytes":  5154,
-                                                                           "sha256":  "657553E03616522AD25CBC3080D20EAFD096ABC8EF112F094E725F2CC309648B"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py",
-                                                                           "diffBytes":  4240,
-                                                                           "sha256":  "31E4FF1BCACFA17074729D38341015CA289CF9A3A97E6F74DB4D9B916CE18809"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py",
-                                                                           "diffBytes":  1696,
-                                                                           "sha256":  "529A8407D153CF69D81BA7C8BEED84F89B7F4C43EDE22FFEFAB6F1C0EB7740C4"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py",
-                                                                           "diffBytes":  1685,
-                                                                           "sha256":  "632F9DC4922D435244750D40C1B9D239C410A55ED14D07E0086DF964DE8D7EDE"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py",
-                                                                           "diffBytes":  3036,
-                                                                           "sha256":  "EE4F79CAE4E75375A05242D1EF8000E6F811000322D3B9AAF1F16EB7AB8B91E1"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py",
-                                                                           "diffBytes":  5095,
-                                                                           "sha256":  "300CB2935B118AC9D8D2437ED74D34F65B042F071A60D1773885B2BEC5D0BEB4"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaMain.py",
-                                                                           "diffBytes":  19690,
-                                                                           "sha256":  "4E477B4BC6409173B513EE0AFD03A17B706AC579EB58A14A733BCE4138EC13DB"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py",
-                                                                           "diffBytes":  1923,
-                                                                           "sha256":  "71FCA0321CF8BDF183C0658E8A962071125A91D1FEC9FF602C2D36A4F334D808"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py",
-                                                                           "diffBytes":  1294,
-                                                                           "sha256":  "14ABA53036A94B2B0FD6AF76B8AA6FA44ED79AC6904E66E7B34058D32E782998"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaRoute.py",
-                                                                           "diffBytes":  25955,
-                                                                           "sha256":  "009AE3936CB78C01241E45FF2275411BC67076C6BB888528407B55594A7FAADB"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaRouteUtils.py",
-                                                                           "diffBytes":  1996,
-                                                                           "sha256":  "2B0CE06F43EDC4765B2D5966BC7C5B64FC7E6796B8D765158FAC11C509ECC7F0"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py",
-                                                                           "diffBytes":  1221,
-                                                                           "sha256":  "E602144CD133C004734D044F6058AFCF9132DCE1C9BEA3011B728AB326FBE2D5"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTech.py",
-                                                                           "diffBytes":  3820,
-                                                                           "sha256":  "3DC0E2453615C693E9A218A587F3BC20EED9D43E54087688FC48A23F8D910FD4"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py",
-                                                                           "diffBytes":  1912,
-                                                                           "sha256":  "B5E84BCC7957AF7717648650BEF63900E4DD1C8085508794CC51323BFFC252C2"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py",
-                                                                           "diffBytes":  2405,
-                                                                           "sha256":  "BE1B59425FCF0B92EAE5AFBBDBB66725F578950E7F54EE178A15D2028E165C1B"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py",
-                                                                           "diffBytes":  2822,
-                                                                           "sha256":  "143A5A0406547E4D75AB9ACB736C4197056DAB0524844B35932165805363B8CD"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py",
-                                                                           "diffBytes":  1696,
-                                                                           "sha256":  "D780C7D5BFA4C220E1E39D9D2D9F4EEA52394FC09FD76A1FB44E1623D67FBD5A"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py",
-                                                                           "diffBytes":  2087,
-                                                                           "sha256":  "51329F36F15B252C97F8D98074E63ABF022EC9AE11AD47B83C5842DAFB23BB05"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py",
-                                                                           "diffBytes":  4537,
-                                                                           "sha256":  "9C94C1C35A8C46CD724E56B49C400D2A3D3C14F69E3A7820E73C12272EFBA529"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/EntryPoints/CvScreensInterface.py",
-                                                                           "diffBytes":  3765,
-                                                                           "sha256":  "9C6675ACCF09F89F51976827AF648598F7FA74B9EFEB25E169734E076905CDC3"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/SASMagicNumbers.py",
-                                                                           "diffBytes":  2051,
-                                                                           "sha256":  "330766EA2C4DC0AC3CCFECACC186311369EE8BDAF8B5EC5B7600D9054CF480D7"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Screens/CvScreenEnums.py",
-                                                                           "diffBytes":  572,
-                                                                           "sha256":  "A47D92637C1C0446FA456D820CCC8A4F4D0A7B71ED0D1681F8F405A8DCBE63CE"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Screens/CvTechChooser.py",
-                                                                           "diffBytes":  5662,
-                                                                           "sha256":  "8310ED15A178E0A3597093652C84EDBB75FCF88AD3846D497872FE5EBDE54476"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Screens/CvWorldAdvisorScreen.py",
-                                                                           "diffBytes":  1282,
-                                                                           "sha256":  "364E1D667DB8B5F26C454A83EB9C2385CAE0FA328C98A7B64936CE05410D7486"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/XML/BasicInfos/CIV4NewConceptInfos.xml",
-                                                                           "diffBytes":  870,
-                                                                           "sha256":  "ADD328F55D6C272A9142E72F676A6E9575A25AC93F8B3A0E6F6EEF4B07BDC4B5"
-                                                                       },
-                                                                       {
                                                                            "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                           "diffBytes":  821,
-                                                                           "sha256":  "373B581FAD57BA4D1611AEB13FF1344EE387349FF6D841DB5AEF85234C521396"
+                                                                           "diffBytes":  2301,
+                                                                           "sha256":  "1D3C0AF1451C9836572DC11504F2E8BBB7D76DF6467807D6E8FF35649302B237"
                                                                        },
                                                                        {
-                                                                           "path":  "Assets/XML/Misc/CIV4RouteInfos.xml",
-                                                                           "diffBytes":  1576,
-                                                                           "sha256":  "D02F5C508732D95841DB9DA02C4D59EFD19857632C4721C34B4AD483F8992DBC"
+                                                                           "path":  "CvGameCoreDLL/CvPlayer.cpp",
+                                                                           "diffBytes":  1437,
+                                                                           "sha256":  "C35A531E4EF0CE49C67A9B5902813E2D86C1E7D35BE90F6A461F7F47B4A46447"
                                                                        },
                                                                        {
-                                                                           "path":  "Assets/XML/Text/AdvCiv-SAS_Core.xml",
-                                                                           "diffBytes":  11447,
-                                                                           "sha256":  "013D464223F5B5DB36AE41B1A4BF3D1964EC2B70960F5965D428227A9D602B26"
+                                                                           "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
+                                                                           "diffBytes":  6689,
+                                                                           "sha256":  "8D777F3E0350A7EBD2085F48AEECB9BD4ED14C0AD43A8B3175D0B248604FB84C"
                                                                        },
                                                                        {
-                                                                           "path":  "Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml",
-                                                                           "diffBytes":  1235,
-                                                                           "sha256":  "7658DAD4B42D539B4F4733544CC80502D0B449826F2B9F6CEC9A776B471B075F"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/XML/Text/AdvCiv-SAS_main.xml",
-                                                                           "diffBytes":  4995,
-                                                                           "sha256":  "BE92D47FC43297EEB3051CAD68791072F45BC5EA68D0D3B960244045C6C5DA9F"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
-                                                                           "diffBytes":  9709,
-                                                                           "sha256":  "A9A121F66379D0FAD50DDCD43375F2F4527C90A63CF0DC73865AC2518C25032F"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CvDLLWidgetData.h",
-                                                                           "diffBytes":  1302,
-                                                                           "sha256":  "3FC86D106221EF308A890459C31DD4464EF1796A43D207726B91B732DD0C6208"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CvEnums.h",
-                                                                           "diffBytes":  1999,
-                                                                           "sha256":  "DC595EC7C95851D031D2B0A39B7DCC19BD61C4658CDE31C117CB2F3AAA713F28"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CvGameTextMgr.cpp",
-                                                                           "diffBytes":  3214,
-                                                                           "sha256":  "44322775915155AF7732A9C7EE08D7F5F185730025126111A5CB2218610CB25E"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CvGameTextMgr.h",
-                                                                           "diffBytes":  1176,
-                                                                           "sha256":  "9FDC54D8507F7ED1D67DE62D639CECC939BC1769F0BF807AD8DE93FB473BC1D0"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CyEnumsInterface.cpp",
-                                                                           "diffBytes":  1703,
-                                                                           "sha256":  "307131BF9AD1F7E0B310023CBAC4673FADD7BA3C1578B06445257C72D43F1EC9"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CyGameTextMgr.cpp",
-                                                                           "diffBytes":  896,
-                                                                           "sha256":  "034253791F0EB83785CAD4B3AD4F2464A1710D9F0E69C46DBD8608802F979D84"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CyGameTextMgr.h",
-                                                                           "diffBytes":  996,
-                                                                           "sha256":  "694CE9E8C37D455501D32A46AF372A8CB0DA3ACBA39680FB9A26B614A16B5D72"
-                                                                       },
-                                                                       {
-                                                                           "path":  "CvGameCoreDLL/CyGameTextMgrInterface.cpp",
-                                                                           "diffBytes":  1335,
-                                                                           "sha256":  "24363AF657A93CD8BE97FD97EEB4E4732C0CB651FFFE8822E459513FE9B285F4"
+                                                                           "path":  "CvGameCoreDLL/SASGameRecordLog.h",
+                                                                           "diffBytes":  2723,
+                                                                           "sha256":  "7B113DE6D383A80206932660A82E8869F02B418E9FC1E6D7C934057F32DE4025"
                                                                        }
                                                                    ]
                                                      },
                              "unstagedCodeRulesDiff":  {
                                                            "available":  true,
                                                            "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                           "diffBytes":  15686,
-                                                           "sha256":  "DCC206499B924EDCC8790936DBBC91801D0F14F053E74FD6747C4A40FBAFC7F4",
-                                                           "fileCount":  10,
+                                                           "diffBytes":  4016,
+                                                           "sha256":  "EA3CF91ED3F0C1B08A43A16973BE9AAE9DB969A1F0A28377FDF64C683D19458E",
+                                                           "fileCount":  1,
                                                            "files":  [
                                                                          {
-                                                                             "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py",
-                                                                             "diffBytes":  1062,
-                                                                             "sha256":  "4D79BD99C5945D915C1E4918B0280A446B61484E5C38C95732B045DE619382E5"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaMain.py",
-                                                                             "diffBytes":  980,
-                                                                             "sha256":  "0DED8D9191418D811FBECC0F3ADD22F253A33FCB32AE7B1097291119F9C3BEA4"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTech.py",
-                                                                             "diffBytes":  1314,
-                                                                             "sha256":  "1154ED6FD5A586CF735D3BA852ACEAC5D7B0949B6515506885DBB92EE8CD3629"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py",
-                                                                             "diffBytes":  1567,
-                                                                             "sha256":  "C15B87F5FE7D1165FE2BDD6166B0DBA1BF64EC8FF1EBF6FA840960741896900C"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py",
-                                                                             "diffBytes":  1574,
-                                                                             "sha256":  "26334820CFB9A3243FFD6E668DE81C43AEB6DEBD2858383B1AF5F4E595CD0B0C"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/EntryPoints/CvScreensInterface.py",
-                                                                             "diffBytes":  1028,
-                                                                             "sha256":  "D9A1B8148BBF990379113F8C3339A55102BB44C94BCA47E2B2859A9FDA7A41BB"
-                                                                         },
-                                                                         {
-                                                                             "path":  "Assets/Python/Screens/CvTechChooser.py",
-                                                                             "diffBytes":  1868,
-                                                                             "sha256":  "093670276984D9F0EC57E50410EA0BF9E5D2844762A7EECD7E919E78F43B37FA"
-                                                                         },
-                                                                         {
                                                                              "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                             "diffBytes":  3877,
-                                                                             "sha256":  "AB2E9B82513E4BFFFCE58DB47B6EDF7B690A86D8C5B47F61D1CAB6B1D02A5021"
-                                                                         },
-                                                                         {
-                                                                             "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
-                                                                             "diffBytes":  1201,
-                                                                             "sha256":  "207AA62572341410BACBE41A1DF5BC1618FECF7F58E9DC917CFE00B39B762CFF"
-                                                                         },
-                                                                         {
-                                                                             "path":  "CvGameCoreDLL/CvGameTextMgr.cpp",
-                                                                             "diffBytes":  1215,
-                                                                             "sha256":  "CA276F69DD9C037A7F1A63066FF10BC59D606107B25CF5231C3B152A7791BB97"
+                                                                             "diffBytes":  4016,
+                                                                             "sha256":  "EA3CF91ED3F0C1B08A43A16973BE9AAE9DB969A1F0A28377FDF64C683D19458E"
                                                                          }
                                                                      ]
                                                        }
@@ -392,8 +147,8 @@
                    },
     "dllBefore":  {
                       "sizeBytes":  8433664,
-                      "modifiedUtc":  "2026-11-08T17:07:37.149Z",
-                      "sha256":  "AE7FEEDCF4429136CFAB53DED76E208B650235953BC3B2544AE54DBC00E83EFD"
+                      "modifiedUtc":  "2026-11-08T17:25:41.121Z",
+                      "sha256":  "82D86B0D644AA0C32A47D71CB2FE47EE14CEDE9838EBF8B551388417DDBA51E1"
                   },
     "status":  "SUCCEEDED",
     "logFile":  "AdvCiv.log",
@@ -522,9 +277,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/BBAILog.cpp",
-                                  "sizeBytes":  33481,
-                                  "modifiedUtc":  "2026-11-03T13:57:15.616Z",
-                                  "sha256":  "ECC1EB22EF7F87F24068E91E47042409E24DCE7E558357C718ACE9AD6A07C1F0"
+                                  "sizeBytes":  33456,
+                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                  "sha256":  "20364255B3BDE1F74190AA28E1CB3C72CF246F7F9066AC4DAE9D7856D01EB311"
                               },
                               {
                                   "path":  "CvGameCoreDLL/BBAILog.h",
@@ -642,9 +397,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvCityAI.cpp",
-                                  "sizeBytes":  1263139,
-                                  "modifiedUtc":  "2026-11-06T07:57:16.924Z",
-                                  "sha256":  "1723AD69DDEC1CAAC26AD4B69B5B5F874BBA72676EFC6C3C712C3893DEE401DB"
+                                  "sizeBytes":  1261574,
+                                  "modifiedUtc":  "2026-11-09T20:44:09.370Z",
+                                  "sha256":  "D4E36099821259B3AAB24904B97224DE24BD7B6FA9A00D1BF6C985210DBFF9C0"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvCityAI.h",
@@ -829,9 +584,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
-                                  "sizeBytes":  231898,
-                                  "modifiedUtc":  "2026-11-08T17:22:35.067Z",
-                                  "sha256":  "FFEC1D3CFF40E028249D6FA6AEDB6E35ACCB12877547168FA147C51912BA03C6"
+                                  "sizeBytes":  231903,
+                                  "modifiedUtc":  "2026-11-08T18:15:37.646Z",
+                                  "sha256":  "EF702B2BCAA511172FE9A5E439A59F2EBA83564E7B37FFF71AE6761657A287E3"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvDLLWidgetData.h",
@@ -853,15 +608,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvEnums.h",
-                                  "sizeBytes":  72507,
-                                  "modifiedUtc":  "2026-11-08T16:15:54.365Z",
-                                  "sha256":  "F11AD46F8F30BD8E0A0CF0B7F8E483E94D04F23E9D9C6D054E00A666AE4EAD6D"
+                                  "sizeBytes":  72730,
+                                  "modifiedUtc":  "2026-11-08T18:15:22.952Z",
+                                  "sha256":  "C68327DF4C65DEFF5971798297B7F3A6AE4853409335F022F1964F8C0A6B28CF"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvEventReporter.cpp",
-                                  "sizeBytes":  31858,
-                                  "modifiedUtc":  "2026-11-03T13:57:16.396Z",
-                                  "sha256":  "C6B9D87CAE8B8A950B4F6E9E68C530543669403500A810DB7372E4563180B795"
+                                  "sizeBytes":  31653,
+                                  "modifiedUtc":  "2026-11-09T11:04:33.333Z",
+                                  "sha256":  "103D9B01D3D0DF097F6AC37BD1B648D3BE14161DB0018CCAAC79D40C02AC2C8F"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvEventReporter.h",
@@ -931,21 +686,21 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
-                                  "sizeBytes":  153296,
-                                  "modifiedUtc":  "2026-11-07T12:14:32.729Z",
-                                  "sha256":  "8B80A0D63EA1DF4B584B07A5E0317B375CE350CAD1205D4ADF5F8A14B8D00D05"
+                                  "sizeBytes":  153982,
+                                  "modifiedUtc":  "2026-11-09T11:10:47.560Z",
+                                  "sha256":  "0D69796ADF509352CA956E62D5DF09E90A60D7C8FA6DC3ADCF11E33957C027B3"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.h",
-                                  "sizeBytes":  44283,
-                                  "modifiedUtc":  "2026-11-07T12:14:32.729Z",
-                                  "sha256":  "6A9349F94790FCC4AD67353989CE5535F8B4FF17841BA1059CB9ECD2003B5827"
+                                  "sizeBytes":  45231,
+                                  "modifiedUtc":  "2026-11-10T07:15:31.447Z",
+                                  "sha256":  "8594C5936CF4D51720D91A4E818FDBB9816F38B70E27EEAA7EDF68899B62412E"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameInterface.cpp",
-                                  "sizeBytes":  105067,
-                                  "modifiedUtc":  "2026-11-03T17:52:56.605Z",
-                                  "sha256":  "930D65E8BF336E91C58016BF33EA7C122F215BB66624DD7BE7C99CB3841A9885",
+                                  "sizeBytes":  107104,
+                                  "modifiedUtc":  "2026-11-10T07:15:31.447Z",
+                                  "sha256":  "2F56E93CA730DFFE841BD1218358373E6FCD0E64DCFEC90256AD9CDEE9962526",
                                   "pythonBindingsSha256":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
                               },
                               {
@@ -968,15 +723,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGlobals.cpp",
-                                  "sizeBytes":  45254,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.374Z",
-                                  "sha256":  "DBDA65DDFC7B06C97FFEECDCAFA18B91895F26695D36455D4CD44D10A4E5758F"
+                                  "sizeBytes":  45449,
+                                  "modifiedUtc":  "2026-11-09T12:04:06.427Z",
+                                  "sha256":  "C729116217ACEB66987AF4913F14F4EF2965C4649A17F0A1F73CA56A73A2AEFF"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGlobals.h",
-                                  "sizeBytes":  50352,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.375Z",
-                                  "sha256":  "5F0007FEBF7E52C3A9612F813A689051D4B48A208CFD4EB00572FE5525D5446D"
+                                  "sizeBytes":  50471,
+                                  "modifiedUtc":  "2026-11-09T12:03:39.584Z",
+                                  "sha256":  "409BAFDA99958746FFAD9F93FDBF1ADE38EE084252798DDC4EE9D73081C972BF"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvHallOfFameInfo.cpp",
@@ -1280,9 +1035,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvMessageData.cpp",
-                                  "sizeBytes":  34868,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.410Z",
-                                  "sha256":  "013ED6A37911ED4A9DB4E7AAA25B47E8B893A16832FD3B03913F9D0627366BFF"
+                                  "sizeBytes":  36639,
+                                  "modifiedUtc":  "2026-11-09T10:10:16.438Z",
+                                  "sha256":  "5C943A83180CA6605B61231CFD20B81C31EC916F0ED2E96D4FD7F8FFCAD175BA"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvMessageData.h",
@@ -1292,9 +1047,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayer.cpp",
-                                  "sizeBytes":  710577,
-                                  "modifiedUtc":  "2026-11-06T09:03:02.692Z",
-                                  "sha256":  "2637659E7C61500318AD88041E8A40F73422A5FAEAF773F32122EB621AC9EF12"
+                                  "sizeBytes":  712954,
+                                  "modifiedUtc":  "2026-11-10T12:10:40.899Z",
+                                  "sha256":  "C2621EAB777E11758A45E558049A4F0001E1C9A0EF9595247CEADDA2DA699731"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayer.h",
@@ -1304,9 +1059,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayerAI.cpp",
-                                  "sizeBytes":  1360078,
-                                  "modifiedUtc":  "2026-11-08T09:48:42.587Z",
-                                  "sha256":  "1C89E692A30709820D752A130ACA15F238CE1C706E6851D378E0EA0BC94AC1F9"
+                                  "sizeBytes":  1361688,
+                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                  "sha256":  "BA7EB9345A93691FF95F208B9E6382FBBA60AF85573019D211F18FF5D633713C"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayerAI.h",
@@ -1316,9 +1071,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlot.cpp",
-                                  "sizeBytes":  278004,
-                                  "modifiedUtc":  "2026-11-08T09:48:42.587Z",
-                                  "sha256":  "26E5BF8C3C0E44270A40CAA1AA0A09581F7FFA91A9A9DB60635031033A9E6CF7"
+                                  "sizeBytes":  277966,
+                                  "modifiedUtc":  "2026-11-09T11:04:33.465Z",
+                                  "sha256":  "D46E99E6FF62FC9EE79E0721732079B32DE09E67293405F6ADCDBD1E7DA27B55"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlot.h",
@@ -1484,9 +1239,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvTeam.cpp",
-                                  "sizeBytes":  232909,
-                                  "modifiedUtc":  "2026-11-03T13:57:17.087Z",
-                                  "sha256":  "9A418AA682E0CF1C3BDFD5EEF5BAB4E81D6529863C0E5C3D6AC65772CB150D68"
+                                  "sizeBytes":  232859,
+                                  "modifiedUtc":  "2026-11-09T11:04:33.483Z",
+                                  "sha256":  "C4AEA15F7B4864BAD3A33475EF9C846760EEA5CF8425A1FEFA89EAC13497DD6D"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvTeam.h",
@@ -1520,9 +1275,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvUnitAI.cpp",
-                                  "sizeBytes":  1541518,
-                                  "modifiedUtc":  "2026-11-07T17:04:54.174Z",
-                                  "sha256":  "D0D279670F7DF600DBDA512CC2B016F979A5588DE9B8A67D6E523B9367EB6D4E"
+                                  "sizeBytes":  1537076,
+                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                  "sha256":  "374DEEEBC808D2A95D3133A8234669FF0DD72B0814D195082135FB0397362BCF"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvUnitAI.h",
@@ -2153,9 +1908,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/InvasionGraph.cpp",
-                                  "sizeBytes":  129392,
-                                  "modifiedUtc":  "2026-11-03T13:57:17.901Z",
-                                  "sha256":  "3A7DDB9D7BC5DFB85A8225FB3744392503344DEAFE48365CAC2399A10FD38C89"
+                                  "sizeBytes":  129363,
+                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                  "sha256":  "7C0E4C38D0653BBE7B2BA38535686F2BE66DE8539EE84A15309FADEBB3F7060B"
                               },
                               {
                                   "path":  "CvGameCoreDLL/InvasionGraph.h",
@@ -2387,21 +2142,21 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
-                                  "sizeBytes":  1212061,
-                                  "modifiedUtc":  "2026-11-07T17:41:06.552Z",
-                                  "sha256":  "3C4133365B168844B0CF9848BA5B47E04AF1C016FF57749361FC37B0C82AD8EF"
+                                  "sizeBytes":  1242921,
+                                  "modifiedUtc":  "2026-11-10T14:56:27.802Z",
+                                  "sha256":  "4B493284CF460A7876562926F044DD04DF3117E0FF98BB2B7D7ED65FD4135DF6"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.h",
-                                  "sizeBytes":  134223,
-                                  "modifiedUtc":  "2026-11-03T19:26:36.649Z",
-                                  "sha256":  "CBA126CBB1357AF2BF984E685A448287A1217CC5502F976FF41CF8C01041DAD9"
+                                  "sizeBytes":  138104,
+                                  "modifiedUtc":  "2026-11-10T11:29:21.041Z",
+                                  "sha256":  "C68F6F848D232CCD33ED28A5481D723B724D5410B95276408559D288748E8AF3"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
-                                  "sizeBytes":  125492,
-                                  "modifiedUtc":  "2026-10-29T14:51:12.462Z",
-                                  "sha256":  "DCB3194007B81A09F1A438B1C3930666057B73C758BE8B0AD694F8FBEAC95287"
+                                  "sizeBytes":  125415,
+                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                  "sha256":  "349462F4DAC1F5C663D637468DB3666ED23386F950C27E936F5F2E4FE295E3AC"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASRuntimeStatusReasons.h",
@@ -2617,48 +2372,301 @@
     "sincePreviousBuild":  {
                                "available":  true,
                                "scope":  "PREVIOUS_BUILD_END_TO_CURRENT_BUILD_START",
-                               "previousStartedUtc":  "2026-11-08T17:05:40.608Z",
-                               "previousEndedUtc":  "2026-11-08T17:07:37.196Z",
+                               "previousStartedUtc":  "2026-11-08T17:23:44.716Z",
+                               "previousEndedUtc":  "2026-11-08T17:25:41.175Z",
                                "previousConfiguration":  "Release",
                                "previousRequest":  "BUILD",
                                "previousStatus":  "SUCCEEDED",
                                "previousCommit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
                                "previousFileCount":  362,
                                "currentFileCount":  362,
-                               "changedCount":  2,
+                               "changedCount":  20,
                                "changes":  [
+                                               {
+                                                   "path":  "CvGameCoreDLL/BBAILog.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  33456,
+                                                                 "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                                                 "sha256":  "20364255B3BDE1F74190AA28E1CB3C72CF246F7F9066AC4DAE9D7856D01EB311"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  33481,
+                                                                  "modifiedUtc":  "2026-11-03T13:57:15.616Z",
+                                                                  "sha256":  "ECC1EB22EF7F87F24068E91E47042409E24DCE7E558357C718ACE9AD6A07C1F0"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvCityAI.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  1261574,
+                                                                 "modifiedUtc":  "2026-11-09T20:44:09.370Z",
+                                                                 "sha256":  "D4E36099821259B3AAB24904B97224DE24BD7B6FA9A00D1BF6C985210DBFF9C0"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  1263139,
+                                                                  "modifiedUtc":  "2026-11-06T07:57:16.924Z",
+                                                                  "sha256":  "1723AD69DDEC1CAAC26AD4B69B5B5F874BBA72676EFC6C3C712C3893DEE401DB"
+                                                              }
+                                               },
                                                {
                                                    "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
                                                    "change":  "CONTENT_CHANGED",
                                                    "after":  {
-                                                                 "sizeBytes":  231898,
-                                                                 "modifiedUtc":  "2026-11-08T17:22:35.067Z",
-                                                                 "sha256":  "FFEC1D3CFF40E028249D6FA6AEDB6E35ACCB12877547168FA147C51912BA03C6"
+                                                                 "sizeBytes":  231903,
+                                                                 "modifiedUtc":  "2026-11-08T18:15:37.646Z",
+                                                                 "sha256":  "EF702B2BCAA511172FE9A5E439A59F2EBA83564E7B37FFF71AE6761657A287E3"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  231538,
-                                                                  "modifiedUtc":  "2026-11-08T16:15:54.365Z",
-                                                                  "sha256":  "75E4853D34A6CEF438619564D55897E74A008238BF35C1FCB48745EAE3EB67BE"
+                                                                  "sizeBytes":  231898,
+                                                                  "modifiedUtc":  "2026-11-08T17:22:35.067Z",
+                                                                  "sha256":  "FFEC1D3CFF40E028249D6FA6AEDB6E35ACCB12877547168FA147C51912BA03C6"
                                                               }
                                                },
                                                {
-                                                   "path":  "CvGameCoreDLL/CvGameTextMgr.cpp",
+                                                   "path":  "CvGameCoreDLL/CvEnums.h",
                                                    "change":  "CONTENT_CHANGED",
                                                    "after":  {
-                                                                 "sizeBytes":  778156,
-                                                                 "modifiedUtc":  "2026-11-08T17:22:35.067Z",
-                                                                 "sha256":  "C9B22D225017B525E9A2BEBBE2F657846ADA2DEAC4D5EE9A16F83FE6564FD4C4"
+                                                                 "sizeBytes":  72730,
+                                                                 "modifiedUtc":  "2026-11-08T18:15:22.952Z",
+                                                                 "sha256":  "C68327DF4C65DEFF5971798297B7F3A6AE4853409335F022F1964F8C0A6B28CF"
                                                              },
                                                    "before":  {
-                                                                  "sizeBytes":  778143,
-                                                                  "modifiedUtc":  "2026-11-08T16:06:47.719Z",
-                                                                  "sha256":  "0CEA1D974BC4506E7F62A9CFB078FBAA17A9C63760903CEA14DCF98F2991205C"
+                                                                  "sizeBytes":  72507,
+                                                                  "modifiedUtc":  "2026-11-08T16:15:54.365Z",
+                                                                  "sha256":  "F11AD46F8F30BD8E0A0CF0B7F8E483E94D04F23E9D9C6D054E00A666AE4EAD6D"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvEventReporter.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  31653,
+                                                                 "modifiedUtc":  "2026-11-09T11:04:33.333Z",
+                                                                 "sha256":  "103D9B01D3D0DF097F6AC37BD1B648D3BE14161DB0018CCAAC79D40C02AC2C8F"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  31858,
+                                                                  "modifiedUtc":  "2026-11-03T13:57:16.396Z",
+                                                                  "sha256":  "C6B9D87CAE8B8A950B4F6E9E68C530543669403500A810DB7372E4563180B795"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  153982,
+                                                                 "modifiedUtc":  "2026-11-09T11:10:47.560Z",
+                                                                 "sha256":  "0D69796ADF509352CA956E62D5DF09E90A60D7C8FA6DC3ADCF11E33957C027B3"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  153296,
+                                                                  "modifiedUtc":  "2026-11-07T12:14:32.729Z",
+                                                                  "sha256":  "8B80A0D63EA1DF4B584B07A5E0317B375CE350CAD1205D4ADF5F8A14B8D00D05"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.h",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  45231,
+                                                                 "modifiedUtc":  "2026-11-10T07:15:31.447Z",
+                                                                 "sha256":  "8594C5936CF4D51720D91A4E818FDBB9816F38B70E27EEAA7EDF68899B62412E"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  44283,
+                                                                  "modifiedUtc":  "2026-11-07T12:14:32.729Z",
+                                                                  "sha256":  "6A9349F94790FCC4AD67353989CE5535F8B4FF17841BA1059CB9ECD2003B5827"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvGameInterface.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  107104,
+                                                                 "modifiedUtc":  "2026-11-10T07:15:31.447Z",
+                                                                 "sha256":  "2F56E93CA730DFFE841BD1218358373E6FCD0E64DCFEC90256AD9CDEE9962526",
+                                                                 "pythonBindingsSha256":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  105067,
+                                                                  "modifiedUtc":  "2026-11-03T17:52:56.605Z",
+                                                                  "sha256":  "930D65E8BF336E91C58016BF33EA7C122F215BB66624DD7BE7C99CB3841A9885"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvGlobals.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  45449,
+                                                                 "modifiedUtc":  "2026-11-09T12:04:06.427Z",
+                                                                 "sha256":  "C729116217ACEB66987AF4913F14F4EF2965C4649A17F0A1F73CA56A73A2AEFF"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  45254,
+                                                                  "modifiedUtc":  "2026-10-28T10:08:25.374Z",
+                                                                  "sha256":  "DBDA65DDFC7B06C97FFEECDCAFA18B91895F26695D36455D4CD44D10A4E5758F"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvGlobals.h",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  50471,
+                                                                 "modifiedUtc":  "2026-11-09T12:03:39.584Z",
+                                                                 "sha256":  "409BAFDA99958746FFAD9F93FDBF1ADE38EE084252798DDC4EE9D73081C972BF"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  50352,
+                                                                  "modifiedUtc":  "2026-10-28T10:08:25.375Z",
+                                                                  "sha256":  "5F0007FEBF7E52C3A9612F813A689051D4B48A208CFD4EB00572FE5525D5446D"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvMessageData.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  36639,
+                                                                 "modifiedUtc":  "2026-11-09T10:10:16.438Z",
+                                                                 "sha256":  "5C943A83180CA6605B61231CFD20B81C31EC916F0ED2E96D4FD7F8FFCAD175BA"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  34868,
+                                                                  "modifiedUtc":  "2026-10-28T10:08:25.410Z",
+                                                                  "sha256":  "013ED6A37911ED4A9DB4E7AAA25B47E8B893A16832FD3B03913F9D0627366BFF"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvPlayer.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  712954,
+                                                                 "modifiedUtc":  "2026-11-10T12:10:40.899Z",
+                                                                 "sha256":  "C2621EAB777E11758A45E558049A4F0001E1C9A0EF9595247CEADDA2DA699731"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  710577,
+                                                                  "modifiedUtc":  "2026-11-06T09:03:02.692Z",
+                                                                  "sha256":  "2637659E7C61500318AD88041E8A40F73422A5FAEAF773F32122EB621AC9EF12"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvPlayerAI.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  1361688,
+                                                                 "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                                                 "sha256":  "BA7EB9345A93691FF95F208B9E6382FBBA60AF85573019D211F18FF5D633713C"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  1360078,
+                                                                  "modifiedUtc":  "2026-11-08T09:48:42.587Z",
+                                                                  "sha256":  "1C89E692A30709820D752A130ACA15F238CE1C706E6851D378E0EA0BC94AC1F9"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvPlot.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  277966,
+                                                                 "modifiedUtc":  "2026-11-09T11:04:33.465Z",
+                                                                 "sha256":  "D46E99E6FF62FC9EE79E0721732079B32DE09E67293405F6ADCDBD1E7DA27B55"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  278004,
+                                                                  "modifiedUtc":  "2026-11-08T09:48:42.587Z",
+                                                                  "sha256":  "26E5BF8C3C0E44270A40CAA1AA0A09581F7FFA91A9A9DB60635031033A9E6CF7"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvTeam.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  232859,
+                                                                 "modifiedUtc":  "2026-11-09T11:04:33.483Z",
+                                                                 "sha256":  "C4AEA15F7B4864BAD3A33475EF9C846760EEA5CF8425A1FEFA89EAC13497DD6D"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  232909,
+                                                                  "modifiedUtc":  "2026-11-03T13:57:17.087Z",
+                                                                  "sha256":  "9A418AA682E0CF1C3BDFD5EEF5BAB4E81D6529863C0E5C3D6AC65772CB150D68"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/CvUnitAI.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  1537076,
+                                                                 "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                                                 "sha256":  "374DEEEBC808D2A95D3133A8234669FF0DD72B0814D195082135FB0397362BCF"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  1541518,
+                                                                  "modifiedUtc":  "2026-11-07T17:04:54.174Z",
+                                                                  "sha256":  "D0D279670F7DF600DBDA512CC2B016F979A5588DE9B8A67D6E523B9367EB6D4E"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/InvasionGraph.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  129363,
+                                                                 "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                                                 "sha256":  "7C0E4C38D0653BBE7B2BA38535686F2BE66DE8539EE84A15309FADEBB3F7060B"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  129392,
+                                                                  "modifiedUtc":  "2026-11-03T13:57:17.901Z",
+                                                                  "sha256":  "3A7DDB9D7BC5DFB85A8225FB3744392503344DEAFE48365CAC2399A10FD38C89"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  1242921,
+                                                                 "modifiedUtc":  "2026-11-10T14:56:27.802Z",
+                                                                 "sha256":  "4B493284CF460A7876562926F044DD04DF3117E0FF98BB2B7D7ED65FD4135DF6"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  1212061,
+                                                                  "modifiedUtc":  "2026-11-07T17:41:06.552Z",
+                                                                  "sha256":  "3C4133365B168844B0CF9848BA5B47E04AF1C016FF57749361FC37B0C82AD8EF"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/SASGameRecordLog.h",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  138104,
+                                                                 "modifiedUtc":  "2026-11-10T11:29:21.041Z",
+                                                                 "sha256":  "C68F6F848D232CCD33ED28A5481D723B724D5410B95276408559D288748E8AF3"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  134223,
+                                                                  "modifiedUtc":  "2026-11-03T19:26:36.649Z",
+                                                                  "sha256":  "CBA126CBB1357AF2BF984E685A448287A1217CC5502F976FF41CF8C01041DAD9"
+                                                              }
+                                               },
+                                               {
+                                                   "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  125415,
+                                                                 "modifiedUtc":  "2026-11-10T10:44:33.443Z",
+                                                                 "sha256":  "349462F4DAC1F5C663D637468DB3666ED23386F950C27E936F5F2E4FE295E3AC"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  125492,
+                                                                  "modifiedUtc":  "2026-10-29T14:51:12.462Z",
+                                                                  "sha256":  "DCB3194007B81A09F1A438B1C3930666057B73C758BE8B0AD694F8FBEAC95287"
                                                               }
                                                }
                                            ]
                            },
-    "endedUtc":  "2026-11-08T17:25:41.175Z",
-    "durationMilliseconds":  116438,
+    "endedUtc":  "2026-11-10T15:12:06.158Z",
+    "durationMilliseconds":  109213,
     "exitCode":  0,
     "warningCount":  0,
     "errorCount":  0,
@@ -2668,308 +2676,63 @@
     "recognizedErrorLines":  [
 
                              ],
-    "commitAfter":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-    "workingTreeStatusAfter":  "M  AGENTS.md\nM  Assets/CvGameCoreDLL.dll\nM  Assets/CvGameCoreDLL.dll.build.json\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaMain.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py\nA  Assets/Python/Contrib/Sevopedia/SevoPediaRoute.py\nA  Assets/Python/Contrib/Sevopedia/SevoPediaRouteUtils.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaTech.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py\nMM Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py\nM  Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py\nMM Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py\nM  Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py\nMM Assets/Python/EntryPoints/CvScreensInterface.py\nM  Assets/Python/SASMagicNumbers.py\nM  Assets/Python/Screens/CvScreenEnums.py\nMM Assets/Python/Screens/CvTechChooser.py\nM  Assets/Python/Screens/CvWorldAdvisorScreen.py\nM  Assets/XML/BasicInfos/CIV4NewConceptInfos.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Misc/CIV4RouteInfos.xml\nM  Assets/XML/Text/AdvCiv-SAS_Core.xml\nM  Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml\nM  Assets/XML/Text/AdvCiv-SAS_main.xml\nMM CvGameCoreDLL/CvDLLWidgetData.cpp\nM  CvGameCoreDLL/CvDLLWidgetData.h\nM  CvGameCoreDLL/CvEnums.h\nMM CvGameCoreDLL/CvGameTextMgr.cpp\nM  CvGameCoreDLL/CvGameTextMgr.h\nM  CvGameCoreDLL/CyEnumsInterface.cpp\nM  CvGameCoreDLL/CyGameTextMgr.cpp\nM  CvGameCoreDLL/CyGameTextMgr.h\nM  CvGameCoreDLL/CyGameTextMgrInterface.cpp\nM  README.md\nMM _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nMM _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md\nA  _1_AdvCiv-SAS/Docs/Sevopedia/Debug/__SevoPediaRoute-gc-inner.txt\nA  \"_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (1).JPG\"\nA  \"_1_AdvCiv-SAS/Images/sevopedia/1.880_sevopedia_routes (2).JPG\"\n?? CvGameCoreDLL/Project/temp_files/Release/",
+    "commitAfter":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+    "workingTreeStatusAfter":  "M  .github/workflows/README.md\nM  .github/workflows/build/README.md\nM  .github/workflows/build/diagnostics/sas_game_record_log.py\nM  .github/workflows/build/documentation/markdown_images.py\nM  .github/workflows/build/documentation/markdown_links.py\nM  .markdownlint.jsonc\n M Assets/CvGameCoreDLL.dll\n M Assets/CvGameCoreDLL.dll.build.json\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/CvPlayer.cpp\nM  CvGameCoreDLL/SASGameRecordLog.cpp\nM  CvGameCoreDLL/SASGameRecordLog.h\nM  LLM_Helpers/README.md\nM  LLM_Helpers/diagnostics/toggle_dev_diagnostics.py\nM  README.md\nM  _1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Military_Tree.md\nA  _1_AdvCiv-SAS/Docs/README_Multiple_Instances.md\nM  _1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md\nM  _1_AdvCiv-SAS/Docs/README_Tech_Tree.md\nM  _1_AdvCiv-SAS/Docs/changelogs_web/README.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASRuntime.md\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_00a_custom_single_first_second.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_00b_left_right_windows.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_01_left_multiplayer.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_02_left_lan_lobby.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_03_left_new_game.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_04_right_multiplayer.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_05_right_lan_lobby.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_06_left_map_change.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_07_right_refresh.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_08_right_join.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_09_right_ready_left_ready_multiplayer_tab.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_10_both_dawn_of_man.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_11_left_all_chat.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_12_right_all_chat_reply.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_13_both_chat_private.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_14_left_t0_finished.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_15_right_t0_finished.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_16_both_chat_logs_team.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_16_right_t0_ended.JPG\nA  _1_AdvCiv-SAS/Images/diagnostics/1.297_m_17_t1_left_ended_right_still_playing.JPG\n?? CvGameCoreDLL/Project/temp_files/Release/",
     "sourceProvenanceAfter":  {
                                   "available":  true,
-                                  "commit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
+                                  "commit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
                                   "branch":  "main",
-                                  "version":  "6733",
+                                  "version":  "6744",
                                   "history":  "FULL",
                                   "defaultBranch":  "main",
-                                  "defaultCommit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-                                  "defaultVersion":  "6733",
+                                  "defaultCommit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+                                  "defaultVersion":  "6744",
                                   "defaultRefSource":  "LOCAL_BRANCH",
-                                  "mergeBaseCommit":  "6a392e9a3ee01df3fd7b39ca1b08946585fdf86d",
-                                  "mergeBaseVersion":  "6733",
+                                  "mergeBaseCommit":  "f926c7ab5f988920d872076656a2613b7d75ba41",
+                                  "mergeBaseVersion":  "6744",
                                   "branchRelation":  "AT_DEFAULT",
                                   "currentOnlyCommits":  0,
                                   "defaultOnlyCommits":  0,
                                   "stagedCodeRulesDiff":  {
                                                               "available":  true,
                                                               "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                              "diffBytes":  173877,
-                                                              "sha256":  "B97A3B03DD919EBC88F8CA567F30AF14BABADB1C240EBC66450717DD6F07E79C",
-                                                              "fileCount":  44,
+                                                              "diffBytes":  13150,
+                                                              "sha256":  "81D46487B4E9A65A9924ED3EB9C9046DC0A8A80BF80C24105EFF43EDD372E2CC",
+                                                              "fileCount":  4,
                                                               "files":  [
                                                                             {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py",
-                                                                                "diffBytes":  3891,
-                                                                                "sha256":  "4BFD2E398A8A469705D119ACCAA8C14B04463629EBD0D4FA80D1D852D7C434A0"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py",
-                                                                                "diffBytes":  9270,
-                                                                                "sha256":  "4441104ABAE27A4499E4F571C2F9760DC7008CEF2FEFE14A23954367F1B97565"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py",
-                                                                                "diffBytes":  2708,
-                                                                                "sha256":  "C81F73685FF25A65C5A8F578E199657E83D7DE0215518B3585A029537BFBB2B1"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py",
-                                                                                "diffBytes":  1599,
-                                                                                "sha256":  "DC6EC7AB8F7DF209D3E434BEF8CFA78B4D3117ECA039865EAC49CA5429EA15BC"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py",
-                                                                                "diffBytes":  7539,
-                                                                                "sha256":  "B72058AA1A03FC84A5F7656F41A08C6C823F8B845F7C1C769020A4F1B6184750"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py",
-                                                                                "diffBytes":  5154,
-                                                                                "sha256":  "657553E03616522AD25CBC3080D20EAFD096ABC8EF112F094E725F2CC309648B"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py",
-                                                                                "diffBytes":  4240,
-                                                                                "sha256":  "31E4FF1BCACFA17074729D38341015CA289CF9A3A97E6F74DB4D9B916CE18809"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py",
-                                                                                "diffBytes":  1696,
-                                                                                "sha256":  "529A8407D153CF69D81BA7C8BEED84F89B7F4C43EDE22FFEFAB6F1C0EB7740C4"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py",
-                                                                                "diffBytes":  1685,
-                                                                                "sha256":  "632F9DC4922D435244750D40C1B9D239C410A55ED14D07E0086DF964DE8D7EDE"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py",
-                                                                                "diffBytes":  3036,
-                                                                                "sha256":  "EE4F79CAE4E75375A05242D1EF8000E6F811000322D3B9AAF1F16EB7AB8B91E1"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py",
-                                                                                "diffBytes":  5095,
-                                                                                "sha256":  "300CB2935B118AC9D8D2437ED74D34F65B042F071A60D1773885B2BEC5D0BEB4"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaMain.py",
-                                                                                "diffBytes":  19690,
-                                                                                "sha256":  "4E477B4BC6409173B513EE0AFD03A17B706AC579EB58A14A733BCE4138EC13DB"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py",
-                                                                                "diffBytes":  1923,
-                                                                                "sha256":  "71FCA0321CF8BDF183C0658E8A962071125A91D1FEC9FF602C2D36A4F334D808"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py",
-                                                                                "diffBytes":  1294,
-                                                                                "sha256":  "14ABA53036A94B2B0FD6AF76B8AA6FA44ED79AC6904E66E7B34058D32E782998"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaRoute.py",
-                                                                                "diffBytes":  25955,
-                                                                                "sha256":  "009AE3936CB78C01241E45FF2275411BC67076C6BB888528407B55594A7FAADB"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaRouteUtils.py",
-                                                                                "diffBytes":  1996,
-                                                                                "sha256":  "2B0CE06F43EDC4765B2D5966BC7C5B64FC7E6796B8D765158FAC11C509ECC7F0"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py",
-                                                                                "diffBytes":  1221,
-                                                                                "sha256":  "E602144CD133C004734D044F6058AFCF9132DCE1C9BEA3011B728AB326FBE2D5"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTech.py",
-                                                                                "diffBytes":  3820,
-                                                                                "sha256":  "3DC0E2453615C693E9A218A587F3BC20EED9D43E54087688FC48A23F8D910FD4"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py",
-                                                                                "diffBytes":  1912,
-                                                                                "sha256":  "B5E84BCC7957AF7717648650BEF63900E4DD1C8085508794CC51323BFFC252C2"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py",
-                                                                                "diffBytes":  2405,
-                                                                                "sha256":  "BE1B59425FCF0B92EAE5AFBBDBB66725F578950E7F54EE178A15D2028E165C1B"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py",
-                                                                                "diffBytes":  2822,
-                                                                                "sha256":  "143A5A0406547E4D75AB9ACB736C4197056DAB0524844B35932165805363B8CD"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py",
-                                                                                "diffBytes":  1696,
-                                                                                "sha256":  "D780C7D5BFA4C220E1E39D9D2D9F4EEA52394FC09FD76A1FB44E1623D67FBD5A"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py",
-                                                                                "diffBytes":  2087,
-                                                                                "sha256":  "51329F36F15B252C97F8D98074E63ABF022EC9AE11AD47B83C5842DAFB23BB05"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py",
-                                                                                "diffBytes":  4537,
-                                                                                "sha256":  "9C94C1C35A8C46CD724E56B49C400D2A3D3C14F69E3A7820E73C12272EFBA529"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/EntryPoints/CvScreensInterface.py",
-                                                                                "diffBytes":  3765,
-                                                                                "sha256":  "9C6675ACCF09F89F51976827AF648598F7FA74B9EFEB25E169734E076905CDC3"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/SASMagicNumbers.py",
-                                                                                "diffBytes":  2051,
-                                                                                "sha256":  "330766EA2C4DC0AC3CCFECACC186311369EE8BDAF8B5EC5B7600D9054CF480D7"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Screens/CvScreenEnums.py",
-                                                                                "diffBytes":  572,
-                                                                                "sha256":  "A47D92637C1C0446FA456D820CCC8A4F4D0A7B71ED0D1681F8F405A8DCBE63CE"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Screens/CvTechChooser.py",
-                                                                                "diffBytes":  5662,
-                                                                                "sha256":  "8310ED15A178E0A3597093652C84EDBB75FCF88AD3846D497872FE5EBDE54476"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Screens/CvWorldAdvisorScreen.py",
-                                                                                "diffBytes":  1282,
-                                                                                "sha256":  "364E1D667DB8B5F26C454A83EB9C2385CAE0FA328C98A7B64936CE05410D7486"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/XML/BasicInfos/CIV4NewConceptInfos.xml",
-                                                                                "diffBytes":  870,
-                                                                                "sha256":  "ADD328F55D6C272A9142E72F676A6E9575A25AC93F8B3A0E6F6EEF4B07BDC4B5"
-                                                                            },
-                                                                            {
                                                                                 "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                                "diffBytes":  821,
-                                                                                "sha256":  "373B581FAD57BA4D1611AEB13FF1344EE387349FF6D841DB5AEF85234C521396"
+                                                                                "diffBytes":  2301,
+                                                                                "sha256":  "1D3C0AF1451C9836572DC11504F2E8BBB7D76DF6467807D6E8FF35649302B237"
                                                                             },
                                                                             {
-                                                                                "path":  "Assets/XML/Misc/CIV4RouteInfos.xml",
-                                                                                "diffBytes":  1576,
-                                                                                "sha256":  "D02F5C508732D95841DB9DA02C4D59EFD19857632C4721C34B4AD483F8992DBC"
+                                                                                "path":  "CvGameCoreDLL/CvPlayer.cpp",
+                                                                                "diffBytes":  1437,
+                                                                                "sha256":  "C35A531E4EF0CE49C67A9B5902813E2D86C1E7D35BE90F6A461F7F47B4A46447"
                                                                             },
                                                                             {
-                                                                                "path":  "Assets/XML/Text/AdvCiv-SAS_Core.xml",
-                                                                                "diffBytes":  11447,
-                                                                                "sha256":  "013D464223F5B5DB36AE41B1A4BF3D1964EC2B70960F5965D428227A9D602B26"
+                                                                                "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
+                                                                                "diffBytes":  6689,
+                                                                                "sha256":  "8D777F3E0350A7EBD2085F48AEECB9BD4ED14C0AD43A8B3175D0B248604FB84C"
                                                                             },
                                                                             {
-                                                                                "path":  "Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml",
-                                                                                "diffBytes":  1235,
-                                                                                "sha256":  "7658DAD4B42D539B4F4733544CC80502D0B449826F2B9F6CEC9A776B471B075F"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/XML/Text/AdvCiv-SAS_main.xml",
-                                                                                "diffBytes":  4995,
-                                                                                "sha256":  "BE92D47FC43297EEB3051CAD68791072F45BC5EA68D0D3B960244045C6C5DA9F"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
-                                                                                "diffBytes":  9709,
-                                                                                "sha256":  "A9A121F66379D0FAD50DDCD43375F2F4527C90A63CF0DC73865AC2518C25032F"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CvDLLWidgetData.h",
-                                                                                "diffBytes":  1302,
-                                                                                "sha256":  "3FC86D106221EF308A890459C31DD4464EF1796A43D207726B91B732DD0C6208"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CvEnums.h",
-                                                                                "diffBytes":  1999,
-                                                                                "sha256":  "DC595EC7C95851D031D2B0A39B7DCC19BD61C4658CDE31C117CB2F3AAA713F28"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CvGameTextMgr.cpp",
-                                                                                "diffBytes":  3214,
-                                                                                "sha256":  "44322775915155AF7732A9C7EE08D7F5F185730025126111A5CB2218610CB25E"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CvGameTextMgr.h",
-                                                                                "diffBytes":  1176,
-                                                                                "sha256":  "9FDC54D8507F7ED1D67DE62D639CECC939BC1769F0BF807AD8DE93FB473BC1D0"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CyEnumsInterface.cpp",
-                                                                                "diffBytes":  1703,
-                                                                                "sha256":  "307131BF9AD1F7E0B310023CBAC4673FADD7BA3C1578B06445257C72D43F1EC9"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CyGameTextMgr.cpp",
-                                                                                "diffBytes":  896,
-                                                                                "sha256":  "034253791F0EB83785CAD4B3AD4F2464A1710D9F0E69C46DBD8608802F979D84"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CyGameTextMgr.h",
-                                                                                "diffBytes":  996,
-                                                                                "sha256":  "694CE9E8C37D455501D32A46AF372A8CB0DA3ACBA39680FB9A26B614A16B5D72"
-                                                                            },
-                                                                            {
-                                                                                "path":  "CvGameCoreDLL/CyGameTextMgrInterface.cpp",
-                                                                                "diffBytes":  1335,
-                                                                                "sha256":  "24363AF657A93CD8BE97FD97EEB4E4732C0CB651FFFE8822E459513FE9B285F4"
+                                                                                "path":  "CvGameCoreDLL/SASGameRecordLog.h",
+                                                                                "diffBytes":  2723,
+                                                                                "sha256":  "7B113DE6D383A80206932660A82E8869F02B418E9FC1E6D7C934057F32DE4025"
                                                                             }
                                                                         ]
                                                           },
                                   "unstagedCodeRulesDiff":  {
                                                                 "available":  true,
                                                                 "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                                "diffBytes":  15686,
-                                                                "sha256":  "DCC206499B924EDCC8790936DBBC91801D0F14F053E74FD6747C4A40FBAFC7F4",
-                                                                "fileCount":  10,
+                                                                "diffBytes":  4016,
+                                                                "sha256":  "EA3CF91ED3F0C1B08A43A16973BE9AAE9DB969A1F0A28377FDF64C683D19458E",
+                                                                "fileCount":  1,
                                                                 "files":  [
                                                                               {
-                                                                                  "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py",
-                                                                                  "diffBytes":  1062,
-                                                                                  "sha256":  "4D79BD99C5945D915C1E4918B0280A446B61484E5C38C95732B045DE619382E5"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaMain.py",
-                                                                                  "diffBytes":  980,
-                                                                                  "sha256":  "0DED8D9191418D811FBECC0F3ADD22F253A33FCB32AE7B1097291119F9C3BEA4"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTech.py",
-                                                                                  "diffBytes":  1314,
-                                                                                  "sha256":  "1154ED6FD5A586CF735D3BA852ACEAC5D7B0949B6515506885DBB92EE8CD3629"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py",
-                                                                                  "diffBytes":  1567,
-                                                                                  "sha256":  "C15B87F5FE7D1165FE2BDD6166B0DBA1BF64EC8FF1EBF6FA840960741896900C"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py",
-                                                                                  "diffBytes":  1574,
-                                                                                  "sha256":  "26334820CFB9A3243FFD6E668DE81C43AEB6DEBD2858383B1AF5F4E595CD0B0C"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/EntryPoints/CvScreensInterface.py",
-                                                                                  "diffBytes":  1028,
-                                                                                  "sha256":  "D9A1B8148BBF990379113F8C3339A55102BB44C94BCA47E2B2859A9FDA7A41BB"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "Assets/Python/Screens/CvTechChooser.py",
-                                                                                  "diffBytes":  1868,
-                                                                                  "sha256":  "093670276984D9F0EC57E50410EA0BF9E5D2844762A7EECD7E919E78F43B37FA"
-                                                                              },
-                                                                              {
                                                                                   "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                                  "diffBytes":  3877,
-                                                                                  "sha256":  "AB2E9B82513E4BFFFCE58DB47B6EDF7B690A86D8C5B47F61D1CAB6B1D02A5021"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "CvGameCoreDLL/CvDLLWidgetData.cpp",
-                                                                                  "diffBytes":  1201,
-                                                                                  "sha256":  "207AA62572341410BACBE41A1DF5BC1618FECF7F58E9DC917CFE00B39B762CFF"
-                                                                              },
-                                                                              {
-                                                                                  "path":  "CvGameCoreDLL/CvGameTextMgr.cpp",
-                                                                                  "diffBytes":  1215,
-                                                                                  "sha256":  "CA276F69DD9C037A7F1A63066FF10BC59D606107B25CF5231C3B152A7791BB97"
+                                                                                  "diffBytes":  4016,
+                                                                                  "sha256":  "EA3CF91ED3F0C1B08A43A16973BE9AAE9DB969A1F0A28377FDF64C683D19458E"
                                                                               }
                                                                           ]
                                                             }
@@ -2982,9 +2745,9 @@
                       "pdbPresent":  false
                   },
     "dllAfter":  {
-                     "sizeBytes":  8433664,
-                     "modifiedUtc":  "2026-11-08T17:25:41.121Z",
-                     "sha256":  "82D86B0D644AA0C32A47D71CB2FE47EE14CEDE9838EBF8B551388417DDBA51E1"
+                     "sizeBytes":  8454144,
+                     "modifiedUtc":  "2026-11-10T15:12:06.111Z",
+                     "sha256":  "294274D27265A35A17E0A629BA7FDA7419DD1D13166E9A8508D3A09A09C4748B"
                  },
     "buildInputChanges":  [
 

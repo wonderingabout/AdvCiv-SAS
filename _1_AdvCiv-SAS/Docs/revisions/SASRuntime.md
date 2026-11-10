@@ -19,7 +19,7 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 ### Revision 17 - SAS practical 6744
 
 - **Date:** 2026-11-10
-- **Git commit:** pending
+- **Git commit:** `f926c7ab5f988920d872076656a2613b7d75ba41`
 - **Change:** Use the shared XML type formatter for the active turn's civilization in Runtime status and history, preserving the civilization type token and the dash for a missing civilization.
   - Align Runtime's DLL shipping policy with SGR. This formatter change preserves the observer contract, so the source can land without shipping a new binary. When a commit ships a Release DLL alongside native Runtime changes, CI still checks the report against those sources.
   - The Runtime revision check also gained the rule that a commit bumping this revision names it in its title, such as `(Runtime17)`. Under this history's policy a CI change is not a Runtime change, so it is noted here only because it landed in this commit; the SGR history counts its own checker as an SGR change and lists the same rule under SGR197.

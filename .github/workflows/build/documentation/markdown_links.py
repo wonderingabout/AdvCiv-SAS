@@ -444,7 +444,21 @@ def main() -> int:
         if md_path.is_relative_to(ROOT / "LLM_Helpers" / "outputs"):
             continue
         text = md_path.read_text(encoding="utf-8")
-        scan_text = without_inline_code(strip_html_comments(without_fenced_code(text)))
+        prose = strip_html_comments(without_fenced_code(text))
+        # <!-- custom: Catch standalone path labels and prose references that would silently retarget if the guide moved.
+        # Fenced examples, inline commands and paths outside the repository are outside this check. (GPT-6.1-Sol) -->
+        for match in re.finditer(r"(?<!`)`((?:\./|\.\./)[\w./%-]+)`(?!`)", prose):
+            destination = match.group(1)
+            target, _ = resolve_local_link(md_path, destination)
+            if target is None or not target.is_relative_to(ROOT):
+                continue
+            if repository_path_exists(target, manifest_files, manifest_directories):
+                root_path = "/" + target.relative_to(ROOT).as_posix()
+                errors.append(
+                    f"{md_path.relative_to(ROOT)}:{line_number(prose, match.start())}: "
+                    f"use {root_path} or a descriptive link label instead of {destination}"
+                )
+        scan_text = without_inline_code(prose)
         found_local = False
 
         references = list(markdown_links(scan_text)) + list(html_links(scan_text))

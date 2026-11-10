@@ -259,6 +259,24 @@ def line_number(text: str, offset: int) -> int:
 
 
 # <!-- custom: Apply the same local-image policy to inline/reference Markdown and HTML embeds, while leaving remote badges and literal code/comment examples outside the screenshot policy. (GPT-6.1-Sol) -->
+def root_image_path_error(destination: str) -> str | None:
+    if is_local(destination) and not html.unescape(destination.strip()).startswith("/"):
+        return f"use a repository-root image path beginning with /: {destination}"
+    return None
+
+
+# <!-- custom: Markdownlint config comments also supply examples that contributors may copy into guides.
+# Expose their custom comment markers to the HTML parser and apply the same path rule. (GPT-6.1-Sol) -->
+def config_image_path_errors(config_path: Path, text: str) -> list[str]:
+    examples = text.replace("<!--", "    ").replace("-->", "   ")
+    errors = []
+    for offset, destination in html_images(examples):
+        error = root_image_path_error(destination)
+        if error:
+            errors.append(f"{config_path.relative_to(ROOT)}:{line_number(examples, offset)}: {error}")
+    return errors
+
+
 def image_errors(md_path: Path, text: str):
     errors = []
     scan_text = without_inline_code(strip_html_comments(without_fenced_code(text)))
@@ -271,6 +289,10 @@ def image_errors(md_path: Path, text: str):
             continue
         checked += 1
         prefix = f"{md_path.relative_to(ROOT)}:{line_number(scan_text, offset)}: "
+        # <!-- custom: Match the Markdown link policy so moving a guide cannot retarget its screenshots. (GPT-6.1-Sol) -->
+        path_error = root_image_path_error(destination)
+        if path_error:
+            errors.append(prefix + path_error)
         try:
             target.relative_to(ROOT)
         except ValueError:
@@ -301,6 +323,9 @@ def main() -> int:
         checked += count
         if count:
             markdown_files += 1
+    for config_path in sorted(ROOT.glob(".markdownlint*.jsonc")):
+        errors.extend(config_image_path_errors(config_path, config_path.read_text(encoding="utf-8")))
+
     if errors:
         print("Invalid local Markdown images:")
         for error in errors:

@@ -12,6 +12,6 @@ Everything under this directory is used by automated GitHub Actions. Subject fol
 - `source/`: changed-source provenance/rationale checks and fail-fast XML identity lookup policy.
 - `python/`: the helper used by the specialized real CPython 2.4 compile workflow.
 
-`checks-source.yml` also runs `LLM_Helpers/formatting/reflow_custom_comments.py --check`, and `checks-tests.yml` runs the helper regression suite under `../tests/`. Markdown lint, Ruff, Python 2.4 compilation and AIP predump refresh remain specialized workflows.
+`checks-source.yml` also runs `LLM_Helpers/formatting/reflow_custom_comments.py --check`, and `checks-tests.yml` runs the [helper regression suite](/.github/workflows/tests/). Markdown lint, Ruff, Python 2.4 compilation and AIP predump refresh remain specialized workflows.
 
 See the [workflow README](/.github/workflows/README.md) for individual descriptions, workflow names and local commands.

@@ -28,6 +28,10 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
     "SAS_SGR_ACTION_TRACE_ON": 1,
     # <!-- custom: Preserve the independent caption-text opt-in when shipping the annotation observer; local test values remain unstaged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
     "SAS_SGR_MAP_ANNOTATION_TEXT_ON": 0,
+    # <!-- custom: Player-authored multiplayer chat bodies are private/free-form text; metadata remains available, but exact bodies must ship opt-in. (ChatGPT-5.6-Sol) -->
+    "SAS_SGR_CHAT_ALL_TEXT_ON": 0,
+    "SAS_SGR_CHAT_TEAM_TEXT_ON": 0,
+    "SAS_SGR_CHAT_DIRECT_TEXT_ON": 0,
     # <!-- custom: Saved Changes history is independent of the recorder master; ship applied WorldBuilder script-text capture enabled as documented, while allowing local opt-out tests. (GPT-6.1-Sol) -->
     "SAS_WORLD_CHANGES_SCRIPT_TEXT_ON": 1,
     # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
