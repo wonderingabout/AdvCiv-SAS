@@ -292,6 +292,8 @@ CvString getSASDiagnosticQuoted(char const* szValue);
 CvWString getSASDiagnosticQuoted(wchar const* szValue);
 // <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: Borrow existing C strings for diagnostic fields, including optional XML audio scripts, without constructing a CvString just to handle an empty value. (GPT-6.1-Sol) -->
+inline char const* getSASDiagnosticOrDash(char const* szValue) { return szValue == NULL || szValue[0] == '\0' ? "-" : szValue; }
 // <!-- custom: XML type of an info enum for diagnostic rows, or "-" for its NO_ value, e.g. unitAI=UNITAI_SETTLE instead of unitAI=1; the same "-" convention as getSASDiagnosticQuoted.
 // BBAI rows logged such enums as numbers or as getUnitAIString labels like "no unitAI"; the XML type is stable across languages and mods. Templated so this header needs no info definitions.
 // CommerceTypes and YieldTypes also have loaded XML names. SGR building-effect lists once failed to compile when they called a missing yield-specific getter, so use this shared lookup for both.

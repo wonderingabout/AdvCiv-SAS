@@ -59,6 +59,11 @@ void logSASGameRecordPlayerOptionChange(PlayerTypes ePlayer, PlayerOptionTypes e
 // Callers pre-gate at level 2+ and, from revision 151 onward, the independent action-trace subject switch. (ChatGPT-5.6-Sol) -->
 // <!-- custom: Accept the native control enum instead of separate action/source strings so accepted and rejected paths share one curated mapping. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordControlRequest(ControlTypes eControl, bool bAccepted);
+// <!-- custom: Observe the exact soundtrack value returned by the DLL to the EXE, not confirmed playback.
+// Era selection is one row per selector call; persistent victory/defeat override queries are change-deduplicated.
+// Callers pre-gate at level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordSoundtrackSelection(EraTypes eCurrentEra, EraTypes ePreviousEra, int iSoundtrackIndex, int iSoundtrackId, int iPreviousSoundtrackId, char const* szAudioScript, char const* szSelectionMode);
+void updateSASGameRecordSoundtrackOverride(bool bActive, char const* szAudioScript, char const* szSelectionMode);
 // <!-- custom: Native ButtonPopup returns provide direct player-choice evidence for general popup buttons; record fixed popup/choice tokens plus only reviewed native numeric context, never popup/free-form/edit-box text or unreviewed generic payload slots.
 // Widget-routed research/production selections have separate typed command rows; a production popup button alone cannot distinguish unit/building classes, projects and processes. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClicked);

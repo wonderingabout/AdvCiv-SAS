@@ -302,6 +302,10 @@ static SASGameRecordPlotOwnerChangeCause g_eSASGameRecordPlotOwnerChangeCause = 
 static uint g_uiSASGameRecordSessionStartTime = 0;
 static uint g_uiSASGameRecordPreviousSnapshotTime = 0;
 static bool g_bSASGameRecordDisplayContextLogged = false;
+// <!-- custom: The EXE may poll a persistent victory/defeat soundtrack override; retain only enough session-local state to suppress identical repeated override returns. (ChatGPT-5.6-Sol) -->
+static bool g_bSASGameRecordSoundtrackOverrideActive = false;
+static PlayerTypes g_eSASGameRecordSoundtrackOverridePlayer = NO_PLAYER;
+static CvString g_szSASGameRecordSoundtrackOverrideScript;
 // <!-- custom: New-game setup can emit many real ACTION rows before the EXE reports gameStart.
 // Buffer only those actions so stable game/mod/map context stays at the top, then flush them in original order once initialization is complete. (ChatGPT-5.6-Sol) -->
 static bool g_bSASGameRecordBufferInitializingActions = false;
@@ -2729,6 +2733,70 @@ void logSASGameRecordControlRequest(ControlTypes eControl, bool bAccepted)
 		kLabels.szAction, kLabels.szSource, bAccepted);
 }
 
+// <!-- custom: Resolve the previous era soundtrack only for this rare level-2 row; the selector already supplies the chosen script directly.
+// Keep the lookup in SGR because only this caller needs a script when the previous resolved ID identifies one XML slot. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+static char const* findSASGameRecordPreviousSoundtrackScript(EraTypes eEra, int iSoundtrackId)
+{
+	if (eEra < 0 || eEra >= GC.getNumEraInfos() || iSoundtrackId < 0)
+		return NULL;
+	CvEraInfo const& kEra = GC.getInfo(eEra);
+	char const* szScript = NULL;
+	for (int i = 0; i < kEra.getNumSoundtracks(); i++)
+	{
+		if (kEra.getSoundtracks(i) != iSoundtrackId)
+			continue;
+		if (szScript != NULL)
+			return NULL;
+		szScript = kEra.getSoundtrackScriptName(i);
+	}
+	return szScript;
+}
+
+static void logSASGameRecordSoundtrackSelectionRow(char const* szSource, EraTypes eCurrentEra, EraTypes ePreviousEra, int iSoundtrackIndex, int iSoundtrackId, int iPreviousSoundtrackId, char const* szAudioScript, char const* szSelectionMode)
+{
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_SOUNDTRACK_SELECTION turn=%d elapsed=%d activePlayer=%d sessionWallMilliseconds=%u stage=DLL_RETURN source=%s selectionMode=%s currentEra=%s previousEra=%s soundtrackIndex=%d soundtrackId=%d previousSoundtrackId=%d audioScript=%s previousAudioScript=%s gameState=%s winnerTeam=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		szSource, szSelectionMode, getSASInfoTypeOrNone(eCurrentEra), getSASInfoTypeOrNone(ePreviousEra),
+		iSoundtrackIndex, iSoundtrackId, iPreviousSoundtrackId, getSASDiagnosticOrDash(szAudioScript),
+		getSASDiagnosticOrDash(findSASGameRecordPreviousSoundtrackScript(ePreviousEra, iPreviousSoundtrackId)), getSASGameStateTypeName(kGame.getGameState()), kGame.getWinner());
+}
+
+void logSASGameRecordSoundtrackSelection(EraTypes eCurrentEra, EraTypes ePreviousEra, int iSoundtrackIndex, int iSoundtrackId, int iPreviousSoundtrackId, char const* szAudioScript, char const* szSelectionMode)
+{
+	// <!-- custom: The EXE can request a track before a record opens.
+	// Callers pre-gate by level, then each entry point checks the private session flag before doing recorder work.
+	// Use one serializer for era selections and overrides so both paths write the same row schema. (GPT-6.1-Sol) -->
+	if (!g_bSASGameRecordSessionOpen)
+		return;
+	logSASGameRecordSoundtrackSelectionRow("ERA_SELECTOR", eCurrentEra, ePreviousEra, iSoundtrackIndex, iSoundtrackId, iPreviousSoundtrackId, szAudioScript, szSelectionMode);
+}
+
+void updateSASGameRecordSoundtrackOverride(bool bActive, char const* szAudioScript, char const* szSelectionMode)
+{
+	if (!g_bSASGameRecordSessionOpen)
+		return;
+	if (!bActive)
+	{
+		if (!g_bSASGameRecordSoundtrackOverrideActive)
+			return;
+		g_bSASGameRecordSoundtrackOverrideActive = false;
+		g_eSASGameRecordSoundtrackOverridePlayer = NO_PLAYER;
+		g_szSASGameRecordSoundtrackOverrideScript.clear();
+		return;
+	}
+	CvGame const& kGame = GC.getGame();
+	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	char const* szScript = szAudioScript;
+	if (g_bSASGameRecordSoundtrackOverrideActive && g_eSASGameRecordSoundtrackOverridePlayer == eActivePlayer && g_szSASGameRecordSoundtrackOverrideScript == szScript)
+		return;
+	g_bSASGameRecordSoundtrackOverrideActive = true;
+	g_eSASGameRecordSoundtrackOverridePlayer = eActivePlayer;
+	g_szSASGameRecordSoundtrackOverrideScript = szScript;
+	EraTypes const eCurrentEra = (eActivePlayer == NO_PLAYER ? NO_ERA : GET_PLAYER(eActivePlayer).getCurrentEra());
+	logSASGameRecordSoundtrackSelectionRow("GAMESTATE_OVERRIDE", eCurrentEra, NO_ERA, -1, -1, -1, szScript, szSelectionMode);
+}
+
 // <!-- custom: Python owns several advisor/Sevopedia entry points that have no equally authoritative DLL callback.
 // Record only SAS-controlled screen/action labels and numeric navigation IDs; never route search strings, names, paths, or other user-entered text through this bridge. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordScreenAction(char const* szScreen, char const* szAction, int iPrimary, int iSecondary)
@@ -4608,6 +4676,9 @@ static void resetSASGameRecordState()
 	g_uiSASGameRecordAutoPlayStartTime = 0;
 	g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	g_iSASGameRecordTotalActivePlayerChanges = 0;
+	g_bSASGameRecordSoundtrackOverrideActive = false;
+	g_eSASGameRecordSoundtrackOverridePlayer = NO_PLAYER;
+	g_szSASGameRecordSoundtrackOverrideScript.clear();
 	g_iSASGameRecordControlHandoffSerial = 0;
 	g_mapSASGameRecordControlHandoffCityAssignment.clear();
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)

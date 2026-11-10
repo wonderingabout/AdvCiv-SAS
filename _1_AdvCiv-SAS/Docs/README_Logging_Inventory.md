@@ -2065,6 +2065,8 @@ All 4 nonempty rows in the capture.
 
 #### `audio.log`
 
+The engine writes audio asset loading diagnostics here. SGR's `GAME_RECORD_SOUNDTRACK_SELECTION` records the background music choice returned by the DLL. For the diplomacy MP3 load errors reported during likely autoplay and the limits of that observation, see [KI#1031.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031.2).
+
 30 of 38 nonempty rows: the first 20 and final 10.
 
 ```log

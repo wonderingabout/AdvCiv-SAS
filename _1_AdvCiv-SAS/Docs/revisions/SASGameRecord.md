@@ -113,10 +113,21 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 195 - SAS practical 6742
+
+- **Date:** 2026-11-10
+- **Git commit:** pending
+- **Change:** Record the soundtrack value returned by the game DLL so a game record can identify its background-music context without treating selection as confirmed playback.
+  - In an open level-2+ record, `GAME_RECORD_SOUNDTRACK_SELECTION` records era selector returns with active player, current/previous era, selected/previous soundtrack IDs, the loaded XML audio-script name and whether the branch was the only track, first track of a new era, random non-repeat choice or no-alternative repeat.
+  - The row is written after the existing choice. Random selections reuse that result and make no additional `ASyncRand` draw.
+  - Victory/defeat soundtrack overrides use the same row with `source=GAMESTATE_OVERRIDE`; identical persistent override returns are change-deduplicated so an EXE polling detail cannot flood the record.
+  - `stage=DLL_RETURN` means the DLL returned that soundtrack to the EXE. Playback is a separate step handled by the EXE. Existing audio-profile settings separately record mute/volume and whether a custom-music path is configured, including later Options changes.
+  - Only XML audio-script IDs such as `AS2D_...` are recorded. These hooks never inspect or record custom-music paths/files; opening-menu music uses the separate `CvMainMenuInfo::getSoundtrack` path outside the in-game selector and is not added to SASGameRecord.
+
 ### Revision 194 - SAS practical 6741
 
 - **Date:** 2026-11-09
-- **Git commit:** pending
+- **Git commit:** `cc04dd838e2638c43255a9262f475ebaa345e1d4`
 - **Change:** Make human/AI controller handoffs explainable at the point where they can change a deterministic replay, without turning ordinary turns into a new recurring trace.
   - KI#203.2's sliced replay matched the uninterrupted run through T49 and consumed the same cumulative synchronized RNG through T50, but state changed after `AUTOPLAY_END` and the RNG stream diverged on T51; the old boundary located the window without separating the autoplay request, actual controller transition, deferred human-side lifecycle work and later return to AI control.
   - Level 3 now brackets the actual `setHumanDisabled` transition with `CONTROL_HANDOFF_BEFORE/AFTER` checkpoints and `GAME_RECORD_CONTROL_HANDOFF`, preserving the real controller state rather than inferring it from an autoplay button/request. This hook covers effective controller changes through `setHumanDisabled`, including AI Auto Play.

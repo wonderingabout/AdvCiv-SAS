@@ -2614,7 +2614,11 @@ int CvGame::getNextSoundtrack(EraTypes eLastEra, int iLastSoundtrack) const
 	if (kCurrentEra.getNumSoundtracks() == 1 ||
 		(eLastEra != eCurEra && kCurrentEra.isFirstSoundtrackFirst()))
 	{
-		return kCurrentEra.getSoundtracks(0);
+		int const iSelectedSoundtrack = kCurrentEra.getSoundtracks(0);
+		// <!-- custom: Record the existing EXE-facing soundtrack return after selection; this is selection evidence, not proof that the audio engine started playback.
+		// Reuse the chosen ID/script so diagnostics make no extra async RNG draw. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordSoundtrackSelection(eCurEra, eLastEra, 0, iSelectedSoundtrack, iLastSoundtrack, kCurrentEra.getSoundtrackScriptName(0), kCurrentEra.getNumSoundtracks() == 1 ? "ONLY_TRACK" : "FIRST_OF_ERA");
+		return iSelectedSoundtrack;
 	}
 	//return kCurrentEra.getSoundtracks(GC.getASyncRand().get(kCurrentEra.getNumSoundtracks(), "Pick Song ASYNC"));
 	/*	<advc.002o> Perhaps was meant to be implemented this way? Why else handle
@@ -2626,10 +2630,34 @@ int CvGame::getNextSoundtrack(EraTypes eLastEra, int iLastSoundtrack) const
 		if (iTrack != iLastSoundtrack)
 			aiTracks.push_back(iTrack);
 	}
-	if (aiTracks.empty())
+	bool const bNoAlternativeResolvedId = aiTracks.empty();
+	if (bNoAlternativeResolvedId)
 		aiTracks.push_back(iLastSoundtrack);
-	return aiTracks[GC.getASyncRand().get(
-			aiTracks.size(), "Pick Song ASYNC")]; // </advc.002o>
+	int const iSelectedChoice = GC.getASyncRand().get(aiTracks.size(), "Pick Song ASYNC");
+	int const iSelectedSoundtrack = aiTracks[iSelectedChoice]; // </advc.002o>
+	if (gGameRecordLogLevel >= 2)
+	{
+		int iSelectedIndex = -1;
+		if (!bNoAlternativeResolvedId)
+		{
+			int iEligibleIndex = 0;
+			for (int i = 0; i < kCurrentEra.getNumSoundtracks(); i++)
+			{
+				if (kCurrentEra.getSoundtracks(i) == iLastSoundtrack)
+					continue;
+				if (iEligibleIndex == iSelectedChoice)
+				{
+					iSelectedIndex = i;
+					break;
+				}
+				iEligibleIndex++;
+			}
+		}
+		// <!-- custom: The fallback returns the previous resolved ID without selecting an XML slot, so leave its slot and script unknown. (GPT-6.1-Sol) -->
+		logSASGameRecordSoundtrackSelection(eCurEra, eLastEra, iSelectedIndex, iSelectedSoundtrack, iLastSoundtrack,
+			iSelectedIndex < 0 ? NULL : kCurrentEra.getSoundtrackScriptName(iSelectedIndex), bNoAlternativeResolvedId ? "REPEAT_ONLY_RESOLVED_ID" : "RANDOM_EXCLUDING_PREVIOUS");
+	}
+	return iSelectedSoundtrack;
 }
 
 
@@ -2649,12 +2677,15 @@ bool CvGame::isSoundtrackOverride(CvString& strSoundtrack) const
 	{
 		if (getGameState() == GAMESTATE_EXTENDED || getGameState() == GAMESTATE_OVER)
 		{
-			if (getWinner() == getActiveTeam())
-				strSoundtrack = "AS2D_VICTORY";
-			else strSoundtrack = "AS2D_DEFEAT";
+			bool const bVictory = (getWinner() == getActiveTeam());
+			strSoundtrack = bVictory ? "AS2D_VICTORY" : "AS2D_DEFEAT";
+			// <!-- custom: Victory/defeat state can persist while the EXE queries this override repeatedly.
+			// Record only a new/changed override return so a polling detail cannot flood the game record. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+			if (gGameRecordLogLevel >= 2) updateSASGameRecordSoundtrackOverride(true, strSoundtrack.GetCString(), bVictory ? "VICTORY" : "DEFEAT");
 			return true;
 		}
 	}
+	if (gGameRecordLogLevel >= 2) updateSASGameRecordSoundtrackOverride(false, NULL, NULL);
 	return false;
 }
 

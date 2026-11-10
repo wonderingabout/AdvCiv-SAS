@@ -1197,6 +1197,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1029 - (Provisional Pending Architectural inherited wrapped-map iterator defect, exposed by SAS Arena) Radius iterators can repeat physical plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1029)\
 [KI#1030 - (Fixed UI inherited AdvC Turn Log defect) Persistent NO_TECH discounted a nonexistent completion message](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1030)\
 [KI#1031 - (Fixed SAS data regression) Stalin's Renaissance peace intro referenced a nonexistent audio script](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031)\
+[KI#1031.2 - (Observed) Diplomacy MP3 load errors appear during autoplay](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031.2)\
 [KI#1032 - (Fixed UI inherited AdvC SPaH defect) Hidden randomized points omitted their disclosure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1032)\
 [KI#1033 - (Fixed UI inherited AdvC optional-alert defect) Multi-copy resource changes duplicated third-party alerts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1033)\
 [KI#1034 - (Fixed inherited K-Mod diagnostic defect) CvMap initialization used an incomplete printf conversion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1034)\
@@ -36420,6 +36421,34 @@ Corrected the Renaissance reference and added a CI check that resolves every non
 The focused check passes locally for all 500 current non-empty leader diplomacy-audio references. An in-game Stalin Renaissance peace-intro check remains optional because the static check exercises the exact broken cross-file relationship.
 
 Found as F710/provisional KI#1031 during ChatGPT-5.6-Sol's C031-WIP679 post-primary data/cross-file pass; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-1031.2"></a>
+
+## KI#1031.2 - (Observed) Diplomacy MP3 load errors appear during autoplay
+
+On 2026-11-10, the user reported seeing audio errors in the in-game message box, most likely during AI Auto Play. The local `audio.log` contains repeated `FSharedSoundData::Load: Could not load file` errors for `cyrus_middle.mp3` and the Michael Collins diplomacy MP3 `kaazoom-cara-relaxing-celtic-irish-music-447794.mp3`.
+
+Music is usually audible for the user in ordinary play. A matched normal-play comparison has not been run, and the cause of these load errors remains open. [Engine audio log](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#audiolog)
+
+The older `audio - Copie (2).log` (file dated 2026-10-19) shows the same error sequence for other diplomacy tracks. It includes 701 file-load errors naming `wangkon_middle.mp3` and 3,814 naming `hannibal_late.mp3`. The older session's play mode is unknown.
+
+Verbatim excerpt from that copy, showing successful audio initialization followed by the first two Wang Kon failures:
+
+```log
+[39475.515] AudioManager: Successfully initialized the audio manager.
+[39578.313] WRN: FAudioSystemMiles::Acquire2DStreamId: Could not acquire Id
+[39578.313] WRN: FAudioManager::Load2DStream(): Could not initialize sound handle.
+[39578.313] ERR: FSharedSoundData::Load: Could not load file ..\warlords\assets\sounds\diplomacy\wangkon_middle.mp3.
+[39578.313] WRN: Stream could not be loaded, GlobalId: 188
+[39578.313] WRN: FSound::DoLoad: Sound Sounds/Diplomacy/Wangkon_Middle could acquire a loaded buffer.
+[39578.313] WRN: FAudioManager::DoSound(): Could not load scriptId 292./n
+[39578.953] WRN: FAudioSystemMiles::Acquire2DStreamId: Could not acquire Id
+[39578.953] WRN: FAudioManager::Load2DStream(): Could not initialize sound handle.
+[39578.953] ERR: FSharedSoundData::Load: Could not load file ..\warlords\assets\sounds\diplomacy\wangkon_middle.mp3.
+[39578.953] WRN: Stream could not be loaded, GlobalId: 188
+[39578.953] WRN: FSound::DoLoad: Sound Sounds/Diplomacy/Wangkon_Middle could acquire a loaded buffer.
+[39578.953] WRN: FAudioManager::DoSound(): Could not load scriptId 292./n
+```
 
 <a id="ki-1032"></a>
 
