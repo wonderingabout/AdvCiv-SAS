@@ -365,7 +365,7 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 		kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders,
 		kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders,
 		kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates,
-		szCityUnitList.empty() ? "-" : szCityUnitList.GetCString());
+		getSASDiagnosticOrDash(szCityUnitList.GetCString()));
 }
 
 // <!-- custom: Settler escort behavior uses the diagnostic city-unit pool to reassign one local healthy defender as escort before allowing exposed expansion.
@@ -5866,7 +5866,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 						iTargetIrrigationFoodGain, iTargetIrrigationProductionGain, iTargetIrrigationCommerceGain, iTargetIrrigationUtilityGain,
 						kTargetPlot.isIrrigated(), kTargetPlot.isIrrigationAvailable(true), iRoutePlots,
 						iSAS_WORKER_IRRIG_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, kCityYieldAnalysis.iCityFoodSupportPressure,
-						kRouteDiagnostics.szRoute.empty() ? "-" : kRouteDiagnostics.szRoute.c_str());
+						getSASDiagnosticOrDash(kRouteDiagnostics.szRoute.c_str()));
 				}
 				candidatePlots.push_back(kChainStep);
 			}

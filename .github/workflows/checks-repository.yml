@@ -54,13 +54,19 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
 
+      - name: Known Issue numbers in commit titles
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/ki_commit_titles.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
       - name: DLL rebuild for structural XML define changes
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/dll_define_changes.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
         env:
           EVENT_NAME: ${{ github.event_name }}
 
-      - name: DLL rebuild for compiled Runtime revisions
+      - name: Release DLL provenance for native Runtime changes
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/dll_runtime_revision.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
         env:

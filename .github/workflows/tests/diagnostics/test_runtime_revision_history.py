@@ -22,9 +22,14 @@ class RuntimeRevisionTests(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
 
-    def commit(self):
+    def commit(self, title="fixture"):
+        # <!-- custom: Name a bumped revision in the title as real commits must; the title tests below pass their own titles instead. (Claude code Opus 5.5) -->
+        if title == "fixture" and subprocess.run(["git", "rev-parse", "--verify", "-q", "HEAD"], cwd=self.repo, capture_output=True).returncode == 0:
+            previous, current = (history.revision(source, history.read(self.repo, ref, history.DEFINES)) if source else 0 for ref, source in ((ref, history.read(self.repo, ref, history.SOURCE)) for ref in ("HEAD", None)))
+            if previous is not None and current == previous + 1:
+                title += f" (Runtime{current})"
         self.git("add", ".")
-        self.git("commit", "-qm", "fixture")
+        self.git("commit", "-qm", title)
         return self.git("rev-parse", "HEAD")
 
     def setUp(self):
@@ -150,6 +155,16 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.assertEqual(history.check(self.repo, 'main', squash=True), [])
         self.record(3, "unnecessary extra bump")
         self.assertTrue(history.check(self.repo, 'main', squash=True))
+
+    # <!-- custom: fc663b10b bumped Runtime17 without naming it in its title; a bumping commit's title must name its label. (Claude code Opus 5.5) -->
+    def test_bumping_commit_title_names_the_revision(self):
+        self.git("branch", "-f", "main", self.introduction)
+        self.record(2, "implementation change")
+        self.commit("Change the recorder")
+        self.assertTrue(any("must name the bumped revision Runtime2" in error for error in history.check(self.repo, "main")))
+        self.git("commit", "--amend", "-qm", "Change the recorder (SGR10, Runtime2)")
+        self.assertEqual(history.check(self.repo, "main"), [])
+
 
 if __name__ == "__main__":
     unittest.main()

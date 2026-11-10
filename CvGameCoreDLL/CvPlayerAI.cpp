@@ -13113,8 +13113,8 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade, 
 				rBuildingValue.getPercent(), rProjectValue.getPercent(), rRouteValue.getPercent(), rManualObjectiveValue.getPercent(), rDynamicValueBeforeDivisor.getPercent(), iValue);
 			if (gBonusLogLevel >= 3) logBBAI("BONUS_DYNAMIC_CONTRIBUTORS turn=%d player=%d bonus=%s trade=%d unitInputs=%s buildingInputs=%s projectInputs=%s routeInputs=%s",
 				GC.getGame().getGameTurn(), getID(), GC.getInfo(eBonus).getType(), bTrade,
-				(szUnitContributors.empty() ? "-" : szUnitContributors.GetCString()), (szBuildingContributors.empty() ? "-" : szBuildingContributors.GetCString()),
-				(szProjectContributors.empty() ? "-" : szProjectContributors.GetCString()), (szRouteContributors.empty() ? "-" : szRouteContributors.GetCString()));
+				getSASDiagnosticOrDash(szUnitContributors.GetCString()), getSASDiagnosticOrDash(szBuildingContributors.GetCString()),
+				getSASDiagnosticOrDash(szProjectContributors.GetCString()), getSASDiagnosticOrDash(szRouteContributors.GetCString()));
 		}
 	}
 	/*  To address karadoc's "@*#!" comment in the middle of this function;

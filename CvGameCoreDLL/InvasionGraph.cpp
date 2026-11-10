@@ -71,8 +71,8 @@ namespace
 				GC.getGame().getGameTurn(), eAgent, ePlayer, kOwner.getNumCities(),
 				pCapital == NULL ? -1 : pCapital->getID(), getSASDiagnosticQuoted(pCapital == NULL ? NULL : pCapital->getName().GetCString()).GetCString(),
 				pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
-				iPlayerEligible, pCapital == NULL ? -1 : iCapitalTrainable, szPlayerEligible.empty() ? "-" : szPlayerEligible.GetCString(),
-				szCapitalTrainable.empty() ? "-" : szCapitalTrainable.GetCString(), szCapitalBonuses.empty() ? "-" : szCapitalBonuses.GetCString());
+				iPlayerEligible, pCapital == NULL ? -1 : iCapitalTrainable, getSASDiagnosticOrDash(szPlayerEligible.GetCString()),
+				getSASDiagnosticOrDash(szCapitalTrainable.GetCString()), getSASDiagnosticOrDash(szCapitalBonuses.GetCString()));
 	}
 
 }

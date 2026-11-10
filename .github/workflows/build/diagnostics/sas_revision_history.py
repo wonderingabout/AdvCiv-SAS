@@ -131,6 +131,21 @@ def commit_revision(repo, commit):
     return None
 
 
+# <!-- custom: Commit fc663b10b bumped SGR197 and Runtime17 without naming either in its title, so finding a revision in `git log --oneline` meant opening commits; titles had carried them by convention, as in (SGR195) or (Runtime16, SGR182).
+# Require each bumped label as a word anywhere in the title, in any order; KI numbers stay optional.
+# Only a single real commit is checked: a squash candidate has no title yet, a squashed PR takes its title from the PR rather than from its tip commit, and a merge carries a bump its merged branch already named. (Claude code Opus 5.5) -->
+def title_label_error(repo, parent, commit, label):
+    if commit is None:
+        return None
+    parents = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().split()[1:]
+    if parents != [parent]:
+        return None
+    title = subprocess.check_output(["git", "log", "-1", "--format=%s", commit], cwd=repo).decode("utf-8", "replace").strip()
+    if re.search(r"(?<![A-Za-z0-9])" + re.escape(label) + r"(?![0-9])", title):
+        return None
+    return f"title must name the bumped revision {label}, for example \"... ({label})\"; title was: {title}"
+
+
 def first_parent(repo, commit):
     line = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().strip().split()
     return line[1] if len(line) > 1 else None
@@ -306,6 +321,9 @@ def check_progression(repo, default_branch_ref=None, event_name="local", event_d
         if delta == 1:
             history = git_show(repo, commit, HISTORY.as_posix())
             errors.extend(f"commit {short}: {error}" for error in change_errors("" if history is None else history.decode("utf-8", "replace"), current))
+            title_error = title_label_error(repo, parent, commit, f"SGR{current}")
+            if title_error:
+                errors.append(f"commit {short}: {title_error}")
     return errors
 
 

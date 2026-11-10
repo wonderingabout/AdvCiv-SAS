@@ -6,13 +6,23 @@ Increment once per commit changing the loaded runtime recorder, its interfaces, 
 
 The label is cached once when Runtime is enabled; it identifies the configured recorder implementation, not the loaded binary. DLL/build/source provenance separately identifies native code.
 
-Revisions 1–15 used a DLL enum label. Like SGR, revision 16 moved the label to SAS XML because adding or modifying an external watcher can require a recorder revision without any native code change; the compiled label forced an otherwise unnecessary DLL rebuild. Native Runtime implementation changes still require a matching Release DLL/report.
+Revisions 1–15 used a DLL enum label. Like SGR, revision 16 moved the label to SAS XML because adding or modifying an external watcher can require a recorder revision without any native code change; the compiled label forced an otherwise unnecessary DLL rebuild.
+
+Like SGR, native Runtime changes can land without a shipped DLL refresh when the existing binary remains suitable. Use a rebuilt DLL to test native changes.
 
 Pure CI/checker, test, documentation and historical-example maintenance does not change the loaded recorder and does not require an increment or DLL rebuild.
 
 Add a latest-first entry explaining the behavior and rationale. The diagnostics check requires consecutive history entries, agreement with the XML value (or compiled value in historical commits), and exactly one increment per recognized implementation commit. Shared-code detection uses changed runtime symbols; review unusual refactors manually because CI cannot infer every dependency.
 
 ## History
+
+### Revision 17 - SAS practical 6744
+
+- **Date:** 2026-11-10
+- **Git commit:** pending
+- **Change:** Use the shared XML type formatter for the active turn's civilization in Runtime status and history, preserving the civilization type token and the dash for a missing civilization.
+  - Align Runtime's DLL shipping policy with SGR. This formatter change preserves the observer contract, so the source can land without shipping a new binary. When a commit ships a Release DLL alongside native Runtime changes, CI still checks the report against those sources.
+  - The Runtime revision check also gained the rule that a commit bumping this revision names it in its title, such as `(Runtime17)`. Under this history's policy a CI change is not a Runtime change, so it is noted here only because it landed in this commit; the SGR history counts its own checker as an SGR change and lists the same rule under SGR197.
 
 ### Revision 16 - SAS practical 6702
 

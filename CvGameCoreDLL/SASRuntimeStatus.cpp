@@ -1719,7 +1719,7 @@ void updateSASRuntimeStatusPlayerTurnStarted(PlayerTypes ePlayer)
 	g_eSASRuntimePlayerTurnCivilization = kPlayer.getCivilizationType();
 	g_eSASRuntimePlayerTurnControl = getSASRuntimePlayerTurnControl(kPlayer);
 	g_eSASRuntimePlayerTurnPhase = SAS_RUNTIME_PLAYER_TURN_PHASE_ACTIVATING;
-	g_szSASRuntimePlayerTurnCivilizationType = (g_eSASRuntimePlayerTurnCivilization == NO_CIVILIZATION ? "-" : GC.getCivilizationInfo(g_eSASRuntimePlayerTurnCivilization).getType());
+	g_szSASRuntimePlayerTurnCivilizationType = getSASInfoTypeOrNone(g_eSASRuntimePlayerTurnCivilization);
 	g_szSASRuntimePlayerTurnStartedUtc = createSASUtcTimestampMilliseconds();
 	g_szSASRuntimePlayerTurnPhaseStartedUtc = g_szSASRuntimePlayerTurnStartedUtc;
 	g_uiSASRuntimePlayerTurnStartedMilliseconds = getSASMonotonicMilliseconds();

@@ -68,6 +68,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
     - [`build/repository/dll_runtime_revision.py`](#buildrepositorydll_runtime_revisionpy)
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
+    - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
@@ -370,6 +371,8 @@ Dedicated runtime files always qualify, including implementation comments and th
 
 Shared source/configuration changes are recognized by runtime symbols in changed lines; unusual refactors still need manual review.
 
+A commit that bumps the Runtime revision must name it in its title, such as `(Runtime17)`, through the same title rule as SASGameRecord; see [`sas_revision_history.py`](#builddiagnosticssas_revision_historypy).
+
 The regression tests cover multiple commits, missed increments, jumps/regressions, history mismatches, checker-only maintenance and clean CRLF working trees.
 
 #### `build/diagnostics/runtime_status.py`
@@ -421,6 +424,8 @@ When the default-branch range is available, the checker also inspects current br
 - Dedicated recorder/checker/helper files and SASGameRecord-named Python helpers qualify.
 - Other game-source/configuration bridge changes qualify when their diff exposes SASGameRecord markers.
 - The known source packager `LLM_Helpers/packaging/make_light_source_zip.py` is excluded: selecting recorder examples/screenshots does not change the recorder. Other helpers retain conservative marker detection, even if their names do not mention SASGameRecord.
+- A rename that leaves a file's content unchanged is no recorder change, and the dedicated helper and packager paths are kept at both their flat and their 2026-11-10 `LLM_Helpers/` locations, so older commits are judged by the paths they used.
+- A commit that bumps the revision must name it in its title as a whole word, such as `(SGR197)` or `(Runtime17, SGR197)`, after `fc663b10b` bumped SGR197 and Runtime17 without naming either. Squash candidates and merge commits are not checked: their titles come from the PR or name the merged branch. KI numbers stay optional.
 
 This is intentionally conservative automation around the written policy rather than an attempt to infer every semantic dependency.
 
@@ -789,11 +794,11 @@ python .github/workflows/build/repository/dll_python_bindings.py --base-ref HEAD
 
 #### `build/repository/dll_runtime_revision.py`
 
-Checks native Runtime implementation changes on default-branch integration. A native change requires a matching Release DLL/report whose source manifest matches each changed dedicated `SASRuntime*.cpp` / `.h` file, accepting Git LF versus build CRLF line endings. A changed unrelated DLL is insufficient. Comment/formatting-only edits do not force a build.
+When a default-branch integration ships a DLL alongside native Runtime changes, this check verifies the Release report's source manifest against each changed dedicated `SASRuntime*.cpp` / `.h` file. It accepts Git LF and build CRLF line endings.
 
-`SAS_RUNTIME_REVISION` is an XML implementation label, like SGR's revision. XML-only and external-observer updates advance that label without requiring a native rebuild; DLL/build/source identities remain separate evidence.
+Runtime and SGR can both land source-only changes while the shipped DLL remains suitable. The structural-define and Python-binding rebuild guards still apply. Review observer changes for dependencies on new DLL behavior before deciding whether the shipped binary needs an update.
 
-The migration itself changes the native reader and therefore requires a matching Release build. Older commits preceding this guard are excluded, and feature-branch pushes can remain source-only while drafting.
+`SAS_RUNTIME_REVISION` is an XML implementation label. Use DLL/build/source identities to identify the native code actually loaded.
 
 ```text
 python .github/workflows/build/repository/dll_runtime_revision.py
@@ -810,6 +815,19 @@ Keeps compact documentation examples in archives while requiring manual review w
 
 ```bash
 python .github/workflows/build/repository/examples_archive_size.py
+```
+
+#### `build/repository/ki_commit_titles.py`
+
+Requires a commit that adds Known Issues to name them, so the commit that opened an issue can be found from its number. Most titles already did, such as `(SGR194, KI#203.2)`, but commits adding two or three KIs mostly named them only in the body, if at all.
+
+- New KIs are found by their `<a id="ki-N">` anchors; an entry only moved or renumbered within the file is not new, and editing an existing KI needs no mention.
+- Up to three new KIs must each be named in the title. More, as in audit reconciliations that added up to 33 at once, may be named anywhere in the message, and a range such as `KI#1036-KI#1068` names whole-number KIs in between.
+- `KI#1076` is not satisfied by `KI#1076.2` or `KI#10760`.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+
+```bash
+python .github/workflows/build/repository/ki_commit_titles.py
 ```
 
 #### `build/repository/project_sources.py`

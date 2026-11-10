@@ -113,10 +113,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 196 - SAS practical 6743
+### Revision 197 - SAS practical 6744
 
 - **Date:** 2026-11-10
 - **Git commit:** pending
+- **Change:** Reuse the shared missing-value formatter for diagnostic lists and text fields that already treated an empty value as missing.
+  - This preserves the existing output, including NULL-only defaults and pointer checks that protect unit and plot lookups.
+  - Use the shared XML formatter for optional deal-cancellation denials. Trade-market observations still use `NO_DENIAL` for a completed query that returned no denial.
+  - The revision check now requires a commit that bumps the SGR or Runtime revision to name it in its title, such as `(SGR197, Runtime17)`; this commit was first made without them. It is listed because this history counts its own checker as an SGR change, unlike the Runtime history, which notes it only as context under Runtime17.
+
+### Revision 196 - SAS practical 6743
+
+- **Date:** 2026-11-10
+- **Git commit:** `3d6f100d1e59c2f3ccf6255b30b5abe8d6f25de1`
 - **Change:** Move the SASGameRecord helpers out of the flat `LLM_Helpers/` folder into `LLM_Helpers/diagnostics/`, with the other helpers grouped by job; recorded rows are unchanged.
   - `compare_sasgamerecord_rng.py` finds the repository by walking up to the `LLM_Helpers` folder instead of a fixed parent depth; `audit_first_city_scouting.py` became `summarize_first_city_scouting.py`.
   - The revision check keeps the old helper and packager paths beside the new ones, and no longer counts a rename with unchanged content as a recorder change.

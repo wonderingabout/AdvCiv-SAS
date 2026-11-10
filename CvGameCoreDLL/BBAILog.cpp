@@ -251,8 +251,8 @@ CvString getSASBBAILogProfileFields()
 	}
 	CvString szFields;
 	szFields.Format("bbaiMasterEnabled=%d bbaiAnyCategoryEffective=%d bbaiConfiguredLevels=%s bbaiEffectiveLevels=%s %s",
-		isSASBBAILogMasterEnabled(), isSASBBAILogEnabled(), (szConfiguredLevels.empty() ? "-" : szConfiguredLevels.GetCString()),
-		(szEffectiveLevels.empty() ? "-" : szEffectiveLevels.GetCString()), getSASBBAILogSupportingProfileFields().GetCString());
+		isSASBBAILogMasterEnabled(), isSASBBAILogEnabled(), getSASDiagnosticOrDash(szConfiguredLevels.GetCString()),
+		getSASDiagnosticOrDash(szEffectiveLevels.GetCString()), getSASBBAILogSupportingProfileFields().GetCString());
 	return szFields;
 }
 

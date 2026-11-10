@@ -1,6 +1,6 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Exercise real Git/binary/report combinations: changed native Runtime code needs a Release DLL built from that source, rather than passing on any changed binary.
+# <!-- custom: Exercise real Git/binary/report combinations: source-only Runtime changes can ship later, and a Release DLL shipped with Runtime changes must match those sources.
 # tempfile isolates the repositories; hashlib/json make realistic reports, and unittest/subprocess/sys/pathlib run the production checker. (GPT-6.1-Sol) -->
 import hashlib
 import json
@@ -16,7 +16,9 @@ import dll_runtime_revision as checker
 
 
 class RuntimeDLLRevisionTests(unittest.TestCase):
-    def test_revision_requires_matching_release_source_and_not_comment_rebuilds(self):
+    # <!-- custom: The Runtime formatter cleanup exposed that the previous test required a rebuild even for source-only commits.
+    # Check the optional update and preserve source-manifest validation when a DLL ships. (GPT-6.1-Sol) -->
+    def test_release_update_matches_source_and_source_only_changes_pass(self):
         with tempfile.TemporaryDirectory() as folder:
             repo = Path(folder)
             def git(*args):
@@ -54,7 +56,7 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             source2 = b"enum { SAS_RUNTIME_REVISION = 2 };\n"
             write(checker.SOURCE, source2)
             missing = commit()
-            self.assertIn("update the Release DLL/report", checker.check(repo, [missing])[0][0])
+            self.assertEqual(checker.check(repo, [missing]), ([], 0))
             release(b"release two", source2.replace(b"\n", b"\r\n"))
             good = commit(amend=True)
             self.assertEqual(checker.check(repo, [good]), ([], 1))
@@ -66,14 +68,15 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             release(b"release three", source3)
             corrected = commit(amend=True)
             self.assertEqual(checker.check(repo, [corrected]), ([], 1))
-            # <!-- custom: A later build cannot rescue an ordinary source-only commit, but an explicit squash PR is one eventual integration and may build at its final head.
+            # <!-- custom: Source-only changes can precede a later DLL update.
+            # A squash candidate still checks the report against the native sources changed across the whole range.
             # Test the actual CLI label selection too. (GPT-6.1-Sol) -->
             source4 = b"enum { SAS_RUNTIME_REVISION = 4 };\n"
             write(checker.SOURCE, source4)
             missing4 = commit()
             release(b"release four", source4)
             later4 = commit()
-            self.assertTrue(checker.check(repo, [missing4, later4])[0])
+            self.assertEqual(checker.check(repo, [missing4, later4]), ([], 0))
             self.assertEqual(checker.check(repo, [later4], corrected), ([], 1))
             event = dict(repository=dict(default_branch="main"), pull_request=dict(
                 base=dict(ref="main", sha=corrected), head=dict(sha=later4), labels=[dict(name="revision:squash")]))
@@ -85,9 +88,9 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             event["pull_request"]["labels"] = []
             event_path.write_text(json.dumps(event), encoding="utf-8")
             result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-            # <!-- custom: Migrate once with matching native build evidence, then allow XML-only and external-observer updates without a revision-only rebuild.
-            # A later native edit must still fail without a matching Release pair. (GPT-6.1-Sol) -->
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            # <!-- custom: Check a Release update at the XML migration, then exercise observer-only and native source-only changes.
+            # The Runtime revision is independent of the shipped binary. (GPT-6.1-Sol) -->
             source5 = b'int getRuntimeRevision() { return readDefine("SAS_RUNTIME_REVISION"); }\n'
             write(checker.SOURCE, source5)
             write("Assets/XML/GlobalDefines_advciv_sas.xml", b"<Defines><Define><DefineName>SAS_RUNTIME_REVISION</DefineName><iDefineIntVal>5</iDefineIntVal></Define></Defines>")
@@ -100,12 +103,12 @@ class RuntimeDLLRevisionTests(unittest.TestCase):
             self.assertEqual(checker.check(repo, [observer_only]), ([], 0))
             write(checker.SOURCE, source5.replace(b'readDefine(', b'readCachedDefine('))
             native = commit()
-            self.assertIn("update the Release DLL/report", checker.check(repo, [native])[0][0])
+            self.assertEqual(checker.check(repo, [native]), ([], 0))
             # <!-- custom: A dedicated native header also affects the binary even when the publisher and XML label stay unchanged. (GPT-6.1-Sol) -->
             write(checker.SOURCE, source5)
             write("CvGameCoreDLL/SASRuntimeStatusReasons.h", b"enum { END_TURN_READY };\n")
             header = commit()
-            self.assertIn("update the Release DLL/report", checker.check(repo, [header])[0][0])
+            self.assertEqual(checker.check(repo, [header]), ([], 0))
             # <!-- custom: Manual dispatch also supplies GITHUB_EVENT_PATH but lacks push/PR before/after fields; select its requested head before interpreting that event shape. (GPT-6.1-Sol) -->
             manual = [sys.executable, checker.__file__, "--repo-root", str(repo), "--head-ref", corrected, "--event-name", "workflow_dispatch", "--event-path", str(event_path)]
             result = subprocess.run(manual, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

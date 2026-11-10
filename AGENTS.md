@@ -881,6 +881,7 @@ Clear, accurate explanations help users and developers understand the code and i
     - Use a broad search to find candidates, then check what each match means and where its input comes from before generalizing. For example, the SGR and BBAI lookup audit found several cases that needed different treatment.
       - A requested unit role can be `ANY`, meaning every role is eligible. Preserve that label because it answers a different question from a missing role.
       - Explain non-obvious exceptions beside the code. For example, use the shared `getSASDiagnosticOrDash` to format an absent soundtrack script, but keep `findSASGameRecordPreviousSoundtrackScript` in SGR. Multiple era slots can resolve to the same audio ID, so this lookup reports a name only when one slot matches.
+      - Similar-looking expressions can do different work. In the missing-value cleanup, `szUnitContributors.empty() ? "-" : szUnitContributors.GetCString()` only formatted a list, so it could use the shared helper. The `pNearestEnemy` check also protected a dereference that happens before the enum formatter is called, so that check stayed at the call site.
       - The audit found two kinds of mission names. Native dispatch carries a raw mission ID that needs an upper-bound check before indexing XML. `MissionAITypes` describes the AI purpose and has no XML table, so the existing `getMissionAIString` lookup still fits.
   - Pass names that have no XML type through the shared escaper, e.g. `city=%S` with `getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString()`, giving `city="Angkor Thom"`; SGR uses the same helper and logs `playerName="PC"` beside `civType=CIVILIZATION_OTTOMAN`. Quotes written into the literal (`city=\"%S\"`) would leave a quote inside a human-renamed city unescaped.
   - Keep an ID field beside display names (`player=`, `cityId=`, `unitId=`); [`diagnostic_record_format.py`](/.github/workflows/README.md#builddiagnosticsdiagnostic_record_formatpy) checks active BBAI and SGR rows.
@@ -929,7 +930,7 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 ### Runtime status and history
 
 - Increment XML `SAS_RUNTIME_REVISION` once per Runtime implementation commit, including observers, configuration, hooks and implementation comments; keep one pending increment during drafting and add its entry to [`SASRuntime.md`](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md). Pure CI, tests, docs and example maintenance do not require a bump.
-- Like SGR, the XML label can advance for observer-only updates without rebuilding the DLL. Native Runtime changes require matching Release evidence; use DLL/build/source identity to identify loaded native code. CI checks recognizable changes; review unusual shared-code refactors manually.
+- Runtime follows the same DLL shipping policy as SGR. Rebuild native changes for in-game testing, and ship a matching Release DLL/report when the old binary is unsuitable, for example when an observer requires a new native field. Use DLL/build/source identity to identify loaded native code.
 
 ## DLL compilation
 

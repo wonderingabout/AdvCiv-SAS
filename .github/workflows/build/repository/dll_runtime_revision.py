@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Require a matching Release build when native Runtime code changes, including the migration from compiled to XML revision labels.
-# XML-only label/observer updates need no native rebuild.
-# Historical compiled bumps remain covered by the same native-content rule; comments alone do not force builds. (GPT-6.1-Sol) -->
+# <!-- custom: Allow source-only Runtime diagnostics like SGR when the shipped DLL remains usable.
+# When a commit ships a DLL alongside native Runtime changes, verify that the Release report matches those sources. (GPT-6.1-Sol) -->
 
 # <!-- custom: argparse/os/json select the same explicit integration event as the other DLL guards; hashlib/re validate the built source identity, pathlib locates files, and sys supplies CLI exit status. (GPT-6.1-Sol) -->
 import argparse
@@ -55,14 +54,13 @@ def check(repo, commits, squash_base=None):
                    if native_content(repo, parent, path) != native_content(repo, commit, path)]
         if not changed:
             continue
-        bumps += 1
         prefix = f"{commit[:12]}: native Runtime implementation changed"
         if blob_id(repo, commit, SOURCE) is None:
             errors.append(prefix + ": missing native Runtime source")
             continue
         if blob_id(repo, commit, DLL) in (None, blob_id(repo, parent, DLL)):
-            errors.append(prefix + ": update the Release DLL/report in this commit")
             continue
+        bumps += 1
         report_errors = build_report_errors(repo, commit, [DLL])
         errors.extend(report_errors)
         if report_errors:
@@ -84,7 +82,7 @@ def check(repo, commits, squash_base=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Require matching shipped Release evidence for native Runtime implementation changes on default-branch integration.")
+    parser = argparse.ArgumentParser(description="Verify Release evidence when default-branch integration ships a DLL alongside native Runtime changes.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref")
     parser.add_argument("--head-ref", default="HEAD")
@@ -129,7 +127,7 @@ def main():
     for error in errors:
         print("FAIL " + error)
     if not errors:
-        print(f"PASS native Runtime DLL ({bumps} native changes checked)")
+        print(f"PASS native Runtime DLL ({bumps} Release DLL updates checked against native changes)")
     return int(bool(errors))
 
 

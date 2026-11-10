@@ -33,7 +33,13 @@ def write_revision_define(repo, value):
     history_path.write_text('### Revision %d\n- **Change:** Fixture recorder change.\n' % value, 'utf-8')
 
 
-def commit_fixture(repo, message):
+def commit_fixture(repo, message, name_revision=True):
+    # <!-- custom: Name a bumped revision in the title as real commits must; title tests pass name_revision=False to check the rule itself. (Claude code Opus 5.5) -->
+    if name_revision and subprocess.run(['git', 'rev-parse', '--verify', '-q', 'HEAD'], cwd=repo, capture_output=True).returncode == 0:
+        previous = history.commit_revision(repo, 'HEAD')
+        current = history.commit_revision(repo, None)
+        if previous is not None and current == previous + 1:
+            message += ' (SGR%d)' % current
     git(repo, 'add', '.')
     git(repo, 'commit', '-qm', message)
     return git(repo, 'rev-parse', 'HEAD')
@@ -377,6 +383,24 @@ class RevisionHistoryTests(unittest.TestCase):
                     self.assertTrue(any('requires exactly one revision increment' in error for error in errors), errors)
                 else:
                     self.assertEqual(errors, [])
+
+    # <!-- custom: fc663b10b bumped SGR197 without naming it in its title; a bumping commit's title must name its label, in any position, as a whole word. (Claude code Opus 5.5) -->
+    def test_bumping_commit_title_names_the_revision(self):
+        for title, ok in (('Record a recorder change', False), ('Record a change (SGR1540)', False), ('Record a change (Runtime16, SGR154)', True), ('SGR154: record a change', True)):
+            with self.subTest(title=title), tempfile.TemporaryDirectory() as temp:
+                repo = Path(temp)
+                fixture_git(repo)
+                write_revision_define(repo, 153)
+                source = repo / 'CvGameCoreDLL/SASGameRecordLog.cpp'
+                source.parent.mkdir(parents=True)
+                source.write_text('// base\n')
+                commit_fixture(repo, 'base')
+                git(repo, 'branch', 'main')
+                source.write_text('// recorder change\n')
+                write_revision_define(repo, 154)
+                commit_fixture(repo, title, name_revision=False)
+                errors = history.check_progression(repo, 'main')
+                self.assertEqual(any('must name the bumped revision SGR154' in error for error in errors), not ok)
 
     def test_pr_uses_explicit_head_and_push_keeps_real_merge(self):
         with tempfile.TemporaryDirectory() as temp:

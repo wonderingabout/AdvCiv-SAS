@@ -42,7 +42,7 @@ Note: they are now optionally written to a new timestamped file for each new gam
 
 Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
 
-A separate SASGameRecord (sometimes called SGR) log, written as `SASGameRecord_*.log`, can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
+A separate SASGameRecord (sometimes called SGR, or SAS Game Record) log, written as `SASGameRecord_*.log`, can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. Current recorder settings use the greppable `SAS_SGR_*` define family.
 
 It notably also preserves exact high-level AI strategy, victory-route stage and team worst-enemy transitions alongside periodic checkpoints, making shifts in long-term AI intent and diplomatic alignment easier to line up with production, diplomacy and war outcomes without enabling every detailed BBAI category.
 

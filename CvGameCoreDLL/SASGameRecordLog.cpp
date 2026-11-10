@@ -2613,7 +2613,7 @@ void logSASGameRecordSessionSettings(char const* szEvent, char const* szReason, 
 	logSASGameRecord("GAME_RECORD_SESSION_SETTINGS schema=1 turn=%d elapsed=%d event=%s reason=%s source=%s group=%s count=%d values=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), (szEvent == NULL ? "-" : szEvent), (szReason == NULL ? "-" : szReason),
 		(szSource == NULL ? "-" : szSource), (szGroup == NULL ? "-" : szGroup), std::max(0, iCount),
-		(szValues == NULL || szValues[0] == '\0' ? "-" : szValues));
+		getSASDiagnosticOrDash(szValues));
 }
 
 // <!-- custom: GlobeLayerTypes is already defined by native CvEnums.h; this single formatter maps it to short log labels, including NONE/UNKNOWN.
@@ -2818,9 +2818,9 @@ void logSASGameRecordInterfaceState(char const* szComponent, char const* szEvent
 		return;
 	logSASGameRecord("GAME_RECORD_INTERFACE_STATE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u component=%s event=%s reason=%s count=%d values=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
-		szComponent, (szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent),
-		(szReason == NULL || szReason[0] == '\0' ? "-" : szReason), std::max(0, iCount),
-		(szValues == NULL || szValues[0] == '\0' ? "-" : szValues));
+		szComponent, getSASDiagnosticOrDash(szEvent),
+		getSASDiagnosticOrDash(szReason), std::max(0, iCount),
+		getSASDiagnosticOrDash(szValues));
 }
 
 // <!-- custom: Alt+S captions/landmarks are EXE-managed, save-backed UI annotations rather than units/cities; Python reconstructs the logical visible+hidden set only at low-frequency observation boundaries.
@@ -2832,7 +2832,7 @@ void logSASGameRecordMapAnnotationSummary(char const* szEvent, char const* szRea
 		return;
 	logSASGameRecord("GAME_RECORD_MAP_ANNOTATIONS turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s total=%d visible=%d hidden=%d added=%d edited=%d removed=%d captionText=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
-		(szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent), (szReason == NULL || szReason[0] == '\0' ? "-" : szReason),
+		getSASDiagnosticOrDash(szEvent), getSASDiagnosticOrDash(szReason),
 		std::max(0, iTotal), std::max(0, iVisible), std::max(0, iHidden), std::max(0, iAdded), std::max(0, iEdited), std::max(0, iRemoved),
 		bContentWithheld ? "WITHHELD" : "RECORDED");
 }
@@ -2848,7 +2848,7 @@ void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, in
 	CvString const szNewField = (!bHasNew ? CvString("-") : (bContentWithheld ? CvString("WITHHELD") : getSASDiagnosticQuoted(szNewCaption == NULL ? "" : szNewCaption)));
 	logSASGameRecord("GAME_RECORD_MAP_ANNOTATION turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s kind=%s ownerPlayer=%d x=%d y=%d hiddenAtObservation=%d content=%s oldCaption=%s newCaption=%s",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
-		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), iOwnerPlayer < 0 ? "LANDMARK" : "PLAYER_SIGN",
+		szEvent, getSASDiagnosticOrDash(szReason), iOwnerPlayer < 0 ? "LANDMARK" : "PLAYER_SIGN",
 		iOwnerPlayer, iX, iY, bHidden, bContentWithheld ? "WITHHELD" : "RECORDED", szOldField.GetCString(), szNewField.GetCString());
 }
 
@@ -2861,7 +2861,7 @@ void logSASGameRecordDotMapSummary(char const* szEvent, char const* szReason, in
 		return;
 	logSASGameRecord("GAME_RECORD_DOTMAP_MARKERS turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s total=%d overlayVisible=%d added=%d edited=%d removed=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
-		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), std::max(0, iTotal), bOverlayVisible,
+		szEvent, getSASDiagnosticOrDash(szReason), std::max(0, iTotal), bOverlayVisible,
 		std::max(0, iAdded), std::max(0, iEdited), std::max(0, iRemoved));
 }
 
@@ -2893,7 +2893,7 @@ void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int
 	}
 	logSASGameRecord("GAME_RECORD_DOTMAP_MARKER turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u event=%s reason=%s ownerPlayer=%d x=%d y=%d oldColorValid=%d oldColorId=%d oldColorType=%s oldRed=%f oldGreen=%f oldBlue=%f oldAlpha=%f oldLayer=%d newColorValid=%d newColorId=%d newColorType=%s newRed=%f newGreen=%f newBlue=%f newAlpha=%f newLayer=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
-		szEvent, (szReason == NULL || szReason[0] == '\0' ? "-" : szReason), iOwnerPlayer, iX, iY,
+		szEvent, getSASDiagnosticOrDash(szReason), iOwnerPlayer, iX, iY,
 		bOldColorValid, bOldColorValid ? iOldColor : -1, szOldType, kOldColor.r, kOldColor.g, kOldColor.b, kOldColor.a, bHasOld ? iOldLayer : -1,
 		bNewColorValid, bNewColorValid ? iNewColor : -1, szNewType, kNewColor.r, kNewColor.g, kNewColor.b, kNewColor.a, bHasNew ? iNewLayer : -1);
 }
@@ -3336,9 +3336,9 @@ void logSASGameRecordSaveCheckpointSerialized(char const* szKind, int iTurn, int
 	CvString const szCheckpointId = getSASGameRecordSaveCheckpointId(iTurn, iElapsedTurn, szUtc, uiMapRandState, uiSyncRandState);
 	bool const bFilenameKnown = (szOriginalBasename != NULL && szOriginalBasename[0] != '\0' && strcmp(szOriginalBasename, "-") != 0);
 	logSASGameRecord("GAME_RECORD_SAVE_CHECKPOINT_SERIALIZED checkpointId=%s kind=%s turn=%d elapsed=%d utc=%s mapRandState=%u syncRandState=%u reason=%s filenameKnown=%d originalBasename=%s",
-		szCheckpointId.GetCString(), (szKind == NULL || szKind[0] == '\0' ? "-" : szKind), iTurn, iElapsedTurn,
-		(szUtc == NULL || szUtc[0] == '\0' ? "-" : szUtc), uiMapRandState, uiSyncRandState,
-		(szReason == NULL || szReason[0] == '\0' ? "-" : szReason), bFilenameKnown, (bFilenameKnown ? szOriginalBasename : "-"));
+		szCheckpointId.GetCString(), getSASDiagnosticOrDash(szKind), iTurn, iElapsedTurn,
+		getSASDiagnosticOrDash(szUtc), uiMapRandState, uiSyncRandState,
+		getSASDiagnosticOrDash(szReason), bFilenameKnown, (bFilenameKnown ? szOriginalBasename : "-"));
 }
 
 static void logSASGameRecordLoadedSaveCheckpoint()
@@ -3355,7 +3355,7 @@ static void logSASGameRecordLoadedSaveCheckpoint()
 	logSASGameRecord("GAME_RECORD_SAVE_CHECKPOINT_LOADED available=1 checkpointId=%s kind=%s turn=%d elapsed=%d utc=%s mapRandState=%u syncRandState=%u reason=%s filenameKnown=%d originalBasename=%s",
 		szCheckpointId.GetCString(), kGame.getSASLoadedSaveCheckpointKind(), kGame.getSASLoadedSaveCheckpointTurn(), kGame.getSASLoadedSaveCheckpointElapsedTurn(),
 		kGame.getSASLoadedSaveCheckpointUtc(), kGame.getSASLoadedSaveCheckpointMapRandState(), kGame.getSASLoadedSaveCheckpointSyncRandState(),
-		(kGame.getSASLoadedSaveCheckpointReason()[0] == '\0' ? "-" : kGame.getSASLoadedSaveCheckpointReason()), bFilenameKnown,
+		getSASDiagnosticOrDash(kGame.getSASLoadedSaveCheckpointReason()), bFilenameKnown,
 		(bFilenameKnown ? kGame.getSASLoadedSaveCheckpointOriginalBasename() : "-"));
 }
 
@@ -5023,7 +5023,7 @@ void finalizeSASGameRecordLogSession(char const* szReason)
 		// <!-- custom: Close this recording after its final health row; victory and extended post-win play do not close it.
 		// Omit gameplay-result fields because map-load fallback can see an old map beside already-replaced CvGame state; GAME_RESULT records outcomes separately. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		logSASGameRecord("GAME_RECORD_LOG_CLOSED reason=%s sessionWallMilliseconds=%u",
-			(szReason == NULL || szReason[0] == '\0' ? "-" : szReason), getSASGameRecordSessionWallMilliseconds());
+			getSASDiagnosticOrDash(szReason), getSASGameRecordSessionWallMilliseconds());
 		g_bSASGameRecordSessionOpen = false;
 	}
 	// <!-- custom: Retry pending diagnostics, close persistent handles and release drained retry storage before rollover; old timestamped sessions must not accumulate open files or retained peak allocations. (GPT-6.1-Sol) -->
@@ -8886,7 +8886,7 @@ void logSASGameRecordGameResult(char const* szEvent)
 		return;
 	logSASGameRecord("GAME_RECORD_GAME_RESULT turn=%d elapsed=%d year=%d sessionWallMilliseconds=%u event=%s gameState=%s winnerTeam=%d victory=%s playersAlive=%d teamsAlive=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), getSASGameRecordSessionWallMilliseconds(),
-		(szEvent == NULL || szEvent[0] == '\0' ? "-" : szEvent), getSASGameStateTypeName(kGame.getGameState()),
+		getSASDiagnosticOrDash(szEvent), getSASGameStateTypeName(kGame.getGameState()),
 		kGame.getWinner(), getSASInfoTypeOrNone(kGame.getVictory()),
 		kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive());
 }
@@ -9123,6 +9123,8 @@ static void logSASGameRecordDiploStatus(PlayerTypes ePlayer, int iGameTurn)
 // `NO_TALK` is kept separate from DenialTypes.
 // Optional bonus GPT quotes and AI_techTradeVal fields add compact resolved valuation context under independent gates; they remain const observations and never submit an offer or alter trade state.
 // All market observations use const query APIs, do not consume synchronized RNG, and do not mutate gameplay state. (ChatGPT-5.6-Sol) -->
+// <!-- custom: A completed trade query can explicitly return NO_DENIAL.
+// Keep that token for market observations, while optional cancellation reasons use getSASInfoTypeOrNone for an absent denial. (GPT-6.1-Sol) -->
 static char const* getSASGameRecordDenialType(DenialTypes eDenial)
 {
 	return (eDenial == NO_DENIAL ? "NO_DENIAL" : GC.getInfo(eDenial).getType());
@@ -14773,7 +14775,7 @@ void logSASGameRecordAIDealCancellationDecision(CvPlayerAI const& kPlayer, Playe
 		CvString const szData = getSASTradeDataText(*pTriggerItem, bTriggerFromAI ? kPlayer.getID() : eOther);
 		szTriggerItem.Format("%s:%s", getSASTradeItemType(pTriggerItem->m_eItemType), szData.GetCString());
 	}
-	char const* szDenial = (eDenial == NO_DENIAL ? "-" : getSASGameRecordDenialType(eDenial));
+	char const* szDenial = getSASInfoTypeOrNone(eDenial);
 	int iDualCancelChanceX1000 = -1;
 	if (eReason == SAS_AI_DEAL_CANCEL_DUAL_DENIAL && pTriggerItem != NULL)
 	{
@@ -17678,8 +17680,10 @@ void logSASGameRecordAIBuildingChoice(CvCityAI const& kCity, BuildingTypes eBuil
 	}
 	CvCity const* pOldCapital = (kBuilding.isCapital() ? kPlayer.getCapitalCity() : NULL);
 	char const* szCategory = (kBuilding.isWorldWonder() ? "WORLD_WONDER" : kBuilding.isTeamWonder() ? "TEAM_WONDER" : kBuilding.isNationalWonder() ? "NATIONAL_WONDER" : "REGULAR");
-	char const* szDecisionValueKind = (iDecisionValue < 0 ? "-" : eOrigin == SAS_AI_BUILDING_CHOICE_HELPER ? "THRESHOLD_SCORE" : "BUILDING_VALUE");
 	bool const bHelperOrigin = (eOrigin == SAS_AI_BUILDING_CHOICE_HELPER);
+	// <!-- custom: A negative decision value means no score was available, so write a dash for decisionValueKind.
+	// Otherwise label the score according to its origin. (GPT-6.1-Sol) -->
+	char const* szDecisionValueKind = (iDecisionValue < 0 ? "-" : (bHelperOrigin ? "THRESHOLD_SCORE" : "BUILDING_VALUE"));
 	int const iHelperProgressOdds = (bHelperOrigin && iHelperBaseOdds >= 0 ? (250 * iStored) / std::max(1, iNeeded) : -1);
 	int const iHelperEffectiveOdds = (iHelperProgressOdds < 0 ? -1 : iHelperBaseOdds + iHelperProgressOdds);
 	int const iHelperForced = (bHelperOrigin ? (iHelperBaseOdds < 0 ? 1 : 0) : -1);
@@ -17850,9 +17854,9 @@ void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=NAVAL_BLOCKADE_STARTED player=%d team=%d unitId=%d unit=%s unitAI=%s x=%d y=%d rangePlots=%d plots=%s affectedTeams=%d teams=%s affectedCities=%d cities=%s canPlunder=%d hiddenNationality=%d alwaysHostile=%d",
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
 			getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), kContext.iRangePlots,
-			kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(), kContext.iAffectedTeams,
-			kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(), kContext.iAffectedCities,
-			kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0,
+			getSASDiagnosticOrDash(kContext.szRangePlots.GetCString()), kContext.iAffectedTeams,
+			getSASDiagnosticOrDash(kContext.szAffectedTeams.GetCString()), kContext.iAffectedCities,
+			getSASDiagnosticOrDash(kContext.szAffectedCities.GetCString()), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0,
 			pUnit->getUnitInfo().isHiddenNationality() ? 1 : 0, pUnit->isAlwaysHostile(pUnit->getPlot()) ? 1 : 0);
 		return;
 	}
@@ -17879,11 +17883,11 @@ void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting)
 		GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getTeam(), pUnit->getID(), getSASInfoTypeOrNone(pUnit->getUnitType()),
 		getSASInfoTypeOrNone(pUnit->AI_getUnitAIType()), bStartKnown ? 1 : 0, bStartKnown ? "START" : "END_FALLBACK",
 		kContext.iStartTurn, kContext.iStartX, kContext.iStartY, pUnit->getX(), pUnit->getY(), iDurationTurns, iDurationElapsedTurns,
-		kContext.iRangePlots, kContext.szRangePlots.empty() ? "-" : kContext.szRangePlots.GetCString(), kContext.iAffectedTeams,
-		kContext.szAffectedTeams.empty() ? "-" : kContext.szAffectedTeams.GetCString(), kContext.iAffectedCities,
-		kContext.szAffectedCities.empty() ? "-" : kContext.szAffectedCities.GetCString(), kEndContext.iAffectedTeams,
-		kEndContext.szAffectedTeams.empty() ? "-" : kEndContext.szAffectedTeams.GetCString(), kEndContext.iAffectedCities,
-		kEndContext.szAffectedCities.empty() ? "-" : kEndContext.szAffectedCities.GetCString(), bScopeChanged ? 1 : 0,
+		kContext.iRangePlots, getSASDiagnosticOrDash(kContext.szRangePlots.GetCString()), kContext.iAffectedTeams,
+		getSASDiagnosticOrDash(kContext.szAffectedTeams.GetCString()), kContext.iAffectedCities,
+		getSASDiagnosticOrDash(kContext.szAffectedCities.GetCString()), kEndContext.iAffectedTeams,
+		getSASDiagnosticOrDash(kEndContext.szAffectedTeams.GetCString()), kEndContext.iAffectedCities,
+		getSASDiagnosticOrDash(kEndContext.szAffectedCities.GetCString()), bScopeChanged ? 1 : 0,
 		kContext.iPlunderEvents, kContext.iGoldPlundered, (int)kContext.aPlunderedCities.size(), pUnit->canPlunder(pUnit->getPlot()) ? 1 : 0);
 	if (iExisting >= 0)
 		g_aSASGameRecordBlockades.erase(g_aSASGameRecordBlockades.begin() + iExisting);

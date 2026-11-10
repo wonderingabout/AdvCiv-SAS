@@ -10,8 +10,9 @@ import re
 import subprocess
 # <!-- custom: Parse the current XML revision structurally while retaining the compiled reader for immutable pre-migration commits. (GPT-6.1-Sol) -->
 import xml.etree.ElementTree as ET
-# <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same commit or explicit squash boundaries as SASGameRecord. (GPT-6.1-Sol) -->
-from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch
+# <!-- custom: Reuse the established push/PR/default-branch range selection and Git readers so runtime revisions follow the same commit or explicit squash boundaries as SASGameRecord.
+# title_label_error shares the rule that a bumping commit's title names its revision. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+from sas_revision_history import ROOT, changed_paths, git_show, revision_transitions, resolve_default_branch, title_label_error
 # <!-- custom: SASGameRecord's shared-helper path setup also exposes the common entry parser; both histories require real Change text while retaining their distinct bump policies. (GPT-6.1-Sol) -->
 from revision_history import change_errors, revision_entries
 
@@ -101,6 +102,11 @@ def transition_errors(repo, parent, commit):
     expected = previous + int(qualifies(repo, parent, commit)) if parent else 1
     if current != expected:
         errors.append(f"runtime revision {previous}->{current}: expected {expected} (exactly +1 for implementation changes, otherwise unchanged)")
+    # <!-- custom: A bumped Runtime revision must be named in the commit title, as the SGR check requires for SGR; see title_label_error. (Claude code Opus 5.5) -->
+    elif parent and current == previous + 1:
+        title_error = title_label_error(repo, parent, commit, f"Runtime{current}")
+        if title_error:
+            errors.append(title_error)
     return errors
 
 
