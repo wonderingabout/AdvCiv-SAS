@@ -15,7 +15,7 @@ import art_samples as checker
 class ArtSamplesTests(unittest.TestCase):
     def repository(self, folder):
         root = Path(folder)
-        (root / "LLM_Helpers").mkdir()
+        (root / "LLM_Helpers" / "art_viewing").mkdir(parents=True)
         for name in checker.RENDERER_FILES:
             (root / name).write_text("value = 1\n", encoding="utf-8")
         return root

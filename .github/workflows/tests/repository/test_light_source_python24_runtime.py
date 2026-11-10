@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 # <!-- custom: Locate the repository helper before importing it; direct sys.path setup needs no lint suppression. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "packaging"))
 import light_source_python24_linux as runtime
 
 

@@ -125,7 +125,7 @@ On your end you generally don't need to update them unless our infrastructure ch
   - [`xml_sas_text_inherited_names.tsv`](/.github/workflows/build/xml/xml_sas_text_inherited_names.tsv) holds the readable English leader and civilization names. Local agents can read the real files under the Civ4 install instead.
   - Without them, inherited keys are not greppable in the repo, so their existence and source cannot be checked. For example, `TXT_KEY_CIV_KOREA_DESC` (Korea's name) and `AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MONTEZUMA_1_CORRECTED` are used by SAS XML but defined only in Warlords text; the hash list shows them as `warlords` entries.
 - Have checks collect every problem and fail at the end, stopping early only when later results would mean nothing, so one run shows everything to fix, which greatly reduces tedium for the user and agents compared with fix, push, fix, push; see [Run Locally](/.github/workflows/README.md#run-locally).
-- `python LLM_Helpers/ci_report.py` writes every CI failure to one file, and `python LLM_Helpers/ci_report.py github` does so from GitHub's results; prefer [it](/LLM_Helpers/README.md#ci_reportpy) to a throwaway runner.
+- `python LLM_Helpers/audits/ci_report.py` writes every CI failure to one file, and `python LLM_Helpers/audits/ci_report.py github` does so from GitHub's results; prefer [it](/LLM_Helpers/README.md#ci_reportpy) to a throwaway runner.
 - Keep automated-helper folders and workflow categories aligned: every helper in a subject folder belongs to that category's workflow, with matching names so browsing the folder tells us what that workflow runs.
 - Specialized automation belongs to an explicitly named category too; shared helper reuse is fine, but do not mix unrelated checks into a catch-all workflow. Keep shared code in `lib/`, automated helper tests in matching `tests/<subject>/` folders, and manual-only tooling outside the blocking `build/`/`checks-*.yml` structure.
 - GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
@@ -134,7 +134,7 @@ On your end you generally don't need to update them unless our infrastructure ch
 
 ### Release preparation
 
-Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md). It is intended for both the user and AI/LLM helpers; do not create/push tags or publish release pages unless the user explicitly asks.
+Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Release_Process.md). It is intended for both the user and AI/LLM helpers; do not create/push tags or publish release pages unless the user explicitly asks.
 
 ### DLL inclusion in commits
 
@@ -196,9 +196,10 @@ Use these specialized records for inherited regressions, suspicious behavior cha
     - Before bisecting, confirm the baseline under the same player options. KI#136's "missing" choose-production popup also appeared in 4986, the first SAS commit and Base AdvCiv: AdvCiv turns on Minimize Pop-Ups, which holds popups until all units have moved, and a just-trained Worker was still selected.
 - Within AdvCiv-SAS's mod repo, generate/use `LLM_Helpers/context/commit_diffs/` for exact inherited ancestry and [`LLM_Helpers/context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) for imported map-script originals.
 - External review/tuning tools live under `LLM_Helpers/`; local platform-specific tests live under [`tests/`](/tests/README.md). Workflow-helper regression tests remain under `.github/workflows/tests/` and run in CI as well as locally.
+  - The helpers sit in folders named by job, such as `LLM_Helpers/audits/ci_report.py`; put a new helper in the folder of its job and describe it in that folder's README section, which [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) checks. See [Folders](/LLM_Helpers/README.md#folders).
   - Run the local diagnostic writer harness when changing its buffering, paths, retries or lifecycle checkpoints; it exercises real Windows I/O with VC2003 without building/installing a game DLL. It is not part of gameplay or normal DLL builds.
 - Shared development context lives under [`LLM_Helpers/context/`](/LLM_Helpers/context/).
-  - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/refresh_commit_diffs.py` to refresh it independently.
+  - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/packaging/refresh_commit_diffs.py` to refresh it independently.
   - Both context corpora are omitted from generated historical patches to prevent recursion/import noise.
   - When a significant light-source packaging change adds information useful to the recipient, include it in the console output and archived `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` where relevant. Keep this concise and practical, such as included/omitted files, active options, update/reuse status or required user-provided artifacts.
 
@@ -231,16 +232,16 @@ Make sure to ask before deleting or moving files/folders inside it: its extracte
   - `Realism/`: the Realism Invictus SVN working copy, which can be updated for a current reference; the installed "Realism Invictus" mod folder is a separate copy.
   - `c2cmerged/`: Caveman2Cosmos's FPKs, extracted; C2C also has an SVN that was not updated since.
   - `history_rewritten/`: History Rewritten's FPKs, extracted.
-  - FPKs were extracted with PakBuild, for convenient searching with grep. Since 2026-11-08 an agent can also list, read or extract any `.FPK` itself with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#packed-fpk-archives).
-    - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art).
-- `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
+  - FPKs were extracted with PakBuild, for convenient searching with grep. Since 2026-11-08 an agent can also list, read or extract any `.FPK` itself with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
+    - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
+- `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
 - Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
 
 ### Information Fetching locally (Dbg.log, Err.log, etc.)
 
 You can find Civ4 local user folder here "C:\Users\PC\Documents\My Games\beyond the sword".
 
-For examples such as `PythonErr.log` tracebacks, `xml.log` errors, `RandLog`/`MPLog.txt` RNG tracing, and older files such as `bull.log`/`MLF.log`, see the [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md), including their controls, source references and Before/After samples.
+For examples such as `PythonErr.log` tracebacks, `xml.log` errors, `RandLog`/`MPLog.txt` RNG tracing, and older files such as `bull.log`/`MLF.log`, see the [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md), including their controls, source references and Before/After samples.
 
 In particular but not only, these are usually helpful:
 
@@ -255,9 +256,9 @@ In particular but not only, these are usually helpful:
   - It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
 - If investigating assertions, use `SASAssertions_*.log` in the Civ4 Logs folder: assertion-enabled SAS DLLs record failures and their handling for live inspection instead of requiring manually copied dialogs.
   - `SAS_ASSERT_SILENT_ACTION=1` automatically chooses Ignore Once after GlobalDefines load; early startup failures remain manual. `0` restores dialogs rather than disabling logging. Normal Release builds compile these assertions out.
-  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, session matching, coverage and examples; continuing after an assertion does not fix its cause.
+  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, session matching, coverage and examples; continuing after an assertion does not fix its cause.
 - A full raw example is kept at [_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for development/LLM review.
-- When comparing two level-3 records, run [`LLM_Helpers/compare_sasgamerecord_rng.py`](/LLM_Helpers/compare_sasgamerecord_rng.py) before manually inspecting RNG rows.
+- When comparing two level-3 records, run [`LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py`](/LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py) before manually inspecting RNG rows.
   - It validates each record's checkpoint arithmetic/state progression and reports the first authoritative-RNG or call-provenance divergence; its [maintained example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) shows how to interpret the result.
 
 The root Program Files Civ4 folder is here:
@@ -275,7 +276,7 @@ Our AdvCiv-SAS documentation is mostly located here:
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
 - Screenshots can help development/review by showing what the mod UI/gameplay screens and rendered `SASGameRecord` map text actually look like, not only source/docs.
   - LLMs may parse the raw text-map characters without reconstructing the visual/geographical layout as easily, so `1.291_SASGameRecord_map_text` screenshots are useful review context too.
-  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `1.291_SASGameRecord_map_text` screenshots, Sevopedia, common UI).
+  - Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/packaging/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, `1.291_SASGameRecord_map_text` screenshots, Sevopedia, common UI).
 - Legacy/base-AdvCiv UI references are under `_0_Legacy/Images/` (see its [README](/_0_Legacy/Images/README.md) for naming and provenance): e.g. screenshots of the advisors, Sevopedia, diplomacy and other screens, plus stitched BtS and vanilla Civ4 tech trees from the web.
   - They can be useful for example to compare how the old layout looked with what AdvCiv-SAS changed or improved, or as a historical/reference comparison.
 
@@ -316,14 +317,14 @@ If a program, package or other tool would help, suggest it to the user rather th
 - Example 3: Codex (GPT-6 Astra) drew SASGameRecord maps with Pillow, the Python imaging library, apparently from its own bundled Python, since none of the local Pythons had it.
   - On 2026-11-08 Claude Code, lacking it, wrote [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) to work without it, then suggested installing it, which the user approved the same day.
   - Installing it uncovered more: `.dds` buttons, which agents could not open before, open with Pillow too, so an agent can now look at a button as well as at the fonts.
-    - It was directly useful the same day: Peat Works had shipped with Quarry's button, and comparing Caveman2Cosmos's peat buttons side by side chose its own, while a new CI check now flags borrowed buttons; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md).
+    - It was directly useful the same day: Peat Works had shipped with Quarry's button, and comparing Caveman2Cosmos's peat buttons side by side chose its own, while a new CI check now flags borrowed buttons; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md).
     - Iterating on it the same day went further: packed `.FPK` archives, which only PakBuild and Dragon UnPACKer's windows could open, turned out simple enough to read directly.
       - `.nif` models, shown before only in NifSkope's window, can now be drawn as pictures close to NifSkope's view.
-      - The same renderer then showed religion-founding scenes through their own camera, and ffmpeg, already installed, turned Bink wonder movies into frames and their sound into waveforms. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) documents each step, including what failed first.
+      - The same renderer then showed religion-founding scenes through their own camera, and ffmpeg, already installed, turned Bink wonder movies into frames and their sound into waveforms. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) documents each step, including what failed first.
 - Example 4: knowing a tool exists matters as much as installing it. The VC2003 compiler was already installed for building the DLL, but running it as `cl.exe /Zs` on edited files lets an agent catch C++ errors before handing the change over, without building the DLL (see [DLL compilation](#dll-compilation)).
   - Record such setups where future agents look, so the next one does not have to rediscover them.
   - Say which is which: what you worked around, and what the tool would add, so the user can decide whether it is worth installing.
-- [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#tools-for-aillm-helpers) lists what is installed and what is worth suggesting; update it when a tool is added or proves useful.
+- [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers) lists what is installed and what is worth suggesting; update it when a tool is added or proves useful.
 
 ## Documentation editing
 
@@ -375,7 +376,7 @@ If a program, package or other tool would help, suggest it to the user rather th
   - In list-heavy technical/rule documentation, prefer a parent bullet with two-space-indented `-` child bullets for distinct details, exceptions, evidence, validation, examples, updates, or follow-up parts of the same point.
   - Keep peer/top-level bullets for independently trackable rules/features/changes rather than nesting merely for visual uniformity.
   - Do not impose an arbitrary width: short paragraphs, single long sentences, tables, logs, code, URLs, and other structures can stay on one physical line.
-  - `LLM_Helpers/reflow_markdown_prose.py` can perform a conservative source-line-only sentence-boundary pass, but it deliberately does not decide visible paragraph/list structure; always review and add real paragraphs/sub-bullets where appropriate.
+  - `LLM_Helpers/formatting/reflow_markdown_prose.py` can perform a conservative source-line-only sentence-boundary pass, but it deliberately does not decide visible paragraph/list structure; always review and add real paragraphs/sub-bullets where appropriate.
 
 ### Main Changes Guide
 
@@ -615,7 +616,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Prefer one physical line for a single call or expression when practical, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multiline mostly needlessly stylized version of it.
   - The user has line wrap on VS Code so it is preferrable for the user too.
   - This preference collapses the call itself, not its surrounding Python block: keep `if`/`for`/`while` bodies on separate indented lines, including logging guards. For example, `if enabled: log(...)` violates Ruff E701; the compact `if (bLog) log(...);` convention applies only to C++.
-  - See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
+  - See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/formatting/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/formatting/singleline_pass3_comments_and_long.py).
 - Note: there are some exceptions to the above collapse multiline preference; for example, for very long or uniform listings, a multiline statement seems preferable and more readable.
   - Examples: the temporary `SAS_CATEGORY_DEFS` construction table in SevoPediaMain.py, or multi-field tabular data (e.g. `aSupport`/`aArmy` in CvMilitaryAdvisor.py, `field_specs`/`row_specs` chart tables, polygon `[x, y]` vertex lists, 2D matrices, dispatch dicts, and per-row-documented config tables).
   - Flat lists/tuples of plain values, single split calls, and boolean `or`/`and` chains, that should generally be collapsed as well, also have some exceptions, such as clearly very lengthy or iterative ones; e.g., the `or` chains near `eComment == self.getCommentID(` (CvDiplomacy.py).
@@ -647,6 +648,9 @@ Clear, accurate explanations help users and developers understand the code and i
 - Preserve distinct concepts in names, including abbreviations; avoid overloading established Civ4 or SAS terminology when clearer wording fits.
   - Distinguish `BuildTypes` worker actions from `BuildingTypes` buildings (`BLDG`), and avoid `FORT` for defensive-building production when it suggests the Fort improvement. Keep `DEF` for defense, not also deficit.
   - Use text-map `SCALE_1/2` rather than `OVERVIEW_1/2`, which suggests Domestic Advisor Overview tabs. Qualify `BattleHistory` and `WorldChangesHistory` rather than bare `History`, which could suggest Sevopedia `placeHistory` or the Info Screen Timeline.
+- Group files by what they are for, not by what they are made of. Folders named after a language or file type collect unrelated jobs and leave new kinds of work with no clear home.
+  - Example (2026-11-10): `LLM_Helpers/` was first split into `cpp/`, `python/` and `xml/`. `xml/` then held both a define-key audit and game-speed tuning, and `python/` described nearly every helper.
+  - Folders named by job, such as `audits/`, `balance/` and `formatting/`, separated them, and building balance now has an obvious home. See the [before/after table](/LLM_Helpers/README.md#why-folders-are-named-by-job).
 - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
 - Choose diagnostic names according to their source and consumers; these are common patterns, not rigid rules:
   - **XML-backed values:** usually use `CvInfo::getType()`, e.g. `GC.getInfo(eVictory).getType()`. Hardcoded catalogs would miss XML/mod-mod additions; translated UI labels serve a different purpose.
@@ -662,7 +666,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Generally avoid decorative separators such as `================`, `////`, or `####` where they add noise. However they can be useful sometimes as greppable markers or such though, and if so feel free to use short, consistent markers when readers or agents need to search for record boundaries or where it can be otherwise helpful or convenient.
   - For example, the [LLM transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) uses `=== USER ===` and similar speaker markers so agents can grep long transcripts, which would be much harder to follow otherwise (who said what or to navigate or count easily).
     - Note: this helper drops raw tool logs and keeps the chat text, including code pasted into messages, so the TXT is useful directly as handoff context.
-    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py), which defaults to `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
+    - Save requested chat exports in the shared folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), which defaults to `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/` outside the repository. Honor `LLM_CHAT_EXPORT_DIR` when set.
     - Keep reusable ChatGPT share URLs in the private local list `chatgpt-share-urls.md` under the configured chat export folder. Keep the list and its URLs out of Git, patches, light-source ZIPs and shared examples. This helps prevent private-urls (that become publicly-accessible after share) from leaking in chats needlessly or breaching privacy.
     - Prefix filenames with `codex-`, `chatgpt-`, or `claude-` and include the thread ID when known. Use a timestamp when saving another snapshot of the same thread. Start the TXT with the first speaker marker and keep any title, counts, or export notes in your reply.
     - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
@@ -677,7 +681,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read.
   - But it is not a major concern worth getting distracted over; it seems the game runs fine either way.
   - As for the cause, this is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification) (likely because Civ4 was mostly written for Windows/CRLF, and Codex patch tools may favour Linux LF-style patching causing mixed lines (files usually have almost entirely CRLF, with some minor LF lines matching the files we changed)).
-- Note (appendix): As for the cure, the GitHub workflow now checks this with [`build/hygiene/line_endings.py`](/.github/workflows/README.md#buildhygieneline_endingspy) (e.g., `PrivateMaps/Pangaea.py: has mixed line endings: CRLF=614, LF=21, lone_CR=0`), and local reviewed cleanup can use [`fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py), which preserves each file's dominant line-ending style by default.
+- Note (appendix): As for the cure, the GitHub workflow now checks this with [`build/hygiene/line_endings.py`](/.github/workflows/README.md#buildhygieneline_endingspy) (e.g., `PrivateMaps/Pangaea.py: has mixed line endings: CRLF=614, LF=21, lone_CR=0`), and local reviewed cleanup can use [`fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py), which preserves each file's dominant line-ending style by default.
   - On your end, if you notice warnings such as `LF will be replaced by CRLF`, use commands like `git diff --ignore-space-at-eol` and focus on your task first rather than getting distracted or going down a rabbit hole needlessly.
   - If needed, you can use the abovementioned resources to diagnose and fix them (because this is always nice and cleaner, but not high-priority; better make code work first, and at worst we'll just amend the commit and fix the test later).
 
@@ -707,7 +711,7 @@ Clear, accurate explanations help users and developers understand the code and i
 - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
 - Game-font glyphs (bonus, religion and other icons) live in `GameFont.tga` and `GameFont_75.tga` in [Assets/res/Fonts](/Assets/res/Fonts/), which agents' image readers cannot open. The user keeps Game Font Editor screenshots of both beside them, `advciv-sas_gamefont_tga.PNG` and `advciv-sas_gamefont_75_tga.PNG`.
   - Other mods' fonts are kept only as PNG previews named the same way in `other_mods/` (e.g., base AdvCiv, C2C, HR, Middle-earth, Neoteric World, PAE, RI), not as `.tga` files.
-  - A screenshot is often too small to tell one glyph apart. [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) renders any region enlarged as a PNG the image reader can open, and can move glyphs between slots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#game-font-glyphs).
+  - A screenshot is often too small to tell one glyph apart. [`gamefont_tga.py`](/LLM_Helpers/README.md#gamefont_tgapy) renders any region enlarged as a PNG the image reader can open, and can move glyphs between slots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#game-font-glyphs).
     - Example: on 2026-11-07 it confirmed Peat's glyph in the user's edit, and on 2026-11-08 it moved the Camel, Peat and Hit Movies glyphs into BonusInfo order in both fonts. Check a slot this way, or ask the user, before assuming what it holds.
 
 #### Syntax checks and linting
@@ -717,7 +721,7 @@ Clear, accurate explanations help users and developers understand the code and i
   - For example, it caught the SASGameRecord revision 152 candidate's `",".join(missing) if missing else "-"` with `SyntaxError`; the explicit `if/else` fix passed, as did all 240 runtime Python files checked on 2026-10-15. Python 3 accepting a file does not prove Python 2.4 compatibility.
   - The checker writes bytecode into a temporary directory and does not import Civ4 engine modules; syntax success still needs appropriate in-game testing.
   - External web ChatGPT currently uses Linux without access to our local Windows Python 2.4 installation; external-agent environments may change. If the user supplies a compatible standalone Linux Python 2.4 package separately, use it to run the same checker; the user identifies its location, for example in a Library folder.
-    - Extract the package and set `PYTHONHOME` to its `python-2.4.6` directory before invoking its `bin/python`. See [external-agent handoffs](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding).
+    - Extract the package and set `PYTHONHOME` to its `python-2.4.6` directory before invoking its `bin/python`. See [external-agent handoffs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding).
     - Use the matching runtime supplied by the user, for example through ChatGPT Library; verify its SHA256 against `_SNAPSHOT_CONTEXT/python24_runtime.txt` before use.
 - Treat Ruff/lint output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to modern linters.
 - Avoid `noqa` suppressions unless there is a strong reason; prefer fixing the underlying issue when practical. For each necessary suppression, name the specific rule and add a nearby comment explaining why it is needed; remove unnecessary suppressions in code being edited.
@@ -730,7 +734,7 @@ Clear, accurate explanations help users and developers understand the code and i
   - Example: the `BTG_Cross.py` and `BTG_Grid.py` map scripts were easier to repair manually as full files after broad indentation scripts produced misleading results.
 - Always review `git diff` before committing Ruff-driven changes.
 - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
-  - For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
+  - For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/formatting/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
 - For Python 2 parser cleanup, start with the easy cases first, such as `print "x"` -> `print("x")` or `raise Error, value` -> `raise Error(value)`.
   - Leave more complicated cases, such as old `except Error, e` syntax, tuple-unpacking `except`, re-raise changes, or compatibility fallbacks, for manual review or a later pass.
 
@@ -930,7 +934,7 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 ## DLL compilation
 
 - By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
-- If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md).
+- If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md).
 - Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
   - The compiler is at `C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe`; the environment setup in [`run_writer_tests.py`](/tests/diagnostics/run_writer_tests.py) uses VS2010's `vcvars32.bat` while explicitly selecting VC2003.
   - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
@@ -965,7 +969,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - When the optional `Logs/SASRuntimeStatus.json` exists, use its DLL/process/session/autoplay fields as additional current-state evidence; verify the reported DLL identity against the intended build before treating a run as validation. Match `processId` and `processStartUtc` to the live process before trusting `RUNNING`: a crash can leave the last JSON behind.
   - Enabled runtime diagnostics use [SASRuntimeExitObserver.ps1](/Assets/SASRuntimeExitObserver.ps1) to record final process-handle exit evidence in `exitObservation` and a `process_exit` history row.
     - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error, crash-dump prompt or reviewed Gamebryo/NiDX9 video-allocation dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
-      - For failure-time memory/context availability and coverage limits, see the [failure observations](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation); recorded measurements are context rather than a diagnosis.
+      - For failure-time memory/context availability and coverage limits, see the [failure observations](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation); recorded measurements are context rather than a diagnosis.
     - A nonzero exit code alone does not establish its cause.
   - When optional `SAS_RUNTIME_SOURCE_WATCH_ON=1` is enabled, inspect `SASRuntimeSourceWatch_*.json` / `SASRuntimeSourceChanges_*.jsonl` for observed mod-source/configuration disk edits during the matching process run; the state file also records actual observer-host versions.
     - Treat these as filesystem observations only: `engineReloadState=NOT_OBSERVED` means an edit does not prove Civ4 reloaded, parsed or executed it. C++ source edits never replace the loaded DLL. Missing watcher evidence can also mean disabled/failed observation rather than no edit.
@@ -983,7 +987,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - Do not edit runtime-sensitive files like XML or Python files during the run: as of now, this has produced live XML errors and Python errors/crashes.
   - Active BBAI and SASGameRecord files are intentionally live-readable through the shared writer, so agents may inspect/copy them while Civ4/autoplay continues.
     - A read can catch an append in progress, and file size/content can change immediately afterward; retry an incomplete trailing row and use completed output for final-size/full-run comparisons.
-    - A directory listing can report a stale size while the writer keeps its handle open. Read the file or query its size through a fresh handle before treating a zero listing as absent output; see the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-ai-and-game-record-diagnostics).
+    - A directory listing can report a stale size while the writer keeps its handle open. Read the file or query its size through a fresh handle before treating a zero listing as absent output; see the [logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-ai-and-game-record-diagnostics).
       - For example, the user observed `SASGameRecord_20261031T134838Z_load3.log` listed as zero bytes despite readable contents; a later fresh-handle check returned 249,018 bytes.
     - Other inherited logs do not share this guarantee.
 - Note: these boundaries describe the current Civ4 runtime and can be revised if later testing proves different behavior.

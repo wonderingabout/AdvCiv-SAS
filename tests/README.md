@@ -27,7 +27,7 @@ Run from the mod root:
 python tests/diagnostics/run_writer_tests.py
 ```
 
-- Requires Python 3, Windows, Visual C++ Toolkit 2003 (VC2003), the Windows SDK and the Civ4 Boost headers. Defaults follow the local [DLL compilation setup](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md); `--compiler`, `--vcvars` and `--sdk` override their locations, and `CIV4_LIB_INSTALL_PATH` supplies the library root.
+- Requires Python 3, Windows, Visual C++ Toolkit 2003 (VC2003), the Windows SDK and the Civ4 Boost headers. Defaults follow the local [DLL compilation setup](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md); `--compiler`, `--vcvars` and `--sdk` override their locations, and `CIV4_LIB_INSTALL_PATH` supplies the library root.
 - VS2010's `vcvars32.bat` supplies environment setup; the compiler invoked is VC2003's `cl.exe`.
 - Exercises Unicode paths, reading during append, literal percent text, overwrite/append behavior, partial and zero-progress writes, shared retry-buffer limits, recovery notices, writer-health counters, explicit producer types independent of filenames, drained-file failure recovery, handle reuse/release and shutdown before BUG's root handoff.
 - Runs in temporary directories, including simulated fallback output; no game DLL, project intermediates or real user logs are changed. The single C++ fixture needs no separate header because it shares no declarations with another compiled source file.
@@ -39,7 +39,7 @@ Run this test when changing diagnostic buffering, paths, file sharing, retry/los
 
 A successful run exits with code 0 and prints three `PASS C++ diagnostic writer` results plus a runtime-status result, including a child process terminated without checkpoints or cleanup whose final submitted rows remain readable in both logs.
 
-To inspect synthetic fixture output, pass `--export-runtime-examples <scratch-directory>`. Keep synthetic output separate from the [real history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and the [inline real status/exit captures](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); normal test runs leave those unchanged.
+To inspect synthetic fixture output, pass `--export-runtime-examples <scratch-directory>`. Keep synthetic output separate from the [real history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/README.md) and the [inline real status/exit captures](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#runtime-status-and-history); normal test runs leave those unchanged.
 
 Runtime-status cases parse the actual JSON and JSONL timeline, check disabled no-I/O/provenance behavior and autoplay countdown gating, and exercise lifecycle transitions, passive menu/loading observations, WorldBuilder mode versus visible-editor state, extended-game continuation, shared DLL identity, exact monotonic activity durations, interrupted autoplay, root migration, rollback after partial history appends, readable history after an unconfirmed close, recovered status-failure counters, sequential player-turn timing and accepted human end-turn readiness/Skip context.
 
@@ -59,7 +59,7 @@ The production launcher selects Windows PowerShell (`powershell.exe`), not Power
 
 The observers record their actual `environment` in `SASRuntimeExit_*.json` and `SASRuntimeSourceWatch_*.json`: PowerShell version/edition, CLR identifier, .NET Framework registry release (or null if unavailable), process bitness and executable path.
 
-The exit observer also records `listenerCompilation.state` and `elapsedMilliseconds`; that interval measures `Add-Type`, not Civ4 startup. See the [logged metadata sample](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#live-source-edit-observation).
+The exit observer also records `listenerCompilation.state` and `elapsedMilliseconds`; that interval measures `Add-Type`, not Civ4 startup. See the [logged metadata sample](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#live-source-edit-observation).
 
 The CLR identifier is distinct from the .NET Framework product version; see Microsoft's [Framework version detection](https://learn.microsoft.com/en-us/dotnet/framework/install/how-to-determine-which-versions-are-installed) and [Windows PowerShell versus PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/what-s-new-in-powershell-core-60?view=powershell-6).
 

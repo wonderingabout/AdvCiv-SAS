@@ -43,7 +43,7 @@ def check_bonus_font_order(bonuses: list[tuple[str, str]], art: list[tuple[str, 
 		if art_type not in index_by_art:
 			failures.append(f"{bonus_type}: ArtDefineTag {art_type} has no BonusArtInfo")
 		elif index_by_art[art_type] != position:
-			failures.append(f"{bonus_type}: BonusInfo {position} uses glyph {index_by_art[art_type]}; keep the Nth BonusInfo on glyph N, moving the glyphs in both GameFont .tga files with LLM_Helpers/gamefont_tga.py if needed")
+			failures.append(f"{bonus_type}: BonusInfo {position} uses glyph {index_by_art[art_type]}; keep the Nth BonusInfo on glyph N, moving the glyphs in both GameFont .tga files with LLM_Helpers/art_viewing/gamefont_tga.py if needed")
 	seen = {}
 	for art_type, index in art:
 		if index in seen:

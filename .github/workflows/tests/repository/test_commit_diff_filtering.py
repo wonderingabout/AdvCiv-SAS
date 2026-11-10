@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "packaging"))
 # <!-- custom: Workflow tests must add the repo-local helper directory before importing this script and its sibling refresh helper.
 # Ruff recognizes sys.path setup before an import, so no import-order suppression is needed. (GPT-6.1-Sol) -->
 import make_light_source_zip as light

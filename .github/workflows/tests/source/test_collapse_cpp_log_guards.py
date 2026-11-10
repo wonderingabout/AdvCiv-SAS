@@ -1,3 +1,6 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
 import importlib.util
 from pathlib import Path
 import sys
@@ -5,7 +8,7 @@ import unittest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-HELPER = REPO_ROOT / "LLM_Helpers" / "collapse_cpp_log_guards.py"
+HELPER = REPO_ROOT / "LLM_Helpers" / "formatting" / "collapse_cpp_log_guards.py"
 HELPER_DIR = str(HELPER.parent)
 if HELPER_DIR not in sys.path:
     sys.path.insert(0, HELPER_DIR)

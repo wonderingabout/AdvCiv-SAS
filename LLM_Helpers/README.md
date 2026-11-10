@@ -19,469 +19,276 @@ Important distinction:
 
 Always review diffs before committing generated source changes.
 
+## Folders
+
+Each folder names the job its helpers do, so a helper is found by what it is for. The sections below follow the same folders, in the same alphabetical order. Only this README sits directly in `LLM_Helpers/`; generated reports go to the shared, Git-ignored `outputs/`.
+
+| Folder | Holds |
+| --- | --- |
+| `art_viewing/` | finding, rendering and comparing art: [`nif_preview.py`](#nif_previewpy), [`civ4_assets.py`](#civ4_assetspy), [`fpk_tool.py`](#fpk_toolpy), [`gamefont_tga.py`](#gamefont_tgapy), [`regenerate_art_samples.py`](#regenerate_art_samplespy) and others |
+| `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
+| `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
+| `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
+| `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
+| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy) and others |
+| `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
+
+- Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
+- A helper imports from its own folder, which Python puts on the import path when it runs a script.
+  - `audit_cpp_logging_pregates.py` reuses the logging-call parser in `formatting/` and adds that folder itself.
+  - `refresh_commit_diffs.py` refreshes the local `context/commit_diffs/` that local agents grep, without making a ZIP, through the packager's own commit-diff renderer, and the packager imports it back. So `packaging/` covers building those corpora whether they go into a ZIP or stay local; splitting the two files would make them import across folders both ways.
+- Helpers find the repository root by walking up to the `LLM_Helpers` folder, not by a fixed number of parent folders, so moving one between folders does not break its paths.
+- Put a new helper in the folder of its job, or start a new folder for a new kind of job rather than stretching one. [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) keeps this README's folders and sections in step with the folders on disk.
+
+### Why folders are named by job
+
+The helpers moved out of the flat `LLM_Helpers/` folder on 2026-11-10, and the folder names took three tries that day.
+
+The first split named folders after languages and file types, and partly after the CI subjects. Those names said what a helper reads, not what it is for, so unrelated jobs shared a folder:
+
+| Before | After | Why |
+| --- | --- | --- |
+| `xml/audit_define_keys.py`, `xml/autotune_speed_from_xml.py` | `audits/audit_define_keys.py`, `balance/autotune_speed_from_xml.py` | finding undeclared defines and tuning game speed only share the file type they read |
+| `python/collapse_multiline_calls.py`, `source/fix_line_endings.py` | both in `formatting/` | nearly every helper is Python, so `python/` named nothing; both rewrite layout |
+| `cpp/find_cpp_dead_code_candidates.py`, `cpp/collapse_cpp_signatures.py` | `audits/` and `formatting/` | one reports code to review, the other rewrites it |
+| `assets/nif_preview.py` | `art_viewing/nif_preview.py` | `assets` would also fit asset balance or detection |
+
+The second split named folders by job, and review of it renamed three that were still too broad or too narrow:
+
+| Before | After | Why |
+| --- | --- | --- |
+| `archaeology/` | `code_history/` | archaeology is a way of investigating, used across the [Source Analysis](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md) records; these helpers only rebuild where the code came from |
+| `archive/` | back into `formatting/` | it named a state, not a job; its single-line passes turned out general once their sandbox paths became arguments |
+| `handoff/` | `packaging/` and `chat_exports/` | building a ZIP or local corpus and exporting a chat are different jobs that only share a reader |
+
+`code_history/` is not a rename of `_1_AdvCiv-SAS/Docs/Source_Analysis/`: that folder holds the analysis records themselves, such as audits, reviews and archaeology findings, while `code_history/` holds tools whose output those records use.
+
+Helper names follow the same idea: `audit_first_city_scouting.py` became `summarize_first_city_scouting.py`, since it summarizes logs rather than auditing code, and `audit_unit_obsolescence_continuity.py` became `military_tree_continuity.py`, after the [Military Tree](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md) it checks.
+
+- The move renamed old paths in place across the maintained documents, Known Issues and revision histories included, rather than adding notes that a helper used to live elsewhere: one path per helper keeps links and searches simple, and nobody has to remember the old layout. Only verbatim copies keep the flat paths: the git logs, the archived changelogs and captured console output.
+- Moving `LLM_Helpers/` itself under `_1_AdvCiv-SAS/`, which holds SAS documents and images, was considered and rejected. It is a working folder of tools, like `.github/` and `tests/`, which also sit at the root although they are SAS-specific.
+  - At the root, commands stay short (`python LLM_Helpers/audits/ci_report.py`), and helpers reach `Assets/` and `CvGameCoreDLL/` one folder up.
+  - Moving it would have lengthened every command and also changed the packager's history exclusions, `.gitattributes`, `.gitignore` and many CI checks, for no gain in finding a helper.
+
 ## Menu
 
-- [CI helpers](#ci-helpers)
-  - [`ci_report.py`](#ci_reportpy)
-- [Inherited map-script reference sources](#inherited-map-script-reference-sources)
-- [Source blank-line cleanup](#source-blank-line-cleanup)
-- [Custom-comment logical reflow](#custom-comment-logical-reflow)
-  - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
-- [Python source cleanup helpers](#python-source-cleanup-helpers)
-  - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
-  - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
-  - [`collapse_multiline_parens_safe.py`](#collapse_multiline_parens_safepy)
-  - [`fix_matrix_indent.py`](#fix_matrix_indentpy)
-  - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
-  - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
-  - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
-  - [`fix_line_endings.py`](#fix_line_endingspy)
-- [C++ source cleanup helpers](#c-source-cleanup-helpers)
-  - [`reflow_cpp_logging_calls.py`](#reflow_cpp_logging_callspy)
-  - [`collapse_cpp_log_guards.py`](#collapse_cpp_log_guardspy)
+- [`art_viewing/`](#art_viewing)
+  - [Art viewing helpers](#art-viewing-helpers)
+    - [`gamefont_tga.py`](#gamefont_tgapy)
+    - [`art_preview.py`](#art_previewpy)
+    - [`fpk_tool.py`](#fpk_toolpy)
+    - [`civ4_assets.py`](#civ4_assetspy)
+    - [`art_gallery.py`](#art_gallerypy)
+    - [`art_search.py`](#art_searchpy)
+    - [`plot_scene.py`](#plot_scenepy)
+    - [`regenerate_art_samples.py`](#regenerate_art_samplespy)
+    - [`nif_preview.py`](#nif_previewpy)
+    - [`movie_frames.py`](#movie_framespy)
+- [`audits/`](#audits)
+  - [CI helpers](#ci-helpers)
+    - [`ci_report.py`](#ci_reportpy)
   - [`find_cpp_dead_code_candidates.py`](#find_cpp_dead_code_candidatespy)
-  - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
-  - [`collapse_cpp_inline_returns.py`](#collapse_cpp_inline_returnspy)
-  - [`collapse_cpp_inline_statements.py`](#collapse_cpp_inline_statementspy)
-- [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
-  - [`singleline_pass.py`](#singleline_passpy)
-  - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
-  - [`singleline_pass3_comments_and_long.py`](#singleline_pass3_comments_and_longpy)
-  - [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py)
-  - [Comparison with Base AdvCiv 1.12's Main Interface processed similarly](#comparison-with-base-advciv-112s-main-interface-processed-similarly)
-  - [Notes](#notes)
-    - [ChatGPT sandbox path note](#chatgpt-sandbox-path-note)
-    - [Safety rule for source-rewrite helpers](#safety-rule-for-source-rewrite-helpers)
-- [Game speed helper scripts](#game-speed-helper-scripts)
-  - [`compare_speed_summaries.py`](#compare_speed_summariespy)
-  - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
-- [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
-  - [`audit_first_city_scouting.py`](#audit_first_city_scoutingpy)
-  - [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy)
-  - [`expand_sasgamerecord_city_deltas.py`](#expand_sasgamerecord_city_deltaspy)
-  - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
-- [Game info comparison helpers](#game-info-comparison-helpers)
-  - [`compare_handicap_infos.py`](#compare_handicap_infospy)
-- [Static audit helpers](#static-audit-helpers)
-  - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
-  - [`audit_define_keys.py`](#audit_define_keyspy)
-  - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
-  - [`audit_unit_obsolescence_continuity.py`](#audit_unit_obsolescence_continuitypy)
-- [Markdown documentation cleanup helpers](#markdown-documentation-cleanup-helpers)
-  - [`reflow_markdown_prose.py`](#reflow_markdown_prosepy)
-- [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
-- [Art viewing helpers](#art-viewing-helpers)
-  - [`gamefont_tga.py`](#gamefont_tgapy)
-  - [`art_preview.py`](#art_previewpy)
-  - [`fpk_tool.py`](#fpk_toolpy)
-  - [`civ4_assets.py`](#civ4_assetspy)
-  - [`art_gallery.py`](#art_gallerypy)
-  - [`art_search.py`](#art_searchpy)
-  - [`plot_scene.py`](#plot_scenepy)
-  - [`regenerate_art_samples.py`](#regenerate_art_samplespy)
-  - [`nif_preview.py`](#nif_previewpy)
-  - [`movie_frames.py`](#movie_framespy)
-- [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
-  - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
-- [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper)
-  - [Export from a ChatGPT share link](#export-from-a-chatgpt-share-link)
-- [Claude Code session transcript helper](#claude-code-session-transcript-helper)
-  - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
-- [Local development diagnostics toggle](#local-development-diagnostics-toggle)
-  - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
-- [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
-  - [`make_light_source_zip.py`](#make_light_source_zippy)
-    - [General](#general)
-    - [Example of creating a light source ZIP in Downloads folder (light_source ZIP) (Git Bash)](#example-of-creating-a-light-source-zip-in-downloads-folder-light_source-zip-git-bash)
-    - [Example of output (light_source ZIP) (Git Bash)](#example-of-output-light_source-zip-git-bash)
-      - [Cached-run example](#cached-run-example)
-      - [Full-refresh example](#full-refresh-example)
-    - [Notes (light_source ZIP)](#notes-light_source-zip)
-  - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
+  - [Static audit helpers](#static-audit-helpers)
+    - [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy)
+    - [`audit_define_keys.py`](#audit_define_keyspy)
+    - [`audit_unused_text_keys.py`](#audit_unused_text_keyspy)
+  - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
+- [`balance/`](#balance)
+  - [Game speed helper scripts](#game-speed-helper-scripts)
+    - [`compare_speed_summaries.py`](#compare_speed_summariespy)
+    - [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy)
+  - [Game info comparison helpers](#game-info-comparison-helpers)
+    - [`compare_handicap_infos.py`](#compare_handicap_infospy)
+  - [`military_tree_continuity.py`](#military_tree_continuitypy)
+  - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
+- [`chat_exports/`](#chat_exports)
+  - [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper)
+    - [Export from a ChatGPT share link](#export-from-a-chatgpt-share-link)
+  - [Claude Code session transcript helper](#claude-code-session-transcript-helper)
+    - [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy)
+- [`code_history/`](#code_history)
+  - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
+    - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
   - [`svn_history_to_diffs.py`](#svn_history_to_diffspy)
   - [`svn_history_verify.py`](#svn_history_verifypy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
-- [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
+- [`context/`](#context)
+  - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
+- [`diagnostics/`](#diagnostics)
+  - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
+    - [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy)
+    - [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy)
+    - [`expand_sasgamerecord_city_deltas.py`](#expand_sasgamerecord_city_deltaspy)
+    - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
+  - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
+    - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
+- [`formatting/`](#formatting)
+  - [Source blank-line cleanup](#source-blank-line-cleanup)
+  - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
+  - [Python source cleanup helpers](#python-source-cleanup-helpers)
+    - [`collapse_multiline_calls.py`](#collapse_multiline_callspy)
+    - [`collapse_multiline_calls2.py`](#collapse_multiline_calls2py)
+    - [`collapse_multiline_parens_safe.py`](#collapse_multiline_parens_safepy)
+    - [`fix_matrix_indent.py`](#fix_matrix_indentpy)
+    - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
+    - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
+    - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+    - [`fix_line_endings.py`](#fix_line_endingspy)
+  - [C++ source cleanup helpers](#c-source-cleanup-helpers)
+    - [`reflow_cpp_logging_calls.py`](#reflow_cpp_logging_callspy)
+    - [`collapse_cpp_log_guards.py`](#collapse_cpp_log_guardspy)
+    - [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy)
+    - [`collapse_cpp_inline_returns.py`](#collapse_cpp_inline_returnspy)
+    - [`collapse_cpp_inline_statements.py`](#collapse_cpp_inline_statementspy)
+  - [CvMainInterface cleanup reference scripts](#cvmaininterface-cleanup-reference-scripts)
+    - [`singleline_pass.py`](#singleline_passpy)
+    - [`singleline_pass_comments.py`](#singleline_pass_commentspy)
+    - [`singleline_pass3_comments_and_long.py`](#singleline_pass3_comments_and_longpy)
+    - [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py)
+    - [Comparison with Base AdvCiv 1.12's Main Interface processed similarly](#comparison-with-base-advciv-112s-main-interface-processed-similarly)
+    - [Notes](#notes)
+      - [ChatGPT sandbox path note](#chatgpt-sandbox-path-note)
+      - [Safety rule for source-rewrite helpers](#safety-rule-for-source-rewrite-helpers)
+  - [Markdown documentation cleanup helpers](#markdown-documentation-cleanup-helpers)
+    - [`reflow_markdown_prose.py`](#reflow_markdown_prosepy)
+- [`packaging/`](#packaging)
+  - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
+    - [`make_light_source_zip.py`](#make_light_source_zippy)
+      - [General](#general)
+      - [Example of creating a light source ZIP in Downloads folder (light_source ZIP) (Git Bash)](#example-of-creating-a-light-source-zip-in-downloads-folder-light_source-zip-git-bash)
+      - [Example of output (light_source ZIP) (Git Bash)](#example-of-output-light_source-zip-git-bash)
+        - [Cached-run example](#cached-run-example)
+        - [Full-refresh example](#full-refresh-example)
+      - [Notes (light_source ZIP)](#notes-light_source-zip)
+    - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
-## CI helpers
+## `art_viewing/`
 
-### `ci_report.py`
+### Art viewing helpers
+
+#### `gamefont_tga.py`
+
+- Views and rearranges glyphs in Civ4's `GameFont.tga` / `GameFont_75.tga` with only Python 3's standard library, since agents' image readers cannot open `.tga` files and Pillow is not installed.
+- `preview` writes a region, enlarged, as a PNG the image reader can open; `grid` lists the magenta grid lines, to find row tops and the column pitch; `move` copies glyph cells between slots, or from another font of the same size.
+- Handles only the uncompressed 32-bit TGAs that Game Font Editor writes, and fails on anything else.
+- The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#game-font-glyphs) explains the grid, the commands and the 2026-11-08 example that moved the Camel, Peat and Hit Movies glyphs into BonusInfo order.
+
+```bash
+python LLM_Helpers/art_viewing/gamefont_tga.py preview Assets/Res/Fonts/GameFont.tga bonus_rows.png --box 0 175 560 222 --zoom 3
+```
+
+#### `art_preview.py`
+
+- Puts Civ4 art (`.dds`, `.tga`, `.png`) side by side in one labelled PNG that an agent's image reader can open; needs Pillow.
+- Takes file paths or XML `<Button>` strings, and searches case-insensitively like the game: the mod, then BtS, Warlords and the original game (loose, then packed), then the extracted Caveman2Cosmos, History Rewritten and Realism Invictus folders; `--root` and `--fpk` add others.
+- For an atlas string it uses the standalone file if found, else cuts the 64-pixel cell (column and row counted from 1) out of the atlas, reading BtS's packed `.FPK` archives through `fpk_tool.py`. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) shows how it chose Peat Works' button.
+
+```bash
+python LLM_Helpers/art_viewing/art_preview.py art/craft/art/peatgatherer.dds Art/AdvCiv_SAS/Bonuses/Peat/Peat_button.dds --out compare.png
+```
+
+#### `fpk_tool.py`
+
+- Lists and extracts files from Civ4's packed `.FPK` archives, which PakBuild and Dragon UnPACKer open only through their windows; no dependencies.
+- Checked on BtS's `Art0.FPK` and the Final Frontier `STArt3.FPK`; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives) describes the format.
+
+```bash
+python LLM_Helpers/art_viewing/fpk_tool.py list "../../../Assets/Art0.FPK" "*atlas*"
+```
+
+#### `civ4_assets.py`
+
+- Finds Civ4 art as the game does for a mod: its loose files, then its FPKs, then BtS's, Warlords' and the original game's; uses `fpk_tool.py` and no other dependencies.
+- `defines PATTERN` lists art defines from the mod's art XML, `locate PATH` names the layer that supplies a file, and `stage PATH` copies its folder, merged from all layers, with any textures its NIFs name from elsewhere.
+- `nif_preview.py --mod` uses it to render another mod's leaders and units by `ART_DEF_` type; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
+
+```bash
+python LLM_Helpers/art_viewing/civ4_assets.py --mod "Realism Invictus" defines "ART_DEF_UNIT_APACHE*"
+```
+
+#### `art_gallery.py`
+
+- Renders a mod's leaders, units or other art defines in bulk through `nif_preview.py --mod`, keeps each as a PNG for Windows thumbnails, and lays them out on grid sheets; needs what `nif_preview.py` needs.
+- Filters units and buildings by domain, unit combat or kind of building, and era from the mod's XML; `--labels` writes names and those facts under each picture. See [Galleries](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#galleries).
+
+```bash
+python LLM_Helpers/art_viewing/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --labels
+```
+
+#### `art_search.py`
+
+- Finds the terrains, features, buildings or units (`--kind`, with `--era` for the last two) whose Type matches a regular expression in every installed mod, skipping entries a mod inherits unchanged from the base game, and draws each through its own mod's art, as one sheet labelled with the mod; `--list` lists the matches only. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#searching-mods).
+
+```bash
+python LLM_Helpers/art_viewing/art_search.py "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD" marshes.png
+```
+
+#### `plot_scene.py`
+
+- Builds the map plots `nif_preview.py` draws, from the mod's XML and art; run on its own, it draws a mod's every terrain, plot type and feature as one labelled sheet, `--match` keeping the plots whose label matches. See [Plots](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
+
+```bash
+python LLM_Helpers/art_viewing/plot_scene.py c2c_peaks.png --mod Caveman2Cosmos --match "^peak"
+```
+
+#### `regenerate_art_samples.py`
+
+- Renders again every sample picture in `_1_AdvCiv-SAS/Images/LLM` that `nif_preview.py` or `art_gallery.py` made, with the Art Tools Guide's commands, finding base-game files through this mod as the game does; run it after renderer changes and review the pictures before committing.
+- `--list` shows each sample's command; a pattern such as `"*grace*"` renders only matching samples. Movie, audio and hand-assembled comparison pictures are not covered.
+- A complete, successful run records the renderer's code fingerprint in `art_samples_fingerprint.json`, which the [art sample freshness](/.github/workflows/README.md#builddocumentationart_samplespy) CI check compares with the current code.
+
+```bash
+python LLM_Helpers/art_viewing/regenerate_art_samples.py "*leaderhead*"
+```
+
+#### `nif_preview.py`
+
+- Draws a `.nif` model as a PNG close to NifSkope's view, which shows it only in its window: textured per pixel with a depth buffer, skinned meshes posed by their bones, over a floor grid; needs numpy, PyFFI, setuptools and Pillow.
+- With `--scene-camera` and `--frames N`, draws a scene such as a religion-founding movie through its own camera at N moments of its animation.
+- With `--leader-background BACKGROUND.kfm`, draws a leaderhead over its backdrop. Add a clip to sample poses with fixed framing, or use a `.gif` output to loop those samples. See the [Grace O’Malley example](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies).
+- Pass a `.kfm` to list event codes, add `--clip EVENT` to inspect a clip, or add a PNG output path to render it. Pass a `.kf` on its own to inspect it, or use `--kf FILE` with a NIF and a PNG output path. See the [Peat Works and Llama Kamayuq examples](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies).
+- With `--mod MOD`, the asset may be an `ART_DEF_` type or an `Art/...` path from another mod, found through [`civ4_assets.py`](#civ4_assetspy).
+- With `--mod`, a `TERRAIN_`, `FEATURE_`, `BONUS_` or `IMPROVEMENT_` asset, or `--on-plot`, `--terrain`, `--feature` and `--plot`, draws a map plot through `plot_scene.py`, starting from what the XML allows; see [Plots](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
+- An `.mp4` output is a video at `--fps` with `--sound`; a `RELIGION_` asset with `--mod` gives its founding scene with its sound. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#videos-with-sound).
+- Not the game's particles, effects or exact lighting; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#nif-models) for how it was built and its limits.
+
+```bash
+python LLM_Helpers/art_viewing/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp_fx.nif peat_works.png
+```
+
+#### `movie_frames.py`
+
+- Turns a movie (Bink `.bik`, or anything ffmpeg reads) into a sheet of evenly spaced frames, and with `--audio` its sound into a waveform picture with mean and peak loudness, since agents can see images but not watch or hear; needs ffmpeg and Pillow.
+- A `.gif` output loops the movie or an excerpt selected with `--start` and `--duration`. Set `--fps` and `--width` to control the preview size and smoothness.
+- With `--audio-only`, takes an audio file such as an MP3 or WAV and writes its waveform to the output path.
+- An `.mp4` output converts the movie with its sound, playable in VLC, browsers and Windows' own player; write it outside the repository.
+- See the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies) for the Natya Shastra example.
+
+```bash
+python LLM_Helpers/art_viewing/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik natya.png --audio natya_audio.png
+```
+
+## `audits/`
+
+### CI helpers
+
+#### `ci_report.py`
 
 Writes every CI failure to one text file, so one pass can fix them all rather than one push per failure.
 
-- `python LLM_Helpers/ci_report.py`: runs each workflow's `run:` steps here. New checks need no change to the helper, as it reads the workflows.
+- `python LLM_Helpers/audits/ci_report.py`: runs each workflow's `run:` steps here. New checks need no change to the helper, as it reads the workflows.
   - It compares with what GitHub would: the upstream commit when HEAD differs from it, which after an amend is the commit being replaced, else the parent. `--base` overrides this.
     - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
   - Checks read the working tree, and those comparing commits see only base..HEAD, so commit or amend before trusting them.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
-- `python LLM_Helpers/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
+- `python LLM_Helpers/audits/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
 - Output: `LLM_Helpers/outputs/ci_report.txt`, Git-ignored, or `--out`. Exit code 1 when something failed or GitHub's run has not finished.
 - Each failure keeps its last 200 lines of output. Requires PyYAML, Git Bash and, for GitHub, `curl`.
-
-## Inherited map-script reference sources
-
-[`context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) contains downloaded, greppable, non-runtime originals used to distinguish inherited third-party map-script bugs from AdvCiv-SAS regressions. Its own README records the original package names and SHA-256 hashes, portable directory-name mappings, the source-only selection policy, and comparison guidance.
-
-- Compare references with current `PrivateMaps` and tracked commit history; current source/Git remains authoritative.
-- Do not run formatting, lint autofixes or line-ending normalization over the corpus.
-- Ordinary player/GitHub Download ZIP archives and generated historical patches exclude it, while `make_light_source_zip.py` includes the current files for ChatGPT/code-agent archaeology.
-- Preserve upstream credits/readmes and treat hosting/authorship/licensing metadata as upstream provenance rather than AdvCiv-SAS ownership.
-
-## Source blank-line cleanup
-
-[`trim_source_blank_lines.py`](/LLM_Helpers/trim_source_blank_lines.py) previews or trims separators of three or more blank lines to two, using the source-provenance CI check's Python/C/C++/XML scope and literal/text protections.
-
-- SAS defines XML keeps its deliberate group spacing. Historical documents and context corpora are outside the source scope.
-- Preview is the default. `--apply` preserves original bytes except removed blank rows, backs up changed files outside the checkout by default, and leaves the Git index untouched.
-  - `--backup-dir PATH` selects another backup root; existing backup files are never overwritten.
-- Close Civ4 before applying changes to its Python/XML files, and wait for compilation to finish before rewriting C++ sources. Review the diff afterward; changed files may need the usual provenance headers or diagnostic revision maintenance.
-
-```powershell
-python LLM_Helpers/trim_source_blank_lines.py
-python LLM_Helpers/trim_source_blank_lines.py Assets/Python/CvUtil.py --apply
-```
-
-## Custom-comment logical reflow
-
-### `reflow_custom_comments.py`
-
-Logical-layout helper for AdvCiv-SAS `<!-- custom: ... -->` prose comments in active C++, Python and XML source.
-
-- This is deliberately not a width formatter. It does not wrap at 80/120/etc. characters.
-- Joins obvious physical wraps that split one logical sentence, and separates substantial complete sentences onto distinct physical comment lines.
-- Preserves short related clauses already joined with semicolons. Small trailing configuration/provenance fragments such as `Was 70.` are folded into the preceding sentence as `; was 70.` when safe.
-- Keeps closing metadata such as `See KI#...`, model credits and `Long_Comments_*.txt` references on the final substantive line instead of stranding them.
-- Touches only explicitly marked custom comments. Ordinary inherited/BTS/K-Mod/AdvCiv comments are not candidates.
-- Skips structured lists/layout notes, code-like or assignment-like commented material, malformed/unclosed markers and genuinely ambiguous physical boundaries instead of guessing. Those skips are intended for LLM/manual review when desired.
-- C++ includes `.cpp`, `.h` and `.inl`; Python is `.py`; XML is `.xml`. Reference/history corpora such as `_0_Legacy`, `_SNAPSHOT_CONTEXT`, `LLM_Helpers/context`, and generated outputs are excluded.
-- Python rewrites must preserve the significant token stream; the helper refuses a Python change if its token-safety comparison changes executable code. Original text encoding and line-ending style are preserved.
-- The build workflow runs `--check` automatically and fails if an eligible custom comment needs logical reflow; it reports each affected path with the source line or line range without rewriting source. Structured/ambiguous comments are reported as skips, not failures. Preview with `--diff`, apply selected files locally with `--apply`, and review the diff before committing.
-
-From the repo root, audit all supported active source without writing:
-
-```bash
-python LLM_Helpers/reflow_custom_comments.py --check
-```
-
-Preview the safe proposed edits as a unified diff:
-
-```bash
-python LLM_Helpers/reflow_custom_comments.py --diff
-```
-
-Apply the safe pass in place:
-
-```bash
-python LLM_Helpers/reflow_custom_comments.py --apply
-```
-
-Narrow to selected source families or paths when useful:
-
-```bash
-python LLM_Helpers/reflow_custom_comments.py CvGameCoreDLL Assets/Python --extensions cpp,h,inl,py --diff
-python LLM_Helpers/reflow_custom_comments.py Assets/XML --extensions xml --apply
-```
-
-The older [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py) remains a historical CvMainInterface-specific cleanup reference. It uses length-oriented heuristics and should not replace this logical custom-comment pass.
-
-## Python source cleanup helpers
-
-### `collapse_multiline_calls.py`
-
-Conservative source-rewrite helper for Python files.
-
-- Collapses multiline call-like statements and simple parenthesized return expressions into one line.
-- Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
-- Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.
-- Preserves line endings and refuses to write if significant token sequence changes.
-- Safer than `collapse_multiline_brackets.py` for broad cleanup because it does not collapse arbitrary bracketed dictionaries/lists/tables.
-- Still review the diff before committing. The goal is searchability and reviewability, not general formatting.
-- For broad passes, prefer active mod/helper source. Avoid reference/comparison folders such as `_0_Legacy` unless the task explicitly needs them.
-- If the diff starts touching large data tables, comments, fragile indentation, or hard-to-review inherited files, stop and narrow the target set.
-
-Single-file examples:
-
-```powershell
-python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py
-python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py --in-place
-python LLM_Helpers\collapse_multiline_calls.py PrivateMaps\Mirror.py --diff
-```
-
-Broad run workflow from PowerShell. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, then removes the runner.
-
-The helper can also be run on a single file from PowerShell or Git Bash; this broad pass was tested with PowerShell for file generation, then Git Bash for staged diff output.
-
-```powershell
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; Copy-Item "LLM_Helpers\collapse_multiline_calls.py" "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py"; $script=(Resolve-Path "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py").Path; Get-ChildItem -Recurse -File -Filter *.py | Where-Object { $_.FullName -ne $script } | ForEach-Object { py $script $_.FullName --in-place }; Remove-Item $script; git diff --ignore-space-at-eol --stat; git diff --check
-```
-
-Broad staged-review workflow from Git Bash after the files were modified. This stages only `.py` files, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
-
-```bash
-cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/staged_collapse_multiline_calls_${ts}.diff" && git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add && git diff --cached --ignore-space-at-eol > "$out" && git diff --cached --ignore-space-at-eol --stat && git diff --cached --check && echo "wrote $out"
-```
-
-### `collapse_multiline_calls2.py`
-
-Targeted second-pass source-rewrite helper.
-
-- Separate follow-up to `collapse_multiline_calls.py`; keep the first helper as the committed known-good pass 1.
-- Collapses multiline `def` headers such as `def __init__(..., ...):`.
-- Collapses selected long map-generation calls such as `generatePlotsInRegion(...)`, `generateCenter(...)`, and `generateCenterPlot(...)`.
-- Skips comments inside the collapsed statement, multiline strings, explicit backslash continuations, list/dict/table assignments, calls whose first argument is a list/dict literal, and long boolean return cascades beyond the conservative line cap.
-- Preserves line endings and refuses to write if significant token sequence changes.
-- Intended for narrow cleanup after the first collapse pass, not as a general formatter.
-
-Tested broad run workflow from Git Bash. The helper itself processes one file at a time, but this was tested as a broad repo pass using a temporary runner.
-
-The loop applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
-
-```bash
-cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
-```
-
-### `collapse_multiline_parens_safe.py`
-
-Broad but safety-checked parenthesis-collapse helper.
-
-- Collapses multiline parenthesized expressions to one physical line.
-- Intended mainly for old Civ4 Python files where wrapped parenthesized calls/expressions create Ruff/Pylance mixed-indentation noise.
-- Broader than `collapse_multiline_calls.py` because it is not limited to call-like statements.
-- Safer than the legacy `collapse_multiline_brackets.py` because it defaults to parentheses only and skips risky ranges.
-- Skips ranges containing comments, multiline strings, explicit backslash continuations, unmatched brackets, overly large blocks, and lines exceeding the configured maximum line length.
-- Preserves strings and line endings.
-- Compares significant token streams when tokenization works.
-- If a file is already indentation-broken and cannot be tokenized, the helper can still apply local parenthesis-only rewrites and reports that token verification was skipped. Review those files especially carefully.
-- Optional flags can include square/curly bracket ranges, but do not use those broadly unless the task explicitly needs them and the diff is easy to review.
-- Always review the staged diff before committing. This is not a general formatter.
-
-Broad Git Bash staged-review workflow. This copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, stages Python changes, writes the full staged diff and a check report under `LLM_Helpers/outputs`, prints the staged stat, runs `git diff --cached --check`, and reruns Ruff `E101` so the user/agent can compare the remaining mixed-indent count:
-
-```bash
-cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_multiline_parens_safe.py" "LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_multiline_parens_safe_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_multiline_parens_safe_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_multiline_parens_safe_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_multiline_parens_safe run log ==="; cat "$runlog"; echo; echo "=== git diff --cached --ignore-space-at-eol --stat -- *.py ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== git diff --cached --check -- *.py ==="; git diff --cached --check -- '*.py'; echo; echo "=== remaining Ruff E101 ==="; py -m ruff check . --select E101 --output-format=grouped || true; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
-```
-
-On top of the code formatting/grepping gains, notably helped reduce ruff errors.
-
-```md
-54 files changed
-816 insertions / 1875 deletions
-net ~1059 physical lines removed
-E101 Indentation contains mixed spaces and tabs count: ~1068 -> 259
-total remaining Ruff E101 report errors: 349
-```
-
-### `fix_matrix_indent.py`
-
-Targeted matrix/data indentation cleanup helper.
-
-- Normalizes mixed tab/space indentation inside multiline list/dict/tuple assignment blocks.
-- Intended mainly for old Civ4 map-script matrix/data blocks such as `templates = {...}`, region tables, coordinate tables, and similar static data.
-- Does not collapse lines; keeps large matrices and tables multiline for readability.
-- Does not touch the assignment's first line indentation, because that may be real Python block indentation.
-- Converts mixed leading indentation inside the data block to spaces-only indentation.
-- Uses tabsize 4 by default, matching the intended editor-style alignment for these visual matrix/data blocks better than Python's historical tabsize 8.
-- Strips trailing whitespace only on lines whose leading indentation was changed.
-- Preserves line endings and refuses to write if significant token sequence changes.
-- Intended for Ruff `E101` cleanup in matrix/data blocks, not as a general indentation fixer.
-
-Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
-
-```bash
-cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/fix_matrix_indent.py" "LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py" && runner="LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_fix_matrix_indent_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
-```
-
-In the tested broad PrivateMaps pass, this produced a high-impact Ruff cleanup: for example, `Wheel.py` dropped from roughly 400 Ruff findings to 15, while the staged diff was still mostly mechanical whitespace-only matrix indentation replacement.
-
-```bash
-LLM_Helpers/fix_matrix_indent.py     |  290 ++++++++
-PrivateMaps/Archipelago.py           |  186 +++---
-PrivateMaps/BTG_Lagoon.py            |  220 +++----
-PrivateMaps/Balanced.py              |    4 +-
-PrivateMaps/Custom_Continents.py     | 1200 +++++++++++++++++-----------------
-PrivateMaps/Equal_Islands_V2_beta.py |  188 +++---
-PrivateMaps/Great_Plains.py          |    4 +-
-PrivateMaps/Hub.py                   |  738 ++++++++++-----------
-PrivateMaps/Ice_Age.py               |    8 +-
-PrivateMaps/Inland_Sea.py            |  628 +++++++++---------
-PrivateMaps/Islands.py               |  188 +++---
-PrivateMaps/Pangaea.py               |   24 +-
-PrivateMaps/Rainforest.py            |    4 +-
-PrivateMaps/Ring.py                  |  646 +++++++++---------
-PrivateMaps/Tectonics.py             |   22 +-
-PrivateMaps/Wheel.py                 |  786 +++++++++++-----------
-16 files changed, 2713 insertions(+), 2423 deletions(-)
-```
-
-### `collapse_flat_literals.py`
-
-Conservative flat-literal collapse helper.
-
-- Collapses simple flat multiline Python list/tuple assignment literals to one physical line.
-- Intended for small option lists, name lists, simple region-data arrays, GameFont-style flat token lists, and similar grep-friendly data.
-- Does not target matrix-like map templates, nested lists/dicts/tuples, comments inside literals, or large table-style data where one row per line is clearer.
-- Preserves trailing commas if they already exist; this keeps the rewrite mechanical and avoids unnecessary token/style changes.
-- Refuses risky edits when significant token sequence changes.
-- Default `--max-line-len` is intentionally fairly high because this helper targets grep-friendly flat data arrays, not normal prose/code wrapping.
-- This is not a general formatter. Review the staged diff before committing.
-
-Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
-
-```bash
-cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/collapse_flat_literals.py" "LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_flat_literals_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_flat_literals_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_flat_literals_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_flat_literals run log ==="; cat "$runlog"; echo; echo "=== staged stat ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== staged whitespace check ==="; git diff --cached --check -- '*.py'; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
-```
-
-Tested broad pass result with default line length 500:
-
-```text
-19 flat literals collapsed across 15 existing source files.
-One risky old vendored file, Assets\Python\BUG\configobj.py, was refused by the token-safety check.
-The pass caught the longer flat GameFontDisplay character-name list in addition to shorter option/name/region-data arrays.
-Run git diff --cached --check before committing.
-```
-
-Example intended rewrites:
-
-```python
-selection_names = [
-	"TXT_KEY_MAP_WRAP_FLAT",
-	"TXT_KEY_MAP_WRAP_CYLINDER",
-	"TXT_KEY_MAP_WRAP_TOROID",
-]
-```
-
-becomes:
-
-```python
-selection_names = ["TXT_KEY_MAP_WRAP_FLAT", "TXT_KEY_MAP_WRAP_CYLINDER", "TXT_KEY_MAP_WRAP_TOROID",]
-```
-
-```python
-phonetic_array = [
-	'Alpha', 'Bravo', 'Charlie',
-	'Delta', 'Echo', 'Foxtrot',
-]
-```
-
-becomes:
-
-```python
-phonetic_array = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot',]
-```
-
-### `wrap_python2_prints_for_linting.py`
-
-Conservative Python 2 print-wrapper helper.
-
-- Converts simple active Python 2 bare prints such as `print "hello"` and `print "value = %s" % value` to Python 2.4/3-compatible single-expression calls such as `print("hello")` and `print("value = %s" % value)`.
-- Skips ambiguous cases such as redirected prints, trailing-comma prints, semicolon-packed lines, and top-level comma prints; manually rewrite those with one formatted string such as `print("player %s pass %s failed" % (playerID, iPass))`.
-- Does not touch commented-out prints, because comments do not block Ruff/Python 3 parsing.
-- Intended to reduce parser/linter noise while preserving Civ4 Python 2.4 runtime compatibility.
-
-Example:
-
-```powershell
-python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --diff Assets\Python PrivateMaps
-python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --in-place Assets\Python PrivateMaps
-python LLM_Helpers\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
-```
-
-### `collapse_multiline_brackets.py`
-
-Legacy/reference helper.
-
-- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
-- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
-- Preserves line endings, string literals, and comments outside collapsed ranges.
-- Important caution: this script strips line comments and indentation inside collapsed ranges.
-- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
-- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
-
-Example:
-
-```powershell
-python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
-```
-
-### `fix_line_endings.py`
-
-External cleanup helper for line-ending hygiene.
-
-- Reports or fixes mixed CRLF/LF line endings and missing final newlines.
-- Does not run automatically in GitHub Actions; the workflow check only reports/fails.
-- Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
-- Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
-- Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
-- Always review the diff before committing generated source changes.
-
-Examples:
-
-```powershell
-python LLM_Helpers\fix_line_endings.py
-python LLM_Helpers\fix_line_endings.py --diff
-python LLM_Helpers\fix_line_endings.py --in-place
-python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --diff
-python LLM_Helpers\fix_line_endings.py Assets\Python PrivateMaps --in-place
-```
-
-## C++ source cleanup helpers
-
-### `reflow_cpp_logging_calls.py`
-
-Conservative readability formatter for C++ logging calls.
-
-- The default wrapping mode targets active diagnostic log-like calls across the project (`logBBAI(...)`, `logSASGameRecord...(...)`, `SAS_log...(...)`, `myLog...(...)`-style helpers, etc.); bare/member `.log(...)` calls are wrapped only in the familiar string-first diagnostic form, and commented-out code is ignored.
-- Keeps a leading diagnostic format string byte-for-byte intact when present and wraps only at top-level commas between C++ arguments; typed recorder/helper calls without a format string can also be split conservatively at those argument boundaries.
-- `--collapse-short` additionally collapses simple multiline log-like calls that fit within `--collapse-width` (default 180).
-  - It recognizes logging families rather than only `logBBAI`: e.g. `logSASGameRecord...(...)`, `SAS_log...(...)`, `myLog...(...)`-style helpers, and string-first ordinary member `.log(...)` calls. This is opt-in so existing intentional multiline layout does not churn by default.
-- The log-like recognizer is deliberately prefix/role based rather than "contains `Log`": unrelated gameplay/event callbacks such as `combatLogHit(...)` are not treated as diagnostic emitters merely because their name contains that substring.
-- Does not reflow or merge existing prose comments; comment layout remains author-maintained, and calls containing comments are skipped for manual review.
-- Skips preprocessor directives and continued macro bodies entirely. Physical `\` line-splicing is semantic before C++ tokenization, so macro logging calls require manual formatting.
-- By default, a one-line call is considered for wrapping above 180 columns; an already-multiline call is considered only when one of its argument/continuation lines exceeds that threshold, so a deliberately long format-string line alone does not trigger churn.
-- Uses a 140-column target for continuation lines while keeping individual nested expressions intact. Complex arguments that are themselves multiline or contain comments are skipped for manual review rather than reformatted speculatively.
-- Preserves LF/CRLF line endings and compares non-comment C++ token streams before writing, refusing the change if significant source tokens differ.
-- Always review the diff before committing. This is a narrow logging formatter, not a general C++ formatter.
-
-Dry-run scan of the DLL source:
-
-```bash
-python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL
-```
-
-Review a single file as a unified diff:
-
-```bash
-python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL/CvUnitAI.cpp --diff
-```
-
-Apply across the DLL source, or opt into short-call collapse on a touched file:
-
-```bash
-python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL --in-place
-python LLM_Helpers/reflow_cpp_logging_calls.py CvGameCoreDLL/CvPlayerAI.cpp --collapse-short --diff
-```
-
-### `collapse_cpp_log_guards.py`
-
-Conservative formatter for simple one-statement C++ logging guards.
-
-- Collapses ordinary `if (...)` and `else if (...)` logging pre-gates so the condition and log-like call head stay together, e.g. `if (bLog) logBBAI(...);`; the body recognizer is not limited to BBAI and also accepts SASGameRecord/domain logging helpers and `myLog...`-style names.
-- Arbitrary functions that merely contain `Log` in the middle of a gameplay/event name are intentionally excluded; this is a diagnostic-logging formatter, not a general one-statement formatter.
-- Eligible conditions must contain a recognizable logging gate such as a local `bLog...`/`bSAS...Log`/`b...Logging` flag, a `g*LogLevel`/`i*LogLevel` comparison, `GC.isLogging()`, `GC.getLogger().isEnabled...()`, or an explicit `shouldLog...()`/logging-enabled predicate; the exact variable name is otherwise generic.
-- Semantic-only conditions such as `isNormalizing()`, `isDebug()`, `bCoastal`, or gameplay predicates are intentionally skipped even when their sole body is a log call. Those branches may already sit inside an outer logging pre-gate, and collapsing them would add unrelated cosmetic churn rather than make pre-gating clearer.
-- Long logging argument tails remain multiline. Multiline guard conditions are left unchanged: joining their final condition line to the log call obscured the boundary between complex predicates and logging arguments, notably in corporation-transit and naval-invasion diagnostics.
-- These pointer accesses and calls can fail independently; keeping the condition and log call on separate source lines helps a debugger distinguish predicate failures from failures while evaluating logging arguments. This preserves useful crash-location evidence as well as readability, although optimized builds can still limit source-line precision.
-- Safe trailing `//` comments are preserved. Preprocessor/macro bodies, block comments, ambiguous call shapes, multi-statement blocks, and braced `if/else` structures are skipped.
-- This is formatting only. It does **not** invent missing log-level gates or reorder `&&` operands; use `audit_cpp_logging_pregates.py` plus LLM/manual review for architectural pre-gating.
-- Prefer targeted/touched-file runs. A whole-DLL scan is useful as an occasional hygiene audit, but can expose historical cosmetic candidates and is normally unnecessary diff noise.
-
-```bash
-python LLM_Helpers/collapse_cpp_log_guards.py CvGameCoreDLL/CvPlayerAI.cpp --repo-root .
-python LLM_Helpers/collapse_cpp_log_guards.py CvGameCoreDLL/CvPlayerAI.cpp --repo-root . --in-place
-```
 
 ### `find_cpp_dead_code_candidates.py`
 
@@ -498,514 +305,24 @@ Conservative C++ dead-code candidate finder for LLM/manual review.
 Default report:
 
 ```powershell
-python ./LLM_Helpers/find_cpp_dead_code_candidates.py
+python ./LLM_Helpers/audits/find_cpp_dead_code_candidates.py
 ```
 
 High-signal report:
 
 ```powershell
-python ./LLM_Helpers/find_cpp_dead_code_candidates.py --focus high
+python ./LLM_Helpers/audits/find_cpp_dead_code_candidates.py --focus high
 ```
 
 Optional explicit output:
 
 ```powershell
-python ./LLM_Helpers/find_cpp_dead_code_candidates.py --output LLM_Helpers/outputs/cpp_dead_code_candidates_manual.md
+python ./LLM_Helpers/audits/find_cpp_dead_code_candidates.py --output LLM_Helpers/outputs/cpp_dead_code_candidates_manual.md
 ```
 
-### `collapse_cpp_signatures.py`
+### Static audit helpers
 
-Conservative signature-only source-rewrite helper for C/C++ files.
-
-- Collapses safe multiline function declarations/definitions to one physical line, mainly to make signatures easier to scan, grep, and compare.
-- Signature-only by design: ordinary multiline calls, logging statements, and constructor-like local statements are left alone. If call cleanup is wanted later, use a separate helper such as `collapse_cpp_calls.py` with separate rules.
-- Skips control-flow statements, comments that would become misleading, block-comment boundaries, and candidates that do not look like function headers.
-- Unindented root-scope declarations in `.cpp` files are treated like safe declarations; nested constructor-like local statements are omitted from the normal ignored report unless `--include-nonsignature-ignored` is used.
-- Qualified `::` signatures are also detected when the prefix contains template commas such as `std::pair<int,int>` or `KmodPathFinder<StepMetric,Node>`.
-- Indented header declarations may use qualified return types such as `std::pair<int,int>`; only indented qualified callable names are treated as likely local calls.
-- Nested class/struct declarations are handled, while declaration-shaped local constructor calls inside inline function bodies stay skipped.
-- Allows trailing end-of-signature `//` comments (for example `) const // advc.031`) and inline one-line `/* ... */` tail comments; comments inside the parameter list are skipped unless a trace-hoisting mode below handles them.
-- Uses a generous default `--max-line-len 600` and `--max-span-lines 16` because this helper is meant to make safe signatures one-line-first; lower them for a narrower review.
-- `--hoist-comments` can move whole-line comments from inside a collapsed signature above the signature, while still skipping inline comments inside the parameter list.
-- `--trace-hoisted-comments` also adds a separate custom trace line after each hoisted comment, recording whether the comment was before, after, or between specific parameters without making the preserved comment text look newly authored. Use `--trace-credit "GPT-5.5 (reviewed script output)"` or similar when the generated comments were externally reviewed.
-- `--trace-inline-comments` similarly hoists inline `//` comments and extractable multiline `/* ... */` comments from inside the parameter list, strips them from the collapsed signature line, and appends trace metadata for their original parameter position.
-- Existing whole-line `<!-- custom: ... -->` comments inside signatures receive the same hoist-position trace note as other whole-line comments.
-- `--tail-exposed-to-python-comments` handles the common header-only case where `// Exposed to Python` was placed inside a multiline declaration; it moves that metadata to the final tail comment, after any existing tail comment.
-- Defaults to tracked C/C++ files under `CvGameCoreDLL`; you can also pass one or more files/folders for a narrower review.
-- `--diff-file` writes the review diff to a file. Without an explicit path, it creates a timestamped file under `LLM_Helpers/outputs/`.
-- `--ignored-file` writes a separate review report of skipped signature-like multiline candidates and the reason they were left alone, such as unsafe comments, line length, or unsupported tail syntax.
-  - Use `--include-nonsignature-ignored` only when you also want the very noisy/exhaustive ordinary-call/local-statement candidates.
-- Empirically idempotent after the first full DLL pass: rerunning with the default broad scan reported `Scanned 350 C/C++ file(s). No safe C++ signature collapses found.`
-- Always review the diff before committing. This is not a general C++ formatter. External review in ChatGPT or another non-agentic context can be useful for long generated diff/report files before applying the changes locally.
-
-Example diagnostic run with output files and no source changes (Git Bash):
-
-```Bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --diff-file --ignored-file
-```
-
-This writes timestamped files like `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z.diff.txt` and `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z_ignored.txt`.
-
-Example apply run (Git Bash):
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --in-place
-```
-
-Example apply run with traceable hoisted comments (Git Bash):
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-hoisted-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
-```
-
-Example apply run with traceable whole-line and inline hoisted comments (Git Bash):
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-inline-comments --trace-hoisted-comments --tail-exposed-to-python-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
-```
-
-Example apply run for `// Exposed to Python` declaration metadata (Git Bash):
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --tail-exposed-to-python-comments --in-place
-```
-
-Example results:
-
-- First full pass: 118 files changed, 1360 insertions, and 2662 deletions.
-- A follow-up comment-hoisting pass, amended into the same commit because it seemed small and contained, collapsed 31 more signatures across 23 files.
-- A later pass improved old comment text preservation and appended trace notes for where each hoisted comment had originally been placed: it was 66 insertions and 117 deletions.
-- Another `// Exposed to Python` metadata pass collapsed 102 more header declarations across 13 files.
-- A broad inline-comment trace pass collapsed 125 more signatures across 37 files.
-- A multiline block-comment trace pass collapsed 21 more signatures across 13 files.
-- A root-scope `.cpp` declaration pass collapsed 6 explicit-template-instantiation signatures in `CvGameTextMgr.cpp`.
-- An existing-custom-comment pass collapsed 2 more `setUnitHelp` signatures while preserving their custom rationale comments and adding hoist-position trace notes.
-- A qualified-template-prefix pass collapsed 8 more `::` signatures with template commas in the prefix.
-- A qualified-return-type header pass collapsed 4 more declarations using `std::` return types.
-- A nested-class declaration pass collapsed 2 more `InvasionGraph::Node` declarations while keeping inline-function local constructor calls skipped.
-
-Example (nested simple comments) (before):
-
-```cpp
-void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
-	PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
-	PlayerTypes eCancelPlayer) // advc.130p
-```
-
-Example (nested simple comments) (after):
-
-```cpp
-void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
-```
-
-Example 2 (overloaded signatures) (before) :
-
-```cpp
-	/*	(Had been named "addHumanMessage" in K-Mod;
-		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString,
-			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
-			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
-			int iFlashX = -1, int iFlashY = -1,
-			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
-	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength,
-			CvWString szString, CvPlot const& kPlot,
-			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
-			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
-			bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
-```
-
-Example 2 (overloaded signatures) (after):
-
-```cpp
-	/*	(Had been named "addHumanMessage" in K-Mod;
-		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
-	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
-	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
-```
-
-Example 3 (traceable hoisted comment) (before):
-
-```cpp
-bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
-	// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
-	MovementFlags eFlags, bool bFollow)
-```
-
-Example 3 (traceable hoisted comment) (after):
-
-```cpp
-// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
-// <!-- custom: hoisted from multiline signature between `iOddsThreshold` and `eFlags` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
-```
-
-### `collapse_cpp_inline_returns.py`
-
-Conservative header-only helper for simple inline C++ functions.
-
-- Collapses inline functions whose body is exactly one `return ...;` statement to one physical line, including wrapped return expressions and signatures that already have `{` on the signature line.
-- Joins a one-line `template<...>` prefix onto the collapsed inline function when the combined line stays below `--max-line-len`.
-- Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
-- Opening-brace comments such as `{	// advc: ...` are hoisted above the collapsed function; closing-brace tail comments such as `} // </advc.opt>` are preserved after the collapsed body.
-- Leading `// ...` and `/* ... */` body comments are hoisted above the collapsed function; multiline block comments are normalized to one line.
-- Return-line tail comments such as `return x; // advc.opt` are hoisted above the collapsed function so the code line stays focused on the greppable function.
-- Skips constructors/destructors, multi-statement bodies, mid-body comments after the return statement, multiline signatures, and lines exceeding `--max-line-len`.
-- Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
-- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
-
-Example diagnostic run with output file and no source changes:
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_returns.py ./CvGameCoreDLL --diff-file
-```
-
-Example apply run:
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_returns.py ./CvGameCoreDLL --in-place
-```
-
-Reviewed passes used this to collapse:
-
-- simple inline return helpers such as `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`
-- wrapped-return helpers such as `template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }`
-- and brace-on-signature wrappers such as `CvCityAI* AI_getCapital() const { return AI_getCity(m_iCapitalCityID); }`.
-- comment-bearing wrappers such as `bool AI_isAnyWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE) const { return (AI_getWaterDanger(kPlot, iRange, 1) >= 1); } // </advc.opt>`.
-
-Example (before):
-
-```cpp
-	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const															// Exposed to Python
-	{
-		return m_aiGoldPerTurnByPlayer.get(ePlayer);
-	}
-```
-
-Example (after):
-
-```cpp
-	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python
-```
-
-### `collapse_cpp_inline_statements.py`
-
-Conservative header-only helper for simple inline C++ functions whose body is exactly one non-return statement.
-
-- Complements `collapse_cpp_inline_returns.py`; use this for simple setters, wrapper calls, assignment helpers, `BOOST_STATIC_ASSERT(false);` stubs, and similar one-statement bodies.
-- Hoists whole-line body comments and statement tail comments above the collapsed function, and joins one-line `template<...>` prefixes when safe.
-- Skips constructors/destructors, initializer-list bodies, `return` bodies, control-flow bodies, delete/throw/SAFE_DELETE bodies, block comments, multi-statement bodies, multiline signatures, and lines exceeding `--max-line-len`.
-- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
-
-Example diagnostic run with output file and no source changes:
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_statements.py ./CvGameCoreDLL --diff-file
-```
-
-Example apply run:
-
-```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/collapse_cpp_inline_statements.py ./CvGameCoreDLL --in-place
-```
-
-Example (before):
-
-```cpp
-	template<>
-	void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier)
-	{
-		cvValue = static_cast<CompactV>(cvValue * cvMultiplier);
-	}
-```
-
-Example (after):
-
-```cpp
-	template<> void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier) { cvValue = static_cast<CompactV>(cvValue * cvMultiplier); }
-```
-
-Done with the very nice help of GPT-5.5 (on Codex) thanks.
-
-## CvMainInterface cleanup reference scripts
-
-These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
-
-The generated scripts were staged working scripts, not polished repo utilities:
-
-### `singleline_pass.py`
-
-- First conservative pass.
-- Collapsed uncommented multiline logical statements.
-- Skipped statements containing comments.
-
-### `singleline_pass_comments.py`
-
-- Second staged pass.
-- Collapsed more multiline statements.
-- Preserved comments by moving them above the collapsed statement instead of deleting them.
-
-### `singleline_pass3_comments_and_long.py`
-
-- Third staged pass and best reference for the final single-line statement approach.
-- Allowed more long-line/comment-aware collapses.
-- Also handled some commented-out multiline code groups.
-- This was run after earlier passes, on an already-modified file.
-
-### `comment_cleanup_pass_v2.py`
-
-- Fourth staged/reference pass, focused on comments rather than statements.
-- Condensed simple wrapped prose comments.
-- Fixed minor comment typos and wording issues.
-- Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
-- This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
-
-### Comparison with Base AdvCiv 1.12's Main Interface processed similarly
-
-For comparison purposes, we also applied the same scripts to Base AdvCiv 1.12's main interface (as of 2026-06-10), with the help of ChatGPT-5.5.
-
-The resulting file is stored in [CvMainInterface_1_12_singleline.py](/_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py). Before as of now adding our copyright a few heading comments, the diff was: Line count: 7279 -> 6021, so 1258 physical lines removed.
-
-We store an example of this as of now because this file has significantly deviated due to formatting change, because it is easier to read for agents or perhaps users too, because the file is large, and because some user seemingly mentioned the comparison is harder.
-
-### Notes
-
-Important: `singleline_pass3_comments_and_long.py` should not be treated as guaranteed to include all behavior from pass 1 and pass 2 when run directly on a raw original file. It is the best reference implementation from the final single-line statement pass, not a clean all-in-one tool.
-
-Likewise, `comment_cleanup_pass_v2.py` is a later comment-cleanup reference pass, not part of the statement-collapsing logic.
-
-Future LLM/code agents should either:
-
-- reuse the staged scripts only in the same order and review each diff, or
-- preferably consolidate the useful logic into one or two clean repo-ready utilities, for example:
-
-```text
-collapse_multiline_python.py
-condense_python_comments.py
-```
-
-A cleaned source-rewrite utility should support:
-
-- command-line input path instead of hardcoded sandbox paths;
-- optional `--in-place`;
-- optional `--output`;
-- optional `--move-comments`;
-- optional `--collapse-commented-code` for statement tools;
-- optional typo/comment-normalization rules for comment tools;
-- line-ending preservation;
-- string literal preservation;
-- comment preservation;
-- summary stats;
-- dry-run or diff output if practical.
-
-#### ChatGPT sandbox path note
-
-Some generated scripts may contain paths such as:
-
-```text
-/mnt/data/CvMainInterface.singleline2.py
-/mnt/data/CvMainInterface.singleline3.py
-```
-
-Those were ChatGPT sandbox paths, not repo paths. Codex, Claude Code, local PowerShell, or other agents should replace them with actual repository paths such as:
-
-```text
-Assets\Python\Screens\CvMainInterface.py
-```
-
-or accept a path from the command line.
-
-#### Safety rule for source-rewrite helpers
-
-For helpers that rewrite Python source files, especially files loaded by Civ4:
-
-- preserve meaningful code tokens;
-- preserve strings exactly;
-- preserve comments or move them deliberately;
-- never silently delete explanatory comments;
-- do not rely on Python 3 `ast.parse` as proof of Civ4 Python 2.4 compatibility;
-- review the git diff manually;
-- smoke-test in game when the file is UI/runtime-sensitive.
-
-The goal is not general Python formatting. The goal is to make large, LLM-maintained files easier to search, patch, and review.
-
-Good target style for LLM-facing UI files:
-
-```text
-one semantic UI operation = one searchable line
-manual layout decision = keep local and visible
-large table/list = one item per line when that is clearer
-commented-out code = preserve intent; do not auto-destroy it
-```
-
-## Game speed helper scripts
-
-### `compare_speed_summaries.py`
-
-- Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
-- Compares `Normal` vs one selected speed across summary rows.
-- Also compares flattened increment sequences (Years and Months) index by index.
-- Can focus summaries to one index (`--summary`), while still printing increment comparison.
-- Automatically writes a timestamped `.txt` file.
-- Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
-
-Examples:
-
-```powershell
-python LLM_Helpers\compare_speed_summaries.py --speed slow
-python LLM_Helpers\compare_speed_summaries.py --speed marathon --summary 6
-python LLM_Helpers\compare_speed_summaries.py --log "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log" --speed veryslow
-```
-
-Auto-save with timestamp under `LLM_Helpers\outputs` (git-ignored):
-
-```powershell
-python LLM_Helpers\compare_speed_summaries.py --speed slow
-python LLM_Helpers\compare_speed_summaries.py --speed slow --summary 6
-python LLM_Helpers\compare_speed_summaries.py --speed slow --output-dir LLM_Helpers\outputs
-```
-
-### `autotune_speed_from_xml.py`
-
-- Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml`.
-- Does not require `PythonDbg.log`.
-- Can print XML-based `Normal` vs selected speed comparison.
-- Optional draft autoloop mode for `GAMESPEED_SLOW`.
-- Iterates candidate timeline tweaks and reports the best-scoring result.
-- Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
-
-XML-native comparison and draft autoloop:
-
-```powershell
-python LLM_Helpers\autotune_speed_from_xml.py --speed slow
-python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 50
-python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 --focus-start-pct 20 --focus-end-pct 80
-python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
-```
-
-## SASGameRecord comparison helpers
-
-### `audit_first_city_scouting.py`
-
-[`audit_first_city_scouting.py`](/LLM_Helpers/audit_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
-
-- Record `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
-- Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
-- Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
-- Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.
-- When candidate-level BBAI rows are available, the helper also re-scores logged ordinary scouting decisions with the KI#144.5 bounded-prospect experiment.
-  - Visible endpoint quality can add at most 100% of its information value; recorded active approach floors are preserved. Oracle reveal distributions help compare results but never supply the counterfactual score.
-  - Older rows identify active approach floors only. A zero bonus can hide an eligible endpoint already scoring above its floor; lowering that base in the rebuilt game could activate the floor. The offline rescore cannot reconstruct this missing eligibility, so its proposed endpoints need not exactly match the new runtime.
-  - A changed first move would also reveal a different future map, so this is calibration of logged decision states, not a simulated alternate playthrough or proof of optimality.
-  - Aggregate results include uniquely paired BBAI sessions only; unrelated/ambiguous inputs are excluded from the aggregate. Missing oracle estimates are omitted from reveal statistics rather than counted as poor reveals.
-- Missing city evidence means unknown. Late-loaded records cannot establish the original first-capital history. No scouting rows does not prove efficient scouting or full coverage; compare source/build context before attributing differences to a fix.
-- Decision counts include core-quality and ordinary scouting steps; BBAI selected-candidate counts cover ordinary scouting only. JSON evidence includes source lines, observations, scouting-end reason, earliest observed own-founded city and founding turn. Default output is timestamped under ignored `LLM_Helpers/outputs/first_city_scouting/`; `--output` selects another path. Inputs are read only.
-
-```powershell
-python LLM_Helpers/audit_first_city_scouting.py 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/SASGameRecord_20261031T0838*Z_load*.log' --bbai 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/BBAI_20261031T0838*Z_load*.log'
-```
-
-The [captured USA/Korea summary](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt) shows Washington founded on turn 3 without these flags, alongside Korea's repeated scouting reversals before Seoul was founded on turn 6.
-
-Later output in that same example records the validated draft: Washington remains turn 3, Seoul changes to turn 5, and neither control has observed reversal/revisit flags.
-
-These are the actual Release comparison logs from the KI#144.5 review; the observations support investigation rather than certifying every aspect of either opening.
-
-### `compare_sasgamerecord_rng.py`
-
-- Reads two `SASGameRecord` `.log` files or ZIP files containing exactly one `.log` each.
-- Validates every authoritative-RNG checkpoint's interval/session counter arithmetic, interval-state continuity, and Civ4 LCG progression whenever the interval contains no explicit seed replacement.
-  - At record revision 71+, it also validates paired semantic CORE-state checkpoint identities, component/combined fingerprints, object counts and computation timings.
-- Reports the first differing lifecycle checkpoint and its differing map/synchronized RNG or semantic-state fields, then distinguishes changed RNG consumption, changed call provenance and deterministic/non-authoritative-RNG state divergence.
-  - A lone trailing `SESSION_FINALIZE` is identified as a harmless session-lifecycle difference when every comparable checkpoint matches.
-- Emits recipe-sensitive combined RNG/state ordering interpretations only when both records expose the same explicit `recordRevision`. Missing or differing revision metadata leaves raw checkpoint validation/comparison available but suppresses conclusions that assume identical state-fingerprint recipes.
-- Exit status is 0 when all comparable checkpoints match (including a lone trailing `SESSION_FINALIZE`), 1 for a valid gameplay/checkpoint divergence, and 2 for invalid input or failed internal invariants.
-- Does not modify either record and adds no game/runtime overhead.
-- [`sasgamerecord_rng_compared.txt`](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) shows two valid repeated-load runs whose RNG and semantic state match through every comparable checkpoint, including measured fingerprint cost.
-  - Refresh it with `--example-output`; use `--output <path>` for another retained report.
-
-Interpretation:
-
-- `valid` means each individual record passed interval/session counter arithmetic, state continuity, and every applicable independent LCG reconstruction before comparison.
-- Different call counts mean one run consumed additional or fewer authoritative RNG advances in that interval.
-- Different state or stream fingerprints mean authoritative random consumption diverged, even if the call totals happen to match.
-- A call-fingerprint-only difference means the random stream still matches but its labels, data arguments, NULL-message classification or EXE-wrapper origin changed.
-- A lifecycle/checkpoint mismatch usually means the records represent different boundaries or were paired from unlike run sequences.
-- A semantic-state difference while authoritative RNG still matches localizes a deterministic or untracked-state divergence; the component hashes narrow it to game, team, player, city, unit, selection-group, plot or deal state.
-
-Examples:
-
-```powershell
-python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log"
-python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.zip" "C:\path\run_b.zip"
-python LLM_Helpers\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log" --example-output
-```
-
-### `expand_sasgamerecord_city_deltas.py`
-
-- Expands revision-123+ bounded level-3 `GAME_RECORD_CITY*_DELTA` rows back into the ordinary full city-detail rows understood by older/simple consumers.
-- Supports the five intentionally delta-eligible families: core city, development, happiness, health and buildings. `GAME_RECORD_CITY_TRADE_PARTNERS` remains full in the source log because delta metadata would make that one-field payload larger.
-- Validates `previousTurn`, `fullBaseTurn`, `changed` and the required preceding full/delta chain instead of silently inventing missing inherited fields. A truncated excerpt that begins inside a delta chain therefore fails visibly until its preceding full checkpoint is included.
-- Preserves unrelated rows and reconstructed serialized field tokens byte-for-byte, including quoted/escaped values; only the delta representation itself is replaced by its reconstructed ordinary full row.
-- Reads/writes the record byte-preservingly with the Civ4-compatible single-byte mapping used by the helper, so it is suitable for lossless round-trip/reference validation rather than semantic reserialization.
-- Does not modify the input record and has no game/runtime overhead.
-
-Usage:
-
-```bat
-python LLM_Helpers\expand_sasgamerecord_city_deltas.py SASGameRecord.log SASGameRecord_expanded.log
-```
-
-### `summarize_sasgamerecord_volume.py`
-
-- Streams an existing SASGameRecord byte-for-byte and reports physical line count and bytes by top-level row family, sorted by bytes; large logs are not loaded wholesale into memory.
-- Classifies raw text-map `|...|` body lines as `MAP_ASCII_BODY`, blanks as `BLANK`, and non-record text as `OTHER`; it does not pretend those lines are ordinary structured rows.
-- Measures the record as written, including line-ending bytes, without adding any in-game instrumentation or per-row counters.
-- Does not infer field sentinels, packed subgrammars or gameplay semantics. Use it to find high-volume families first, then inspect the relevant recorder implementation before changing logging policy.
-- `--action-subtypes` optionally splits the otherwise broad `GAME_RECORD_ACTION` family by its controlled `type=` token, useful when ACTION itself dominates a capture.
-- `--json` emits the same counts/percentages as machine-readable JSON.
-
-```powershell
-python LLM_Helpers\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log"
-python LLM_Helpers\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log" --json
-```
-
-## Game info comparison helpers
-
-### `compare_handicap_infos.py`
-
-- Report-only. Does not modify source files.
-- Compares one `CIV4HandicapInfo.xml` against another; pass both XML paths explicitly.
-- Compares handicap entries in target/file 2 XML order.
-  - Exact `<Type>` matches are used when available.
-  - Target-only entries are compared to the nearest shared boundary dynamically, so a new lowest difficulty is compared to the base file's lowest shared difficulty and a new highest difficulty is compared to the base file's highest shared difficulty without hardcoding difficulty names.
-  - Left-only entries are listed at the end.
-- Missing/new fields on either side are shown with the missing side blank.
-- Adds a separate entry table with each compared row's left/right `Type`, `Description`, and match note, then lists changed fields by compared row.
-- Flattens handicap XML by field path and writes an LLM-friendly Markdown table with flat numeric deltas and percentage deltas, computed as `(file 2 - file 1) / file 1` when both values are numeric and file 1 is nonzero.
-- Repeated XML collections such as `Goodies`, `FreeTechs`, and `AIFreeTechs` are compared as compact counted lists instead of noisy index-by-index rows.
-- Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
-- `--example-output` writes to `_1_AdvCiv-SAS\Docs\examples\handicap\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
-- The automated `generated_docs.py` check reproduces the published example using the pinned [`handicap_infos_baseline.xml`](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_baseline.xml); use `python .github/workflows/build/documentation/generated_docs.py --refresh-handicap` after intentionally changing current handicap XML. This needs no sibling AdvCiv installation.
-- The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
-- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each compared row.
-  - For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve.
-  - Empty cells mean no matching value on that side.
-- Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
-- `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
-- Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
-
-Examples of use (PowerShell):
-
-```powershell
-Set-Location -LiteralPath "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; $ts=(Get-Date).ToUniversalTime().ToString("yyyyMMdd'T'HHmmss'Z'"); New-Item -ItemType Directory -Force -Path ".\LLM_Helpers\outputs" | Out-Null; python .\LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" ".\Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --output ".\LLM_Helpers\outputs\handicap_compare_$ts.md" --tsv-output ".\LLM_Helpers\outputs\handicap_compare_$ts.tsv"; Write-Host "Output: LLM_Helpers\outputs\handicap_compare_$ts.md"
-```
-
-## Static audit helpers
-
-### `audit_cpp_logging_pregates.py`
+#### `audit_cpp_logging_pregates.py`
 
 Advisory C++ audit for obvious BBAI/SASGameRecord caller-side pre-gating omissions.
 
@@ -1017,11 +334,11 @@ Advisory C++ audit for obvious BBAI/SASGameRecord caller-side pre-gating omissio
 - `BBAILog.cpp` and `SASGameRecordLog.cpp` are skipped by default because their internal logger topology is intentionally special; use `--include-log-implementations` for a deeper manual audit.
 
 ```bash
-python LLM_Helpers/audit_cpp_logging_pregates.py CvGameCoreDLL
-python LLM_Helpers/audit_cpp_logging_pregates.py CvGameCoreDLL/CvCity.cpp --late-gates
+python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL
+python LLM_Helpers/audits/audit_cpp_logging_pregates.py CvGameCoreDLL/CvCity.cpp --late-gates
 ```
 
-### `audit_define_keys.py`
+#### `audit_define_keys.py`
 
 - Report-only. Does not modify source.
 - Audits literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` across both Python and DLL source:
@@ -1037,11 +354,11 @@ python LLM_Helpers/audit_cpp_logging_pregates.py CvGameCoreDLL/CvCity.cpp --late
 - Exit 1 on drift, 0 otherwise. Writes timestamped report to `LLM_Helpers/outputs/` by default.
 
 ```powershell
-python LLM_Helpers\audit_define_keys.py
-python LLM_Helpers\audit_define_keys.py --show-callsites
-python LLM_Helpers\audit_define_keys.py --no-dll
-python LLM_Helpers\audit_define_keys.py --no-output-file
-python LLM_Helpers\audit_define_keys.py --extra-xml <path>
+python LLM_Helpers\audits\audit_define_keys.py
+python LLM_Helpers\audits\audit_define_keys.py --show-callsites
+python LLM_Helpers\audits\audit_define_keys.py --no-dll
+python LLM_Helpers\audits\audit_define_keys.py --no-output-file
+python LLM_Helpers\audits\audit_define_keys.py --extra-xml <path>
 ```
 
 Each XML scope is scanned recursively (`rglob *.xml`), but the report only lists files that actually contributed at least one `<DefineName>`. This keeps the audit boundary auditable without dumping hundreds of unrelated entity XMLs (Buildings, Units, etc.).
@@ -1090,7 +407,7 @@ DRIFT: 2 key(s) used but not declared in any scanned XML:
       - CvGameCoreDLL\CvBar.cpp
 ```
 
-### `audit_unused_text_keys.py`
+#### `audit_unused_text_keys.py`
 
 - Report-only. Does not modify source.
 - Flags mod GameText `<Tag>TXT_KEY_*` entries that are defined but referenced nowhere.
@@ -1106,10 +423,10 @@ DRIFT: 2 key(s) used but not declared in any scanned XML:
 - `--prefix TXT_KEY_SAS` to focus on mod-custom keys. Exit 1 if any LIKELY-UNUSED, 0 otherwise. Timestamped report to `LLM_Helpers/outputs/` unless `--no-output-file`.
 
 ```powershell
-python LLM_Helpers\audit_unused_text_keys.py
-python LLM_Helpers\audit_unused_text_keys.py --text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"
-python LLM_Helpers\audit_unused_text_keys.py --prefix TXT_KEY_SAS
-python LLM_Helpers\audit_unused_text_keys.py --no-external --no-output-file
+python LLM_Helpers\audits\audit_unused_text_keys.py
+python LLM_Helpers\audits\audit_unused_text_keys.py --text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"
+python LLM_Helpers\audits\audit_unused_text_keys.py --prefix TXT_KEY_SAS
+python LLM_Helpers\audits\audit_unused_text_keys.py --no-external --no-output-file
 ```
 
 Example output (real run, `--text-glob "Assets/XML/Text/AdvCiv-SAS_*.xml"`; exit 1 because candidates were found):
@@ -1195,7 +512,101 @@ TXT_KEY_PEDIA_SAS_PLAY_MOVIE
 TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
 ```
 
-### `audit_unit_obsolescence_continuity.py`
+### Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)
+
+`scan_xml_duplicates-3.3.py` is an older broad XML duplicate scanner kept here for reference and discovery work, on the formerly public AdvCiv-SAS `python-scripts` branch.
+
+This script scans `Assets/XML` recursively and reports repeated sibling XML entries based on a broad heuristic: if sibling tags repeat, it compares either their first child field/value or their direct text value.
+
+Because this is intentionally broad, it can find useful suspicious patterns, but it can also report valid Civ4 XML structures where repetition is intentional, weighted, or structurally normal.
+
+It should not be treated as a release gate or as proof that every reported duplicate is wrong. Instead, it is useful as an exploratory audit tool: run it when looking for possible XML cleanup targets, review the output manually, and then move high-confidence findings into the curated GitHub workflow checks.
+
+This legacy scanner notably helped inspire and calibrate the newer `.github/workflows/build` XML audits, including the parent duplicate-key checker, child/list duplicate checker, and duplicate text-tag checker.
+
+The newer workflow scripts are stricter and more conservative: they check reviewed XML patterns with clearer semantics, print source line numbers, and avoid known noisy cases such as weighted goody hut entries or reused world-picker UI art paths.
+
+In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
+
+## `balance/`
+
+### Game speed helper scripts
+
+#### `compare_speed_summaries.py`
+
+- Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
+- Compares `Normal` vs one selected speed across summary rows.
+- Also compares flattened increment sequences (Years and Months) index by index.
+- Can focus summaries to one index (`--summary`), while still printing increment comparison.
+- Automatically writes a timestamped `.txt` file.
+- Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
+
+Examples:
+
+```powershell
+python LLM_Helpers\balance\compare_speed_summaries.py --speed slow
+python LLM_Helpers\balance\compare_speed_summaries.py --speed marathon --summary 6
+python LLM_Helpers\balance\compare_speed_summaries.py --log "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log" --speed veryslow
+```
+
+Auto-save with timestamp under `LLM_Helpers\outputs` (git-ignored):
+
+```powershell
+python LLM_Helpers\balance\compare_speed_summaries.py --speed slow
+python LLM_Helpers\balance\compare_speed_summaries.py --speed slow --summary 6
+python LLM_Helpers\balance\compare_speed_summaries.py --speed slow --output-dir LLM_Helpers\outputs
+```
+
+#### `autotune_speed_from_xml.py`
+
+- Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml`.
+- Does not require `PythonDbg.log`.
+- Can print XML-based `Normal` vs selected speed comparison.
+- Optional draft autoloop mode for `GAMESPEED_SLOW`.
+- Iterates candidate timeline tweaks and reports the best-scoring result.
+- Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
+
+XML-native comparison and draft autoloop:
+
+```powershell
+python LLM_Helpers\balance\autotune_speed_from_xml.py --speed slow
+python LLM_Helpers\balance\autotune_speed_from_xml.py --speed slow --summary-steps 50
+python LLM_Helpers\balance\autotune_speed_from_xml.py --speed slow --summary-steps 100 --focus-start-pct 20 --focus-end-pct 80
+python LLM_Helpers\balance\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+```
+
+### Game info comparison helpers
+
+#### `compare_handicap_infos.py`
+
+- Report-only. Does not modify source files.
+- Compares one `CIV4HandicapInfo.xml` against another; pass both XML paths explicitly.
+- Compares handicap entries in target/file 2 XML order.
+  - Exact `<Type>` matches are used when available.
+  - Target-only entries are compared to the nearest shared boundary dynamically, so a new lowest difficulty is compared to the base file's lowest shared difficulty and a new highest difficulty is compared to the base file's highest shared difficulty without hardcoding difficulty names.
+  - Left-only entries are listed at the end.
+- Missing/new fields on either side are shown with the missing side blank.
+- Adds a separate entry table with each compared row's left/right `Type`, `Description`, and match note, then lists changed fields by compared row.
+- Flattens handicap XML by field path and writes an LLM-friendly Markdown table with flat numeric deltas and percentage deltas, computed as `(file 2 - file 1) / file 1` when both values are numeric and file 1 is nonzero.
+- Repeated XML collections such as `Goodies`, `FreeTechs`, and `AIFreeTechs` are compared as compact counted lists instead of noisy index-by-index rows.
+- Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
+- `--example-output` writes to `_1_AdvCiv-SAS\Docs\examples\handicap\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
+- The automated `generated_docs.py` check reproduces the published example using the pinned [`handicap_infos_baseline.xml`](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_baseline.xml); use `python .github/workflows/build/documentation/generated_docs.py --refresh-handicap` after intentionally changing current handicap XML. This needs no sibling AdvCiv installation.
+- The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
+- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each compared row.
+  - For changed-field reports, unchanged cells are still filled when they belong to a shown field, so a row such as `iFreeUnits` shows the full handicap curve.
+  - Empty cells mean no matching value on that side.
+- Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
+- `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
+- Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
+
+Examples of use (PowerShell):
+
+```powershell
+Set-Location -LiteralPath "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; $ts=(Get-Date).ToUniversalTime().ToString("yyyyMMdd'T'HHmmss'Z'"); New-Item -ItemType Directory -Force -Path ".\LLM_Helpers\outputs" | Out-Null; python .\LLM_Helpers\balance\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" ".\Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --output ".\LLM_Helpers\outputs\handicap_compare_$ts.md" --tsv-output ".\LLM_Helpers\outputs\handicap_compare_$ts.tsv"; Write-Host "Output: LLM_Helpers\outputs\handicap_compare_$ts.md"
+```
+
+### `military_tree_continuity.py`
 
 - Read-only unit/technology progression audit; does not modify XML.
 - CI-fatal invariant: for every playable civilization and each land/sea/air domain, once an earlier technology-tree column provides at least one unlimited military unit trainable from technology alone, no reachable combination of technologies in the next/current column may reduce that domain to zero such units.
@@ -1206,10 +617,10 @@ TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER
 - `checks-xml.yml` runs `--check --review-summary-only` automatically.
 
 ```powershell
-python LLM_Helpers\audit_unit_obsolescence_continuity.py
-python LLM_Helpers\audit_unit_obsolescence_continuity.py --check
-python LLM_Helpers\audit_unit_obsolescence_continuity.py --check --review-summary-only
-python LLM_Helpers\audit_unit_obsolescence_continuity.py --output LLM_Helpers\outputs\unit_obsolescence_continuity.txt
+python LLM_Helpers\balance\military_tree_continuity.py
+python LLM_Helpers\balance\military_tree_continuity.py --check
+python LLM_Helpers\balance\military_tree_continuity.py --check --review-summary-only
+python LLM_Helpers\balance\military_tree_continuity.py --output LLM_Helpers\outputs\unit_obsolescence_continuity.txt
 ```
 
 The technology-column model is intentional: it enumerates every reachable subset of the current column on top of all earlier columns, so it catches combinations such as two same-column obsolescence technologies jointly removing the final unrestricted military unit without pretending that every individual upgrade must remain resource-free.
@@ -1223,9 +634,969 @@ FATAL continuity holes: 0 grouped / 0 civilization instances
 - UNIT_PARATROOPER [DOMAIN_LAND] --obsolete at TECH_TRANSHUMANISM--> UNIT_ROBOTIC_INFANTRY: additional/un-guaranteed tech=TECH_AI; new/different condition=BONUS_ALUMINUM
 ```
 
-## Markdown documentation cleanup helpers
+### Workflow rule for timeline tuning
 
-### `reflow_markdown_prose.py`
+- Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
+- Do not rely only on focused slices (`--focus-start-pct/--focus-end-pct`) when evaluating a candidate.
+- After each local tweak, re-check the full 5% table to catch late drift and endpoint issues early.
+- After each accepted candidate edit, generate a fresh human-readable review file with:
+
+```powershell
+python LLM_Helpers\balance\compare_speed_summaries.py --speed <speed>
+```
+
+Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review artifact for discussion.
+
+## `chat_exports/`
+
+### Codex and ChatGPT transcript helper
+
+[openai_chat_export_to_txt.py](/LLM_Helpers/chat_exports/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex progress updates, and omits raw tool logs and attachments. Use Python 3.
+
+Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message boundaries. Run `rg -n "^=== " chat.txt` to find them with line numbers. The Claude helper uses the same format with `=== CLAUDE ===`.
+
+- **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory.
+- **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
+  - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a reported missing oldest page.
+  - The desktop tool can return a partial chat even when it reports no older page. In the Marsh example it returned 10 messages while the share snapshot contained 34.
+  - Verified on the development machine: Codex exported all three sources to TXT (ChatGPT through the desktop chat tools, Codex and Claude Code from local session files).
+  - Claude Code confirmed its current setup has neither desktop chat tool, so it cannot fetch the latest private ChatGPT chat directly. It can convert pages already saved as JSON or read the TXT Codex writes.
+  - For a handoff, ask Codex to export the chat and give Claude the resulting file path.
+  - The TXT starts with the first speaker marker. Report the title, message count, or export limits separately.
+
+```bash
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex rollout.jsonl --output codex-chat.txt
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
+```
+
+The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/`.
+
+Both helpers read the folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py). Set `LLM_CHAT_EXPORT_DIR` to change the shared default or pass `--output` for one export. Use a dated filename to keep another snapshot of the same chat. Both helpers refuse to overwrite an existing file.
+
+#### Export from a ChatGPT share link
+
+Use the share link when the desktop chat tool returns only a slice or when Claude Code needs to export the chat itself. The share link must already exist. The helper opens it in a fresh headless Chrome session using Playwright and saves rendered message text without images or attachments.
+
+Install Playwright once in the Python environment you will use. This mode also requires Google Chrome. The local file modes continue to use only Python's standard library.
+
+```bash
+python -m pip install playwright
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py share "https://chatgpt.com/share/<share-id>"
+```
+
+The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to the shared folder. It collects each listed turn in page order, scrolling as needed, and fails before writing if a listed turn cannot be read. Claude Code can run the same command without the Codex desktop chat tools.
+
+### Claude Code session transcript helper
+
+#### `claude_session_export_to_txt.py`
+
+- Converts a Claude Code session into a readable `.txt` chat transcript, for example to hand a review discussion to Codex or ChatGPT.
+- Accepts either input, both raw JSONL logs rather than a readable chat:
+  - The local session log `<session-id>.jsonl`, which any agent can read. With no argument, the helper exports this repository's most recently modified log, usually the current session; [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py) holds where Claude Code keeps it, honoring `CLAUDE_CONFIG_DIR`.
+  - A desktop session export `session-export-<id>.zip`, written to Downloads when Claude is asked to export the session.
+  - Codex could not produce an export ZIP, which only the desktop app writes; the local log holds the same records, so pass it directly instead.
+  - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
+- Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
+  - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
+- Marks each message with a `=== USER ===` or `=== CLAUDE ===` separator, the same format as the [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper). Run `rg -n "^=== " chat.txt` to list message boundaries with line numbers.
+- Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
+
+```bash
+python ./LLM_Helpers/chat_exports/claude_session_export_to_txt.py
+python ./LLM_Helpers/chat_exports/claude_session_export_to_txt.py "C:/Users/PC/Downloads/session-export-1793625034771.zip"
+```
+
+- The transcript ends where the log was read; convert again for later messages.
+
+## `code_history/`
+
+### AdvCiv manual text conversion helper
+
+#### `convert_advciv_manual_to_txt.py`
+
+- Converts the tracked base AdvCiv [`manual.odt`](/_0_Legacy/Docs/AdvCiv/manual.odt) into [`manual.txt`](/_0_Legacy/Docs/AdvCiv/manual.txt) for grep, VS Code/global search, LLM ingestion, and other plain-text review.
+- Uses only Python 3's standard library: ODT is a ZIP container and the helper reads its `content.xml` directly. Pandoc, LibreOffice, `odt2txt`, and other external converters are not required.
+- Visual fidelity is deliberately not the goal. The helper preserves normal paragraphs/headings, list headers and bullets/nesting, explicit spaces/tabs/line breaks, and simple/nested tables in a compact searchable representation.
+- Refuses to overwrite `manual.txt` if extraction is suspiciously tiny, to reduce the risk of committing a broken conversion.
+- Defaults to the repository's base-manual paths, so the normal refresh command from the mod root is:
+
+```bash
+python ./LLM_Helpers/code_history/convert_advciv_manual_to_txt.py
+```
+
+- After running it, review the generated text and Git diff before committing:
+
+```bash
+git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
+```
+
+- When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
+- The automated [generated_docs.py](/.github/workflows/build/documentation/generated_docs.py) check validates this conversion through its reusable `TEXT_CONVERSIONS` registry.
+  - Future source-to-text conversions can register their own source, output and converter there; the AdvCiv manual is currently the only entry.
+  - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
+- Added with help of ChatGPT-5.6-Sol.
+
+### `svn_history_to_diffs.py`
+
+Exports a Subversion repository's history as one greppable diff per revision, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt`, in the spirit of `commit_diffs/`. It is written for any repository, so nothing in it is specific to Better BTS AI.
+
+- Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+- It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
+- How it talks to the server:
+  - The log is a WebDAV `REPORT` request sent to the repository root. It returns each revision's author, date, message, changed paths and copy origins.
+  - Each file version is a plain `GET` of `<root>!svn/bc/<revision>/<path>`, and the script compares the versions itself with `difflib`.
+- Pitfalls found while building it:
+  - A `REPORT` with no revision range returned only the latest revision from SourceForge, so the script reads the latest revision first and then requests the full span.
+  - A file edited inside a folder copied in that same revision does not exist at its new path one revision earlier, so its diff is taken against the copy source.
+  - A CRLF conversion would look like a whole-file rewrite, so line endings are normalized and such a file reports `No text change`.
+- Each revision file records its source, author, date, coverage, full message and changed paths, including `(from <path>@<revision>)` copy origins.
+  - Coverage is `full`, `partial` (some text was left out) or `summary-only`.
+  - Binary files are listed without contents and do not lower coverage. Paths matching `--summarize` and files over the limits do, as they are real text left out. The default limits match `commit_diffs/`.
+  - Check what a run omitted before trusting the limits: with the defaults, Better BTS AI's r379 left out seven core files such as `CvPlayer.cpp` and `CvPlayerAI.cpp`, in the revision that first shows AI Auto Play. Raising the limits added about 10 MB and restored them.
+  - Email-shaped addresses are redacted.
+- Interrupted runs resume: existing revision files are kept, failures are listed and the indexes are only written once every revision succeeded. `--force` re-renders existing files.
+  - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
+- To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
+- Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
+- Verified on 2026-11-09 by Claude Code and independently rerun by Codex (GPT-6.1-Sol): replaying 1,175 stored patches reproduced all 198 DLL source files in the Better BTS AI r597 reference tree line for line.
+  - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
+
+The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
+
+```bash
+python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
+```
+
+### `svn_history_verify.py`
+
+Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a real checkout: it rebuilds each file from nothing by replaying its stored patches in order, then compares the result line by line. Run this manually when validating an export against its reference tree. CI does not run this replay on each commit.
+
+- It follows copy origins back through `PATH_HISTORY_INDEX.txt`, including files that were born inside a copied folder.
+- A patch that does not apply, or a rebuilt file that differs, is a failure. Files with omitted or binary history are reported as not rebuildable rather than counted as matches.
+- Give `--repo-path` without a leading slash: Git Bash rewrites `/trunk/...` into a Windows path, which would silently match no files.
+
+```bash
+python LLM_Helpers/code_history/svn_history_verify.py --out LLM_Helpers/context/svn_history/bbai --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+```
+
+### `history_lineage_tables.py`
+
+Generates the tables of the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#history-lineage) section from Git, `commit_diffs/` and the SVN export: projects, authors, products named in commit titles and model credits. The hand-written base-game table is left alone.
+
+- Caution: the model tables are only a general indication of each model's contribution, and the real picture may be quite different.
+  - Credits can be reworded, moved or omitted, which can bring retired models back. A mention can also merely refer to a model.
+  - Names are inconsistent, with typos, `Claude AI` versus `Claude code`, `Thinking` used on and off, and `?` where a model was unsure. See the [caution in the guide](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#model-credit-timeline).
+- Without options it prints the tables; `--write` replaces them in the guide. Prose stays untouched, so update the as-of date there if the corpus moved.
+- Run [`refresh_commit_diffs.py`](#refresh_commit_diffspy) first, as the counts come from that corpus.
+- `Last new credit` is the last commit that added more lines ending in a credit than it removed, so a comment moved or reworded within one commit does not count as new.
+  - Only the last-named model of a credit counts, because credits are appended, and test fixtures are skipped. Before this, the 2026-10-10 reflow commit made GPT-5.3-Codex look active months after its last real work (April 2026).
+
+```bash
+python LLM_Helpers/code_history/history_lineage_tables.py --write
+```
+
+## `context/`
+
+### Inherited map-script reference sources
+
+[`context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) contains downloaded, greppable, non-runtime originals used to distinguish inherited third-party map-script bugs from AdvCiv-SAS regressions. Its own README records the original package names and SHA-256 hashes, portable directory-name mappings, the source-only selection policy, and comparison guidance.
+
+- Compare references with current `PrivateMaps` and tracked commit history; current source/Git remains authoritative.
+- Do not run formatting, lint autofixes or line-ending normalization over the corpus.
+- Ordinary player/GitHub Download ZIP archives and generated historical patches exclude it, while `make_light_source_zip.py` includes the current files for ChatGPT/code-agent archaeology.
+- Preserve upstream credits/readmes and treat hosting/authorship/licensing metadata as upstream provenance rather than AdvCiv-SAS ownership.
+
+## `diagnostics/`
+
+### SASGameRecord comparison helpers
+
+#### `summarize_first_city_scouting.py`
+
+[`summarize_first_city_scouting.py`](/LLM_Helpers/diagnostics/summarize_first_city_scouting.py) streams one or many opening SGR logs and optionally pairs BBAI logs by process identity and load ordinal. This turns first-capital scouting traces into reviewable summaries across test maps, without adding runtime work or log rows. It covers initial Settlers, not general Scout/Explorer efficiency.
+
+- Record `SAS_SGR_LOG >= 2` for unit IDs and observed scouting origins. Optional `SAS_BBAI_LOG_ON=1` and `SAS_BBAI_SETTLER_LOG=3` add selected-candidate reveal estimates; full FOUND scoring is not required. Set controls before launch and leave shipping defaults disabled.
+- Pass SGR paths or quoted globs; repeat `--bbai` for BBAI paths/globs. Extract archived logs first. A separate file is required per session. New/load headers identify sessions; absent or ambiguous matches remain explicitly unpaired.
+- Observed A-B-A origins and revisits are review flags. Requested endpoints alone do not establish arrival. Return-to-found actions remain separate; there is no arbitrary universal founding-time cutoff.
+- Positive estimated information with zero oracle reveals identifies a scoring discrepancy worth inspecting. Oracle counts are pre-move diagnostic estimates, not measured reveals caused by that unit. BBAI lacks unit IDs here, so those selections remain player-level evidence.
+- When candidate-level BBAI rows are available, the helper also re-scores logged ordinary scouting decisions with the KI#144.5 bounded-prospect experiment.
+  - Visible endpoint quality can add at most 100% of its information value; recorded active approach floors are preserved. Oracle reveal distributions help compare results but never supply the counterfactual score.
+  - Older rows identify active approach floors only. A zero bonus can hide an eligible endpoint already scoring above its floor; lowering that base in the rebuilt game could activate the floor. The offline rescore cannot reconstruct this missing eligibility, so its proposed endpoints need not exactly match the new runtime.
+  - A changed first move would also reveal a different future map, so this is calibration of logged decision states, not a simulated alternate playthrough or proof of optimality.
+  - Aggregate results include uniquely paired BBAI sessions only; unrelated/ambiguous inputs are excluded from the aggregate. Missing oracle estimates are omitted from reveal statistics rather than counted as poor reveals.
+- Missing city evidence means unknown. Late-loaded records cannot establish the original first-capital history. No scouting rows does not prove efficient scouting or full coverage; compare source/build context before attributing differences to a fix.
+- Decision counts include core-quality and ordinary scouting steps; BBAI selected-candidate counts cover ordinary scouting only. JSON evidence includes source lines, observations, scouting-end reason, earliest observed own-founded city and founding turn. Default output is timestamped under ignored `LLM_Helpers/outputs/first_city_scouting/`; `--output` selects another path. Inputs are read only.
+
+```powershell
+python LLM_Helpers/diagnostics/summarize_first_city_scouting.py 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/SASGameRecord_20261031T0838*Z_load*.log' --bbai 'C:/Users/PC/Documents/My Games/beyond the sword/Logs/BBAI_20261031T0838*Z_load*.log'
+```
+
+The [captured USA/Korea summary](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_summary_example.txt) shows Washington founded on turn 3 without these flags, alongside Korea's repeated scouting reversals before Seoul was founded on turn 6.
+
+Later output in that same example records the validated draft: Washington remains turn 3, Seoul changes to turn 5, and neither control has observed reversal/revisit flags.
+
+These are the actual Release comparison logs from the KI#144.5 review; the observations support investigation rather than certifying every aspect of either opening.
+
+#### `compare_sasgamerecord_rng.py`
+
+- Reads two `SASGameRecord` `.log` files or ZIP files containing exactly one `.log` each.
+- Validates every authoritative-RNG checkpoint's interval/session counter arithmetic, interval-state continuity, and Civ4 LCG progression whenever the interval contains no explicit seed replacement.
+  - At record revision 71+, it also validates paired semantic CORE-state checkpoint identities, component/combined fingerprints, object counts and computation timings.
+- Reports the first differing lifecycle checkpoint and its differing map/synchronized RNG or semantic-state fields, then distinguishes changed RNG consumption, changed call provenance and deterministic/non-authoritative-RNG state divergence.
+  - A lone trailing `SESSION_FINALIZE` is identified as a harmless session-lifecycle difference when every comparable checkpoint matches.
+- Emits recipe-sensitive combined RNG/state ordering interpretations only when both records expose the same explicit `recordRevision`. Missing or differing revision metadata leaves raw checkpoint validation/comparison available but suppresses conclusions that assume identical state-fingerprint recipes.
+- Exit status is 0 when all comparable checkpoints match (including a lone trailing `SESSION_FINALIZE`), 1 for a valid gameplay/checkpoint divergence, and 2 for invalid input or failed internal invariants.
+- Does not modify either record and adds no game/runtime overhead.
+- [`sasgamerecord_rng_compared.txt`](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) shows two valid repeated-load runs whose RNG and semantic state match through every comparable checkpoint, including measured fingerprint cost.
+  - Refresh it with `--example-output`; use `--output <path>` for another retained report.
+
+Interpretation:
+
+- `valid` means each individual record passed interval/session counter arithmetic, state continuity, and every applicable independent LCG reconstruction before comparison.
+- Different call counts mean one run consumed additional or fewer authoritative RNG advances in that interval.
+- Different state or stream fingerprints mean authoritative random consumption diverged, even if the call totals happen to match.
+- A call-fingerprint-only difference means the random stream still matches but its labels, data arguments, NULL-message classification or EXE-wrapper origin changed.
+- A lifecycle/checkpoint mismatch usually means the records represent different boundaries or were paired from unlike run sequences.
+- A semantic-state difference while authoritative RNG still matches localizes a deterministic or untracked-state divergence; the component hashes narrow it to game, team, player, city, unit, selection-group, plot or deal state.
+
+Examples:
+
+```powershell
+python LLM_Helpers\diagnostics\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log"
+python LLM_Helpers\diagnostics\compare_sasgamerecord_rng.py "C:\path\run_a.zip" "C:\path\run_b.zip"
+python LLM_Helpers\diagnostics\compare_sasgamerecord_rng.py "C:\path\run_a.log" "C:\path\run_b.log" --example-output
+```
+
+#### `expand_sasgamerecord_city_deltas.py`
+
+- Expands revision-123+ bounded level-3 `GAME_RECORD_CITY*_DELTA` rows back into the ordinary full city-detail rows understood by older/simple consumers.
+- Supports the five intentionally delta-eligible families: core city, development, happiness, health and buildings. `GAME_RECORD_CITY_TRADE_PARTNERS` remains full in the source log because delta metadata would make that one-field payload larger.
+- Validates `previousTurn`, `fullBaseTurn`, `changed` and the required preceding full/delta chain instead of silently inventing missing inherited fields. A truncated excerpt that begins inside a delta chain therefore fails visibly until its preceding full checkpoint is included.
+- Preserves unrelated rows and reconstructed serialized field tokens byte-for-byte, including quoted/escaped values; only the delta representation itself is replaced by its reconstructed ordinary full row.
+- Reads/writes the record byte-preservingly with the Civ4-compatible single-byte mapping used by the helper, so it is suitable for lossless round-trip/reference validation rather than semantic reserialization.
+- Does not modify the input record and has no game/runtime overhead.
+
+Usage:
+
+```bat
+python LLM_Helpers\diagnostics\expand_sasgamerecord_city_deltas.py SASGameRecord.log SASGameRecord_expanded.log
+```
+
+#### `summarize_sasgamerecord_volume.py`
+
+- Streams an existing SASGameRecord byte-for-byte and reports physical line count and bytes by top-level row family, sorted by bytes; large logs are not loaded wholesale into memory.
+- Classifies raw text-map `|...|` body lines as `MAP_ASCII_BODY`, blanks as `BLANK`, and non-record text as `OTHER`; it does not pretend those lines are ordinary structured rows.
+- Measures the record as written, including line-ending bytes, without adding any in-game instrumentation or per-row counters.
+- Does not infer field sentinels, packed subgrammars or gameplay semantics. Use it to find high-volume families first, then inspect the relevant recorder implementation before changing logging policy.
+- `--action-subtypes` optionally splits the otherwise broad `GAME_RECORD_ACTION` family by its controlled `type=` token, useful when ACTION itself dominates a capture.
+- `--json` emits the same counts/percentages as machine-readable JSON.
+
+```powershell
+python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log"
+python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGameRecord.log" --json
+```
+
+### Local development diagnostics toggle
+
+#### `toggle_dev_diagnostics.py`
+
+- Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
+  - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
+  - `off` writes the shipped values, giving a committable XML; `status` prints the current values without writing.
+- Edits only those values in place and preserves the file's CRLF line endings.
+- Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
+
+```bash
+python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on
+```
+
+```bash
+python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py off
+```
+
+- Added with help of Claude code Opus 5.5.
+
+## `formatting/`
+
+### Source blank-line cleanup
+
+[`trim_source_blank_lines.py`](/LLM_Helpers/formatting/trim_source_blank_lines.py) previews or trims separators of three or more blank lines to two, using the source-provenance CI check's Python/C/C++/XML scope and literal/text protections.
+
+- SAS defines XML keeps its deliberate group spacing. Historical documents and context corpora are outside the source scope.
+- Preview is the default. `--apply` preserves original bytes except removed blank rows, backs up changed files outside the checkout by default, and leaves the Git index untouched.
+  - `--backup-dir PATH` selects another backup root; existing backup files are never overwritten.
+- Close Civ4 before applying changes to its Python/XML files, and wait for compilation to finish before rewriting C++ sources. Review the diff afterward; changed files may need the usual provenance headers or diagnostic revision maintenance.
+
+```powershell
+python LLM_Helpers/formatting/trim_source_blank_lines.py
+python LLM_Helpers/formatting/trim_source_blank_lines.py Assets/Python/CvUtil.py --apply
+```
+
+### Custom-comment logical reflow
+
+#### `reflow_custom_comments.py`
+
+Logical-layout helper for AdvCiv-SAS `<!-- custom: ... -->` prose comments in active C++, Python and XML source.
+
+- This is deliberately not a width formatter. It does not wrap at 80/120/etc. characters.
+- Joins obvious physical wraps that split one logical sentence, and separates substantial complete sentences onto distinct physical comment lines.
+- Preserves short related clauses already joined with semicolons. Small trailing configuration/provenance fragments such as `Was 70.` are folded into the preceding sentence as `; was 70.` when safe.
+- Keeps closing metadata such as `See KI#...`, model credits and `Long_Comments_*.txt` references on the final substantive line instead of stranding them.
+- Touches only explicitly marked custom comments. Ordinary inherited/BTS/K-Mod/AdvCiv comments are not candidates.
+- Skips structured lists/layout notes, code-like or assignment-like commented material, malformed/unclosed markers and genuinely ambiguous physical boundaries instead of guessing. Those skips are intended for LLM/manual review when desired.
+- C++ includes `.cpp`, `.h` and `.inl`; Python is `.py`; XML is `.xml`. Reference/history corpora such as `_0_Legacy`, `_SNAPSHOT_CONTEXT`, `LLM_Helpers/context`, and generated outputs are excluded.
+- Python rewrites must preserve the significant token stream; the helper refuses a Python change if its token-safety comparison changes executable code. Original text encoding and line-ending style are preserved.
+- The build workflow runs `--check` automatically and fails if an eligible custom comment needs logical reflow; it reports each affected path with the source line or line range without rewriting source. Structured/ambiguous comments are reported as skips, not failures. Preview with `--diff`, apply selected files locally with `--apply`, and review the diff before committing.
+
+From the repo root, audit all supported active source without writing:
+
+```bash
+python LLM_Helpers/formatting/reflow_custom_comments.py --check
+```
+
+Preview the safe proposed edits as a unified diff:
+
+```bash
+python LLM_Helpers/formatting/reflow_custom_comments.py --diff
+```
+
+Apply the safe pass in place:
+
+```bash
+python LLM_Helpers/formatting/reflow_custom_comments.py --apply
+```
+
+Narrow to selected source families or paths when useful:
+
+```bash
+python LLM_Helpers/formatting/reflow_custom_comments.py CvGameCoreDLL Assets/Python --extensions cpp,h,inl,py --diff
+python LLM_Helpers/formatting/reflow_custom_comments.py Assets/XML --extensions xml --apply
+```
+
+The older [`comment_cleanup_pass_v2.py`](#comment_cleanup_pass_v2py) remains a historical CvMainInterface-specific cleanup reference. It uses length-oriented heuristics and should not replace this logical custom-comment pass.
+
+### Python source cleanup helpers
+
+#### `collapse_multiline_calls.py`
+
+Conservative source-rewrite helper for Python files.
+
+- Collapses multiline call-like statements and simple parenthesized return expressions into one line.
+- Useful for making Civ4 Python calls easier to grep/review and for reducing harmless continuation-indent noise.
+- Skips statements containing comments, multiline strings, explicit backslash continuations, and large list/dict/table assignments.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Safer than `collapse_multiline_brackets.py` for broad cleanup because it does not collapse arbitrary bracketed dictionaries/lists/tables.
+- Still review the diff before committing. The goal is searchability and reviewability, not general formatting.
+- For broad passes, prefer active mod/helper source. Avoid reference/comparison folders such as `_0_Legacy` unless the task explicitly needs them.
+- If the diff starts touching large data tables, comments, fragile indentation, or hard-to-review inherited files, stop and narrow the target set.
+
+Single-file examples:
+
+```powershell
+python LLM_Helpers\formatting\collapse_multiline_calls.py PrivateMaps\Mirror.py
+python LLM_Helpers\formatting\collapse_multiline_calls.py PrivateMaps\Mirror.py --in-place
+python LLM_Helpers\formatting\collapse_multiline_calls.py PrivateMaps\Mirror.py --diff
+```
+
+Broad run workflow from PowerShell. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, then removes the runner.
+
+The helper can also be run on a single file from PowerShell or Git Bash; this broad pass was tested with PowerShell for file generation, then Git Bash for staged diff output.
+
+```powershell
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; Copy-Item "LLM_Helpers\formatting\collapse_multiline_calls.py" "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py"; $script=(Resolve-Path "LLM_Helpers\collapse_multiline_calls_TEMP_RUNNER.py").Path; Get-ChildItem -Recurse -File -Filter *.py | Where-Object { $_.FullName -ne $script } | ForEach-Object { py $script $_.FullName --in-place }; Remove-Item $script; git diff --ignore-space-at-eol --stat; git diff --check
+```
+
+Broad staged-review workflow from Git Bash after the files were modified. This stages only `.py` files, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && out="LLM_Helpers/outputs/staged_collapse_multiline_calls_${ts}.diff" && git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add && git diff --cached --ignore-space-at-eol > "$out" && git diff --cached --ignore-space-at-eol --stat && git diff --cached --check && echo "wrote $out"
+```
+
+#### `collapse_multiline_calls2.py`
+
+Targeted second-pass source-rewrite helper.
+
+- Separate follow-up to `collapse_multiline_calls.py`; keep the first helper as the committed known-good pass 1.
+- Collapses multiline `def` headers such as `def __init__(..., ...):`.
+- Collapses selected long map-generation calls such as `generatePlotsInRegion(...)`, `generateCenter(...)`, and `generateCenterPlot(...)`.
+- Skips comments inside the collapsed statement, multiline strings, explicit backslash continuations, list/dict/table assignments, calls whose first argument is a list/dict literal, and long boolean return cascades beyond the conservative line cap.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Intended for narrow cleanup after the first collapse pass, not as a general formatter.
+
+Tested broad run workflow from Git Bash. The helper itself processes one file at a time, but this was tested as a broad repo pass using a temporary runner.
+
+The loop applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/formatting/collapse_multiline_calls2.py" "LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_calls2_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_collapse_multiline_calls2_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
+```
+
+#### `collapse_multiline_parens_safe.py`
+
+Broad but safety-checked parenthesis-collapse helper.
+
+- Collapses multiline parenthesized expressions to one physical line.
+- Intended mainly for old Civ4 Python files where wrapped parenthesized calls/expressions create Ruff/Pylance mixed-indentation noise.
+- Broader than `collapse_multiline_calls.py` because it is not limited to call-like statements.
+- Safer than the legacy `collapse_multiline_brackets.py` because it defaults to parentheses only and skips risky ranges.
+- Skips ranges containing comments, multiline strings, explicit backslash continuations, unmatched brackets, overly large blocks, and lines exceeding the configured maximum line length.
+- Preserves strings and line endings.
+- Compares significant token streams when tokenization works.
+- If a file is already indentation-broken and cannot be tokenized, the helper can still apply local parenthesis-only rewrites and reports that token verification was skipped. Review those files especially carefully.
+- Optional flags can include square/curly bracket ranges, but do not use those broadly unless the task explicitly needs them and the diff is easy to review.
+- Always review the staged diff before committing. This is not a general formatter.
+
+Broad Git Bash staged-review workflow. This copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, stages Python changes, writes the full staged diff and a check report under `LLM_Helpers/outputs`, prints the staged stat, runs `git diff --cached --check`, and reruns Ruff `E101` so the user/agent can compare the remaining mixed-indent count:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/formatting/collapse_multiline_parens_safe.py" "LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_multiline_parens_safe_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_multiline_parens_safe_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_multiline_parens_safe_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_multiline_parens_safe_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_multiline_parens_safe run log ==="; cat "$runlog"; echo; echo "=== git diff --cached --ignore-space-at-eol --stat -- *.py ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== git diff --cached --check -- *.py ==="; git diff --cached --check -- '*.py'; echo; echo "=== remaining Ruff E101 ==="; py -m ruff check . --select E101 --output-format=grouped || true; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
+```
+
+On top of the code formatting/grepping gains, notably helped reduce ruff errors.
+
+```md
+54 files changed
+816 insertions / 1875 deletions
+net ~1059 physical lines removed
+E101 Indentation contains mixed spaces and tabs count: ~1068 -> 259
+total remaining Ruff E101 report errors: 349
+```
+
+#### `fix_matrix_indent.py`
+
+Targeted matrix/data indentation cleanup helper.
+
+- Normalizes mixed tab/space indentation inside multiline list/dict/tuple assignment blocks.
+- Intended mainly for old Civ4 map-script matrix/data blocks such as `templates = {...}`, region tables, coordinate tables, and similar static data.
+- Does not collapse lines; keeps large matrices and tables multiline for readability.
+- Does not touch the assignment's first line indentation, because that may be real Python block indentation.
+- Converts mixed leading indentation inside the data block to spaces-only indentation.
+- Uses tabsize 4 by default, matching the intended editor-style alignment for these visual matrix/data blocks better than Python's historical tabsize 8.
+- Strips trailing whitespace only on lines whose leading indentation was changed.
+- Preserves line endings and refuses to write if significant token sequence changes.
+- Intended for Ruff `E101` cleanup in matrix/data blocks, not as a general indentation fixer.
+
+Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/formatting/fix_matrix_indent.py" "LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py" && runner="LLM_Helpers/fix_matrix_indent_TEMP_RUNNER.py"; { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done; rm "$runner"; mkdir -p LLM_Helpers/outputs; ts=$(date +%Y%m%d_%H%M%S); out="LLM_Helpers/outputs/staged_fix_matrix_indent_${ts}.diff"; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add; git diff --cached --ignore-space-at-eol > "$out"; git diff --cached --ignore-space-at-eol --stat; git diff --cached --check; echo "wrote $out"
+```
+
+In the tested broad PrivateMaps pass, this produced a high-impact Ruff cleanup: for example, `Wheel.py` dropped from roughly 400 Ruff findings to 15, while the staged diff was still mostly mechanical whitespace-only matrix indentation replacement.
+
+```bash
+LLM_Helpers/formatting/fix_matrix_indent.py     |  290 ++++++++
+PrivateMaps/Archipelago.py           |  186 +++---
+PrivateMaps/BTG_Lagoon.py            |  220 +++----
+PrivateMaps/Balanced.py              |    4 +-
+PrivateMaps/Custom_Continents.py     | 1200 +++++++++++++++++-----------------
+PrivateMaps/Equal_Islands_V2_beta.py |  188 +++---
+PrivateMaps/Great_Plains.py          |    4 +-
+PrivateMaps/Hub.py                   |  738 ++++++++++-----------
+PrivateMaps/Ice_Age.py               |    8 +-
+PrivateMaps/Inland_Sea.py            |  628 +++++++++---------
+PrivateMaps/Islands.py               |  188 +++---
+PrivateMaps/Pangaea.py               |   24 +-
+PrivateMaps/Rainforest.py            |    4 +-
+PrivateMaps/Ring.py                  |  646 +++++++++---------
+PrivateMaps/Tectonics.py             |   22 +-
+PrivateMaps/Wheel.py                 |  786 +++++++++++-----------
+16 files changed, 2713 insertions(+), 2423 deletions(-)
+```
+
+#### `collapse_flat_literals.py`
+
+Conservative flat-literal collapse helper.
+
+- Collapses simple flat multiline Python list/tuple assignment literals to one physical line.
+- Intended for small option lists, name lists, simple region-data arrays, GameFont-style flat token lists, and similar grep-friendly data.
+- Does not target matrix-like map templates, nested lists/dicts/tuples, comments inside literals, or large table-style data where one row per line is clearer.
+- Preserves trailing commas if they already exist; this keeps the rewrite mechanical and avoids unnecessary token/style changes.
+- Refuses risky edits when significant token sequence changes.
+- Default `--max-line-len` is intentionally fairly high because this helper targets grep-friendly flat data arrays, not normal prose/code wrapping.
+- This is not a general formatter. Review the staged diff before committing.
+
+Tested broad run workflow from Git Bash. The helper processes one file at a time, so this loop copies a temporary runner, applies it to every tracked or untracked `.py` file except the runner itself, removes the runner, stages Python changes, writes a timestamped staged diff under `LLM_Helpers/outputs`, prints the staged stat, and runs the staged whitespace check:
+
+```bash
+cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && cp "LLM_Helpers/formatting/collapse_flat_literals.py" "LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && runner="LLM_Helpers/collapse_flat_literals_TEMP_RUNNER.py" && mkdir -p LLM_Helpers/outputs && ts=$(date +%Y%m%d_%H%M%S) && runlog="LLM_Helpers/outputs/run_collapse_flat_literals_${ts}.txt" && diff="LLM_Helpers/outputs/staged_collapse_flat_literals_${ts}.diff" && report="LLM_Helpers/outputs/check_collapse_flat_literals_${ts}.txt" && { git ls-files -z '*.py'; git ls-files -z -o --exclude-standard '*.py'; } | while IFS= read -r -d '' f; do [ "$f" = "$runner" ] && continue; py "$runner" "$f" --in-place; done > "$runlog" 2>&1; rc=$?; rm -f "$runner"; [ $rc -eq 0 ] || { cat "$runlog"; exit $rc; }; git ls-files -z -m -o --exclude-standard '*.py' | xargs -0 -r git add --; git diff --cached --ignore-space-at-eol > "$diff"; { echo "=== collapse_flat_literals run log ==="; cat "$runlog"; echo; echo "=== staged stat ==="; git diff --cached --ignore-space-at-eol --stat -- '*.py'; echo; echo "=== staged whitespace check ==="; git diff --cached --check -- '*.py'; echo; echo "runlog=$runlog"; echo "diff=$diff"; } > "$report" 2>&1 && cat "$report" && echo "wrote $report" && echo "wrote $diff"
+```
+
+Tested broad pass result with default line length 500:
+
+```text
+19 flat literals collapsed across 15 existing source files.
+One risky old vendored file, Assets\Python\BUG\configobj.py, was refused by the token-safety check.
+The pass caught the longer flat GameFontDisplay character-name list in addition to shorter option/name/region-data arrays.
+Run git diff --cached --check before committing.
+```
+
+Example intended rewrites:
+
+```python
+selection_names = [
+	"TXT_KEY_MAP_WRAP_FLAT",
+	"TXT_KEY_MAP_WRAP_CYLINDER",
+	"TXT_KEY_MAP_WRAP_TOROID",
+]
+```
+
+becomes:
+
+```python
+selection_names = ["TXT_KEY_MAP_WRAP_FLAT", "TXT_KEY_MAP_WRAP_CYLINDER", "TXT_KEY_MAP_WRAP_TOROID",]
+```
+
+```python
+phonetic_array = [
+	'Alpha', 'Bravo', 'Charlie',
+	'Delta', 'Echo', 'Foxtrot',
+]
+```
+
+becomes:
+
+```python
+phonetic_array = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot',]
+```
+
+#### `wrap_python2_prints_for_linting.py`
+
+Conservative Python 2 print-wrapper helper.
+
+- Converts simple active Python 2 bare prints such as `print "hello"` and `print "value = %s" % value` to Python 2.4/3-compatible single-expression calls such as `print("hello")` and `print("value = %s" % value)`.
+- Skips ambiguous cases such as redirected prints, trailing-comma prints, semicolon-packed lines, and top-level comma prints; manually rewrite those with one formatted string such as `print("player %s pass %s failed" % (playerID, iPass))`.
+- Does not touch commented-out prints, because comments do not block Ruff/Python 3 parsing.
+- Intended to reduce parser/linter noise while preserving Civ4 Python 2.4 runtime compatibility.
+
+Example:
+
+```powershell
+python LLM_Helpers\formatting\wrap_python2_prints_for_linting.py --recursive --diff Assets\Python PrivateMaps
+python LLM_Helpers\formatting\wrap_python2_prints_for_linting.py --recursive --in-place Assets\Python PrivateMaps
+python LLM_Helpers\formatting\wrap_python2_prints_for_linting.py --recursive --check Assets\Python PrivateMaps
+```
+
+#### `collapse_multiline_brackets.py`
+
+Legacy/reference helper.
+
+- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
+- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
+- Preserves line endings, string literals, and comments outside collapsed ranges.
+- Important caution: this script strips line comments and indentation inside collapsed ranges.
+- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
+- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
+
+Example:
+
+```powershell
+python LLM_Helpers\formatting\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+```
+
+#### `fix_line_endings.py`
+
+External cleanup helper for line-ending hygiene.
+
+- Reports or fixes mixed CRLF/LF line endings and missing final newlines.
+- Does not run automatically in GitHub Actions; the workflow check only reports/fails.
+- Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
+- Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
+- Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
+- Always review the diff before committing generated source changes.
+
+Examples:
+
+```powershell
+python LLM_Helpers\formatting\fix_line_endings.py
+python LLM_Helpers\formatting\fix_line_endings.py --diff
+python LLM_Helpers\formatting\fix_line_endings.py --in-place
+python LLM_Helpers\formatting\fix_line_endings.py Assets\Python PrivateMaps --diff
+python LLM_Helpers\formatting\fix_line_endings.py Assets\Python PrivateMaps --in-place
+```
+
+### C++ source cleanup helpers
+
+#### `reflow_cpp_logging_calls.py`
+
+Conservative readability formatter for C++ logging calls.
+
+- The default wrapping mode targets active diagnostic log-like calls across the project (`logBBAI(...)`, `logSASGameRecord...(...)`, `SAS_log...(...)`, `myLog...(...)`-style helpers, etc.); bare/member `.log(...)` calls are wrapped only in the familiar string-first diagnostic form, and commented-out code is ignored.
+- Keeps a leading diagnostic format string byte-for-byte intact when present and wraps only at top-level commas between C++ arguments; typed recorder/helper calls without a format string can also be split conservatively at those argument boundaries.
+- `--collapse-short` additionally collapses simple multiline log-like calls that fit within `--collapse-width` (default 180).
+  - It recognizes logging families rather than only `logBBAI`: e.g. `logSASGameRecord...(...)`, `SAS_log...(...)`, `myLog...(...)`-style helpers, and string-first ordinary member `.log(...)` calls. This is opt-in so existing intentional multiline layout does not churn by default.
+- The log-like recognizer is deliberately prefix/role based rather than "contains `Log`": unrelated gameplay/event callbacks such as `combatLogHit(...)` are not treated as diagnostic emitters merely because their name contains that substring.
+- Does not reflow or merge existing prose comments; comment layout remains author-maintained, and calls containing comments are skipped for manual review.
+- Skips preprocessor directives and continued macro bodies entirely. Physical `\` line-splicing is semantic before C++ tokenization, so macro logging calls require manual formatting.
+- By default, a one-line call is considered for wrapping above 180 columns; an already-multiline call is considered only when one of its argument/continuation lines exceeds that threshold, so a deliberately long format-string line alone does not trigger churn.
+- Uses a 140-column target for continuation lines while keeping individual nested expressions intact. Complex arguments that are themselves multiline or contain comments are skipped for manual review rather than reformatted speculatively.
+- Preserves LF/CRLF line endings and compares non-comment C++ token streams before writing, refusing the change if significant source tokens differ.
+- Always review the diff before committing. This is a narrow logging formatter, not a general C++ formatter.
+
+Dry-run scan of the DLL source:
+
+```bash
+python LLM_Helpers/formatting/reflow_cpp_logging_calls.py CvGameCoreDLL
+```
+
+Review a single file as a unified diff:
+
+```bash
+python LLM_Helpers/formatting/reflow_cpp_logging_calls.py CvGameCoreDLL/CvUnitAI.cpp --diff
+```
+
+Apply across the DLL source, or opt into short-call collapse on a touched file:
+
+```bash
+python LLM_Helpers/formatting/reflow_cpp_logging_calls.py CvGameCoreDLL --in-place
+python LLM_Helpers/formatting/reflow_cpp_logging_calls.py CvGameCoreDLL/CvPlayerAI.cpp --collapse-short --diff
+```
+
+#### `collapse_cpp_log_guards.py`
+
+Conservative formatter for simple one-statement C++ logging guards.
+
+- Collapses ordinary `if (...)` and `else if (...)` logging pre-gates so the condition and log-like call head stay together, e.g. `if (bLog) logBBAI(...);`; the body recognizer is not limited to BBAI and also accepts SASGameRecord/domain logging helpers and `myLog...`-style names.
+- Arbitrary functions that merely contain `Log` in the middle of a gameplay/event name are intentionally excluded; this is a diagnostic-logging formatter, not a general one-statement formatter.
+- Eligible conditions must contain a recognizable logging gate such as a local `bLog...`/`bSAS...Log`/`b...Logging` flag, a `g*LogLevel`/`i*LogLevel` comparison, `GC.isLogging()`, `GC.getLogger().isEnabled...()`, or an explicit `shouldLog...()`/logging-enabled predicate; the exact variable name is otherwise generic.
+- Semantic-only conditions such as `isNormalizing()`, `isDebug()`, `bCoastal`, or gameplay predicates are intentionally skipped even when their sole body is a log call. Those branches may already sit inside an outer logging pre-gate, and collapsing them would add unrelated cosmetic churn rather than make pre-gating clearer.
+- Long logging argument tails remain multiline. Multiline guard conditions are left unchanged: joining their final condition line to the log call obscured the boundary between complex predicates and logging arguments, notably in corporation-transit and naval-invasion diagnostics.
+- These pointer accesses and calls can fail independently; keeping the condition and log call on separate source lines helps a debugger distinguish predicate failures from failures while evaluating logging arguments. This preserves useful crash-location evidence as well as readability, although optimized builds can still limit source-line precision.
+- Safe trailing `//` comments are preserved. Preprocessor/macro bodies, block comments, ambiguous call shapes, multi-statement blocks, and braced `if/else` structures are skipped.
+- This is formatting only. It does **not** invent missing log-level gates or reorder `&&` operands; use `audit_cpp_logging_pregates.py` plus LLM/manual review for architectural pre-gating.
+- Prefer targeted/touched-file runs. A whole-DLL scan is useful as an occasional hygiene audit, but can expose historical cosmetic candidates and is normally unnecessary diff noise.
+
+```bash
+python LLM_Helpers/formatting/collapse_cpp_log_guards.py CvGameCoreDLL/CvPlayerAI.cpp --repo-root .
+python LLM_Helpers/formatting/collapse_cpp_log_guards.py CvGameCoreDLL/CvPlayerAI.cpp --repo-root . --in-place
+```
+
+#### `collapse_cpp_signatures.py`
+
+Conservative signature-only source-rewrite helper for C/C++ files.
+
+- Collapses safe multiline function declarations/definitions to one physical line, mainly to make signatures easier to scan, grep, and compare.
+- Signature-only by design: ordinary multiline calls, logging statements, and constructor-like local statements are left alone. If call cleanup is wanted later, use a separate helper such as `collapse_cpp_calls.py` with separate rules.
+- Skips control-flow statements, comments that would become misleading, block-comment boundaries, and candidates that do not look like function headers.
+- Unindented root-scope declarations in `.cpp` files are treated like safe declarations; nested constructor-like local statements are omitted from the normal ignored report unless `--include-nonsignature-ignored` is used.
+- Qualified `::` signatures are also detected when the prefix contains template commas such as `std::pair<int,int>` or `KmodPathFinder<StepMetric,Node>`.
+- Indented header declarations may use qualified return types such as `std::pair<int,int>`; only indented qualified callable names are treated as likely local calls.
+- Nested class/struct declarations are handled, while declaration-shaped local constructor calls inside inline function bodies stay skipped.
+- Allows trailing end-of-signature `//` comments (for example `) const // advc.031`) and inline one-line `/* ... */` tail comments; comments inside the parameter list are skipped unless a trace-hoisting mode below handles them.
+- Uses a generous default `--max-line-len 600` and `--max-span-lines 16` because this helper is meant to make safe signatures one-line-first; lower them for a narrower review.
+- `--hoist-comments` can move whole-line comments from inside a collapsed signature above the signature, while still skipping inline comments inside the parameter list.
+- `--trace-hoisted-comments` also adds a separate custom trace line after each hoisted comment, recording whether the comment was before, after, or between specific parameters without making the preserved comment text look newly authored. Use `--trace-credit "GPT-5.5 (reviewed script output)"` or similar when the generated comments were externally reviewed.
+- `--trace-inline-comments` similarly hoists inline `//` comments and extractable multiline `/* ... */` comments from inside the parameter list, strips them from the collapsed signature line, and appends trace metadata for their original parameter position.
+- Existing whole-line `<!-- custom: ... -->` comments inside signatures receive the same hoist-position trace note as other whole-line comments.
+- `--tail-exposed-to-python-comments` handles the common header-only case where `// Exposed to Python` was placed inside a multiline declaration; it moves that metadata to the final tail comment, after any existing tail comment.
+- Defaults to tracked C/C++ files under `CvGameCoreDLL`; you can also pass one or more files/folders for a narrower review.
+- `--diff-file` writes the review diff to a file. Without an explicit path, it creates a timestamped file under `LLM_Helpers/outputs/`.
+- `--ignored-file` writes a separate review report of skipped signature-like multiline candidates and the reason they were left alone, such as unsafe comments, line length, or unsupported tail syntax.
+  - Use `--include-nonsignature-ignored` only when you also want the very noisy/exhaustive ordinary-call/local-statement candidates.
+- Empirically idempotent after the first full DLL pass: rerunning with the default broad scan reported `Scanned 350 C/C++ file(s). No safe C++ signature collapses found.`
+- Always review the diff before committing. This is not a general C++ formatter. External review in ChatGPT or another non-agentic context can be useful for long generated diff/report files before applying the changes locally.
+
+Example diagnostic run with output files and no source changes (Git Bash):
+
+```Bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_signatures.py ./CvGameCoreDLL --diff-file --ignored-file
+```
+
+This writes timestamped files like `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z.diff.txt` and `LLM_Helpers/outputs/collapse_cpp_signatures_20260619T150412Z_ignored.txt`.
+
+Example apply run (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_signatures.py ./CvGameCoreDLL --in-place
+```
+
+Example apply run with traceable hoisted comments (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-hoisted-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
+```
+
+Example apply run with traceable whole-line and inline hoisted comments (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --trace-inline-comments --trace-hoisted-comments --tail-exposed-to-python-comments --trace-credit "GPT-5.5 (reviewed script output)" --in-place
+```
+
+Example apply run for `// Exposed to Python` declaration metadata (Git Bash):
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_signatures.py ./CvGameCoreDLL --max-line-len 600 --max-span-lines 16 --tail-exposed-to-python-comments --in-place
+```
+
+Example results:
+
+- First full pass: 118 files changed, 1360 insertions, and 2662 deletions.
+- A follow-up comment-hoisting pass, amended into the same commit because it seemed small and contained, collapsed 31 more signatures across 23 files.
+- A later pass improved old comment text preservation and appended trace notes for where each hoisted comment had originally been placed: it was 66 insertions and 117 deletions.
+- Another `// Exposed to Python` metadata pass collapsed 102 more header declarations across 13 files.
+- A broad inline-comment trace pass collapsed 125 more signatures across 37 files.
+- A multiline block-comment trace pass collapsed 21 more signatures across 13 files.
+- A root-scope `.cpp` declaration pass collapsed 6 explicit-template-instantiation signatures in `CvGameTextMgr.cpp`.
+- An existing-custom-comment pass collapsed 2 more `setUnitHelp` signatures while preserving their custom rationale comments and adding hoist-position trace notes.
+- A qualified-template-prefix pass collapsed 8 more `::` signatures with template commas in the prefix.
+- A qualified-return-type header pass collapsed 4 more declarations using `std::` return types.
+- A nested-class declaration pass collapsed 2 more `InvasionGraph::Node` declarations while keeping inline-function local constructor calls skipped.
+
+Example (nested simple comments) (before):
+
+```cpp
+void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+	PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
+	PlayerTypes eCancelPlayer) // advc.130p
+```
+
+Example (nested simple comments) (after):
+
+```cpp
+void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
+```
+
+Example 2 (overloaded signatures) (before) :
+
+```cpp
+	/*	(Had been named "addHumanMessage" in K-Mod;
+		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString,
+			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
+			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+			int iFlashX = -1, int iFlashY = -1,
+			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength,
+			CvWString szString, CvPlot const& kPlot,
+			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
+			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+			bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
+```
+
+Example 2 (overloaded signatures) (after):
+
+```cpp
+	/*	(Had been named "addHumanMessage" in K-Mod;
+		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
+	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR, bool bShowOffScreenArrows = true, bool bShowOnScreenArrows = true);
+```
+
+Example 3 (traceable hoisted comment) (before):
+
+```cpp
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
+	// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
+	MovementFlags eFlags, bool bFollow)
+```
+
+Example 3 (traceable hoisted comment) (after):
+
+```cpp
+// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
+// <!-- custom: hoisted from multiline signature between `iOddsThreshold` and `eFlags` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
+```
+
+#### `collapse_cpp_inline_returns.py`
+
+Conservative header-only helper for simple inline C++ functions.
+
+- Collapses inline functions whose body is exactly one `return ...;` statement to one physical line, including wrapped return expressions and signatures that already have `{` on the signature line.
+- Joins a one-line `template<...>` prefix onto the collapsed inline function when the combined line stays below `--max-line-len`.
+- Signature tail comments such as `// Exposed to Python` are preserved after the collapsed body.
+- Opening-brace comments such as `{	// advc: ...` are hoisted above the collapsed function; closing-brace tail comments such as `} // </advc.opt>` are preserved after the collapsed body.
+- Leading `// ...` and `/* ... */` body comments are hoisted above the collapsed function; multiline block comments are normalized to one line.
+- Return-line tail comments such as `return x; // advc.opt` are hoisted above the collapsed function so the code line stays focused on the greppable function.
+- Skips constructors/destructors, multi-statement bodies, mid-body comments after the return statement, multiline signatures, and lines exceeding `--max-line-len`.
+- Separate from `collapse_cpp_signatures.py` because it rewrites function bodies, not just signatures.
+- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
+
+Example diagnostic run with output file and no source changes:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_inline_returns.py ./CvGameCoreDLL --diff-file
+```
+
+Example apply run:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_inline_returns.py ./CvGameCoreDLL --in-place
+```
+
+Reviewed passes used this to collapse:
+
+- simple inline return helpers such as `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`
+- wrapped-return helpers such as `template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }`
+- and brace-on-signature wrappers such as `CvCityAI* AI_getCapital() const { return AI_getCity(m_iCapitalCityID); }`.
+- comment-bearing wrappers such as `bool AI_isAnyWaterDanger(CvPlot const& kPlot, int iRange = DANGER_RANGE) const { return (AI_getWaterDanger(kPlot, iRange, 1) >= 1); } // </advc.opt>`.
+
+Example (before):
+
+```cpp
+	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const															// Exposed to Python
+	{
+		return m_aiGoldPerTurnByPlayer.get(ePlayer);
+	}
+```
+
+Example (after):
+
+```cpp
+	int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python
+```
+
+#### `collapse_cpp_inline_statements.py`
+
+Conservative header-only helper for simple inline C++ functions whose body is exactly one non-return statement.
+
+- Complements `collapse_cpp_inline_returns.py`; use this for simple setters, wrapper calls, assignment helpers, `BOOST_STATIC_ASSERT(false);` stubs, and similar one-statement bodies.
+- Hoists whole-line body comments and statement tail comments above the collapsed function, and joins one-line `template<...>` prefixes when safe.
+- Skips constructors/destructors, initializer-list bodies, `return` bodies, control-flow bodies, delete/throw/SAFE_DELETE bodies, block comments, multi-statement bodies, multiline signatures, and lines exceeding `--max-line-len`.
+- Always review the diff before committing; this is a grep/readability cleanup, not a formatter.
+
+Example diagnostic run with output file and no source changes:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_inline_statements.py ./CvGameCoreDLL --diff-file
+```
+
+Example apply run:
+
+```bash
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/formatting/collapse_cpp_inline_statements.py ./CvGameCoreDLL --in-place
+```
+
+Example (before):
+
+```cpp
+	template<>
+	void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier)
+	{
+		cvValue = static_cast<CompactV>(cvValue * cvMultiplier);
+	}
+```
+
+Example (after):
+
+```cpp
+	template<> void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier) { cvValue = static_cast<CompactV>(cvValue * cvMultiplier); }
+```
+
+Done with the very nice help of GPT-5.5 (on Codex) thanks.
+
+### CvMainInterface cleanup reference scripts
+
+These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+
+The generated scripts were staged working scripts, not polished repo utilities. Apart from `comment_cleanup_pass_v2.py`'s typo list, nothing in them is specific to that file, and since 2026-11-10 each takes its input and output paths, so they work on any Python file, for example on `PrivateMaps/Mirror.py`:
+
+```bash
+python LLM_Helpers/formatting/singleline_pass.py PrivateMaps/Mirror.py Mirror.singleline.py
+python LLM_Helpers/formatting/singleline_pass_comments.py Mirror.singleline.py Mirror.singleline2.py
+python LLM_Helpers/formatting/singleline_pass3_comments_and_long.py Mirror.singleline2.py Mirror.singleline3.py
+python LLM_Helpers/formatting/comment_cleanup_pass_v2.py Mirror.singleline3.py Mirror.commentcleanup.py
+```
+
+- The third and fourth passes also write a review diff beside their output, such as `Mirror.singleline3.diff`.
+- Each pass verifies its own result and stops without writing when a check fails. On AdvCiv 1.14's `CvMainInterface.py`, the comment pass stops with `ERROR code tokens changed`: one of its rules would have changed code there.
+
+#### `singleline_pass.py`
+
+- First conservative pass.
+- Collapsed uncommented multiline logical statements.
+- Skipped statements containing comments.
+
+#### `singleline_pass_comments.py`
+
+- Second staged pass.
+- Collapsed more multiline statements.
+- Preserved comments by moving them above the collapsed statement instead of deleting them.
+
+#### `singleline_pass3_comments_and_long.py`
+
+- Third staged pass and best reference for the final single-line statement approach.
+- Allowed more long-line/comment-aware collapses.
+- Also handled some commented-out multiline code groups.
+- This was run after earlier passes, on an already-modified file.
+
+#### `comment_cleanup_pass_v2.py`
+
+- Fourth staged/reference pass, focused on comments rather than statements.
+- Condensed simple wrapped prose comments.
+- Fixed minor comment typos and wording issues.
+- Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
+- This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
+
+#### Comparison with Base AdvCiv 1.12's Main Interface processed similarly
+
+For comparison purposes, we also applied the same scripts to Base AdvCiv 1.12's main interface (as of 2026-06-10), with the help of ChatGPT-5.5.
+
+The resulting file is stored in [CvMainInterface_1_12_singleline.py](/_1_AdvCiv-SAS/Docs/examples/source_comparison/CvMainInterface_1_12_singleline.py). Before as of now adding our copyright a few heading comments, the diff was: Line count: 7279 -> 6021, so 1258 physical lines removed.
+
+We store an example of this as of now because this file has significantly deviated due to formatting change, because it is easier to read for agents or perhaps users too, because the file is large, and because some user seemingly mentioned the comparison is harder.
+
+#### Notes
+
+Important: `singleline_pass3_comments_and_long.py` should not be treated as guaranteed to include all behavior from pass 1 and pass 2 when run directly on a raw original file. It is the best reference implementation from the final single-line statement pass, not a clean all-in-one tool.
+
+Likewise, `comment_cleanup_pass_v2.py` is a later comment-cleanup reference pass, not part of the statement-collapsing logic.
+
+Future LLM/code agents should either:
+
+- reuse the staged scripts only in the same order and review each diff, or
+- preferably consolidate the useful logic into one or two clean repo-ready utilities, for example:
+
+```text
+collapse_multiline_python.py
+condense_python_comments.py
+```
+
+A cleaned source-rewrite utility should support:
+
+- optional `--in-place`;
+- optional `--output`;
+- optional `--move-comments`;
+- optional `--collapse-commented-code` for statement tools;
+- optional typo/comment-normalization rules for comment tools;
+- line-ending preservation;
+- string literal preservation;
+- comment preservation;
+- summary stats;
+- dry-run or diff output if practical.
+
+##### ChatGPT sandbox path note
+
+The passes were written in ChatGPT's sandbox with hardcoded paths such as `/mnt/data/CvMainInterface.singleline2.py`. Since 2026-11-10 they take the input and output paths on the command line instead, as shown above.
+
+##### Safety rule for source-rewrite helpers
+
+For helpers that rewrite Python source files, especially files loaded by Civ4:
+
+- preserve meaningful code tokens;
+- preserve strings exactly;
+- preserve comments or move them deliberately;
+- never silently delete explanatory comments;
+- do not rely on Python 3 `ast.parse` as proof of Civ4 Python 2.4 compatibility;
+- review the git diff manually;
+- smoke-test in game when the file is UI/runtime-sensitive.
+
+The goal is not general Python formatting. The goal is to make large, LLM-maintained files easier to search, patch, and review.
+
+Good target style for LLM-facing UI files:
+
+```text
+one semantic UI operation = one searchable line
+manual layout decision = keep local and visible
+large table/list = one item per line when that is clearer
+commented-out code = preserve intent; do not auto-destroy it
+```
+
+### Markdown documentation cleanup helpers
+
+#### `reflow_markdown_prose.py`
 
 Conservative source-rewrite helper for active Markdown documentation.
 
@@ -1245,241 +1616,18 @@ Conservative source-rewrite helper for active Markdown documentation.
 Examples:
 
 ```powershell
-python LLM_Helpers\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --diff
-python LLM_Helpers\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --in-place
-python LLM_Helpers\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --in-place
+python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --diff
+python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --in-place
+python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --in-place
 ```
 
-## Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)
+## `packaging/`
 
-`scan_xml_duplicates-3.3.py` is an older broad XML duplicate scanner kept here for reference and discovery work, on the formerly public AdvCiv-SAS `python-scripts` branch.
+### Source packaging and generated-history helpers
 
-This script scans `Assets/XML` recursively and reports repeated sibling XML entries based on a broad heuristic: if sibling tags repeat, it compares either their first child field/value or their direct text value.
+#### `make_light_source_zip.py`
 
-Because this is intentionally broad, it can find useful suspicious patterns, but it can also report valid Civ4 XML structures where repetition is intentional, weighted, or structurally normal.
-
-It should not be treated as a release gate or as proof that every reported duplicate is wrong. Instead, it is useful as an exploratory audit tool: run it when looking for possible XML cleanup targets, review the output manually, and then move high-confidence findings into the curated GitHub workflow checks.
-
-This legacy scanner notably helped inspire and calibrate the newer `.github/workflows/build` XML audits, including the parent duplicate-key checker, child/list duplicate checker, and duplicate text-tag checker.
-
-The newer workflow scripts are stricter and more conservative: they check reviewed XML patterns with clearer semantics, print source line numbers, and avoid known noisy cases such as weighted goody hut entries or reused world-picker UI art paths.
-
-In short: this script is kept as a historical and practical discovery helper, while the GitHub workflow checks are the maintained release-safety layer.
-
-## Art viewing helpers
-
-### `gamefont_tga.py`
-
-- Views and rearranges glyphs in Civ4's `GameFont.tga` / `GameFont_75.tga` with only Python 3's standard library, since agents' image readers cannot open `.tga` files and Pillow is not installed.
-- `preview` writes a region, enlarged, as a PNG the image reader can open; `grid` lists the magenta grid lines, to find row tops and the column pitch; `move` copies glyph cells between slots, or from another font of the same size.
-- Handles only the uncompressed 32-bit TGAs that Game Font Editor writes, and fails on anything else.
-- The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#game-font-glyphs) explains the grid, the commands and the 2026-11-08 example that moved the Camel, Peat and Hit Movies glyphs into BonusInfo order.
-
-```bash
-python LLM_Helpers/gamefont_tga.py preview Assets/Res/Fonts/GameFont.tga bonus_rows.png --box 0 175 560 222 --zoom 3
-```
-
-### `art_preview.py`
-
-- Puts Civ4 art (`.dds`, `.tga`, `.png`) side by side in one labelled PNG that an agent's image reader can open; needs Pillow.
-- Takes file paths or XML `<Button>` strings, and searches case-insensitively like the game: the mod, then BtS, Warlords and the original game (loose, then packed), then the extracted Caveman2Cosmos, History Rewritten and Realism Invictus folders; `--root` and `--fpk` add others.
-- For an atlas string it uses the standalone file if found, else cuts the 64-pixel cell (column and row counted from 1) out of the atlas, reading BtS's packed `.FPK` archives through `fpk_tool.py`. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) shows how it chose Peat Works' button.
-
-```bash
-python LLM_Helpers/art_preview.py art/craft/art/peatgatherer.dds Art/AdvCiv_SAS/Bonuses/Peat/Peat_button.dds --out compare.png
-```
-
-### `fpk_tool.py`
-
-- Lists and extracts files from Civ4's packed `.FPK` archives, which PakBuild and Dragon UnPACKer open only through their windows; no dependencies.
-- Checked on BtS's `Art0.FPK` and the Final Frontier `STArt3.FPK`; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#packed-fpk-archives) describes the format.
-
-```bash
-python LLM_Helpers/fpk_tool.py list "../../../Assets/Art0.FPK" "*atlas*"
-```
-
-### `civ4_assets.py`
-
-- Finds Civ4 art as the game does for a mod: its loose files, then its FPKs, then BtS's, Warlords' and the original game's; uses `fpk_tool.py` and no other dependencies.
-- `defines PATTERN` lists art defines from the mod's art XML, `locate PATH` names the layer that supplies a file, and `stage PATH` copies its folder, merged from all layers, with any textures its NIFs name from elsewhere.
-- `nif_preview.py --mod` uses it to render another mod's leaders and units by `ART_DEF_` type; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art).
-
-```bash
-python LLM_Helpers/civ4_assets.py --mod "Realism Invictus" defines "ART_DEF_UNIT_APACHE*"
-```
-
-### `art_gallery.py`
-
-- Renders a mod's leaders, units or other art defines in bulk through `nif_preview.py --mod`, keeps each as a PNG for Windows thumbnails, and lays them out on grid sheets; needs what `nif_preview.py` needs.
-- Filters units and buildings by domain, unit combat or kind of building, and era from the mod's XML; `--labels` writes names and those facts under each picture. See [Galleries](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#galleries).
-
-```bash
-python LLM_Helpers/art_gallery.py "$TEMP/civgold_leaders" --mod "CIV Gold" --labels
-```
-
-### `art_search.py`
-
-- Finds the terrains, features, buildings or units (`--kind`, with `--era` for the last two) whose Type matches a regular expression in every installed mod, skipping entries a mod inherits unchanged from the base game, and draws each through its own mod's art, as one sheet labelled with the mod; `--list` lists the matches only. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
-
-```bash
-python LLM_Helpers/art_search.py "MARSH|SWAMP|WETLAND|BOG|MANGROVE|MUD" marshes.png
-```
-
-### `plot_scene.py`
-
-- Builds the map plots `nif_preview.py` draws, from the mod's XML and art; run on its own, it draws a mod's every terrain, plot type and feature as one labelled sheet, `--match` keeping the plots whose label matches. See [Plots](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
-
-```bash
-python LLM_Helpers/plot_scene.py c2c_peaks.png --mod Caveman2Cosmos --match "^peak"
-```
-
-### `regenerate_art_samples.py`
-
-- Renders again every sample picture in `_1_AdvCiv-SAS/Images/LLM` that `nif_preview.py` or `art_gallery.py` made, with the Art Tools Guide's commands, finding base-game files through this mod as the game does; run it after renderer changes and review the pictures before committing.
-- `--list` shows each sample's command; a pattern such as `"*grace*"` renders only matching samples. Movie, audio and hand-assembled comparison pictures are not covered.
-- A complete, successful run records the renderer's code fingerprint in `art_samples_fingerprint.json`, which the [art sample freshness](/.github/workflows/README.md#builddocumentationart_samplespy) CI check compares with the current code.
-
-```bash
-python LLM_Helpers/regenerate_art_samples.py "*leaderhead*"
-```
-
-### `nif_preview.py`
-
-- Draws a `.nif` model as a PNG close to NifSkope's view, which shows it only in its window: textured per pixel with a depth buffer, skinned meshes posed by their bones, over a floor grid; needs numpy, PyFFI, setuptools and Pillow.
-- With `--scene-camera` and `--frames N`, draws a scene such as a religion-founding movie through its own camera at N moments of its animation.
-- With `--leader-background BACKGROUND.kfm`, draws a leaderhead over its backdrop. Add a clip to sample poses with fixed framing, or use a `.gif` output to loop those samples. See the [Grace O’Malley example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
-- Pass a `.kfm` to list event codes, add `--clip EVENT` to inspect a clip, or add a PNG output path to render it. Pass a `.kf` on its own to inspect it, or use `--kf FILE` with a NIF and a PNG output path. See the [Peat Works and Llama Kamayuq examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
-- With `--mod MOD`, the asset may be an `ART_DEF_` type or an `Art/...` path from another mod, found through [`civ4_assets.py`](#civ4_assetspy).
-- With `--mod`, a `TERRAIN_`, `FEATURE_`, `BONUS_` or `IMPROVEMENT_` asset, or `--on-plot`, `--terrain`, `--feature` and `--plot`, draws a map plot through `plot_scene.py`, starting from what the XML allows; see [Plots](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types).
-- An `.mp4` output is a video at `--fps` with `--sound`; a `RELIGION_` asset with `--mod` gives its founding scene with its sound. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#videos-with-sound).
-- Not the game's particles, effects or exact lighting; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#nif-models) for how it was built and its limits.
-
-```bash
-python LLM_Helpers/nif_preview.py Assets/Art/AdvCiv_SAS/Improvements/Peat_Works/nif/camp_fx.nif peat_works.png
-```
-
-### `movie_frames.py`
-
-- Turns a movie (Bink `.bik`, or anything ffmpeg reads) into a sheet of evenly spaced frames, and with `--audio` its sound into a waveform picture with mean and peak loudness, since agents can see images but not watch or hear; needs ffmpeg and Pillow.
-- A `.gif` output loops the movie or an excerpt selected with `--start` and `--duration`. Set `--fps` and `--width` to control the preview size and smoothness.
-- With `--audio-only`, takes an audio file such as an MP3 or WAV and writes its waveform to the output path.
-- An `.mp4` output converts the movie with its sound, playable in VLC, browsers and Windows' own player; write it outside the repository.
-- See the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) for the Natya Shastra example.
-
-```bash
-python LLM_Helpers/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/movie/Meenakshi.bik natya.png --audio natya_audio.png
-```
-
-## AdvCiv manual text conversion helper
-
-### `convert_advciv_manual_to_txt.py`
-
-- Converts the tracked base AdvCiv [`manual.odt`](/_0_Legacy/Docs/AdvCiv/manual.odt) into [`manual.txt`](/_0_Legacy/Docs/AdvCiv/manual.txt) for grep, VS Code/global search, LLM ingestion, and other plain-text review.
-- Uses only Python 3's standard library: ODT is a ZIP container and the helper reads its `content.xml` directly. Pandoc, LibreOffice, `odt2txt`, and other external converters are not required.
-- Visual fidelity is deliberately not the goal. The helper preserves normal paragraphs/headings, list headers and bullets/nesting, explicit spaces/tabs/line breaks, and simple/nested tables in a compact searchable representation.
-- Refuses to overwrite `manual.txt` if extraction is suspiciously tiny, to reduce the risk of committing a broken conversion.
-- Defaults to the repository's base-manual paths, so the normal refresh command from the mod root is:
-
-```bash
-python ./LLM_Helpers/convert_advciv_manual_to_txt.py
-```
-
-- After running it, review the generated text and Git diff before committing:
-
-```bash
-git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
-```
-
-- When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
-- The automated [generated_docs.py](/.github/workflows/build/documentation/generated_docs.py) check validates this conversion through its reusable `TEXT_CONVERSIONS` registry.
-  - Future source-to-text conversions can register their own source, output and converter there; the AdvCiv manual is currently the only entry.
-  - Related `manual.pdf` edits also require a paired text refresh in the complete PR/push range.
-- Added with help of ChatGPT-5.6-Sol.
-
-## Codex and ChatGPT transcript helper
-
-[openai_chat_export_to_txt.py](/LLM_Helpers/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex progress updates, and omits raw tool logs and attachments. Use Python 3.
-
-Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message boundaries. Run `rg -n "^=== " chat.txt` to find them with line numbers. The Claude helper uses the same format with `=== CLAUDE ===`.
-
-- **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory.
-- **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
-  - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a reported missing oldest page.
-  - The desktop tool can return a partial chat even when it reports no older page. In the Marsh example it returned 10 messages while the share snapshot contained 34.
-  - Verified on the development machine: Codex exported all three sources to TXT (ChatGPT through the desktop chat tools, Codex and Claude Code from local session files).
-  - Claude Code confirmed its current setup has neither desktop chat tool, so it cannot fetch the latest private ChatGPT chat directly. It can convert pages already saved as JSON or read the TXT Codex writes.
-  - For a handoff, ask Codex to export the chat and give Claude the resulting file path.
-  - The TXT starts with the first speaker marker. Report the title, message count, or export limits separately.
-
-```bash
-python ./LLM_Helpers/openai_chat_export_to_txt.py codex rollout.jsonl --output codex-chat.txt
-python ./LLM_Helpers/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
-```
-
-The ChatGPT CLI mode converts pages already retrieved through the app. By default, the converter writes `<source>-<input-stem>.txt` under `Downloads/AdvCiv-SAS_LLM/llm_chat_exports/`.
-
-Both helpers read the folder from [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py). Set `LLM_CHAT_EXPORT_DIR` to change the shared default or pass `--output` for one export. Use a dated filename to keep another snapshot of the same chat. Both helpers refuse to overwrite an existing file.
-
-### Export from a ChatGPT share link
-
-Use the share link when the desktop chat tool returns only a slice or when Claude Code needs to export the chat itself. The share link must already exist. The helper opens it in a fresh headless Chrome session using Playwright and saves rendered message text without images or attachments.
-
-Install Playwright once in the Python environment you will use. This mode also requires Google Chrome. The local file modes continue to use only Python's standard library.
-
-```bash
-python -m pip install playwright
-python ./LLM_Helpers/openai_chat_export_to_txt.py share "https://chatgpt.com/share/<share-id>"
-```
-
-The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to the shared folder. It collects each listed turn in page order, scrolling as needed, and fails before writing if a listed turn cannot be read. Claude Code can run the same command without the Codex desktop chat tools.
-
-## Claude Code session transcript helper
-
-### `claude_session_export_to_txt.py`
-
-- Converts a Claude Code session into a readable `.txt` chat transcript, for example to hand a review discussion to Codex or ChatGPT.
-- Accepts either input, both raw JSONL logs rather than a readable chat:
-  - The local session log `<session-id>.jsonl`, which any agent can read. With no argument, the helper exports this repository's most recently modified log, usually the current session; [chat_export_paths.py](/LLM_Helpers/chat_export_paths.py) holds where Claude Code keeps it, honoring `CLAUDE_CONFIG_DIR`.
-  - A desktop session export `session-export-<id>.zip`, written to Downloads when Claude is asked to export the session.
-  - Codex could not produce an export ZIP, which only the desktop app writes; the local log holds the same records, so pass it directly instead.
-  - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
-- Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
-  - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
-- Marks each message with a `=== USER ===` or `=== CLAUDE ===` separator, the same format as the [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper). Run `rg -n "^=== " chat.txt` to list message boundaries with line numbers.
-- Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
-
-```bash
-python ./LLM_Helpers/claude_session_export_to_txt.py
-python ./LLM_Helpers/claude_session_export_to_txt.py "C:/Users/PC/Downloads/session-export-1793625034771.zip"
-```
-
-- The transcript ends where the log was read; convert again for later messages.
-
-## Local development diagnostics toggle
-
-### `toggle_dev_diagnostics.py`
-
-- Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
-  - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
-  - `off` writes the shipped values, giving a committable XML; `status` prints the current values without writing.
-- Edits only those values in place and preserves the file's CRLF line endings.
-- Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
-
-```bash
-python ./LLM_Helpers/toggle_dev_diagnostics.py on
-```
-
-```bash
-python ./LLM_Helpers/toggle_dev_diagnostics.py off
-```
-
-- Added with help of Claude code Opus 5.5.
-
-## Source packaging and generated-history helpers
-
-### `make_light_source_zip.py`
-
-#### General
+##### General
 
 - Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
 - Includes the current working copy of `Assets/CvGameCoreDLL.dll.build.json` as shipped-build context; local configuration build folders and DLL binaries remain excluded. A locally replaced report may describe an uncommitted test build, so compare its DLL hash against the omitted-DLL context before treating it as shipped evidence.
@@ -1622,6 +1770,7 @@ python ./LLM_Helpers/toggle_dev_diagnostics.py off
 - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
 - Our local Codex agents currently use Python 2.4 installed on our Windows machine, while external web ChatGPT currently runs in a Linux environment without that installation. A separately supplied Linux package lets it check Civ4 source too; other compatible external tools can use it as well.
   - The shared [`python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) repository builds and publishes it centrally, so each mod does not maintain another runtime copy.
+  - [`light_source_python24_linux.py`](/LLM_Helpers/packaging/light_source_python24_linux.py), imported by the packager, reads that manifest and writes the ZIP note; it has no command of its own.
   - ZIP creation checks only the small published manifest and places the download URL, version, platform, byte size, SHA256 and usage instructions in `_SNAPSHOT_CONTEXT/python24_runtime.txt`. No separate reminder file is generated.
   - No binary is downloaded, cached, copied or bundled. Download it manually when needed, keep it somewhere available to the recipient, and tell the agent where to find it, for example in a Library file.
   - The console and archived `archive_contents_and_context.txt` report first/unchanged/new package status against the last successful local manifest check. This cannot establish whether the recipient's copy is current.
@@ -1643,27 +1792,27 @@ python ./LLM_Helpers/toggle_dev_diagnostics.py off
 
 Tools like here WizTree helped find which folders/files are heavy to exclude.
 
-#### Example of creating a light source ZIP in Downloads folder (light_source ZIP) (Git Bash)
+##### Example of creating a light source ZIP in Downloads folder (light_source ZIP) (Git Bash)
 
 ```bash
-cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS" && python ./LLM_Helpers/packaging/make_light_source_zip.py --output-dir "C:\Users\PC\Downloads"
 ```
 
 Same handoff while first refreshing locally known base AdvCiv release refs:
 
 ```bash
-python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\Users\PC\Downloads"
+python ./LLM_Helpers/packaging/make_light_source_zip.py --fetch-upstream --output-dir "C:\Users\PC\Downloads"
 ```
 
-Use `--no-linux-python24` when no external-runtime reminder is wanted. Otherwise read `_SNAPSHOT_CONTEXT/python24_runtime.txt` inside the generated ZIP and supply the matching package separately when needed. See [platform limits and checking instructions](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding).
+Use `--no-linux-python24` when no external-runtime reminder is wanted. Otherwise read `_SNAPSHOT_CONTEXT/python24_runtime.txt` inside the generated ZIP and supply the matching package separately when needed. See [platform limits and checking instructions](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding).
 
-#### Example of output (light_source ZIP) (Git Bash)
+##### Example of output (light_source ZIP) (Git Bash)
 
 The inline example below illustrates a cached run. The separate [packaging_refresh_example.txt](/_1_AdvCiv-SAS/Docs/examples/light_source/packaging_refresh_example.txt) preserves the user's manually copied Git Bash capture, including cached-run output followed by a slower full history refresh.
 
 The user copied it manually because automatic text reports did not exist then. The desktop identifier is anonymized as `DESKTOP-REDACTED`; shell wrapping and incomplete copied fragments are otherwise retained as supplied; this is historical example output, not a generated receipt for the current ZIP.
 
-##### Cached-run example
+###### Cached-run example
 
 This later run reused all 6,691 historical patches and took about 18 seconds, illustrating the shorter cached path rather than the full-refresh cost below.
 
@@ -1700,7 +1849,7 @@ Branch changed: Assets/CvGameCoreDLL.dll
 Branch changed: Assets/CvGameCoreDLL.dll.build.json
 Branch changed: Assets/XML/GlobalDefines_advciv_sas.xml
 Branch changed: LLM_Helpers/README.md
-Branch changed: LLM_Helpers/make_light_source_zip.py
+Branch changed: LLM_Helpers/packaging/make_light_source_zip.py
 Default file copies: 5 text files in _SNAPSHOT_CONTEXT/default_branch_files/ (725936 bytes)
 Default file copies manifest: _SNAPSHOT_CONTEXT/default_branch_files_manifest.txt
 Uncommitted HEAD file copies: 5 files for 6 affected paths in _SNAPSHOT_CONTEXT/head_files/ (725936 bytes)
@@ -1712,13 +1861,13 @@ Omitted DLL Assets/CvGameCoreDLL.dll: HEAD -> WORKING BYTE-DIFFERENT; sizeDeltaB
 Staged files: 3 (diff: _SNAPSHOT_CONTEXT/staged_changes_no_eol.diff; names listed below)
   Staged: .github/workflows/tests/repository/test_commit_diff_filtering.py
   Staged: LLM_Helpers/README.md
-  Staged: LLM_Helpers/make_light_source_zip.py
+  Staged: LLM_Helpers/packaging/make_light_source_zip.py
 Unstaged tracked files: 5 (diff: _SNAPSHOT_CONTEXT/unstaged_changes_no_eol.diff; names listed below)
   Unstaged tracked: Assets/CvGameCoreDLL.dll
   Unstaged tracked: Assets/CvGameCoreDLL.dll.build.json
   Unstaged tracked: Assets/XML/GlobalDefines_advciv_sas.xml
   Unstaged tracked: LLM_Helpers/README.md
-  Unstaged tracked: LLM_Helpers/make_light_source_zip.py
+  Unstaged tracked: LLM_Helpers/packaging/make_light_source_zip.py
 A partially staged file counts in both lists; untracked files are excluded (selected untracked paths are in git_repository_state.txt).
 Runtime process check: 2026-10-27T15:08:44.145Z
 Civ4BeyondSword.exe running: no
@@ -1766,7 +1915,7 @@ Finished:  2026-10-27T15:08:55.772Z
 Packaging exit status: 0
 ```
 
-##### Full-refresh example
+###### Full-refresh example
 
 The following slower-run excerpts come from the user's manually copied Git Bash capture on 2026-10-27, preserved in [packaging_refresh_example.txt](/_1_AdvCiv-SAS/Docs/examples/light_source/packaging_refresh_example.txt). These are selected, noncontiguous blocks.
 
@@ -1797,7 +1946,7 @@ The example took about 5 minutes 20 seconds, mostly preparing historical context
 
 The [later cached run](#cached-run-example) took 18.355 seconds once the new-policy cache existed. These are observed examples, not a promise that every rebuild takes five minutes or every cached archive takes 15-20 seconds; source content, hardware and local conditions affect the timings.
 
-#### Notes (light_source ZIP)
+##### Notes (light_source ZIP)
 
 - Light-source ZIP creation is usually quick because historical commit patches are cached.
   - The console announces history preparation, the observed cache namespace and the first missing reusable patch, then reports processed/cache-hit/mirror-hit/regenerated counts roughly every 10 seconds during patch processing.
@@ -1809,7 +1958,7 @@ The [later cached run](#cached-run-example) took 18.355 seconds once the new-pol
   - Progress is reported between commits, so a single slow patch can exceed the reporting interval.
 - During development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference (staged e.g. with the help of VS Code's UI thanks) since a light-source ZIP, for example during an intermediate implementation/review step, saving on upload costs/time.
 
-### `refresh_commit_diffs.py`
+#### `refresh_commit_diffs.py`
 
 - Refreshes the canonical Git-ignored local generated context under `LLM_Helpers/context/commit_diffs/` from current committed Git ancestry without creating a light-source ZIP, so people, Codex and other agents can invoke it independently.
 - Reuses `make_light_source_zip.py` directly rather than maintaining a second history parser/filter: segmentation, practical counts, privacy redaction, patch-size limits, `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and commit reuse policy therefore stay identical.
@@ -1823,81 +1972,9 @@ The [later cached run](#cached-run-example) took 18.355 seconds once the new-pol
 From the repository root:
 
 ```bash
-python LLM_Helpers/refresh_commit_diffs.py
-python LLM_Helpers/refresh_commit_diffs.py --dry-run
+python LLM_Helpers/packaging/refresh_commit_diffs.py
+python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 ```
-
-### `svn_history_to_diffs.py`
-
-Exports a Subversion repository's history as one greppable diff per revision, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt`, in the spirit of `commit_diffs/`. It is written for any repository, so nothing in it is specific to Better BTS AI.
-
-- Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
-- It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
-- How it talks to the server:
-  - The log is a WebDAV `REPORT` request sent to the repository root. It returns each revision's author, date, message, changed paths and copy origins.
-  - Each file version is a plain `GET` of `<root>!svn/bc/<revision>/<path>`, and the script compares the versions itself with `difflib`.
-- Pitfalls found while building it:
-  - A `REPORT` with no revision range returned only the latest revision from SourceForge, so the script reads the latest revision first and then requests the full span.
-  - A file edited inside a folder copied in that same revision does not exist at its new path one revision earlier, so its diff is taken against the copy source.
-  - A CRLF conversion would look like a whole-file rewrite, so line endings are normalized and such a file reports `No text change`.
-- Each revision file records its source, author, date, coverage, full message and changed paths, including `(from <path>@<revision>)` copy origins.
-  - Coverage is `full`, `partial` (some text was left out) or `summary-only`.
-  - Binary files are listed without contents and do not lower coverage. Paths matching `--summarize` and files over the limits do, as they are real text left out. The default limits match `commit_diffs/`.
-  - Check what a run omitted before trusting the limits: with the defaults, Better BTS AI's r379 left out seven core files such as `CvPlayer.cpp` and `CvPlayerAI.cpp`, in the revision that first shows AI Auto Play. Raising the limits added about 10 MB and restored them.
-  - Email-shaped addresses are redacted.
-- Interrupted runs resume: existing revision files are kept, failures are listed and the indexes are only written once every revision succeeded. `--force` re-renders existing files.
-  - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
-- To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
-- Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
-- Verified on 2026-11-09 by Claude Code and independently rerun by Codex (GPT-6.1-Sol): replaying 1,175 stored patches reproduced all 198 DLL source files in the Better BTS AI r597 reference tree line for line.
-  - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
-
-The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
-
-```bash
-python -u LLM_Helpers/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
-```
-
-### `svn_history_verify.py`
-
-Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a real checkout: it rebuilds each file from nothing by replaying its stored patches in order, then compares the result line by line. Run this manually when validating an export against its reference tree. CI does not run this replay on each commit.
-
-- It follows copy origins back through `PATH_HISTORY_INDEX.txt`, including files that were born inside a copied folder.
-- A patch that does not apply, or a rebuilt file that differs, is a failure. Files with omitted or binary history are reported as not rebuildable rather than counted as matches.
-- Give `--repo-path` without a leading slash: Git Bash rewrites `/trunk/...` into a Windows path, which would silently match no files.
-
-```bash
-python LLM_Helpers/svn_history_verify.py --out LLM_Helpers/context/svn_history/bbai --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
-```
-
-### `history_lineage_tables.py`
-
-Generates the tables of the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#history-lineage) section from Git, `commit_diffs/` and the SVN export: projects, authors, products named in commit titles and model credits. The hand-written base-game table is left alone.
-
-- Caution: the model tables are only a general indication of each model's contribution, and the real picture may be quite different.
-  - Credits can be reworded, moved or omitted, which can bring retired models back. A mention can also merely refer to a model.
-  - Names are inconsistent, with typos, `Claude AI` versus `Claude code`, `Thinking` used on and off, and `?` where a model was unsure. See the [caution in the guide](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#model-credit-timeline).
-- Without options it prints the tables; `--write` replaces them in the guide. Prose stays untouched, so update the as-of date there if the corpus moved.
-- Run [`refresh_commit_diffs.py`](#refresh_commit_diffspy) first, as the counts come from that corpus.
-- `Last new credit` is the last commit that added more lines ending in a credit than it removed, so a comment moved or reworded within one commit does not count as new.
-  - Only the last-named model of a credit counts, because credits are appended, and test fixtures are skipped. Before this, the 2026-10-10 reflow commit made GPT-5.3-Codex look active months after its last real work (April 2026).
-
-```bash
-python LLM_Helpers/history_lineage_tables.py --write
-```
-
-## Workflow rule for timeline tuning
-
-- Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
-- Do not rely only on focused slices (`--focus-start-pct/--focus-end-pct`) when evaluating a candidate.
-- After each local tweak, re-check the full 5% table to catch late drift and endpoint issues early.
-- After each accepted candidate edit, generate a fresh human-readable review file with:
-
-```powershell
-python LLM_Helpers\compare_speed_summaries.py --speed <speed>
-```
-
-Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review artifact for discussion.
 
 ## General notes for future LLM helpers
 

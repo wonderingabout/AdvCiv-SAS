@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 import git_context
 
 # <!-- custom: Add the repository-local helper folder before importing the prose transformer. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "formatting"))
 import reflow_markdown_prose as prose
 
 ROOT = Path(__file__).resolve().parents[4]

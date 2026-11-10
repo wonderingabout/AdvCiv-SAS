@@ -158,7 +158,7 @@ jobs:
 
       - name: Military unit obsolescence continuity
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: python LLM_Helpers/audit_unit_obsolescence_continuity.py --check --review-summary-only
+        run: python LLM_Helpers/balance/military_tree_continuity.py --check --review-summary-only
 
       - name: Religion tech buttons
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

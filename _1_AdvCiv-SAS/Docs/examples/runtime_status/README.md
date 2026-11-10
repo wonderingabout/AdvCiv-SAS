@@ -1,6 +1,6 @@
 # Runtime history example
 
-This folder retains a complete history from an earlier real Civ4 run. Complete current-status and exit JSON examples are inline in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history).
+This folder retains a complete history from an earlier real Civ4 run. Complete current-status and exit JSON examples are inline in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#runtime-status-and-history).
 
 ## Menu
 

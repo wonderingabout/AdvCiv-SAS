@@ -2575,7 +2575,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
 ===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
 ----- Comment #150 -----
 
-See also /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
+See also /_1_AdvCiv-SAS/Docs/Modding_Resources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
 
 See also as of now the mod's root /README.md for related info. -->
 

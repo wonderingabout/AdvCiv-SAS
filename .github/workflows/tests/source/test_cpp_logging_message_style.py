@@ -4,7 +4,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "audits"))
 # <!-- custom: Import the repo-local logging audit after adding its helper directory, Ruff recognizes this sys.path setup without an import-order suppression. (GPT-6.1-Sol) -->
 import audit_cpp_logging_pregates as audit
 

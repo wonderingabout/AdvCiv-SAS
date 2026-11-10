@@ -15,8 +15,10 @@ import tempfile
 from typing import Callable
 
 ROOT = Path(__file__).resolve().parents[4]
-# <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / "LLM_Helpers"))
+# <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization.
+# The helpers moved into LLM_Helpers folders named by job as well, so add the two folders these imports come from. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+sys.path.insert(0, str(ROOT / "LLM_Helpers" / "balance"))
+sys.path.insert(0, str(ROOT / "LLM_Helpers" / "code_history"))
 import compare_handicap_infos as handicap
 import convert_advciv_manual_to_txt as manual
 
@@ -37,7 +39,7 @@ class TextConversion:
 # Related source artifacts also require a paired text refresh; the AdvCiv manual is currently the only registered conversion.
 # Future conversions use the same checks without manual-specific branches. (GPT-6.1-Sol) -->
 TEXT_CONVERSIONS = (
-    TextConversion(MANUAL / "manual.odt", MANUAL / "manual.txt", manual.convert, "python LLM_Helpers/convert_advciv_manual_to_txt.py", (MANUAL / "manual.pdf",)),
+    TextConversion(MANUAL / "manual.odt", MANUAL / "manual.txt", manual.convert, "python LLM_Helpers/code_history/convert_advciv_manual_to_txt.py", (MANUAL / "manual.pdf",)),
 )
 
 def stable_report(text):

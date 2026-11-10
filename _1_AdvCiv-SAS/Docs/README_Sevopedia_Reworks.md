@@ -283,7 +283,7 @@ Note 2 : similarly to how the handicap chart does, in the game speed chart you a
 
 Since then, we notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`, with the very nice help of GPT-5.3-Codex and claude code Opus 4.6.
 
-Also added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning. See also [/LLM_Helpers/](/LLM_Helpers/).
+Also added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/balance/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/balance/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning. See also [/LLM_Helpers/](/LLM_Helpers/).
 
 <img src="../Images/sevopedia/1.626_sevopedia_game_speeds_chart (1).JPG" alt="1.626_sevopedia_game_speeds_chart (1).JPG" width="250"></img>
 <img src="../Images/sevopedia/1.626_sevopedia_game_speeds_chart (2).JPG" alt="1.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
@@ -415,7 +415,7 @@ This section focuses on the higher level changes we did to Sevopedia, mostly abo
 
 ### example 1: leaders category (AI Personality and other changes)
 
-Note: emojis provided by chatgpt, and also based on [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia).
+Note: emojis provided by chatgpt, and also based on [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Resources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#insert-an-img-in-a-text-label-in-sevopedia).
 
 note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emojis.
 

@@ -117,7 +117,10 @@ def menu_errors(text, known_issues=False, document=None):
             continue
         offset, destination = parsed[0]
         fragment = unquote(urlsplit(destination).fragment)
+        # <!-- custom: A menu row pointing at another document looked like a section of this one: Modding_Resources/README.md listed its sibling guides there, and README.md listed three LICENSE.md headings under its own License section.
+        # A menu lists this document's headings only; links to other documents belong in a section's text. (Claude code Opus 5.5) -->
         if not is_self_link(destination, document):
+            errors.append(f"menu row links to another document ({destination}); list it in a section's text instead, so the menu shows only this document's headings")
             continue
         label_end = links.matching_bracket(line, offset, "[", "]")
         label = line[offset + 1:label_end]

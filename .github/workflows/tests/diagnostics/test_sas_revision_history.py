@@ -278,7 +278,7 @@ class RevisionHistoryTests(unittest.TestCase):
             git(repo, 'branch', 'main')
             for path, content in (
                 ('.gitattributes', '/examples/SASGameRecord_example.log export-ignore'),
-                ('LLM_Helpers/make_light_source_zip.py', 'IMAGE_SUBDIRS = ("Images/SASGameRecord_map_text",)\n# SASGameRecord output screenshots'),
+                ('LLM_Helpers/packaging/make_light_source_zip.py', 'IMAGE_SUBDIRS = ("Images/SASGameRecord_map_text",)\n# SASGameRecord output screenshots'),
                 ('.github/workflows/build/diagnostics/diagnostic_log_safety.py', '# SASGameRecord shared sink policy'),
                 ('tests/diagnostics/harness.cpp', '// SASGameRecord fixture'),
             ):
@@ -287,6 +287,29 @@ class RevisionHistoryTests(unittest.TestCase):
                 target.write_text(content, 'utf-8')
             commit_fixture(repo, 'packaging and general diagnostic checks')
             self.assertEqual(history.check_progression(repo, 'main'), [])
+
+    # <!-- custom: The 2026-11-10 LLM_Helpers move renamed SGR helpers; a move without edits must not ask for a bump, an edited move still must, and the packager stays excluded at its old path. (Claude code Opus 5.5) -->
+    def test_moved_helpers_and_old_packager_path(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            helper = repo / 'LLM_Helpers/expand_sasgamerecord_city_deltas.py'
+            helper.parent.mkdir(parents=True)
+            helper.write_text('# SASGameRecord city delta expander\nvalue = 1\n', 'utf-8')
+            packager = repo / 'LLM_Helpers/make_light_source_zip.py'
+            packager.write_text('IMAGE_SUBDIRS = ()\n', 'utf-8')
+            commit_fixture(repo, 'base')
+            git(repo, 'branch', 'main')
+            moved = repo / 'LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py'
+            moved.parent.mkdir(parents=True)
+            git(repo, 'mv', 'LLM_Helpers/expand_sasgamerecord_city_deltas.py', 'LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py')
+            packager.write_text('IMAGE_SUBDIRS = ("Images/SASGameRecord_map_text",)\n', 'utf-8')
+            commit_fixture(repo, 'move helper, edit packager at its old path')
+            self.assertEqual(history.check_progression(repo, 'main'), [])
+            moved.write_text(moved.read_text('utf-8') + 'value = 2\n', 'utf-8')
+            commit_fixture(repo, 'edit moved helper')
+            self.assertTrue(history.check_progression(repo, 'main'))
 
     # <!-- custom: Reproduce Runtime16's incidental comparison and ensure a real SGR bridge in the same domain-owned file still requires its own recorder increment. (GPT-6.1-Sol) -->
     def test_runtime_comment_reference_is_not_an_sgr_implementation(self):

@@ -1,7 +1,7 @@
 // AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 // (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-// <!-- custom: To validate or compare level-3 authoritative-RNG checkpoints, use /LLM_Helpers/compare_sasgamerecord_rng.py.
+// <!-- custom: To validate or compare level-3 authoritative-RNG checkpoints, use /LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py.
 // /_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt shows a maintained provenance-only divergence report. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 #include "CvGameCoreDLL.h"

@@ -125,7 +125,7 @@ class RuntimeRevisionTests(unittest.TestCase):
         self.write("tests/diagnostics/fixture.cpp", "SASRuntime test fixture\n")
         self.assertEqual(self.check_push(self.commit()), [])
         # <!-- custom: Local LLM_Helpers tooling naming SAS_RUNTIME_* defines, such as toggle_dev_diagnostics.py, is not a Runtime implementation change. (Claude code Opus 5.5) -->
-        self.write("LLM_Helpers/toggle_dev_diagnostics.py", "SAS_RUNTIME_STATUS_ON = 1\n")
+        self.write("LLM_Helpers/diagnostics/toggle_dev_diagnostics.py", "SAS_RUNTIME_STATUS_ON = 1\n")
         self.assertEqual(self.check_push(self.commit()), [])
 
     def test_checker_only_changes_keep_the_compiled_revision(self):

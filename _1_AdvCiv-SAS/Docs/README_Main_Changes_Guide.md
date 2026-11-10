@@ -220,7 +220,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - (Requires AdvCiv-SAS 6690+) Reports/logs record selected compiler/linker executable versions and available caller/IDE ancestry separately, so a VS2010-launched build using VC2003 is distinguishable from its IDE version. Missing caller/tool evidence is explicit.
   - Full compiler logs stay local and ordinary build outputs remain Git-ignored; see [DLL shipping checks](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ci) for committed Release DLL/JSON requirements.
   - Build reports are development tooling: Civ4 does not read them, so they add no gameplay changes or in-game cost. The separately embedded build provenance described under SASGameRecord remains available to enabled diagnostics.
-  - See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports) and its [real build-output example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#example-build-output).
+  - See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#persistent-build-reports) and its [real build-output example](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#example-build-output).
 - (Requires AdvCiv-SAS 6366+) **Lower-CPU Debug-opt compilation:**
   - Debug-opt previously used parallel `bin\jom build` (in [AdvCiv.vcxproj](/CvGameCoreDLL/Project/AdvCiv.vcxproj)), which sustained high CPU usage and audibly drove the CPU fan to full speed.
   - Recent Visual Studio logs measured parallel Debug-opt at `24.83` seconds versus `1` minute `46.22` seconds for sequential Release, only `81.39` seconds saved in a development iteration where an autoplay usually takes `10+` minutes.
@@ -230,7 +230,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 #### Helpers
 
-- **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix.
+- **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/balance/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix.
 
 #### Local tests
 
@@ -301,7 +301,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 - **Light source archive helper:**
   - (Requires AdvCiv-SAS 6638+) External agents such as web ChatGPT, currently using Linux without our locally installed Python 2.4, can use a separately supplied package to check Civ4 source; local Codex agents already use our Windows installation. A single note under the ZIP’s `_SNAPSHOT_CONTEXT` identifies the package and published updates, avoiding repeated runtime bytes in source uploads.
-    - The shared Python Docker repository maintains the runtime centrally; SAS checks its small manifest and leaves downloading/providing the package to the user. See [setup and platform limits](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding).
+    - The shared Python Docker repository maintains the runtime centrally; SAS checks its small manifest and leaves downloading/providing the package to the user. See [setup and platform limits](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding).
   - (Requires AdvCiv-SAS 6605+) Separate cumulative patches show committed branch work and the complete working snapshot, including staged/unstaged edits, against the same shared ancestor with the detected default branch. Both filter CRLF/LF and trailing-whitespace noise so reviewers can focus on meaningful changes.
   - added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped compressed AdvCiv-SAS source/data/docs archive under the mod root or a chosen output folder.
   - A small tracked Git file-tree manifest is also bundled so ZIP-only LLMs can see repository paths intentionally omitted from the archive.
@@ -404,10 +404,10 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines.
   - See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
 - **Python 2 bare-print cleanup:**
-  - converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup.
+  - converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/formatting/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup.
   - This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise (e.g., on VS Code) so real issues are easier to see.
   - Also used **local ruff checks** to find and cautiously address likely fixable py linter issues that wouldn't break code changes.
-  - See [Modding_Ressources/README.md: How to check with ruff installed locally a folder](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report).
+  - See [Modding_Resources/README.md: How to check with ruff installed locally a folder](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report).
 - **Cleaned** several **old Python 2-style** BUG syntax patterns so modern Python 3 linters/parsers can inspect them while keeping Civ4 Python 2.4 compatibility.
   - These **distracted** modern Python linters such as ruff and **prevented them from finding errors**.
   - Removed these parser blockers, such as old comma-exception binding `except Exception, e:` (to the already existing `e = sys.exc_info()[1]` in [BugUtil.py](/Assets/Python/BUG/BugUtil.py) pattern) and the old compatibility fallback `True, False = 1, 0` (to an equivalent), which improves code quality.
@@ -455,12 +455,12 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Also added `findInfoTypeNumOrFail(...)` for older `CvUtil.findInfoTypeNum(...)` callsites that need getter/count function.
   - Note: now also double-checked by a GitHub workflow check which now blocks new raw static/literal Python info-type lookups unless they are explicitly listed as dynamic/guarded legacy exceptions.
 - **Static define-key audit:**
-  - added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML.
+  - added [`audit_define_keys.py`](/LLM_Helpers/audits/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML.
   - Catches **per-key drift** (renamed/removed XML entries) before runtime.
   - A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site.
   - See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
 - **Unused-text-key audit + cleanup:**
-  - added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives.
+  - added [`audit_unused_text_keys.py`](/LLM_Helpers/audits/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives.
   - Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml).
   - See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
 - **C++ signature cleanup:**
@@ -475,7 +475,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - **Build cleanup - disabled unneeded DLL test code in normal builds:**
   - compile-gated disabled reproducibility-test code (`ReproTest.cpp`) so normal DLL builds no longer compile it unless explicitly enabled for debugging.
   - This keeps dormant test/debug code out of normal builds, may slightly reduce DLL/build size, and does **not** change gameplay.
-  - Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/find_cpp_dead_code_candidates.py) LLM/manual-review helper.
+  - Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/audits/find_cpp_dead_code_candidates.py) LLM/manual-review helper.
 - **Civ4 GameText character check:**
   - added a GitHub workflow check for Unicode typography that creates visible artifacts in Civ4 text, such as the em dash (`U+2014`) formerly used in the Automobiles Civilopedia instead of a simple hyphen or other ASCII punctuation.
   - It also catches repeated question marks that indicate lost characters, while allowing readable accented letters and ignoring XML comments.
@@ -557,7 +557,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 #### Logging inventory
 
-[README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
+[README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md) covers log purposes, controls, historical/mod origins and matched Before/After samples of SAS changes. The [root README's logging inventory overview](/README.md#logging-inventory) introduces the covered files.
 
 #### Runtime status and history
 
@@ -583,7 +583,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
     - Live refresh occurs only when the ordinary game update loop regains control. A long uninterrupted callback can therefore outlast the configured threshold without a new file timestamp, so unchanged Runtime output still does not by itself prove a hang. Simultaneous-turn modes are identified but deliberately not represented as sequential player timing.
   - (Requires AdvCiv-SAS 6697+) Distinguishes time waiting at the end-turn message from the broader human turn, which can include thinking, popups and screens. Existing UI transitions provide readiness timing without scanning units every frame.
     - Accepted end-turn requests record remaining orderable units/groups and current mission, automation and waiting states. Applied Skip orders are counted separately from HOLD, which also has other causes; compact final counts accompany each measured player's turn timing.
-    - The engine control is recorded, but Enter and the end-turn button can share it, so physical input is not inferred. See the [Runtime history examples and interpretation](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasruntimehistory_jsonl-session-and-exit-history) for recorded context.
+    - The engine control is recorded, but Enter and the end-turn button can share it, so physical input is not inferred. See the [Runtime history examples and interpretation](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasruntimehistory_jsonl-session-and-exit-history) for recorded context.
   - Records the Civ4 process ID and actual process-creation UTC, DLL-load UTC, status-update serial/time, clean-running versus clean-exit state, current game state, and the reason for the latest status rewrite.
     - New/load attempts increment process-lifetime session/new/load counters at the start of generation/reading, record `sessionStartedUtc`, then record `nativeReadyUtc` when native initialization has completed (`GameStart` waits for its Python handlers too). A crash during loading/generation therefore leaves the attempted session visible rather than only the previous ready state.
     - Ready-game state includes current/last-completed turn, active-player ID, autoplay state/remaining turns, map dimensions/world-size/game-speed/scenario IDs, and loaded-save checkpoint turn/UTC when that SAS save metadata exists.
@@ -623,7 +623,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
       - [`SASRuntimeDialogObserver.cs`](/Assets/SASRuntimeDialogObserver.cs) listens outside the game through Windows events, without clicking; the per-run companion retains the latest dialog text, visibility and observation times.
       - Ordinary popups/assertions are excluded, and an observed dialog does not identify its cause or cover every possible crash.
     - (Requires AdvCiv-SAS 6702+) Runtime diagnostics also recognize the reviewed Civ4/Gamebryo video-memory allocation error, with a one-time memory snapshot and latest matching game context to help investigate failures.
-      - These observations do not identify the cause or cover every crash; see the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation) for controls, evidence and limits.
+      - These observations do not identify the cause or cover every crash; see the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation) for controls, evidence and limits.
     - `exitObserverProcessId` and `exitObserverLaunchError` disclose launch evidence. The separate `SASRuntimeExit_*.json`, linked by `exitObservationFilename`, confirms attachment and retains final evidence even if the game interrupted its current-status rewrite.
     - `exitObservation` retains the actual exit code/time and history-write result; the final game turn/activity remain the last in-process observations. Identity checks and file locking protect a newer game's snapshot.
   - Process state describes the last observed lifecycle boundary, not the action used to close Civ4. `RUNNING` is independent of autoplay; `EXITED_CLEANLY` currently records entry into orderly `CvGame` destruction, not proof that the process has finished exiting. Validate the live process using its PID and creation UTC.
@@ -645,7 +645,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Users and AI/LLM agents can read the output while Civ4 continues running, alongside BBAI and SASGameRecord.
   - Manual dialogs, Ignore Always and stopping autoplay are also configurable. Continuing past an assertion does not repair its cause, and Ignore Always suppresses later occurrences at that site.
   - Normal Release builds compile these checks out. In assertion-enabled builds, recording work happens only on failure; repeatedly failing checks can still produce substantial output.
-  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, coverage, writer details and varied captured examples.
+  - See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-assertion-diagnostics) for settings, coverage, writer details and varied captured examples.
 
 #### Python and engine diagnostic logs
 
@@ -677,7 +677,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - File-load rows identify `phase=BEGIN` or `phase=END`, the path and final outcome; other records identify setup stages and unknown XML types. The direct C++ Starting Position Iteration notice in `PythonDbg.log` also receives UTC and `record=STARTING_POSITION_ITERATION`, since it bypasses the Python stream formatter.
   - These changes cover DLL-controlled rows; EXE-owned writers retain their formats.
 
-See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
+See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
 
 #### Logging (Common)
 
@@ -689,7 +689,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
     - SASGameRecord was designed this way; BBAI rows were converted to it, and both logs share the same quoting and XML-type helpers, so a value reads the same in either log.
     - One CI check covers BBAI and SASGameRecord rows, so new rows keep this format.
     - Some Found-detail payloads still carry short prose after their `FOUND_SITE_<ID>` prefix, e.g. `Base city value: %d`; the `TrueStarts.cpp` debug output stays narrative.
-  - See the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#bbai) for exact Before/After examples.
+  - See the [logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#bbai) for exact Before/After examples.
 - (Requires AdvCiv-SAS 6641+) **Shared diagnostic-writer health:** SASGameRecord records one compact `GAME_RECORD_DIAGNOSTIC_WRITER` snapshot at completed-turn checkpoints and session finalization.
   - Reports current/peak pending text, the current blocked-file count, output failures/retries and dropped output, plus process-lifetime bytes successfully written for SASGameRecord and BBAI.
   - One health row per completed game turn helps locate when backlog, failures or loss first appear; there is no health row per BBAI message. A final snapshot is recorded at session finalization.
@@ -703,7 +703,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - Existing filenames and the user's `Logs` folder are retained. BUG supplies the resolved root when available; native fallback discovery remains available when no BUG root was supplied. File sharing permits external read/copy access during the run; failed appends retain pending bytes for a later checkpoint.
   - Startup rows wait until BUG supplies its log root; failed writes retain a bounded retry queue and are retried at checkpoints. Session boundaries close handles and release drained storage.
   - The Windows test verifies that final submitted rows survive abrupt process termination without checkpoints or cleanup. An unfinished write or pending retry queue can still be lost on a crash; power/system failure has no durability guarantee. A reader that catches a write in progress can retry an incomplete trailing row.
-  - [Local Debug-opt comparisons](/_1_AdvCiv-SAS/Docs/README_Logging_Flushing_Comparison.md) support the expected logging-performance benefit: two different SAS48 games with Found, Settler and all UWAI categories at maximum detail took roughly 40% less autoplay time while producing gigabytes of BBAI output.
+  - [Local Debug-opt comparisons](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md) support the expected logging-performance benefit: two different SAS48 games with Found, Settler and all UWAI categories at maximum detail took roughly 40% less autoplay time while producing gigabytes of BBAI output.
     - A Huge-map run with SASGameRecord alone differed by less than 1%, within possible run-to-run variation; the observed benefit is strongest under heavy logging, without establishing map size as the cause or measuring disabled-logging performance.
   - Note: this opens up the door to further future interactive change possibilities; for example, making changes and observing their effect live, possibly.
   - BBAI and SASGameRecord now use their shared DLL-owned writer, so Civ4's top-level `LoggingEnabled` switch is no longer a prerequisite for these two diagnostics; their own SAS logging gates control whether they emit. Other inherited Civ4/AdvCiv logs remain separate.
@@ -784,7 +784,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - Settler and Found each have independent `1ST` and `2PL` categories. Opening-specific and expansion-specific code use their own category; shared code follows the player's current city count (none: `1ST`, otherwise `2PL`), without player-history routing.
   - For example, `SAS_BBAI_SETTLER_1ST_LOG` records opening scouting; `SAS_BBAI_SETTLER_2PL_LOG` records city production/escort attachment and later-city movement, parking and regular founding.
   - Found uses the same split for first-capital-specific scoring, later-city-specific scoring, and shared evaluation/plot details/results. Map generation and normalization log under 1ST; Barbarian traces under 2PL.
-  - Each control retains levels 0-3. See the [logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#bbai) and [retired-name mappings](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) for controls and migrations. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
+  - Each control retains levels 0-3. See the [logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#bbai) and [retired-name mappings](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md) for controls and migrations. (ChatGPT-5.6-Sol + GPT-6.1-Sol)
 - **BBAI Settler log split:**
   - separated Settler diagnostics from UNIT so Settlers and other units can be inspected independently; the current controls are the independent `SAS_BBAI_SETTLER_1ST_LOG` and `SAS_BBAI_SETTLER_2PL_LOG`.
   - These notably cover city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; the separate FOUND family controls detailed city-site scoring calculations.
@@ -878,7 +878,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - `GAME_RECORD_GAME_RESULT` distinguishes result assignment from later OVER/EXTENDED engine state, while `GAME_RECORD_LOG_CLOSED` marks orderly in-process recorder rollover.
     - `LOG_CLOSED` intentionally carries lifecycle rather than gameplay-result fields so map-load fallback finalization cannot mix old-session evidence with already-replaced game state.
     - Missing `LOG_CLOSED` alone does not prove a crash; use Runtime's external process/failure evidence for that.
-  - `LLM_Helpers/summarize_sasgamerecord_volume.py` can rank an existing record's physical lines/bytes by row family, including raw ASCII-map body lines, without adding game-side counters.
+  - `LLM_Helpers/diagnostics/summarize_sasgamerecord_volume.py` can rank an existing record's physical lines/bytes by row family, including raw ASCII-map body lines, without adding game-side counters.
 - (Requires AdvCiv-SAS 6551+) **Consumer/reproducibility context is clearer without bloating every run:**
   - level-3 display context with the hardware-identity opt-in distinguishes multi-adapter/multi-vendor Windows systems so hybrid-GPU or driver/device-selection issues are easier to recognize, while structured text-map legend/layer rows repeat their turn for self-locating parser/grep slices.
   - The runtime log intentionally does not emit an exhaustive static manifest of every row type the build could produce; exact source/revision/settings identify the producer, while schema/parser guidance stays in source/docs/checkers.
@@ -1332,7 +1332,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.m
   - (Requires AdvCiv-SAS 6438+) These are rolling comparison fingerprints rather than a full per-call trace: one validated loaded-game run summarized 59,696,008 synchronized RNG calls into 502 checkpoint rows occupying about 608 KB (1.17% of its 51.8 MB level-3 record).
     - The first checkpoint with different state, call counts or stream fingerprint localizes where actual random consumption diverged; matching stream data with a different call-provenance fingerprint instead points to changed labels, data arguments or EXE-wrapper origin.
     - If the authoritative checkpoint states and fingerprints match while game state differs, investigate randomness or mutable state outside these two streams, such as Python or third-party code.
-    - `LLM_Helpers/compare_sasgamerecord_rng.py` validates these invariants and reports the first divergence between two `.log` or single-log `.zip` records automatically.
+    - `LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py` validates these invariants and reports the first divergence between two `.log` or single-log `.zip` records automatically.
 - (Requires AdvCiv-SAS 6391+) SASGameRecord notably also preserves the production lifecycle behind AI target switching instead of treating every build choice as an isolated snapshot: compact interval history distinguishes normal completion from actual target switches/clears/resumptions, records invested production parked and later resumed plus target-type transitions, and periodically summarizes every city's active and parked unit/building/Wonder/project production, including food-produced units, completion progress and accumulated inactivity.
   - Actual production loss remains separately identified through decay, maxed/invalidated production and failure/overflow accounting, while obsolete-unit production transfers record both transferred production and any pre-existing destination production preserved when the banks are accumulated.
   - Exact per-city target changes and parked inventories remain level-3 detail.
@@ -2058,7 +2058,7 @@ The aim is that, in many cases, they also benefit vassals (or at least do not cl
     - Focused replays preserve a stronger northeast Washington on turn 3 and let Korea discover a fully revealed Maize/Pig capital on turn 5; the aim is useful investigation rather than reproducing one prescribed site or route.
     - An existing growth-core scout can also investigate a concrete partly fogged alternative with substantially stronger known value per revealed plot, using the same sample and travel checks rather than making all scouting cheaper.
     - First-capital scouting also considers coverage expected from other explorers' queued moves and the extra time a detour would postpone founding at a credible known site; that delay price also applies to growth-core fallback sites and scales with their core quality. See [KI#144.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.5) for the comparisons and current validation limits.
-    - The external [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) helper makes repeated scouting movement and founding outcomes easier to compare across opening test logs.
+    - The external [`summarize_first_city_scouting.py`](/LLM_Helpers/README.md#summarize_first_city_scoutingpy) helper makes repeated scouting movement and founding outcomes easier to compare across opening test logs.
     - Scouting considers safe endpoints reachable in a full movement turn and weighs target-relevant fog against added travel delay. Other explorers' coverage and known sight advantages break ties rather than overriding a better site.
     - This addresses the southern USA example where two visible Food bonuses caused immediate commitment despite a poor surrounding core and a promising nearby frontier. See [KI#144.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-144.5).
   - (Requires AdvCiv-SAS 6708+) Partly revealed first-capital alternatives now use a bounded known-worked-plot forecast rather than treating their current total found value as complete.
@@ -2834,22 +2834,22 @@ Note: New panels added or modified mostly not mentioned here for concision. See 
   - (Requires AdvCiv-SAS 6202+) Also added first strike chances (e.g., `0 - 1` means 0 base (i.e. not granted by promotions or such) first strikes, one base first strike chance).
   - See [KI#323](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-323).
 - **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.).
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#handicap-chart) in `PythonDbg.log`.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#handicap-chart) in `PythonDbg.log`.
   - See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
 - **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**.
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#game-speed-chart) in `PythonDbg.log`.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#game-speed-chart) in `PythonDbg.log`.
   - In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed.
   - For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields.
   - Also added **analysis rows** (e.g., `Summary 08 (40%)` with `T200=+1400 (120)`; `Increments Years 02` with `750, 500, 250`; `Increments Months 02` with `9000, 6000, 3000`).
   - See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
 - **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**.
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-size-chart) in `PythonDbg.log`.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#world-size-chart) in `PythonDbg.log`.
   - See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
   - Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Cells Per Default Player*` (e.g. 158 for World Size Huge) and marked with `*` to help identify them.
   - WorldInfo width/height values are terrain cells rather than final playable plots, whose dimensions depend on the map script; the chart labels the derived quantities accordingly.
   - See [KI#305](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-305).
 - Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#era-chart) in `PythonDbg.log`.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#era-chart) in `PythonDbg.log`.
 - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**.
   - This allows to view without having to exit the screen.
   - Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu.
@@ -3029,7 +3029,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Note 2: optionally changed **default first tab opened at Civ4 launch** as of now to **Map tab** for easier immediate unit review.
   - Note 3: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
 - Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). Optional numeric **X/Y columns** (`SAS_MILIT_UI_BATTLE_XY_ON=1`) allow independent coordinate sorting; they default on, but can be disabled to preserve scarce width at 1080p. The Plot icon hover retains the coordinates. **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amount: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#military-advisor-battles), including perspective context and combat columns.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#military-advisor-battles), including perspective context and combat columns.
 - Added a new **Summary tab** in the Military Advisor, showing a **synthetic view** of our Military:
   - **Support** (detailed Cost and Supply, and Unit Cap numerical breakdown (e.g., `P x R x M    (1 x 100 x 82) / 10000 = 0 gold icon char`), (Requires AdvCiv-SAS 6586+) **data-driven Military Buildings** (up to five XML-effect-selected rows, including up to two national buildings; civ-specific replacements use their actual localized names, icons, and effects), Military Production (some not shown for concision as panel is mostly full) and XP information, and Allied Hammers for total hammer value of allies' (e.g., vassals, same team) army)
   - **Army** (detailed numerical overview for military/civilian units, Domain repartition (Land/Sea/Air), Strongest, Costliest, Total/Avg Hammers as a power estimation of units, Power Rank (Known) (e.g., `9/11` (in fact `44/48` if debug mode is enabled for spoilers)), Top promotions, Covert Units (Invisible, Spies, Hidden Nationality), And upgradeable units costs (Min/Avg/Max/Total))
@@ -3054,7 +3054,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill).
   - The **environment tab** is now part of the World advisor (better thematic fit).
   - (Requires AdvCiv-SAS 6683+) The **Changes tab** presents saved **Changes history** for Advanced Start actions and WorldBuilder edits as a sortable table with turn/year, source, actor, action/target, location, separate numeric before/after values, and individually sortable Advanced Start points, gold and Cost columns.
-    - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-advisor-changes), including Advanced Start budgets and individual WorldBuilder edits.
+    - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#world-advisor-changes), including Advanced Start budgets and individual WorldBuilder edits.
     - Inspired by SAS's existing Battles tab and its save-persisted event history, including its table plot-jump approach. Battles uses `BugData` in [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py); this tab's WorldBuilder and Advanced Start records instead use `CvGame`'s native save stream.
     - Rows use the shared SAS text scaling, with wider source/action/target and coordinate columns. The default order is newest-first; a **Legend** link explains the columns and visibility rules, safe location rows include a plot-jump icon, and a **LOG** button exports the same currently visible rows to `PythonDbg.log`, following the advisor's existing diagnostic-export pattern.
     - (Requires AdvCiv-SAS 6684+) Action icons reuse WorldBuilder tool art with read-only hovers; XML targets show their current icons and native help, with Sevopedia redirects where available.
@@ -3076,7 +3076,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Also added other information (e.g., turn numbers in the Graph Tab).
   - **Removed** the **Improvements table** from the Statistics tab, because it was **inconsistent** with how Units and Buildings show all-time total **built**, Improvements would only show **current** possession (e.g., building a farm, replacing it with a cottage, then replacing it again with a farm would be Current 1 farm, not total built 2 farms), plus the World Advisor is a **better thematic fit**.
 - Additionally, added in the **Info Screen** a new **Timeline Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn.
-  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#info-screen-timeline) with chronological event text.
+  - [Captured LOG export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#info-screen-timeline) with chronological event text.
   - Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log.
   - Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance.
   - Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py).
@@ -3152,7 +3152,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - This flag is useful to know player civ, hover for player traits, and click to capital's city screen.
   - Default disabled (tunable) as it can be distracting and undesired.
 - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`).
-  - Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations.
+  - Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations.
   - City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices.
   - See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai).
   - *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`.
@@ -3230,7 +3230,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Change in the new [Highlands.py](/PrivateMaps/Highlands.py).
   - Grid size **computed dynamically beyond Huge**.
   - See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py).
-  - See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+  - See also: [Modding resources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#mapscripts).
 - Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [PerfectMongoose.py](/PrivateMaps/PerfectMongoose.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py), [Terra.py](/PrivateMaps/Terra.py).
 - Added shared Mapscript-related world-size helpers.
   - Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file.

@@ -27,6 +27,10 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Folder indexes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/folder_indexes.py
+
       - name: Markdown images
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/markdown_images.py

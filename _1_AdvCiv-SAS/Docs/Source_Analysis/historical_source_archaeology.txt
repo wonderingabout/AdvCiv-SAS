@@ -13,7 +13,7 @@ For an ordinary clone/Codex/IDE session, use the tracked greppable mirror:
   LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
   LLM_Helpers/context/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
 
-For a light-source handoff, `LLM_Helpers/context/commit_diffs/` is generated fresh from that snapshot's current Git ancestry at the same canonical path used locally by Codex/code agents and inside the light-source ZIP. Current source and Git remain authoritative; normal full-history ZIP creation refreshes the Git-ignored local generated copy after a successful archive, and `python LLM_Helpers/refresh_commit_diffs.py` refreshes it independently.
+For a light-source handoff, `LLM_Helpers/context/commit_diffs/` is generated fresh from that snapshot's current Git ancestry at the same canonical path used locally by Codex/code agents and inside the light-source ZIP. Current source and Git remain authoritative; normal full-history ZIP creation refreshes the Git-ignored local generated copy after a successful archive, and `python LLM_Helpers/packaging/refresh_commit_diffs.py` refreshes it independently.
 
 This progress file and the permanent commit-rewrite map are kept in Git for future clone/LLM archaeology and export-ignored from player/release archives. The reproducible `commit_diffs/` corpus itself is Git-ignored local generated context and is excluded from its own historical patches to prevent recursive history-of-history growth.
 

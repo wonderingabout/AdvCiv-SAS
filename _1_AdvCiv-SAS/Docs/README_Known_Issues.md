@@ -1838,7 +1838,7 @@ did similarly for the `<ArtRef Name="building:BUILDING_HARBOR">` and `<ArtRef Na
 
 ## KI#15 - (now fixed) Missing this technology "Cannot be traded" (bTrade) information in Sevopedia tech and tech advisor
 
-Fixed missing this technology "Cannot be traded" information in Sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advsior too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
+Fixed missing this technology "Cannot be traded" information in Sevopedia tech "Special Abilities" (placeSpecial in py code) and in tech/technology advsior too, see also [UI (Ingame)](/README.md#ui-ingame) for details and [Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for a lot more details.
 
 See also [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes) for details or additional info.
 
@@ -2409,9 +2409,9 @@ This seems to fix the issue (see screenshots for details, as we specifically now
 
 ## KI#28 - (now fixed) Wallpaper of our mod's custom being stretched vertically while some of the top of the wallpaper is not shown at all, at 1920 x 1080 game resolution
 
-See [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image).
+See [How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image).
 
-See also: [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)
+See also: [How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)
 
 <a id="ki-29"></a>
 
@@ -3455,7 +3455,7 @@ Build started 20/10/2026 18:49:32.
          M  CvGameCoreDLL/CvXMLLoadUtility.h
          M  CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
          M  CvGameCoreDLL/StartingPositionIteration.cpp
-         M  _1_AdvCiv-SAS/Docs/README_Logging_Inventory.md
+         M  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md
          Command: nmake source_list /NOLOGO
          Building source list
          Command: nmake fastdep /NOLOGO
@@ -3513,7 +3513,7 @@ Time Elapsed 00:02:02.51
 
 The practical debugging rule is therefore narrower than "replace fastdep" or "all inline include comments are dangerous": when `fastdep` itself access-violates before `cl.exe`, isolate the failing translation unit and exact source layout first.
 
-See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#dependency-scanner-access-violations) for the concise operational reminder.
+See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#dependency-scanner-access-violations) for the concise operational reminder.
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
 
@@ -3830,7 +3830,7 @@ Update: see also related known issue as of nowwith extra very nice improvement(s
 
 Note: see also [README_Known_Issues.md#ki-35](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)
 
-See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+See also: [Modding resources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#mapscripts).
 
 This is a major change as well.
 
@@ -7510,7 +7510,7 @@ I have also noticed the issue more recently as can be seen in existing screensho
 
 Hopefully this is a good start point to implement a better fix, as we are in this map weaker and would have much needed the extra camel cuirassier, and at turn 201 as a result still no produciton as well so we can hopefully fix all that maybe.
 
-(Note: about this fast screenshot trick i just discovered xd and somehow got the idea to do/try, i added it in [Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video) for future reference as well if needed)) (Note 2: the deer not being improved is before i fixed the bug of forest not being chopped on camp bonuses like deer elephants and such, now properly chops and improves there)
+(Note: about this fast screenshot trick i just discovered xd and somehow got the idea to do/try, i added it in [Modding_Resources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video) for future reference as well if needed)) (Note 2: the deer not being improved is before i fixed the bug of forest not being chopped on camp bonuses like deer elephants and such, now properly chops and improves there)
 
 So to fix this, using various AIs but ultimately chatgpt 5, i have found the best way so far i could find so far, and that is seemingly very effective and reliable, is to add a unit fallback logic outside of and after `CvCity::doProduction`, in `CvCity::doTurn`.
 
@@ -8680,7 +8680,7 @@ I cannot reproduce it from same save file at least not in a few retries (even ex
 
 No idea what the cause is, but could be DLL related based on the .dmp (see screenshot) (although this is just a guess, check if accurate and i don't know too much about these).
 
-Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
+Btw, if useful, i have added info on how to enable .dmp files at crash here in [Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
 
 <a id="ki-58"></a>
 
@@ -8901,7 +8901,7 @@ This is an insane as in amazing improvement of AI capability to handle bad odds 
 
 This is from the save file i gave up on, from [the first map of advciv-sas i had attempted myself xd (cfc forum link xd)](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16862444); julius caesar ai came with a 22 stack which totally caught me offguard as i had only 11 stack defenders at turn +/- 125 which i thought was good but not enough, and since other ais were strong i gave up there, but if i wanted to continue, the correct and best move was to give up the city and focus on myself in this case i mean and wait for better odds in this case too..
 
-But in autoplay 2 turns on a row in one go (see important note at [Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view) for details about why 2 and not 1 turn and why in one go too) before this, AI still stays in the city and dies (see existing screenshots between 202 and 211), evacuating only 2 swordsmen out of the 11 stack unit.
+But in autoplay 2 turns on a row in one go (see important note at [Modding_Resources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view) for details about why 2 and not 1 turn and why in one go too) before this, AI still stays in the city and dies (see existing screenshots between 202 and 211), evacuating only 2 swordsmen out of the 11 stack unit.
 
 I thought it's really a waste, and i remembered in base advciv vassals abandonning me and their cities which would then cause me to i die defending alone the city due to this, so evacuating code must have been there.
 
@@ -12770,7 +12770,7 @@ Release replay observations and pre-commit review with GPT-6.1-Sol, thanks.
 
 The Korea reversal was not isolated. A broader batch from `Logs(20261031-092047).zip` contained eight BBAI sessions, seven of them paired with SGR records.
 
-The offline `LLM_Helpers/audit_first_city_scouting.py` review found repeated A-B-A/revisit patterns in Korea and also in Germany, Holy Rome, Spain, England and one Maya trace. Washington remained a clean regression control in two repeated sessions, following `(53,10) -> (54,11)` and founding `(55,10)` on turn 3.
+The offline `LLM_Helpers/diagnostics/summarize_first_city_scouting.py` review found repeated A-B-A/revisit patterns in Korea and also in Germany, Holy Rome, Spain, England and one Maya trace. Washington remained a clean regression control in two repeated sessions, following `(53,10) -> (54,11)` and founding `(55,10)` on turn 3.
 
 Representative observed scout-origin traces included:
 
@@ -12951,7 +12951,7 @@ The final reviewed continuation draft was tested in Release. All 362 native inpu
 
 Washington in `SASGameRecord_20261031T131620Z_load1.log` still founds `(55,10)` on turn 3. Korea in `SASGameRecord_20261031T131634Z_load2.log` now founds `(51,25)` on turn 5, rather than immediately taking `(51,24)` or wandering until the old turn-8 return.
 
-The [captured audit example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt) retains both the earlier reversal failure and this later control-pair output.
+The [captured audit example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_summary_example.txt) retains both the earlier reversal failure and this later control-pair output.
 
 Korea did not follow a prescribed route toward the old western example. At turn 1, `(50,26)` had a stronger partial-site projection than `(49,25)`, so the existing chooser investigated north. Further reveals changed its preferred partial targets; from `(50,26)` on turn 4 it then chose the fully revealed `(51,25)` and founded there on turn 5.
 
@@ -28594,7 +28594,7 @@ Fixed with the help of ChatGPT-5.6-Sol; cache semantics, diagnostic values and f
 
 2026-11-07 follow-up: `UNIT_AUGMENTED_INFANTRY` now fills the ordinary-infantry availability gap identified above: it is available at Transhumanism without Aluminum or AI, and upgrades to Robotic Infantry when those requirements are met. The trainability rows above remain evidence from the earlier roster, not a description of the current unit set.
 
-[`audit_unit_obsolescence_continuity.py`](/LLM_Helpers/README.md#audit_unit_obsolescence_continuitypy) now fails CI if a playable civilization loses its last resource-free military unit in a land, sea or air domain. (ChatGPT-5.6-Sol + Claude code Opus 5.5)
+[`military_tree_continuity.py`](/LLM_Helpers/README.md#military_tree_continuitypy) now fails CI if a playable civilization loses its last resource-free military unit in a land, sea or air domain. (ChatGPT-5.6-Sol + Claude code Opus 5.5)
 
 <a id="ki-538"></a>
 
@@ -36428,7 +36428,7 @@ Found as F710/provisional KI#1031 during ChatGPT-5.6-Sol's C031-WIP679 post-prim
 
 On 2026-11-10, the user reported seeing audio errors in the in-game message box, most likely during AI Auto Play. The local `audio.log` contains repeated `FSharedSoundData::Load: Could not load file` errors for `cyrus_middle.mp3` and the Michael Collins diplomacy MP3 `kaazoom-cara-relaxing-celtic-irish-music-447794.mp3`.
 
-Music is usually audible for the user in ordinary play. A matched normal-play comparison has not been run, and the cause of these load errors remains open. [Engine audio log](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#audiolog)
+Music is usually audible for the user in ordinary play. A matched normal-play comparison has not been run, and the cause of these load errors remains open. [Engine audio log](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#audiolog)
 
 The older `audio - Copie (2).log` (file dated 2026-10-19) shows the same error sequence for other diplomacy tracks. It includes 701 file-load errors naming `wangkon_middle.mp3` and 3,814 naming `hannibal_late.mp3`. The older session's play mode is unknown.
 

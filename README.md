@@ -83,7 +83,7 @@ The completed archaeology records 130+ confirmed candidate bug/issue findings; t
 
 The C++ file audit album records hundreds of additional bug/issue findings across Civ4, its inherited mod lineage and AdvCiv-SAS; see the [source-analysis documentation](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md) for its scope, findings and status.
 
-AdvCiv-SAS also adds tools that let AI/LLM agents read Civ4's own file formats, so they can check and choose art without asking the user for screenshots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md), for example how it gave Peat Works its own art.
+AdvCiv-SAS also adds tools that let AI/LLM agents read Civ4's own file formats, so they can check and choose art without asking the user for screenshots; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md), for example how it gave Peat Works its own art.
 
 They are standalone Python 3 command-line scripts in [`LLM_Helpers/`](/LLM_Helpers/README.md#art-viewing-helpers): they read the files directly, without launching Civ4, NifSkope or any other program, and need only the Python packages numpy, PyFFI and Pillow, plus ffmpeg for movies and audio.
 
@@ -250,9 +250,6 @@ For license, reuse, distribution and possibly other terms, including project-spe
 [Credits](/README.md#credits)\
 [Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)\
 [License and reuse](/README.md#license-and-reuse)\
-&emsp;[RFC Dawn of Civilization and Leoreth-controlled project restrictions](/LICENSE.md#rfc-dawn-of-civilization-and-leoreth-controlled-project-restrictions)\
-&emsp;[Expressly permitted RFC Dawn of Civilization derivatives](/LICENSE.md#expressly-permitted-rfc-dawn-of-civilization-derivatives)\
-&emsp;[Requests, exceptions, and future terms](/LICENSE.md#requests-exceptions-and-future-terms)\
 [Authors](/README.md#authors)
 
 ## How to play?
@@ -275,9 +272,9 @@ Beyond the quick install guide above, AdvCiv-SAS comes with more than documentat
 - [UI screenshots](/_1_AdvCiv-SAS/Images/) of the advisors, Sevopedia and other screens
 - [examples](/_1_AdvCiv-SAS/Docs/examples/) of generated output, such as SASGameRecord logs, runtime status and build reports
 - analysis and comparisons, such as the [handicap comparison](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) against base AdvCiv 1.12, [SASGameRecord RNG comparisons](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/sasgamerecord_rng_compared.txt) and the LLM-assisted [source analysis](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md)
-- [Known Issues](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md) and the [Logging inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md)
+- [Known Issues](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md) and the [Logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md)
 - [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/README.md): Python API dumps per Sevopedia class, showing which getters the Civ4 Python objects expose
-- [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md): for example local Python 2.4 setup, the DLL Compilation Guide, the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) for viewing art and editing the game font, the Release Checklist and the [tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#tools-for-aillm-helpers), installed or worth suggesting
+- [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md): for example local Python 2.4 setup, the DLL Compilation Guide, the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) for viewing art and editing the game font, the Release Checklist and the [tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers), installed or worth suggesting
 - [LLM helpers](/LLM_Helpers/README.md): scripts written as tasks needed them and kept for reuse, such as the light-source ZIP maker or `gamefont_tga.py`, which let an agent view and rearrange game-font icons it cannot open as images
 
 Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
@@ -378,7 +375,7 @@ Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effecti
 
 Some columns are optional to adjust to preference or as the tab is quite loaded especially at low resolutions.
 
-Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
+Also added a **legend link** and **LOG Button**. One complete captured row from the larger export is `2026-10-26T04:38:18.857Z 10 | 18000 BC | Lost | 57 |  | 3 | 3.99 |  | 3.99 | 0 | 0 | Ancient Maceman | Wolf | 0 | 0 | 3 | 3.00 | 0.24 | 3.00 | 48 | 0 |  |  | TERRAIN_PLAINS |  | 56 | 28`; see the [captured Battles export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#military-advisor-battles). Implementation details are in the Main Changes Guide.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/1.515_military_advisor (4).JPG" alt="1.515_military_advisor (4).JPG" width="250"></img>
 
@@ -423,7 +420,7 @@ Inspired by SAS's existing Battles tab, it keeps an ordered action record across
 - Player IDs have civilization and leader buttons describing their current identities; city targets use the existing city icon. Separate optional (default ON as useful but as of now optional as space is tight) numeric X/Y columns sit beside the jump button on the right; location hovers show coordinates and a camera hint, also shared by Battles plot buttons and known Wonders city links.
 - Sort the table, jump to an available plot, or use **LOG** to export the permitted rows to `PythonDbg.log`. A **Legend** link explains the columns and visibility rules; ordinary play filters hidden details, while debug mode shows the complete history.
 
-Complete captured rows from the larger LOG export include `2026-10-25T19:33:28.633Z 0 | 0 | -50000 | ADVANCED_START | P0 | Add City | City #8192 | 33,45 | - | - | 400 | 250 | 0 | 0 | 150 | 0` (Advanced Start) and `2026-10-25T19:33:28.635Z 51 | 0 | -50000 | WORLD_BUILDER | P0 | Set Level | Level #8192 | 29,42 | 1 | 2 | - | - | - | - | - | 0` (WorldBuilder); see the [captured Changes export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-advisor-changes) for full columns and raw steps.
+Complete captured rows from the larger LOG export include `2026-10-25T19:33:28.633Z 0 | 0 | -50000 | ADVANCED_START | P0 | Add City | City #8192 | 33,45 | - | - | 400 | 250 | 0 | 0 | 150 | 0` (Advanced Start) and `2026-10-25T19:33:28.635Z 51 | 0 | -50000 | WORLD_BUILDER | P0 | Set Level | Level #8192 | 29,42 | 1 | 2 | - | - | - | - | - | 0` (WorldBuilder); see the [captured Changes export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#world-advisor-changes) for full columns and raw steps.
 
 The advisor is implemented in [CvWorldAdvisorScreen.py](/Assets/Python/Screens/CvWorldAdvisorScreen.py), backed by save-owned records in [CvGame.cpp](/CvGameCoreDLL/CvGame.cpp). See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md) for coverage and the [SGR revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for recorder changes.
 
@@ -447,7 +444,7 @@ A full DLL caching + compute was tried but load times were noticeably slower tha
 <img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/1.518_info_screen (7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>
 
-One complete captured row from the larger LOG export is `2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started`; see the [captured Timeline export](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#info-screen-timeline) for more examples.
+One complete captured row from the larger LOG export is `2026-10-26T04:38:33.780Z - 50000 BC: AI Auto Play started`; see the [captured Timeline export](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#info-screen-timeline) for more examples.
 
 <img src="./_1_AdvCiv-SAS/Images/advisors/1.5180_info_screen_timeline_dbg_log.PNG" alt="1.5180_info_screen_timeline_dbg_log.PNG" width="250"></img>
 
@@ -703,12 +700,12 @@ We notably also added in game speeds chart extra analysis rows like `Summary 08 
 
 Each comparison chart has a **LOG** button to export its table to `PythonDbg.log`. One complete captured row from each larger export:
 
-- [Era chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#era-chart): `2026-10-26T04:38:51.878Z ?,Advanced Start Points,400,1600,2400,3600,5500,7500,9500`.
-- [Handicap chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#handicap-chart): `2026-10-26T04:38:54.199Z ?,iAIGrowthPercent,120,115,110,105,100,95,90,85,80,75,70`.
-- [Game Speed chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#game-speed-chart): `2026-10-26T04:38:56.424Z ?,Golden Age ,40,60,80,100,125,200,300,400`.
-- [World Size chart](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#world-size-chart): `2026-10-26T04:38:58.437Z ?,Default Players,2,2,3,5,8,11,16,24,32,40,48`.
+- [Era chart](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#era-chart): `2026-10-26T04:38:51.878Z ?,Advanced Start Points,400,1600,2400,3600,5500,7500,9500`.
+- [Handicap chart](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#handicap-chart): `2026-10-26T04:38:54.199Z ?,iAIGrowthPercent,120,115,110,105,100,95,90,85,80,75,70`.
+- [Game Speed chart](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#game-speed-chart): `2026-10-26T04:38:56.424Z ?,Golden Age ,40,60,80,100,125,200,300,400`.
+- [World Size chart](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#world-size-chart): `2026-10-26T04:38:58.437Z ?,Default Players,2,2,3,5,8,11,16,24,32,40,48`.
 
-Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
+Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/balance/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/balance/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
 
 Charts overall also notably add fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Cells Per Default Player*` (e.g. 158 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
 
@@ -804,9 +801,17 @@ Added new concepts, as of now:
 
 ##### Info about Other mods
 
-The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, thanks to [@f1rpo](https://github.com/f1rpo)'s help too) category adds info about mods and such. See [README_Mods_History.md](/_1_AdvCiv-SAS/Docs/README_Mods_History.md). Exhaustive or not example screenshots below as well:
+The Sevopedia "Mods Info" category (reusing the old civ4 concepts category or similar) lists some main rule changes between Civ4 BtS, K-Mod, AdvCiv and AdvCiv-SAS, to help players transitioning from one of them.
+
+- [@f1rpo](https://github.com/f1rpo), main maintainer of base AdvCiv, gave very useful and detailed feedback so i could build this category myself where i was stuck; ChatGPT could not help in this case, so i especially appreciate it, thanks a lot.
+- It is not exhaustive: balance changes are left out, as the Sevopedia entries already show current values. It lists rules instead, such as AdvCiv's trade routes, which need the other city revealed (by a unit or a map trade) even when the cities are connected by road or sea.
+- For the full K-Mod to AdvCiv changes, see base AdvCiv's [manual.txt](/_0_Legacy/Docs/AdvCiv/manual.txt) for searching, or the formatted [manual.pdf](/_0_Legacy/Docs/AdvCiv/manual.pdf).
+
+Example screenshot:
 
 <img src="./_1_AdvCiv-SAS/Images/sevopedia/1.805_sevopedia_k-mod_to_advciv.JPG" alt="1.805_sevopedia_k-mod_to_advciv.JPG" width="250"></img>
+
+See also the [History lineage](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#history-lineage), for developers: how the source code itself descends from Civ4 through Better BTS AI, K-Mod and AdvCiv, with authors and dates.
 
 ##### Legends
 
@@ -843,7 +848,7 @@ See also:
 
 - [README_Main_Changes_Guide.md#technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)
 - [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)
-- [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor).
+- [Modding_Resources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor).
 
 ## Tech Tree
 
@@ -1237,7 +1242,7 @@ Note: this section is for modders; players may read it out of curiosity, but not
 
 For modders, a separate local Python 2.4 installation lets you check changes in `Assets/Python` and `PrivateMaps` before testing in-game.
 
-See [Modding Resources: local Python 2.4 setup and checks](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding) for the installer, command and a real syntax-error example.
+See [Modding Resources: local Python 2.4 setup and checks](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) for the installer, command and a real syntax-error example.
 
 Note 2: As of now, GitHub also automatically runs our Python 2.4 compile check when relevant commits are pushed or pull requests updated.
 
@@ -1257,15 +1262,15 @@ Building through the Visual C++ 2010 Express project keeps the usual `AdvCiv.log
 - These external development files have no in-game effect or runtime cost; local test installation still needs only the DLL.
 
 - See:
-  - [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#persistent-build-reports).
-  - [Complete build-output and JSON examples](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#example-build-output).
+  - [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#persistent-build-reports).
+  - [Complete build-output and JSON examples](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#example-build-output).
   - [Main Changes Guide tooling overview](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#tooling).
 
 ### Helpers
 
 External development tools for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/), mostly Python scripts. Local test programs have their own [tests folder](/tests/README.md).
 
-For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+For example, [`compare_handicap_infos.py`](/LLM_Helpers/balance/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
 
 #### LLM chat transcripts
 
@@ -1273,7 +1278,7 @@ For handing a discussion to another agent, convert Codex, ChatGPT, or Claude Cod
 
 ### Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)
 
-AI/LLM agents can see PNG and JPG images, but none of Civ4's own formats. These helpers turn them into pictures an agent can look at, so it can check art, models and movies itself; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md) explains each one, with commands, limits and how they were built.
+AI/LLM agents can see PNG and JPG images, but none of Civ4's own formats. These helpers turn them into pictures an agent can look at, so it can check art, models and movies itself; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) explains each one, with commands, limits and how they were built.
 
 These tools were built with Claude code Opus 5.5 and Codex (GPT-6.1-Sol), taking turns; thanks to both!
 
@@ -1303,20 +1308,20 @@ For example, [a listing of SAS's own `BML.fpk`](/_1_AdvCiv-SAS/Docs/examples/fpk
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_scene_vs_game_daoism.PNG" alt="llm_nif_scene_vs_game_daoism.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_natya_shastra.PNG" alt="llm_movie_frames_natya_shastra.PNG" width="250">
 
-The helper also reads the original Civ IV Great Library wonder movie and Conquest victory movie. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) shows how to generate these frame sheets and audio waveforms from your installation.
+The helper also reads the original Civ IV Great Library wonder movie and Conquest victory movie. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies) shows how to generate these frame sheets and audio waveforms from your installation.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_great_library.PNG" alt="llm_movie_frames_great_library.PNG" width="400">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_movie_frames_conquest.PNG" alt="llm_movie_frames_conquest.PNG" width="400">
 
 `nif_preview.py` also lists `.kfm` animation events and samples supported `.kf` tracks. Peat Works exposes the campfire visibility switch. The frame sheets show the Llama Kamayuq running, the Houfnice crew moving during a ranged strike, and the original Civ IV Catapult releasing its rock.
 
-The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) has the commands and rendering limits.
+The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies) has the commands and rendering limits.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_llama_run.PNG" alt="llm_kf_frames_llama_run.PNG" width="400">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_houfnice_strike.PNG" alt="llm_kf_frames_houfnice_strike.PNG" width="400">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_kf_frames_catapult_strike.PNG" alt="llm_kf_frames_catapult_strike.PNG" width="400">
 
-`nif_preview.py --leader-background` also renders a leaderhead over the backdrop from its art definition. Grace O’Malley uses her lakeside scene, while the original Civ IV Gandhi uses his `NoShaderNIF` over the Taj Mahal. Both portraits show the models in their rest poses. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) has both commands.
+`nif_preview.py --leader-background` also renders a leaderhead over the backdrop from its art definition. Grace O’Malley uses her lakeside scene, while the original Civ IV Gandhi uses his `NoShaderNIF` over the Taj Mahal. Both portraits show the models in their rest poses. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies) has both commands.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_grace.png" alt="llm_nif_leaderhead_grace.png" width="230">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_nif_leaderhead_gandhi.png" alt="llm_nif_leaderhead_gandhi.png" width="230">
@@ -1351,7 +1356,7 @@ The Daoism and Christianity founding scenes follow their embedded `.nif` cameras
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_daoism.gif" alt="llm_animation_daoism.gif" width="240">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_christianity.gif" alt="llm_animation_christianity.gif" width="240">
 
-The Fish, Whale, and Pig bonuses move inside the original Civilopedia water and grass scenes. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#animated-bonuses) shows their commands and a Pig still, along with [Gandhi’s greeting and refusal](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies).
+The Fish, Whale, and Pig bonuses move inside the original Civilopedia water and grass scenes. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#animated-bonuses) shows their commands and a Pig still, along with [Gandhi’s greeting and refusal](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies).
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_fish.gif" alt="llm_animation_fish.gif" width="200">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_whale.gif" alt="llm_animation_whale.gif" width="200">
@@ -1361,7 +1366,7 @@ The Bomber uses the Civilopedia sky scene. Its one-second idle clip repeats whil
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_bomber.gif" alt="llm_animation_bomber.gif" width="280">
 
-The Natya Shastra, Great Library, and Conquest victory loops are silent excerpts from `.bik` movies. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#scenes-and-movies) shows how to select and render an excerpt.
+The Natya Shastra, Great Library, and Conquest victory loops are silent excerpts from `.bik` movies. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#scenes-and-movies) shows how to select and render an excerpt.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_natya_shastra.gif" alt="llm_animation_natya_shastra.gif" width="240">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_great_library.gif" alt="llm_animation_great_library.gif" width="240">
@@ -1380,13 +1385,13 @@ History Rewritten's Alexander comes from its own loose art; Realism Invictus's A
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_hr_alexander_greeting.gif" alt="llm_mod_hr_alexander_greeting.gif" width="180">
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_mod_ri_apache_raiders_idle.gif" alt="llm_mod_ri_apache_raiders_idle.gif" width="180">
 
-[`art_gallery.py`](/LLM_Helpers/README.md#art_gallerypy) renders a mod's leaders or units in bulk onto labelled grid sheets, here the first 20 of CIV Gold's 287 leaders in about 9 seconds. A survey of 59 installed mods found layouts such as art borrowed from another mod's folder, flat `.dds` leaders and broken XML, which the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#other-mods-art) lists with the commands.
+[`art_gallery.py`](/LLM_Helpers/README.md#art_gallerypy) renders a mod's leaders or units in bulk onto labelled grid sheets, here the first 20 of CIV Gold's 287 leaders in about 9 seconds. A survey of 59 installed mods found layouts such as art borrowed from another mod's folder, flat `.dds` leaders and broken XML, which the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art) lists with the commands.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_civgold_leaders.png" alt="llm_gallery_civgold_leaders.png" width="400">
 
 **Plots**: `nif_preview.py` can also draw a map plot of any terrain, feature and plot type, from the game's own textures and models, with a unit, bonus or improvement standing on the one its XML allows first or on any other chosen.
 
-Here SAS's Marsh, Forest, Flood Plains, Hill and Peak, the Deer on its snowy Tundra forest, and the Llama Kamayuq on desert hills. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#plots-terrain-features-and-plot-types) lists what is approximated.
+Here SAS's Marsh, Forest, Flood Plains, Hill and Peak, the Deer on its snowy Tundra forest, and the Llama Kamayuq on desert hills. The [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#plots-terrain-features-and-plot-types) lists what is approximated.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_plot_previews.png" alt="llm_plot_previews.png" width="600">
 
@@ -1396,7 +1401,7 @@ Here SAS's Marsh, Forest, Flood Plains, Hill and Peak, the Deer on its snowy Tun
 
 **Glowing and animated features**: Fallout's light swells and fades over 8 seconds, so `--glow` sets a still's brightness from 0 to 100% and a GIF plays the model's own loop, fitted to a burst of in-game screenshots; the Oasis's water slides over 10 seconds the same way.
 
-Other mods' animated features are found in their models the same way, with no list of names. See [How a plot is drawn](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#how-a-plot-is-drawn).
+Other mods' animated features are found in their models the same way, with no list of names. See [How a plot is drawn](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#how-a-plot-is-drawn).
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_fallout.gif" alt="llm_animation_fallout.gif" width="280"> <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_oasis.gif" alt="llm_animation_oasis.gif" width="280">
 
@@ -1404,11 +1409,11 @@ Other mods' animated features are found in their models the same way, with no li
 
 **Comparing mods**: [`art_search.py`](/LLM_Helpers/README.md#art_searchpy) searches every installed mod for terrains or features whose name matches a pattern and draws them side by side, each on a plot with its own mod's art and labelled with the mod.
 
-Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cosmos's swamp, mangrove and peat bog to Sengoku's marsh and Realism Invictus's swamp; when SAS designed its Marsh, that comparison was done by hand from screenshots. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#searching-mods).
+Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cosmos's swamp, mangrove and peat bog to Sengoku's marsh and Realism Invictus's swamp; when SAS designed its Marsh, that comparison was done by hand from screenshots. See [Searching mods](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#searching-mods).
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_search_marshes.png" alt="llm_search_marshes.png" width="600">
 
-**Buildings**: `nif_preview.py` also draws a building in its Sevopedia scene, on land or on the coast as its XML says, turning at the game's pace. See [Buildings](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#buildings).
+**Buildings**: `nif_preview.py` also draws a building in its Sevopedia scene, on land or on the coast as its XML says, turning at the game's pace. See [Buildings](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#buildings).
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_ziggurat.gif" alt="llm_animation_building_ziggurat.gif" width="280"> <img src="/_1_AdvCiv-SAS/Images/LLM/llm_animation_building_drydock.gif" alt="llm_animation_building_drydock.gif" width="280">
 
@@ -1424,7 +1429,7 @@ Searching for marshes, swamps and wetlands found 35 in 20 mods, from Caveman2Cos
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/llm_gallery_erebus_beasts.png" alt="llm_gallery_erebus_beasts.png" width="600">
 
-**Videos with sound**: Bink movies and religion-founding scenes can be written as `.mp4` with their sound, whole or as a slice in seconds or percent, to play in VLC or a browser; these copy Firaxis's movies, so they are kept out of the repository. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Art_Tools.md#videos-with-sound).
+**Videos with sound**: Bink movies and religion-founding scenes can be written as `.mp4` with their sound, whole or as a slice in seconds or percent, to play in VLC or a browser; these copy Firaxis's movies, so they are kept out of the repository. See [Videos with sound](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#videos-with-sound).
 
 [`regenerate_art_samples.py`](/LLM_Helpers/README.md#regenerate_art_samplespy) renders all of these samples again with the current renderer, so none falls behind its fixes, as Grace's still once kept eyes the skinning fix had corrected in her GIFs.
 
@@ -1552,7 +1557,7 @@ Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream 
 
 Local Codex agents currently use our Windows Python 2.4 installation; external web ChatGPT currently uses Linux without that installation.
 
-For compatible external agents, a separately provided Python 2.4 package enables the same Civ4 syntax checks; source handoffs include a package-information note under `_SNAPSHOT_CONTEXT`. See [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#python-24-compatibility-for-modding) for package delivery, reuse and platform details.
+For compatible external agents, a separately provided Python 2.4 package enables the same Civ4 syntax checks; source handoffs include a package-information note under `_SNAPSHOT_CONTEXT`. See [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) for package delivery, reuse and platform details.
 
 Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
 
@@ -1564,14 +1569,14 @@ Very large/generated/binary/redundant historical payloads are summarized instead
 
 ### Logging inventory
 
-The [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md) inventories Civ4 and mod logs, their purposes, controls and ownership, with matched Before/After samples of SAS changes and explicit startup/EXE limits.
+The [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md) inventories Civ4 and mod logs, their purposes, controls and ownership, with matched Before/After samples of SAS changes and explicit startup/EXE limits.
 
 It also explains files such as `PythonDbg.log` (prints/debug messages), `PythonErr.log` (tracebacks), `PythonErr2.log` (including module-loading output) and `xml.log` (XML loading/errors).
 
 Other examples covered there include:
 
 - `RandLog` and `MessageLog` INI controls, with RNG/message traces such as `MPLog.txt` and AdvCiv's per-player `MPLog<player>.log`.
-- [Screen LOG-button exports](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#screen-log-button-exports) from Battles, Changes, Timeline and the Era/Handicap/Game Speed/World Size charts into `PythonDbg.log`, with real examples.
+- [Screen LOG-button exports](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#screen-log-button-exports) from Battles, Changes, Timeline and the Era/Handicap/Game Speed/World Size charts into `PythonDbg.log`, with real examples.
 - `ASyncRand.log` for asynchronous RNG, and `OOSLog - <player> - Turn <turn>.log` for game-state comparisons after multiplayer desynchronization.
 - `StartingPos.log` for starting-position diagnostics and `IFP_log.txt` / `TSCProfile.log` for profiling.
 - BUG Autolog's configurable text/HTML gameplay journal, distinct from error/debug logs.
@@ -1618,7 +1623,7 @@ After GlobalDefines finish loading, `SAS_ASSERT_SILENT_ACTION=1` defaults to aut
 - The log is readable while Civ4 remains open: each row is appended through Windows file sharing and its handle closed. This is a separate writer from BBAI/SASGameRecord's persistent-handle machinery, with no forced physical disk flush.
 - Normal Release builds compile these runtime assertions out. In assertion-enabled builds, recording work occurs only on failure; frequently failing checks can generate substantial output. Assertions already suppressed by Ignore Always are not recorded again.
 
-See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sas-assertion-diagnostics) for coverage, controls, captured rows and writer details.
+See [README_Logging_Inventory.md (SAS assertion diagnostics)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sas-assertion-diagnostics) for coverage, controls, captured rows and writer details.
 
 Full [startup](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_startup_example.log) and [gameplay](/_1_AdvCiv-SAS/Docs/examples/assertions/SASAssertions_game_example.log) examples from the same process illustrate manual startup handling, automatic continuation and game-over evidence.
 
@@ -1763,7 +1768,7 @@ Brief header preview (selected fields from the October 9, 2026 capture):
 BBAI_SAVE_LOADED processUtc=20261009T160524Z utc=20261009T160535Z turn=0 activeCivilization=CIVILIZATION_INCA
 ```
 
-See the [full BBAI header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#bbai-session-header-example), or [README_Main_Changes_Guide.md (BBAI log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log).
+See the [full BBAI header and its context](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#bbai-session-header-example), or [README_Main_Changes_Guide.md (BBAI log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log).
 
 #### SASGameRecord log
 
@@ -1827,7 +1832,7 @@ The record includes the same canonical mod/source and exact loaded-DLL identity 
 
 It notably also fingerprints the actual `Civ4BeyondSword.exe` and can notably record privacy-tiered runtime/install context such as Windows build/update or Wine/Proton state, process/native architecture and coarse storefront identity.
 
-For example, batch opening reviews can use [`audit_first_city_scouting.py`](/LLM_Helpers/README.md#audit_first_city_scoutingpy) to flag repeated initial Settler scouting movement and compare founding outcomes; see the [captured USA/Korea example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_audit_example.txt).
+For example, batch opening reviews can use [`summarize_first_city_scouting.py`](/LLM_Helpers/README.md#summarize_first_city_scoutingpy) to flag repeated initial Settler scouting movement and compare founding outcomes; see the [captured USA/Korea example](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/first_city_scouting_summary_example.txt).
 
 For stronger LLM analysis, also provide the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) when possible: the log identifies the source state, while the compact ZIP supplies the corresponding source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM can actually inspect.
 
@@ -1849,7 +1854,7 @@ Brief header preview (selected fields from the same October 9, 2026 capture):
 GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261009T160524Z utc=20261009T160535Z turn=0 activeCivilization=CIVILIZATION_INCA
 ```
 
-See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#sasgamerecord-gameplay-example).
+See the [full SASGameRecord header and its context](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasgamerecord-session-header-example); the inventory also includes a [30-row gameplay excerpt](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasgamerecord-gameplay-example).
 
 <img src="/_1_AdvCiv-SAS/Images/diagnostics/1.290_SASGameRecord_log_vs_code.PNG" alt="1.290_SASGameRecord_log_vs_code.PNG" width="250"></img>
 
@@ -1871,7 +1876,7 @@ With lighter logging, the measured difference was small: a Huge-map, 251-turn SA
 
 The live-access tests also succeeded: BBAI and SASGameRecord were readable as they grew during stress autoplay, and completed output remained readable with Civ4 still open. These observations also succeeded with the old logger in the control runs.
 
-The [measurement report](/_1_AdvCiv-SAS/Docs/README_Logging_Flushing_Comparison.md) preserves exact timings, settings, output sizes and read/focus conditions, including successful live reads with the old logger and the second stress pair's focus mismatch.
+The [measurement report](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md) preserves exact timings, settings, output sizes and read/focus conditions, including successful live reads with the old logger and the second stress pair's focus mismatch.
 
 This opens up the door to further future interactive change possibilities; for example, making changes and observing their effect live, possibly.
 
@@ -1889,19 +1894,19 @@ The same companion can record a recognized Microsoft Visual C++ runtime-error or
 
 [`SASRuntimeSourceObserver.ps1`](/Assets/SASRuntimeSourceObserver.ps1) records mod-source/configuration disk-change bursts separately, with observed times, paths and final file fingerprints. It requires both runtime diagnostics and `SAS_RUNTIME_SOURCE_WATCH_ON=1`; source watching is off by default and does not make live edits safe. Windows filesystem notifications avoid repeated tree scans; enabled observation still adds an external process and event/hash work. The external observers use [`SASRuntimeObserverEnvironment.ps1`](/Assets/SASRuntimeObserverEnvironment.ps1) to record their actual host versions instead of relying on a fixed documentation table.
 
-Source-watcher output is `Logs/SASRuntimeSourceWatch_*.json` for health and `Logs/SASRuntimeSourceChanges_*.jsonl` for observed edits; see the [source-file samples](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#live-source-edit-observation).
+Source-watcher output is `Logs/SASRuntimeSourceWatch_*.json` for health and `Logs/SASRuntimeSourceChanges_*.jsonl` for observed edits; see the [source-file samples](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#live-source-edit-observation).
 
 Optional screenshot observation uses [`SASRuntimeScreenshotObserver.ps1`](/Assets/SASRuntimeScreenshotObserver.ps1) to record files appearing in Civ4's `ScreenShots` folder, with file metadata and available Runtime context.
 
 Its output is `Logs/SASRuntimeScreenshotWatch_*.json` for health and `Logs/SASRuntimeScreenshots_*.jsonl` for observed captures.
 
-It records observed files rather than assuming a screenshot keypress succeeded; see the [Logging Inventory's screenshot section](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#screenshot-file-observation) for controls and sample output.
+It records observed files rather than assuming a screenshot keypress succeeded; see the [Logging Inventory's screenshot section](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#screenshot-file-observation) for controls and sample output.
 
 **Startup note:** around the watcher's introduction, the user noticed a brief flicker/pause after the XML loading bar disappeared and before the main menu appeared. Watcher startup/C# compilation could contribute, but the cause was not established.
 
-With `SAS_RUNTIME_STATUS_ON=0`, the watcher does not start and its startup cost is absent; that does not rule out other causes of a pause. See the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history) for details.
+With `SAS_RUNTIME_STATUS_ON=0`, the watcher does not start and its startup cost is absent; that does not rule out other causes of a pause. See the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#runtime-status-and-history) for details.
 
-Complete status/exit JSON and a history excerpt are shown in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md#runtime-status-and-history); the [full runtime history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) retains a richer earlier run with additional game/load/autoplay transitions; the inventory also includes newer popup, WorldBuilder and crash-exit excerpts.
+Complete status/exit JSON and a history excerpt are shown in the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#runtime-status-and-history); the [full runtime history example](/_1_AdvCiv-SAS/Docs/examples/runtime_status/SASRuntimeHistory_example.jsonl) retains a richer earlier run with additional game/load/autoplay transitions; the inventory also includes newer popup, WorldBuilder and crash-exit excerpts.
 
 ## LLM-assisted source analysis
 
@@ -1917,7 +1922,7 @@ The light-source ZIP prompted the original patch export for external review. The
 
 Use `INDEX.txt` to find a commit's patch and `PATH_HISTORY_INDEX.txt` to narrow the search to revisions touching a file.
 
-Generate or refresh it from Git with `python LLM_Helpers/refresh_commit_diffs.py` whenever you need it locally. Git ignores the generated files because they can be regenerated from history and the corpus grows as commits are added. [Generation instructions](/LLM_Helpers/README.md#refresh_commit_diffspy)
+Generate or refresh it from Git with `python LLM_Helpers/packaging/refresh_commit_diffs.py` whenever you need it locally. Git ignores the generated files because they can be regenerated from history and the corpus grows as commits are added. [Generation instructions](/LLM_Helpers/README.md#refresh_commit_diffspy)
 
 ### Historical source archaeology
 
@@ -1937,7 +1942,7 @@ See the [README_Known_Issues.md](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md).
 
 Note: this also includes fixes/fixed issues as well for those of these we solved.
 
-Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md). If not there, there may be some extra info in [Modding_Ressources/README.md](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md) as well although it should be more technical and with some caveats there.
+Note 2: some issues are not listed in this known_issues_in_base_advciv, for such please see also the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md). If not there, there may be some extra info in [Modding_Resources/README.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md) as well although it should be more technical and with some caveats there.
 
 Note 3: some features added such fields that were previously missing in Sevopedia are technically also considered fixes i would say and sometimes mentioned in the documentation as such, for example in [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) or other documentation about "Cannot be traded" fields that are now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in Sevopedia leader py file), or getCityRefuseAttitudeThreshold newly added in advciv but not exposed in python.
 
@@ -1953,8 +1958,8 @@ I don't know too much about crashes or how to debug them, so there may be better
 
 Around [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), i started using `Debug-opt` builds instead of only `Release` ones.
 
-- A `Debug-opt` build writes its matching `.pdb` into its `temp_files` folder. Keeping that folder, instead of deleting it as i did for `Release` builds, let WinDbg show real crash traces from a crash dump; see [Retained Debug-opt crash symbols](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md#retained-debug-opt-crash-symbols).
-- To get a crash dump in the first place, see [how to enable .dmp files](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
+- A `Debug-opt` build writes its matching `.pdb` into its `temp_files` folder. Keeping that folder, instead of deleting it as i did for `Release` builds, let WinDbg show real crash traces from a crash dump; see [Retained Debug-opt crash symbols](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#retained-debug-opt-crash-symbols).
+- To get a crash dump in the first place, see [how to enable .dmp files](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
 
 Earlier crash fixes were made without such traces, so their real cause was never confirmed, and some had side effects.
 
@@ -2081,7 +2086,11 @@ See [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.m
 
 ## License and reuse
 
-See [License and reuse](/LICENSE.md#license-and-reuse).
+See [License and reuse](/LICENSE.md#license-and-reuse), notably:
+
+- [RFC Dawn of Civilization and Leoreth-controlled project restrictions](/LICENSE.md#rfc-dawn-of-civilization-and-leoreth-controlled-project-restrictions)
+- [Expressly permitted RFC Dawn of Civilization derivatives](/LICENSE.md#expressly-permitted-rfc-dawn-of-civilization-derivatives)
+- [Requests, exceptions, and future terms](/LICENSE.md#requests-exceptions-and-future-terms)
 
 ## Authors
 

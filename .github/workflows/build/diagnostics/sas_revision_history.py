@@ -41,9 +41,14 @@ DEDICATED_QUALIFYING = {
     "Assets/Python/SASGameRecordActions.py",
     ".github/workflows/build/diagnostics/sas_game_record_log.py",
     ".github/workflows/build/diagnostics/sas_revision_history.py",
+    # <!-- custom: Keep the flat paths these helpers had until 2026-11-10 beside their LLM_Helpers/diagnostics paths, so older commits are still judged by the path they used. (Claude code Opus 5.5) -->
     "LLM_Helpers/compare_sasgamerecord_rng.py",
     "LLM_Helpers/expand_sasgamerecord_city_deltas.py",
+    "LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py",
+    "LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py",
 }
+# <!-- custom: The packager moved from LLM_Helpers/ to LLM_Helpers/packaging/ on 2026-11-10; keep both so its exclusion still covers older commits. (Claude code Opus 5.5) -->
+PACKAGER_PATHS = {"LLM_Helpers/make_light_source_zip.py", "LLM_Helpers/packaging/make_light_source_zip.py"}
 IGNORED_SUFFIXES = {".md", ".txt", ".log", ".zip", ".png", ".jpg", ".jpeg", ".gif"}
 MARKER = re.compile(r"SASGameRecord|SAS_GAME_RECORD|SAS_SGR_|GAME_RECORD_")
 
@@ -131,9 +136,16 @@ def first_parent(repo, commit):
     return line[1] if len(line) > 1 else None
 
 
+# <!-- custom: Moving the LLM_Helpers helpers into folders by job renamed SGR helpers without changing what they do; a rename whose content is identical (R100) is no implementation change, so skip it and keep the new path of a rename that also edits the file. (Claude code Opus 5.5) -->
 def changed_paths(repo, parent, commit):
-    output = subprocess.check_output(["git", "diff", "--name-only", parent] + ([commit] if commit else []) + ["--"], cwd=repo).decode("utf-8", "replace")
-    return [line for line in output.splitlines() if line]
+    output = subprocess.check_output(["git", "diff", "--name-status", "--find-renames", parent] + ([commit] if commit else []) + ["--"], cwd=repo).decode("utf-8", "replace")
+    paths = []
+    for line in output.splitlines():
+        fields = line.split("\t")
+        if len(fields) < 2 or fields[0] == "R100":
+            continue
+        paths.append(fields[-1])
+    return paths
 
 
 def global_define_change_qualifies(repo, parent, commit):
@@ -175,7 +187,7 @@ def commit_has_qualifying_change(repo, parent, commit):
         # <!-- custom: The light-source packager selects files for external review; it does not implement the recorder.
         # Its screenshot-list/comment edit falsely requested SGR174 merely for mentioning SASGameRecord.
         # Exclude that known packaging entry point only: other helpers retain conservative marker detection, and recorder-specific helpers below still qualify without requiring a marker in the diff. (GPT-6.1-Sol) -->
-        if normalized == "LLM_Helpers/make_light_source_zip.py":
+        if normalized in PACKAGER_PATHS:
             continue
         if not normalized.startswith(("CvGameCoreDLL/", "Assets/", "PrivateMaps/", "LLM_Helpers/")):
             continue

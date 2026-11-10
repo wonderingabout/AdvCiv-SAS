@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "packaging"))
 # <!-- custom: Test the production report wrapper and CLI dispatch directly, preserving the existing archive implementation behind the wrapper. (GPT-6.1-Sol) -->
 import make_light_source_zip as light
 

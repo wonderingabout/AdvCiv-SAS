@@ -68,15 +68,17 @@ class MarkdownTests(unittest.TestCase):
         self.assertIn('Here you go:', refreshed)
         self.assertIn('[Guide](guide.md)', refreshed)
         self.assertTrue(refreshed.endswith('## A\nBody.\n### B\n'))
-        self.assertEqual(markdown.menu_errors(refreshed), [])
+        # <!-- custom: Refreshing still keeps a link to another document, but the check now reports it, since a menu lists this document's headings only. (Claude code Opus 5.5) -->
+        self.assertTrue(any("another document" in error for error in markdown.menu_errors(refreshed)))
         self.assertEqual(markdown.render_menu(refreshed), refreshed)
+        self.assertEqual(markdown.menu_errors('# D\n## Menu\n[A](#a)\n\n## A\nSee [Guide](guide.md).\n'), [])
 
     def test_other_document_fragment_does_not_satisfy_menu_coverage(self):
         text = '# D\n## Menu\n[A](other.md#a)\n\n## A\n'
         self.assertTrue(markdown.menu_errors(text, document='README.md'))
         refreshed = markdown.render_menu(text, document='README.md')
         self.assertIn('[A](other.md#a)', refreshed)
-        self.assertEqual(markdown.menu_errors(refreshed, document='README.md'), [])
+        self.assertTrue(any("another document" in error for error in markdown.menu_errors(refreshed, document='README.md')))
 
     def test_bold_code_comments_and_multiline(self):
         valid = '**good**\n\n`**code`\n\n<!-- **comment -->\n\n```python\n**code\n```\n\n**multi\nline**'

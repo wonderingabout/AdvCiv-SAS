@@ -75,7 +75,7 @@ After this, each qualifying SASGameRecord commit increments `SAS_SGR_REVISION` i
   - Matching `*_DELTA` rows inherit every omitted field from the immediately preceding observation of the same `(player, cityId)` and base family, apply only explicitly present changed fields, and expose `previousTurn`/`fullBaseTurn` so missing chains are detectable.
   - Every new/load log session and every tenth observation returns to a full row.
   - `GAME_RECORD_CITY_TRADE_PARTNERS` remains full.
-  - The reference `LLM_Helpers/expand_sasgamerecord_city_deltas.py` can restore these five families to ordinary full rows while validating the chain.
+  - The reference `LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py` can restore these five families to ordinary full rows while validating the chain.
 - **Detailed AI-intent coverage follows AdvCiv-SAS-supported gameplay rather than every inherited compatibility mode.**
   - War-plan causal provenance targets foreground UWAI.
   - `GAME_RECORD_WAR_AI_SETTINGS` still identifies inherited K-Mod/Legacy configurations and factual `WAR_PLAN_CHANGED` history remains available, but SASGameRecord does not promise equivalent deep causal provenance for intentionally unsupported Legacy war/peace planning.
@@ -113,10 +113,18 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 195 - SAS practical 6742
+### Revision 196 - SAS practical 6743
 
 - **Date:** 2026-11-10
 - **Git commit:** pending
+- **Change:** Move the SASGameRecord helpers out of the flat `LLM_Helpers/` folder into `LLM_Helpers/diagnostics/`, with the other helpers grouped by job; recorded rows are unchanged.
+  - `compare_sasgamerecord_rng.py` finds the repository by walking up to the `LLM_Helpers` folder instead of a fixed parent depth; `audit_first_city_scouting.py` became `summarize_first_city_scouting.py`.
+  - The revision check keeps the old helper and packager paths beside the new ones, and no longer counts a rename with unchanged content as a recorder change.
+
+### Revision 195 - SAS practical 6742
+
+- **Date:** 2026-11-10
+- **Git commit:** `bc6c154588c2662555f2e56e954e057db7a3bdb3`
 - **Change:** Record the soundtrack value returned by the game DLL so a game record can identify its background-music context without treating selection as confirmed playback.
   - In an open level-2+ record, `GAME_RECORD_SOUNDTRACK_SELECTION` records era selector returns with active player, current/previous era, selected/previous soundtrack IDs, the loaded XML audio-script name and whether the branch was the only track, first track of a new era, random non-repeat choice or no-alternative repeat.
   - The row is written after the existing choice. Random selections reuse that result and make no additional `ASyncRand` draw.
@@ -371,7 +379,7 @@ Only the listed collections use this convention; other compact fields retain the
     - Coordinates, owner/viewer, logical kind and hidden-at-observation state are recorded under the existing action-trace gate. Arbitrary caption text is withheld by default; `SAS_SGR_MAP_ANNOTATION_TEXT_ON=1` opts into quoted/escaped UTF-8 diagnostic text without changing save data or map visibility.
   - **Result/session clarity:** `GAME_RECORD_GAME_RESULT` records authoritative result assignment and later OVER/EXTENDED engine state, including autoplay paths that continue directly into extended play.
     - `GAME_RECORD_LOG_CLOSED` is emitted when an open recorder session is finalized by orderly uninitialization, game reset or map replacement. It is an in-process recorder boundary, not proof of clean Windows process exit; absence alone does not prove a crash, so correlate Runtime's external failure/process-exit evidence.
-  - **Volume analysis:** `LLM_Helpers/summarize_sasgamerecord_volume.py` reports physical lines and bytes by top-level row family from an existing record, including explicit `MAP_ASCII_BODY` classification. This adds no game-side counters or runtime overhead.
+  - **Volume analysis:** `LLM_Helpers/diagnostics/summarize_sasgamerecord_volume.py` reports physical lines and bytes by top-level row family from an existing record, including explicit `MAP_ASCII_BODY` classification. This adds no game-side counters or runtime overhead.
   - The revision-159 Claude Sonnet 5.5 review was rechecked against the current recorder: field-specific `-`/`-1` semantics, raw text-map body framing, typed companions for the highest-value packed collections and the deliberate lack of a per-run exhaustive static manifest are already documented/current behavior and are not duplicated here.
 
 ### Revision 175 - SAS practical 6690
@@ -633,7 +641,7 @@ Only the listed collections use this convention; other compact fields retain the
   - Shared retry storage is bounded across files; overflow is disclosed with `SAS_DIAGNOSTIC_DATA_LOSS` notices before later accepted rows, preserving the gap's chronological position even when another file exhausted the shared budget. Indexed filename history preserves first-open behavior without a per-row linear scan across repeated loads.
   - SAS logging gates control these logs independently of the INI's `LoggingEnabled`. Disabled logging skips row construction and file I/O; one-time root setup and empty lifecycle checks remain.
   - The VC2003 harness covers immediate visibility, handle reuse/release, failed/partial writes and abrupt process termination without cleanup.
-    - The [2026-10-18 Debug-opt comparisons](/_1_AdvCiv-SAS/Docs/README_Logging_Flushing_Comparison.md) support lower overhead under heavy logging: two different SAS48 games with Found, Settler and all UWAI categories at maximum detail took roughly 40% less autoplay time, with matching recorded state checkpoints.
+    - The [2026-10-18 Debug-opt comparisons](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md) support lower overhead under heavy logging: two different SAS48 games with Found, Settler and all UWAI categories at maximum detail took roughly 40% less autoplay time, with matching recorded state checkpoints.
     - A Huge-map run with SASGameRecord alone differed by less than 1%, within possible run-to-run variation; the detailed report retains the measurement conditions and limits.
     - Live reads succeeded while BBAI/SASGameRecord grew during stress autoplay and after completion with Civ4 still open; the old-logger controls also permitted these reads.
 
@@ -1067,7 +1075,7 @@ New/load log rolls clear every chain; a lifecycle generation guard prevents reus
 
 The level-3-only compressor runs after the ordinary city snapshot is already computed/formatted, so levels 0-2 add no city scan, AI query, pathfinding, or RNG work.
 
-`LLM_Helpers/expand_sasgamerecord_city_deltas.py` is the strict reference expander: it validates `previousTurn`/`fullBaseTurn`, fails closed on missing bases/links, copies unrelated rows byte-for-byte, and restores the five encoded families to ordinary full rows for older/simple consumers.
+`LLM_Helpers/diagnostics/expand_sasgamerecord_city_deltas.py` is the strict reference expander: it validates `previousTurn`/`fullBaseTurn`, fails closed on missing bases/links, copies unrelated rows byte-for-byte, and restores the five encoded families to ordinary full rows for older/simple consumers.
 
 Runtime validation used the actual revision-123 C++ output: 14,835 delta rows and 2,200 full city-detail checkpoints compressed a 59,726,600-byte expanded record to 53,805,598 bytes, saving 5,921,002 bytes (about 9.9% overall).
 

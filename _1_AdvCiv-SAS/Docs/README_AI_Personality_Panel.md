@@ -29,7 +29,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 
 ## Sources about XML AI Attributes and their meaning
 
-See [Modding_Ressources/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)
+See [Modding_Resources/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#sources-about-xml-ai-attributes-and-their-meaning)
 
 ## General Aim of the AI Attributes
 
@@ -141,7 +141,7 @@ Also, this should scale better computationally so it is cheaper (calculate the m
 
 Because of these and perhaps other related or other things or not, i believe this is a very very efficient design. Please look at Sevopedia leader's code for details and the tiny bits in this case in Sevopedia main as well for the time where we load the precomputed cache and the flag to not reload the cache.
 
-Note: technically should be in modding ressources but fits also here as well so duplicated this entry of the doc with a link there to this.
+Note: technically should be in modding resources but fits also here as well so duplicated this entry of the doc with a link there to this.
 
 Update: since then the computing the values logic from sevopedia leader to [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py) so it is tidier.
 

@@ -14,7 +14,7 @@ import sys
 import markdown_links as markdown
 
 ROOT = Path(__file__).resolve().parents[4]
-DOCUMENTS = ("README.md", "_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md")
+DOCUMENTS = ("README.md", "_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md")
 RUNTIME_NAME = re.compile(r"\b(SASRuntime[A-Za-z]+)(_[^\r\n]*?)?(\.jsonl?)\b")
 
 

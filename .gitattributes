@@ -77,7 +77,7 @@
 /CvGameCoreDLL/Project/temp_files     export-ignore
 /CvGameCoreDLL/Project/temp_files/**  export-ignore
 
-# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including legacy manuals/API docs/git logs and current Docs/changelogs_web, Modding_Ressources, and Docs/Sevopedia/Debug. -->
+# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including legacy manuals/API docs/git logs and current Docs/changelogs_web, Modding_Resources, and Docs/Sevopedia/Debug. -->
 /Assets/Res/Fonts/other_mods/                             export-ignore
 
 # <!-- custom: Include compact documentation examples such as runtime JSON/JSONL and build reports in player/GitHub Download ZIP archives.
