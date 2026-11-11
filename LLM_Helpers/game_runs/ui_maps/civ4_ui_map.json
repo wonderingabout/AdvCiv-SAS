@@ -1,0 +1,878 @@
+{
+  "copyright": "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy). (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md). JSON allows no comments, so this notice and the descriptions are fields.",
+  "about": "Civ4's screens, from the main menu to the screens and popups of a game, how to reach each one and where its controls are, explored on 2026-11-11 at 1920x1080 windowed (a 1926x1120 window). Each control has its window-relative xy, the screen it leads to (to) when clicked, and a short note; a screen's tests list keys or clicks tried and what they did, while the story behind them, quirks and failed tries are in README_Game_Runs.md; controls marked 'not clicked' have real effects, such as starting a game, switching mod, going online or closing Civ4, and were left alone. desktop_windows.py click --point SCREEN.CONTROL clicks one, such as single_player.load_game. Menu items sit at x 965 from y 575, 45 px apart. Each control sits on one line so the screens read like tables. These positions change with the resolution or the mod's UI code; re-check them with check_points.py after such a change.",
+  "window": [1926, 1120],
+  "shortcuts_about": "Every key from the Sevopedia's Shortcuts pages, read from Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml when this file is generated; \"chipotle\" entries need CheatCode = chipotle in CivilizationIV.ini, which the user's has. Keys reach Civ4 through desktop_windows.py key and type, whose events carry scan codes.",
+  "shortcuts": {
+    "map: Map": [
+      ["Alt + I", "Remove user interface"],
+      ["Ctrl + I", "Minimize user interface"],
+      ["Ctrl + B", "Toggle bare map on/off"],
+      ["Ctrl + R", "Toggle resource display (\"balloons\")"],
+      ["Alt + U", "Toggle unit display (\"balloons\")"],
+      ["Ctrl + T", "Toggle tile grid"],
+      ["Ctrl + Y", "Toggle yield display (yield icons)"],
+      ["Alt + S", "Toggle on/off write some text (\"Enter caption\") on a tile"]
+    ],
+    "advisors: Advisors": [
+      ["F1", "Domestic Advisor"],
+      ["Alt + F1", "Split Colonies"],
+      ["F2", "Policy Advisor"],
+      ["F3", "Foreign Diplomacy Advisor"],
+      ["F4", "Foreign Trade Advisor"],
+      ["F5", "Military Advisor"],
+      ["F6", "Technology Advisor"],
+      ["F7", "World Advisor"],
+      ["Ctrl + E", "Espionage Advisor"],
+      ["F8", "Info Screen"],
+      ["F9", "Victory Screen"],
+      ["F10", "Capital City"],
+      ["F11", "Globe View"],
+      ["F12", "Sevopedia"]
+    ],
+    "units: All Units": [
+      ["B", "Bombard"],
+      ["B", "Build City (Settler)"],
+      ["E", "Explore"],
+      ["F", "Fortify"],
+      ["G", "Go-to mode"],
+      ["H", "Heal"],
+      ["I", "Intercept"],
+      ["L", "Load (onto ship)"],
+      ["S", "Sentry (wake for enemy)"],
+      ["U", "Unload (from ship)"],
+      ["W", "Wait (cycle to next unit)"],
+      ["\\", "Cycle to previous unit"],
+      [", (comma)", "Cycle to previous unit (same tile)"],
+      [". (period)", "Cycle to next unit (same tile)"],
+      ["/", "Cycle through workers that need orders"],
+      ["Ctrl + C", "Select all units of same type as current selection"],
+      ["Ctrl + H", "Select all injured units"],
+      ["Alt + G", "Move (Go To mode) all units that can move"],
+      ["Alt + Click", "Group all units together"],
+      ["Ctrl + (#)", "Bind selected group or unit to number"],
+      ["Ctrl + Click", "Group same type together"],
+      ["Shift + Click", "Tile context menu (unless right-click menu enabled)"],
+      ["Shift + P", "Pillage"],
+      ["Ctrl + A", "All units with orders move"],
+      ["Space", "Skip turn; end turn if turn complete"],
+      ["NUM 0", "Skip turn"],
+      ["Delete", "Delete unit"],
+      ["NUM 5", "Center on unit or cycle to next (if already centered)"],
+      ["NUM arrows", "Use numpad to move units"]
+    ],
+    "units: Air Units": [
+      ["B", "Air bomb mode (cities/tiles)"],
+      ["R", "Recon mode"],
+      ["S", "Air strike mode (enemy units)"],
+      ["Alt + R", "Rebase"]
+    ],
+    "units: Work Boats": [
+      ["F", "Build fishing nets"],
+      ["O", "Build offshore platform"],
+      ["Shift + W", "Build whaling boats"]
+    ],
+    "units: Workers": [
+      ["A", "Automate"],
+      ["H", "Build camp"],
+      ["I", "Build farm (irrigate)"],
+      ["K", "Build workshop"],
+      ["L", "Build lumbermill"],
+      ["M", "Build mine"],
+      ["N", "Build trade network"],
+      ["Q", "Build quarry"],
+      ["R", "Build road/railroad"],
+      ["T", "Build cottage"],
+      ["Alt + C", "Remove forest/jungle"],
+      ["Alt + R", "Road-to mode"],
+      ["Ctrl + F", "Build fort"],
+      ["Shift + Ctrl + C", "Improve nearest city"],
+      ["Shift + P", "Build pasture/plantation"],
+      ["Shift + W", "Build watermill, windmill, winery, well"]
+    ],
+    "cityscreen: City Screen": [
+      ["Enter", "Exit city screen"],
+      ["Middle mouse button", "Exit city screen"],
+      ["Left-click on minimap", "Exit city screen"],
+      ["Left-click on city tile", "Enable citizen automation"],
+      ["Alt + click item", "Produce item indefinitely"],
+      ["Ctrl + click item", "Add item to front of queue"],
+      ["Shift + click item", "Add item to back of queue"],
+      ["Ctrl + (#)", "Bind production queue to a number key"],
+      ["NUM arrows", "Cycle to city (if any) in arrow direction"],
+      ["Fwd/Back mouse button", "Cycle through cities"]
+    ],
+    "mouse: Mouse Shortcuts": [
+      ["Alt + click on city bar", "Select all cities"],
+      ["Alt + click on scoreboard", "Declare war or demand tribute from a vassal"],
+      ["Alt + right-click on tile", "Move the selected unit and all units in the same tile to the clicked tile"],
+      ["Ctrl + click on city bar", "Select all cities on same continent"],
+      ["Ctrl + click on scoreboard", "Open trade window"],
+      ["Ctrl + roll mouse wheel", "Cycle units in selected tile"],
+      ["Shift + click city bars", "Select multiple cities (to change production)"],
+      ["Shift + right-click on tile", "Set as rally point for any selected cities"],
+      ["Shift + right-click on city", "Delete the rally points of any selected cities"],
+      ["Shift + click on tile", "Open context menu"],
+      ["Hold both mouse buttons", "Drag map"],
+      ["Hold right mouse button", "Display combat odds"],
+      ["Alt + hover mouse", "Display combat odds"],
+      ["Fwd/Back mouse buttons", "Cycle through units in selected tile"]
+    ],
+    "bug: Mods (BUG, K-Mod, AdvCiv)": [
+      ["Alt + Ctrl + O", "BUG options menu"],
+      ["Alt + Ctrl + F1", "BUG Help (external)"],
+      ["Alt + Ctrl + N", "Popup for testing Unit Naming rules (if enabled)"],
+      ["Alt + Shift + M", "Save map as Python script"],
+      ["Alt + M", "Set a reminder message"],
+      ["Alt + L", "Start/stop Autolog (if enabled)"],
+      ["Alt + E", "Create manual Autolog entry (if Autolog started)"],
+      ["Alt + B", "Log battle statistics (if Autolog started)"],
+      ["Alt + X", "Place (left click) or remove (right click) city on dotmap"],
+      ["Ctrl + X", "Show/hide dot map overlay"],
+      ["Ctrl + Shift + X", "Start/ end AI Auto Play if in cheat mode (\"chipotle\")"],
+      ["Ctrl + Shift + B", "Start an AI Auto Play benchmark test (\"chipotle\")"],
+      ["Ctrl + Shift + L", "Popup for taking control of another civ (\"chipotle\")"],
+      ["Ctrl + Shift + P", "Popup for reassigning civ leaders and teams (\"chipotle\")"],
+      ["Ctrl + Shift + E", "Trigger a Random Event (\"chipotle\")"],
+      ["X + any command", "Suppress unit cycling"],
+      ["Shift + Alt + U (briefly held)", "Unselect all units"],
+      ["Ctrl + click build button", "Suspend worker build 1 turn before completion"],
+      ["Ctrl + tile hover", "View incomplete worker builds"],
+      ["Ctrl + pillage/ air bomb", "Destroy friendly improvement (instead of a route)"],
+      ["Alt + hover in city screen", "View absolute effects of buildings and specialists"],
+      ["Right-click on city tile", "Exit city screen and center on city tile"]
+    ],
+    "game: Game": [
+      ["Alt + D", "Change player details (name, civ name, e-mail)"],
+      ["Alt + Q", "Retire (concede and view replay, Hall of Fame)"],
+      ["Ctrl + W", "WorldBuilder"],
+      ["Ctrl + Z", "Toggle Debug mode (\"chipotle\")"],
+      ["Alt + Z", "Take control of the civ in the next player slot (\"chipotle\")"],
+      ["Alt + Shift + Z", "Take control of the civ in the previous player slot (\"chipotle\")"],
+      ["Ctrl + Shift + F", "Show/hide frame rate (\"chipotle\")"],
+      ["Home, End", "Cycle through cities"],
+      ["Insert", "Open nearest friendly city screen"],
+      ["Enter", "Cycle units, end turn"],
+      ["Ctrl + S", "Save game as ..."],
+      ["Ctrl + L", "Load saved game ..."],
+      ["Shift + F5", "Quick save (single-player only)"],
+      ["Shift + F8", "Quick load (single-player only)"],
+      ["Ctrl + Shift + A", "Toggle Auto-Saving"],
+      ["Ctrl + M", "Turn music on/off"],
+      ["Ctrl + O", "Options menu (player options)"],
+      ["Ctrl + Tab", "Event Log, Combat Log, Chat"],
+      ["Shift + D", "Contact Civ popup"],
+      ["Shift + Enter", "Force turn to end"],
+      ["Pause", "Pause game (pauses turn timer)"],
+      ["Print Screen", "Screenshot (stored in My Games/BtS/ScreenShots)"],
+      ["Shift + Print Screen", "Enter name for screenshot"],
+      ["Ctrl + Print Screen", "Hi-res screenshot"]
+    ],
+    "camera: Camera": [
+      ["Ctrl + Left Arrow", "Rotate 45 degrees clockwise"],
+      ["Ctrl + Right Arrow", "Rotate 45 degrees counterclockwise"],
+      ["Alt + F", "Satellite (top-down) view"],
+      ["Alt + O", "Change perspective"],
+      ["Alt + Ctrl + F", "Flying camera mode (if enabled in INI file; fullscreen-only)"],
+      ["Alt + Shift + F", "Freeze flying camera"],
+      ["Shift + Left Arrow", "Rotate 45 degrees clockwise while held"],
+      ["Shift + Right Arrow", "Rotate 45 degrees counterclockwise while held"],
+      ["Page Up", "Zoom in"],
+      ["Page Down", "Zoom out"],
+      ["Left + Right mouse button", "Grip mode"],
+      ["Click empty tile", "Center camera on tile"],
+      ["Middle mouse button", "Center camera on selected unit or city"],
+      ["C", "Center camera on selected unit or city"]
+    ],
+    "mp: Multiplayer": [
+      ["Tab", "Chat to team"],
+      ["Scroll Lock", "Voice chat to team"],
+      ["Shift + Scroll Lock", "Voice chat to all"],
+      ["Ctrl + Scroll Lock", "Voice chat in Diplomacy screen"],
+      ["Shift + Tab", "Chat to all"],
+      ["P", "Ping the map"]
+    ],
+    "cheats: Cheats (Debug / \"chipotle\")": [
+      ["Ctrl + +", "Free Promotion (selected unit) / Free Culture (+10, selected city)"],
+      ["Shift + T", "Award Techs and Gold popup"],
+      ["Ctrl + Z", "Seeing Everything (debug visibility; also via WorldBuilder)"],
+      ["Ctrl + Alt + Z", "Switch to the next player"],
+      ["Ctrl + Shift + W", "Wonder movie chooser"],
+      ["Ctrl + D", "Graphics/debug options popup (includes many actions)"],
+      ["Ctrl + U", "Debug menu"],
+      ["Ctrl + Shift + F", "Hide debug overlay text (after opening Debug Menu)"],
+      ["Shift + 4", "Increase gold by +1000"],
+      ["Shift + +", "Add +1 population to selected city"],
+      ["Ctrl + Shift + Left Click", "Insert popup (place unit/city on clicked plot)"]
+    ]
+  },
+  "screens": {
+    "main_menu": {
+      "reach": "start Civ4 with mod=\\AdvCiv-SAS; GO BACK from any first-level screen",
+      "controls": {
+        "single_player": {"xy": [965, 575], "to": "single_player"},
+        "multiplayer": {"xy": [965, 620], "to": "multiplayer"},
+        "hall_of_fame": {"xy": [965, 665], "to": "hall_of_fame"},
+        "sevopedia": {"xy": [945, 710], "to": "sevopedia"},
+        "advanced": {"xy": [965, 755], "to": "advanced"},
+        "unload_mod": {"xy": [965, 800], "note": "not clicked: restarts the game without this mod"},
+        "exit_game": {"xy": [80, 1092], "note": "not clicked: closes Civ4"}
+      }
+    },
+    "single_player": {
+      "reach": "main_menu.single_player",
+      "controls": {
+        "simple_game": {"xy": [965, 575], "to": "simple_game_1_map", "note": "a six-step quick setup"},
+        "load_game": {"xy": [965, 620], "to": "load_dialog"},
+        "bts_content": {"xy": [965, 665], "to": "bts_content", "note": "drawn grey but works"},
+        "play_scenario": {"xy": [965, 710], "to": "scenario_list"},
+        "custom_game": {"xy": [965, 755], "to": "custom_game"},
+        "custom_scenario": {"xy": [965, 800], "to": "scenario_list", "note": "the same list of WorldBuilder saves"},
+        "go_back": {"xy": [100, 1094], "to": "main_menu"}
+      }
+    },
+    "load_dialog": {
+      "reach": "single_player.load_game",
+      "controls": {
+        "folder": {"xy": [1000, 136], "note": "current folder, such as My Games\\beyond the sword\\Saves\\single"},
+        "folder_tree": {"xy": [430, 560], "note": "folder tree, x 150-710, y 180-956"},
+        "file_list": {"xy": [1250, 560], "note": "saves, newest first, x 724-1770, y 180-956; columns name, size, modified"},
+        "filename": {"xy": [980, 978], "note": "file name field"},
+        "ok": {"xy": [1732, 978], "note": "not clicked: loads the selected save"},
+        "cancel": {"xy": [1732, 1018], "to": "single_player"},
+        "autosaves": {"xy": [298, 652], "note": "the auto folder in the tree once Saves/single is expanded: this run had autosaves every 4 turns plus the initial one; typing a path into the filename box did not work here, so open the folder"}
+      }
+    },
+    "scenario_list": {
+      "reach": "single_player.play_scenario or single_player.custom_scenario",
+      "controls": {
+        "list": {"xy": [700, 580], "note": "WorldBuilder saves, x 543-871, y 300-857"},
+        "preview": {"xy": [1130, 580], "note": "globe, name and map size, x 886-1377"},
+        "ok": {"xy": [1857, 1094], "note": "not clicked: starts the scenario"},
+        "go_back": {"xy": [100, 1094], "to": "single_player"}
+      }
+    },
+    "bts_content": {
+      "reach": "single_player.bts_content",
+      "controls": {
+        "list": {"xy": [700, 580], "note": "scenarios of other installed mods, each with map size, description and its Mod Folder"},
+        "ok": {"xy": [1857, 1094], "note": "not clicked: loads the other mod's scenario"},
+        "go_back": {"xy": [100, 1094], "to": "single_player"}
+      }
+    },
+    "custom_game": {
+      "reach": "single_player.custom_game",
+      "note": "Civ4 remembers these settings for the next custom game, so none was changed.",
+      "list_layout": "A dropdown's list opens below its header: 10 items visible, about 26 px apart, the first 35 px below the header; 3 wheel clicks over the list scroll it by 9 items. A second click on the header closes it unchanged.",
+      "controls": {
+        "player_rows": {"xy": [280, 144], "note": "one row per player, 47 px apart from y 145, scrollbar at x 1866; columns: type or name x 280, team x 592, leader x 1033, civilization x 1474, difficulty x 1722 (the AI rows show it greyed)"},
+        "settings": {"xy": [430, 560], "note": "dropdowns at x 430: map y 560, size 594, climate 630, sea level 664, era 700, speed 736"},
+        "options": {"xy": [756, 594], "note": "27 checkboxes counted at x 757, 35 px apart from y 595, in a panel that scrolls by about 478 px, but only 26 names were read into items, so one is missing; Advanced Start Base Points field at (1332, 560)", "items": ["Advanced Start", "Start Points as Handicap", "No City Flipping From Culture", "No City Flipping after Conquest", "No Barbarians", "Raging Barbarians", "Aggressive AI (Legacy)", "Unrestricted Leaders", "Random Personalities", "Choose Religions", "No Technology Trading", "No Technology Brokering", "Permanent Alliances", "Always War", "Always Peace", "One-City Challenge", "New Random Seed on Reload", "Lock Modified Assets", "Rise and Fall", "True Starts", "No Tribal Villages", "No Random Events", "No Vassal States", "No City Razing", "No Animals", "No Slavery"]},
+        "victories": {"xy": [1398, 560], "note": "checkboxes at x 1400, 35 px apart from y 560: Time, Conquest, Domination, Cultural, Space Race, Diplomatic"},
+        "go_back": {"xy": [104, 1096], "to": "single_player"},
+        "launch": {"xy": [1830, 1096], "note": "not clicked: starts the game"}
+      },
+      "map_script_options": {
+        "about": "A map script adds its own dropdowns below Speed, 35 px apart from y 770, and can grey out Climate or Sea Level when it ignores them. Defaults seen on 2026-11-11, the user's other settings unchanged:",
+        "aDebugMap": "none (the user's choice, restored afterwards)",
+        "Continents": "World Wrap (Cylindrical), Resources (Standard)",
+        "Fractal": "World Wrap (Cylindrical), Resources (Standard)",
+        "Pangaea": "Shoreline (Random), World Wrap (Cylindrical), Resources (Standard)",
+        "Archipelago": "Landmass Type (Archipelago), World Wrap (Cylindrical), Resources (Standard)",
+        "Inland_Sea": "World Wrap (Flat), Resources (Standard)",
+        "Tectonics": "Landmass Type (Earthlike (70% water)), Aridity Level (Normal); Climate and Sea Level greyed",
+        "PerfectMongoose": "Land Shape (Plate Tectonics), Start (Start Anywhere), World Wrap (Cylindrical); Climate greyed",
+        "Planet_Generator_0_68": "Continents (18 continents), Continent separation (Min 10 water tiles), Continent distribution (Around center), Continent shape (Unpredictable), Continent scattering (Rare small islands), Relative continent size (Equal size), Percentage of ocean (More than 60%); Climate and Sea Level greyed",
+        "Ring": "Areas Per Player (1 Per Player), Land Shape (Random), Neutral Territory (Random), Isthmus Width (2 Plots Wide), World Wrap (Flat), Resources (Standard)",
+        "SAS_Longworld": "LongWorld Height (4 Plots (Recommended)), Width Per Player (12 (Recommended)), Revolving World (WrapX (Recommended))",
+        "Earth2": "none"
+      },
+      "dropdowns": {
+        "map": {"xy": [429, 560], "span": [144, 714], "note": "map scripts; the choice adds the script's own options below Speed", "items": ["aDebugMap", "Arboria", "Archipelago", "Balanced", "Big_and_Small", "Boreal", "BTG_Cross", "BTG_Grid", "BTG_Lagoon", "Continents", "Custom_Continents", "Donut", "Earth2", "Equal_Islands_V2_beta", "Fantasy_Realm", "Fractal", "Global_Highlands", "Great_Plains", "Hemispheres", "Highlands", "Hub", "Ice_Age", "Inland_Sea", "Islands", "Lakes", "Maze", "Medium_and_Small", "Mirror", "Mixed_Continents", "not_too_Big_or_Small", "Oasis", "Pangaea", "Peirce", "PerfectMongoose", "Planet_Generator_0_68", "Rainforest", "RandomScriptMap", "Ring", "SAS_Large_Facing_Islands", "SAS_Longworld", "SAS_Parallel_Lines", "SAS_Simple_Flat_Grass", "SAS_Spiky_Avenues", "Shuffle", "Team_Battleground", "Tectonics", "Terra", "Tilted_Axis", "Water", "Wheel"]},
+        "size": {"xy": [429, 595], "span": [144, 714], "items": ["Random", "Arena", "Duel", "Tiny", "Small", "Standard", "Large", "Huge", "SAS24", "SAS32", "SAS40", "SAS48"]},
+        "climate": {"xy": [429, 630], "span": [144, 714], "items": ["Random", "Temperate", "Tropical", "Arid", "Rocky", "Cold"]},
+        "sea_level": {"xy": [429, 665], "span": [144, 714], "items": ["Random", "Low", "Medium", "High"]},
+        "era": {"xy": [429, 700], "span": [144, 714], "items": ["Random", "Ancient", "Classical", "Medieval", "Renaissance", "Industrial", "Modern", "Future"]},
+        "speed": {"xy": [429, 735], "span": [144, 714], "items": ["Nitro (165 / 33%)", "Turbo (250 / 50%)", "Quick (330 / 67%)", "Normal (500 / 100%)", "Epic (750 / 150%)", "Marathon (1000 / 200%)", "Slow (1500 / 300%)", "Very Slow (2000 / 400%)"]},
+        "row1_team": {"xy": [592, 145], "span": [474, 711], "note": "the user's row", "items": ["Team 1", "Team 2", "Team 3", "Team 4", "Team 5", "Team 6", "Team 7", "Team 8", "Team 9", "Team 10", "Team 11", "Team 12", "Team 13", "Team 14", "Team 15", "Team 16", "Team 17", "Team 18", "Team 19", "Team 20", "Team 21", "Team 22", "Team 23", "Team 24", "Team 25", "Team 26", "Team 27", "Team 28", "Team 29", "Team 30", "Team 31", "Team 32", "Team 33", "Team 34", "Team 35", "Team 36", "Team 37", "Team 38", "Team 39", "Team 40", "Team 41", "Team 42", "Team 43", "Team 44", "Team 45", "Team 46", "Team 47", "Team 48"]},
+        "row1_leader": {"xy": [1033, 145], "span": [721, 1345], "note": "the wide column: leaders with their two traits", "items": ["Random", "Alexander III [Phi/Agg]", "Ashoka [Spi/Pro]", "Augustus [Ind/Imp]", "Bismarck [Org/Pro]", "Boudica [Agg/Chm]", "Brennus [Spi/Chm]", "Catherine [Phi/Imp]", "Charlemagne [Org/Imp]", "Churchill [Chm/Pro]", "Cyrus [Chm/Imp]", "Darius I [Fin/Org]", "De Gaulle [Org/Chm]", "Elizabeth [Cre/Fin]", "Ewuare [Spi/Ind]", "Frederick [Phi/Cre]", "Gandhi [Phi/Spi]", "Genghis Khan [Agg/Imp]", "Gilgamesh [Cre/Pro]", "Grace O'Malley [Agg/Fin]", "Hammurabi [Agg/Org]", "Hannibal [Fin/Chm]", "Hatshepsut [Spi/Fin]", "Huayna Capac [Ind/Org]", "Isabella I [Spi/Imp]", "Joao II [Fin/Imp]", "Julius Caesar [Agg/Imp]", "Justinian I [Phi/Ind]", "Kublai Khan [Agg/Cre]", "Lincoln [Phi/Chm]", "Louis XIV [Ind/Cre]", "Mansa Musa [Spi/Fin]", "Mao Zedong [Agg/Pro]", "Mehmed II [Org/Imp]", "Michael Collins [Phi/Org]", "Moctezuma II [Agg/Spi]", "Napoleon [Chm/Imp]", "Pacal II [Ind/Fin]", "Pericles [Phi/Cre]", "Peter [Phi/Org]", "Qin Shi Huang [Ind/Pro]", "Ragnar [Agg/Fin]", "Ramesses II [Spi/Ind]", "Roosevelt [Ind/Chm]", "Saladin [Spi/Chm]", "Shaka [Agg/Org]", "Sitting Bull [Phi/Pro]", "Stalin [Agg/Ind]", "Suleiman [Phi/Imp]", "Suryavarman II [Ind/Cre]", "Tokugawa [Org/Pro]", "Victoria [Fin/Imp]", "Wang Kon [Fin/Pro]", "Washington [Chm/Pro]", "Willem [Cre/Fin]", "Zara Yaqob [Spi/Org]"]},
+        "row1_civilization": {"xy": [1474, 145], "span": [1354, 1594], "note": "the narrow column", "items": ["Random", "Arabia", "Aztec", "Babylon", "Byzantium", "Carthage", "Celtia", "China", "Egypt", "England", "Ethiopia", "France", "Germany", "Greece", "Holy Rome", "Inca", "India", "Ireland", "Japan", "Khmer", "Kingdom of Benin", "Korea", "Mali", "Maya", "Mongolia", "Native America", "Netherlands", "Ottomans", "Persia", "Portugal", "Rome", "Russia", "Scandinavia", "Spain", "Sumer", "United States", "Zululand"]},
+        "row1_difficulty": {"xy": [1722, 145], "span": [1602, 1842], "items": ["Rookie", "Settler", "Chieftain", "Warlord", "Noble", "Prince", "Monarch", "Emperor", "Immortal", "Deity", "Deity+"]},
+        "row2_type": {"xy": [283, 192], "span": [102, 465], "note": "an AI row's player type", "items": ["Open", "AI", "Closed"]}
+      }
+    },
+    "simple_game_1_map": {
+      "reach": "single_player.simple_game, then OK 0 time(s)",
+      "shows": "map script list with preview and description",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "to": "simple_game_2_climate_size"},
+        "go_back": {"xy": [100, 1094], "to": "single_player"}
+      }
+    },
+    "simple_game_2_climate_size": {
+      "reach": "single_player.simple_game, then OK 1 time(s)",
+      "shows": "Climate and Sea Level radio buttons, World Size slider from Random to SAS48",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "to": "simple_game_3_map_option"},
+        "go_back": {"xy": [100, 1094], "to": "simple_game_1_map"}
+      }
+    },
+    "simple_game_3_map_option": {
+      "reach": "single_player.simple_game, then OK 2 time(s)",
+      "shows": "the map script's own option, such as Archipelago's landmass type",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "to": "simple_game_4_civilization"},
+        "go_back": {"xy": [100, 1094], "to": "simple_game_2_climate_size"}
+      }
+    },
+    "simple_game_4_civilization": {
+      "reach": "single_player.simple_game, then OK 3 time(s)",
+      "shows": "civilization list, leaders column, description",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "to": "simple_game_5_names"},
+        "go_back": {"xy": [100, 1094], "to": "simple_game_3_map_option"}
+      }
+    },
+    "simple_game_5_names": {
+      "reach": "single_player.simple_game, then OK 4 time(s)",
+      "shows": "Leader Name, Civ Description, Short Description and Civ Adjective fields",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "to": "simple_game_6_handicap_speed"},
+        "go_back": {"xy": [100, 1094], "to": "simple_game_4_civilization"}
+      }
+    },
+    "simple_game_6_handicap_speed": {
+      "reach": "single_player.simple_game, then OK 5 time(s)",
+      "shows": "Handicap and Game Speed lists with a summary of the earlier choices",
+      "controls": {
+        "ok": {"xy": [1857, 1094], "note": "not clicked: starts the game"},
+        "go_back": {"xy": [100, 1094], "to": "simple_game_5_names"}
+      }
+    },
+    "multiplayer": {
+      "reach": "main_menu.multiplayer",
+      "controls": {
+        "lan_games": {"xy": [965, 575], "to": "lan_lobby"},
+        "gamespy_lobby": {"xy": [965, 620], "note": "not clicked: the old online service; drawn grey"},
+        "hot_seat": {"xy": [965, 665], "to": "hot_seat"},
+        "play_by_email": {"xy": [965, 710], "to": "play_by_email"},
+        "go_back": {"xy": [100, 1094], "to": "main_menu"}
+      }
+    },
+    "lan_lobby": {
+      "reach": "multiplayer.lan_games",
+      "controls": {
+        "name": {"xy": [371, 100], "note": "player name field"},
+        "game_name": {"xy": [157, 197], "note": "name of a game to create"},
+        "new_game": {"xy": [157, 234], "note": "not clicked: hosts a game on the local network"},
+        "new_scenario": {"xy": [157, 274], "note": "not clicked"},
+        "load_game": {"xy": [157, 320], "note": "not clicked"},
+        "refresh_list": {"xy": [157, 360], "note": "not clicked"},
+        "games": {"xy": [1070, 580], "note": "LAN games, x 286-1857, y 157-1000; columns name, players, map, new, PB, host ping"},
+        "go_back": {"xy": [103, 1094], "to": "multiplayer"},
+        "join_game": {"xy": [1820, 1094], "note": "not clicked: joins the selected game"}
+      }
+    },
+    "hot_seat": {
+      "reach": "multiplayer.hot_seat",
+      "controls": {
+        "new_game": {"xy": [965, 575], "note": "not explored further"},
+        "new_scenario": {"xy": [965, 620], "note": "not explored further"},
+        "load_game": {"xy": [965, 665], "note": "drawn grey; not explored further"},
+        "go_back": {"xy": [100, 1094], "to": "multiplayer"}
+      }
+    },
+    "play_by_email": {
+      "reach": "multiplayer.play_by_email",
+      "controls": {
+        "new_game": {"xy": [965, 575], "note": "not explored further"},
+        "new_scenario": {"xy": [965, 620], "note": "not explored further"},
+        "load_game": {"xy": [965, 665], "note": "drawn grey; not explored further"},
+        "go_back": {"xy": [100, 1094], "to": "multiplayer"}
+      }
+    },
+    "hall_of_fame": {
+      "reach": "main_menu.hall_of_fame",
+      "tests": [
+        ["click and double-click a row inside a game", "no replay: the in-game Hall of Fame has no V column"],
+        ["filter dropdowns", "Leaders, Difficulties (All, Rookie..Deity+), Starting Eras (All, Ancient..Future), Single/Multiplayer, Victories (All, Score, Time, Conquest, Domination, Cultural, Space Race, Diplomatic), World Sizes (All, Arena..SAS48), Game Speeds (Nitro..Very Slow), sort (Normalized Score, Finish Date, In-game Score); items 31 px apart from 32 px below the header"],
+        ["click a column heading twice", "sorts ascending, then descending"],
+        ["legend", "opens the Hall of Fame Legend page in the Sevopedia"]
+      ],
+      "controls": {
+        "filters_row_1": {"xy": [557, 123], "note": "dropdowns at y 123: leaders x 557, difficulties 829, starting eras 1100, single player 1366"},
+        "filters_row_2": {"xy": [557, 171], "note": "dropdowns at y 171: victories x 557, world sizes 829, game speeds 1100, normalized score 1366"},
+        "table": {"xy": [960, 640], "note": "finished games, y 214-1071: leader, normalized score, finish date, score, victory, handicap, size, start era, speed"},
+        "legend": {"xy": [1863, 60], "note": "not clicked"},
+        "exit": {"xy": [1863, 1091], "to": "main_menu"},
+        "view_replay": {"xy": [20, 243], "to": "replay_screen", "note": "the V button of each row, only from the main menu; rows 22 px apart from y 243"}
+      }
+    },
+    "advanced": {
+      "reach": "main_menu.advanced",
+      "controls": {
+        "about_this_build": {"xy": [965, 575], "to": "about_this_build"},
+        "load_a_mod": {"xy": [965, 620], "to": "load_a_mod"},
+        "options": {"xy": [965, 665], "to": "options"},
+        "check_for_updates": {"xy": [965, 710], "note": "not clicked: goes online; drawn grey"},
+        "credits": {"xy": [965, 755], "to": "credits", "note": "labelled CREDITS (BTS)"},
+        "go_back": {"xy": [100, 1094], "to": "main_menu"}
+      }
+    },
+    "about_this_build": {
+      "reach": "advanced.about_this_build",
+      "shows": "Civ version 319, save version 19119, build 3.1.9.0 (128105), build date May 29 2014, FINAL RELEASE, mod name",
+      "controls": {
+        "ok": {"xy": [963, 731], "to": "advanced"}
+      }
+    },
+    "options": {
+      "reach": "advanced.options, or ingame_menu: Options (the same window over a game)",
+      "note": "Nothing was changed except Numbers on City Bar, switched on and back off; these are the user's profile settings, saved for every game.",
+      "controls": {
+        "tab_controls": {"xy": [618, 328], "note": "Turn Sequence (Wait at End of Turn: on, which is why Enter is needed once all units moved; Minimize Pop-Ups), Unit Controls, Rival Moves, Automation, Recommendations; Language; the BUG Menu button"},
+        "tab_graphics": {"xy": [702, 328], "note": "full-screen mode, resolution, quality, globe and movie settings; Disable Animations, Unit Graphics and Visual Aids checkboxes in the right column"},
+        "tab_audio": {"xy": [776, 328], "note": "master volume with No Sound; music, sound effects, speech, ambience and interface sliders, each with Mute; speakers, custom music folder, voice chat"},
+        "tab_other": {"xy": [840, 328], "note": "Clock (on, 24 hour, alarm) and Option Profiles (choose, create, delete); no Restore Defaults here"},
+        "numbers_on_city_bar": {"xy": [1113, 756], "note": "Graphics tab, last Visual Aids box: turns to grow and production turns on every city bar, taking effect at once; AdvCiv's rename of Detailed City Info"},
+        "bug_menu": {"xy": [1070, 772], "to": "bug_menu", "note": "Controls tab"},
+        "restore_defaults": {"xy": [925, 828], "note": "not clicked: resets the user's options on that tab"},
+        "exit": {"xy": [1036, 830], "to": "advanced"}
+      }
+    },
+    "bug_menu": {
+      "reach": "options.bug_menu, or ingame_menu: BUG Menu",
+      "shows": "12 tabs of BUG settings; every field with its label, configured default and storage is in ui_maps/bug_options.txt, from export_bug_options.py",
+      "controls": {
+        "tabs": {"xy": [540, 272], "note": "tab names along y 272: General x 540, Map 604, City Screen 682, Advisors 776, Alerts 850, Scores 914, Time 976, Unit Icons 1054, Odds 1130, Unit Names 1210, Autolog 1302, System 1380"},
+        "help": {"xy": [922, 888], "note": "BUG Mod Help"},
+        "exit": {"xy": [1034, 888], "note": "closes the BUG menu"}
+      }
+    },
+    "load_a_mod": {
+      "reach": "advanced.load_a_mod",
+      "controls": {
+        "list": {"xy": [620, 600], "note": "installed mods, the current one selected, preview on the right"},
+        "ok": {"xy": [1857, 1094], "note": "not clicked: switches mod and restarts the game"},
+        "go_back": {"xy": [100, 1094], "to": "advanced"}
+      }
+    },
+    "credits": {
+      "reach": "advanced.credits",
+      "shows": "scrolling credits in a panel",
+      "controls": {
+        "go_back": {"xy": [100, 1094], "to": "advanced"}
+      }
+    },
+    "sevopedia": {
+      "reach": "main_menu.sevopedia",
+      "shows": "see the pedia_* points in civ4_points.json and civ4_sevopedia_map.json",
+      "controls": {
+        "exit": {"xy": [1866, 1094], "to": "main_menu"}
+      }
+    },
+    "game_main": {
+      "reach": "load or start a game; mapped on 2026-11-11 at turn 200 of a Standard Pangaea game, with a Worker selected",
+      "note": "Hovering shows help text at the bottom left, just above the unit panel near (100, 910), growing upwards, only while Civ4 is the foreground window; hover_tooltips.py --front --area 0 420 960 960 captures it. The player is named Autoplay after run_autoplay.py, so the scoreboard and diplomacy say [Autoplay].",
+      "tests": [
+        ["ctrl+left, ctrl+right", "rotate the camera 45 degrees and back"],
+        ["f10, then enter", "open the capital's city screen, then leave it"],
+        ["alt+i", "hides the whole interface; a second alt+i restores it"],
+        ["pgup, pgdn", "no zoom change, with or without the extended-key flag"],
+        ["mouse wheel over the map", "zooms, only with Civ4 in front; from the farthest view +4 clicks show cities and borders, +6 to +8 a medium zoom with units readable, +10 close"],
+        ["c, num6 with no unit selected", "nothing; after the city screen or advisors no unit is selected, so click one first"],
+        ["num6 with a Worker selected", "did not move it"],
+        ["g, then a click on a tile", "moves the selected unit there: a Worker centred by c at (960, 520) moved one tile east with a click at (1060, 520)"],
+        ["period, comma", "select the next or previous unit in unit_bar, on the same tile"],
+        ["w", "selected a group of about 8 units"],
+        ["click a unit in unit_bar", "selected about 8 units at once, most likely the group it already belonged to"],
+        ["ctrl+click a unit in unit_bar", "selected every unit of that type on the tile (11 of 11)"],
+        ["shift+click a second unit after a click", "added it, and several more units, to the selection"],
+        ["alt+click a unit in unit_bar", "selected nearly every unit on the tile; those left out had a grey dot rather than green, likely no moves left"],
+        ["backslash, as the US key code", "moved one unit right in unit_bar, not back"],
+        ["ctrl+shift+x", "opens autoplay_prompt; during a run it stops autoplay after 1 to 2 turns, then the held-back popups follow"],
+        ["ctrl+l", "opens game_load_file"],
+        ["end_turn click", "ended the turn (200 to 201); then popup_choose_research and popup_choose_production came"],
+        ["city_previous, then esc", "a city selected on the main screen; esc returns to the unit"],
+        ["scoreboard scroll buttons (SAS48, Debug Mode)", "down moves 1 row, down fast about 5; the list opens centred on the active player, so the top scorers (Justinian 248, Frederick 227) were hidden above until scrolled up"],
+        ["click the minimap", "centres the view there; its lower right was open ocean on SAS48 Pangaea"],
+        ["click a foreign city's banner in Debug Mode", "selects it on the main screen with its production choices, as city_previous does"],
+        ["click --double a foreign city's banner in Debug Mode", "opens its city screen; the top bar then shows that player's research and gold"],
+        ["alt+click a leader on the scoreboard", "opens popup_declare_war"],
+        ["g, then hover a far tile", "draws the path with a numbered marker for each turn; a click gives the order and the selection moves to the next unit"],
+        ["click a plot with units", "selects a unit there and can recentre the view, so re-read positions after each step"],
+        ["esc with no screen open", "opens ingame_menu, even with a unit selected; with a popup open, the first esc closed that instead"],
+        ["b with a Settler selected", "founds the city, then popup_city_name, popup_choose_research and popup_choose_production in turn"],
+        ["enter", "ends the turn only when the end_turn circle is red, that is when no unit waits for orders; f (fortify) on the last idle unit made it red"],
+        ["hover or ctrl+z with a popup open", "no help text, and Debug Mode did not toggle: popups take the input until answered"],
+        ["click a city banner (own)", "selects the city with its production queue; a click on the city's buildings just above selected its units instead"],
+        ["hover an enemy city in Debug Mode", "shows its food, production, build, gold and maintenance, not its units; --double opens its city screen with its buildings, such as Walls"],
+        ["mouse wheel while another window is in front", "no zoom; bring Civ4 forward first (desktop_windows key pause does it harmlessly)"],
+        ["shift+enter", "ends the turn, as the end_turn button does; a new tech then opened popup_tech_discovered"],
+        ["ctrl+z", "Debug Mode on, revealing the whole map; again turns it off (needs CheatCode = chipotle)"],
+        ["in-game autoplay running: Civ4 in the background, then in front", "it kept playing either way, about 20 turns per 15 s; focus does not pause it"],
+        ["f3 during autoplay", "the Foreign Diplomacy Advisor opened on Relations and stayed open while turns kept passing; esc closed it, autoplay still running"],
+        ["ctrl+z on and off during autoplay", "Debug Mode toggled without stopping autoplay"],
+        ["ctrl+shift+x during autoplay", "stopped it; here an AI won a Domination victory the same turn, so popup_victory came next"],
+        ["click a city banner with a unit selected", "nothing: the click did not reach the banner; city_previous and city_next selected the city instead"],
+        ["city selected on the main screen: click a production choice, then a queue row", "the choice went to the queue's front and onto the city's banner (Stable (8)); clicking its queue row (y about 962, rows 30 px apart) removed it: production can be changed without entering the city"],
+        ["the next-unit button left of the city arrows, clicked repeatedly", "selects the next unit still waiting for orders, centring the map on it each time, across ships and land units; 44 presses brought the first unit round again in this game"],
+        ["g with a Privateer selected, then a click on a fogged sea tile", "drew the path into the fog with a turn marker and gave the order; the selection then moved to the next unit"],
+        ["click the Great Person bar (top middle)", "opened the city screen of the city it names (Eridu)"],
+        ["click a city banner while one of our units is selected", "nothing; esc then opened ingame_menu instead of deselecting; after cancelling it a click selected the city, and a double-click opened its city screen, a foreign city too in Debug Mode"],
+        ["zoom level for clicking banners", "at the farthest zooms banners are tiny and each click recentred the map; 4 wheel clicks in from far made them easy targets and readable"]
+      ],
+      "controls": {
+        "event_log": {"xy": [32, 75], "note": "Event Log <Ctrl+Tab>"},
+        "turn_date": {"xy": [110, 52], "note": "turn, gold rate and date; era at x 340"},
+        "great_general": {"xy": [455, 52], "note": "Great General progress, such as 6/88 experience"},
+        "research_choices": {"xy": [715, 52], "note": "next research choices as icons at x 715, 748, 785, 825; each shows the tech's effects and turns"},
+        "great_person_bar": {"xy": [1270, 55], "note": "the city closest to its next Great Person, with its progress and the odds of each kind"},
+        "gold": {"xy": [1755, 52], "note": "gold and rate; no help text"},
+        "main_menu": {"xy": [1878, 52], "note": "Open Main Menu: a panel of 11 items at x 1780, 31 px apart from y 207: Exit to Desktop, Exit to Main Menu, Retire, Load Game, Save Game, Options, BUG Menu, Enter WorldBuilder, Game Details, Your Details, Cancel (y 517, closes it); only Cancel was clicked (2026-11-11)"},
+        "sevopedia": {"xy": [1905, 52], "to": "sevopedia", "note": "Sevopedia <F12>"},
+        "advisor_domestic": {"xy": [1650, 79], "note": "Domestic Advisor <F1>"},
+        "advisor_policy": {"xy": [1678, 79], "note": "Policy Advisor <F2>"},
+        "advisor_diplomacy": {"xy": [1706, 79], "note": "Foreign Diplomacy Advisor <F3>"},
+        "advisor_trade": {"xy": [1734, 79], "note": "Foreign Trade Advisor <F4>"},
+        "advisor_military": {"xy": [1762, 79], "note": "Military Advisor <F5>"},
+        "advisor_technology": {"xy": [1790, 79], "note": "Technology Advisor <F6>"},
+        "advisor_world": {"xy": [1818, 79], "note": "World Advisor <F7>"},
+        "info_screen": {"xy": [1846, 79], "note": "Info Screen <F8>"},
+        "victory_screen": {"xy": [1874, 79], "note": "Victory Screen <F9>"},
+        "espionage": {"xy": [1902, 79], "note": "Espionage Tab <Ctrl+E>"},
+        "research_slider": {"xy": [1805, 111], "note": "research rate buttons at x 1805, 1825, 1845, 1865: +50%, +10%, -10%, -50%; culture at y 133 and espionage at y 155 in the same columns"},
+        "scoreboard": {"xy": [1700, 715], "note": "one row per leader from about y 715, 22 px apart, growing upwards with more players (from about y 670 with 11 on SAS48); hovering shows attitude and its reasons; [Ctrl] opens the trade table, [Alt] declares war"},
+        "scoreboard_lock": {"xy": [1887, 912], "note": "Toggle lock scoreboard hover"},
+        "scoreboard_scroll": {"xy": [1748, 912], "note": "with more players than fit, as on SAS48 in Debug Mode: a row of buttons under the scoreboard, about 22 px apart from x 1748 here: scroll up fast, scroll up, center on the active player, scroll down, scroll down fast, toggle autocenter, then the lock and the background style; the row moved right (from about x 1794) after scrolling, so read it off a screenshot"},
+        "scoreboard_style": {"xy": [1910, 912], "note": "Cycle scoreboard background style: brown, blue-grey, dark navy and the translucent default, at least"},
+        "unit_bar": {"xy": [1239, 955], "note": "units on the selected plot at y 955, about 37 px apart from x 425; the selected one has a yellow frame; Ctrl or Alt with a click selects all of that type or all"},
+        "unit_actions": {"xy": [432, 1023], "note": "the selected unit's actions at y 1023, 52 px apart from x 432; for a Worker: Sleep <F>, Skip Turn <Space>, Go To <G>, Go To same type <Ctrl+G>, Go To all <Alt+G>, Route To <Alt+R>, Build Railroad <R>, Automate improvements <A>, Automate trade network <N>, Improve Nearest City <Shift+Ctrl+C>, Delete <Delete>; they differ by unit"},
+        "end_turn": {"xy": [1688, 955], "note": "End Turn <Shift+Enter>: the green circle; see tests"},
+        "city_previous": {"xy": [1672, 983], "note": "selects the previous city without opening its screen: the map centres on it and the bottom panel shows its production choices, headed by its current item"},
+        "city_next": {"xy": [1702, 983], "note": "selects the next city the same way; both arrows have no help text; the user notes these and the toggle buttons shift slightly with the map's settings, from the mod's layout tweaks, so re-check them on another map: on a SAS48 Pangaea game at turn 100 End Turn sat at about x 1680, the arrows at 1662 and 1696, and the map buttons from about 1720 to 1902, all at the same heights"},
+        "toggle_units": {"xy": [1730, 942], "note": "Unit Display <Alt+U>: unit position and density; turning it on replaced the resource bubbles, and a second click left neither"},
+        "toggle_resources": {"xy": [1758, 942], "note": "Resource Display <Ctrl+R>: round resource bubbles; one of the unit, resource and yield layers shows at a time"},
+        "toggle_grid": {"xy": [1785, 942], "note": "Grid <Ctrl+T>: the tile grid lines, on in the user's settings"},
+        "toggle_yields": {"xy": [1812, 942], "note": "Yield Display <Ctrl+Y>: food, production and commerce icons on each tile"},
+        "toggle_bare_map": {"xy": [1837, 942], "note": "Bare Map <Ctrl+B>: hides improvements and units to show the landscape"},
+        "toggle_annotations": {"xy": [1858, 942], "note": "map annotations: no visible change on this map, which had none"},
+        "toggle_scoreboard": {"xy": [1882, 942], "note": "Scoreboard: hides the whole scoreboard; a second click shows it again"},
+        "globe_view": {"xy": [1905, 942], "note": "Globe View <F11>: zooms out to the globe with city names, and back in"},
+        "minimap": {"xy": [1820, 1050], "note": "x 1718-1920, y 990-1110"},
+        "select_next_unit": {"xy": [1636, 983], "note": "Select Next Unit <W>, left of the city arrows; selected the next unit to move"},
+        "hurry_buttons": {"xy": [300, 938], "note": "with a city selected on the main screen: population hurry at x 300, gold hurry at x 335, and draft at x 368; availability depends on the city and rules; not clicked"},
+        "research_icons": {"xy": [660, 52], "note": "when no research is set: one icon per available tech, 37 px apart from x 660; hover shows unlocks, turns, progress and diffusion; a click sets research, keeping earlier progress"}
+      }
+    },
+    "city_screen": {
+      "reach": "F10 opens the capital, Insert the nearest city, or click a city; Enter, the middle mouse button or a minimap click leaves",
+      "note": "Mapped on 2026-11-11 on Carthage, size 14, at turn 200. Here help text appears next to the pointer, not at the bottom left, so use hover_tooltips.py --front without --area. The named tiles use the normal city camera at the mapped window size. Verify the tile grid in a screenshot after changing camera or resolution.",
+      "tests": [
+        ["click a production choice", "changes production at once (Pikeman to Settler)"],
+        ["shift+click a production choice", "adds it to the end of the queue"],
+        ["ctrl+click a production choice", "puts it first in the queue"],
+        ["click an item in the queue", "removes it"],
+        ["specialist +, then -", "a citizen became an Engineer (culture 99.00 to 100.50, science down), and back"],
+        ["click a worked tile", "takes its citizen off (the growth bar shows Shrinking); on a fresh city screen a second click puts it back, but one about 2 s later closed the city screen instead (cause unknown)"],
+        ["shift-click, ctrl-click, then click the first queue row", "re-checked 2026-11-11 on Uruk: Shift added a second Missionary, shown as one row with (2); Ctrl put a Worker first; clicking the Worker's row removed it"],
+        ["tiles on Uruk at turn 201, 2026-11-11: click a worked tile, again, an unworked mine, then the city tile", "the first click freed its citizen as a specialist (growth 9 to 25 turns), the second put it back; the mine took a citizen from another tile (growth 13 turns, production faster); the city tile then reset all to the automatic choice. Tiles show bread, hammer and coin icons for their yields, bonuses in purple circles and worked tiles in white rings"],
+        ["Right, Left; Home, End, Page Down", "Right and Left switch to the next and previous city; the others did nothing"],
+        ["tile_n2_w1 on Uruk; tile_s1_e2 on Eridu; tile_center after each", "GPT-6.1-Sol repeated the turn-201 test on 2026-11-11. Each worked ring disappeared when clicked; clicking the centre restored that city's automatic assignment and the ring."],
+        ["hover each specialist row", "named the rows Engineer, Merchant, Scientist, Artist, Priest, Citizen from y 502; the figure at y 472 has no help text; yields differ between games, so read the help rather than assume them"],
+        ["specialist_scientist +, then -", "the figure lit up, a - appeared, Great Person points went from 0 to 3 per turn with new type odds; the - restored it"],
+        ["compare Uruk, Eridu, Kish, Lagash", "only Uruk had a + for Engineer, so a + needs a free slot; Eridu showed its four Priests as figures left of the row, with + and -"],
+        ["production_filters in Lagash: the three scroll buttons, then the four building filters", "Units, Buildings and Wonders scroll the list (Buildings brings the processes into view); the four building filters changed nothing visible there; the two hurry buttons were not clicked"],
+        ["mouse wheel over the building list", "did not scroll it"],
+        ["drag the building list's scrollbar (x 386, y 345 to 895) down", "scrolled to the end; the list shows about 22 rows (Cahokia had 24 buildings and wonders)"],
+        ["a big late-game city (Cahokia, size 17, corporation HQ, wonders, settled Great People)", "shows most elements a small city leaves empty: Spy row in use, settled Great People as a row of figures below the specialists, the corporation icon on the city bar"],
+        ["f1 from the city screen, then esc or the EXIT tab", "advisors open over the city screen, but both esc and EXIT then return to the main map, not to the city (the user expected EXIT to keep it; tested, it does not)"],
+        ["specialist + and - in a rival city (Debug Mode)", "nothing changes; the buttons are shown anyway (noted in changes_new.md)"],
+        ["hover a trade route row (y about 236)", "its yield breakdown: base, then each modifier, then the total"],
+        ["hover the settled Great People row and the red faces below it", "each settled Great Person and specialist with their yields; the faces are the city's unhappy citizens"],
+        ["full-size crop of the tile grid", "yields are readable as icons per tile (bread food, hammers production, coins commerce); at half scale they blur, so crop at full size to read them"],
+        ["hover a red face below the specialists", "Angry Citizen (Refuses to work...), with each cause and its count, such as +17 It's too crowded!, and the total unhappiness"],
+        ["citizen + five times, then once more (own capital)", "the row's figures merge into one figure with a yellow V above at 5; the sixth shows as one more plain figure beside it, as the user said"],
+        ["six citizen - clicks afterwards", "left one Citizen specialist where an Engineer had been, so assignments do not simply undo; check the column after each click"],
+        ["the ten production filters in a big late-game city", "inconclusive: after the first filter click the screen was back on the main map, so the next clicks hit the main screen; the user was moving the mouse meanwhile, which most likely caused it; retest one click at a time with a screenshot after each"]
+      ],
+      "controls": {
+        "city_bar": {"xy": [960, 92], "note": "name, size, culture and production modifier; religion icons at its left, such as (418, 92) Christianity"},
+        "growth_bar": {"xy": [960, 136], "note": "Growing or Shrinking with food stored, turns; no help text"},
+        "production_bar": {"xy": [960, 166], "note": "current production with hammers and turns; no help text"},
+        "commerce_sliders": {"xy": [110, 112], "note": "the empire's commerce sliders with + and - buttons, as on the main screen, and each rate at x 380"},
+        "maintenance": {"xy": [100, 198], "note": "city maintenance"},
+        "trade_routes": {"xy": [60, 260], "note": "one row per trade route; hovering shows the route's yield breakdown beside the list"},
+        "buildings": {"xy": [60, 366], "note": "buildings with their effects, 24 px apart from y 366; hovering shows a building's effects beside the list"},
+        "bonuses": {"xy": [1690, 95], "note": "bonus resources in two columns at x 1690 and 1880 from y 95, about 40 px apart; hovering shows effects, such as Maize +1 health with Granary"},
+        "specialists": {"xy": [1855, 502], "note": "one figure per kind at x 1855, rows 28 px apart from y 502 (Engineer first here; the figure at y 472 has no button); hovering shows its yields, such as Engineer +3 hammers, +2 science, +1 culture, +3 birth rate"},
+        "specialist_plus": {"xy": [1880, 502], "note": "+ beside each kind: moves a citizen from a tile to that specialist; the button then becomes a - at x 1903, which moves it back"},
+        "specialists_now": {"xy": [1802, 672], "note": "the city's current specialists and settled Great People, 28 px apart at y 672"},
+        "info_lines": {"xy": [1720, 760], "note": "Great People, culture, nationality and religion lines; the culture bar at (1720, 840) shows its breakdown"},
+        "citizen_automation": {"xy": [1790, 892], "note": "Turn Off Citizen Automation, among small buttons at y 892; arrows at (1712, 892) and (1740, 892) show no help text"},
+        "nationality": {"xy": [1810, 924], "note": "City Nationality, such as 100% Carthaginian"},
+        "production_filters": {"xy": [60, 932], "note": "ten buttons at y 932, about 34 px apart from x 60: Start Scroll at Units, at Buildings, at Wonders; Show All Buildings, Regular Buildings Only, National Wonders Only (identified from the named control in CvMainInterface.py), World Wonders Only; Hurry with population, Hurry with gold (needs a civic), and one more without help text; at turn 100 the filters barely changed the short list"},
+        "production_choices": {"xy": [430, 925], "note": "units, then buildings and wonders in rows from y 925, about 54 px apart across from x 433 and 53 px down (re-measured 2026-11-11; 37 and 50 px were wrong); hovering shows cost and effects; a click starts it; Ctrl+click puts it first in the queue, Shift+click last, Alt+click repeats it"},
+        "processes": {"xy": [433, 1083], "note": "Wealth, Research and Culture at y 1083, 54 px apart from x 433"},
+        "queue": {"xy": [80, 966], "note": "the production queue at the bottom left, one row per item about 24 px apart from y 966, with counts; it replaces the units list once something is queued"},
+        "units": {"xy": [60, 966], "note": "units in the city, with the selected one's portrait"},
+        "tile_n2_w1": {"xy": [822, 257]},
+        "tile_n2": {"xy": [963, 257]},
+        "tile_n2_e1": {"xy": [1104, 257]},
+        "tile_n1_w2": {"xy": [681, 398]},
+        "tile_n1_w1": {"xy": [822, 398]},
+        "tile_n1": {"xy": [963, 398]},
+        "tile_n1_e1": {"xy": [1104, 398]},
+        "tile_n1_e2": {"xy": [1245, 398]},
+        "tile_w2": {"xy": [681, 540]},
+        "tile_w1": {"xy": [822, 540]},
+        "tile_center": {"xy": [963, 540], "note": "city tile; clicking it restores automatic citizen assignment"},
+        "tile_e1": {"xy": [1104, 540]},
+        "tile_e2": {"xy": [1245, 540]},
+        "tile_s1_w2": {"xy": [681, 681]},
+        "tile_s1_w1": {"xy": [822, 681]},
+        "tile_s1": {"xy": [963, 681]},
+        "tile_s1_e1": {"xy": [1104, 681]},
+        "tile_s1_e2": {"xy": [1245, 681]},
+        "tile_s2_w1": {"xy": [822, 822]},
+        "tile_s2": {"xy": [963, 822]},
+        "tile_s2_e1": {"xy": [1104, 822]},
+        "tiles": {"xy": [963, 540], "note": "city tile; clicking it restores automatic citizen assignment"},
+        "specialist_engineer": {"xy": [1858, 502], "note": "+ at (1880, 502) when the city has a free slot, - at (1903, 502) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "specialist_merchant": {"xy": [1858, 530], "note": "+ at (1880, 530) when the city has a free slot, - at (1903, 530) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "specialist_scientist": {"xy": [1858, 558], "note": "+ at (1880, 558) when the city has a free slot, - at (1903, 558) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "specialist_artist": {"xy": [1858, 586], "note": "+ at (1880, 586) when the city has a free slot, - at (1903, 586) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "specialist_priest": {"xy": [1858, 614], "note": "+ at (1880, 614) when the city has a free slot, - at (1903, 614) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "specialist_citizen": {"xy": [1858, 642], "note": "+ at (1880, 642) when the city has a free slot, - at (1903, 642) once one is assigned; assigned ones show as figures to the left, 28 px apart"},
+        "religion_icons": {"xy": [415, 84], "to": "sevopedia", "note": "the city's religion and corporation icons at y 84, 30 px apart from x 415; hover names it and its effects; a click opens its Sevopedia page, and esc there returns to the city screen"},
+        "corporation_icons": {"xy": [1508, 92], "to": "sevopedia", "note": "corporation icons at the right end of the city bar, apart from the religions at the left; hover names it, its yields and what it consumes; a click opens its Sevopedia page, esc returns"},
+        "specialist_spy": {"xy": [1858, 446], "note": "the top row, without help text when empty; Cahokia (turn 368) had two Spies with a - at (1903, 446); rows shift with how many specialists and Great People a city has, so read them off a screenshot"}
+      }
+    },
+    "advisors": {
+      "reach": "F1 to F9 and Ctrl+E from the main screen, or the advisor buttons at y 79; Esc closes each, as does its EXIT tab",
+      "note": "Opened on 2026-11-11 at turn 200, not in Debug Mode. Each advisor covers about the left three quarters of the window (x 0-1440); the scoreboard, top right and minimap stay visible to its right. Its tabs run along the bottom at about y 1095, left to right, with EXIT last near x 1440.",
+      "tests": [
+        ["esc", "closes the advisor"],
+        ["reopening an advisor", "it opens on the tab last used: F3 on Espionage after Ctrl+E"],
+        ["f1, f3 in Debug Mode", "each gains debug_player_dropdown"],
+        ["f2, Tribalism, REVOLUTION", "\"Autoplay adopts Tribalism! (Abolishes Slavery.)\" on the main screen, at once"],
+        ["f5_map_show_units", "turns into Hide individual units and lists each unit with strength, moves, XP and promotion icons"],
+        ["Map tab: click a unit row, then another leader, without and with Debug Mode", "the row turns yellow; without Debug Mode another leader's list is empty; with it, that leader's units are listed, the world map is revealed, and the selected type's units show as yellow dots on the map"],
+        ["Map tab: click a unit type row, then ctrl+click and shift+click others", "both modifiers add the type to the selection (rows turn yellow) and the map dots show all selected types; rows 32 px apart from y 218 at x 850 in this game"],
+        ["f1 or f2 in Debug Mode: choose another player", "their cities and data show; double-clicking a foreign city's row in F1 does not open it"],
+        ["find another player's city with a corporation", "F2 Corporations with that player chosen names the cities; minimap click toward their colour, zoom in, then click the banner"]
+      ],
+      "controls": {
+        "f1_domestic": {"xy": [1650, 79], "note": "Domestic Advisor: tabs Overview 1, Overview 2, Overview 3, Overview 4, Finance; a city table"},
+        "f2_policy": {"xy": [1678, 79], "note": "Policy Advisor: tabs Civics, Religions, Corporations; civic columns Government, Legal, Labor, Economy, Religion"},
+        "f3_diplomacy": {"xy": [1706, 79], "note": "Foreign Diplomacy Advisor: tabs Relations, Glance, Info, Espionage; a web of leader portraits"},
+        "f4_trade": {"xy": [1734, 79], "note": "Foreign Trade Advisor: tabs Treaties, Bonuses, Techs, Cities; one row per civilization"},
+        "f5_military": {"xy": [1762, 79], "note": "Military Advisor: tabs Summary, Map, Battles, Composition along y 1090 (Map at x 430, Battles at x 668)"},
+        "f5_map_leaders": {"xy": [60, 180], "note": "Map tab: leader portraits in rows of 10, about 68 px apart, the Barbarian skull last; a click lists that player's units on the right, grouped by combat type, with a Show individual units checkbox; the world map below"},
+        "f5_battles_player": {"xy": [176, 96], "note": "Battles tab, Debug Mode: a player dropdown; items 26 px apart from y 132 at x 100; the table lists that player's battles with turn, odds, units, XP and plot; LOG and Legend at the top right; clicking a row showed no change"},
+        "f6_technology": {"xy": [1790, 79], "note": "Technology Advisor: the tech tree, no tabs"},
+        "f7_world": {"xy": [1818, 79], "note": "World Advisor: tabs BFC 1, BFC 2, Territory, Environment, Changes"},
+        "f8_info": {"xy": [1846, 79], "note": "Info Screen: tabs Graph, Score, Timeline, Demographics, Top 5 Cities/Wonders, Statistics"},
+        "f9_victory": {"xy": [1874, 79], "note": "Victory Screen: tabs Victories, Settings, Resolutions, Members"},
+        "ctrl_e_espionage": {"xy": [1902, 79], "note": "opens the Foreign Diplomacy Advisor on its Espionage tab"},
+        "debug_player_dropdown": {"xy": [200, 140], "note": "in Debug Mode only: a wide dropdown at the top left of F1 and F3, likely choosing whose data the advisor shows; its items were not read yet"},
+        "f1_overview_1": {"xy": [132, 1091]},
+        "f1_overview_2": {"xy": [390, 1091]},
+        "f1_overview_3": {"xy": [648, 1091]},
+        "f1_overview_4": {"xy": [906, 1091]},
+        "f1_finance": {"xy": [1130, 1091]},
+        "f2_civics": {"xy": [136, 1091]},
+        "f2_religions": {"xy": [268, 150], "note": "Religions: one religion per column at the top with founded, holy city, leader and influence; a city table below"},
+        "f2_corporations": {"xy": [286, 188], "note": "Corporations tab: one column per corporation, 177 px apart from x 286 (built by, consumes, generates, founded, HQ); the player's cities below in two lists, those with a corporation marked by its icon and yield; in Debug Mode the player dropdown at (176, 96) switches whose cities show, items 23 px apart from y 134; clicking a city name does nothing"},
+        "f3_relations": {"xy": [189, 1091]},
+        "f3_glance": {"xy": [520, 1091]},
+        "f3_info": {"xy": [764, 1091]},
+        "f3_espionage": {"xy": [1051, 1091]},
+        "f4_treaties": {"xy": [182, 1091]},
+        "f4_bonuses": {"xy": [531, 1091]},
+        "f4_techs": {"xy": [832, 1091]},
+        "f4_cities": {"xy": [1092, 1091]},
+        "f5_summary": {"xy": [170, 1091]},
+        "f5_map": {"xy": [430, 1091]},
+        "f5_battles": {"xy": [668, 1091]},
+        "f5_composition": {"xy": [1032, 1091]},
+        "f7_bfc_1": {"xy": [134, 1091]},
+        "f7_bfc_2": {"xy": [306, 1091]},
+        "f7_territory": {"xy": [548, 1091]},
+        "f7_environment": {"xy": [899, 1091]},
+        "f7_changes": {"xy": [1228, 1091]},
+        "f8_graph": {"xy": [75, 1091]},
+        "f8_score": {"xy": [216, 1091]},
+        "f8_timeline": {"xy": [376, 1091]},
+        "f8_demographics": {"xy": [608, 1091]},
+        "f8_top_5_cities_wonders": {"xy": [954, 1091]},
+        "f8_statistics": {"xy": [1262, 1091]},
+        "f9_victories": {"xy": [103, 1091]},
+        "f9_settings": {"xy": [323, 1091]},
+        "f9_resolutions": {"xy": [543, 1091]},
+        "f9_members": {"xy": [763, 1091]},
+        "f2_civic_columns": {"xy": [90, 196], "note": "Civics tab: Government, Legal, Labor, Economy and Religion columns 300 px apart from x 90 (names at x 90, 390, 690, 990, 1290), civics 30 px apart from y 196; an icon marks the ones available; a click previews it below and turns the bottom bar into CANCEL (x 752) and REVOLUTION (x 1398)"},
+        "f2_revolution": {"xy": [1398, 1091], "to": "game_main", "note": "after choosing civics: adopts them and closes the advisor; with 0 turns for revolution there was no anarchy"},
+        "f1_table": {"xy": [40, 138], "note": "Overview 1-4: one city per row from y 162, 24 px apart, headings at y 138; Overview 1 ends with Producing, Overview 4 with the city's X and Y"},
+        "f1_legend": {"xy": [1462, 90], "note": "Legend at the top right, as on several advisors"},
+        "f1_finance_rates": {"xy": [50, 740], "note": "Finance: rate buttons beside Research, Culture, Espionage and Gold, at x 50 and 72, 30 px apart from y 740; the treasury line at y 420"},
+        "f3_relations_legend": {"xy": [80, 870], "note": "Relations: line colours for contact, war, defensive pact, open borders, team and vassal at the bottom left"},
+        "f3_espionage_weights": {"xy": [60, 165], "note": "Espionage: one leader per row about 56 px apart with + and - weight buttons; cities, passive effects and missions with costs to the right"},
+        "f5_map_show_units": {"xy": [760, 160], "note": "Map: the Show individual units checkbox above the unit list"},
+        "f5_battles_table": {"xy": [40, 140], "note": "Battles: headings at y 140, rows 24 px apart from y 164; Turn sorted ascending, then descending; LOG at (1394, 94)"},
+        "f8_graph_dropdowns": {"xy": [180, 164], "note": "Graph: two dropdowns at the top left, the measure (Score) and the time span (Entire timeline)"},
+        "f8_timeline_log": {"xy": [1428, 94], "note": "Timeline: LOG at the top right; the event list scrolls"},
+        "f8_score_table": {"xy": [400, 140], "note": "Score: one leader per row; a heading click re-sorts"},
+        "f9_space_view": {"xy": [516, 503], "note": "Victories: the space race's View button"},
+        "exit_tab": {"xy": [1446, 1091], "to": "game_main", "note": "EXIT, the last tab of every advisor"}
+      }
+    },
+    "tech_tree": {
+      "reach": "F6, or the Technology Advisor button at (1790, 79); EXIT at (1660, 1090)",
+      "shows": "the tech tree: known techs green, available ones lavender, out of reach blue; the queue position and turns before a queued tech's name, such as 1 Professional Army (1); a bottom strip shows which techs each Great Person could discover",
+      "tests": [
+        ["click an available tech's title (Banking)", "replaced the whole queue with the path to it: 1 Broader Education (4), 2 Banking (5); the current tech dropped out but kept its progress"],
+        ["click the dropped tech again, then shift+click Banking", "1 Professional Army (1), 2 Broader Education (4), 3 Banking (5): Shift appends the path"],
+        ["click an unlock icon inside a tech box", "nothing opened"],
+        ["click an already known tech (Fishing)", "clears all research, as the user said; the top bar then shows one icon per available tech instead of the research bar"],
+        ["great_people_techs icons", "the lightbulb shows techs Great People could discover; each group to its right shows one Great Person type's current discovery or preference order, so they differ"]
+      ],
+      "controls": {
+        "tree": {"xy": [860, 600], "note": "the wheel scrolls it sideways: 10 clicks down went from the classical to the industrial techs; click a tech's title"},
+        "scrollbar": {"xy": [860, 1050], "note": "horizontal scrollbar"},
+        "great_people_techs": {"xy": [32, 1094], "note": "lightbulb: techs Great People could discover; icon groups to its right, about x 110, 204, 320, 410, 504, show each Great Person type's current discovery and preference order"},
+        "exit": {"xy": [1660, 1090], "to": "game_main"}
+      }
+    },
+    "popup_victory": {
+      "reach": "someone wins",
+      "shows": "X has won a ... Victory, with OK",
+      "controls": {
+        "ok": {"xy": [1703, 220], "to": "replay_screen", "note": "then come the replay, the Info Screen's graph, Your Place in History and the Hall of Fame, each with EXIT, and then popup_end_of_history"}
+      }
+    },
+    "popup_end_of_history": {
+      "reach": "after the end-of-game screens",
+      "shows": "The End of History...",
+      "controls": {
+        "one_more_turn": {"xy": [1700, 187], "to": "game_main", "note": "Wait! Just one more turn..."},
+        "exit_to_main_menu": {"xy": [1700, 217], "to": "main_menu"}
+      }
+    },
+    "replay_screen": {
+      "reach": "end of a game, or hall_of_fame's V button from the main menu",
+      "shows": "the map growing turn by turn, a score graph below it, and the game's event log on the right, which lists major events such as wars and city captures",
+      "controls": {
+        "play": {"xy": [52, 1094], "note": "PLAY, which becomes STOP while playing; plays to the end, about 10 s for 369 turns at default speed"},
+        "next": {"xy": [202, 1094], "note": "NEXT advanced one replay turn in the early-game check"},
+        "speed": {"xy": [930, 1083], "note": "speed slider from about x 822 to 1020, default near the left; after a drag to the left end the replay took about 8 s and after one to the right about 10 s, too close to tell which way is faster; the user thinks the far right is the fastest; re-test with a longer game"},
+        "exit": {"xy": [1872, 1092], "note": "back to the previous screen"}
+      }
+    },
+    "autoplay_prompt": {
+      "reach": "game_main: ctrl+shift+x",
+      "shows": "Turn on AI Auto Play? How many turns would you like the AI to control?",
+      "controls": {
+        "turns": {"xy": [1100, 536], "note": "prefilled with 501: click it, backspace 4 times, then type the count"},
+        "ok": {"xy": [976, 574], "to": "game_main", "note": "starts autoplay; 2 turns ran in under 3 s"},
+        "cancel": {"xy": [976, 606], "to": "game_main"}
+      }
+    },
+    "game_load_file": {
+      "reach": "game_main: ctrl+l",
+      "shows": "Load File: folder tree on the left, opened on Saves/single; saves on the right, newest first, with size and date",
+      "controls": {
+        "file_list": {"xy": [980, 290], "note": "the first save; rows 24 px apart; one wheel click scrolls 3 rows; a click fills the filename"},
+        "filename": {"xy": [960, 904], "note": "file name field"},
+        "ok": {"xy": [1618, 904], "to": "game_main", "note": "loads the save: under 5 s for a turn-200 Standard game"},
+        "cancel": {"xy": [1618, 942], "to": "game_main"}
+      }
+    },
+    "popup_deal_cancelled": {
+      "reach": "an AI cancels a deal; came first after an interrupted autoplay",
+      "shows": "the diplomacy screen with the leader, both sides' items and one answer",
+      "controls": {
+        "exit": {"xy": [958, 860], "to": "game_main", "note": "Fair enough. (exit)"}
+      }
+    },
+    "popup_choose_production": {
+      "reach": "a city finished or can no longer build its item; came after an interrupted autoplay",
+      "shows": "a list on the right: Examine City, then recommended and other items",
+      "controls": {
+        "examine_city": {"xy": [1700, 245], "to": "city_screen"},
+        "items": {"xy": [1700, 283], "to": "game_main", "note": "items 40 px apart from here; a click sets the city's production"}
+      }
+    },
+    "popup_choose_research": {
+      "reach": "research finished, after End Turn",
+      "shows": "What would you like to research next? Let's see the Big Picture, then techs with turns and recommendations",
+      "controls": {
+        "big_picture": {"xy": [1640, 190], "note": "opens the tech tree"},
+        "techs": {"xy": [1640, 225], "to": "game_main", "note": "the first tech; rows 36 px apart; a click sets research"}
+      }
+    },
+    "popup_declare_war": {
+      "reach": "game_main: alt+click a leader on the scoreboard",
+      "shows": "Does this mean WAR?!? (vs. the leader), and which third parties will disapprove",
+      "controls": {
+        "yes": {"xy": [1704, 246], "to": "game_main", "note": "Yes, DECLARE WAR!: on 2026-11-11 also cancelled open borders, and the enemy's city banners turned red"},
+        "no": {"xy": [1704, 278], "to": "game_main", "note": "No, let's reconsider"}
+      }
+    },
+    "ingame_menu": {
+      "reach": "game_main: esc with nothing open",
+      "shows": "Exit to Desktop, Exit to Main Menu, Retire, Load Game, Save Game, Options, BUG Menu, Enter WorldBuilder, Game Details, Your Details, Cancel",
+      "controls": {
+        "items": {"xy": [1780, 206], "note": "the first item, Exit to Desktop; items 31 px apart; at the start of a game Regenerate Map appears fourth and pushes the later items down a row; the exits, Retire and WorldBuilder have real effects"},
+        "exit_to_main_menu": {"xy": [1780, 237], "to": "popup_are_you_sure", "note": "the second item in both layouts"},
+        "cancel": {"xy": [1780, 516], "to": "game_main"}
+      }
+    },
+    "popup_tech_discovered": {
+      "reach": "a tech is discovered at the start of a turn",
+      "shows": "the tech's quote, special abilities, what it leads to and allows",
+      "controls": {
+        "continue": {"xy": [968, 868], "to": "game_main", "note": "Continue"}
+      }
+    },
+    "popup_are_you_sure": {
+      "reach": "ingame_menu: Exit to Main Menu",
+      "shows": "Are you sure?",
+      "controls": {
+        "exit_to_main_menu": {"xy": [1700, 180], "to": "main_menu", "note": "leaves the game without asking to save; the main menu came back within 8 s"},
+        "cancel": {"xy": [1700, 210], "to": "game_main"}
+      }
+    },
+    "popup_city_name": {
+      "reach": "after founding a city",
+      "shows": "What would you like to name this settlement? with the suggested name",
+      "controls": {
+        "ok": {"xy": [1705, 292], "to": "popup_choose_research", "note": "keeps the name; the first city then asked for research, then production"}
+      }
+    },
+    "popup_civic_available": {
+      "reach": "a new civic becomes available, such as Pacifism at a Renaissance start",
+      "shows": "Would you like to start a revolution?",
+      "controls": {
+        "no": {"xy": [1705, 202], "to": "game_main", "note": "No, the old ways are best"},
+        "big_picture": {"xy": [1705, 232], "note": "Let's see the Big Picture"}
+      }
+    },
+    "popup_first_unit": {
+      "reach": "the first unit of a new kind is trained, such as the first Camel Knight",
+      "shows": "Congratulations, you have trained your first ... unit, with what it does",
+      "controls": {
+        "carry_on": {"xy": [1700, 267], "to": "game_main", "note": "Very well, carry on then"},
+        "big_picture": {"xy": [1700, 297], "note": "What's the Big Picture?"}
+      }
+    },
+    "popup_vote_result": {
+      "reach": "a vote in the Apostolic Palace or United Nations ends",
+      "shows": "the resolution, the result and each civilization's vote",
+      "controls": {
+        "ok": {"xy": [1630, 396], "to": "game_main"}
+      }
+    }
+  }
+}

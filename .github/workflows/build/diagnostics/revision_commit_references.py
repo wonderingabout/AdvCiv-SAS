@@ -39,7 +39,9 @@ def reference_format_errors(text):
 
 
 def read(repo, commit, path):
-    data = sgr.git_show(repo, commit, str(path))
+    # <!-- custom: Git tree paths use forward slashes.
+    # On Windows, str(path) hid the pending SGR200 reference from the local check. (GPT-6.1-Sol) -->
+    data = sgr.git_show(repo, commit, Path(path).as_posix())
     return "" if data is None else data.decode("utf-8", "replace")
 
 

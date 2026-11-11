@@ -4,7 +4,8 @@
 # <!-- custom: Windows-side helpers for a running Civ4 window or any other app's: find it by process ID, take a screenshot, click, hover, scroll, paste text, press a key, close it, or launch Civ4 detached from the caller.
 # Named civ4_window.py until 2026-11-10, before its first commit; renamed once it also drove other agents' apps such as Codex and the Claude app.
 # Coordinates are physical pixels relative to the window's top-left corner, as in the screenshots; the process is made DPI-aware first, because without it a 150% display scale returned a 1284x747 rectangle for a 1926x1120 window and cropped the screenshot.
-# Keystrokes did not reach the game's Ctrl+Shift+X chooser while mouse clicks did, so paste and key are for other apps, such as messaging the Codex or Claude app. (Claude Code Opus 5.5) -->
+# Mouse clicks reached the game before key events did.
+# After key events gained scan codes on 2026-11-11, agents navigated Sevopedia and started and stopped autoplay with Ctrl+Shift+X. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 
 # <!-- custom: argparse parses the subcommands; ctypes calls user32/gdi32/kernel32 for windows, input and bitmaps. (Claude Code Opus 5.5) -->
 import argparse
@@ -158,7 +159,8 @@ def window_pid(hwnd):
 	return owner.value
 
 
-def bring_to_front(hwnd, pid):
+def bring_to_front(hwnd, pid, allow_click=True):
+	# <!-- custom: Focus restoration passes allow_click=False so returning to the user's window never presses its title bar. (GPT-6.1-Sol) -->
 	# <!-- custom: Windows' foreground lock refuses SetForegroundWindow from a background process: on 2026-11-10 pastes between the Codex and Claude apps failed twice, each time leaving the app last typed into in front.
 	# Retrying with this thread attached to the foreground window's input thread, the usual workaround, lets the switch through; the click and paste checks still refuse if it does not. (Claude Code Opus 5.5) -->
 	USER32.SetForegroundWindow(hwnd)
@@ -176,10 +178,27 @@ def bring_to_front(hwnd, pid):
 	finally:
 		USER32.AttachThreadInput(our_thread, foreground_thread, False)
 	time.sleep(0.3)
+	foreground = USER32.GetForegroundWindow()
+	if window_pid(foreground) == pid:
+		return foreground
+	# <!-- custom: On 2026-11-11 both attempts failed for Civ4 five times running while the user was idle, yet a real click on its title bar brought it forward at once; a click is user input, which the foreground lock lets through.
+	# The title bar is clicked because it does nothing inside a game. (Claude Code Opus 5.5) -->
+	# <!-- custom: Codex's 2026-11-11 review found the click could land in another app covering that point; so check the window under it first, and never click while giving focus back to the user's window. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	left, top, right, _bottom = window_rect(hwnd)
+	title_x, title_y = left + (right - left) // 3, top + 12
+	under = USER32.WindowFromPoint(wt.POINT(title_x, title_y))
+	if not allow_click or not under or window_pid(under) != pid:
+		return foreground
+	USER32.SetCursorPos(title_x, title_y)
+	time.sleep(0.05)
+	USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+	USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+	time.sleep(0.4)
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y):
+def click(pid, x, y, modifiers=(), double=False):
+	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: Codex's 2026-11-10 review found that click pressed the mouse even when the window had not come to the front or the point lay outside it, so the click could land in whatever window was there, such as the user's. Check the bounds, the foreground window and the window under the point before pressing; a Civ4 popup is a separate window of the same process, so the last check compares processes, not handles. (Claude Code Opus 5.5) -->
 	hwnd, screen_x, screen_y = window_point(pid, x, y)
 	foreground = bring_to_front(hwnd, pid)
@@ -190,10 +209,86 @@ def click(pid, x, y):
 		raise RuntimeError("screen point %d,%d is covered by a window of process %d" % (screen_x, screen_y, window_pid(under) if under else 0))
 	USER32.SetCursorPos(screen_x, screen_y)
 	time.sleep(0.05)
-	USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-	time.sleep(0.08)
-	USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+	# <!-- custom: Civ4 gives Ctrl-, Shift- and Alt-clicks their own meanings, such as selecting all units of a type or queueing production, so modifiers are held around the click. (Claude Code Opus 5.5) -->
+	# <!-- custom: Presses sit inside the try and only what was pressed is released, so a Ctrl+C mid-click leaves no key or button held, as Codex's 2026-11-11 review reproduced. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	pressed, button_down = [], False
+	try:
+		for modifier in modifiers:
+			key_event(modifier)
+			pressed.append(modifier)
+			time.sleep(0.04)
+		# <!-- custom: double presses twice within the double-click time, as opening a city from its banner needs. (Claude Code Opus 5.5) -->
+		for _ in range(2 if double else 1):
+			USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+			button_down = True
+			time.sleep(0.05)
+			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			button_down = False
+			time.sleep(0.05)
+	finally:
+		if button_down:
+			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+		for modifier in reversed(pressed):
+			key_event(modifier, up=True)
 	return screen_x, screen_y
+
+
+DRAG_BUTTONS = {"left": (0x01, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP), "right": (0x02, 0x0008, 0x0010), "middle": (0x04, 0x0020, 0x0040)}
+
+
+def drag(pid, x1, y1, x2, y2, button="left", steps=20, modifiers=()):
+	# <!-- custom: Press a mouse button at one window point, move in steps to another and release, to turn or move a 3D view such as the Sevopedia's model panes.
+	# Both ends get click's checks, and only what was pressed is released. (Claude Code Opus 5.5) -->
+	if steps < 1:
+		raise ValueError("drag steps must be positive")
+	vk, down, up = DRAG_BUTTONS[button]
+	# <!-- custom: An idle interval can pass while a button or modifier is held.
+	# Refuse that drag so cleanup cannot release the user's input. (GPT-6.1-Sol) -->
+	if any(USER32.GetAsyncKeyState(key) & 0x8000 for key in (vk, *modifiers)):
+		raise RuntimeError("a requested drag button or modifier is already held")
+	hwnd, _, _ = window_point(pid, x1, y1)
+	window_point(pid, x2, y2)
+	foreground = bring_to_front(hwnd, pid)
+	if window_pid(foreground) != pid:
+		raise RuntimeError("process %d's window did not come to the front; the foreground window belongs to process %d" % (pid, window_pid(foreground)))
+	_, start_x, start_y = window_point(pid, x1, y1)
+	_, end_x, end_y = window_point(pid, x2, y2)
+	for screen_x, screen_y in ((start_x, start_y), (end_x, end_y)):
+		under = USER32.WindowFromPoint(wt.POINT(screen_x, screen_y))
+		if not under or window_pid(under) != pid:
+			raise RuntimeError("screen point %d,%d is covered by a window of process %d" % (screen_x, screen_y, window_pid(under) if under else 0))
+	if not USER32.SetCursorPos(start_x, start_y):
+		raise OSError("could not position pointer for drag")
+	time.sleep(0.05)
+	pressed, button_down = [], False
+	try:
+		for modifier in modifiers:
+			key_event(modifier)
+			pressed.append(modifier)
+			time.sleep(0.04)
+		# <!-- custom: Focus can change during a drag.
+		# Stop moving and let finally release the button and modifiers if that happens. (GPT-6.1-Sol) -->
+		under = USER32.WindowFromPoint(wt.POINT(start_x, start_y))
+		if window_pid(USER32.GetForegroundWindow()) != pid or not under or window_pid(under) != pid:
+			raise RuntimeError("drag target changed before pressing the button")
+		USER32.mouse_event(down, 0, 0, 0, 0)
+		button_down = True
+		time.sleep(0.1)
+		for step in range(1, steps + 1):
+			if window_pid(USER32.GetForegroundWindow()) != pid:
+				raise RuntimeError("drag target lost focus")
+			x = start_x + (end_x - start_x) * step // steps
+			y = start_y + (end_y - start_y) * step // steps
+			if not USER32.SetCursorPos(x, y):
+				raise OSError("could not move pointer during drag")
+			time.sleep(0.03)
+		time.sleep(0.1)
+	finally:
+		if button_down:
+			USER32.mouse_event(up, 0, 0, 0, 0)
+		for modifier in reversed(pressed):
+			key_event(modifier, up=True)
+	return (start_x, start_y), (end_x, end_y)
 
 
 def hover(pid, x, y):
@@ -219,7 +314,11 @@ GMEM_MOVEABLE = 0x0002
 KEYEVENTF_KEYUP = 0x0002
 VK_CONTROL = 0x11
 # <!-- custom: Each key is (virtual key, modifiers); ctrl+enter queues a message in the Claude app or Codex while it works ("Ctrl+Enter to queue for later"); ctrl+a then backspace clears a box the agent filled itself. (Claude Code Opus 5.5) -->
-KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ())}
+KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ()),
+	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ())}
+KEYEVENTF_EXTENDEDKEY = 0x0001
+# <!-- custom: Arrow, page, home, end, insert and delete keys sit on the extended keyboard, so their events need KEYEVENTF_EXTENDEDKEY, or a program reading scan codes sees the number pad's keys instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2D, 0x2E}
 
 
 def clipboard_text():
@@ -268,16 +367,28 @@ def set_clipboard_text(text):
 		USER32.CloseClipboard()
 
 
-def tap(vk, modifiers=()):
-	for modifier in modifiers:
-		USER32.keybd_event(modifier, 0, 0, 0)
-		time.sleep(0.04)
-	USER32.keybd_event(vk, 0, 0, 0)
-	time.sleep(0.06)
-	USER32.keybd_event(vk, 0, KEYEVENTF_KEYUP, 0)
-	for modifier in reversed(modifiers):
-		time.sleep(0.04)
-		USER32.keybd_event(modifier, 0, KEYEVENTF_KEYUP, 0)
+def key_event(vk, up=False, layout=None):
+	# <!-- custom: Events used to carry no scan code.
+	# Civ4, a DirectX game, ignored them while the user's real typing reached its Sevopedia search box, so each event now carries the scan code a real key press has. (Claude Code Opus 5.5) -->
+	flags = (KEYEVENTF_KEYUP if up else 0) | (KEYEVENTF_EXTENDEDKEY if vk in EXTENDED_KEYS else 0)
+	scan = USER32.MapVirtualKeyExW(vk, 0, layout) if layout else USER32.MapVirtualKeyW(vk, 0)
+	USER32.keybd_event(vk, scan, flags, 0)
+
+
+def tap(vk, modifiers=(), layout=None):
+	# <!-- custom: Release pressed keys in finally, without another delay that could interrupt cleanup. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	pressed = []
+	try:
+		for modifier in modifiers:
+			key_event(modifier, layout=layout)
+			pressed.append(modifier)
+			time.sleep(0.04)
+		key_event(vk, layout=layout)
+		pressed.append(vk)
+		time.sleep(0.06)
+	finally:
+		for held in reversed(pressed):
+			key_event(held, up=True, layout=layout)
 	time.sleep(0.15)
 
 
@@ -331,10 +442,46 @@ def wait_for_idle_user(idle_seconds, timeout_seconds):
 def give_focus_back(previous, pid):
 	# <!-- custom: Return focus to the window that was in front before paste or key took it, usually the user's, unless that was the target itself. (Claude Code Opus 5.5) -->
 	if previous and window_pid(previous) not in (0, pid):
-		bring_to_front(previous, window_pid(previous))
+		bring_to_front(previous, window_pid(previous), allow_click=False)
 
 
-def key(pid, name):
+NAMED_VKS = {"enter": 0x0D, "esc": 0x1B, "backspace": 0x08, "tab": 0x09, "space": 0x20, "left": 0x25, "up": 0x26, "right": 0x27, "down": 0x28,
+	"pgup": 0x21, "pgdn": 0x22, "home": 0x24, "end": 0x23, "insert": 0x2D, "delete": 0x2E, "pause": 0x13}
+# <!-- custom: Number pad keys num0 to num9 move units in Civ4 (num5 centres or cycles), so they are named too. (Claude Code Opus 5.5) -->
+NAMED_VKS.update({"num%d" % n: 0x60 + n for n in range(10)})
+# <!-- custom: Civ4's unit cycling uses comma, period, backslash and slash; these are the US-layout VK_OEM codes, which another keyboard layout can place elsewhere. (Claude Code Opus 5.5) -->
+NAMED_VKS.update({"comma": 0xBC, "period": 0xBE, "backslash": 0xDC, "slash": 0xBF})
+MODIFIER_VKS = {"ctrl": VK_CONTROL, "shift": 0x10, "alt": 0x12}
+# <!-- custom: Each printable ASCII character as the US-keyboard key and Shift state that types it, for type --us-keys; see type_text. (Claude Code Opus 5.5) -->
+US_KEYS = {" ": (0x20, False)}
+for _unshifted, _shifted, _vk in zip("0123456789-=[]\\;',./`", ")!@#$%^&*(_+{}|:\"<>?~", (0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0xBD, 0xBB, 0xDB, 0xDD, 0xDC, 0xBA, 0xDE, 0xBC, 0xBE, 0xBF, 0xC0)):
+	US_KEYS[_unshifted] = (_vk, False)
+	US_KEYS[_shifted] = (_vk, True)
+for _letter in "abcdefghijklmnopqrstuvwxyz":
+	US_KEYS[_letter] = (ord(_letter.upper()), False)
+	US_KEYS[_letter.upper()] = (ord(_letter.upper()), True)
+
+
+def parse_key(name):
+	# <!-- custom: Any combination such as ctrl+shift+x, f10 or ctrl+left, so the Civ4 shortcuts listed in civ4_ui_map.json can all be sent; the fixed KEYS list covered only the few keys the agent apps needed. (Claude Code Opus 5.5) -->
+	if name in KEYS:
+		return KEYS[name]
+	parts = name.lower().split("+")
+	modifiers = tuple(MODIFIER_VKS[p] for p in parts[:-1])
+	last = parts[-1]
+	if last in NAMED_VKS:
+		vk = NAMED_VKS[last]
+	elif len(last) == 1 and last.isalnum():
+		vk = ord(last.upper())
+	elif last.startswith("f") and last[1:].isdigit() and 1 <= int(last[1:]) <= 12:
+		vk = 0x6F + int(last[1:])
+	else:
+		raise ValueError("unknown key %r" % name)
+	return vk, modifiers
+
+
+def key(pid, name, hold=0.0, count=1):
+	# <!-- custom: Count repeats a key during one focus grab, and hold gives a game time to read the input before focus returns. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: Press one key, such as Enter to send a pasted message, after checking the window is in front, as click does. (Claude Code Opus 5.5) -->
 	hwnd = find_window(pid)
 	if hwnd is None:
@@ -343,7 +490,55 @@ def key(pid, name):
 	if window_pid(bring_to_front(hwnd, pid)) != pid:
 		raise RuntimeError("process %d's window did not come to the front" % pid)
 	try:
-		tap(*KEYS[name])
+		for _ in range(count):
+			tap(*parse_key(name))
+		# <!-- custom: A game reads input on its own frames, so hold the focus a moment before giving it back, or a key can arrive after the window is no longer in front. (Claude Code Opus 5.5) -->
+		time.sleep(hold)
+	finally:
+		give_focus_back(previous, pid)
+
+
+def type_text(pid, text, hold=0.5, us_keys=False):
+	# <!-- custom: Type text as key presses with scan codes, for a game such as Civ4 that does not take pasted text. (Claude Code Opus 5.5) -->
+	# <!-- custom: us_keys selects printable ASCII for Sevopedia's US-style key handling.
+	# Check the whole string first because switching to layout-based input partway could type different characters there. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	if us_keys and any(character not in US_KEYS for character in text):
+		raise ValueError("--us-keys accepts only printable ASCII")
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	# <!-- custom: Was letters, digits and spaces only; with the layout lookup below, any character the keyboard can type is accepted. (Claude Code Opus 5.5) -->
+	for character in text:
+		if not character.isprintable():
+			raise ValueError("type supports printable characters only, not %r" % character)
+	previous = USER32.GetForegroundWindow()
+	foreground = bring_to_front(hwnd, pid)
+	if window_pid(foreground) != pid:
+		raise RuntimeError("process %d's window did not come to the front" % pid)
+	try:
+		# <!-- custom: Use the focused window thread's layout because the helper can have a different one.
+		# On French AZERTY, typing 2 requires Shift. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+		USER32.VkKeyScanExW.restype = ctypes.c_short
+		USER32.VkKeyScanExW.argtypes = [wt.WCHAR, ctypes.c_void_p]
+		USER32.GetKeyboardLayout.restype = ctypes.c_void_p
+		USER32.MapVirtualKeyExW.argtypes = [wt.UINT, wt.UINT, ctypes.c_void_p]
+		layout = USER32.GetKeyboardLayout(USER32.GetWindowThreadProcessId(foreground, None))
+		if not layout:
+			raise OSError("could not read the target window's keyboard layout")
+		for character in text:
+			# <!-- custom: Civ4's own text boxes follow the Windows layout: on French AZERTY the Ctrl+Shift+X turn box showed "é" for an unshifted 2 key, hence the layout lookup below.
+			# The Sevopedia search box, read by our Python from key codes, maps them as a US keyboard would: there the lookup's Shift+2 showed "@" and "-" showed "6".
+			# --us-keys sends ASCII as US keys for such fields. (Claude Code Opus 5.5) -->
+			if us_keys:
+				vk, shifted = US_KEYS[character]
+				tap(vk, (0x10,) if shifted else (), layout)
+				continue
+			# <!-- custom: ctypes expects a character once the argument is declared as WCHAR; passing ord(character) raised TypeError before typing. (GPT-6.1-Sol) -->
+			scan = USER32.VkKeyScanExW(character, layout)
+			if scan == -1:
+				raise ValueError("no key for %r on this keyboard layout" % character)
+			tap(scan & 0xFF, tuple(vk for bit, vk in ((0x100, 0x10), (0x200, VK_CONTROL), (0x400, 0x12)) if scan & bit), layout)
+		time.sleep(hold)
 	finally:
 		give_focus_back(previous, pid)
 
@@ -390,6 +585,89 @@ def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 	return int(output[1])
 
 
+def named_point(pid, name):
+	# <!-- custom: Civ4 click points were first read off screenshots and passed as numbers, then forgotten or re-measured.
+	# On 2026-11-11 the user suggested keeping them as data like the agent apps' app_layouts.json, so they live in civ4_points.json, keyed by the window's outer size.
+	# The points are window-relative, so where the window sits on the screen does not matter; a different size, such as another game resolution, fails loudly instead of clicking a wrong spot. (Claude Code Opus 5.5) -->
+	# <!-- custom: json reads the points file; imported here since only named points need it. (Claude Code Opus 5.5) -->
+	import json
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		sys.exit("no window for process %d" % pid)
+	left, top, right, bottom = window_rect(hwnd)
+	size = (right - left, bottom - top)
+	if "." in name:
+		# <!-- custom: SCREEN.CONTROL names come from civ4_ui_map.json, the map of Civ4's screens outside a game, such as single_player.load_game. (Claude Code Opus 5.5) -->
+		ui = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_ui_map.json").read_text(encoding="utf-8"))
+		if abs(size[0] - ui["window"][0]) > 20 or abs(size[1] - ui["window"][1]) > 20:
+			sys.exit("civ4_ui_map.json was measured on a %dx%d window, not %dx%d" % (ui["window"][0], ui["window"][1], size[0], size[1]))
+		screen_name, control = name.split(".", 1)
+		screen = ui["screens"].get(screen_name)
+		if screen is None or control not in screen["controls"]:
+			sys.exit("no control %r in civ4_ui_map.json" % name)
+		return tuple(screen["controls"][control]["xy"])
+	data = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_points.json").read_text(encoding="utf-8"))
+	for layout_name, layout in data["layouts"].items():
+		if abs(size[0] - layout["window"][0]) <= 20 and abs(size[1] - layout["window"][1]) <= 20:
+			if name not in layout["points"]:
+				sys.exit("no point %r in layout %s; known: %s" % (name, layout_name, ", ".join(sorted(layout["points"]))))
+			return tuple(layout["points"][name]["xy"])
+	sys.exit("no layout in civ4_points.json for a %dx%d window; measure the point on a screenshot and add a layout" % size)
+
+
+def monitors():
+	# <!-- custom: Each monitor's work area (left, top, right, bottom), the screen minus the taskbar, ordered left to right so 1 is the leftmost. (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+
+	class MONITORINFO(ctypes.Structure):
+		_fields_ = [("cbSize", wt.DWORD), ("rcMonitor", wt.RECT), ("rcWork", wt.RECT), ("dwFlags", wt.DWORD)]
+
+	areas = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HMONITOR, wt.HDC, ctypes.POINTER(wt.RECT), wt.LPARAM)
+
+	def callback(hmonitor, _hdc, _rect, _lparam):
+		info = MONITORINFO()
+		info.cbSize = ctypes.sizeof(MONITORINFO)
+		USER32.GetMonitorInfoW(hmonitor, ctypes.byref(info))
+		work = info.rcWork
+		areas.append((work.left, work.top, work.right, work.bottom))
+		return True
+
+	USER32.EnumDisplayMonitors(None, None, proc_type(callback), 0)
+	return sorted(areas)
+
+
+def move(pid, monitor, part):
+	# <!-- custom: Maximized, the Claude and Codex apps each spread a chat column about 1,200 px wide across a 3,840 px 4K window, leaving most of it empty (screenshots of 2026-11-11).
+	# On 2026-11-11 the user suggested sharing one monitor between them, half each, to free the other.
+	# The window is restored from maximized first.
+	# Windows 10 frames carry an invisible resize border, about 11 px on the Claude app, so the visible frame from DWM is placed on the target and the border added around it, as Win+Left and Win+Right do. (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise OSError("no window for process %d" % pid)
+	areas = monitors()
+	if not 1 <= monitor <= len(areas):
+		raise ValueError("monitor %d not found; this computer has %d" % (monitor, len(areas)))
+	left, top, right, bottom = areas[monitor - 1]
+	middle = (left + right) // 2
+	target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
+	USER32.ShowWindow(hwnd, 9)
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	outer = window_rect(hwnd)
+	border_left, border_top = frame.left - outer[0], frame.top - outer[1]
+	border_right, border_bottom = outer[2] - frame.right, outer[3] - frame.bottom
+	x = target[0] - border_left
+	y = top - border_top
+	width = target[1] - target[0] + border_left + border_right
+	height = bottom - top + border_top + border_bottom
+	# <!-- custom: 0x0014 is SWP_NOZORDER | SWP_NOACTIVATE, so the move neither raises the window nor takes focus from the user. (Claude Code Opus 5.5) -->
+	USER32.SetWindowPos(hwnd, None, x, y, width, height, 0x0014)
+	return window_rect(hwnd)
+
+
 def main():
 	parser = argparse.ArgumentParser(description="Screenshot, click, type into or close a running Civ4 window or any other app's window by process ID.")
 	sub = parser.add_subparsers(dest="command", required=True)
@@ -406,17 +684,28 @@ def main():
 	shot.add_argument("--method", choices=("window", "screen"), default="window", help="window: PrintWindow, works while covered; screen: bring to front and grab the screen area")
 	press = sub.add_parser("click", help="left-click a window-relative point (physical pixels, as in screenshots)")
 	press.add_argument("--pid", type=int, required=True)
-	press.add_argument("x", type=int)
-	press.add_argument("y", type=int)
+	press.add_argument("x", type=int, nargs="?")
+	press.add_argument("y", type=int, nargs="?")
+	press.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
+	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
+	press.add_argument("--double", action="store_true", help="double-click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
-	point.add_argument("x", type=int)
-	point.add_argument("y", type=int)
+	point.add_argument("x", type=int, nargs="?")
+	point.add_argument("y", type=int, nargs="?")
+	point.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
 	wheel = sub.add_parser("scroll", help="turn the mouse wheel over a window-relative point; positive clicks scroll up, negative down")
 	wheel.add_argument("--pid", type=int, required=True)
 	wheel.add_argument("x", type=int)
 	wheel.add_argument("y", type=int)
 	wheel.add_argument("clicks", type=int)
+	pull = sub.add_parser("drag", help="press a mouse button at one window point, move to another and release, e.g. to turn a 3D view")
+	pull.add_argument("--pid", type=int, required=True)
+	for name in ("x1", "y1", "x2", "y2"):
+		pull.add_argument(name, type=int)
+	pull.add_argument("--button", choices=sorted(DRAG_BUTTONS), default="left")
+	pull.add_argument("--steps", type=int, default=20, help="pointer moves between the two points")
+	pull.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the drag; repeat for several")
 	box = sub.add_parser("paste", help="click a window-relative point, such as a message box, and paste text without sending it")
 	box.add_argument("--pid", type=int, required=True)
 	box.add_argument("x", type=int)
@@ -427,10 +716,32 @@ def main():
 	box.add_argument("--send", choices=["enter", "ctrl+enter"], help="also press this key in the same focus grab, so the user's window is left for less time")
 	press_key = sub.add_parser("key", help="bring the window to the front and press one key, e.g. enter to send a pasted message")
 	press_key.add_argument("--pid", type=int, required=True)
-	press_key.add_argument("name", choices=sorted(KEYS))
+	press_key.add_argument("name", help="a key or combination such as enter, f10, ctrl+left or ctrl+shift+x")
+	press_key.add_argument("--count", type=int, default=1, help="press it this many times")
+	press_key.add_argument("--hold", type=float, default=0.5, help="seconds to keep the window in front after the last press, so a game reads it")
+	typing = sub.add_parser("type", help="bring the window to the front and type text as key presses, using the active keyboard layout")
+	typing.add_argument("--pid", type=int, required=True)
+	typing.add_argument("text")
+	typing.add_argument("--us-keys", action="store_true", help="send ASCII as US-keyboard keys whatever the layout, for Civ4's Sevopedia search box, which reads key codes; Civ4's own text boxes, such as the autoplay turn box, need the default")
 	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
 	close.add_argument("--pid", type=int, required=True)
+	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
+	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
+	place.add_argument("--pid", type=int, required=True)
+	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
+	place.add_argument("part", choices=("full", "left", "right"))
+	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".
+	# So these wait, by default, until the user has been idle for a few seconds; the same rule agent_message.py follows. (Claude Code Opus 5.5) -->
+	for focusing in (press, pull, box, press_key, typing):
+		focusing.add_argument("--idle-seconds", type=float, default=3.0, help="first wait until nobody has typed or moved the mouse for this long; 0 skips the wait")
+		focusing.add_argument("--idle-timeout", type=float, default=300.0, help="give up after this many seconds of waiting")
 	args = parser.parse_args()
+	if args.command == "drag" and args.steps < 1:
+		parser.error("drag --steps must be positive")
+	if args.command == "type" and args.us_keys and any(character not in US_KEYS for character in args.text):
+		parser.error("--us-keys accepts only printable ASCII")
+	if args.command in ("click", "drag", "paste", "key", "type") and args.idle_seconds > 0 and not wait_for_idle_user(args.idle_seconds, args.idle_timeout):
+		sys.exit("the user kept typing or moving the mouse for %d s; nothing was sent" % args.idle_timeout)
 
 	if args.command == "list":
 		for pid, cmd in civ4_processes():
@@ -441,10 +752,18 @@ def main():
 	elif args.command == "clipboard":
 		path, size = save_clipboard_image(args.out, args.crop, args.scale)
 		print("saved %s size=%dx%d" % ((path,) + size))
-	elif args.command == "click":
-		print("clicked screen point %d,%d" % click(args.pid, args.x, args.y))
-	elif args.command == "hover":
-		print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
+	elif args.command in ("click", "hover"):
+		if args.point:
+			args.x, args.y = named_point(args.pid, args.point)
+		elif args.x is None or args.y is None:
+			sys.exit("%s needs x and y, or --point NAME" % args.command)
+		if args.command == "click":
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double))
+		else:
+			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
+	elif args.command == "drag":
+		start, end = drag(args.pid, args.x1, args.y1, args.x2, args.y2, args.button, args.steps, tuple(MODIFIER_VKS[m] for m in args.modifiers))
+		print("dragged %s from %d,%d to %d,%d" % ((args.button,) + start + end))
 	elif args.command == "scroll":
 		scroll(args.pid, args.x, args.y, args.clicks)
 		print("scrolled %d at %d,%d" % (args.clicks, args.x, args.y))
@@ -452,12 +771,20 @@ def main():
 		text = args.text if args.text is not None else args.file.read_text(encoding="utf-8")
 		print("pasted %d characters at screen point %d,%d" % ((len(text),) + paste(args.pid, args.x, args.y, text, args.send)))
 	elif args.command == "key":
-		key(args.pid, args.name)
-		print("pressed %s" % args.name)
+		key(args.pid, args.name, args.hold, args.count)
+		print("pressed %s %d time(s)" % (args.name, args.count))
+	elif args.command == "type":
+		type_text(args.pid, args.text, us_keys=args.us_keys)
+		print("typed %d characters" % len(args.text))
 	elif args.command == "close":
 		if not request_close(args.pid):
 			sys.exit("no window for process %d" % args.pid)
 		print("WM_CLOSE sent to %d" % args.pid)
+	elif args.command == "monitors":
+		for number, area in enumerate(monitors(), 1):
+			print("%d\twork area %d,%d to %d,%d (%dx%d)" % ((number,) + area + (area[2] - area[0], area[3] - area[1])))
+	elif args.command == "move":
+		print("window now at %s" % (move(args.pid, args.monitor, args.part),))
 
 
 if __name__ == "__main__":

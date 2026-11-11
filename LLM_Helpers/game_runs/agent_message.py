@@ -24,13 +24,29 @@ import desktop_windows
 
 REPLIES = ("none needed", "Claude app", "Codex app", "user")
 
-# <!-- custom: Window-relative points for each app maximized on a 3840x2100 screen, observed on 2026-11-10.
-# "box" is where to click to type; "text" is the box's text area (left, top, right, bottom), left of the caret and buttons, which must hold no dark text before pasting.
-# These apps change their layout often: when a send is refused or lands wrong, take a screenshot and pass --box and --text instead. (Claude Code Opus 5.5) -->
-APPS = {
-	"codex": {"process": "ChatGPT", "box": (2250, 1929), "text": (1650, 1905, 2900, 1955)},
-	"claude": {"process": "claude", "box": (2100, 2007), "text": (1650, 1975, 2550, 2035)},
-}
+# <!-- custom: "box" is where to click to type; "text" is the box's text area (left, top, right, bottom), left of the buttons, which must hold no dark text before pasting.
+# Points were first measured on maximized windows on 2026-11-10 and kept here in code.
+# On 2026-11-11 both apps moved to one 4K monitor, half each (see "Side by side on one monitor" in README_Desktop_Windows.md), and the maximized points clicked the wrong place, so sends needed --box and --text-area by hand.
+# So each app now has named layouts, keyed by the window's outer width, and the helper picks the one matching the live window.
+# They live in app_layouts.json beside this script, with when and how each was measured, since app updates move them and re-measuring should not mean editing code.
+# Each run reads the file once at start, so a fixed layout applies from the next send on without touching code another agent may be running at that moment, such as a background --wait-reply; a wrong number cannot break the script's logic either.
+# Each text area starts just right of where the blinking text cursor sits: a click that left the cursor there made an empty Codex box read as "16 dark pixels". (Claude Code Opus 5.5) -->
+LAYOUTS_FILE = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
+APPS = json.loads(LAYOUTS_FILE.read_text(encoding="utf-8"))["apps"]
+LAYOUT_NAMES = sorted({name for app in APPS.values() for name in app["layouts"]})
+
+
+def pick_layout(app, pid, name):
+	# <!-- custom: The named layout if given; otherwise the one whose width is within 100 px of the window's, or None when no layout fits, so the caller must pass --box and --text-area. (Claude Code Opus 5.5) -->
+	layouts = APPS[app]["layouts"]
+	if name:
+		return name, layouts[name]
+	desktop_windows.make_dpi_aware()
+	left, _top, right, _bottom = desktop_windows.window_rect(desktop_windows.find_window(pid))
+	for key, layout in layouts.items():
+		if abs((right - left) - layout["width"]) <= 100:
+			return key, layout
+	return None, None
 
 
 def find_pid(process):
@@ -50,6 +66,9 @@ def dark_pixels(pid, area):
 	desktop_windows.screenshot(pid, path)
 	image = Image.open(path).convert("RGB")
 	left, top, right, bottom = area
+	# <!-- custom: A maximized layout forced on a half-width window reached past its edge and crashed with "image index out of range"; name the mismatch instead. (Claude Code Opus 5.5) -->
+	if right > image.width or bottom > image.height:
+		sys.exit("the text area %s lies outside the %dx%d window; is --layout right for it?" % (area, image.width, image.height))
 	return sum(1 for x in range(left, right, 2) for y in range(top, bottom, 2) if sum(image.getpixel((x, y))) < 200)
 
 
@@ -197,6 +216,8 @@ def main():
 	source.add_argument("--text")
 	source.add_argument("--file", type=Path, help="UTF-8 file holding the message body, which avoids shell quoting")
 	parser.add_argument("--queue", action="store_true", help="send with Ctrl+Enter, queueing it while the target is working")
+	parser.add_argument("--layout", choices=LAYOUT_NAMES, help="the target window's layout from app_layouts.json; by default picked from its width")
+	parser.add_argument("--check-box", action="store_true", help="only report the picked layout and whether the target's message box is empty, without sending")
 	parser.add_argument("--box", type=int, nargs=2, metavar=("X", "Y"), help="override where to click in the target window")
 	parser.add_argument("--text-area", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"), help="override the box's text area for the empty check")
 	parser.add_argument("--idle-seconds", type=float, default=5.0, help="send only after no keyboard or mouse input for this long; 2.5 let a typing user's next keys in")
@@ -211,6 +232,17 @@ def main():
 		problems = check(args.check.read_text(encoding="utf-8"))
 		print("\n".join(problems) if problems else "clean: nothing outside the header and closing tag")
 		sys.exit(1 if problems else 0)
+	if args.check_box:
+		# <!-- custom: Lets an agent confirm the picked layout and the empty-box reading, for example after moving a window, without sending anything. (Claude Code Opus 5.5) -->
+		if not args.to:
+			parser.error("--check-box needs --to")
+		pid = find_pid(APPS[args.to]["process"])
+		layout_name, layout = pick_layout(args.to, pid, args.layout)
+		if layout is None and not args.text_area:
+			sys.exit("no layout in app_layouts.json matches the %s window's width; pass --layout or --text-area, or measure the window and add its layout there" % args.to)
+		dark = dark_pixels(pid, tuple(args.text_area or layout["text"]))
+		print("%s (pid %d): layout %s, %d dark pixels in the text area, %s" % (args.to, pid, layout_name or "custom", dark, "empty" if dark <= 5 else "not empty"))
+		sys.exit(0 if dark <= 5 else 1)
 	if not (args.to and args.sender and args.reply and (args.text is not None or args.file)):
 		parser.error("sending needs --to, --sender, --reply and --text or --file")
 
@@ -221,14 +253,19 @@ def main():
 		print(message)
 		return
 	pid = find_pid(app["process"])
+	layout_name, layout = pick_layout(args.to, pid, args.layout)
+	if layout is None and not (args.box and args.text_area):
+		sys.exit("no layout in app_layouts.json matches the %s window's width; pass --layout, or --box and --text-area after a screenshot, and add the measured layout there" % args.to)
+	text_area = tuple(args.text_area or layout["text"])
+	box = tuple(args.box or layout["box"])
+	print("layout: %s" % (layout_name or "custom"))
 	# <!-- custom: The empty-box check alone was not enough: on 2026-11-10 a send through this helper still arrived with the user's keystrokes at both ends ("and re" before the header, "diso" after the Reply: line), typed during the second the target was in front.
 	# Waiting until the user has been idle for a moment closes most of that gap; the delimiters catch what still slips in. (Claude Code Opus 5.5) -->
 	if not desktop_windows.wait_for_idle_user(args.idle_seconds, args.idle_timeout):
 		sys.exit("the user kept typing or moving the mouse for %d seconds; not sending" % args.idle_timeout)
-	dark = dark_pixels(pid, tuple(args.text_area or app["text"]))
+	dark = dark_pixels(pid, text_area)
 	if dark > 5:
 		sys.exit("the %s message box is not empty (%d dark pixels): someone may be typing there; not sending" % (args.to, dark))
-	box = tuple(args.box or app["box"])
 	before = log_sizes(args.to) if args.wait_reply else None
 	desktop_windows.paste(pid, box[0], box[1], message, "ctrl+enter" if args.queue else "enter")
 	print("sent to %s (pid %d):" % (args.to, pid))

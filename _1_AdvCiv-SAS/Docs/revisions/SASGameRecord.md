@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 200 - SAS practical 6747
 
 - **Date:** 2026-11-11
-- **Git commit:** pending
+- **Git commit:** `ee2d695f21f9064338e2cc4fdfffadfa4071c5e7`
 - **Change:** List the other Civ4 clients open when a record starts, so a record from a parallel run shows which clients ran beside it.
   - At system-context level 2 (the default), each session start adds one `GAME_RECORD_PEER_CLIENTS` row with `scanAvailable`, `peerClients` and the record's own `processId`/`processStartUtc`, then one `GAME_RECORD_PEER_CLIENT` row per other `Civ4BeyondSword.exe` process with `peerProcessId` and `peerProcessStartUtc`.
   - The scan runs once per session start, not every turn. A client started later is not added to an earlier client's record, and its own record lists the earlier one only if that one is still open at its session-start scan, so the two records together show what overlapped at those moments.

@@ -1,0 +1,20 @@
+{
+  "copyright": "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy). (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md). JSON allows no comments, so this notice and the description below are fields.",
+  "about": "Window-relative points (physical pixels from the window's top-left corner, as in desktop_windows.py screenshots) where agent_message.py clicks each app's message box and checks it is empty. width is the window's outer width used to pick a layout. text is the area (left, top, right, bottom) that must hold no dark text; it starts just right of where the blinking text cursor sits. When an app update or a new layout moves these, re-measure as the LLM_Helpers README's agent_message.py section describes and update measured. Each layout is kept on one line on purpose, unlike program-written JSON such as the Runtime files: the layouts line up like table rows, so apps and window sizes compare at a glance, and a re-measure edits one line.",
+  "apps": {
+    "codex": {
+      "process": "ChatGPT",
+      "layouts": {
+        "4k-max": {"width": 3840, "box": [2250, 1929], "text": [1650, 1905, 2900, 1955], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
+        "4k-half": {"width": 1920, "box": [900, 1932], "text": [370, 1905, 1500, 1960], "measured": "2026-11-11", "conditions": "right half of a 3840x2100 work area, chat list collapsed, Codex 26.1106.6628.0"}
+      }
+    },
+    "claude": {
+      "process": "claude",
+      "layouts": {
+        "4k-max": {"width": 3862, "box": [2100, 2007], "text": [1650, 1975, 2550, 2035], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
+        "4k-half": {"width": 1940, "box": [900, 1998], "text": [430, 1978, 1440, 2018], "measured": "2026-11-11", "conditions": "left half of a 3840x2100 work area, chat list and session rail collapsed, Claude 5.1231.2.0"}
+      }
+    }
+  }
+}

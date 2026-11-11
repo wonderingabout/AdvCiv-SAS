@@ -46,6 +46,7 @@ In one parallel save-load run on 2026-11-11, the final PNG was about 921 KB, the
 | `Documents/My Games/beyond the sword/ScreenShots` | Civ4 screenshots | 3,000+ images before the user moved them |
 | `Documents/My Games/beyond the sword/Logs` | one SGR, BBAI and Runtime file set per session and client | about 3,600 files |
 | `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots` | optional final PNGs from `run_autoplay.py` | See the example sizes above. |
+| `Documents/My Games/beyond the sword/Replays` | one `.CivBeyondSwordReplay` per finished game, read by the Hall of Fame | 1,018 files (479 MB) on 2026-11-12, mostly from older mod versions; all but the newest were moved to `old_20261111T230303Z`, after which the Hall of Fame showed only the newest replay |
 
 ### Archiving with archive_old_files.py
 

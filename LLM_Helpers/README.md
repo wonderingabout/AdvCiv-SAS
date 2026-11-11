@@ -33,8 +33,8 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy) and others |
-| `game_runs/` | running the game itself without a person at the keyboard: [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
-| `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder |
+| `game_runs/` | running the game itself without a person at the keyboard: [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy) chooses a dropdown item by name and `capture_dropdowns.py` captures their lists, from the screen map `civ4_ui_map.json`; [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order and puts a capture of each on one sheet; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
+| `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
@@ -161,9 +161,17 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`run_autoplay.py`](#run_autoplaypy)
     - [`desktop_windows.py`](#desktop_windowspy)
     - [`agent_message.py`](#agent_messagepy)
+    - [`civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy)
+    - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
+    - [`check_points.py`](#check_pointspy)
+    - [`run_steps.py`](#run_stepspy)
+    - [`map_sevopedia.py`](#map_sevopediapy)
+    - [`sound_check.py`](#sound_checkpy)
 - [`housekeeping/`](#housekeeping)
   - [Folder upkeep](#folder-upkeep)
     - [`archive_old_files.py`](#archive_old_filespy)
+  - [Screenshot privacy](#screenshot-privacy)
+    - [`redact_image.py`](#redact_imagepy)
 - [`packaging/`](#packaging)
   - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
     - [`make_light_source_zip.py`](#make_light_source_zippy)
@@ -1675,9 +1683,24 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 - `clipboard --out shot.png` saves an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself; it accepts `--crop` and `--scale` too and refuses when the clipboard holds no image.
 - A screenshot captures only the game window, at its current place and size. The default `--method window` (Windows' `PrintWindow`) works while the window is covered; `--method screen` brings it to the front and copies its screen area. Neither can capture a minimized window. It needs Pillow.
 - Coordinates are physical pixels from the window's top-left corner, as in its screenshots; the tool makes itself DPI-aware, since display scaling otherwise cropped them.
-- Mouse clicks reach the game; keystrokes did not, so `paste` and `key` are for other apps.
+- Mouse clicks reach the game. Keystrokes first did not, when key events carried no scan code.
+  - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box.
+    - Later that day Ctrl+Shift+X opened the in-game autoplay prompt, and a second Ctrl+Shift+X stopped a run; see [Inside a game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#inside-a-game).
+  - `key` now also takes the arrow, page, home and end keys, `--count` and `--hold`, which keeps the window in front long enough for a game to read the key; `type` types text as key presses, asking the active keyboard layout which key and Shift, Ctrl or Alt each character needs: on the user's French AZERTY layout a plain 2 key typed "é" in Civ4's autoplay turn box on 2026-11-11.
+    - The Sevopedia search box is the exception: our Python reads it from key codes, which it maps as a US keyboard would, so there the layout's Shift+2 showed "@" and its "-" showed "6". `type --us-keys` sends ASCII as US keys for that box; found while checking the commit live the same evening.
+  - `drag --pid PID X1 Y1 X2 Y2 [--button left|right|middle]` presses a button at one point, moves to the other in steps and releases, with click's checks on both ends; it turns, pans and zooms the Sevopedia's 3D views (2026-11-11).
+- `click`, `drag`, `key`, `type` and `paste` first wait until the user has been idle for 3 seconds (`--idle-seconds`, `0` skips it), since taking the focus while the user types sends their keystrokes to the target: on 2026-11-11 the user's typing put "ntwt" in Civ4's autoplay turn box.
+- The idle wait belongs to the command line only. A script calling `desktop_windows.click` and friends directly gets none, so call `wait_for_idle_user` before each step, not once per batch: on 2026-11-12 a batch that waited once at its start sent eight filter clicks while the user moved the mouse, and from the second click on they hit the main map instead of the city screen.
+- `click --with ctrl` (or `shift`, `alt`, repeatable) holds the key during the click, as Civ4's Ctrl-, Shift- and Alt-clicks on units and production need, and `click --double` double-clicks, which opens a city from its banner.
+- `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
+  - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
+  - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
+- `monitors` lists each monitor's work area, the screen minus the taskbar, numbered from the left. `move --pid PID --monitor N full|left|right` places a window on that whole area or one half of it, without raising it or taking focus.
+  - Added on 2026-11-11 to put the Claude and Codex apps side by side on one monitor; see [Side by side on one monitor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#side-by-side-on-one-monitor).
 
 ```bash
+python LLM_Helpers/game_runs/desktop_windows.py monitors
+python LLM_Helpers/game_runs/desktop_windows.py move --pid 16256 --monitor 2 right
 python LLM_Helpers/game_runs/desktop_windows.py list
 python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 15692 --out shot.png
 python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
@@ -1690,7 +1713,16 @@ python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
 - Sends a message from one agent to the Codex or Claude app in the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention): a header with the sender and the UTC time to the millisecond, the text, and a closing tag such as `[/Claude Code Opus 5.5 · Reply: user]`.
 - Before pasting it checks that the target's message box holds no text, and refuses if it does: someone may be typing there. It then pastes and presses Enter (or Ctrl+Enter with `--queue`) in one focus grab and gives focus back, using `desktop_windows.py`.
   - Written on 2026-11-10 after two hand-made sends picked up the user's keystrokes, which landed in Codex while it was briefly in front.
-- The click point and text area are window-relative positions for each app maximized on a 3840x2100 screen, observed on 2026-11-10. The apps change their layout often; override them with `--box` and `--text-area` after a screenshot.
+- The click point and text area come from named layouts in [`app_layouts.json`](/LLM_Helpers/game_runs/ui_maps/app_layouts.json), beside the script: `4k-max` for a maximized window and `4k-half` for half of a 4K screen with the app's chat list and side panel collapsed. The helper picks the layout matching the window's width, or takes `--layout`.
+  - Each layout records its window width, when it was measured and under which conditions, including the app version.
+  - Each layout sits on one line, unlike program-written JSON such as the Runtime files, so the layouts line up like table rows and a re-measure edits one line.
+  - Keeping them as data means re-measuring edits no code. Each run reads the file at its start, so a fixed layout applies from the next send on, while code another agent is running, such as a background `--wait-reply`, is left alone.
+  - `--check-box` reports the layout picked and whether the message box is empty, without sending; run it after moving a window or updating an app.
+- **Re-measuring a layout:** app updates, a new screen or window size, or an opened panel can move the message box. When `--check-box` finds no layout, reads an empty box as not empty, or a send lands wrong:
+  1. Screenshot the bottom of the window, e.g. `desktop_windows.py screenshot --pid PID --crop 0 1850 WIDTH 2110 --scale 0.5`. The printed `window=` rectangle gives the outer width.
+  2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
+  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
+  4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
 - `--dry-run` prints the message without sending it.
 - `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
 - `--wait-reply` keeps running after the send until the target app ends the turn holding this message, then prints that turn's final answer, read from the new lines of its session log: `~/.codex/sessions` for Codex, `~/.claude/projects` for Claude Code. `--wait-timeout` gives up after 1,800 seconds by default.
@@ -1709,6 +1741,100 @@ python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.
 
 - Added with help of Claude Code Opus 5.5.
 
+#### `civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`
+
+- [`civ4_ui_map.json`](/LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json) maps Civ4's screens outside a game, explored on 2026-11-11 at 1920x1080 windowed: the main menu and every branch below it, 23 screens and 90 controls. Each control has its position, the screen it leads to and a note, so `desktop_windows.py click --point single_player.load_game` reaches a screen by name.
+  - Controls with real effects, such as starting a game, switching mod, going online or closing Civ4, are marked "not clicked" and were left alone.
+  - The Custom Game screen also lists all 11 dropdowns with their items, the 27 options and 6 victories, and examples of the extra settings 13 map scripts add below Speed.
+- `capture_dropdowns.py` opens each dropdown of a screen, captures its list page by page while scrolling, and closes it unchanged, checking the header's text stayed the same. Its pictures are for reading the items.
+- `set_dropdown.py SCREEN... DROPDOWN ITEM` chooses an item by name, such as `map Pangaea`, from the recorded list and layout.
+  - A dropdown opens scrolled to its current item, which made the first version pick Shuffle instead of SAS_Longworld; it now scrolls the list fully up before counting pages.
+- Custom Game settings are remembered for the user's next game, so note them before changing any and set them back afterwards, as on 2026-11-11.
+
+```bash
+python LLM_Helpers/game_runs/check_points.py --pid 21184 main_menu.single_player single_player.custom_game
+python LLM_Helpers/game_runs/set_dropdown.py --pid 21184 map Pangaea
+python LLM_Helpers/game_runs/capture_dropdowns.py --pid 21184 --only size era --out lists
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`
+
+- `hover_tooltips.py` hovers a list of `LABEL=X,Y` points and lays the area around each, or a fixed `--area`, out on sheets, so many unlabelled buttons can be named from their help text in a few reads.
+  - On Civ4's main screen help text shows only while Civ4 is in front, at the bottom left, so use `--front --area 0 420 960 960`; on the city screen it shows beside the pointer, so leave out `--area`.
+  - It named the main screen's and city screen's controls in `civ4_ui_map.json` on 2026-11-11.
+- `export_pedia_concepts.py` writes the Sevopedia's Mods Info, Hints and Shortcuts pages as plain text to [`ui_maps/sevopedia_concepts.txt`](/LLM_Helpers/game_runs/ui_maps/sevopedia_concepts.txt), resolving each page's text key from the base game's and the mod's English text.
+  - Mods Info holds the legends of many SAS screens, such as the Domestic and Military advisors, the Hall of Fame and the Score tab.
+- `export_bug_options.py` writes every field of the BUG menu, tab by tab, to [`ui_maps/bug_options.txt`](/LLM_Helpers/game_runs/ui_maps/bug_options.txt): its label, its configured default, and the settings file, section and key that store it.
+  - It reads the mod rather than screenshots: the BUG tab files in `Assets/Python/BUG/Tabs` name each field and `Assets/Config` defines it. It follows only the panels a tab actually builds, since AdvCiv left some disabled panels' code in place.
+  - Use `--include-saved-values` to compare with the values saved in `My Games/beyond the sword/AdvCiv-SAS/Settings`. That report goes to the Git-ignored `LLM_Helpers/outputs/bug_options_local.txt` by default.
+  - On 2026-11-11 it listed 309 fields in 12 tabs, and showed that the turns on city bars are not a BUG setting: they are "Numbers on City Bar" on the Options screen's Graphics tab.
+- `ui_maps/make_civ4_ui_map.py` writes `civ4_ui_map.json`: edit a screen there and rerun. It also reads every shortcut from the Sevopedia's Shortcuts text, so the map's `shortcuts` stay current.
+
+```bash
+python LLM_Helpers/game_runs/hover_tooltips.py --pid 12224 --front --area 0 420 960 960 --out tips gold=1755,52 f1=1650,79
+python LLM_Helpers/game_runs/export_pedia_concepts.py
+python LLM_Helpers/game_runs/export_bug_options.py
+python LLM_Helpers/game_runs/ui_maps/make_civ4_ui_map.py
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `check_points.py`
+
+- Clicks named Civ4 points from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json) in the order given and reports how much of the window changed after each, so a point list can be re-checked after a resolution or UI change. `--pictures DIR` keeps a small picture after each click.
+- Waits until the user has been idle before each click. Windows reports the time since the last keyboard or mouse input, but simulated clicks and keys count as input too, so the wait only guards the moment before each click.
+- On 2026-11-11 it checked the Sevopedia's bottom bar: Legend changed 28% of the window, opening the abbreviations page, CLEAR, BACK and NEXT changed nothing there, and EXIT changed 93%, returning to the main menu.
+
+```bash
+python LLM_Helpers/game_runs/check_points.py --pid 21184 pedia_legend pedia_back pedia_exit --pictures checks
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `run_steps.py`
+
+- Runs a sequence of steps on a window, such as `click:X,Y`, `click:X,Y,ctrl` or `,double`, `key:f1`, `hover:X,Y`, `type:20`, `scroll:X,Y,-3` and `wait:2`, captures the window after each and lays the captures out on one labelled sheet, so the whole sequence is checked in one image read.
+- It validates step syntax before starting and waits until the user has been idle before every step. Run it from a known screen and check individual steps when a popup or unexpected screen could redirect the next click.
+  - During the 2026-11-11/12 mapping the agent kept writing this loop inline, and one batch that waited only at its start sent its later clicks to the main map while the user moved the mouse.
+- `--crop` and `--scale` shrink the captures; use `--park X Y` to move the pointer away from controls before capturing clicks, keys, typing or scrolling. A hover capture keeps its pointer in place. The requested sheet is the only output file.
+
+```bash
+python LLM_Helpers/game_runs/run_steps.py --pid 20608 --out steps.png --crop 0 38 850 635 --columns 3 --scale 0.5 click:945,710 click:60,525 type:war key:down hover:156,122 wait:0.1
+```
+
+- In GPT-6.1-Sol's live check on 2026-11-12, this sequence opened Sevopedia from the main menu, filtered Units, selected the War Chariot and captured its tooltip. Replace the example PID with the target client's PID. The runner was added by Claude Code Opus 5.5.
+
+#### `map_sevopedia.py`
+
+- Clicks each Sevopedia category in a running Civ4 and records where its page's panels and EXPAND buttons are, in [`civ4_sevopedia_map.json`](/LLM_Helpers/game_runs/ui_maps/civ4_sevopedia_map.json), so an agent can click into a page without first reading a full screenshot.
+  - Panels are found by their greyish-purple fill against the brownish parchment, and EXPAND buttons by matching [`civ4_expand_button.png`](/LLM_Helpers/game_runs/ui_maps/civ4_expand_button.png). A panel mostly covered by pictures can be missed.
+  - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
+- It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
+- The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.
+- Each box or button is written on one line, such as `[377, 107, 1130, 290]`: plain indented JSON put every number on its own line, which made the file 1,492 lines long and hard to scan. On Codex's suggestion (2026-11-11) the writer keeps number lists together, and the file shrank to 476 lines with the same parsed data.
+
+```bash
+python LLM_Helpers/game_runs/map_sevopedia.py --pid 21184 --overlays overlays
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `sound_check.py`
+
+- Records the computer's sound output for a few seconds with ffmpeg, through the `virtual-audio-capturer` DirectShow device, and prints its loudness per step, then the mean and peak. An agent cannot listen, but this tells whether the game makes sound, how loud, and when it starts or stops.
+- `--front PID` brings a window to the front first: In the recorded test, Civ4 went quiet when the user clicked away. That takes the focus from the user, so use it when they are not typing.
+- `--wave-png` also draws a waveform; `--wav` keeps the recording.
+- Silence is a peak below -80 dB, about -91 dB in practice. The script then exits 1 and names the likely causes: the game not in front or muted in the Volume Mixer (`sndvol.exe`), both met on 2026-11-11, and a Windows glitch the user mentions, where an app shown unmuted stays silent until its slider is moved down and back up.
+- Tested on 2026-11-11 with Civ4's Sevopedia: -42 dB in front, silence with another window in front or with Civ4 muted. See [Hearing the game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#hearing-the-game).
+
+```bash
+python LLM_Helpers/game_runs/sound_check.py --seconds 6 --front 21184 --wave-png wave.png
+```
+
+- Added with help of Claude Code Opus 5.5.
+
 ## `housekeeping/`
 
 ### Folder upkeep
@@ -1722,6 +1848,20 @@ Keeps a folder's newest entries, 1,000 by default, and moves the rest into one `
 ```bash
 python LLM_Helpers/housekeeping/archive_old_files.py logs --apply
 ```
+
+### Screenshot privacy
+
+#### `redact_image.py`
+
+Covers rectangles of an image with the colour around each one, so details the user would rather not publish disappear without leaving a black bar. Repeat `--box LEFT TOP RIGHT BOTTOM` for several; `--out` writes a copy instead of overwriting, which is handy to check the result first, and `--colour` sets a fixed fill.
+
+- Written on 2026-11-11 after the Volume Mixer screenshot named the user's monitor brand and model in its title and device label. Look over a new screenshot for such details, such as account names, device names or personal paths, before adding it to the repo.
+
+```bash
+python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --box 55 165 160 222
+```
+
+- Added with help of Claude Code Opus 5.5.
 
 ## `packaging/`
 

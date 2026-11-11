@@ -1,0 +1,476 @@
+{
+ "copyright": "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy). (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md). JSON allows no comments, so this notice and the descriptions are fields.",
+ "about": "Where each Sevopedia category's page has its panels and EXPAND buttons, at 1920x1080 windowed in a 1926x1120 window, written by map_sevopedia.py: it clicks each category point from civ4_points.json, which opens the category's first entry, and finds panels by colour and EXPAND buttons by matching civ4_expand_button.png. Boxes are [left, top, right, bottom] and buttons [x, y], window-relative. Panels are ordered top to bottom, then left to right. A panel mostly covered by pictures can be missed, as Upgrades To was on the unit page. Like the click points, these change with the resolution or the Sevopedia's code; rerun the script after such a change.",
+ "page_kinds": {
+  "entry pages": "Terrains to Techs except the trees and the unit chart: an entry list on the left, then panels; clicking a category opens its first entry.",
+  "text pages": "Mods Info, Outdated, Hints and Shortcuts: one large text panel.",
+  "media pages": "Movies and Music: an entry list, a title panel and an orange play button at the top right.",
+  "table pages": "Eras, Handicaps, Speeds and World Sizes: one table filling the page, drawn darker than panels, so no panel is found; a small extra button sits left of EXIT, not identified.",
+  "diagrams": "Unit Tree and Promotion Tree: a full-page diagram; Unit Chart: one table.",
+  "index": "Index: every entry in three columns under a 0 1 A..Z jump bar."
+ },
+ "expand": {
+  "text": "An EXPAND above a text panel, such as Background at (1840, 742) on a unit page, opens that text over the whole page, covering the entry list too. Its top right has TEXT, BG and STYLE settings, each with - and + buttons at about (1752, y) and (1787, y) for y 56, 87 and 117, cycling options such as 1 of 129 text sizes, and CLOSE at about (1848, 117), which returns to the page.",
+  "model": "The EXPAND above a 3D view, at (1840, 97) on a unit page, shows the model over the whole page, with RELOAD at about (1755, 118) and CLOSE at about (1848, 118).",
+  "tested": "2026-11-11, on the Ancient Maceman's unit page."
+ },
+ "pages": {
+  "pedia_units": {
+   "panels": [
+    [377, 107, 1130, 290],
+    [377, 329, 864, 410],
+    [880, 329, 963, 410],
+    [979, 329, 1130, 410],
+    [377, 449, 864, 530],
+    [880, 449, 963, 530],
+    [1146, 449, 1514, 530],
+    [1530, 449, 1898, 530],
+    [377, 569, 1902, 714],
+    [377, 753, 1130, 1048],
+    [1146, 753, 1899, 1048]
+   ],
+   "expand": [
+    [1840, 97],
+    [1840, 742]
+   ],
+   "measured": "2026-11-11",
+   "panel_names": [
+    "unit summary: combat type, strength, moves, cost and promotion icons",
+    "Requires",
+    "Obsolete",
+    "Free Promotions",
+    "Replaced By",
+    "Civs",
+    "Against Classes (A/D), Combat T. (A and D)",
+    "Peak, Hill, City, Terrains, Features (A/D)",
+    "Other classes' and combat types' modifiers against this unit",
+    "Special Abilities with some AI information",
+    "Background"
+   ],
+   "missed": "Upgrades To, between Civs and Against Classes, holds two unit portraits that cover most of its grey."
+  },
+  "pedia_index": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_mods_info": {
+   "panels": [
+    [377, 107, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_outdated": {
+   "panels": [
+    [377, 107, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_hints": {
+   "panels": [
+    [180, 97, 1920, 1061]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_shortcuts": {
+   "panels": [
+    [377, 107, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_movies": {
+   "panels": [
+    [377, 107, 1902, 220],
+    [377, 237, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_music": {
+   "panels": [
+    [180, 113, 1112, 155],
+    [1147, 107, 1902, 220],
+    [1147, 237, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_eras": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_handicaps": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_speeds": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_world_sizes": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_terrains": {
+   "panels": [
+    [377, 107, 732, 220],
+    [748, 129, 1902, 220],
+    [377, 259, 732, 340],
+    [377, 379, 1902, 460],
+    [377, 499, 1902, 580],
+    [377, 619, 1902, 764],
+    [377, 803, 1902, 880],
+    [377, 919, 732, 1048],
+    [748, 919, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 908]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_features": {
+   "panels": [
+    [377, 107, 732, 227],
+    [377, 266, 732, 347],
+    [748, 266, 1902, 347],
+    [377, 386, 1902, 467],
+    [377, 506, 1902, 651],
+    [377, 690, 1902, 767],
+    [377, 806, 732, 1048],
+    [748, 806, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 795]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_bonuses": {
+   "panels": [
+    [377, 107, 1131, 350],
+    [377, 389, 1131, 470],
+    [1147, 389, 1387, 470],
+    [1403, 389, 1643, 470],
+    [1659, 389, 1899, 470],
+    [377, 509, 1902, 590],
+    [377, 629, 1902, 710],
+    [377, 749, 1131, 830],
+    [1147, 749, 1508, 830],
+    [1524, 749, 1885, 830],
+    [377, 869, 1131, 1048],
+    [1147, 869, 1901, 1048]
+   ],
+   "expand": [
+    [1842, 97],
+    [1842, 858]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_improvements": {
+   "panels": [
+    [377, 107, 606, 330],
+    [622, 129, 705, 210],
+    [721, 129, 1076, 210],
+    [1368, 129, 1627, 1048],
+    [1643, 129, 1902, 1048],
+    [622, 249, 705, 330],
+    [721, 249, 1076, 330],
+    [377, 400, 1352, 749],
+    [377, 788, 736, 1048],
+    [752, 788, 1352, 1048]
+   ],
+   "expand": [
+    [1293, 90],
+    [1293, 777]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_routes": {
+   "panels": [
+    [377, 107, 732, 227],
+    [748, 129, 1803, 227],
+    [1819, 129, 1902, 227],
+    [377, 266, 1131, 347],
+    [1147, 266, 1902, 347],
+    [377, 386, 1131, 467],
+    [1147, 386, 1902, 467],
+    [377, 506, 1131, 1048],
+    [1147, 506, 1902, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_builds": {
+   "panels": [
+    [377, 107, 706, 227],
+    [722, 129, 805, 227],
+    [821, 129, 972, 227],
+    [988, 129, 1071, 227],
+    [1087, 129, 1902, 227],
+    [377, 266, 1902, 587],
+    [377, 626, 706, 1048],
+    [722, 626, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 615]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_unit_tree": {
+   "panels": [
+    [735, 869, 795, 928]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_unit_chart": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_promotion_list": {
+   "panels": [
+    [377, 107, 626, 216],
+    [642, 129, 1902, 216],
+    [377, 255, 1902, 336],
+    [377, 375, 1902, 456],
+    [377, 495, 1902, 576],
+    [377, 615, 1134, 1048],
+    [1150, 615, 1907, 1048]
+   ],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_promotion_tree": {
+   "panels": [],
+   "expand": [],
+   "measured": "2026-11-11"
+  },
+  "pedia_specialists": {
+   "panels": [
+    [377, 107, 576, 300],
+    [592, 107, 1131, 300],
+    [1147, 129, 1519, 1048],
+    [1530, 129, 1902, 1048],
+    [377, 339, 1131, 1048]
+   ],
+   "expand": [
+    [1072, 328]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_civs": {
+   "panels": [
+    [377, 107, 606, 330],
+    [721, 129, 1101, 210],
+    [1117, 129, 1596, 210],
+    [1613, 129, 1902, 1048],
+    [622, 249, 1101, 330],
+    [1117, 249, 1596, 330],
+    [377, 352, 1596, 1048]
+   ],
+   "expand": [
+    [1537, 341]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_leaders": {
+   "panels": [
+    [684, 107, 942, 500],
+    [963, 107, 1262, 1066],
+    [1283, 107, 1585, 1055],
+    [1595, 107, 1904, 1057],
+    [347, 539, 498, 620],
+    [347, 637, 942, 1048]
+   ],
+   "expand": [
+    [614, 96],
+    [883, 626]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_traits": {
+   "panels": [
+    [1621, 129, 1902, 1048],
+    [377, 796, 988, 1048],
+    [999, 796, 1610, 1048]
+   ],
+   "expand": [
+    [1551, 785]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_buildings": {
+   "panels": [
+    [377, 107, 1131, 290],
+    [377, 329, 1032, 410],
+    [1048, 329, 1131, 410],
+    [377, 449, 1032, 530],
+    [1048, 449, 1131, 530],
+    [377, 569, 1032, 650],
+    [1048, 569, 1131, 650],
+    [1147, 569, 1802, 650],
+    [1818, 569, 1901, 650],
+    [377, 689, 1131, 1048],
+    [1147, 689, 1901, 1048]
+   ],
+   "expand": [
+    [1842, 97],
+    [1842, 678]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_national_wonders": {
+   "panels": [
+    [377, 107, 1131, 290],
+    [377, 329, 1032, 410],
+    [1048, 329, 1131, 410],
+    [377, 449, 1032, 530],
+    [1048, 449, 1131, 530],
+    [377, 569, 1032, 650],
+    [1048, 569, 1131, 650],
+    [1147, 569, 1802, 650],
+    [1818, 569, 1901, 650],
+    [377, 689, 1131, 1048],
+    [1147, 689, 1901, 1048]
+   ],
+   "expand": [
+    [1842, 97],
+    [1842, 678]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_world_wonders": {
+   "panels": [
+    [377, 107, 1131, 290],
+    [377, 329, 1032, 410],
+    [377, 449, 1032, 530],
+    [1048, 449, 1131, 530],
+    [377, 569, 1032, 650],
+    [1048, 569, 1131, 650],
+    [1147, 569, 1802, 650],
+    [1818, 569, 1901, 650],
+    [377, 689, 1131, 1048],
+    [1147, 689, 1901, 1048]
+   ],
+   "expand": [
+    [1842, 97],
+    [1842, 678]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_projects": {
+   "panels": [
+    [377, 107, 1646, 216],
+    [1657, 129, 1740, 216],
+    [1751, 129, 1902, 216],
+    [377, 255, 1902, 436],
+    [377, 453, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 442]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_civics": {
+   "panels": [
+    [377, 107, 816, 330],
+    [832, 129, 1407, 330],
+    [1423, 129, 1506, 210],
+    [1522, 129, 1605, 210],
+    [1621, 129, 1902, 1048],
+    [1522, 249, 1605, 330],
+    [377, 347, 1605, 1048]
+   ],
+   "expand": [
+    [1546, 336]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_religions": {
+   "panels": [
+    [377, 107, 576, 330],
+    [592, 129, 991, 210],
+    [1106, 129, 1605, 330],
+    [1621, 129, 1902, 1048],
+    [592, 249, 991, 330],
+    [377, 347, 1605, 1048]
+   ],
+   "expand": [
+    [1546, 336]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_corporations": {
+   "panels": [
+    [377, 107, 576, 330],
+    [754, 129, 1902, 210],
+    [592, 249, 743, 330],
+    [754, 249, 1808, 330],
+    [1819, 249, 1902, 330],
+    [377, 369, 1902, 640],
+    [377, 657, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 646]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_votes": {
+   "panels": [
+    [377, 107, 576, 330],
+    [691, 129, 1803, 330],
+    [1819, 129, 1902, 210],
+    [592, 249, 675, 330],
+    [377, 369, 1902, 415],
+    [377, 454, 1131, 625],
+    [1147, 454, 1803, 625],
+    [1819, 454, 1902, 535],
+    [377, 664, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 653]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_event_triggers": {
+   "panels": [
+    [377, 129, 1341, 210],
+    [1357, 129, 1902, 210],
+    [377, 249, 1131, 433],
+    [1147, 249, 1902, 433],
+    [377, 472, 1902, 553],
+    [377, 592, 1902, 693],
+    [377, 732, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 581]
+   ],
+   "measured": "2026-11-11"
+  },
+  "pedia_techs": {
+   "panels": [
+    [377, 107, 756, 216],
+    [772, 129, 1599, 216],
+    [1615, 129, 1902, 216],
+    [377, 255, 460, 336],
+    [476, 255, 559, 336],
+    [575, 255, 1803, 336],
+    [377, 375, 1902, 456],
+    [377, 889, 756, 1048],
+    [772, 889, 1902, 1048]
+   ],
+   "expand": [
+    [1843, 878]
+   ],
+   "measured": "2026-11-11"
+  }
+ }
+}

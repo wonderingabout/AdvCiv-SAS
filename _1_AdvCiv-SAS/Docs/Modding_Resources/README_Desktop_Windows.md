@@ -11,11 +11,17 @@ Expect to update it: these apps change their interfaces often, and every finding
 [The tool](#the-tool)\
 [Look, then act](#look-then-act)\
 [Codex (the ChatGPT desktop app)](#codex-the-chatgpt-desktop-app)\
+&emsp;[Updating, quitting and starting Codex](#updating-quitting-and-starting-codex)\
 [VS Code](#vs-code)\
 [Claude Code (the Claude desktop app)](#claude-code-the-claude-desktop-app)\
+&emsp;[Claude menus, panels and startup](#claude-menus-panels-and-startup)\
+&emsp;[Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings)\
+&emsp;[Codex usage and limit resets](#codex-usage-and-limit-resets)\
 [How fast agents use their limits](#how-fast-agents-use-their-limits)\
 [Sharing limits between agents](#sharing-limits-between-agents)\
 [Reference screenshots](#reference-screenshots)\
+[Side by side on one monitor](#side-by-side-on-one-monitor)\
+&emsp;[Collapsing the side panels](#collapsing-the-side-panels)\
 [Agents talking to each other](#agents-talking-to-each-other)\
 &emsp;[Message convention](#message-convention)\
 &emsp;[Example workflow: investigate, test, then ask Codex to review](#example-workflow-investigate-test-then-ask-codex-to-review)\
@@ -66,6 +72,12 @@ python LLM_Helpers/game_runs/desktop_windows.py click --pid 8572 46 1973
   - when the user is clearly busy in an app, for example a draft in its message box, use only screenshots there and wait to click or paste.
   - On 2026-11-10 a message pasted into Codex arrived as "nd[Claude Code Opus 5.5 · …": two letters were in its box at paste time although a screenshot moments earlier showed it empty. Check the box in the same command as the paste, and look at the sent message afterwards.
 - Crop screenshots to the area you need before reading them. A full 3840-pixel window costs many tokens each time; a crop of a popup costs a fraction, and this guide's sessions used crops for every detail.
+- Maximizing Civ4's window does not make its screenshots sharper. On 2026-11-11 the game ran windowed at 1920x1080 on a 4K monitor, and `desktop_windows.py move --monitor 1 full` stretched it over the monitor.
+  - The Sevopedia kept the same layout, and its text and icons were the same pixels doubled, as the close-up below shows (normal size above, maximized below). The game area was also squashed to 3840x2070, not an exact 3840x2160.
+  - So a maximized screenshot holds four times the pixels to read with no extra detail. Keep the window at its game resolution and crop the part you need. Sharper text would need a higher resolution set in the game's own options, which was not tried.
+  - The user reports that screenshots of a Civ4 window on their second monitor did not work in an earlier session; this was not re-tested, so check a screenshot after moving Civ4 there.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_civ4_native_vs_maximized_text.PNG" alt="llm_civ4_native_vs_maximized_text.PNG" width="300">
 
 ## Codex (the ChatGPT desktop app)
 
@@ -117,6 +129,30 @@ Its message box has three states, told apart by the round button at its bottom r
 - **Hovering a prompt** shows its send time ("9:12 PM") and a copy button under the bubble.
 - **Reliability:** the user notes that Codex's interface is sometimes buggy, and as of November 2026 its reset timers did not always look accurate. Cross-check a reading in two places (popup, tooltip, settings page) before relying on it; on 2026-11-10 all three agreed.
 
+### Updating, quitting and starting Codex
+
+Learned on 2026-11-11, with Codex on the right half of the user's second 4K monitor. Codex is the Microsoft Store package `OpenAI.Codex`, installed under `C:\Program Files\WindowsApps\OpenAI.Codex_<version>_x64__2p2nqsd0c76g0\app\ChatGPT.exe`; its main process is `ChatGPT.exe`, with a dozen or so child processes.
+
+- **Update:** when an update is ready, a blue round button with a download arrow appears at the bottom of Codex's left icon strip, at (45, 1894) in the half-screen window. Hovering it showed no tooltip.
+  - One click turned it into a spinner and dimmed the window. About three minutes later Codex closed and restarted by itself, updated from 26.1103.7773.0 to 26.1106.6628.0.
+  - It came back in a loose window that ran past the bottom of the screen, on a new-chat page, with its chat list shown again. The user reports that a restart sometimes does not come back at all; then start it as below.
+- **Quit fully:** File > Quit ChatGPT, or Ctrl+Q. The window's X and File > Close (Ctrl+W) only hide Codex in the system tray, where it keeps running. After Quit, all of Codex's processes ended within about 6 seconds.
+- **Start:** `explorer.exe "shell:AppsFolder\OpenAI.Codex_2p2nqsd0c76g0!App"`, the app ID that `Get-StartApps` lists for it. Its window appeared 4 seconds later.
+  - After a normal quit it reopened at its last place, the right half, unlike after the update. Both times it opened on a new-chat page with the chat list shown, so reopen the thread from the list and collapse the list again; see [Collapsing the side panels](#collapsing-the-side-panels).
+  - Check for it with `Get-Process ChatGPT`; a process with no window title is a tray or child process, not the window.
+- **New chat**, for when a long thread fills Codex's context: the pencil icon left of the thread title, at (132, 124) in the half-screen window, or File > New Chat (Ctrl+N). It opened "What should we build in AdvCiv-SAS?" with the AdvCiv-SAS project, This computer and GPT-6.1 Sol Medium already selected; the user finds that model and effort efficient, so nothing needed changing.
+  - Its message box sat at the same height as in a thread, so the same `--box` and `--text-area` work, and `--wait-reply` finds the new thread's log like any other.
+  - The Back arrow at the top left, at (32, 32), returned to the previous thread. Whether an unused new chat is kept in the chat list was not checked.
+- **Scrolling to the latest reply:** a reply that arrives while Codex's chat is scrolled up stays out of view. `desktop_windows.py scroll --pid PID 900 1000 -40` over the chat brought it into view.
+- **"Full access is on" notice:** after the restart Codex showed this notice above its message box, about 210 px tall in the half-screen window, taking that much from the chat. Its X, at (1626, 1761), closes it for now. "Don't show again" would change a setting, so it is the user's to choose.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_update_button.PNG" alt="llm_codex_update_button.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_update_in_progress.PNG" alt="llm_codex_update_in_progress.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_file_menu_quit.PNG" alt="llm_codex_file_menu_quit.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_full_access_notice.PNG" alt="llm_codex_full_access_notice.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_new_chat_pencil.PNG" alt="llm_codex_new_chat_pencil.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_new_chat_composer.PNG" alt="llm_codex_new_chat_composer.PNG" width="250">
+
 ## VS Code
 
 The user reviews diffs and searches the code in VS Code, so its window shows what the user is looking at. `desktop_windows.py screenshot --pid <VS Code's PID>` reads it through PrintWindow, without clicking or bringing it forward, so the user can keep typing; find the PID by the window title, which ends in "Visual Studio Code".
@@ -165,6 +201,56 @@ Observed on 2026-11-10.
 - **Move within a chat.** On 2026-11-10, scrolling up over Claude's center pane revealed earlier messages and a round down-arrow near the composer. Scrolling down returned to the newest reply and the arrow disappeared. Aim at the chat pane so the wheel doesn't move the sidebar or context panel.
 - **Switch sessions.** Click a session under the project name in the left sidebar. The selected row is highlighted, which gives you a quick way to verify the switch. Codex tried this with two AdvCiv-SAS sessions and returned to the original one before sending its handoff.
 - **Check the usage popup.** Clicking the ring under the composer showed both limits and their reset times. Clicking it again closed the popup. The hover tooltip showed only the 5-hour limit. These controls were observed on 2026-11-10 and may move in later versions.
+
+### Claude menus, panels and startup
+
+Observed on 2026-11-11 with Claude 5.1231.2.0 on the left half of the second 4K monitor. The hamburger at the top left opens **File**, **Edit**, **View**, **Go** and **Help**. The menus appeared in a screen capture and were absent from the window-only capture. With a submenu open, the first Esc returned to the main menu and the second dismissed it.
+
+- **Chat list.** The button beside the hamburger showed **Show sidebar** and Ctrl+B. **View > Sidebar** lists the same shortcut. Clicking the button opened the list, which took about 460 px at half width. Clicking it again restored the original layout.
+- **Right panel.** The list icon at the top right showed **Show session rail**. Clicking it opened the Environment panel and used about 500 px. **View > Session Rail** lists the same control without a shortcut. With both panels collapsed, the chat has more room on the roughly 1,920 px visible half.
+- **Other shortcuts.** **View** lists Ctrl+K for the Command Palette, Ctrl+Shift+D for Changes, Ctrl+Shift+B for Browser and Ctrl+Shift+F for Files. It also lists **Close Pane** and zoom controls. **Help** lists **Keyboard Shortcuts**. These shortcuts were read from the menus.
+- **Update and close.** **Help > Check for Updates** is the update entry. **File** offers **Close Session** (Ctrl+W), **Close Window** (Ctrl+Shift+W) and **Exit**. The title bar also has an X. Whether the X hides the app in the tray, how it differs from **Exit**, and whether an update restarts the app remain untested.
+- **Start.** `Get-StartApps` lists Claude with app ID `Claude_pzs8sxrjxfjjc!Claude`. The running process came from `C:\Program Files\WindowsApps\Claude_5.1231.2.0_x64__pzs8sxrjxfjjc\app\claude.exe`.
+  - Use the Start menu entry or its registered ID so the launch command can survive version changes. The corresponding command is `explorer.exe "shell:AppsFolder\Claude_pzs8sxrjxfjjc!Claude"`. Relaunch was untested.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_show_sidebar.PNG" alt="llm_claude_show_sidebar.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_show_session_rail.PNG" alt="llm_claude_show_session_rail.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_view_menu.PNG" alt="llm_claude_view_menu.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_help_update_menu.PNG" alt="llm_claude_help_update_menu.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_file_close_exit.PNG" alt="llm_claude_file_close_exit.PNG" width="250">
+
+### Claude usage, limit resets and settings
+
+Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly limits at 96%. Checking usage now and then lets an agent pace a long task and stop at a good point, such as a commit, before a limit cuts it off.
+
+- **Without clicks:** Claude Code in the desktop app reads the same numbers with its `get_usage` tool: each limit's percent and reset time, whether extra usage is on, and how full its own context is (47% then, compacting at 97%). It reads its Code-tab settings with `get_settings`.
+- **The ring under the message box,** right of the model and mode, turns red near a limit. Clicking it shows the 5-hour and weekly limits with their reset times, and a "See all →" link.
+- **Settings > Usage,** opened by "See all", adds a pace warning ("At this pace you'll run out this evening, before Monday's reset") and a **Limit resets** list:
+  - **Full reset,** expiring Dec 10.
+  - **Fable reset,** expiring Nov 17. It refills the 5-hour limit and the Fable allowance and gives back what Fable used of the weekly limit, without resetting the whole week.
+  - Each has a "Reset for free" button. Resets are rare, so using one is the user's call: an agent can say when one would help, for example when it or Codex is near a limit with work in flight.
+- The page also offers Upgrade plan, Buy usage credits and a usage-credits switch. These cost money, so they are the user's alone.
+- Near the limit, an "Approaching 5-hour limit" banner with a "Get more usage" button appears above the message box.
+- The **Prompt suggestions** setting, on by default, spends one more model request after every reply to suggest a next prompt. Turning it off saves that usage.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_popup.PNG" alt="llm_claude_usage_popup.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_settings_usage_resets.PNG" alt="llm_claude_settings_usage_resets.PNG" width="250">
+
+### Codex usage and limit resets
+
+The same day, on the user's ChatGPT Plus plan. Codex counts what is left where the Claude app counts what is used: its 5-hour limit showed 55% left, resetting in 1 h 56 min, and its weekly limit 66% left.
+
+- **Getting there:** the account button at the bottom of Codex's left icon strip, at (44, 2052) in the half-screen window, opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
+- The limits are shared across Codex and OpenAI's other work tools; the page says ChatGPT chat conversations are not counted.
+- **Usage limit resets:** 1 available, a Full reset (weekly + 5-hour) expiring Dec 1, with a "Use reset" button and a History tab.
+- **"Allow your assistant to use resets":** a switch, off by default. With it on, Codex may use a reset only when the user explicitly asks for it in a conversation and the current limit has 10% or less left, and never automatically. Turning it on is the user's call.
+- **Credits:** a balance (0), "Add more" and an automatic-reload switch. These cost money, so they are the user's alone.
+- Settings is left with the Back arrow at the top left.
+
+Between the two apps, a reset can go to whichever agent runs low first: on 2026-11-11 Claude Code was at 96% used while Codex still had over half of both limits left, so Codex could take on more of the work until Claude's limit reset.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_limits.PNG" alt="llm_codex_settings_usage_limits.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_resets.PNG" alt="llm_codex_settings_usage_resets.PNG" width="250">
 
 ## How fast agents use their limits
 
@@ -315,6 +401,53 @@ Claude Code working through a handoff on 2026-11-10. The checklist shows the tas
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_handoff_running_indicators.PNG" alt="llm_claude_handoff_running_indicators.PNG" width="450">
 
+## Side by side on one monitor
+
+On 2026-11-11 the user's computer had two 4K monitors, each with a 3840x2100 work area, and the Claude app filled the left one while Codex filled the right one. Maximized, both apps spread a chat column about 1,200 px wide across 3,840 px, so most of each window was empty, and between them the agents took both screens from the user.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_app_maximized_4k_dead_space.PNG" alt="llm_claude_app_maximized_4k_dead_space.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_app_maximized_4k_dead_space.PNG" alt="llm_codex_app_maximized_4k_dead_space.PNG" width="250">
+
+The user suggested putting both apps on one monitor, half each. [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) gained `monitors` and `move` for it, and these two commands placed the Claude app on the left half of monitor 2 and Codex on its right half, leaving monitor 1 to the user:
+
+```bash
+python LLM_Helpers/game_runs/desktop_windows.py move --pid 16256 --monitor 2 right
+python LLM_Helpers/game_runs/desktop_windows.py move --pid 20824 --monitor 2 left
+```
+
+Both apps kept their full chats at 1,920 px wide, with the empty margins mostly gone. Each one's sidebar and side panel take a larger share of the narrower window.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_app_half_4k.PNG" alt="llm_claude_app_half_4k.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_app_half_4k.PNG" alt="llm_codex_app_half_4k.PNG" width="250">
+
+- `move` places the visible frame exactly on the half, as Win+Left and Win+Right do. The Claude app's window carries an invisible border, so its outer rectangle came out at 3830 to 5770; Codex has none and came out at 5760 to 7680.
+- `agent_message.py`'s click points had been measured on maximized windows, so the first send in this layout needed `--box 900 1932 --text-area 370 1905 1500 1960` by hand. Later that day both half-width boxes were measured and added as a `4k-half` layout, which the helper picks from the window's width; `--check-box` confirmed it on both windows.
+  - The layouts live in `app_layouts.json` beside the script, with each one's measurement date and conditions, so an app update that moves a box means re-measuring and editing that file, not the code; see [re-measuring a layout](/LLM_Helpers/README.md#agent_messagepy).
+  - The empty-box check first refused that send with "16 dark pixels" although the box was empty: a click to clear it had left the blinking text cursor at its left edge, which counts as dark. Starting the text area just right of the cursor fixed it.
+
+### Collapsing the side panels
+
+At half width the panels around each chat took a larger share of the window. An agent works in one chat at a time, so the chat list is mostly idle, and the Claude app's side panel (Environment, Context, Outputs, Changes) is needed only now and then. Collapsing them gives the chat most of the window. Each control is a toggle: using it again brings the panel back.
+
+- **Claude app, chat list:** Claude Code collapses its own with its `set_sidebar_collapsed` tool, without a click. By hand, Ctrl+B or the sidebar icon at the top left does the same; see [Claude menus, panels and startup](#claude-menus-panels-and-startup), which Codex wrote the same day.
+- **Claude app, side panel**, which the app calls the session rail: View > Session Rail, which lists no shortcut, or the list icon at the top right, at (1422, 29) in the 1,940 px wide window on 2026-11-11, shown highlighted below. Reopen it to read the Context usage; see [How fast agents use their limits](#how-fast-agents-use-their-limits).
+- **Codex, chat list:** View > Toggle Sidebar, or Ctrl+Shift+S, or the sidebar icon at (157, 33). The narrow icon strip beside it stays; View > Toggle navigation panel (Ctrl+Shift+E) is listed for it but was not tried.
+- A keyboard shortcut is easier than a click point, since it does not move when the layout changes. Codex's View menu shows its shortcuts. Claude's **View > Sidebar** lists Ctrl+B, and **Session Rail** showed no shortcut in the tested build.
+- Codex's chat list did not stay collapsed: after an update and after a quit and restart it was shown again. The Claude app's was not checked.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_side_panel_toggle.PNG" alt="llm_claude_side_panel_toggle.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_sidebar_toggle.PNG" alt="llm_codex_sidebar_toggle.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_view_menu_shortcuts.PNG" alt="llm_codex_view_menu_shortcuts.PNG" width="250">
+
+The whole shared monitor, with both collapsed:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_agents_side_by_side_4k_monitor.PNG" alt="llm_agents_side_by_side_4k_monitor.PNG" width="500">
+
+Each app on its own, with each chat filling nearly its whole half:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_app_half_4k_collapsed.PNG" alt="llm_claude_app_half_4k_collapsed.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_app_half_4k_collapsed.PNG" alt="llm_codex_app_half_4k_collapsed.PNG" width="250">
+
 ## Agents talking to each other
 
 - The usual route is a chat export: the [chat export helpers](/LLM_Helpers/README.md#chat_exports) turn a Claude Code, Codex or ChatGPT chat into readable text that the user hands to the next agent.
@@ -322,6 +455,7 @@ Claude Code working through a handoff on 2026-11-10. The checklist shows the tas
 - Start every message one agent types into another agent's chat with its sender and time, then get to the point without greetings: `[Claude Code Opus 5.5 · 2026-11-10 19:35 UTC] Please take finding 2: …`. The recipient, and the user reading later, then know at once who wrote it and when, as the chat itself shows the user as the sender.
 - An agent can also read another agent's window directly, as above, and, with the user's go-ahead, type into its message box. Sending a message there speaks for the user, so do it only when the user asked for it.
 - Simulated keystrokes did not reach Civ4, whose DirectX input ignores them, but both agents' apps accepted them on 2026-11-10.
+  - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box.
   - The first message, Claude Code introducing itself to Codex, used a one-off script: save the user's clipboard, put the message on it, click the message box, press Ctrl+A then Ctrl+V, screenshot, press Enter, restore the clipboard. Ctrl+A replaced a one-word draft the user had left there.
   - `desktop_windows.py` now does this in two steps, so the text can be checked before it goes out:
 
