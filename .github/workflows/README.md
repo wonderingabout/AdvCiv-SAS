@@ -43,6 +43,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Documentation](#documentation)
     - [`build/documentation/art_samples.py`](#builddocumentationart_samplespy)
     - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
+    - [`build/documentation/drive_links.py`](#builddocumentationdrive_linkspy)
     - [`build/documentation/example_file_locations.py`](#builddocumentationexample_file_locationspy)
     - [`build/documentation/folder_indexes.py`](#builddocumentationfolder_indexespy)
     - [`build/documentation/generated_docs.py`](#builddocumentationgenerated_docspy)
@@ -461,6 +462,18 @@ Requires explicit generated diagnostic paths in the root README's relevant secti
 - Requires a visible inline-code path such as `Logs/SASRuntimeExit_*.json`; mentions only inside fenced samples or hidden comments do not count. Documents explain the base directory instead of hardcoding the user's Windows profile.
 - The small publisher set is audited each run, including documentation-only edits. This is a scoped discoverability guard, not an arbitrary-language path parser or a requirement to list unrelated JSON settings/captures; update the scope if a new publisher uses another naming/path construction.
 
+#### `build/documentation/drive_links.py`
+
+Requires each Google Drive file or folder to be linked at most once per Markdown document, and every Drive link to have a recognised form with an ID (`/drive/folders/<id>`, `/file/d/<id>`, `?id=<id>` or a Docs `/d/<id>`).
+
+- Evidence screenshots live in Drive folders, mostly one per Known Issue. A link copied from another entry still opens a real folder, so the wrong evidence goes unnoticed: on 2026-11-11 the check found KI#1071 linking KI#2's folder, and the Modding Resources guide linking one folder both as its impluvium example and as the whole Modding_Resources Drive.
+- The same folder may still be linked from different documents, such as the Modding_Resources Drive from both the Modding Resources guide and README_References.md.
+- Whether a link opens is not checked, since that needs the network and the folder's sharing settings. `_0_Legacy/`, `LLM_Helpers/context/` and `Docs/changelogs_web/` keep their own links.
+
+```bash
+python .github/workflows/build/documentation/drive_links.py
+```
+
 #### `build/documentation/example_file_locations.py`
 
 Reserves `_example` filenames for textual/code/data captures under `_1_AdvCiv-SAS/Docs/examples/`. Screenshots stay under `_1_AdvCiv-SAS/Images/` with descriptive names without `_example`; an image using that marker fails even inside the examples folder. Imported/generated context and executable `test_` modules are outside the artifact rule.
@@ -839,9 +852,11 @@ Checks that root `CvGameCoreDLL/*.cpp` and `*.h` files appear under the matching
 
 #### `build/repository/temp_files.py`
 
-Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder and otherwise contains only the optional locally ignored `Debug-opt` target. That target is retained because its exact matching PDB makes crash dumps actionable, but must be deleted before the next Debug-opt build.
+Verifies that git tracks nothing under `CvGameCoreDLL/Project/temp_files/` and that the only `temp_files` rule in `.gitignore` or `.gitattributes` is the `.gitignore` line ignoring the whole folder.
 
-Other generated targets remain visible and fail the check; only the exact Debug-opt `.gitignore` rule and the matching `.gitattributes` release-export exclusions are allowed.
+It used to fail on any local target folder except `Debug-opt`, as a reminder to delete stale intermediates. Since 2026-11-11 `build_with_report.ps1` refuses a `BUILD` while the target folder holds files, and the whole folder is git-ignored, so local folders are left alone.
+
+The same day the zero-byte `.gitkeep` that kept the folder in fresh clones for this check was dropped: the Makefile creates the folder when it is missing.
 
 This helps catch stale fast-compile intermediates and forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.2)).
 
@@ -903,7 +918,11 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 
 #### `build/runtime/hands_free_defaults.py`
 
-Requires the shipped values of switches that local development turns off for hands-free runs, so players still get them: as of now `SAS_UI_DAWN_OF_MAN_ON=1`, the Dawn of Man screen. [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally. Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
+Requires the shipped values of the hands-free switches, which spare players clicks and manual steps, so players still get them.
+
+- `SAS_UI_DAWN_OF_MAN_ON=1` keeps the Dawn of Man screen for players; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally.
+- The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
+- Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
 
 #### `build/runtime/mapscripts.py`
 

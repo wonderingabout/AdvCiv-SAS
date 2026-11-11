@@ -15,6 +15,9 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+# <!-- custom: json reads Codex's session log for --wait-reply; time paces its polling. (Claude Code Opus 5.5) -->
+import json
+import time
 
 # <!-- custom: desktop_windows, beside this script, finds, screenshots and pastes into the window. (Claude Code Opus 5.5) -->
 import desktop_windows
@@ -79,6 +82,111 @@ def check(text):
 	return problems
 
 
+# <!-- custom: Each app's session logs: Codex writes each thread to ~/.codex/sessions/<year>/<month>/<day>/rollout-*.jsonl, Claude Code each session to ~/.claude/projects/<project>/<session>.jsonl. (Claude Code Opus 5.5) -->
+SESSION_LOGS = {
+	"codex": (Path.home() / ".codex" / "sessions", "*/*/*/rollout-*.jsonl"),
+	"claude": (Path.home() / ".claude" / "projects", "*/*.jsonl"),
+}
+
+
+def log_sizes(app):
+	# <!-- custom: Only logs touched in the last two days can receive the reply, which keeps the scan short. (Claude Code Opus 5.5) -->
+	root, pattern = SESSION_LOGS[app]
+	cutoff = time.time() - 2 * 86400
+	sizes = {}
+	for path in root.glob(pattern):
+		stat = path.stat()
+		if stat.st_mtime >= cutoff:
+			sizes[path] = stat.st_size
+	return sizes
+
+
+def message_text(content):
+	if isinstance(content, str):
+		return content
+	return "\n\n".join(block.get("text", "") for block in content if isinstance(block, dict) and "text" in block)
+
+
+def codex_step(record, state):
+	# <!-- custom: Codex marks the end of a turn with a "task_complete" event; its answer is the last assistant message in the "final_answer" phase before it. (Claude Code Opus 5.5) -->
+	item = record.get("payload", {})
+	is_message = record.get("type") == "response_item" and item.get("type") == "message"
+	if not state["found"]:
+		state["found"] = is_message and item.get("role") == "user" and state["marker"] in message_text(item.get("content", []))
+	elif is_message and item.get("role") == "assistant" and item.get("phase") == "final_answer":
+		state["answer"] = message_text(item.get("content", []))
+	elif item.get("type") == "task_complete":
+		return (True, state["answer"])
+	return None
+
+
+def claude_step(record, state):
+	# <!-- custom: Claude Code ends a turn with assistant records whose stop_reason is "end_turn", a thinking block then the text, sharing one message ID, followed by a "stop_hook_summary" entry (observed in its log on 2026-11-11).
+	# So the turn has ended at the first other record after them, and the answer is their text. (Claude Code Opus 5.5) -->
+	message = record.get("message")
+	if not isinstance(message, dict):
+		message = {}
+	content = message.get("content", [])
+	if not state["found"]:
+		state["found"] = record.get("type") == "user" and state["marker"] in message_text(content)
+	elif record.get("type") == "assistant" and message.get("stop_reason") == "end_turn":
+		state["ending"] = True
+		text = message_text(content)
+		if text:
+			state["answer"] = (state["answer"] + "\n\n" + text) if state["answer"] else text
+	elif state.get("ending"):
+		return (True, state["answer"])
+	# <!-- custom: Codex's live test found that a later human message arriving before the answer could have its answer taken for ours.
+	# Claude Code folds such a message into the running turn, so one answer may cover both; it is flagged rather than dropped.
+	# A human message is a user record with text; tool results are user records too, but hold only tool_result blocks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	elif record.get("type") == "user" and not record.get("isMeta") and message_text(content).strip():
+		state["later_message"] = True
+	return None
+
+
+TURN_STEPS = {"codex": codex_step, "claude": claude_step}
+
+
+def reply_since(app, before, marker):
+	# <!-- custom: Read only what each log gained since the send.
+	# Returns None until the turn holding our message ends, then (True, answer, later_message), with answer None if that turn gave no final answer and later_message set if another human message came first (Claude Code only).
+	# The first version returned at the first "task_complete" in any watched log.
+	# Codex's review reproduced that another thread's turn, or with --queue the turn Codex was already working on, could be taken for the reply.
+	# So it now waits for the user message that holds our header, unique to the millisecond, and takes the end of the turn after it in that log. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	for path, size in log_sizes(app).items():
+		start = before.get(path, 0)
+		if size <= start:
+			continue
+		# <!-- custom: Codex's review also reproduced a JSONDecodeError when the recorded size fell inside a record Codex was writing; so read from one byte earlier and drop everything up to the first newline unless that byte is one.
+		# That record began before the send, so it cannot be ours. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+		with path.open("rb") as stream:
+			stream.seek(max(start - 1, 0))
+			data = stream.read(size - max(start - 1, 0))
+		if start > 0:
+			data = data[data.find(b"\n") + 1:]
+		state = {"marker": marker, "found": False, "answer": None}
+		# <!-- custom: The last piece has no newline yet when the app is mid-write, so it waits for the next poll. (Claude Code Opus 5.5) -->
+		for line in data.split(b"\n")[:-1]:
+			result = TURN_STEPS[app](json.loads(line), state)
+			if result is not None:
+				return result + (state.get("later_message", False),)
+		# <!-- custom: Codex's live test also found that a log ending right after Claude Code's final text kept waiting for one more record; a complete end_turn answer is enough. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+		if state.get("ending") and state["answer"]:
+			return (True, state["answer"], state.get("later_message", False))
+	return None
+
+
+def wait_reply(app, before, marker, timeout):
+	# <!-- custom: On 2026-11-11 Claude Code waited for a Codex review with a shell loop on the newest log, so neither agent nor user had to check Codex's window or guess how long to wait; this keeps that loop, and works the other way for Codex waiting on Claude Code. (Claude Code Opus 5.5) -->
+	deadline = time.time() + timeout
+	while time.time() < deadline:
+		result = reply_since(app, before, marker)
+		if result is not None:
+			return result
+		time.sleep(2)
+	return None
+
+
 def main():
 	parser = argparse.ArgumentParser(description="Send a tagged message to the Codex or Claude app, checking its message box is empty first.")
 	parser.add_argument("--to", choices=sorted(APPS))
@@ -94,6 +202,8 @@ def main():
 	parser.add_argument("--idle-seconds", type=float, default=5.0, help="send only after no keyboard or mouse input for this long; 2.5 let a typing user's next keys in")
 	parser.add_argument("--idle-timeout", type=int, default=120, help="give up if the user is never idle that long within this many seconds")
 	parser.add_argument("--dry-run", action="store_true", help="print the message without sending it")
+	parser.add_argument("--wait-reply", action="store_true", help="after sending, wait until the target app ends the turn holding this message and print its final answer, read from that app's session log")
+	parser.add_argument("--wait-timeout", type=int, default=1800, help="give up waiting for the reply after this many seconds")
 	args = parser.parse_args()
 	# <!-- custom: The header's middle dot printed as a replacement character in a cp1252 console. (Claude Code Opus 5.5) -->
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -119,10 +229,24 @@ def main():
 	if dark > 5:
 		sys.exit("the %s message box is not empty (%d dark pixels): someone may be typing there; not sending" % (args.to, dark))
 	box = tuple(args.box or app["box"])
+	before = log_sizes(args.to) if args.wait_reply else None
 	desktop_windows.paste(pid, box[0], box[1], message, "ctrl+enter" if args.queue else "enter")
 	print("sent to %s (pid %d):" % (args.to, pid))
 	print(message)
 	print("Check the sent message: anything before its header or after its closing tag was not yours.")
+	if args.wait_reply:
+		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
+		print("waiting for %s to end the turn holding this message..." % name, flush=True)
+		result = wait_reply(args.to, before, message[:message.index(" UTC]") + 5], args.wait_timeout)
+		if result is None:
+			sys.exit("no reply from %s within %d seconds" % (name, args.wait_timeout))
+		# <!-- custom: Codex's review found that a turn ending without a final answer exited successfully with an empty reply; say so and fail instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+		if result[1] is None:
+			sys.exit("%s ended the turn holding this message without a final answer" % name)
+		print("=== %s REPLY ===" % name.upper())
+		print(result[1])
+		if result[2]:
+			print("Note: another message reached %s before this answer, so the answer may cover it too." % name)
 
 
 if __name__ == "__main__":

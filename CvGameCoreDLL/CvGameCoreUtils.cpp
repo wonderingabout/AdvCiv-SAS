@@ -86,15 +86,35 @@ CvString const& getSASProcessUtcTimestamp()
 
 // <!-- custom: The existing processUtc value is sampled when this DLL initializes; external agents also benefit from the actual Civ4 process creation time so a stale status file cannot be confused with a later PID reuse.
 // GetProcessTimes gives the executable-process creation FILETIME without filesystem queries. (ChatGPT-5.6-Sol) -->
-static CvString createSASExecutableProcessStartUtc()
+// <!-- custom: The creation-time read now takes any process handle, so SGR can also give the start time of the other Civ4 clients it lists. (Claude Code Opus 5.5) -->
+static CvString formatSASProcessStartUtc(HANDLE hProcess, FILETIME const* pNotAfter = NULL)
 {
 	FILETIME kCreationTime, kExitTime, kKernelTime, kUserTime;
-	if (!GetProcessTimes(GetCurrentProcess(), &kCreationTime, &kExitTime, &kKernelTime, &kUserTime))
+	if (!GetProcessTimes(hProcess, &kCreationTime, &kExitTime, &kKernelTime, &kUserTime))
+		return "unknown_time";
+	// <!-- custom: A process created after pNotAfter cannot be the one a caller listed at that moment; its ID was reused in between. (Claude Code Opus 5.5) -->
+	if (pNotAfter != NULL && CompareFileTime(&kCreationTime, pNotAfter) > 0)
 		return "unknown_time";
 	SYSTEMTIME kUtcTime;
 	if (!FileTimeToSystemTime(&kCreationTime, &kUtcTime))
 		return "unknown_time";
 	return formatSASUtcSystemTime(kUtcTime);
+}
+
+static CvString createSASExecutableProcessStartUtc()
+{
+	return formatSASProcessStartUtc(GetCurrentProcess());
+}
+
+// <!-- custom: Another process's start time pairs with its ID to tell a client from a later process that reuses the ID; PROCESS_QUERY_INFORMATION suffices for the user's own processes, and an unopenable one reports unknown_time. (Claude Code Opus 5.5) -->
+CvString getSASProcessStartUtc(DWORD dwProcessId, FILETIME const* pNotAfter)
+{
+	HANDLE const hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcessId);
+	if (hProcess == NULL)
+		return "unknown_time";
+	CvString const szStartUtc = formatSASProcessStartUtc(hProcess, pNotAfter);
+	CloseHandle(hProcess);
+	return szStartUtc;
 }
 
 CvString const& getSASExecutableProcessStartUtc()
@@ -1481,6 +1501,11 @@ CvString getSASInitialTeamTechFields(TeamTypes eTeam)
 	CvString szFields;
 	szFields.Format("team=%d %s", eTeam, getSASInitialTeamTechLevelFields(eTeam).GetCString());
 	return szFields;
+}
+
+char const* getSASDenialType(DenialTypes eDenial)
+{
+	return (eDenial == NO_DENIAL ? "NO_DENIAL" : GC.getInfo(eDenial).getType());
 }
 
 CvString getSASDiagnosticIntText(int iValue)

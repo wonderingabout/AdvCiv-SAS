@@ -27,6 +27,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.
+- Do all of this in the background: the game never needs the foreground, and runs went on under other applications such as Chrome, VS Code or File Explorer, so the user can keep working meanwhile. Only a click moves the real mouse pointer, and runs need none.
 
 Everything goes through two Python 3 helpers in [`LLM_Helpers/game_runs/`](/LLM_Helpers/README.md#game_runs): [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) for whole runs and [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) for the window.
 
@@ -65,7 +66,7 @@ Build with the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/REA
 | `Debug-opt` | about 2 minutes | compiled out unless `/DFASSERT_ENABLE` is uncommented in `Makefile.project`; keeps its PDB for crash dumps |
 | `Assert-fast` | about 25 seconds, compiled in parallel | on, written to `SASAssertions_*.log` and ignored automatically with the default `SAS_ASSERT_SILENT_ACTION=1`, so they never stop a run |
 
-`build_with_report.ps1 -Configuration Assert-fast` builds the Makefile's `Assert` target. Clean its `temp_files/Assert` with `-Request CLEAN` afterward, as CI rejects leftover intermediates.
+`build_with_report.ps1 -Configuration Assert-fast` builds the Makefile's `Assert` target. Its `temp_files/Assert` folder can stay afterward: it is git-ignored, and the next `BUILD` refuses to start until it is cleaned, so use `-Request REBUILD` then.
 
 ## Run autoplay from a save
 
@@ -137,7 +138,18 @@ The runner reads the process's own `SASRuntimeHistory_<processStartUtc>_<pid>.js
 
 Then it takes a final screenshot and closes Civ4 with `WM_CLOSE`, as the title bar's X does. Civ4 exited with code 0 and no confirmation dialog every time it was tested; the runner forces the process only after 90 seconds.
 
-It writes `summary.json` and the screenshot to `Downloads/AdvCiv-SAS_LLM/autoplay_runs/<run id>/` and exits with code 0 only for `COMPLETED`:
+It writes `SASAutoplay_<run id>.json` to `Logs/` under the Civ4 user folder. For example, the test run's `SASAutoplay_20261111T123518Z_6384.json` identifies a run launched at 12:35:18 UTC by runner PID 6384.
+
+- Optional captures share `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/`, with names such as `SASAutoplay_<capture UTC>_<Civ4 PID>_final.png`; the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#autoplay-run-summary) explains why reports and screenshots are kept apart.
+- When reporting an issue, the summary and the game logs are in the same directory. You can sort by date or size and collect the relevant files in one view. If an image would help, add the specific PNG linked from the summary.
+
+The screenshot uses [Windows window capture](#screenshots-and-clicks) on the Civ4 client launched for the run. It leaves the window where it is and sends no screenshot hotkey.
+
+- The summary's `screenshot` field gives the saved PNG path when capture succeeds.
+- Use `--no-screenshot` to skip the capture, and `--screenshot-root` to choose another image directory.
+- If an image has been archived, search for its filename in the screenshot archive.
+
+The runner exits with code 0 only for `COMPLETED`:
 
 ```json
 {

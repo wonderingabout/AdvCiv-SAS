@@ -14,8 +14,10 @@
 /CvGameCoreDLL/Project/Profile-fast/
 /CvGameCoreDLL/Project/Release/
 /CvGameCoreDLL/Project/_Release-fast/
-# <!-- custom: Retain and ignore the current Debug-opt intermediates because its matching PDB makes crash dumps actionable. Other temp targets remain visible, and each target folder must be deleted before rebuilding that configuration. Keep the tracked parent placeholder for fresh clones and CI; `.gitattributes` export-ignores it. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
-/CvGameCoreDLL/Project/temp_files/Debug-opt/
+# <!-- custom: Retain and ignore the current Debug-opt intermediates because its matching PDB makes crash dumps actionable. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+# <!-- custom: Other targets used to stay visible in git status as a reminder to delete them before the next build. Since 2026-11-11 build_with_report.ps1 refuses a BUILD while a target folder holds files, so every target is ignored.
+# The whole folder is ignored too: a tracked .gitkeep kept it in fresh clones for the old CI check, but the Makefile creates it when missing, so the placeholder was dropped. (Claude Code Opus 5.5) -->
+/CvGameCoreDLL/Project/temp_files/
 *.opensdf
 *.sdf
 *.suo

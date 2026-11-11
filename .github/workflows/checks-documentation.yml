@@ -68,6 +68,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/diagnostic_artifact_names.py
 
+      # <!-- custom: A Drive link copied from another entry still opens a real folder, so the wrong evidence goes unnoticed; require each Drive file or folder once per document. (Claude Code Opus 5.5) -->
+      - name: Google Drive links once per document
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/drive_links.py
+
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

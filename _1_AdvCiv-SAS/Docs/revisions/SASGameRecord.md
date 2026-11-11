@@ -113,10 +113,21 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 199 - SAS practical 6746
+### Revision 200 - SAS practical 6747
 
 - **Date:** 2026-11-11
 - **Git commit:** pending
+- **Change:** List the other Civ4 clients open when a record starts, so a record from a parallel run shows which clients ran beside it.
+  - At system-context level 2 (the default), each session start adds one `GAME_RECORD_PEER_CLIENTS` row with `scanAvailable`, `peerClients` and the record's own `processId`/`processStartUtc`, then one `GAME_RECORD_PEER_CLIENT` row per other `Civ4BeyondSword.exe` process with `peerProcessId` and `peerProcessStartUtc`.
+  - The scan runs once per session start, not every turn. A client started later is not added to an earlier client's record, and its own record lists the earlier one only if that one is still open at its session-start scan, so the two records together show what overlapped at those moments.
+  - The process list cannot tell which mod a client runs. An incomplete scan reports `scanAvailable=0` with `peerClients=-1` rather than a false zero, and a client whose start time cannot be read, or that exited and whose ID Windows reused before the read, reports `unknown_time`.
+  - Only process IDs and start times are logged, the same identity the record already gives its own process, so the rows follow the default level rather than the `SAS_SGR_PROCESS_CONTEXT_ON` opt-in. See KI#1081.
+  - The trade-denial formatter moved from SGR to `CvGameCoreUtils` as `getSASDenialType`, since denial reasons are game vocabulary that BBAI trade rows can share; its output, including the explicit `NO_DENIAL` token, is unchanged.
+
+### Revision 199 - SAS practical 6746
+
+- **Date:** 2026-11-11
+- **Git commit:** `5ff32ab18353af4a4ed28081bab25b422410829b`
 - **Change:** Identify the Civ4 client that wrote each SGR file, and record the unattended autoplay request in the INI settings snapshot.
   - Timestamped SGR and BBAI file names add the process ID after the timestamp, e.g. `SASGameRecord_20261110T165714Z_26088_load1.log`. Two clients launched together on the same Windows computer started in the same millisecond and opened their SGR logs in the same second, so under the old names they would have shared one file.
     - In network games the ID replaces the active player's seat number; fixed-name logs keep the seat number.

@@ -99,6 +99,9 @@ uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds)
 CvString const& getSASProcessUtcTimestamp();
 // <!-- custom: Return the actual Civ4BeyondSword.exe process creation UTC from GetProcessTimes, separate from the DLL-load identity above. (ChatGPT-5.6-Sol) -->
 CvString const& getSASExecutableProcessStartUtc();
+// <!-- custom: The same creation UTC for another process by ID, or unknown_time when it cannot be opened; SGR lists other Civ4 clients with it.
+// pNotAfter rejects a process created after that time: between a process-list snapshot and this lookup, the listed process can exit and Windows can reuse its ID, as Codex's 2026-11-11 review pointed out. (Claude Code Opus 5.5) -->
+CvString getSASProcessStartUtc(DWORD dwProcessId, FILETIME const* pNotAfter = NULL);
 // <!-- custom: Known status reasons are typed at call sites and iterable through NUM_SAS_RUNTIME_STATUS_REASONS; the same catalog generates their external JSON names. (GPT-6.1-Sol) -->
 enum SASRuntimeStatusReason
 {
@@ -303,6 +306,11 @@ template<typename E> char const* getSASInfoTypeOrNone(E eType)
 {
 	return (eType < 0 ? "-" : GC.getInfo(eType).getType());
 }
+// <!-- custom: A completed trade query can explicitly return NO_DENIAL, meaning the AI would trade, so this keeps that token rather than "-"; optional cancellation reasons use getSASInfoTypeOrNone for an absent denial.
+// Not getSASInfoTypeOrNone here: its "-" means no value, so a row would read "would trade" as unknown.
+// Callers that already skip NO_DENIAL print the same either way, but use this too so every denial reason goes through one formatter.
+// Moved from SGR's getSASGameRecordDenialType, since denial reasons are game vocabulary that BBAI trade rows can share; defined in the .cpp because a non-template needs the info definitions. (GPT-6.1-Sol + Claude Code Opus 5.5) -->
+char const* getSASDenialType(DenialTypes eDenial);
 // <!-- custom: Serialize one integer for shared diagnostic fields without recorder-specific wrappers. (ChatGPT-5.6-Sol) -->
 CvString getSASDiagnosticIntText(int iValue);
 // <!-- custom: Append one already-decoded diagnostic token with a caller-selected separator.

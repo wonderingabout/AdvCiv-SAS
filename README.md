@@ -86,7 +86,8 @@ For local AI/LLM agents in particular:
   - Several Civ4 instances can run at once, each started from a command line with Civ4's `multiple` argument, with its own autoplay and its own logs ([README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md)).
   - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even under other windows, and clicks in it, so an agent can see what the game shows. See [Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line).
 - Agents also hand work to each other. The [chat export helpers](/LLM_Helpers/README.md#chat_exports) turn Claude Code, Codex and ChatGPT chats into readable text, so one agent can pick up another's reasoning, for example Codex reviewing a change Claude Code made, and the [light-source ZIP](/README.md#light-source-zip) gives agents without the game, such as ChatGPT, the source and its history.
-  - Agents can also message each other's apps directly with [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy), following the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention), so a review round-trip needs no files passed by hand; the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md) covers how.
+  - Agents can also message each other's apps directly with [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy), following the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention), so a peer-agent review round-trip needs no files passed by hand; the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md) covers how.
+    - With `--wait-reply`, the sender sleeps until the other agent answers and is woken with its reply, in either direction, so two agents can keep a [continuous back-and-forth](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#continuous-back-and-forth-between-agents) without the user prompting each round, for as many rounds as wanted (tested on 2026-11-11 between Claude Code and Codex).
   - The same guide records how far local agents such as Claude Code and Codex went in driving each other on screen: reading, hovering, clicking and scrolling in the other's app, prompting it and following up iteratively, starting and steering their [own extra sessions](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#running-several-claude-code-sessions), and [how fast this spends their limits](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#how-fast-agents-use-their-limits).
 
 Together, these close a loop that local agents, such as Claude Code or Codex, can now run on their own, end to end. It began as feeding BBAI and SASGameRecord logs to LLMs to analyze the AI, and now reaches any issue, AI, UI, logging or otherwise, for example, or more or less:
@@ -100,6 +101,15 @@ Together, these close a loop that local agents, such as Claude Code or Codex, ca
 7. Eventually committed once and if approved, and work moves on to the next Known Issue or idea noted for later, with the user, or possibly other agents, either in batch or autonomously, or one by one with or without the user being required at each step, or such.
 
 Each step is documented for agents in the files linked above, so the loop needs the user only to choose what to work on and to approve the result.
+
+None of it needs the game in the foreground, or even visible: Civ4 runs in its own window, screenshots capture it under other windows, and other applications such as Chrome, VS Code or File Explorer did not block its launch or capture in our tests.
+
+So an agent such as Claude Code or Codex can investigate an issue, change the code, compile, run the autoplays it needs, read their logs and screenshots, and commit once the change is approved, while the user browses the web or reads code, possibly without noticing it happened.
+
+Example of exceptions:
+
+- A click in the game window, since it moves the real mouse pointer, but runs need none.
+- Or asking another agent such as Codex for a peer-agent review, as in [this example](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#example-a-peer-agent-review-on-2026-11-11), is more visible with our current method, because we use the agents' desktop apps rather than their CLI, so the request is pasted into the other agent's window, which brings it to the front.
 
 Note: we wrote "AI, UI or otherwise" above without thinking of it, then noticed it matches the current signature at the top of every file SAS modifies: "AI, UI, logging, or other modifications first developed in AdvCiv-SAS". We added "logging" so the two match.
 
@@ -1324,6 +1334,7 @@ The guides:
 - Several Civ4 instances can run at once, each started from a command line with Civ4's `multiple` argument and its own autoplay, for example two runs of the same save to compare a change: each client's Runtime, SASGameRecord, BBAI and assertion files carry its process ID. In tests, two such runs of the same save matched at every RNG and state checkpoint over 100 turns.
 - New games with fixed seeds repeat exactly, so a benchmark needs no save.
 - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even while other windows such as a video cover it, and clicks in it. An agent can look at the game this way during a run or with `--keep-open` afterward.
+- The game never needs the foreground: runs went on, and screenshots captured the window, while other applications such as Chrome, VS Code or File Explorer were in front, so the user can keep doing other things meanwhile.
 
 ```bash
 python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave" --turns 100
@@ -2012,7 +2023,7 @@ I don't know too much about crashes or how to debug them, so there may be better
 
 Around [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), i started using `Debug-opt` builds instead of only `Release` ones.
 
-- A `Debug-opt` build writes its matching `.pdb` into its `temp_files` folder. Keeping that folder, instead of deleting it as i did for `Release` builds, let WinDbg show real crash traces from a crash dump; see [Retained Debug-opt crash symbols](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#retained-debug-opt-crash-symbols).
+- A `Debug-opt` build writes its matching `.pdb` into its `temp_files` folder. Keeping that folder, instead of deleting it as i did for `Release` builds, let WinDbg show real crash traces from a crash dump (since 2026-11-11 the build wrapper refuses to build over any leftover folder, so keeping it is safe); see [Retained Debug-opt crash symbols](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#retained-debug-opt-crash-symbols).
 - To get a crash dump in the first place, see [how to enable .dmp files](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
 
 Earlier crash fixes were made without such traces, so their real cause was never confirmed, and some had side effects.
@@ -2110,10 +2121,11 @@ This keeps the same public download link for the corrected stable build while pr
 
 I've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/_1_AdvCiv-SAS/Docs/README_Authors.md#claude-code-vs-code-extension) heavily helped achieving that.
 
-Note: currently not implemented in the main branch of AdvCiv-SAS but in a formerly public separate branch.
+Note: currently not implemented in the main branch of AdvCiv-SAS but in a [separate branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/CuCuGS-PoC-claude-code-test).
 
 See:
 
+- [AdvCiv-SAS - CuCuGS: PR compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/19)
 - [CFC forum CuCuGS topic](https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/post-16903059)
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS%20(1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>

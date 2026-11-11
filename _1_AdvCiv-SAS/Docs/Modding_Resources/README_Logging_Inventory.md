@@ -60,9 +60,11 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
     - [Live source-edit observation](#live-source-edit-observation)
       - [`SASRuntimeSourceWatch_*.json` (watcher state and host)](#sasruntimesourcewatch_json-watcher-state-and-host)
       - [`SASRuntimeSourceChanges_*.jsonl` (live file changes)](#sasruntimesourcechanges_jsonl-live-file-changes)
+  - [Autoplay run summary](#autoplay-run-summary)
   - [DLL build reports](#dll-build-reports)
     - [`CvGameCoreDLL.dll.build.json` (toolchain and build launcher)](#cvgamecoredlldllbuildjson-toolchain-and-build-launcher)
     - [`AdvCiv.log` (compiler output and build summaries)](#advcivlog-compiler-output-and-build-summaries)
+    - [Refused `BUILD` and clean-start evidence](#refused-build-and-clean-start-evidence)
     - [`_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` (packaging host)](#_snapshot_contextarchive_contents_and_contexttxt-packaging-host)
 - [Python diagnostic messages](#python-diagnostic-messages)
 - [Startup rows and run boundaries](#startup-rows-and-run-boundaries)
@@ -177,6 +179,8 @@ Inventory snapshot: **2026-10-20 08:34:07 UTC**. The Python captures were taken 
 | `SASGameRecord_*.log` | Yes, 1,119 files | 2026-10-20 08:17:39 | Timestamped game/session records, including older runs. |
 | `SASRuntimeStatus.json` | Yes | 2026-10-20 08:30:49 | Latest fixed-name runtime observation and linked history identity. |
 | `SASRuntimeHistory_*.jsonl` | Yes, 32 files | 2026-10-20 08:30:49 | Per-process runtime history. |
+
+The autoplay runner writes `Logs/SASAutoplay_<run id>.json` alongside the game logs. Its report links to any optional `SASAutoplay_<capture UTC>_<Civ4 PID>_final.png` under `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/`. See the [Game Runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md).
 
 The BBAI/SASGameRecord counts above describe timestamped files, not a requirement that their legacy fixed filenames exist. Configured filename/session/player variations are handled by the shared filename builder.
 
@@ -411,20 +415,28 @@ GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261110T163120Z processId=3104 process
 
 #### File names per process
 
-Since SGR199 and Runtime18, every SAS log a Civ4 client creates names that client's process ID, so two clients started together, as [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once) runs them, never write into the same file. Real names from two clients that started in the same millisecond on 2026-11-10:
+Timestamped SGR and BBAI files include the process ID, and Runtime writes a status snapshot per process alongside its shared latest-writer file. The SGR and Runtime examples below come from PID 26924 in the 2026-11-11 parallel save-load test.
 
 | File | Template | Example |
 | --- | --- | --- |
-| SASGameRecord | `SASGameRecord_<UTC>_<pid>_<session>.log` | `SASGameRecord_20261110T165714Z_26088_load1.log` |
-| BBAI | `BBAI_<UTC>_<pid>_<session>.log` | same shape as SASGameRecord |
-| Assertions | `SASAssertions_<UTC with milliseconds>_<pid>_<session>.log` | `SASAssertions_20261110T165939455Z_23300_new1.log` |
-| Runtime status | `SASRuntimeStatus_<processStartUtc>_<pid>.json`, plus the shared `SASRuntimeStatus.json` | `SASRuntimeStatus_20261110T165707.658Z_26088.json` |
-| Runtime history, exit, screenshot and source records | `SASRuntimeHistory_<processStartUtc>_<pid>.jsonl` and the like | `SASRuntimeHistory_20261110T165707.658Z_29208.jsonl` |
+| SASGameRecord | `SASGameRecord_<UTC>_<pid>_<session>.log` | `SASGameRecord_20261111T100043Z_26924_load1.log` |
+| BBAI | `BBAI_<UTC>_<pid>_<session>.log` | Same shape as SASGameRecord when timestamped BBAI is enabled. |
+| Assertions | `SASAssertions_<UTC with milliseconds>_<pid>_<session>.log` | `SASAssertions_20261110T165939455Z_23300_new1.log` (separate assertion capture) |
+| Runtime status | `SASRuntimeStatus_<processStartUtc>_<pid>.json`, plus the shared `SASRuntimeStatus.json` | `SASRuntimeStatus_20261111T100036.809Z_26924.json` |
+| Runtime history, exit, screenshot and source records | `SASRuntimeHistory_<processStartUtc>_<pid>.jsonl` and the like | `SASRuntimeHistory_20261111T100036.809Z_26924.jsonl` |
 
-- `<UTC>` is when the log opened, to the second; `<session>` counts new games and loads (`new1`, `load2`).
-- The second client's SGR file in that test was `SASGameRecord_20261110T165714Z_29208_load1.log`: same second, different process.
-- Fixed-name logs (timestamped names off) keep the old seat number in network games instead.
-- Civ4's own `PythonErr.log` and `PythonDbg.log` stay shared ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)).
+The second SGR file, `SASGameRecord_20261111T100046Z_25620_load1.log`, recorded the same pair from the other client's perspective. At system-context level 2+, each SGR session checks which peers are present when its start rows are written. In this capture both clients were still open, so the PID and start time in each peer row match the other client's summary row.
+
+```log
+GAME_RECORD_PEER_CLIENTS seq=10 scanAvailable=1 peerClients=1 processId=26924 processStartUtc=20261111T100036.809Z
+GAME_RECORD_PEER_CLIENT seq=11 index=0 peerProcessId=25620 peerProcessStartUtc=20261111T100039.826Z
+GAME_RECORD_PEER_CLIENTS seq=10 scanAvailable=1 peerClients=1 processId=25620 processStartUtc=20261111T100039.826Z
+GAME_RECORD_PEER_CLIENT seq=11 index=0 peerProcessId=26924 peerProcessStartUtc=20261111T100036.809Z
+```
+
+- `<UTC>` is when the log opened, to the second. `<session>` counts new games and loads (`new1`, `load2`). Runtime filenames use process creation time with milliseconds.
+- A client can finish before another client's session-start scan, for example while the second client is still generating its map.
+- Fixed-name logs keep the old seat number in network games, and Civ4's own `PythonErr.log` and `PythonDbg.log` stay shared. See [parallel runs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once) and [KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081).
 
 ### SASGameRecord (SGR)
 
@@ -446,7 +458,6 @@ The record brings together map/geography context, settings and provenance, econo
   - C2C also has a [report of city outputs failing around 210,000–220,000](https://github.com/caveman2cosmos/Caveman2Cosmos/issues/1604); it is a separate arithmetic-audit lead, not evidence that SAS has the same defect or threshold.
 - `processTotalVirtualBytes` is Windows' reported user-mode address-space total, not installed RAM or a promise that an allocation of that size can succeed. Fragmentation, mappings and other allocations still matter; the EXE's LAA flag affects address-space eligibility, not the range of C++ `int`.
   - See Microsoft's [memory/address-space limits](https://learn.microsoft.com/en-us/windows/win32/memory/memory-limits-for-windows-releases) and [integer limits](https://learn.microsoft.com/en-us/cpp/cpp/integer-limits).
-
 - Search examples include `GAME_RECORD_SOURCE_CONTEXT`, `GAME_RECORD_DLL_CONTEXT`, `GAME_RECORD_AI_STRATEGY_CHANGE`, `GAME_RECORD_AI_VICTORY_STAGE_CHANGE` and `GAME_RECORD_DIAGNOSTIC_WRITER`.
 - `SAS_SGR_INTERVAL_T_UNSCALED_GS` controls periodic snapshots; with interval 10 they occur at completed turns 10, 20, 30 and so on, while turn 0 has separate initial context. Chronicle actions can appear between snapshots.
 - This is an all-player diagnostic and can contain spoilers. Use the [Main Changes Guide's SASGameRecord section](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log) and [recorder revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md) for coverage/controls, and the [representative raw record](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/SASGameRecord_example.log) for actual output.
@@ -578,7 +589,9 @@ Identities use XML type names, e.g. `civ=CIVILIZATION_AMERICA`, `build=BUILD_COT
 
 This is the same convention as SASGameRecord (`civType=CIVILIZATION_OTTOMAN`, `playerName="PC"`), so splitting a row on spaces outside quotes yields its fields.
 
-Both logs share two helpers in `CvGameCoreUtils`. `getSASDiagnosticQuoted` quotes a name and escapes `\`, `"`, CR, LF and tab, writing `-` for a missing name; it was centralized on 2026-08-31 so BBAI and SGR initialization rows share one representation. `getSASInfoTypeOrNone` returns an info enum's XML type, or `-` for its `NO_...` value.
+Both logs share two helpers in `CvGameCoreUtils`. `getSASDiagnosticQuoted` quotes a name and escapes `\`, `"`, CR, LF and tab, writing `-` for a missing name; it was centralized on 2026-08-31 so BBAI and SGR initialization rows share one representation.
+
+`getSASInfoTypeOrNone` returns an info enum's XML type, or `-` for its `NO_...` value. For example, a `SETTLER_BUILD_DECISION` can show `currentProduction=- currentProductionAI=-` when the city has no unit in production. SGR's market queries keep the explicit `NO_DENIAL` result when a completed query finds the AI would trade.
 
 Gameplay callers own the decisions and cached category gates; formatting helpers receive already-decided state only.
 
@@ -1244,6 +1257,60 @@ The following six complete JSONL rows are from `SASRuntimeSourceChanges_20261027
 
 The first two fingerprints differ despite equal byte sizes; the unchanged-content save retains the second fingerprint. The XML row identifies the saved file and its final hash, but does not show edited lines or establish that Civ4 adopted the changes. Both disposable INI paths were removed after the test.
 
+### Autoplay run summary
+
+`Logs/SASAutoplay_<run id>.json` is written by the Python runner after it collects the outcome. Start here to find the linked SGR log and Runtime history for a run. The report's `pid` is the Civ4 PID, which appears in both diagnostic filenames and in the optional screenshot. The runner PID is part of the summary filename.
+
+Why `Logs`, although the report is not a game file: the runner that writes it also launched the run, so the run's SGR log and Runtime history exist because of it, and the report points to them.
+
+Kept beside them, it sorts naturally with the many other logs, and one folder holds all of a run's text evidence, easy to collect, archive or attach together; elsewhere it would be one more folder to look in.
+
+- Reports are small, a few kilobytes each. Named `SASAutoplay_<launch UTC>_<runner PID>.json`, they sort by time and stand apart from the SGR, BBAI and Runtime files around them.
+- Screenshots stay out of `Logs`: they are optional images rather than logs, and much heavier, so they would clutter it. They gather in one folder, `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/`, named `SASAutoplay_<capture UTC>_<Civ4 PID>_final.png`; the report links to its own.
+- Before 2026-11-11, each run had its own folder under `Downloads/AdvCiv-SAS_LLM/autoplay_runs/` holding `summary.json` and `final.png`. Those were moved into the new layout once, rather than kept readable by the tools.
+
+The complete report from the 2026-11-11 one-turn save-load test, `SASAutoplay_20261111T123518Z_6384.json`, copied verbatim:
+
+```json
+{
+  "outcome": "COMPLETED",
+  "pid": 30224,
+  "save": "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Saves\\single\\MICHAEL_T0000_HUGE_PANGAEA_NORMAL_21228745_21228745_20261109T112240Z_START.CivBeyondSwordSave",
+  "newGameSettings": null,
+  "requestedTurns": 1,
+  "debugMode": false,
+  "startTurn": 0,
+  "endTurn": 0,
+  "lastTurnSeen": 0,
+  "autoplayEndCause": "SCHEDULED",
+  "autoplaySeconds": 0.525,
+  "launchedUtc": "20261111T123518Z",
+  "finishedUtc": "20261111T123530Z",
+  "wallSeconds": 12.2,
+  "civ4": "CLOSED",
+  "exitObservation": {
+    "outcome": "ZERO_EXIT_CODE",
+    "exitCode": 0,
+    "failureDialog": null
+  },
+  "lastAwaitedPopup": null,
+  "runtimeHistory": "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Logs\\SASRuntimeHistory_20261111T123518.569Z_30224.jsonl",
+  "gameRecord": "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Logs\\SASGameRecord_20261111T123525Z_30224_load1.log",
+  "gameRecordsSinceLaunch": [
+    "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Logs\\SASGameRecord_20261111T123525Z_30224_load1.log"
+  ],
+  "newSaves": [
+    "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Saves\\single\\MICHAEL_T0000_HUGE_PANGAEA_NORMAL_21228745_21228745_20261111T123512Z_STOP.CivBeyondSwordSave"
+  ],
+  "pythonErrors": [],
+  "screenshot": "C:\\Users\\PC\\Downloads\\AdvCiv-SAS_LLM\\autoplay_screenshots\\SASAutoplay_20261111T123530Z_30224_final.png"
+}
+```
+
+- `newGameSettings` is `null` for a save load; a new game records its settings there instead, and `save` is then `null`.
+- `exitObservation` says how Civ4 closed. `pythonErrors` holds the last 30 lines of `PythonErr.log` when that file was written during the run, and is empty otherwise; `newSaves` lists the saves the run wrote.
+- With `--no-screenshot`, the summary still records the outcome and `screenshot` is `null`. See the [Game Runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#how-the-run-ends).
+
 ### DLL build reports
 
 Paths in this section are relative to the mod folder. For example, `CvGameCoreDLL/Project/Release/AdvCiv.log` carries compiler/linker messages, and `CvGameCoreDLL/Project/Release/CvGameCoreDLL.dll.build.json` reports build progress/result, Git/source context, warnings/errors and binary identity.
@@ -1538,6 +1605,28 @@ Time Elapsed 00:02:06.45
 ```
 
 This records successful compilation and linking with no coded warnings/errors; it does not establish in-game behavior or that the built DLL was installed or loaded.
+
+#### Refused `BUILD` and clean-start evidence
+
+Some compiles failed, or produced DLLs with strange errors, that a clean recompile fixed; stale intermediates in `temp_files/<target>` were suspected ([KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)). Deleting that folder before each build was a habit, and a habit can be forgotten.
+
+Since 2026-11-11 `build_with_report.ps1` refuses a `BUILD` while that folder holds files. The check runs before `nmake` starts, so nothing compiles, the build report is left as it was, and the refusal takes under a second. This verbatim console capture, from 2026-11-11, is a plain Debug-opt `BUILD` right after a successful one; the wrapper exited with code 1 after 0.35 seconds:
+
+```log
+Refusing BUILD: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\temp_files\Debug-opt still holds files from an earlier build. Use REBUILD (Rebuild in Visual C++ 2010 Express), which cleans it first, or delete the folder.
+```
+
+A `REBUILD` runs `nmake clean` first and then compiles. Its report's `tempBefore` can still show `"directoryPresent": true` with the earlier objects, because the wrapper takes that snapshot before the clean step; on 2026-11-11 it showed 169 objects although the compile itself started empty.
+
+The game record shows whether the loaded DLL started from an empty folder. This is the complete `GAME_RECORD_DLL_CONTEXT` row, copied verbatim from a 2-turn autoplay on 2026-11-11 run with the DLL from that `REBUILD`:
+
+```log
+GAME_RECORD_DLL_CONTEXT seq=34 build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=14499840 dllFingerprint=FNV1A64:B83C71FC8777281B dllLastWriteUtc=20261111T131244.379Z peTimestampRaw=1794402745 peTimestampUtc=20261111T131225Z resourceFileVersion=- resourceProductVersion=- buildEvidence=EMBEDDED buildRequest=REBUILD preexistingObjectCount=0 preexistingIncompleteMarkerCount=0 preexistingPch=0 reusableArtifactBaseline=CLEAN projectTreePresent=1 buildOutputDllState=FINGERPRINT_MATCH tempDirPresent=1 tempDllState=FINGERPRINT_MATCH tempObjectCount=169 tempIncompleteMarkerCount=0 tempPchPresent=1 tempPdbPresent=1 fassertEnabled=0 debugDefine=0 ndebugDefine=1 msvcVersion=1310 msvcFullVersion=13103077 internalProfilerCompiled=0 tscProfilerCompiled=0 profileAIAutoPlayCompiled=0 reproTestCompiled=0
+```
+
+- `buildRequest=REBUILD`, the `preexisting*` fields and `reusableArtifactBaseline` are embedded at compile time: `CLEAN` means the compile found no earlier objects, PCH or incomplete markers to reuse. `REUSABLE_ARTIFACTS_PRESENT` would mean it could have resumed from them.
+- `buildOutputDllState=FINGERPRINT_MATCH` says the copy in `CvGameCoreDLL/Project/Debug-opt` is the same file as the loaded DLL, as the copy in the temporary folder is.
+- The `temp*` fields are read when the game starts and describe the folder as it is now. Here it still holds this build's 169 objects and PDB, and `FINGERPRINT_MATCH` says its DLL is the one loaded. Debug-opt keeps the folder so WinDbg can find the PDB, which is also why the next plain `BUILD` refuses.
 
 #### `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt` (packaging host)
 

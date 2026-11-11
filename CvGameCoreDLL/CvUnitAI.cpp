@@ -549,6 +549,7 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
 	CorporationTypes const eCorporation = (eBuilding == NO_BUILDING ? NO_CORPORATION : GC.getInfo(eBuilding).getFoundsCorporation());
 	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
 	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
+	// <!-- custom: A missing type printed NONE here while other BBAI rows print -; getSASInfoTypeOrNone now gives the same - and the same XML type otherwise. (Claude Code Opus 5.5) -->
 	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d civ=%s unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d slowBase=%d slowPathTurns=%d previousMissionAI=%d previousMissionPlot=(%d,%d) discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
 		szAction, kGame.getGameTurn(), kUnit.getOwner(), GC.getInfo(kOwner.getCivilizationType()).getType(), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(),
 		kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iSlowBaseValue, (iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns),
@@ -557,9 +558,9 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
 		getSASDiagnosticQuoted((pTargetCity == NULL ? NULL : pTargetCity->getName().GetCString())).GetCString(), (pTargetCity == NULL ? -1 : pTargetCity->getID()),
 		(pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
 		(pMovePlot == NULL ? -1 : pMovePlot->getX()), (pMovePlot == NULL ? -1 : pMovePlot->getY()),
-		(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()),
-		(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()),
-		(eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()),
+		getSASInfoTypeOrNone(eSpecialist),
+		getSASInfoTypeOrNone(eBuilding),
+		getSASInfoTypeOrNone(eCorporation),
 		(pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
 }
 
@@ -13213,14 +13214,15 @@ void CvUnitAI::AI_greatPersonMove()
 	// <!-- custom: A save file 428 Great Artist made a marginal Walata -> Kumbi Saleh -> Walata corporation-target reversal, but slow movement stored no final mission target.
 	// Record the previous target's current comparable value/path beside the new best target before adding any switching threshold.
 	// Diagnostic only. (GPT-5.5) -->
+	// <!-- custom: A missing type printed NONE here while other BBAI rows print -; getSASInfoTypeOrNone now gives the same - and the same XML type otherwise. (Claude Code Opus 5.5) -->
 	if (bLogCultureGreatArtistDecision) logBBAI("CULTURE_GREAT_ARTIST_SLOW_TARGET turn=%d player=%d unitId=%d previousMissionAI=%d previousMissionPlot=(%d,%d) previousValue=%d previousPathTurns=%d bestValue=%d bestPathTurns=%d bestMissionAI=%d bestCity=%S bestCityId=%d bestCityPlot=(%d,%d) specialist=%s building=%s",
 		kGame.getGameTurn(), getOwner(), getID(), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()),
 		(pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iPreviousSlowTargetValue, iPreviousSlowTargetPathTurns,
 		iBestValue, (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns), eBestSlowMissionAI,
 		getSASDiagnosticQuoted((pBestCity == NULL ? NULL : pBestCity->getName().GetCString())).GetCString(), (pBestCity == NULL ? -1 : pBestCity->getID()),
 		(pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()),
-		(eBestSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eBestSpecialist).getType()),
-		(eBestBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBestBuilding).getType()));
+		getSASInfoTypeOrNone(eBestSpecialist),
+		getSASInfoTypeOrNone(eBestBuilding));
 
 	// Trade mission
 	CvPlot* pBestTradePlot;

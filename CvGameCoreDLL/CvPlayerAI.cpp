@@ -29992,15 +29992,16 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 			int const iSettledCultureValue = kSASLogData.aiSettledCommerceValues[COMMERCE_CULTURE];
 			int const iSettledCulturePercent = (bAICultureVictory ? 100 : iSASJoinCityCultureNonVictoryPercent);
 			int const iSettledCultureEffectiveValue = iSettledCultureValue * iSettledCulturePercent / 100;
+			// <!-- custom: A missing type printed NONE here while other BBAI rows print -; getSASInfoTypeOrNone now gives the same - and the same XML type otherwise. (Claude Code Opus 5.5) -->
 			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d civ=%s greatPersonClass=%s greatPerson=%s settledSource=%s settledOriginalValue=%d settledValue=%d settledCity=%S settledCityId=%d settledYieldValue=%d settledGoldValue=%d settledResearchValue=%d settledCultureValue=%d settledCulturePercent=%d settledCultureEffectiveValue=%d settledEspionageValue=%d settledOtherValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
 				GC.getGame().getGameTurn(), getID(), GC.getInfo(getCivilizationType()).getType(), GC.getInfo(eGreatPersonClass).getType(),
-				kGreatPerson.getType(), (eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()),
+				kGreatPerson.getType(), getSASInfoTypeOrNone(eSettledSpecialist),
 				kSASLogData.iSettledOriginalValue, kSASLogData.iSettledValue,
 				getSASDiagnosticQuoted((pSettledCity == NULL ? NULL : pSettledCity->getName().GetCString())).GetCString(), (pSettledCity == NULL ? -1 : pSettledCity->getID()),
 				kSASLogData.iSettledYieldValue, kSASLogData.aiSettledCommerceValues[COMMERCE_GOLD],
 				kSASLogData.aiSettledCommerceValues[COMMERCE_RESEARCH], iSettledCultureValue, iSettledCulturePercent,
 				iSettledCultureEffectiveValue, kSASLogData.aiSettledCommerceValues[COMMERCE_ESPIONAGE], kSASLogData.iSettledOtherValue,
-				(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), kSASLogData.iBuildingOriginalValue,
+				getSASInfoTypeOrNone(eBuilding), kSASLogData.iBuildingOriginalValue,
 				kSASLogData.iBuildingValue, iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
 				iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
 		}

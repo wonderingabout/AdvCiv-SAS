@@ -6889,11 +6889,12 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 		// <!-- custom: Log completed worker builds that replace one improvement with another.
 		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
+		// <!-- custom: A missing type printed NONE here while other BBAI rows print -; getSASInfoTypeOrNone now gives the same - and the same XML type otherwise. (Claude Code Opus 5.5) -->
 		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement) logBBAI("WORKER_IMPROVEMENT_OVERWRITE turn=%d elapsed=%d player=%d civ=%s plot=%d,%d oldImprovement=%s newImprovement=%s build=%s owner=%d bonus=%s route=%s",
 			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), ePlayer, GC.getInfo(GET_PLAYER(ePlayer).getCivilizationType()).getType(), getX(), getY(),
 			GC.getInfo(eOldImprovement).getType(), GC.getInfo(eNewImprovement).getType(), kBuild.getType(), getOwner(),
-			getBonusType(eTeam) == NO_BONUS ? "NONE" : GC.getInfo(getBonusType(eTeam)).getType(),
-			getRouteType() == NO_ROUTE ? "NONE" : GC.getInfo(getRouteType()).getType());
+			getSASInfoTypeOrNone(getBonusType(eTeam)),
+			getSASInfoTypeOrNone(getRouteType()));
 
 		setImprovementType(eNewImprovement);
 	}

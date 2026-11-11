@@ -11,6 +11,7 @@ Expect to update it: these apps change their interfaces often, and every finding
 [The tool](#the-tool)\
 [Look, then act](#look-then-act)\
 [Codex (the ChatGPT desktop app)](#codex-the-chatgpt-desktop-app)\
+[VS Code](#vs-code)\
 [Claude Code (the Claude desktop app)](#claude-code-the-claude-desktop-app)\
 [How fast agents use their limits](#how-fast-agents-use-their-limits)\
 [Sharing limits between agents](#sharing-limits-between-agents)\
@@ -18,6 +19,9 @@ Expect to update it: these apps change their interfaces often, and every finding
 [Agents talking to each other](#agents-talking-to-each-other)\
 &emsp;[Message convention](#message-convention)\
 &emsp;[Example workflow: investigate, test, then ask Codex to review](#example-workflow-investigate-test-then-ask-codex-to-review)\
+&emsp;[Example: a peer-agent review on 2026-11-11](#example-a-peer-agent-review-on-2026-11-11)\
+&emsp;&emsp;[What "Worked for 1m 11s" held](#what-worked-for-1m-11s-held)\
+&emsp;[Continuous back-and-forth between agents](#continuous-back-and-forth-between-agents)\
 &emsp;[Sending screenshots and files](#sending-screenshots-and-files)\
 [Running several Claude Code sessions](#running-several-claude-code-sessions)\
 &emsp;[One agent or several](#one-agent-or-several)\
@@ -78,10 +82,16 @@ Its message box has three states, told apart by the round button at its bottom r
 - **Is Codex working?** While it works, a "Working for …" line and "Thinking" appear under the message, and the round button at the bottom right of the message box turns into a spinning stop button. An instant reply has neither and no "Worked for" line: Codex answered from what it already knew without starting work, as its first reply to Claude Code did.
 - **Its chat:** the reply is in the middle column. A "Worked for …" line above a reply expands Codex's intermediate steps with one click, such as which commands it ran before its findings.
   - When the chat is scrolled up, a round down-arrow button appears above the message box and jumps to the latest message. `scroll` with -300 notches over the chat column did the same without taking focus, and the arrow disappeared once at the bottom. Scroll back down after reading older messages, so the user finds Codex as they left it.
-- **Reading more than the last reply:** export the chat instead of scrolling. The window shows only a small slice of a long chat, while Codex's own log holds all of it; see [Codex and ChatGPT transcript helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper).
-  - Codex keeps each chat as `~/.codex/sessions/<year>/<month>/<day>/rollout-<start time>-<thread id>.jsonl`, filed under the day the chat started. Find the live one by modification time, not by folder: on 2026-11-10 the chat open in the window was filed under 2026-10-17. Example command: `find ~/.codex/sessions -name "rollout-*.jsonl" -newermt 2026-11-10`.
-  - `openai_chat_export_to_txt.py codex <rollout>.jsonl --output <file>.txt` turned that 472 MB log into a 3.2 MB transcript (since the same evening, `openai_chat_export_to_txt.py codex --tail 3` finds the newest log itself and prints only the last messages) of 7,160 messages in under 2 seconds. It ended with the reply the window showed, and `rg -n "^=== "` lists its message boundaries.
-  - Keep screenshots for what the log does not hold, such as whether Codex is working right now or its usage.
+- **Read Codex's answer from the session log.** After handing Codex a review, you can read its findings from the repository root with `python LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --tail 3` to print the latest messages.
+  - The helper reads the most recently modified Codex session log (rollout) by default. If several chats are active, pass the target rollout's path so you read the right reply.
+  - A reply may give the result without showing how it was checked. For the archive and Drive review below, adding `--steps` to the text export revealed the commands and the three reproduction results.
+  - For an older turn, `--longest 5` gives you durations and opening words to search for in the `--markdown` export.
+    - The export groups each turn's progress notes and command summaries into collapsible sections and adds its duration; add `--steps` when you also need short output excerpts. See the [Runtime 11 example below](#what-worked-for-1m-11s-held) and the [transcript helper commands](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper).
+  - If you need to know whether Codex is still working or how much usage remains, take a screenshot of the current window.
+- **Why agents use the session log.** In the 2026-11-11 tests, expanding **Worked for** brought Codex to the foreground and caught a keystroke the user was typing elsewhere.
+  - The separate **Copy as Markdown** command left the clipboard unchanged in the agent's tests, though the user sometimes got a copy after retries. Opening the menu, retrying the copy and pasting it into a file also took extra time.
+  - The log export gives agents the progress notes and tool activity without touching the window. It reconstructs the layout from recorded events, so command summaries and grouping can differ from the app.
+
 - **Usage:** the gray wheel at the bottom left opens a popup with the 5-hour and weekly limits as percentages left; hovering a row shows its reset time ("Resets in 23m", "Resets in 6d 19h").
   - "Manage usage" in that popup opens the app's own Settings > Usage & billing page, not a browser. It repeats both limits with countdowns. Its back arrow, top left, returns to the chat.
   - Those limits are shared across Codex and ChatGPT's other agent products; ordinary chats are not counted.
@@ -106,6 +116,15 @@ Its message box has three states, told apart by the round button at its bottom r
   - Click again to fold it back.
 - **Hovering a prompt** shows its send time ("9:12 PM") and a copy button under the bubble.
 - **Reliability:** the user notes that Codex's interface is sometimes buggy, and as of November 2026 its reset timers did not always look accurate. Cross-check a reading in two places (popup, tooltip, settings page) before relying on it; on 2026-11-10 all three agreed.
+
+## VS Code
+
+The user reviews diffs and searches the code in VS Code, so its window shows what the user is looking at. `desktop_windows.py screenshot --pid <VS Code's PID>` reads it through PrintWindow, without clicking or bringing it forward, so the user can keep typing; find the PID by the window title, which ends in "Visual Studio Code".
+
+- On 2026-11-11 this showed the user's search panel during an audit: a plain `? "NO_` with match-case, whole-word and regex all off. The same search an agent had run, reread with a different question, found that SGR's `NO_DENIAL` getter belonged in `CvGameCoreUtils` (see the search note in AGENTS.md).
+- The panel lists results as of its last run: it did not yet show the moved getter's new line in `CvGameCoreUtils.cpp`, so rerun a search rather than trusting an old panel.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_plain_search_no_fallbacks.PNG" alt="llm_vscode_plain_search_no_fallbacks.PNG" width="250">
 
 ## Claude Code (the Claude desktop app)
 
@@ -372,7 +391,7 @@ Every message one agent sends another opens with a header and closes with a clos
 
 ### Example workflow: investigate, test, then ask Codex to review
 
-A way to combine this guide's tools, written on 2026-11-10. The session that wrote this guide already did it in parts, as the user pointed out: Codex reviewed the autoplay runner and request code, Claude Code fixed its findings and tested them in game, the two passed messages back and forth through each other's apps, and both agents' usage was read along the way. It was not yet run as one planned chain from start to finish.
+A way to combine this guide's tools, written on 2026-11-10. The session that wrote this guide already did it in parts, as the user pointed out: Codex reviewed the autoplay runner and request code, Claude Code fixed its findings and tested them in game, the two passed messages back and forth through each other's apps, and both agents' usage was read along the way. The 2026-11-11 review below shows how the workflow ran on a later candidate.
 
 Not every change needs a review: a simple interface tweak can go straight to the user. In the user's experience Codex is generally strong at reviewing AI and system code, such as gameplay logic, diagnostics and tooling, so ask it there; each agent's view adds something the other's misses.
 
@@ -384,9 +403,13 @@ Not every change needs a review: a simple interface tweak can go straight to the
 2. **It tests in game** with [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy), which reports the outcome and logs (tested: a normal run and a rejected request).
 3. **Satisfied, or in doubt, it asks Codex for a review** with [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy) `--to codex --reply "Claude app"`, giving:
    - what changed and why, and the `git diff` command to read it;
-   - the path of its exported chat ([`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy)), so Codex can follow the reasoning, not only the code;
+   - the session ID or transcript path if the relevant chat would be hard to identify, for example when several Claude Code sessions worked on the same change;
    - an explicit request to paste the answer back into the Claude app when done, because Claude Code's turn ends after sending and only a message in its box wakes it (tested: Codex pasted a tagged answer that started Claude Code's next turn).
-4. **Codex reviews and replies** with `agent_message.py --to claude`, ending with `Reply: Claude app` if it expects another round, or `Reply: user` when it has nothing left.
+   - Or, without a paste back: send with `--reply "none needed" --wait-reply` as a background command. It watches Codex's session log and prints Codex's final answer as soon as its turn ends, so Claude Code is notified at that moment instead of waiting a guessed time, and neither agent touches the other's window.
+4. **Codex reviews the diff and checks the requester's chat when it needs more context.** For example, if a change has an unusual guard, read the relevant discussion to see what failed without it and which cases were already tested.
+   - Use the [Claude transcript helper](/LLM_Helpers/README.md#claude_session_export_to_txtpy) on the local session log, or read the transcript supplied with the request. Verify the current code independently.
+   - Codex can ask Claude Code a question the same way, with `--to claude --wait-reply`, and gets the answer when Claude Code's turn ends.
+   - Codex replies with `agent_message.py --to claude`. Use `Reply: Codex app` if Claude should report back to Codex after another round, or `Reply: user` if Claude should report the outcome to the user.
 5. **Claude Code wakes, checks the reply** with `agent_message.py --check`, fixes what it accepts, tests again and repeats from step 3, until Codex has no findings.
 6. **The last agent reports to the user** in its own chat, with what changed, what each review found, and the usage each agent spent (the indicators read in step 0 and again at the end), which over time shows how much each kind of task costs.
 
@@ -395,6 +418,99 @@ Preconditions:
 - the user has told Codex once, in its own chat, that it may use the Claude app's window and reply there (see "Permission comes from the user" above);
 - the user is not typing in either app while messages are pasted: `agent_message.py` waits for 5 idle seconds and refuses if a box is not empty;
 - Codex has headroom for the review: read its wheel first, and keep requests focused, since it spends its limit faster on long chats.
+
+### Example: a peer-agent review on 2026-11-11
+
+A peer-agent review is one agent asking another, here Codex, to review its work before the user does. This one followed the workflow above, with the reply read from Codex's log instead of pasted back.
+
+1. **The candidate:** Claude Code had added SGR200's peer-client rows, two log-format cleanups, a Drive-link CI check and an archive helper, and had tested the rows in game with two parallel runs.
+2. **The request:** at the user's suggestion, it sent Codex a short summary with the diff to read and what to look at first: the C++ process handles, the process-list scan and `GetLastError` after `Process32NextW`. It used `agent_message.py --to codex --reply "none needed"` into Codex's idle chat.
+3. **The review:** Codex worked 1 minute 11 seconds and answered with four findings by file and line, ranked P2 and P3, each reproduced or verified where it could be, plus one overclaim in the docs:
+   - **P2, `archive_old_files.py`:** `--apply` could move a run folder whose autoplay was still going, since the runner writes `summary.json` into it at the end. Codex reproduced the move with a temporary run folder.
+   - **P2, `archive_old_files.py`:** a failed `tasklist` printed nothing and read as "Civ4 closed", so live logs could move. Codex verified this with a simulated failure.
+   - **P3, `SASGameRecordLog.cpp`:** a peer's start time was read after the process-list snapshot, so a peer that exited and whose ID Windows reused in between could get another process's start time.
+   - **P3, `drive_links.py`:** plain `git ls-files` quotes names with accented letters, so such a file could not be opened. Codex reproduced it with a test file.
+   - **Docs:** the SGR200 entry said a later client's record always lists an earlier one, but only one still open at that moment is listed, as the test itself showed.
+   - It also confirmed what was right: the scan's `GetLastError` placement and handle cleanup.
+4. **Reading the answer:** Claude Code waited five minutes in the background, then read the reply with `openai_chat_export_to_txt.py codex --tail 1` rather than scrolling Codex's window.
+5. **The fixes:** it accepted all five.
+   - Only run folders that already hold `summary.json` move, and a process check without an answer now counts as Civ4 running.
+   - The scan records its snapshot time, and a process created after it reports `unknown_time`.
+   - The Drive check lists files with `git ls-files -z`, and the docs say what the scan really shows.
+6. **The retest:** a clean Debug-opt build, then two clients loading the same save: each record listed the other, with start times matching each client's own record. Local CI passed all 110 steps.
+
+A second review the same day, of the build guard and the `.gitkeep` removal, replaced step 4's five-minute guess. Right after sending, Claude Code started a background loop on Codex's newest session log that ended when a `task_complete` event appeared, so it learned of the reply the moment Codex finished. `agent_message.py --wait-reply` now does this.
+
+- That review found two gaps that Codex reproduced: the guard's file scan missed hidden files, and the CI check passed without the `.gitignore` line. It also found two stale doc lines. All were fixed; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38).
+- A third review was sent with `--wait-reply` itself, which delivered Codex's answer as soon as its turn ended. Codex confirmed the fixes and tested the option on its own log, finding three gaps in the waiter, which were fixed in turn; see [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy).
+- Then the other direction: Codex asked Claude Code a question with `--to claude --wait-reply`, Claude Code was woken by it and answered, and Codex's background command printed the answer 9.5 seconds after sending. Each agent waited on the other without the user prompting either; see [Continuous back-and-forth between agents](#continuous-back-and-forth-between-agents).
+
+What made it work: a focused request naming the risky code, a reviewer free to run its own checks, and findings precise enough to fix without a second round. The user's review then started from a candidate already checked twice.
+
+The request gave Codex enough to reproduce the archive and Drive issues from the diff.
+
+When the diff leaves a decision unclear, the requester's chat can supply the missing context. For example, it can show what the parallel Civ4 runs actually established about the peer-client rows. A local reviewer can read that session directly. Include the session ID if several chats could match, or share an export when the reviewer cannot access the local log.
+
+#### What "Worked for 1m 11s" held
+
+The app groups a turn's steps under **Worked for**. Read the same activity from the session log with the text export's `--steps` option. For this review the export showed:
+
+- **Six steps in 56 seconds,** most running several reads at once: the diff and `git status`, the new helpers' source, and searches through the C++.
+- **Primary sources:** it opened Microsoft's pages for `Process32NextW` and `GetProcessTimes` before judging the scan.
+- **A reproduction harness:** a short Python script that loaded the two new helpers, faked `tasklist` and the Civ4 check with `unittest.mock`, and tried each suspected bug in a temporary folder. Its output, from Codex's log:
+
+  ```text
+  Active run directory moved: True
+  Git paths resolve: False
+  Failed tasklist treated as Civ4 running: False
+  ```
+
+- Claude Code reran the same harness after its fixes, and each answer flipped:
+
+  ```text
+  Active run directory moved: False
+  Git paths resolve: True
+  Failed tasklist treated as Civ4 running: True
+  ```
+
+**A longer turn on the Runtime 11 dialog observer.** The final answer said the reload fix was only partially validated even though the observer tests passed. To see how Codex reached both conclusions, use `--longest 5` to locate the 35.8-minute turn from 2026-10-26, then find it by its opening words in the `--markdown` export of the same rollout.
+
+Search within that turn for `timestamping survived` to find the progress note that explains the partial result.
+
+> There’s partial evidence that timestamping survived: `PythonErr2.log` resumes timestamped module-loading messages after the reload. But `PythonErr.log` still has untimestamped exception fragments, so I wouldn’t call that fix fully validated yet.
+
+The later commands show what passed. Codex tested the dialog observer with disposable dialogs in both 32-bit and 64-bit PowerShell because Civ4 launches the 32-bit version. Those tests checked how the observer classified dialogs. The earlier check looked at whether both Python logs kept their timestamps after a reload, so the passing observer tests left that result partial.
+
+If the session log is unavailable and the user has the turn open, they can expand **Worked for** to inspect it in the app.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_peer_review_request_to_codex.PNG" alt="llm_peer_review_request_to_codex.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_peer_review_codex_findings.PNG" alt="llm_peer_review_codex_findings.PNG" width="250">
+
+### Continuous back-and-forth between agents
+
+With `agent_message.py --wait-reply`, two agents can take turns without the user prompting each round, like a rally in tennis: the message goes back and forth, each turn as long as it needs, until one side stops. Each sender sleeps until the other agent answers, and is woken with that answer.
+
+1. **The sender sends and sleeps:** it runs `agent_message.py --to <other> --wait-reply` as a background command and ends its turn. The command pastes the message, then watches the other app's session log.
+2. **The receiver is woken:** the pasted message starts its next turn like any message in its box. It works and answers in its own chat, with no paste back.
+3. **The sender is woken:** when the receiver's turn ends, the sender's command prints the answer and exits, and the app notifies the sender, which starts its next turn.
+4. **Repeat:** the sender acts on the answer and sends the next message the same way, or reports to the user.
+
+Nothing in this caps the number of rounds, so the cycle can run as long as desired, for example review, fix and review again until no findings remain, or a longer task split between the two agents.
+
+It ends when an agent replies without sending another message, a wait times out, an agent runs out of usage, or the user steps in. The 2026-11-11 tests ran a few rounds at a time; longer cycles were not tried.
+
+Tested on 2026-11-11 in both directions:
+
+- Claude Code sent Codex two review requests and got each answer the moment Codex's turn ended.
+- Codex asked Claude Code a question, and its background command printed the answer 9.5 seconds after sending.
+- One round chained both: Claude Code's request asked Codex to send Claude Code a question, so Claude Code was woken by that question, answered it, and was woken again by Codex's verdict.
+
+Limits:
+
+- Each send still pastes into the other app's window and brings it to the front for a moment, so the user should not type in either app meanwhile; the helper waits for 5 idle seconds and refuses a box that is not empty.
+- Codex ran the wait in the background on 2026-11-11; an app that cannot would block its own turn until the answer arrives or `--wait-timeout` expires.
+- Every round spends both agents' limits. Agree on when to stop, for example when a review has no findings, and report to the user then. See [How fast agents use their limits](#how-fast-agents-use-their-limits).
+- If the user writes to the receiver while it is working, Claude Code folds that message into the same turn, so its answer may cover both; the printed reply carries a note saying so.
 
 ### Sending screenshots and files
 
@@ -505,6 +621,14 @@ Second answer, from the official pages in the agent's own browser:
 > One caveat: Anthropic's page says its prices **exclude tax**. OpenAI's page excerpt I read doesn't say either way. If the €23 includes French VAT (20%), Claude Pro with tax would be about €21.60. That's still cheaper, but the gap is smaller.
 
 - **When a site needs a login,** such as a Google Drive link or a forum attachment, the user signs in once in the pane; the agent then uses that session only as far as the task needs.
+
+- **Open web links in the agent's own browser to check them:** a web link in the docs can be stale, moved, or point somewhere other than its text says, and only opening it shows which.
+  - For example, on 2026-11-11 the new `drive_links.py` check found the Modding Resources guide using one Google Drive folder ID both for its impluvium example and for the whole Modding_Resources Drive, while README_References.md used another ID for the latter.
+  - Opening both IDs in the agent's own browser pane, without signing in, showed each folder's title: "nif import from another mod (for example the impluvium's…)" and "Modding_Ressources". That settled which label was wrong, and the guide's Drive section now links the second folder.
+  - Reading the page text gave the titles; the screenshots below came from the same pane, cropped:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_drive_link_check_impluvium_folder.PNG" alt="llm_drive_link_check_impluvium_folder.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_drive_link_check_modding_resources_folder.PNG" alt="llm_drive_link_check_modding_resources_folder.PNG" width="250">
 
 ## Possible extensions
 

@@ -17,6 +17,23 @@ Set-Location -LiteralPath $PSScriptRoot
 $target = $Configuration -replace '-fast$', '' -replace '^_', ''
 $env:TARGET = $target
 $env:SAS_BUILD_REQUEST = $Request
+# <!-- custom: A build that resumed from an earlier build's objects could link old and new code into one DLL, so the rule was to delete temp_files/<target> before every compile; on 2026-11-11 the user preferred enforcing it to relying on a habit that can be overlooked.
+# BUILD now refuses while that folder holds any file; REBUILD runs the Makefile's clean target first, so it stays allowed, and CLEAN deletes the folder. See KI#38. (Claude Code Opus 5.5) -->
+# <!-- custom: The first guard scanned without -Force and with SilentlyContinue. Codex's review reproduced it missing a hidden .obj, and an unreadable folder would have passed as empty, so a hidden leftover could reach the build the guard exists to stop.
+# So hidden files count now, and a folder that cannot be checked refuses too; a test with a hidden-only Release folder refused. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+$tempTarget = Join-Path (Join-Path $PSScriptRoot 'temp_files') $target
+if ($Request -eq 'BUILD' -and (Test-Path -LiteralPath $tempTarget)) {
+    try {
+        $leftover = Get-ChildItem -LiteralPath $tempTarget -Recurse -File -Force -ErrorAction Stop | Select-Object -First 1
+    } catch {
+        Write-Host "Refusing BUILD: could not check $tempTarget for files from an earlier build ($($_.Exception.Message)). Use REBUILD, or delete the folder."
+        exit 1
+    }
+    if ($leftover) {
+        Write-Host "Refusing BUILD: $tempTarget still holds files from an earlier build. Use REBUILD (Rebuild in Visual C++ 2010 Express), which cleans it first, or delete the folder."
+        exit 1
+    }
+}
 $started = [DateTime]::UtcNow
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $outputDirectory = Join-Path $PSScriptRoot $target

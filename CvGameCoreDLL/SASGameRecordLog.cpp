@@ -51,7 +51,7 @@
 #include <limits.h> // <!-- custom: Report actual CHAR_BIT/INT_MAX from this native toolchain, keeping integer range distinct from pointer width and process memory limits. (GPT-6.1-Sol) -->
 #include <time.h>
 #include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
-#include <tlhelp32.h> // <!-- custom: Level-3 runtime context samples only named Civ4 development/build processes at session start; no general process list or window titles are logged. (ChatGPT-5.6-Sol) -->
+#include <tlhelp32.h> // <!-- custom: Level-3 runtime context samples only named Civ4 development/build processes at session start, and level 2 lists other Civ4 clients by ID and start time; no general process list or window titles are logged. (ChatGPT-5.6-Sol + Claude Code Opus 5.5) -->
 #include <wchar.h> // <!-- custom: Declare _wcsicmp directly for the SDK-compatible wide-character process-name comparisons. (GPT-6.1-Sol) -->
 #include <string.h> // <!-- custom: Declare strnicmp/strcmp directly for the alternate ini= command-line token check and existing recorder string comparisons instead of relying on transitive SDK headers. (ChatGPT-5.6-Sol) -->
 #include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn and Advanced Start recommendation candidates. (GPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -2328,6 +2328,40 @@ static SASGameRecordDevelopmentProcessContext getSASGameRecordDevelopmentProcess
 	return kResult;
 }
 
+// <!-- custom: Parallel runs with Civ4's multiple argument left each record unaware of the clients beside it, so the session start lists the other Civ4BeyondSword.exe processes open at that moment, once, not every turn.
+// A client started later is not added to an earlier client's record, and its own record lists the earlier one only if that one is still open at its scan.
+// The process list cannot tell which mod each client runs, and an incomplete scan reports scanAvailable=0 with peerClients=-1 rather than a false zero.
+// A peer that exited before its start time was read reports unknown_time, even if Windows reused its ID meanwhile. See KI#1081. (Claude Code Opus 5.5) -->
+static void logSASGameRecordPeerClients()
+{
+	DWORD const dwOwnProcessId = GetCurrentProcessId();
+	FILETIME kScanTime;
+	GetSystemTimeAsFileTime(&kScanTime);
+	std::vector<DWORD> aPeerProcessIds;
+	int iScanAvailable = 0;
+	HANDLE const hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnapshot != INVALID_HANDLE_VALUE)
+	{
+		PROCESSENTRY32W kEntry;
+		ZeroMemory(&kEntry, sizeof(kEntry));
+		kEntry.dwSize = sizeof(kEntry);
+		if (Process32FirstW(hSnapshot, &kEntry))
+		{
+			do
+			{
+				if (kEntry.th32ProcessID != dwOwnProcessId && _wcsicmp(kEntry.szExeFile, L"Civ4BeyondSword.exe") == 0) aPeerProcessIds.push_back(kEntry.th32ProcessID);
+			}
+			while (Process32NextW(hSnapshot, &kEntry));
+			iScanAvailable = (GetLastError() == ERROR_NO_MORE_FILES ? 1 : 0);
+		}
+		CloseHandle(hSnapshot);
+	}
+	if (iScanAvailable == 0) aPeerProcessIds.clear();
+	logSASGameRecord("GAME_RECORD_PEER_CLIENTS scanAvailable=%d peerClients=%d processId=%u processStartUtc=%s", iScanAvailable, (iScanAvailable == 1 ? (int)aPeerProcessIds.size() : -1), (unsigned int)dwOwnProcessId, getSASExecutableProcessStartUtc().GetCString());
+	for (size_t i = 0; i < aPeerProcessIds.size(); ++i)
+		logSASGameRecord("GAME_RECORD_PEER_CLIENT index=%d peerProcessId=%u peerProcessStartUtc=%s", (int)i, (unsigned int)aPeerProcessIds[i], getSASProcessStartUtc(aPeerProcessIds[i], &kScanTime).GetCString());
+}
+
 // <!-- custom: One runtime snapshot supplies one row schema at every system-context level; uncollected fields retain explicit unknown values.
 // The previous real-value and placeholder format strings duplicated every field, making additions easy to omit from one branch; collection stays behind the same level-2/level-3 gates. (GPT-6.1-Sol) -->
 struct SASGameRecordRuntimeContext
@@ -2527,6 +2561,8 @@ static void logSASGameRecordGameState(const char* szRowType)
 		kRuntime.szProcessPriorityClass, kRuntime.iProcessAffinityQueryAvailable, kRuntime.szProcessAffinityMask.GetCString(), kRuntime.szSystemAffinityMask.GetCString(),
 		kRuntime.iDebuggerAttached, kRuntime.kDevelopmentProcesses.iScanAvailable, kRuntime.kDevelopmentProcesses.iVCExpressRunning, kRuntime.kDevelopmentProcesses.iDevenvRunning,
 		kRuntime.kDevelopmentProcesses.iMSBuildRunning, kRuntime.kDevelopmentProcesses.iNMakeRunning, kRuntime.kDevelopmentProcesses.iClRunning, kRuntime.kDevelopmentProcesses.iLinkRunning);
+	// <!-- custom: Peer clients reveal only other Civ4 process IDs and start times, the same identity this record already gives its own process, so they follow the default level 2 rather than the process-context opt-in. (Claude Code Opus 5.5) -->
+	if (iSystemContextLevel >= 2) logSASGameRecordPeerClients();
 	// <!-- custom: Keep the game's persisted initial seeds beside the current post-initialization/load RNG states.
 	// Level-3 checkpoints add session-local consumption counts/fingerprints; this compact baseline remains useful at every enabled level. (GPT-5.6-Sol) -->
 	std::pair<uint,uint> const kInitialRandSeed = kGame.getInitialRandSeed();
@@ -9129,13 +9165,7 @@ static void logSASGameRecordDiploStatus(PlayerTypes ePlayer, int iGameTurn)
 // `NO_TALK` is kept separate from DenialTypes.
 // Optional bonus GPT quotes and AI_techTradeVal fields add compact resolved valuation context under independent gates; they remain const observations and never submit an offer or alter trade state.
 // All market observations use const query APIs, do not consume synchronized RNG, and do not mutate gameplay state. (ChatGPT-5.6-Sol) -->
-// <!-- custom: A completed trade query can explicitly return NO_DENIAL.
-// Keep that token for market observations, while optional cancellation reasons use getSASInfoTypeOrNone for an absent denial. (GPT-6.1-Sol) -->
-static char const* getSASGameRecordDenialType(DenialTypes eDenial)
-{
-	return (eDenial == NO_DENIAL ? "NO_DENIAL" : GC.getInfo(eDenial).getType());
-}
-
+// <!-- custom: getSASGameRecordDenialType moved to CvGameCoreUtils as getSASDenialType, since denial reasons are game vocabulary that BBAI trade rows can share. (Claude Code Opus 5.5) -->
 static void appendSASGameRecordMarketReason(CvString& szList, char const* szItem, char const* szReason)
 {
 	CvString szEntry;
@@ -9205,7 +9235,7 @@ static void appendSASGameRecordStrategicTradeStatus(CvString& szStatus, CvPlayer
 	TradeData kTrade(eItem, 0);
 	char const* szResult = "UNAVAILABLE";
 	if (kFrom.canTradeItem(eTo, kTrade, false))
-		szResult = getSASGameRecordDenialType(kFrom.getTradeDenial(eTo, kTrade));
+		szResult = getSASDenialType(kFrom.getTradeDenial(eTo, kTrade));
 	appendSASGameRecordMarketReason(szStatus, getSASTradeItemType(eItem), szResult);
 }
 
@@ -9239,7 +9269,7 @@ static void logSASGameRecordStrategicTradeMarketPair(int iGameTurn, CvPlayerAI c
 			DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kCityTrade);
 			if (eDenial == NO_DENIAL)
 				appendSASDiagnosticIntListValue(szCitiesWillCede, pCity->getID());
-			else appendSASGameRecordMarketIntReason(szCityDenials, pCity->getID(), getSASGameRecordDenialType(eDenial));
+			else appendSASGameRecordMarketIntReason(szCityDenials, pCity->getID(), getSASDenialType(eDenial));
 		}
 	}
 
@@ -9258,7 +9288,7 @@ static void logSASGameRecordStrategicTradeMarketPair(int iGameTurn, CvPlayerAI c
 			DenialTypes const eDenial = kOtherTeam.AI_declareWarTrade(eTarget, kViewer.getTeam());
 			if (eDenial == NO_DENIAL)
 				appendSASDiagnosticIntListValue(szGlanceWarTargets, eTarget);
-			else appendSASGameRecordMarketIntReason(szGlanceWarTargetDenials, eTarget, getSASGameRecordDenialType(eDenial));
+			else appendSASGameRecordMarketIntReason(szGlanceWarTargetDenials, eTarget, getSASDenialType(eDenial));
 		}
 	}
 
@@ -9354,7 +9384,7 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 				DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kBonusTrade);
 				if (eDenial != NO_DENIAL)
 				{
-					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASInfoTypeOrNone(eLoopBonus), getSASGameRecordDenialType(eDenial));
+					appendSASGameRecordMarketReason(szOtherBonusDenials, getSASInfoTypeOrNone(eLoopBonus), getSASDenialType(eDenial));
 					continue;
 				}
 				if (!bOtherWillingToTalk)
@@ -9413,7 +9443,7 @@ static void logSASGameRecordTradeMarket(int iGameTurn)
 					}
 					DenialTypes const eDenial = kOther.getTradeDenial(eViewer, kTechTrade);
 					if (eDenial != NO_DENIAL)
-						appendSASGameRecordMarketReason(szOtherTechDenials, getSASInfoTypeOrNone(eLoopTech), getSASGameRecordDenialType(eDenial));
+						appendSASGameRecordMarketReason(szOtherTechDenials, getSASInfoTypeOrNone(eLoopTech), getSASDenialType(eDenial));
 					else if (!bOtherWillingToTalk)
 						appendSASGameRecordMarketReason(szOtherTechDenials, getSASInfoTypeOrNone(eLoopTech), "NO_TALK");
 					else appendSASGameRecordType(szOtherTechsForTrade, getSASInfoTypeOrNone(eLoopTech));
@@ -14884,7 +14914,7 @@ void logSASGameRecordAIEmbargoRequest(CvPlayerAI const& kPlayer, PlayerTypes eHu
 	int const iTeamAttitudeTarget = kOurTeam.AI_getAttitudeVal(eEmbargoTarget);
 	int const iJointWarAtWarCounter = (eJointWarTarget == NO_TEAM ? -1 : kOurTeam.AI_getAtWarCounter(eJointWarTarget));
 	int const iJointWarRandomScore = (eJointWarTarget == NO_TEAM ? -1 : iJointWarTargetScore - std::min(20, iJointWarAtWarCounter) * 1000);
-	char const* szJointWarDenial = (eOrigin == SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT ? getSASGameRecordDenialType(eJointWarDenial) : "-");
+	char const* szJointWarDenial = (eOrigin == SAS_AI_EMBARGO_JOINT_WAR_UWAI_REDIRECT ? getSASDenialType(eJointWarDenial) : "-");
 	logSASGameRecord("GAME_RECORD_AI_EMBARGO_REQUEST turn=%d player=%d team=%d human=%d humanTeam=%d attitudeValue=%d origin=%s embargoTargetTeam=%d teamAttitudeHuman=%d teamAttitudeTarget=%d attitudeGap=%d jointWarTargetTeam=%d jointWarTargetScore=%d jointWarTargetRandomScore=%d jointWarTargetAtWarCounter=%d jointWarTargetIsEmbargoTarget=%d jointWarDenial=%s",
 		GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), eHuman, eHumanTeam, kPlayer.AI_getAttitudeVal(eHuman), getSASGameRecordAIEmbargoRequestOrigin(eOrigin),
 		eEmbargoTarget, iTeamAttitudeHuman, iTeamAttitudeTarget, iTeamAttitudeHuman - iTeamAttitudeTarget, eJointWarTarget, iJointWarTargetScore, iJointWarRandomScore,

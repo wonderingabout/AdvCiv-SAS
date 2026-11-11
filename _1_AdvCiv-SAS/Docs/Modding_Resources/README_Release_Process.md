@@ -61,10 +61,10 @@ Prefer verifying the current repository state over mechanically following stale 
 ## 3. Build and technical validation
 
 - Follow the tested [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md).
-  - Before every full compile attempt, delete that configuration's exact `CvGameCoreDLL/Project/temp_files/<target>` folder.
+  - Every full compile attempt starts from an empty `CvGameCoreDLL/Project/temp_files/<target>` folder; `build_with_report.ps1` refuses a `BUILD` otherwise, so delete it or use `REBUILD`.
   - A retained ignored Debug-opt target is useful for its matching PDB and does not affect a clean Release build, but it must be deleted before rebuilding Debug-opt.
 - Build the Release DLL from the final candidate source. Do not accept a DLL resumed from partial intermediates after a failed compile.
-- Copy/verify the generated DLL as described by the compilation guide, then clean `temp_files` back to `.gitkeep`.
+- Copy/verify the generated DLL as described by the compilation guide. Leftover target folders are git-ignored and cannot reach the next build, so cleaning them is optional.
 - AdvCiv-SAS distributes only `Assets/CvGameCoreDLL.dll`, compiled for the supported 48-civilization-player cap. Do not maintain alternate player-cap DLL variants as release artifacts; modders who want another `MAX_CIV_PLAYERS` value can compile it from source.
 - Check `git status --short`, the staged diff, and relevant generated/cache files after compilation so that the committed DLL corresponds to the final source.
 - Run the repository's relevant local/GitHub checks.

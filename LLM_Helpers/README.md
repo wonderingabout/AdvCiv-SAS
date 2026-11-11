@@ -34,6 +34,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard: [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
+| `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
@@ -160,6 +161,9 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`run_autoplay.py`](#run_autoplaypy)
     - [`desktop_windows.py`](#desktop_windowspy)
     - [`agent_message.py`](#agent_messagepy)
+- [`housekeeping/`](#housekeeping)
+  - [Folder upkeep](#folder-upkeep)
+    - [`archive_old_files.py`](#archive_old_filespy)
 - [`packaging/`](#packaging)
   - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
     - [`make_light_source_zip.py`](#make_light_source_zippy)
@@ -663,6 +667,10 @@ Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message bou
 
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
   - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
+  - `--steps` includes tool calls and short output excerpts in the plain-text export. With `--markdown`, it adds output excerpts to the command summaries already present. For example, the output of the Python harness used in the 2026-11-11 peer review shows which suspected bugs reproduced.
+  - `--longest N` lists the N longest turns with their duration, step count and opening words, to find a turn worth reading in full.
+  - `--markdown` reconstructs a readable layout from the session log, with the prompt, collapsible progress notes and command summaries, the reply, and the turn duration. It uses the title from `~/.codex/session_index.jsonl` when available. The app's **Copy as Markdown** uses similar formatting, and grouping can differ.
+    - On 2026-11-11 it wrote a 161,000-line chat in about 2 seconds, while the app's copy of that chat had copied nothing for several tries.
 - **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
   - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a reported missing oldest page.
   - The desktop tool can return a partial chat even when it reports no older page. In the Marsh example it returned 10 messages while the share snapshot contained 34.
@@ -674,6 +682,9 @@ Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message bou
 ```bash
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex rollout.jsonl --output codex-chat.txt
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --tail 3
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --steps --tail 12
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --longest 5
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --markdown
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
 ```
 
@@ -1639,7 +1650,7 @@ These helpers let an agent run Civ4 itself: load a save or start a new game, aut
 
 #### `run_autoplay.py`
 
-- Launches Civ4 into a save (`/FXSLOAD=`) or a new game (`--new-game`, through `QuickStart`), runs AI Auto Play for `--turns`, reports how the run ended, closes Civ4 and writes `summary.json`.
+- Launches Civ4 into a save (`/FXSLOAD=`) or a new game (`--new-game`, through `QuickStart`), runs AI Auto Play for `--turns`, reports how the run ended, closes Civ4 and writes a run summary.
 - The request reaches the game through an `[SASAutoplay]` section in a per-run `ini=` file, read by [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py).
 - Needs `SAS_RUNTIME_STATUS_ON=1`: completion comes from the process's own `SASRuntimeHistory_<processStartUtc>_<pid>.jsonl`.
 - Outcomes: `COMPLETED`, `REQUEST_FAILED`, `ENDED_EARLY`, `NOT_STARTED`, `STALLED`, `FAILURE_DIALOG`, `EXITED`, `TIMED_OUT`. The exit code is 0 only for `COMPLETED`.
@@ -1647,7 +1658,7 @@ These helpers let an agent run Civ4 itself: load a save or start a new game, aut
   - `--debug-mode` turns on Debug Mode, which seems to change the game ([KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)).
   - `--keep-open` leaves Civ4 running; `--multiple` allows other clients and passes Civ4's `multiple` argument.
   - `--map`, `--world-size`, `--speed`, `--handicap`, `--era`, `--climate`, `--sea-level`, `--fixed-seeds` and `--leaders` set up a new game.
-- Writes to `Downloads/AdvCiv-SAS_LLM/autoplay_runs/<run id>/`; change it with `--output-root`.
+- Writes `SASAutoplay_<run id>.json` to `Logs/` under the Civ4 user folder. Optional final images share `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/` and use capture UTC and the Civ4 PID in their names. Override the report directory with `--output-root` or the image directory with `--screenshot-root`. Use `--no-screenshot` to skip capture.
 
 ```bash
 python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave" --turns 100
@@ -1682,13 +1693,35 @@ python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
 - The click point and text area are window-relative positions for each app maximized on a 3840x2100 screen, observed on 2026-11-10. The apps change their layout often; override them with `--box` and `--text-area` after a screenshot.
 - `--dry-run` prints the message without sending it.
 - `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
+- `--wait-reply` keeps running after the send until the target app ends the turn holding this message, then prints that turn's final answer, read from the new lines of its session log: `~/.codex/sessions` for Codex, `~/.claude/projects` for Claude Code. `--wait-timeout` gives up after 1,800 seconds by default.
+  - Run it in the background so the agent is told the moment the reply exists, instead of guessing a wait or needing Codex to paste back. On 2026-11-11 a shell loop on the same log signalled Codex's review the moment it ended; this option keeps that loop.
+  - It finds the turn by the message's header, unique to the millisecond, so another Codex thread, or with `--queue` the turn Codex was already working on, is not taken for the reply. A turn that ends without a final answer exits with an error.
+  - Its first live use, the same day, delivered Codex's review of it as soon as Codex finished. That review reproduced three gaps in the first version, all fixed: it took the first finished turn in any log, a start inside a half-written record raised a `JSONDecodeError`, and a turn without a final answer printed an empty reply.
+  - `--to claude` was added the same day, and Codex ran its first live test: it asked Claude Code a question, and the reply printed 9.5 seconds later while Codex's command ran in the background.
+    - Claude Code folds a message that arrives mid-turn into the running turn, so one answer can cover two messages. When another message reached it before the answer, the reply is printed with a note saying so.
+    - Codex's test also found that a log ending right after the answer kept waiting; the answer is now taken as soon as it is complete.
 
 ```bash
 python LLM_Helpers/game_runs/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "Claude app" --text "Please review the unstaged change."
+python LLM_Helpers/game_runs/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "none needed" --file request.txt --wait-reply
 python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.1-Sol" --reply user --file answer.txt
 ```
 
 - Added with help of Claude Code Opus 5.5.
+
+## `housekeeping/`
+
+### Folder upkeep
+
+Keeps folders that agents and the user list often small, as the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) explains.
+
+#### `archive_old_files.py`
+
+Keeps a folder's newest entries, 1,000 by default, and moves the rest into one `old_<UTC time>` subfolder. It previews unless `--apply` is given, refuses to move `ScreenShots` or `Logs` while Civ4 runs, and never moves earlier `old*` archives again. `screenshots`, `logs` and `autoplay-screenshots` name the usual folders; any other path works too.
+
+```bash
+python LLM_Helpers/housekeeping/archive_old_files.py logs --apply
+```
 
 ## `packaging/`
 
@@ -1824,7 +1857,7 @@ python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.
 - Includes source/data/docs useful for review:
   - Root lone files, selected [Assets](/Assets/) folders, and root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself.
   - Top-level [CvGameCoreDLL](/CvGameCoreDLL/) files and top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB.
-  - The tracked `CvGameCoreDLL/Project/temp_files/.gitkeep` workflow marker; retained Debug-opt compiler intermediates/private symbols are excluded.
+  - Nothing from `CvGameCoreDLL/Project/temp_files`: retained Debug-opt compiler intermediates and private symbols are excluded.
   - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS Git log.
   - [_0_Legacy](/_0_Legacy/), including inherited reference docs and the curated base-AdvCiv UI screenshot set used for before/after or inherited-UI comparison.
   - Full [SASGameRecord examples](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/): the included sample is an unchanged full-game log rather than a selected excerpt, making it reusable for external LLM analysis/review and development reference. Although a level-3 record can occupy tens of megabytes raw, it compresses substantially in the ZIP.

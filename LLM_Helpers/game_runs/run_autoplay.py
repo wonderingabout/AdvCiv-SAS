@@ -26,7 +26,11 @@ REPO_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "LLM_H
 MOD_FOLDER = REPO_ROOT.name
 USER_DIR = Path(os.environ["USERPROFILE"]) / "Documents" / "My Games" / "beyond the sword"
 LOGS_DIR = USER_DIR / "Logs"
-DEFAULT_OUTPUT_ROOT = Path(os.environ["USERPROFILE"]) / "Downloads" / "AdvCiv-SAS_LLM" / "autoplay_runs"
+# <!-- custom: Write reports directly in Logs so an issue report can collect them with SGR and Runtime without tracking down separate run folders.
+# The same Explorer view can sort these files by date or size, and the Logs archive can move them together.
+# Optional PNGs can dwarf their JSON reports, so keep them in Downloads for separate review and cleanup. (GPT-6.1-Sol) -->
+DEFAULT_OUTPUT_ROOT = LOGS_DIR
+DEFAULT_SCREENSHOT_ROOT = Path(os.environ["USERPROFILE"]) / "Downloads" / "AdvCiv-SAS_LLM" / "autoplay_screenshots"
 
 # <!-- custom: Outcomes, from best to worst. (Claude Code Opus 5.5) -->
 COMPLETED = "COMPLETED"  # <!-- custom: autoplay ended as scheduled (Claude Code Opus 5.5) -->
@@ -244,7 +248,9 @@ def main():
 	parser.add_argument("--start-minutes", type=float, default=5, help="autoplay must start within this long after launch")
 	parser.add_argument("--base-ini", type=Path, default=USER_DIR / "CivilizationIV.ini")
 	parser.add_argument("--civ4-dir", type=Path, default=desktop_windows.DEFAULT_CIV4_DIR)
-	parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
+	parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT, help="directory for JSON reports")
+	parser.add_argument("--screenshot-root", type=Path, default=DEFAULT_SCREENSHOT_ROOT, help="directory for optional final PNGs")
+	parser.add_argument("--no-screenshot", action="store_true", help="skip the optional final window capture")
 	parser.add_argument("--verbose", action="store_true")
 	args = parser.parse_args()
 
@@ -283,8 +289,7 @@ def main():
 
 	launched = utc_now()
 	run_id = "%s_%d" % (stamp(launched), os.getpid())
-	out_dir = args.output_root / run_id
-	out_dir.mkdir(parents=True, exist_ok=True)
+	args.output_root.mkdir(parents=True, exist_ok=True)
 	ini_name = "SASAutoplay_%s.ini" % run_id
 	ini_path = args.civ4_dir / ini_name
 	write_request_ini(args.base_ini, ini_path, args.turns, args.debug_mode, run_id, "Autoplay", game_settings, args.leaders)
@@ -304,9 +309,12 @@ def main():
 		outcome, state, history = wait_for_outcome(pid, launched, args, run_id)
 		finished = utc_now()
 		screenshot = None
-		if desktop_windows.process_alive(pid):
+		if not args.no_screenshot and desktop_windows.process_alive(pid):
 			try:
-				screenshot = str(desktop_windows.screenshot(pid, out_dir / "final.png")[0])
+				# <!-- custom: Use capture UTC and the Civ4 PID so screenshots from parallel runs can share one sortable folder. (GPT-6.1-Sol) -->
+				screenshot_name = "SASAutoplay_%s_%d_final.png" % (stamp(utc_now()), pid)
+				screenshot_path = args.screenshot_root / screenshot_name
+				screenshot = str(desktop_windows.screenshot(pid, screenshot_path)[0])
 			except Exception as error:  # <!-- custom: a screenshot is evidence, not a requirement (Claude Code Opus 5.5) -->
 				screenshot = "failed: %s" % error
 	finally:
@@ -356,9 +364,14 @@ def main():
 	}
 	if args.multiple:
 		summary["note"] = "Other clients may have written some gameRecordsSinceLaunch and newSaves; gameRecord is this run's own."
-	(out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-	print(json.dumps(summary, indent=2))
-	print("summary: %s" % (out_dir / "summary.json"))
+	# <!-- custom: Publish the run-specific summary only after its contents are complete, so readers see a complete report when its final filename appears. (GPT-6.1-Sol) -->
+	summary_path = args.output_root / ("SASAutoplay_%s.json" % run_id)
+	summary_temp = summary_path.with_suffix(".tmp")
+	summary_text = json.dumps(summary, indent=2)
+	summary_temp.write_text(summary_text, encoding="utf-8")
+	summary_temp.replace(summary_path)
+	print(summary_text)
+	print("summary: %s" % summary_path)
 	sys.exit(0 if outcome == COMPLETED else 1)
 
 

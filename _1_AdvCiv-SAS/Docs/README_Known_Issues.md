@@ -3365,6 +3365,20 @@ This does not prove a compiled DLL is good, but it makes stale fast-compile left
 
 We check this because we suspect fast compiles can be unreliable, and it also helps catch forgetting to replace the committed DLL after compiling.
 
+Update (2026-11-11): the rule is now enforced instead of remembered. `build_with_report.ps1` refuses a `BUILD` while `temp_files/<target>` holds any file; `REBUILD` runs `nmake clean` first, so it stays allowed.
+
+Since a stale folder can no longer reach a build, every target folder is now git-ignored, including Release, and `temp_files.py` only checks that git tracks nothing there but `.gitkeep`.
+
+Tested the same day: a plain Debug-opt `BUILD` after a successful one refused in 0.35 seconds without compiling, a `REBUILD` then succeeded, and a 2-turn autoplay with that DLL logged `reusableArtifactBaseline=CLEAN`. The Logging Inventory keeps the [refusal and game-record samples](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#refused-build-and-clean-start-evidence).
+
+Later the same day, reviewing the new diff, the user asked whether the zero-byte `temp_files/.gitkeep` still had a purpose. It had been added on 2026-06-19 so fresh clones kept the folder for the CI check, which then inspected its contents; the check now only confirmed that the marker existed, and nothing else needed the folder in Git.
+
+A Debug-opt `REBUILD` with the whole `temp_files` folder moved away succeeded, because the Makefile creates the folder when it is missing. So `.gitkeep` was deleted, `.gitignore` now ignores the whole folder in one line, the `.gitattributes` export rules and the light-source ZIP code that kept the marker were removed, and `temp_files.py` checks only that git tracks nothing there.
+
+Codex (GPT-6.1-Sol) then reviewed the change and reproduced two gaps. The guard's scan, run without `-Force`, missed a hidden `.obj`, and its `SilentlyContinue` would have let an unreadable folder pass as empty; it now counts hidden files and refuses when it cannot check the folder, and a `Release` folder holding only a hidden `.obj` then refused. `temp_files.py` also passed with the `.gitignore` line deleted, so it now requires that line.
+
+The build report's `tempBefore` and SGR's `reusableArtifactBaseline` still record whether each build started clean.
+
 <a id="ki-38.2"></a>
 
 ## KI#38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever maybe)
@@ -37234,7 +37248,7 @@ Retrospective clarification with the help of ChatGPT-5.6-Sol; chronology-preserv
 
 ## KI#1071 - (Fixed inherited BtS queued-build weakness preserved by K-Mod/AdvCiv) AI Workers could discard an improvement after movement or routing
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gK1YmMwK2ZGXGc6vVsXeGFzTYlzNBIZw?usp=sharing).
 
 The KI#33.4 Worker investigation exposed a separate mission-control defect below the SAS plot valuation layer.
 

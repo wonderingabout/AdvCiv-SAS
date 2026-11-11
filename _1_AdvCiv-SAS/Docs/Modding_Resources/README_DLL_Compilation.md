@@ -33,11 +33,12 @@ Calling VS2010 `vcvars32.bat` before `nmake` is required for the remaining Visua
 
 ## Before every full compile attempt
 
-This applies to the first attempt and every retry after a failure:
+This applies to the first attempt and every retry after a failure. Since 2026-11-11 `build_with_report.ps1` enforces it: a `BUILD` refuses while the target folder holds files, and `REBUILD` cleans it first ([KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)).
 
-1. Resolve the exact target folder under [`CvGameCoreDLL/Project/temp_files`](/CvGameCoreDLL/Project/temp_files), e.g. `temp_files/Release` or `temp_files/Debug-opt`.
+1. Resolve the exact target folder under `CvGameCoreDLL/Project/temp_files`, e.g. `temp_files/Release` or `temp_files/Debug-opt`.
 2. Delete that target folder before compiling or retrying the same configuration. Do not broaden deletion beyond the verified target folder; other configurations are isolated.
-3. Keep the parent directory's tracked zero-byte `.gitkeep`. It preserves the empty workflow folder in fresh Git clones and anchors the repository hygiene check.
+
+The Makefile creates `temp_files` and its target folder when they are missing, so a fresh clone needs neither. A tracked zero-byte `.gitkeep` used to keep the empty folder in Git for the old hygiene check; it was dropped on 2026-11-11, after a Debug-opt `REBUILD` with the whole folder moved away succeeded.
 
 Stale fast-build intermediates have produced unreliable DLL behavior in testing. A one-file retry may be useful only to diagnose a compiler failure; afterward, delete that target folder before retrying the full build.
 
@@ -107,6 +108,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build_with_report.ps1 
 
 Use `-Request REBUILD` or `-Request CLEAN` for the corresponding NMake operations. Direct `nmake` bypasses the report wrapper. The project's `-IdeBuild` switch leaves log writing to MSBuild; omit it for terminal use.
 
+Start it from PowerShell or `cmd`, not Git Bash, whose `PATH` puts Unix tools first.
+
+- On 2026-11-11 an agent launched the same batch file from Git Bash. The Makefile's provenance step, `DIR /S /B ... | FIND /C /V ""`, then ran Git's `find` instead of Windows `FIND`, which scanned the whole C: drive while the build waited.
+- In PowerShell, `find.exe` resolves to `C:\Windows\System32\find.exe`, so the build was stopped, `temp_files/Release` cleaned, and the build started again from there; it succeeded in 112 seconds with no warnings.
+
 ### Example build output
 
 The examples retain completed VC2010 Express builds from 2026-10-12:
@@ -136,7 +142,7 @@ A successful project build does not by itself install or test the DLL used by th
 2. Verify the copied file (for example, compare source/destination SHA-256 hashes).
 3. Launch and test Civ4 as appropriate for the change.
 4. After verifying the generated DLL and, when installing it, copying/verifying the installed DLL, the cleanup command below may remove the generated Release target. Keeping another target such as Debug-opt does not affect Release.
-5. Before the next Release build, ensure `temp_files/Release` is absent; the parent `.gitkeep` and retained Debug-opt symbols may remain.
+5. Before the next Release build, `temp_files/Release` must hold no files: the wrapper refuses a `BUILD` otherwise, so delete it or use `REBUILD`. Retained Debug-opt symbols may remain.
 
 ```powershell
 cmd.exe /d /s /c 'call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat" >nul && set "TARGET=Release" && "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\nmake.exe" clean /NOLOGO'
@@ -154,9 +160,11 @@ Keep the successful `temp_files/Debug-opt` folder while its installed DLL may ne
 
 This is not permission to reuse its `.obj`, `.pch`, dependency or linker files for another accepted Debug-opt build: delete the whole `temp_files/Debug-opt` target before every subsequent Debug-opt compile or retry, then create a fresh DLL/PDB pair.
 
-Other temporary build folders, for example `temp_files/Release` and `temp_files/Profile`, remain unignored so stale Release, Debug, Profile or other intermediates are visible in local status. The tracked `.gitkeep` remains for fresh clones and CI, while `.gitattributes` excludes the entire parent from release archives.
+Since 2026-11-11, `build_with_report.ps1` refuses a `BUILD` while `temp_files/<target>` holds any file, so stale intermediates cannot reach a build: use `REBUILD` (Rebuild in Visual C++ 2010 Express), which runs `nmake clean` first, or delete the folder.
 
-The light-source ZIP includes only the placeholder, never retained compiler intermediates or private symbols. To preserve symbols beyond the next Debug-opt build, archive the exact DLL/PDB pair outside the repository and explicitly add that archive directory to WinDbg's symbol path when analyzing its matching dump.
+Other temporary build folders, such as `temp_files/Release` and `temp_files/Profile`, used to stay unignored so stale intermediates showed in local status as a reminder; with the refusal in place, the whole `temp_files` folder is git-ignored, so nothing in it reaches commits, release archives or the light-source ZIP.
+
+To preserve symbols beyond the next Debug-opt build, archive the exact DLL/PDB pair outside the repository and explicitly add that archive directory to WinDbg's symbol path when analyzing its matching dump.
 
 ### Inspecting a dump from the command line
 

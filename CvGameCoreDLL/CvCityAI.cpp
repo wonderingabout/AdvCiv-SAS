@@ -1125,14 +1125,15 @@ static void SAS_logSettlerBuildDecision(CvCityAI const& kCity, char const* szSou
 	bool const bSettlerFloorActive = SAS_isSettlerEarlyFoundValueFloorActive(kPlayer, iSettlerFloor, iSettlerFloorMinCities, iSettlerFloorMaxEra);
 	UnitTypes const eProductionUnit = kCity.getProductionUnit();
 	UnitAITypes const eProductionUnitAI = kCity.getProductionUnitAI();
-	logBBAI("SETTLER_BUILD_DECISION turn=%d player=%d civ=%s city=%S cityId=%d source=%s result=%s unit=%s unitAI=%s odds=%d value=%d hasBuildSite=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d min=%d earlyFloor=%d floorActive=%d floorMinCities=%d floorMaxEra=%d ownerEra=%s totalSettlers=%d trainSettlers=%d cityTrainSettlers=%d numCities=%d pop=%d isCapital=%d danger=%d financial=%d currentProduction=%s currentProductionAI=%d",
+	// <!-- custom: unit and currentProduction wrote NO_UNIT for a missing unit while unitAI wrote -, and currentProductionAI was a bare number; all four now use getSASInfoTypeOrNone, so a missing type is - and a UnitAI is its XML type. (Claude Code Opus 5.5) -->
+	logBBAI("SETTLER_BUILD_DECISION turn=%d player=%d civ=%s city=%S cityId=%d source=%s result=%s unit=%s unitAI=%s odds=%d value=%d hasBuildSite=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d min=%d earlyFloor=%d floorActive=%d floorMinCities=%d floorMaxEra=%d ownerEra=%s totalSettlers=%d trainSettlers=%d cityTrainSettlers=%d numCities=%d pop=%d isCapital=%d danger=%d financial=%d currentProduction=%s currentProductionAI=%s",
 		GC.getGame().getGameTurn(), kCity.getOwner(), GC.getInfo(kPlayer.getCivilizationType()).getType(), getSASDiagnosticQuoted(kCity.getName().GetCString()).GetCString(), kCity.getID(),
-		szSource, szResult, eUnit == NO_UNIT ? "NO_UNIT" : GC.getInfo(eUnit).getType(), getSASInfoTypeOrNone(eUnitAI), iOdds, iValue, bHasBuildSite,
+		szSource, szResult, getSASInfoTypeOrNone(eUnit), getSASInfoTypeOrNone(eUnitAI), iOdds, iValue, bHasBuildSite,
 		iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerFloor,
 		bSettlerFloorActive, iSettlerFloorMinCities, iSettlerFloorMaxEra, getSASInfoTypeOrNone(kPlayer.getCurrentEra()), kPlayer.AI_totalUnitAIs(UNITAI_SETTLE),
 		kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLE), kCity.getNumTrainUnitAI(UNITAI_SETTLE), kPlayer.getNumCities(), kCity.getPopulation(),
 		kCity.isCapital(), kCity.AI_isDanger(), kPlayer.AI_isFinancialTrouble(),
-		eProductionUnit == NO_UNIT ? "NO_UNIT" : GC.getInfo(eProductionUnit).getType(), eProductionUnitAI);
+		getSASInfoTypeOrNone(eProductionUnit), getSASInfoTypeOrNone(eProductionUnitAI));
 }
 
 
@@ -18382,15 +18383,16 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)pBestRawUnworkedJob->second.second);
 					ImprovementTypes const eWorkedImprovement = kWorkedPlot.getImprovementType();
 					ImprovementTypes const eUnworkedImprovement = kUnworkedPlot.getImprovementType();
+					// <!-- custom: A missing type printed NONE here while other BBAI rows print -; getSASInfoTypeOrNone now gives the same - and the same XML type otherwise. (Claude Code Opus 5.5) -->
 					logBBAI("CITIZEN_RAW_PLOT_SUSPECT turn=%d player=%d civ=%s city=%S cityId=%d suspectPairs=%d raw321Delta=%d contextValue=%d approximateDelta=%d oldPlot=(%d,%d) oldFood=%d oldProduction=%d oldCommerce=%d oldImprovement=%s newPlot=(%d,%d) newFood=%d newProduction=%d newCommerce=%d newImprovement=%s",
 						GC.getGame().getGameTurn(), getOwner(), GC.getInfo(GET_PLAYER(getOwner()).getCivilizationType()).getType(),
 						getSASDiagnosticQuoted(getName().GetCString()).GetCString(), getID(), iRawSuspectCount, iBestRawDelta, iBestRawContextValue,
 						pBestRawUnworkedJob->first - pBestRawWorkedJob->first, kWorkedPlot.getX(), kWorkedPlot.getY(),
 						kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE),
-						(eWorkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eWorkedImprovement).getType()), kUnworkedPlot.getX(),
+						getSASInfoTypeOrNone(eWorkedImprovement), kUnworkedPlot.getX(),
 						kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION),
 						kUnworkedPlot.getYield(YIELD_COMMERCE),
-						(eUnworkedImprovement == NO_IMPROVEMENT ? "NONE" : GC.getInfo(eUnworkedImprovement).getType()));
+						getSASInfoTypeOrNone(eUnworkedImprovement));
 				}
 			}
 			bDone = true; // no more job swaps. So we're finished.

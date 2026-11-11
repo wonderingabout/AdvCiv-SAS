@@ -75,6 +75,7 @@ Else or additionally, you may find more help in the relevant project's own docum
 ## Guides in this folder
 
 - [Art tools guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md): viewing .dds, .tga, .nif and .FPK art, and editing the game font; for the user and AI/LLM helpers
+- [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md): compiling without needless strain and keeping often-listed folders small; for the user and AI/LLM helpers
 - [Desktop windows guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md): how agents read and work with windows on Windows 10, including the Codex and Claude apps and their usage limits
 - [DLL compilation guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md): command-line workflow primarily for AI/LLM helpers
 - [Game runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md): launching Civ4 into a save or new game, unattended autoplay, screenshots and parallel runs; for AI/LLM helpers
@@ -1290,4 +1291,4 @@ Even though i am not too knowledgeable, i hope this info and general process of 
 
 ## Drive
 
-See also [the Modding_Resources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing).
+See also [the Modding_Resources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp).

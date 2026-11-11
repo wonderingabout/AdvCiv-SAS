@@ -2,14 +2,16 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Build check: CvGameCoreDLL/Project/temp_files must retain only its marker and the locally ignored Debug-opt symbol target.
+# Build check: git must track nothing under CvGameCoreDLL/Project/temp_files, and no repository filter rule may re-include it.
 #
-# <!-- custom: Git only tracks files, not empty folders, so keep a zero-byte placeholder file inside temp_files.
-# We suspect fast-compile temp files can produce unreliable DLLs; fail on every generated target except Debug-opt, whose matching PDB is deliberately retained for crash analysis and must be deleted before rebuilding that configuration.
-# The placeholder/folder may be export-ignored from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+# <!-- custom: We suspect fast-compile temp files can produce unreliable DLLs; this check used to fail on every generated target except Debug-opt, whose matching PDB is deliberately retained for crash analysis. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+# <!-- custom: Since 2026-11-11 build_with_report.ps1 refuses a BUILD while the target folder holds files, so local folders are left alone and only tracked files are checked.
+# The tracked zero-byte .gitkeep that kept the folder in fresh clones for this check was dropped the same day: the Makefile creates the folder when missing, and nothing else needed it. (Claude Code Opus 5.5) -->
 
 from pathlib import Path
 import argparse
+# <!-- custom: subprocess lists the tracked files under temp_files. (Claude Code Opus 5.5) -->
+import subprocess
 import sys
 
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization. (GPT-6.1-Sol) -->
@@ -19,38 +21,19 @@ from xml_defines import get_default_repo_root
 
 
 TEMP_FILES_REL_PATH = Path("CvGameCoreDLL/Project/temp_files")
-TEMP_FILES_MARKER = ".gitkeep"
-RETAINED_IGNORED_TARGET = "Debug-opt"
 GIT_FILTER_REL_PATHS = (
 	Path(".gitignore"),
 	Path(".gitattributes"),
 )
-ALLOWED_GITATTRIBUTES_EXPORT_IGNORE_RULES = {
-	"/cvgamecoredll/project/temp_files",
-	"/cvgamecoredll/project/temp_files/**",
-	"cvgamecoredll/project/temp_files",
-	"cvgamecoredll/project/temp_files/**",
-}
 ALLOWED_GITIGNORE_RULES = {
-	"/cvgamecoredll/project/temp_files/debug-opt/",
-	"cvgamecoredll/project/temp_files/debug-opt/",
+	"/cvgamecoredll/project/temp_files/",
 }
-
-
-def relative_posix(path: Path, repo_root: Path) -> str:
-	return path.relative_to(repo_root).as_posix()
-
-
-def is_allowed_gitattributes_export_ignore_rule(normalized: str) -> bool:
-	parts = normalized.split()
-	if len(parts) != 2:
-		return False
-	path, attribute = parts
-	return path in ALLOWED_GITATTRIBUTES_EXPORT_IGNORE_RULES and attribute == "export-ignore"
 
 
 def active_temp_files_filter_rules(repo_root: Path) -> list[str]:
+	# <!-- custom: Codex's review reproduced the check passing in a repository whose .gitignore lacked the temp_files line, so generated targets could flood git status unnoticed; the rule is now required. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	failures: list[str] = []
+	found_ignore_rule = False
 
 	for rel_path in GIT_FILTER_REL_PATHS:
 		path = repo_root / rel_path
@@ -69,59 +52,33 @@ def active_temp_files_filter_rules(repo_root: Path) -> list[str]:
 			if "temp_files" not in normalized:
 				continue
 			if rel_path == Path(".gitignore") and normalized in ALLOWED_GITIGNORE_RULES:
-				continue
-			if rel_path == Path(".gitattributes") and is_allowed_gitattributes_export_ignore_rule(normalized):
+				found_ignore_rule = True
 				continue
 			failures.append(f"{rel_path.as_posix()}: line {line_number}: remove active temp_files rule: {stripped}")
 
+	if not found_ignore_rule:
+		failures.append(".gitignore: missing the rule /CvGameCoreDLL/Project/temp_files/ that keeps build targets out of git status")
 	return failures
 
 
-def check_temp_files_folder(repo_root: Path) -> list[str]:
-	failures: list[str] = []
-	temp_dir = repo_root / TEMP_FILES_REL_PATH
-	marker = temp_dir / TEMP_FILES_MARKER
-
-	if not temp_dir.exists():
-		return [
-			f"{TEMP_FILES_REL_PATH.as_posix()}: missing folder; commit {TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER} "
-			"so Git preserves this sanity-check folder"
-		]
-	if not temp_dir.is_dir():
-		return [f"{TEMP_FILES_REL_PATH.as_posix()}: exists but is not a folder"]
-
-	if not marker.is_file():
-		failures.append(f"{TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER}: missing zero-byte tracking marker")
-	elif marker.stat().st_size != 0:
-		failures.append(f"{TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER}: marker should be zero bytes")
-
-	unexpected_entries = []
-	retained_target = temp_dir / RETAINED_IGNORED_TARGET
-	for entry in sorted(temp_dir.rglob("*"), key=lambda path: path.as_posix().lower()):
-		if entry == marker:
-			continue
-		if entry == retained_target or retained_target in entry.parents:
-			continue
-		unexpected_entries.append(relative_posix(entry, repo_root))
-
-	if unexpected_entries:
-		failures.append(
-			"unexpected compiler temp_files content; clean these before committing/replacing the DLL: "
-			+ ", ".join(unexpected_entries)
-		)
-
-	return failures
+# <!-- custom: Was check_temp_files_folder, which also required the folder and its zero-byte .gitkeep; with the marker dropped on 2026-11-11 only the tracked-files part remains, hence the narrower name. (Claude Code Opus 5.5) -->
+def tracked_temp_files(repo_root: Path) -> list[str]:
+	tracked = subprocess.run(["git", "ls-files", "-z", "--", TEMP_FILES_REL_PATH.as_posix()], cwd=repo_root, capture_output=True, check=True).stdout.decode("utf-8").split("\0")
+	unexpected = sorted(path for path in tracked if path)
+	if unexpected:
+		return ["compiler temp_files content is tracked by git; remove it from the index: " + ", ".join(unexpected)]
+	return []
 
 
 def check_temp_files(repo_root: Path) -> list[str]:
 	failures: list[str] = []
-	failures.extend(check_temp_files_folder(repo_root))
+	failures.extend(tracked_temp_files(repo_root))
 	failures.extend(active_temp_files_filter_rules(repo_root))
 	return failures
 
 
 def main() -> int:
-	parser = argparse.ArgumentParser(description="Check that CvGameCoreDLL/Project/temp_files contains only its marker and retained Debug-opt target.")
+	parser = argparse.ArgumentParser(description="Check that git tracks nothing under CvGameCoreDLL/Project/temp_files.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 
@@ -134,7 +91,7 @@ def main() -> int:
 		return 1
 
 	print("PASS compiler temp_files hygiene")
-	print(f"  - {TEMP_FILES_REL_PATH.as_posix()} contains only {TEMP_FILES_MARKER} plus optional ignored {RETAINED_IGNORED_TARGET} symbols")
+	print(f"  - git tracks nothing under {TEMP_FILES_REL_PATH.as_posix()}; local build targets are ignored")
 	return 0
 
 

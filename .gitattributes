@@ -73,10 +73,6 @@
 /.gitattributes       export-ignore
 /.gitignore           export-ignore
 
-# <!-- custom: keep the compiler temp_files placeholder in repo for sanity checks, but exclude it from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
-/CvGameCoreDLL/Project/temp_files     export-ignore
-/CvGameCoreDLL/Project/temp_files/**  export-ignore
-
 # <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including legacy manuals/API docs/git logs and current Docs/changelogs_web, Modding_Resources, and Docs/Sevopedia/Debug. -->
 /Assets/Res/Fonts/other_mods/                             export-ignore
 

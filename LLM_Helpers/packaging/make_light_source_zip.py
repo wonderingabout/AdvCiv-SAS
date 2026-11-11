@@ -197,11 +197,6 @@ SKIP_REL_DIRS = {"assets/res/cursors", COMMIT_DIFF_CONTEXT_DIR.lower()}
 # FPK art packs and DLL binaries should be shared separately only when specifically needed.
 SKIP_SUFFIXES = {".pyc", ".pyo", ".dll", ".fpk", ".tga"}
 
-# Preserve this build-check/workflow folder and its tracked marker in light-source archives.
-# Never include retained Debug-opt compiler intermediates or private symbols.
-PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
-PRESERVED_LIGHT_SOURCE_TEMP_MARKER = ".gitkeep"
-
 # Visual Studio database files can be very large and are regenerated locally.
 # Other small lone project files are useful enough to keep.
 DLL_PROJECT_SKIP_SUFFIXES = {".sdf"}
@@ -2283,18 +2278,6 @@ def iter_dll_project_top_level_files(repo_root: Path) -> Iterator[Path]:
         yield child
 
 
-def iter_preserved_temp_files(repo_root: Path) -> Iterator[Path]:
-    temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
-    if not temp_dir.is_dir():
-        print(f"Warning: missing folder skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}")
-        return
-    marker = temp_dir / PRESERVED_LIGHT_SOURCE_TEMP_MARKER
-    if marker.is_file():
-        yield marker
-    else:
-        print(f"Warning: missing temp-files marker skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}/{PRESERVED_LIGHT_SOURCE_TEMP_MARKER}")
-
-
 def iter_exact_file_exceptions(repo_root: Path) -> Iterator[Path]:
     """Yield narrowly whitelisted files that intentionally bypass ordinary light-ZIP file skips."""
     for rel in LIGHT_SOURCE_EXACT_FILE_EXCEPTIONS:
@@ -2326,7 +2309,6 @@ def collect_files(repo_root: Path) -> list[Path]:
 
     add(iter_dll_top_level_files(repo_root))
     add(iter_dll_project_top_level_files(repo_root))
-    add(iter_preserved_temp_files(repo_root))
     add(iter_exact_file_exceptions(repo_root))
 
     for rel_dir in EXTRA_SUBDIRS:
@@ -2346,9 +2328,8 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
 
     compression_method = ZIP_STORED if compression_level <= 0 else ZIP_DEFLATED
     with ZipFile(temp_path, "w", compression=compression_method, compresslevel=(None if compression_method == ZIP_STORED else compression_level), allowZip64=True) as archive:
-        preserved_temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
-        if preserved_temp_dir.is_dir():
-            archive.writestr(PRESERVED_LIGHT_SOURCE_TEMP_DIR.rstrip("/") + "/", b"")
+        # <!-- custom: The ZIP used to add an empty temp_files folder and its .gitkeep marker for the build check; both were dropped on 2026-11-11, when the Makefile was found to create the folder itself.
+        # Retained Debug-opt intermediates and private symbols stay excluded. (Claude Code Opus 5.5) -->
         for path in files:
             rel = path.relative_to(repo_root).as_posix()
             archive.write(path, rel)

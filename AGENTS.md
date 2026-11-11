@@ -88,6 +88,8 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
 - Generally leave staging/unstaging to the user during review; preserve the existing index and leave new edits unstaged unless asked otherwise or an explicitly approved commit is ready for final preparation.
   - The staged/unstaged split supports iterative review of the same commit candidate, for example sharing only Codex's subsequent edits with ChatGPT, or vice versa. An already-staged file is not permission to stage its newer edits.
   - Some changes are intentionally kept unstaged and are never meant for the commit. For example, `SAS_SGR_LOG=3`, `SAS_RUNTIME_STATUS_ON=1` and `SAS_RUNTIME_SOURCE_WATCH_ON=1` are examples usually left enabled during development cycles as useful and usually wanted, and for no tedium, while shipped defaults are `0` to avoid unnecessary diagnostic overhead for regular users.
+    - A locally built test DLL, usually Debug-opt, likewise stays installed in `Assets/` and unstaged. This meets both needs at once: tests run the newest native code, while commits do not carry a binary each time, which would pollute the diff when the shipped DLL still works (see [DLL inclusion in commits](#dll-inclusion-in-commits)).
+      - Restoring the committed DLL before a commit only sends the next test back to old code.
     - CI helps catch accidentally committed development settings; locally, the diagnostic-default checks accept [`--staged`](/.github/workflows/README.md#local---staged-option-for-diagnostic-defaults) to check staged content while unstaged development values stay enabled.
     - [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) can switch the usual development diagnostics on or back to shipped defaults.
     - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
@@ -196,6 +198,8 @@ Use these specialized records for inherited regressions, suspicious behavior cha
     - Before bisecting, confirm the baseline under the same player options. KI#136's "missing" choose-production popup also appeared in 4986, the first SAS commit and Base AdvCiv: AdvCiv turns on Minimize Pop-Ups, which holds popups until all units have moved, and a just-trained Worker was still selected.
 - Within AdvCiv-SAS's mod repo, generate/use `LLM_Helpers/context/commit_diffs/` for exact inherited ancestry and [`LLM_Helpers/context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) for imported map-script originals.
 - External review/tuning tools live under `LLM_Helpers/`; local platform-specific tests live under [`tests/`](/tests/README.md). Workflow-helper regression tests remain under `.github/workflows/tests/` and run in CI as well as locally.
+  - When you write a script you or another agent would likely need again, add it to `LLM_Helpers/` or extend an existing helper instead of leaving it in a scratchpad: the next agent can then improve it rather than rediscover it, imperfectly.
+    - For example, `desktop_windows.py` began as one-off screenshot and click code during the 2026-11-10 autoplay work, and on 2026-11-11 the step reading and turn ranking used to study a Codex review became `openai_chat_export_to_txt.py --steps` and `--longest`.
   - The helpers sit in folders named by job, such as `LLM_Helpers/audits/ci_report.py`; put a new helper in the folder of its job and describe it in that folder's README section, which [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) checks. See [Folders](/LLM_Helpers/README.md#folders).
   - To test a change in game, an agent can run autoplay itself: [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4 into a save or a new game, plays the requested turns, closes Civ4 and reports the outcome and logs; [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) explains how.
     - Before these tools, every in-game check waited on the user to start Civ4, load a save and type a turn count, so agents tested less and later than they could. A run now takes under a minute for 100 turns on a Huge map, so testing a change in game is cheap enough to do routinely.
@@ -328,6 +332,8 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
   - The same holds for interfaces: the Claude and Codex apps changed often enough that the guide dates every finding, and an agent's idea of where a button is can be months old. Look before assuming.
   - A search tool's summaries can be wrong too: on 2026-11-10 they gave equal US dollar prices for two plans, while the official pages, read in the agent's own browser, showed different euro prices for the user's region.
     - Read the original page for anything that changes or depends on the user's region, and treat search results as leads; see [Browsers for agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#browsers-for-agents).
+  - Likewise, open a web link in your own browser to check it rather than trusting its label or assuming it still works: a link can be stale, moved, or point somewhere other than its text says. For example, on 2026-11-11 the new `drive_links.py` check found the Modding Resources guide linking one Google Drive folder both as its impluvium example and as the whole Modding_Resources Drive.
+    - Opening both IDs in the agent's own browser showed their folder titles, "nif import from another mod (for example the impluvium's…)" and "Modding_Ressources", which settled which label was wrong without asking the user.
 
 ### Suggesting tools and ideas
 
@@ -608,6 +614,15 @@ These are general guidelines, not irrevocable requirements; adjust based on task
     - But then, we also wondered about why not also adding one knob for real players, so barbarians-only, real-players-only, and all players, could be freely chosen (e.g. in rule changes or modmods or such): but the data showed that every civilization's only free building is the Palace, so a per-civilization XML field fits better and is also much cleaner than a DLL per-player-type switch hack.
     - Back to other existing Barbarian behaviours/rules, we then noticed Barbarians not being allowed world wonders (KI#3) also had no knob, so we added the `SAS_BARB_WORLD_WONDER_ON` SAS define so it is now tunable as well.
     - In conclusion, we did not just fix/patch/silence the issue just to fit or satisfy a request, but also wondered about what was done why, how it all fit together and how it could be better done, or if it had issues or such, so try to audit things broadly and iteratively/deeply in a similar manner when reworking stuff.
+  - Build-folder example (2026-11-11): a rule can change as needs change, so revisit it when a simpler way to meet its purpose appears, rather than keep defending its current form.
+    - Compiles sometimes failed or produced, back then Release-only, DLLs with strange errors that a clean recompile fixed (KI#38, KI#38.2). Stale intermediates were suspected, so the rule became: delete `temp_files/<target>` before every build.
+      - Target folders stayed visible in `git status` as a reminder, and a CI check failed on them, but they also cluttered VS Code's source-control list and every diff review with folders that were not changes.
+    - Local tests then moved to Debug-opt (due to having a PDB as well), whose folder must stay for its PDB, so it alone was git-ignored. Two rules for one folder were awkward, but the PDB was worth it.
+    - To check after the fact, the build report (`tempBefore`) and SGR (`reusableArtifactBaseline`) began recording whether a build started clean.
+    - Then the obvious step appeared: the build wrapper can simply refuse a `BUILD` while the folder holds files. Nobody has to remember to delete it, the distracting entries in `git status` and VS Code and the special case disappear, and every target folder can be ignored.
+    - Reviewing that diff, the user then noticed the zero-byte `temp_files/.gitkeep`, kept only so fresh clones had the folder for the old check. The agent had carried it into the new rules unquestioned, but a build with the folder moved away showed the Makefile creates it, so the marker, its `!` exception and its archive and ZIP rules went too.
+      - When a change removes a rule's reason, look for what else existed only for that reason, rather than keeping whatever was already there.
+    - Each step fit what was known at the time; the lesson is to ask, when a rule depends on memory or carries exceptions, whether the tool could enforce its purpose instead.
 
 #### Clarity and accuracy
 
@@ -621,6 +636,8 @@ Clear, accurate explanations help users and developers understand the code and i
 
 - Unsupported or deprecated features do not require maintenance merely because inherited code still contains them. See the root README's [support scope](/README.md#not-supported-in-advciv-sas) and [Deprecated references](/README.md#deprecated-references); the latter aids historical research, not current configuration.
 - Save compatibility across commits is deliberately unsupported: any commit may break existing saves. We do not maintain compatibility for players continuing older games.
+  - The same holds for our own tools' outputs. When the autoplay runner's reports moved from per-run `summary.json` folders to `Logs/SASAutoplay_<UTC>_<pid>.json` on 2026-11-11, the old reports and screenshots were moved to the new layout once, and the tools read only the new one: supporting both layouts would cost code and upkeep for files nobody needs to produce again.
+- When a change is scoped to new output, keep the implementation focused on that format. For example, the autoplay runner now writes `SASAutoplay_<run id>.json` directly in `Logs` so reports sort with the game logs. Earlier run folders were local artifacts and stayed where they were, so the archive helper only needs to handle the current layout.
 - Inherited serialization numbers such as `uiFlag` and `UWAICache::City::iSaveVersion` are not maintained as a meaningful SAS compatibility/versioning scheme. Generally mirror the inherited AdvCiv numbers for consistency; do not increment them or add compatibility machinery merely because a SAS change affects saves.
 - If a change would disrupt pending analysis, tell the user before applying it and note the dependency in scratch files like `changes_new.md`: which change should wait, which analysis it depends on, and why. For example, keep a development save usable while it is still needed for AI comparisons or issue reproduction.
 
@@ -904,6 +921,8 @@ Clear, accurate explanations help users and developers understand the code and i
   - Log identities as XML types through narrow `%s` and `getType()`, e.g. `civ=CIVILIZATION_AMERICA` and `build=BUILD_COTTAGE`, not `getDescription()`: descriptions are translated display text, change with language or mod, and Build descriptions even carry Civilopedia `<link=...>` markup (from `[LINK=IMPROVEMENT_COTTAGE]` in the game text).
   - For an enum value use `getSASInfoTypeOrNone(eX)`, which also writes `-` for `NO_...`, e.g. `unitAI=UNITAI_SETTLE` rather than `unitAI=1` or a `getUnitAIString` label such as `no unitAI`.
     - When reviewing one duplicated lookup, search for its common shape. For example, `rg -n -F '? "-" : GC.getInfo(' CvGameCoreDLL` found the same pattern in SGR getters and BBAI call sites even when the enum or variable name differed.
+      - Before calling an audit done, also try other ways, including simpler or unusual ones. On 2026-11-11, after the agents thought the `NO_` fallback audit finished, the user's plain VS Code search for `? "NO_` still found SGR's denial getter to move to `CvGameCoreUtils` (see [VS Code](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#vs-code)).
+        - Searching other spellings, such as `== NO_IMPROVEMENT ? "NONE"`, then found 11 more fallbacks in five BBAI rows. Tokens such as `result=NO_UNIT` or `NO_SELECTION` name an outcome rather than a missing value, so they stay.
     - Replace `eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()` with `getSASInfoTypeOrNone(eUnitAI)` and remove wrappers that only repeat that lookup. This gives both recorders one place to maintain the XML token and missing-value convention.
     - Use a broad search to find candidates, then check what each match means and where its input comes from before generalizing. For example, the SGR and BBAI lookup audit found several cases that needed different treatment.
       - A requested unit role can be `ANY`, meaning every role is eligible. Preserve that label because it answers a different question from a missing role.
@@ -965,9 +984,9 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 - If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md).
 - When running a task end to end or autonomously, such as testing with [unattended game runs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md), compile yourself as often as the task needs rather than waiting on the user.
   - The default above exists to save the user's time and the agent's tokens on routine checks. In an autonomous loop the agent compiling is what saves the user's time: stopping to ask for each build would bring back the waiting the loop removes.
-  - Prefer the sequential builds (`Release`, `Debug-opt`) over the parallel `-fast` ones when convenient: we build many DLLs, and the parallel build kept every CPU core busy for about 80 seconds saved per build.
-    - That is why Debug-opt was made sequential ([KI#38.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)); the user often works on the same PC meanwhile.
-    - Use a `-fast` build when it is genuinely needed, for example `Assert-fast`, the only report-wrapper build with assertions on (25 seconds).
+  - Prefer builds that spare the hardware: the parallel `-fast` builds push CPU use noticeably high to save about 80 seconds, needless strain for repeated compiles, which is why our Debug-opt build is sequential, unlike base AdvCiv's ([KI#38.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)). See the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md).
+  - For local tests prefer `Debug-opt`, with assertions turned on when useful: it leaves a PDB, which helps if a test crashes.
+    - Build `Release` when you specifically need it, for example to chase a crash only Release shows, or before a commit that must ship a DLL; [`dll_define_changes.py`](/.github/workflows/README.md#buildrepositorydll_define_changespy) and [`dll_python_bindings.py`](/.github/workflows/README.md#buildrepositorydll_python_bindingspy) flag the usual cases.
   - Installing a DLL for a local test copies only the DLL into `Assets/`. Its `.build.json` joins it only for an intentional shipped `Release` update, as under [DLL inclusion in commits](#dll-inclusion-in-commits), because CI checks that a shipped DLL and its report change together.
     - Never ship an assertion or Debug-opt DLL: players would get assertion logging and its slower code, and CI accepts only a `Release` report.
 - Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
@@ -991,11 +1010,11 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
 ```
 
 - Light-source ZIP creation currently seems to fail with `PermissionError` while reading `CvGameCoreDLL/Project/AdvCiv.opensdf` with Visual C++ 2010 Express open, even without compilation running. This IDE database can remain locked while the IDE is open; close the IDE before retrying this packaging failure.
-- Core safety rule: before every full compile attempt or retry, delete that configuration's exact `CvGameCoreDLL/Project/temp_files/<target>` folder so the accepted DLL never resumes from stale or partial intermediates.
+- Core safety rule: every build starts from an empty `CvGameCoreDLL/Project/temp_files/<target>` folder, so the accepted DLL never resumes from stale or partial intermediates.
+  - Since 2026-11-11 `build_with_report.ps1` enforces it: a `BUILD` refuses while that folder holds files, so use `REBUILD`, which cleans first, or delete the folder. A rule left to habit could be overlooked.
   - Target folders are isolated, so a retained Debug-opt folder does not affect a clean Release build.
   - After a successful Debug-opt build, retain its ignored folder while its installed DLL is relevant so WinDbg can find the exact matching PDB path embedded in that DLL; delete it before the next Debug-opt build.
-  - Other generated temp targets remain unignored as a visible warning.
-  - Keep the parent folder's tracked zero-byte `.gitkeep` for fresh clones and CI.
+  - The whole `temp_files` folder is git-ignored, since the refusal makes a visible reminder unnecessary, and the Makefile creates it when missing.
 
 ## Runtime safety and diagnostics
 
@@ -1047,6 +1066,5 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 - The Recycle Bin lists each item with its original folder, and Windows' Restore puts it back intact.
 - If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
 - A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
-- Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a subfolder. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD, so the user moved them into old subfolders such as `old10-part2`.
-  - The slowdown grows faster than the file count, as the user experienced it; the exact threshold was not measured.
-  - Agents list and sort these folders often, for example to find the newest screenshot, so a lean folder saves needless disk work on every look.
+- Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a dated subfolder: every listing of a crowded folder strains the hardware needlessly, while moving old files keeps them all. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD.
+  - [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) does the moving, and the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) lists the folders that grow.

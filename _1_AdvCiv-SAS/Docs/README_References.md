@@ -130,7 +130,7 @@ Else or additionally, you may find more help in the relevant project's own docum
 
 ## Some Useful tools while doing this
 
-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Resources's](/_1_AdvCiv-SAS/Docs/Modding_Resources/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Resources's](/_1_AdvCiv-SAS/Docs/Modding_Resources/) folder's Google Drive, linked above, too with files, mostly if not only images.
 
 Some useful tools while doing this advciv-sas mod:
 

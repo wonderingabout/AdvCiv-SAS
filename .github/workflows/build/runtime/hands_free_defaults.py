@@ -2,9 +2,10 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# Build check: switches that local development turns off for hands-free runs must ship with their player-facing values.
+# Build check: hands-free switches, which spare players clicks and manual steps, must ship with their player-facing values.
 
-# <!-- custom: Players should see what ships; developers and agents switch these off locally with LLM_Helpers/diagnostics/toggle_dev_diagnostics.py, as with the diagnostic logs, so a forgotten local value must not reach a commit. (Claude Code Opus 5.5) -->
+# <!-- custom: Players should see what ships; developers and agents switch some of these off locally with LLM_Helpers/diagnostics/toggle_dev_diagnostics.py, as with the diagnostic logs, so a forgotten local value must not reach a commit.
+# The others are not toggled locally, but one switched off by mistake would bring back the clicks or lost saves it removes, so the check covers every hands-free switch the Main Changes Guide describes. (Claude Code Opus 5.5) -->
 
 from pathlib import Path
 import argparse
@@ -18,6 +19,13 @@ from xml_defines import add_staged_argument, get_default_repo_root, read_global_
 
 EXPECTED_SHIPPED_VALUES = {
 	"SAS_UI_DAWN_OF_MAN_ON": 1,
+	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
+	"SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON": 1,
+	"SAS_FAST_SAVE_GAME_START_ON": 1,
+	"SAS_FAST_SAVE_GAME_END_ON": 1,
+	"SAS_FAST_SAVE_AUTOPLAY_STOP_ON": 1,
+	"SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON": 1,
+	"SAS_ASSERT_SILENT_ACTION": 1,
 }
 
 
