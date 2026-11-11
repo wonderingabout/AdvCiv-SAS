@@ -3,6 +3,7 @@
 #include "CvInitCore.h"
 #include "CvPlayer.h"
 #include "CvInfo_GameOption.h"
+#include "SASGameRecordLog.h" // <!-- custom: getSASGameRecordIniFileArgument, the shared ini= command-line parser, finds the [SASAutoplay] request for applySASRequestedLeaders. (Claude Code Opus 5.5) -->
 
 
 CvInitCore::CvInitCore()
@@ -1720,6 +1721,87 @@ void CvInitCore::setLeaderExternal(PlayerTypes eID, LeaderHeadTypes eLeader)
 		}
 		// All random leaders have been assigned
 		reRandomizeCivsAndLeaders();
+		// <!-- custom: Requested leaders replace the random ones only now that every random leader is known, so a requested leader already drawn for another player can be swapped instead of duplicated. (Claude Code Opus 5.5) -->
+		applySASRequestedLeaders();
+	}
+}
+
+
+// <!-- custom: A new game started from the command line (QuickStart = 1 in an ini= file, as LLM_Helpers/game_runs/run_autoplay.py --leaders writes) could only have random civilizations: the INI has no civilization or leader keys.
+// An [SASAutoplay] Leaders key, e.g. "LEADER_ALEXANDER,-,LEADER_MANSA_MUSA", names a leader for each civ slot in order, with "-" keeping the random one; each leader brings the first playable civilization that lists it.
+// A requested leader already drawn for another slot is swapped with that slot, so leaders stay unique. Unknown or civ-less names are skipped with an assertion; Python's SASAutoplayRequest compares the result with the request and reports a mismatch.
+// Ordinary launches pass no ini= file and are unaffected. (Claude Code Opus 5.5) -->
+void CvInitCore::applySASRequestedLeaders()
+{
+	std::string const szArgument = getSASGameRecordIniFileArgument();
+	if (szArgument.empty())
+		return;
+	std::string szPath = szArgument;
+	if (!(szArgument.length() >= 2 && szArgument[1] == ':') && szArgument[0] != '\\')
+	{
+		// <!-- custom: GetPrivateProfileString looks for a relative name in the Windows folder, so resolve it beside the EXE, where Civ4 found the ini= file. (Claude Code Opus 5.5) -->
+		char szExe[MAX_PATH];
+		DWORD const iLength = GetModuleFileNameA(NULL, szExe, MAX_PATH);
+		std::string szDirectory(szExe, iLength);
+		szPath = szDirectory.substr(0, szDirectory.find_last_of('\\') + 1) + szArgument;
+	}
+	char szLeaders[2048];
+	GetPrivateProfileStringA("SASAutoplay", "Leaders", "", szLeaders, sizeof(szLeaders), szPath.c_str());
+	if (szLeaders[0] == '\0')
+		return;
+	std::vector<PlayerTypes> aeSlots;
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)i;
+		if (!getMinorNationCiv(ePlayer) && (getSlotStatus(ePlayer) == SS_TAKEN || getSlotStatus(ePlayer) == SS_COMPUTER))
+			aeSlots.push_back(ePlayer);
+	}
+	std::string const szList(szLeaders);
+	size_t iStart = 0;
+	for (size_t iSlot = 0; iSlot < aeSlots.size() && iStart <= szList.length(); iSlot++)
+	{
+		size_t iEnd = szList.find(',', iStart);
+		if (iEnd == std::string::npos)
+			iEnd = szList.length();
+		std::string szToken = szList.substr(iStart, iEnd - iStart);
+		iStart = iEnd + 1;
+		size_t const iFirst = szToken.find_first_not_of(" \t");
+		size_t const iLast = szToken.find_last_not_of(" \t");
+		szToken = (iFirst == std::string::npos ? "" : szToken.substr(iFirst, iLast - iFirst + 1));
+		if (szToken.empty() || szToken == "-")
+			continue;
+		// <!-- custom: getInfoTypeForString searches every XML type, so a civilization or unit name would return another table's index; require a leader whose own type matches. (Claude Code Opus 5.5) -->
+		int const iLeader = GC.getInfoTypeForString(szToken.c_str(), true);
+		LeaderHeadTypes const eLeader = ((iLeader >= 0 && iLeader < GC.getNumLeaderHeadInfos() && szToken == GC.getInfo((LeaderHeadTypes)iLeader).getType()) ? (LeaderHeadTypes)iLeader : NO_LEADER);
+		CivilizationTypes eCiv = NO_CIVILIZATION;
+		if (eLeader != NO_LEADER)
+		{
+			FOR_EACH_ENUM2(Civilization, eLoopCiv)
+			{
+				if (GC.getInfo(eLoopCiv).isPlayable() && GC.getInfo(eLoopCiv).isLeaders(eLeader))
+				{
+					eCiv = eLoopCiv;
+					break;
+				}
+			}
+		}
+		if (eCiv == NO_CIVILIZATION)
+		{
+			FErrorMsg("[SASAutoplay] Leaders names an unknown leader or one no playable civilization lists");
+			continue;
+		}
+		PlayerTypes const ePlayer = aeSlots[iSlot];
+		for (size_t j = 0; j < aeSlots.size(); j++)
+		{
+			if (aeSlots[j] != ePlayer && getLeader(aeSlots[j]) == eLeader)
+			{
+				setCiv(aeSlots[j], getCiv(ePlayer));
+				setLeader(aeSlots[j], getLeader(ePlayer));
+			}
+		}
+		setCiv(ePlayer, eCiv);
+		setLeader(ePlayer, eLeader);
+		setCivLeaderRandomlyChosen(ePlayer, false, false);
 	}
 }
 

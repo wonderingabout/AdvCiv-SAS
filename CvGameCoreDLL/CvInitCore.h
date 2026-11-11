@@ -391,6 +391,8 @@ protected:
 	mutable CvString m_szTempCheck;
 
 	void reRandomizeCivsAndLeaders(); // advc.191
+	// <!-- custom: Replace randomly assigned leaders with those named by an [SASAutoplay] Leaders key in the ini= launch file; see CvInitCore.cpp. (Claude Code Opus 5.5) -->
+	void applySASRequestedLeaders();
 
 	void clearCustomMapOptions();
 	void refreshCustomMapOptions();

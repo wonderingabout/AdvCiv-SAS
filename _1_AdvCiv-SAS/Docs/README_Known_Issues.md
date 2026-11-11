@@ -1249,7 +1249,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1076 - (Reverted AdvCiv advc.057 for land units) Wheeled units could enter impassable Jungle, Forest and Marsh inside their own borders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076)\
 [KI#1077 - (Clarified inherited AdvCiv display) City health help hid fractional feature health and lumped feature types, so a single Marsh seemed to have no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077)\
 [KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)\
-[KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)
+[KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)\
+[KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)\
+[KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)
 
 <a id="ki-1"></a>
 
@@ -37532,3 +37534,47 @@ The limit is a storage relic rather than a balance rule, but the inputs are stil
 - A possible extension would be overriding the define in `GlobalDefines_advciv_sas.xml`, which the CI check already reads; whether a mod's GlobalDefines can override this BtS define was not tested.
 
 Raised by wonderingabout while reviewing Peat in the Sevopedia; investigated with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1080"></a>
+
+## KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84
+
+Debug Mode is meant to let a player watch, revealing the map and every player's planned city sites. On 2026-11-10, while testing [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy), a run with Debug Mode played a different game from the same save than a run without it.
+
+Setup: the same Huge Pangaea T0 save (seed `21228745`), the same SGR199 Release DLL and settings, 100 turns of AI Auto Play each, two clients at a time with Civ4's `multiple` argument. [`compare_sasgamerecord_rng.py`](/LLM_Helpers/diagnostics/compare_sasgamerecord_rng.py) compared each pair's SASGameRecord checkpoints:
+
+| Pair | Result |
+| --- | --- |
+| both without Debug Mode | RNG and state identical at all 110 checkpoints |
+| both with Debug Mode | RNG and state identical at all 110 checkpoints |
+| one with, one without | state first differs at T84 (`groupsFingerprint`), synchronized RNG at T86 |
+
+So the runs themselves are repeatable, and Debug Mode seems to be what changes the game.
+
+- The earliest difference found in the two SGR files is at T80: player 10's `GAME_RECORD_CITY_SITES` ranked `(48,19)` first with a value of `3964` only in the Debug Mode run, where the run without Debug Mode had `(48,18)` among its sites instead.
+- At that turn the Debug Mode file also has `GAME_RECORD_CITY_SITE_OVERLAY` rows from `source=NATIVE_DEBUG_CITY_SITE_DRAW_SUBMISSION`, written while `CvGame::updateColoredPlots` draws every player's city sites (`AI_getNumCitySites` / `AI_getCitySite`) in Debug Mode.
+- The cause was not traced. That overlay is one candidate, since it reads the AI's city sites while drawing; other `isDebugMode()` paths are others.
+- The RNG comparison reported state diverging before RNG, which points at deterministic code reached differently rather than at an extra random draw.
+
+Until this is fixed, leave Debug Mode off when comparing autoplay runs, as the `run_autoplay.py --debug-mode` help says. A watched run can still be compared with another watched run.
+
+To reproduce: run `python LLM_Helpers/game_runs/run_autoplay.py <save> --turns 100 --multiple` and the same command with `--debug-mode` at the same time, then compare the two `gameRecord` files named in their summaries.
+
+The difference is in the exact game, not something a player would notice: the user often turns Debug Mode on a few or dozens of turns into a game and saw nothing unusual. Only two runs that should be identical reveal it, which is why it matters for comparisons and benchmarks.
+
+Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.
+
+<a id="ki-1081"></a>
+
+## KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's
+
+On 2026-11-10, two clients ran at once with [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy): one started a new game with a bad leader name, the other loaded a save. Both runners reported `REQUEST_FAILED`, although only the first had made a bad request.
+
+Civ4's EXE writes every client's Python errors to the same `Logs/PythonErr.log` and `Logs/PythonDbg.log`, and the second runner read the first client's `ValueError` there. SAS cannot rename these files, since the EXE owns them.
+
+- Fix in the SAS tools: [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py) now names the request's `RunId` in its errors, and the runner counts only an error naming its own run. Rerun the same way, the bad-leader run was `REQUEST_FAILED` and the save run `COMPLETED`.
+- Other lines in a run's `pythonErrors` can still come from another client, so read them with that in mind.
+- Autosaves also share `Saves/single/auto`, where two clients' same-turn autosaves overwrite each other. SASFastSave's stop saves did not collide: the second was saved with a `_2` suffix. The LAN test's initial autosave error ([KI#996.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-996.2)) may be the same sharing.
+- SAS's own files no longer collide: Runtime, SASGameRecord, BBAI and assertion files carry the process ID since Runtime18 and SGR199; see the [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once).
+
+Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.

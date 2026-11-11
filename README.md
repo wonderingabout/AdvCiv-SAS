@@ -38,7 +38,7 @@ Many practical changes are made, notably moving BBAI logging to SAS defines so t
 
 Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT, whose separate analysis may also give us a different point of view/review from local coding agents (e.g., Codex, Claude Code).
 
-Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_<UTC>_<pid>_new1.log` or `SASGameRecord_20261110T165714Z_26088_load1.log`, named by time and process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
 
 Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
 
@@ -75,7 +75,33 @@ Alongside this observability, other changes move towards "hands-free" play and t
   - For example, `ALEXANDER_T0000_HUGE_CUSTOM_CONTINENTS_NORMAL_41500016_41500016_20260909T171232Z_START` identifies the starting save, while `ALEXANDER_T0459_HUGE_CUSTOM_CONTINENTS_SPACE_ZARA_YAQOB_NORMAL_41500016_41500016_20260910T184208Z` identifies the outcome.
 - Scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
+- The Dawn of Man screen, still on by default, can now optionally be turned off, so a new or loaded game opens straight on the map, saving a click each time you start or load a game, for example before autoplaying by hand.
 - `SASAssertions_*.log` (for diagnostic DLLs) adds automatic assertion logging and silent handling, so no user intervention is tediously needed to click them all one by one in their popup that pauses autoplay (sometimes ~10,000+ manual clicks per game). Silent option settings are e.g. "Ignore Once", or revert to base behaviour (logs are live-viewable, consistent with the "open-brain" point too).
+
+For local AI/LLM agents in particular:
+
+- Local AI/LLM agents, such as Claude Code or Codex, can run Civ4 themselves from the command line, and the mod ships the documentation and instructions that tell them how ([README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md)).
+  - No desktop shortcut, menu or game-settings screen is clicked: a command line, such as PowerShell, starts Civ4 with its arguments, which load the save or set up the new game and request the autoplay directly.
+  - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches a save, or a new game with a chosen map and leaders, autoplays the requested turns, reports how the run ended and closes Civ4; [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py) starts the autoplay inside the game.
+  - Several Civ4 instances can run at once, each started from a command line with Civ4's `multiple` argument, with its own autoplay and its own logs ([README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md)).
+  - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even under other windows, and clicks in it, so an agent can see what the game shows. See [Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line).
+- Agents also hand work to each other. The [chat export helpers](/LLM_Helpers/README.md#chat_exports) turn Claude Code, Codex and ChatGPT chats into readable text, so one agent can pick up another's reasoning, for example Codex reviewing a change Claude Code made, and the [light-source ZIP](/README.md#light-source-zip) gives agents without the game, such as ChatGPT, the source and its history.
+  - Agents can also message each other's apps directly with [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy), following the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention), so a review round-trip needs no files passed by hand; the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md) covers how.
+  - The same guide records how far local agents such as Claude Code and Codex went in driving each other on screen: reading, hovering, clicking and scrolling in the other's app, prompting it and following up iteratively, starting and steering their [own extra sessions](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#running-several-claude-code-sessions), and [how fast this spends their limits](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#how-fast-agents-use-their-limits).
+
+Together, these close a loop that local agents, such as Claude Code or Codex, can now run on their own, end to end. It began as feeding BBAI and SASGameRecord logs to LLMs to analyze the AI, and now reaches any issue, AI, UI, logging or otherwise, for example, or more or less:
+
+1. The user or an agent notices an issue, and an agent can reproduce it.
+2. An agent can add logging where it is missing, then follow the live logs, Runtime status and screenshots of the game window to see what happens.
+3. An investigation can involve one or several agents, with or without the user's help, which form a theory and change the code.
+4. Agents can compile the DLL themselves, launch one or several Civ4 instances and run their autoplays, from a save or a new game, in parallel if useful, then close the instances they launched, so the next round starts clean and the user's own Civ4, if open, is left alone.
+5. Agents read and compare the outcome, logs and screenshots of each run before the next iteration: is it better? Is it solved? Is the rationale as intended or just randomness or for the wrong or unintended reason(s)? Etc.
+6. The change is reviewed with the user, or directly between agents such as Codex or ChatGPT: is code shape satisfying, right/intended abstraction, does it address the need, no ci to add or that fails? Did regressions in AI, UI, or whatnot appear in a manual, or possibly even automated/batch way now maybe too? Other notable results or observations? Etc.
+7. Eventually committed once and if approved, and work moves on to the next Known Issue or idea noted for later, with the user, or possibly other agents, either in batch or autonomously, or one by one with or without the user being required at each step, or such.
+
+Each step is documented for agents in the files linked above, so the loop needs the user only to choose what to work on and to approve the result.
+
+Note: we wrote "AI, UI or otherwise" above without thinking of it, then noticed it matches the current signature at the top of every file SAS modifies: "AI, UI, logging, or other modifications first developed in AdvCiv-SAS". We added "logging" so the two match.
 
 Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while file-audit records document reviews of combined source and cross-file contracts from complementary angles.
 
@@ -213,6 +239,7 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;&emsp;[DLL build reports](/README.md#dll-build-reports)\
 &emsp;[Helpers](/README.md#helpers)\
 &emsp;&emsp;[LLM chat transcripts](/README.md#llm-chat-transcripts)\
+&emsp;[Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line)\
 &emsp;[Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)](/README.md#agent-tools-for-civ4-file-formats-eg-tga-dds-fpk-nif-kfm-kf-bik-mp3-wav)\
 &emsp;[Local tests](/README.md#local-tests)\
 &emsp;[Inherited game text lists](/README.md#inherited-game-text-lists)\
@@ -1277,6 +1304,32 @@ For example, [`compare_handicap_infos.py`](/LLM_Helpers/balance/compare_handicap
 
 For handing a discussion to another agent, convert Codex, ChatGPT, or Claude Code conversations to readable TXT. Speaker separators such as `=== USER ===` make it easy to find message boundaries in long exports. See the [Codex and ChatGPT helper](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) and [Claude Code helper](/LLM_Helpers/README.md#claude-code-session-transcript-helper).
 
+### Running Civ4 from the command line
+
+AdvCiv-SAS includes documentation and tools that let local AI/LLM agents, such as Claude Code or Codex, run Civ4 themselves, so they can test a change in game without the user at the keyboard. The instructions ship with the mod, so an agent can learn how from the files alone.
+
+None of it goes through desktop shortcuts or clicks through the main menu and game settings one by one: the runner starts Civ4 from a command line, such as PowerShell, and requests everything through its arguments:
+
+- `/FXSLOAD="<save>"` loads a save.
+- A per-run `ini=` settings file sets up a new game (map, size, leaders and so on) and asks for the autoplay.
+- `multiple` lets several clients run at once.
+
+The guides:
+
+- [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md): launching, autoplay, outcomes, screenshots, parallel runs, and what did not work.
+- [README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md): running several Civ4 clients on the same Windows computer, including a LAN match.
+- [AGENTS.md](/AGENTS.md): the rules agents follow in this repository, such as checking that the user is not playing before starting Civ4.
+
+- [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) loads a save, or starts a new game with a chosen map, size, era, difficulty and leaders, then runs AI Auto Play for the requested turns. It reports whether the run completed, stopped early, stalled or crashed, collects the run's logs, saves and a screenshot, and closes Civ4.
+- Several Civ4 instances can run at once, each started from a command line with Civ4's `multiple` argument and its own autoplay, for example two runs of the same save to compare a change: each client's Runtime, SASGameRecord, BBAI and assertion files carry its process ID. In tests, two such runs of the same save matched at every RNG and state checkpoint over 100 turns.
+- New games with fixed seeds repeat exactly, so a benchmark needs no save.
+- [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even while other windows such as a video cover it, and clicks in it. An agent can look at the game this way during a run or with `--keep-open` afterward.
+
+```bash
+python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave" --turns 100
+python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --fixed-seeds --turns 60
+```
+
 ### Agent tools for Civ4 file formats (e.g., .tga, .dds, .fpk, .nif, .kfm, .kf, .bik, .mp3, .wav)
 
 AI/LLM agents can see PNG and JPG images, but none of Civ4's own formats. These helpers turn them into pictures an agent can look at, so it can check art, models and movies itself; the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) explains each one, with commands, limits and how they were built.
@@ -1885,7 +1938,7 @@ This opens up the door to further future interactive change possibilities; for e
 
 Runtime observations are collected by [`SASRuntimeStatus.cpp`](/CvGameCoreDLL/SASRuntimeStatus.cpp), with named observation reasons in [`SASRuntimeStatusReasons.h`](/CvGameCoreDLL/SASRuntimeStatusReasons.h).
 
-Paths beginning with `Logs/` below are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix. `Logs/SASRuntimeStatus.json` holds current state and `Logs/SASRuntimeHistory_*.jsonl` retains timed transitions.
+Paths beginning with `Logs/` below are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix. `Logs/SASRuntimeStatus.json` holds the current state of whichever client wrote last, `Logs/SASRuntimeStatus_*.json` holds each process's own, and `Logs/SASRuntimeHistory_*.jsonl` retains timed transitions.
 
 When runtime diagnostics are enabled, [`SASRuntimeExitObserver.ps1`](/Assets/SASRuntimeExitObserver.ps1) waits outside Civ4 and records its final exit code/time, helping distinguish a stopped process from a stale `RUNNING` snapshot after a crash.
 
@@ -2070,8 +2123,13 @@ See:
 
 - As of November 2026, AdvCiv-SAS development, release publication, and support are discontinued on CivFanatics.
 - Due to fundamental differences on what should be tolerated, praised, or called out on, when it comes to proper and healthy, generally well-meaning interactions with the CFC community from its users, all the way to moderators themselves, I (wonderingabout) have chosen, despite some people i really enjoyed or may have in the future enjoyed to interact with, to detach the project after repeated hostility, dominant voiced support towards these, and not much support or ignorance when trying to call out these, and after i saw this kind of exchanges even happened publicly even in moderator to moderator/administration interactions, i have decided CFC is no longer a healthy place for me to be in, and it has been harmful to my wellbeing.
-- Current development and release information are maintained on GitHub and ModDB. Historical CivFanatics links may remain in old changelogs, source notes, credits, bug reports, or research citations solely to preserve provenance; they are not current project/support links or a recommendation to use the site.
+- Current development and release information are maintained on GitHub and ModDB. Historical CivFanatics links may remain in old changelogs, source notes, credits, bug reports, or research citations to preserve provenance; they are not current project/support links or a recommendation to use the site.
 - I have not decided if a place to reach out or ask questions regarding AdvCiv-SAS would be set up in the future, for now this GitHub page hosts main development, and ModDB for releases alternative download links.
+
+Notes:
+
+- While I (wonderingabout) disagree with how some things are/were conducted there, it remains a useful database to query, e.g. with agents or such or whatnot, and quote/reference as evidence/trace when convenient or such.
+- So we may still quote it when useful, while as of now abstaining from engagement with the community or discussions there, and without endorsing the site: what was done there as good as was partly or more of it, i still think it could have been done better in terms of how, at least it was no longer working for me it seems or something but anyway.
 
 ## Copyright and Disclaimer
 

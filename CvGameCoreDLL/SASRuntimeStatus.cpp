@@ -1310,6 +1310,31 @@ static void updateSASRuntimeActivity(SASRuntimeStatusReason eReason, CvString co
 	recordSASRuntimeHistoryRow(szRow);
 }
 
+// <!-- custom: Extracted unchanged from publishSASRuntimeStatus so the shared and per-process status copies use the same complete-write rules. (Claude Code Opus 5.5) -->
+static bool writeSASRuntimeStatusFile(std::wstring const& szPath, CvString const& szJson)
+{
+	HANDLE const hFile = CreateFileW(szPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+	size_t iWrittenTotal = 0;
+	bool bWriteSucceeded = true;
+	while (iWrittenTotal < szJson.size())
+	{
+		DWORD iWritten = 0;
+		DWORD const iChunk = (DWORD)std::min(szJson.size() - iWrittenTotal, (size_t)0xffffffff);
+		BOOL const bWritten = WriteFile(hFile, szJson.GetCString() + iWrittenTotal, iChunk, &iWritten, NULL);
+		iWrittenTotal += iWritten;
+		if (!bWritten || iWritten == 0)
+		{
+			bWriteSucceeded = false;
+			break;
+		}
+	}
+	// <!-- custom: A reported failed write can acknowledge the entire byte count; require successful write/close results before retiring the fallback copy. (GPT-6.1-Sol) -->
+	BOOL const bClosed = CloseHandle(hFile);
+	return (bWriteSucceeded && iWrittenTotal == szJson.size() && bClosed != FALSE);
+}
+
 // <!-- custom: Write one small current-state JSON file for external agents.
 // This snapshot stays overwrite-only; the companion JSONL retains timed activity transitions and one compact completed-turn player summary without rewriting an ever-growing current-state file.
 // Readers may momentarily catch the short CREATE_ALWAYS rewrite and should retry malformed JSON; avoiding rename/delete semantics keeps ordinary readers from blocking updates.
@@ -1335,6 +1360,11 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	std::wstring const szLogDirectory = g_szSASRuntimeStatusRootDirectory + L"\\Logs";
 	bool const bDirectoryReady = bRootReady && (CreateDirectoryW(szLogDirectory.c_str(), NULL) || GetLastError() == ERROR_ALREADY_EXISTS);
 	std::wstring const szPath = szLogDirectory + L"\\SASRuntimeStatus.json";
+	// <!-- custom: Two clients started with Civ4's multiple argument both rewrote the shared SASRuntimeStatus.json, so one client's screenshot observer reported STATUS_IDENTITY_MISMATCH against the other's status.
+	// Each process now also publishes its own SASRuntimeStatus_<processStartUtc>_<pid>.json, named like its history file, and its observers read that copy; the shared file keeps showing the latest writer for existing readers. See KI#1081. (Claude Code Opus 5.5) -->
+	CvString szProcessStatusName;
+	szProcessStatusName.Format("SASRuntimeStatus_%s.json", getSASRuntimeHistoryRunId().GetCString());
+	std::wstring const szProcessPath = szLogDirectory + L"\\" + std::wstring(szProcessStatusName.begin(), szProcessStatusName.end());
 
 	CvGame const& kGame = GC.getGame();
 	// <!-- custom: During load/reset, final-initialized state can belong to an earlier lifecycle boundary; SESSION_STARTING/NO_GAME must not publish ready-game fields. (GPT-6.1-Sol) -->
@@ -1377,8 +1407,8 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 	updateSASRuntimeActivity(eReason, szUpdatedUtc, uiNowMilliseconds, iGameTurn, iAutoPlayRemaining);
 	if (!bDirectoryReady)
 		return false;
-	ensureSASRuntimeExitObserver(szPath);
-	ensureSASRuntimeSourceObserver(szPath);
+	ensureSASRuntimeExitObserver(szProcessPath);
+	ensureSASRuntimeSourceObserver(szProcessPath);
 	g_uiSASRuntimeStatusSerial++;
 	// <!-- custom: Cache DLL identity only after the status gate; disabled runs do no provenance work, and enabled turn updates never rehash the binary or rescan build outputs. (GPT-6.1-Sol) -->
 	CvString const& szDllIdentity = getSASRuntimeDllIdentity(true);
@@ -1522,26 +1552,8 @@ static bool publishSASRuntimeStatus(SASRuntimeStatusReason eReason)
 		(iAutoPlayRemaining > 0 ? 1 : 0), iAutoPlayRemaining, iMapWidth, iMapHeight, iWorldSize, iGameSpeed, iScenario,
 		iLoadedCheckpointTurn, iLoadedCheckpointElapsedTurn, szLoadedCheckpointUtc);
 
-	HANDLE const hFile = CreateFileW(szPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-	size_t iWrittenTotal = 0;
-	bool bWriteSucceeded = true;
-	while (iWrittenTotal < szJson.size())
-	{
-		DWORD iWritten = 0;
-		DWORD const iChunk = (DWORD)std::min(szJson.size() - iWrittenTotal, (size_t)0xffffffff);
-		BOOL const bWritten = WriteFile(hFile, szJson.GetCString() + iWrittenTotal, iChunk, &iWritten, NULL);
-		iWrittenTotal += iWritten;
-		if (!bWritten || iWritten == 0)
-		{
-			bWriteSucceeded = false;
-			break;
-		}
-	}
-	// <!-- custom: A reported failed write can acknowledge the entire byte count; require successful write/close results before retiring the fallback copy. (GPT-6.1-Sol) -->
-	BOOL const bClosed = CloseHandle(hFile);
-	bool const bComplete = (bWriteSucceeded && iWrittenTotal == szJson.size() && bClosed != FALSE);
+	// <!-- custom: The per-process copy is written first; publication counts as complete only when both copies were written, and the non-short-circuit & still attempts the shared copy after a failed per-process write. (Claude Code Opus 5.5) -->
+	bool const bComplete = (writeSASRuntimeStatusFile(szProcessPath, szJson) & writeSASRuntimeStatusFile(szPath, szJson));
 	if (bComplete)
 	{
 		if (g_eSASRuntimePlayerTurnPlayer != NO_PLAYER)

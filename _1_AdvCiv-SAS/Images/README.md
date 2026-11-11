@@ -14,4 +14,10 @@ For example, existing SAS families such as main-menu `1.3xx`, UI `1.4xx`, adviso
 
 Image basenames are kept unique across `_0_Legacy/Images/` and `_1_AdvCiv-SAS/Images/`. This makes screenshots easier to identify in documentation, logs, agent handoffs and filename searches without depending on the containing folder to disambiguate them.
 
+Image folders are one per topic. When one grows large, move a coherent topic into a subfolder of it.
+
+On 2026-11-10 `LLM/` held 119 files, so the screenshots of agents' desktop apps (Codex, the Claude app, pricing pages) moved into the subfolder [`LLM/desktop_windows/`](/_1_AdvCiv-SAS/Images/LLM/desktop_windows/), named after the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md) that shows them.
+
+The art-tool samples stayed directly in `LLM/`, where `regenerate_art_samples.py` writes them and a CI check follows them.
+
 The two-client LAN walkthrough screenshots (`1.297_m_*`) have their own folder, [`multiple_instances/`](/_1_AdvCiv-SAS/Images/multiple_instances/), named after [README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md) that shows them, rather than `diagnostics/`: they show the game's own menus, lobby and chat, not output from a diagnostic recorder.

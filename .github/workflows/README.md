@@ -77,6 +77,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/aip.py`](#buildruntimeaippy)
     - [`build/runtime/aip_predump_values.py`](#buildruntimeaip_predump_valuespy)
     - [`build/runtime/detail_manager.py`](#buildruntimedetail_managerpy)
+    - [`build/runtime/hands_free_defaults.py`](#buildruntimehands_free_defaultspy)
     - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
   - [Source](#source)
@@ -899,6 +900,10 @@ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 #### `build/runtime/detail_manager.py`
 
 Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys match the committed shared UI font/default billboard-scale defines and the base values used by `Assets/Python/SASBillboardScale.py`, catching stale rewritten billboard scales after temporary UI upscaling.
+
+#### `build/runtime/hands_free_defaults.py`
+
+Requires the shipped values of switches that local development turns off for hands-free runs, so players still get them: as of now `SAS_UI_DAWN_OF_MAN_ON=1`, the Dawn of Man screen. [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally. Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
 
 #### `build/runtime/mapscripts.py`
 

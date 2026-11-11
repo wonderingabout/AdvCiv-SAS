@@ -113,10 +113,21 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 198 - SAS practical 6745
+### Revision 199 - SAS practical 6746
 
 - **Date:** 2026-11-11
 - **Git commit:** pending
+- **Change:** Identify the Civ4 client that wrote each SGR file, and record the unattended autoplay request in the INI settings snapshot.
+  - Timestamped SGR and BBAI file names add the process ID after the timestamp, e.g. `SASGameRecord_20261110T165714Z_26088_load1.log`. Two clients launched together on the same Windows computer started in the same millisecond and opened their SGR logs in the same second, so under the old names they would have shared one file.
+    - In network games the ID replaces the active player's seat number; fixed-name logs keep the seat number.
+  - The session identity rows (`GAME_RECORD_NEW_GAME_INITIALIZING`, `GAME_RECORD_SAVE_LOADED` and the other session-start rows) add `processId` and `processStartUtc` after `processUtc`; BBAI's matching rows add the same fields. `processUtc` is the DLL-load time, so two clients started together could not be told apart by it.
+  - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4 with a per-run `ini=` file whose `[SASAutoplay]` section holds `Turns`, `DebugMode` and `RunId`. `GAME_RECORD_SESSION_SETTINGS` already listed these keys, but as `<UNCLASSIFIED>` without values; they are now direct keys, for example `SASAutoplay.Turns=40;SASAutoplay.DebugMode=1;SASAutoplay.RunId=20261110T161958Z_21136`.
+  - On 2026-11-10, two clients launched together on the same Windows computer wrote two SGR files that neither file header could tell apart, since SGR headers carry no process ID. The runner now picks the file whose header names its process ID, or whose snapshot names its `RunId` when the DLL predates these fields.
+
+### Revision 198 - SAS practical 6745
+
+- **Date:** 2026-11-11
+- **Git commit:** `700d714f6905bba2134a47968550162f63beaee0`
 - **Change:** Add privacy-bounded typed-player-chat observations at the active player's native message archive rather than the text-only Python chat event.
   - `GAME_RECORD_PLAYER_CHAT` records archive/sender IDs and teams, the raw/decoded `ChatTargetTypes`, message turn/shown state and the exact archive-insertion boundary at level 2+ action trace.
   - Before any row is written, the recorder requires a valid player sender plus an explicit ALL target, same-team membership for TEAM, or sender/direct-recipient membership for a nonnegative player target; `NO_CHATTARGET` and unknown values are skipped rather than guessed.

@@ -13,6 +13,15 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 gc = CyGlobalContext()
 
+# <!-- custom: Read SAS_UI_DAWN_OF_MAN_ON once, lazily, after GlobalDefines are loaded. (Claude Code Opus 5.5) -->
+_SAS_UI_DAWN_OF_MAN_ON = None
+
+def _isDawnOfManShown():
+	global _SAS_UI_DAWN_OF_MAN_ON
+	if _SAS_UI_DAWN_OF_MAN_ON is None:
+		_SAS_UI_DAWN_OF_MAN_ON = (gc.getDefineINT("SAS_UI_DAWN_OF_MAN_ON") > 0)
+	return _SAS_UI_DAWN_OF_MAN_ON
+
 class CvDawnOfMan:
 	"Dawn of man screen"
 	def __init__(self, iScreenID):
@@ -79,6 +88,12 @@ class CvDawnOfMan:
 	def interfaceScreen(self):
 		'Use a popup to display the opening text'
 		if ( CyGame().isPitbossHost() ):
+			return
+		# <!-- custom: Every Dawn of Man trigger ends here: CvEventManager and the All Eras mod at game start, the DLL after map regeneration or in Rise and Fall, and a popup queued in a save made at game start, which is how it appeared when loading a T0 save.
+		# Skipping here covers them all.
+		# onClose would have re-enabled unit selection sounds, so do that instead. (Claude Code Opus 5.5) -->
+		if not _isDawnOfManShown():
+			CyInterface().setSoundSelectionReady(true)
 			return
 
 		self.calculateSizesAndPositions()

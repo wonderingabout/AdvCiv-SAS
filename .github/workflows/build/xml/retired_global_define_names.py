@@ -72,8 +72,8 @@ HISTORICAL_FILES = {
     "_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md",
 }
 HISTORICAL_DIRECTORIES = ("_1_AdvCiv-SAS/Docs/git_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/")
-# <!-- custom: AGENTS includes one deliberate old-to-current search example; its other retired spellings must still fail. (GPT-6.1-Sol) -->
-SEARCH_EXAMPLES = {"AGENTS.md": {"SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT"}}
+# <!-- custom: AGENTS includes deliberate old-to-current examples, the lookup one and the rename rule's; its other retired spellings must still fail. (GPT-6.1-Sol + Claude Code Opus 5.5) -->
+SEARCH_EXAMPLES = {"AGENTS.md": {"SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT", "SAS_UWAI_HIGH_UTILITY_LOG_THRESH"}}
 
 
 def historical_document(relative: str) -> bool:

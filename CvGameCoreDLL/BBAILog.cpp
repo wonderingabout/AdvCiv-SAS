@@ -117,7 +117,8 @@ static int getSASBBAIFoodSupportAuditConfigured()
 // Share this reader with the diagnostic profile while preserving the evaluator's first-use cache and threshold semantics. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 static int getSASBBAIHighWarUtilityThresholdConfigured()
 {
-	return GC.getDefineINT("SAS_UWAI_HIGH_UTILITY_LOG_THRESH");
+	// <!-- custom: Formerly UWAI-prefixed (see Docs/Deprecated/global_define_names.md): UWAI's reports were merged into BBAI logging as the SAS_BBAI_UWAI_* levels, so this filter of their war-utility rows takes the same prefix. (Claude Code Opus 5.5) -->
+	return GC.getDefineINT("SAS_BBAI_UWAI_HIGH_UTILITY_LOG_THRESH");
 }
 
 int getSASBBAIHighWarUtilityLogThreshold()
@@ -402,8 +403,9 @@ static void logSASBBAIGameState(const char* szRowType)
 	if (szGameOptions.empty())
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
-	logBBAI("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-		szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(),
+	// <!-- custom: processId and processStartUtc identify the Civ4 client that wrote this file; processUtc is the DLL-load time and is not unique when two clients start together, as they did when LLM_Helpers/game_runs/run_autoplay.py ran two autoplays at once. (Claude Code Opus 5.5) -->
+	logBBAI("%s processUtc=%s processId=%u processStartUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+		szRowType, getSASProcessUtcTimestamp().GetCString(), (uint)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASBBAILogTimestamp().GetCString(),
 		getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(),
 		kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(),
 		kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
@@ -506,8 +508,9 @@ static void logSASBBAIInitialState()
 void startSASBBAILogForNewGame()
 {
 	rollSASBBAILog("new");
-	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s",
-		getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(),
+	// <!-- custom: processId and processStartUtc identify the Civ4 client that wrote this file; processUtc is the DLL-load time and is not unique when two clients start together, as they did when LLM_Helpers/game_runs/run_autoplay.py ran two autoplays at once. (Claude Code Opus 5.5) -->
+	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s processId=%u processStartUtc=%s utc=%s logFile=%s",
+		getSASProcessUtcTimestamp().GetCString(), (uint)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASBBAILogTimestamp().GetCString(),
 		getSASDiagnosticQuoted(getSASBBAILogName().GetCString()).GetCString());
 	logSASBBAIProvenanceContext();
 	logSASBBAILogSettings();

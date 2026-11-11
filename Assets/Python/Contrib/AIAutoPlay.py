@@ -16,6 +16,7 @@ import PyHelpers
 import Popup as PyPopup
 from SASUtils import findInfoTypeNumOrFail
 import SASFastSave
+import SASAutoplayRequest # <!-- custom: Starts autoplay requested by an [SASAutoplay] section in an ini= launch file, for unattended runs. (Claude Code Opus 5.5) -->
 
 import ChangePlayer
 import time # Erik (BM1)
@@ -73,6 +74,10 @@ class AIAutoPlay :
 		self.customEM.addEventHandler( 'EndPlayerTurn', self.onEndPlayerTurn )
 		self.customEM.addEventHandler( 'victory', self.onVictory )
 		self.customEM.addEventHandler( 'AutoPlayComplete', self.onAutoPlayComplete ) # Erik (BM1)
+		# <!-- custom: External autoplay requests: arm on load or new-game start, start on the next game update. (Claude Code Opus 5.5) -->
+		self.customEM.addEventHandler( 'OnLoad', SASAutoplayRequest.onLoadGame )
+		self.customEM.addEventHandler( 'GameStart', SASAutoplayRequest.onGameStart )
+		self.customEM.addEventHandler( 'gameUpdate', SASAutoplayRequest.onGameUpdate )
 
 		self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.AIChooserHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.pickHumanHandler,self.blankHandler] )

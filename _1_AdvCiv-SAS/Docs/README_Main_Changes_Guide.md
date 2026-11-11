@@ -32,6 +32,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;[XML Asset Naming and Taxonomy](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#xml-asset-naming-and-taxonomy)\
 &emsp;[Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion)\
 &emsp;[Tooling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#tooling)\
+&emsp;&emsp;[Game runs for agents](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-runs-for-agents)\
 &emsp;&emsp;[Build](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#build)\
 &emsp;&emsp;[Helpers](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#helpers)\
 &emsp;&emsp;[Local tests](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#local-tests)\
@@ -209,6 +210,14 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 
 ### Tooling
 
+#### Game runs for agents
+
+- (Requires AdvCiv-SAS 6746+) **Local AI/LLM agents, such as Claude Code or Codex, can run Civ4 themselves from the command line**, and the mod ships the instructions that tell them how, so they can test a change in game without the user at the keyboard. See [Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line) in the root README.
+  - [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) covers launching a save or a new game, the autoplay request, how a run ends, screenshots and clicks, parallel runs, and what did not work.
+  - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4, autoplays the requested turns, reports the outcome with the run's logs, saves and a screenshot, and closes Civ4. New games can take a map, size, speed, era, difficulty, fixed seeds and leaders.
+  - Several Civ4 instances can run at once with the `multiple` argument, each with its own autoplay and its own process-named logs; see [README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md).
+  - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even under other windows, and clicks in it.
+
 #### Build
 
 - (Requires AdvCiv-SAS 6633+) **Persistent DLL build reports:** normal Visual Studio build commands retain each attempt's compiler output and detailed context with source identity, result, duration, warnings/errors and temporary-artifact state.
@@ -358,6 +367,16 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - (Requires AdvCiv-SAS 6374+) AI Auto Play can additionally prefill its turns popup from the selected game speed's configured total turns + 1 (Normal `501`, Marathon `1001`, etc.); disabling that scaling uses the literal `SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS` fallback.
   - The seed getters are read-only and do not advance RNG state.
   - See [SASFastSave.py](/Assets/Python/SASFastSave.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+- (Requires AdvCiv-SAS 6746+) **Skip the Dawn of Man screen:** with `SAS_UI_DAWN_OF_MAN_ON=0`, a new or loaded game opens straight on the map instead of waiting on the Dawn of Man screen's Continue button.
+  - This saves a click each time a game starts or loads, for example before starting AI Auto Play by hand, and a game left open after an unattended run does not wait on it either.
+  - As of now it is not needed for agent-started autoplay: on 2026-11-11, with the screen on, a loaded save and a new game each completed 5 turns of AI Auto Play, side by side with `multiple`, and both final screenshots showed the map. It may still reduce tedium indirectly, one way or another.
+  - It ships as `1`, so players still see the screen by default; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets `0` locally for development, and CI checks the shipped value.
+  - See [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+- (Requires AdvCiv-SAS 6746+) **AI Auto Play can start without the keyboard:** a launch settings file passed as `ini=` can hold an `[SASAutoplay]` section with `Turns`, and optionally `DebugMode` and `RunId`; the game starts that many turns of autoplay right after loading a save, or after starting a new game when the file also sets `QuickStart = 1`.
+  - Ordinary launches never read it, since they pass no `ini=` file.
+  - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) uses it to launch Civ4 into a save, autoplay, report the result and exit, so an agent can test a change without the user at the PC. See [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py).
+  - A new game can also take requested leaders, by civilization slot, through a `Leaders` key; they are set before the game starts, and a mismatch is reported.
+  - Each client's SASGameRecord, BBAI, assertion and Runtime files carry its process ID, and SGR and BBAI session headers name `processId` and `processStartUtc`, so logs from two clients running at once can be told apart. See the [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md).
 - **Autoplay runs now continue without being interrupted/paused when the active player dies or other notices:**
   - an active player's defeat could transfer human control during an ongoing autoplay and make the EXE pause behind an OK-only "it's your turn" prompt; ordinary informational text notices could also require an unnecessary click and unconveniently pause the run that can no longer complete unattended without user supervision or intervention.
   - To fix this, an XML-tunable option now omits only these no-decision prompts during autoplay, without accepting or suppressing diplomacy, events, civics, war, launch, production, technology, or other gameplay choices. This supports "hands-free" runs by removing notices that otherwise wait for a click.
@@ -768,7 +787,7 @@ See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_L
   - Notably, Settler escort scans skip diagnostic unit classification/defender-need/list formatting unless requested, player-turn logging is not entered while PLAYER logging is disabled, AI production avoids several logging-only snapshots/name/value preparations, Worker Phase-0 logging retains only a cheap pre-mutation feature ID until the enabled log point, and Great Person weighting no longer constructs eight level-3 diagnostic maps when CULTURE logging is off.
   - Enabled log semantics are unchanged; this pass removes diagnostic bookkeeping rather than AI/gameplay evaluation.
 - **Timestamped BBAI log files:**
-  - Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
+  - Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20261110T165714Z_26088_new1.log` or `BBAI_20261110T165714Z_26088_load2.log`, named by UTC time and, since SGR199, the process ID) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4.
   - Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests.
   - See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
 - (Requires AdvCiv-SAS 6603+) **BBAI helps compare founded city sites with alternatives:**

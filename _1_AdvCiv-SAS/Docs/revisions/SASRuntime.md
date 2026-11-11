@@ -16,6 +16,16 @@ Add a latest-first entry explaining the behavior and rationale. The diagnostics 
 
 ## History
 
+### Revision 18 - SAS practical 6746
+
+- **Date:** 2026-11-11
+- **Git commit:** pending
+- **Change:** Give each Civ4 process its own status file, so two clients running at once on the same Windows computer no longer overwrite each other's current state.
+  - Each process also writes `SASRuntimeStatus_<processStartUtc>_<processId>.json`, named like its `SASRuntimeHistory_*.jsonl`, with the same content as the shared `SASRuntimeStatus.json`. The shared file keeps showing the latest writer, so existing readers work unchanged.
+  - The exit, dialog, screenshot and source observers now receive the per-process path. Two clients launched with `multiple` shared one status file, so the first client's screenshot rows reported `STATUS_IDENTITY_MISMATCH` against the second client's status (see `changes_new.md`).
+  - The exit observer records its exit observation in the per-process file, then in the shared file only while that file still names its process. An older DLL passes the shared path, which it handles as before.
+  - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) reads the per-process history, so two unattended autoplays at once each read their own completion.
+
 ### Revision 17 - SAS practical 6744
 
 - **Date:** 2026-11-10

@@ -36,6 +36,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [Historical comparison](#historical-comparison)
 - [SAS AI and game-record diagnostics](#sas-ai-and-game-record-diagnostics)
   - [Session headers and provenance](#session-headers-and-provenance)
+    - [File names per process](#file-names-per-process)
   - [SASGameRecord (SGR)](#sasgamerecord-sgr)
     - [SASGameRecord session header example](#sasgamerecord-session-header-example)
     - [SASGameRecord gameplay example](#sasgamerecord-gameplay-example)
@@ -110,7 +111,7 @@ The file inventory and source references distinguish current writers from histor
 - Screen **LOG** buttons: [manual exports](#screen-log-button-exports) from Battles, Changes, Timeline and Sevopedia comparison charts into `PythonDbg.log`.
 - `BBAI_*.log`: [AI decision diagnostics](#bbai), including Settler behavior and formerly independent UWAI reports now merged into BBAI; explicitly covered producers include `MilitaryAnalyst`, `InvasionGraph`, `ArmamentForecast`, `WarEvaluator` and `WarUtilityAspect`.
 - SAS-created `SASGameRecord_*.log`: [gameplay/run context](#sasgamerecord-sgr), with a captured gameplay excerpt and a separate full example.
-- SAS-created `SASAssertions_<UTC>_startup.log` / `_newN.log` / `_loadN.log`: assertion-enabled DLL failure/resolution evidence, with lazy per-session metadata, a startup-safe sink independent from XML/INI logging gates and optional silent handling once GlobalDefines exist.
+- SAS-created `SASAssertions_<UTC>_<pid>_startup.log` / `_newN.log` / `_loadN.log`: assertion-enabled DLL failure/resolution evidence, with lazy per-session metadata, a startup-safe sink independent from XML/INI logging gates and optional silent handling once GlobalDefines exist.
 - `RandLog` / `MessageLog` INI controls and RNG/message traces such as `MPLog.txt`, `MPLog<player>.log` and `ASyncRand.log`; `OOSLog - <player> - Turn <turn>.log` captures state after multiplayer desynchronization.
 - `StartingPos.log` for starting-position diagnostics and `IFP_log.txt` / `TSCProfile.log` for profiling; BUG Autolog supplies a configurable text/HTML gameplay journal.
 - `SASRuntimeStatus.json` / `SASRuntimeHistory_*.jsonl`: [latest runtime observation and transition history](#runtime-status-and-history), linked to representative examples.
@@ -276,7 +277,7 @@ Mode `0` uses the normal dialog, mode `2` chooses Ignore Always, and mode `3` st
 
 ### Session files and metadata
 
-The filename identifies the assertion logger's observed lifecycle: `SASAssertions_<UTC>_startup.log` covers failures before opening-menu/game identity exists; actual opening-menu scene requests establish `_menu1`, `_menu2`, etc.; new games and loaded saves share a separate sequence such as `_new1`, `_load2`, `_new3`. WorldBuilder and advisors remain inside their current game session.
+The filename names the writing process's ID after the millisecond timestamp, since SGR199, and its observed lifecycle: `SASAssertions_<UTC>_<pid>_startup.log` covers failures before opening-menu/game identity exists; actual opening-menu scene requests establish `_menu1`, `_menu2`, etc.; new games and loaded saves share a separate sequence such as `_new1`, `_load2`, `_new3`. WorldBuilder and advisors remain inside their current game session.
 
 Session numbering advances at every observed boundary even when no file is created. For example, a quiet `_new1` session can be followed by `_load2` without any `_new1` assertion file. Menu visits use their own counter and therefore never consume new/load numbers.
 
@@ -396,7 +397,34 @@ With no scoped tracked diff the byte count is `0`; unavailable Git-derived prove
 
 Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process.
 
+Since SGR199, timestamped SGR and BBAI file names carry the process ID after the timestamp, as in `SASGameRecord_20261110T165714Z_26088_load1.log`, replacing the player-seat number that network games used to add; fixed-name logs keep that seat number.
+
+Those identity rows also carry `processId` and `processStartUtc`, the Windows process ID and the time Civ4 itself started; `processUtc` is the later DLL-load time.
+
+When two clients start within the same second their `processUtc` can be identical, while the pair still tells them apart and matches the names of that client's `SASRuntimeHistory_<processStartUtc>_<processId>.jsonl` and `SASRuntimeExit_*` files. Captured on 2026-11-10 from one of two clients running at once:
+
+```text
+GAME_RECORD_SAVE_LOADED seq=1 processUtc=20261110T163120Z processId=3104 processStartUtc=20261110T163119.405Z utc=20261110T163126Z logFile="SASGameRecord_20261110T163126Z_load1.log"
+```
+
 `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
+
+#### File names per process
+
+Since SGR199 and Runtime18, every SAS log a Civ4 client creates names that client's process ID, so two clients started together, as [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once) runs them, never write into the same file. Real names from two clients that started in the same millisecond on 2026-11-10:
+
+| File | Template | Example |
+| --- | --- | --- |
+| SASGameRecord | `SASGameRecord_<UTC>_<pid>_<session>.log` | `SASGameRecord_20261110T165714Z_26088_load1.log` |
+| BBAI | `BBAI_<UTC>_<pid>_<session>.log` | same shape as SASGameRecord |
+| Assertions | `SASAssertions_<UTC with milliseconds>_<pid>_<session>.log` | `SASAssertions_20261110T165939455Z_23300_new1.log` |
+| Runtime status | `SASRuntimeStatus_<processStartUtc>_<pid>.json`, plus the shared `SASRuntimeStatus.json` | `SASRuntimeStatus_20261110T165707.658Z_26088.json` |
+| Runtime history, exit, screenshot and source records | `SASRuntimeHistory_<processStartUtc>_<pid>.jsonl` and the like | `SASRuntimeHistory_20261110T165707.658Z_29208.jsonl` |
+
+- `<UTC>` is when the log opened, to the second; `<session>` counts new games and loads (`new1`, `load2`).
+- The second client's SGR file in that test was `SASGameRecord_20261110T165714Z_29208_load1.log`: same second, different process.
+- Fixed-name logs (timestamped names off) keep the old seat number in network games instead.
+- Civ4's own `PythonErr.log` and `PythonDbg.log` stay shared ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)).
 
 ### SASGameRecord (SGR)
 
@@ -758,7 +786,7 @@ The shared `revision` label comes from `SAS_RUNTIME_REVISION` in SAS XML and is 
 
 These paths are relative to Civ4's user folder (normally `Documents/My Games/beyond the sword`); `*` represents the process-specific timestamp/ID suffix:
 
-- `Logs/SASRuntimeStatus.json`: latest observed state; `Logs/SASRuntimeHistory_*.jsonl`: timed game/session activity; `Logs/SASRuntimeExit_*.json`: externally observed process-exit evidence.
+- `Logs/SASRuntimeStatus.json`: latest observed state of whichever client wrote last; `Logs/SASRuntimeStatus_*.json`: the same state for one process, named by its start time and ID, since Runtime18; `Logs/SASRuntimeHistory_*.jsonl`: timed game/session activity; `Logs/SASRuntimeExit_*.json`: externally observed process-exit evidence.
 - `Logs/SASRuntimeSourceWatch_*.json`: optional source-watcher health; `Logs/SASRuntimeSourceChanges_*.jsonl`: observed live file changes. See [source-file observation](#live-source-edit-observation).
 - `Logs/SASRuntimeScreenshotWatch_*.json`: optional screenshot-watcher health; `Logs/SASRuntimeScreenshots_*.jsonl`: observed screenshot files. See [screenshot observation](#screenshot-file-observation).
 
@@ -785,6 +813,8 @@ This illustrates why exit observation lives outside Civ4: its normal runtime hoo
 The complete records below belong to that same run. JSON whitespace is normalized for readability; field values are unchanged.
 
 #### `SASRuntimeStatus.json` (current status)
+
+Since Runtime18 each process also writes the same snapshot to `SASRuntimeStatus_<processStartUtc>_<pid>.json`, and its observers read that copy, so two clients started with `multiple` no longer overwrite each other's state. The shared file keeps showing the latest writer.
 
 Current status also identifies the executing player and turn phase, separately from the UI active player. Slow AI turns can refresh that context; completed-turn timing is retained in the companion history. See the [Runtime reference](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md) for controls and limits. The complete exit capture below predates the timing fields.
 

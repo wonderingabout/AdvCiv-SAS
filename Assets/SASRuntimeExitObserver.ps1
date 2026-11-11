@@ -393,6 +393,26 @@ try {
     $stream.Write($bytes, 0, $bytes.Length)
     $stream.SetLength($bytes.Length)
     $stream.Flush($true)
+    # <!-- custom: Runtime18 DLLs pass their per-process SASRuntimeStatus_<start>_<pid>.json; also mark the shared SASRuntimeStatus.json, but only while it still describes this process, since another client may have published there since. See KI#1081. (Claude Code Opus 5.5) -->
+    $sharedPath = Join-Path ([System.IO.Path]::GetDirectoryName($StatusPath)) 'SASRuntimeStatus.json'
+    if ([System.IO.Path]::GetFileName($StatusPath) -ne 'SASRuntimeStatus.json' -and [System.IO.File]::Exists($sharedPath)) {
+        $shared = $null
+        try {
+            $shared = [System.IO.File]::Open($sharedPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::Read)
+            $sharedReader = New-Object System.IO.StreamReader($shared, $utf8, $true, 4096, $true)
+            try { $sharedStatus = $sharedReader.ReadToEnd() | ConvertFrom-Json } finally { $sharedReader.Dispose() }
+            if ($sharedStatus.processId -eq $TargetProcessId -and $sharedStatus.processStartUtc -eq $ProcessStartUtc -and -not $sharedStatus.PSObject.Properties['exitObservation']) {
+                $shared.Position = 0
+                $shared.Write($bytes, 0, $bytes.Length)
+                $shared.SetLength($bytes.Length)
+                $shared.Flush($true)
+            }
+        } catch {
+            # <!-- custom: The per-process copy already holds the exit observation; a busy or unreadable shared copy only misses this convenience. (Claude Code Opus 5.5) -->
+        } finally {
+            if ($null -ne $shared) { $shared.Dispose() }
+        }
+    }
 } catch {
     [Console]::Error.WriteLine($_.Exception.ToString())
     exit 4

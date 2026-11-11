@@ -2088,6 +2088,14 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_BBAI_UWAI_WAR_UTILITY_LOG</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Formerly UWAI-prefixed and placed among the UWAI gameplay tunables; UWAI's reports were since merged into BBAI logging as the SAS_BBAI_UWAI_* levels, and it changes no AI decision, only which war-utility rows BBAI writes, so it now carries their prefix and sits beside SAS_BBAI_UWAI_WAR_UTILITY_LOG. (Claude Code Opus 5.5) -->
+	<!-- custom: With SAS_BBAI_WAR_LOG >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value.
+	Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown.
+	Unlike fixed filters for one targeted diagnostic, this remains tunable because there is no universal "high" utility cutoff, the threshold can greatly change log volume, and 0 independently disables the generic breakdown. (GPT-5.5 + GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_UWAI_HIGH_UTILITY_LOG_THRESH</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITY_LOG</DefineName>
@@ -2513,7 +2521,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>198</iDefineIntVal>
+		<iDefineIntVal>199</iDefineIntVal>
 	</Define>
 
 
@@ -2599,7 +2607,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Cached only when Runtime is first enabled, then retained through shutdown; observer-only updates do not require a DLL rebuild merely to change this label. (GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_RUNTIME_REVISION</DefineName>
-		<iDefineIntVal>17</iDefineIntVal>
+		<iDefineIntVal>18</iDefineIntVal>
 	</Define>
 
 
@@ -2634,14 +2642,18 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS</DefineName>
 		<iDefineIntVal>501</iDefineIntVal>
 	</Define>
-
-
-
 	<!-- custom: During AI Auto Play, omit no-decision informational dialogs: BUTTONPOPUP_TEXT notices and active-player handoff/password prompts.
 	This deliberately does not accept or suppress gameplay choices such as diplomacy, events, civics, war, launch, production, or technology.
 	1 enables; 0 preserves every informational popup. See KI#203. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 shows the Dawn of Man screen at a game's start, as in base AdvCiv; 0 skips it, for hands-free runs and agents that start many games.
+	Autoplay already passes it, but a game started or loaded for a quick look still waited on its Continue button.
+	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude Code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_DAWN_OF_MAN_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
@@ -4391,13 +4403,6 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_UWAI_LOCAL_TARGET_MIN_DIST_ADV</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
-	</Define>
-	<!-- custom: With SAS_BBAI_WAR_LOG >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value.
-	Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown.
-	Unlike fixed filters for one targeted diagnostic, this remains tunable because there is no universal "high" utility cutoff, the threshold can greatly change log volume, and 0 independently disables the generic breakdown. (GPT-5.5 + GPT-5.6-Sol) -->
-	<Define>
-		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESH</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: When evaluating the agent team's own naval invasion, let demonstrated surviving assault lift partially offset UWAI's inherited AI-only multi-area deployment penalty.
 	The inherited human model already adds 25 percentage points because humans can gather armies across landmasses better; this optimization grants the AI up to that same bonus, scaled by the simulated landing ratio, only after its fleet wins the landing battle.

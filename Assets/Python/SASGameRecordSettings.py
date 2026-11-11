@@ -107,6 +107,10 @@ _SAS_CIV4_INI_DIRECT_KEYS = (
 	"Bandwidth",
 	"selectip",
 	"screenshot format",
+	# <!-- custom: The [SASAutoplay] request that LLM_Helpers/game_runs/run_autoplay.py writes into its per-run ini= file. RunId lets the runner tell which SGR file is its own when two clients on the same Windows computer write logs at once. (Claude Code Opus 5.5) -->
+	"Turns",
+	"DebugMode",
+	"RunId",
 )
 
 # <!-- custom: These free-text/identity/path-like values can disclose personal/local context.

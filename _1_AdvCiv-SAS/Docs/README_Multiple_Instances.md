@@ -166,6 +166,10 @@ At that point `SASRuntimeStatus.json` still showed Second’s clean exit, so Fir
 
 ## Parallel autoplay
 
-In the LAN test above, two Civ4 clients ran on the same PC and each wrote its own SASGameRecord file. We did not test parallel single-player autoplay. Running a separate autoplay in each client seems possible given that both clients can run at once, but we have no results from that setup.
+Two Civ4 clients can also each run their own single-player autoplay at once. [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) does this with `--multiple`, launching each client with `multiple` and its own settings file; see [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once). Tested on 2026-11-10 from the same Huge T0 save:
 
-The separate LAN log filenames do not establish how independent runs would handle shared saves, logs, or settings.
+- Both clients completed 40 turns, and in later runs 100 turns, then exited with code 0.
+- Each Runtime history file is named by its process start time and ID, so each runner read its own completion. Since Runtime18 each process also has its own `SASRuntimeStatus_<processStartUtc>_<pid>.json`, and `SASRuntimeStatus.json` shows the latest writer.
+- Since SGR199 timestamped SGR, BBAI and assertion file names carry the client's process ID, replacing the seat number in network games, and each SGR and BBAI session header names its `processId` and `processStartUtc`, and each run also writes a `RunId` into its settings file; either identifies the run's own SGR file.
+- Two clients without Debug Mode, and two clients with it, produced identical RNG and state checkpoints over 100 turns. A client with Debug Mode diverged from one without it at T84.
+- Both clients write autosaves to the same `Saves/single/auto` folder, where same-turn names can overwrite each other. The autoplay stop saves did not collide: the second was saved with a `_2` suffix.

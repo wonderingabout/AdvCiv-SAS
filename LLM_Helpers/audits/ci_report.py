@@ -31,8 +31,8 @@ DEFAULT_OUT = REPO / "LLM_Helpers" / "outputs" / "ci_report.txt"
 # <!-- custom: Not run locally: the predump workflow refreshes a file and opens a PR rather than checking, and the Python 2.4 workflow needs Docker, for which NATIVE_STEPS runs the same check. (Claude code Opus 5.5) -->
 NOT_RUN = ("runtime-aip-predump-refresh.yml", "python24-compile.yml")
 PYTHON24 = Path(r"C:\Python24\python.exe")
-# <!-- custom: The three checks of shipped diagnostic defaults read staged content here, as development logging values usually stay enabled and unstaged. (Claude code Opus 5.5) -->
-STAGED_CHECKS = re.compile(r"(build/diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)\.py)")
+# <!-- custom: The checks of shipped diagnostic and hands-free defaults read staged content here, as development values usually stay enabled and unstaged. (Claude code Opus 5.5) -->
+STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults)\.py)")
 LOG_LINES = 200
 
 

@@ -75,7 +75,9 @@ Else or additionally, you may find more help in the relevant project's own docum
 ## Guides in this folder
 
 - [Art tools guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md): viewing .dds, .tga, .nif and .FPK art, and editing the game font; for the user and AI/LLM helpers
+- [Desktop windows guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md): how agents read and work with windows on Windows 10, including the Codex and Claude apps and their usage limits
 - [DLL compilation guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md): command-line workflow primarily for AI/LLM helpers
+- [Game runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md): launching Civ4 into a save or new game, unattended autoplay, screenshots and parallel runs; for AI/LLM helpers
 - [Logging flushing comparison](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md): revision 154 writer measurements
 - [Logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md): every log file, its controls and samples
 - [Release preparation/checklist](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Release_Process.md): for user + AI/LLM helpers
@@ -532,6 +534,7 @@ Installed, as checked on 2026-11-08:
 | GitHub CLI (`gh`) | Reading CI results and logs of pushed commits directly; installed on 2026-11-08, and needs the user's one-time `gh auth login` |
 | VC2003 Toolkit, VS2010 Express | Building the DLL, and `cl.exe /Zs` syntax checks of single files; see the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) |
 | WinDbg's `cdbX86.exe` | Reading crash dumps |
+| Civ4 itself, driven from the command line | Launching a save, autoplaying and exiting with [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy), and screenshots or clicks in the game window with [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy); both added on 2026-11-10 and need no install beyond Pillow |
 | PakBuild, Dragon UnPACKer, NifSkope | Windowed tools for `.FPK` archives and `.nif` models, which the user runs; agents read the same files with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) and `nif_preview.py` |
 
 Worth suggesting, not installed:

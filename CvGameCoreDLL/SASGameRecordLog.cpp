@@ -2409,8 +2409,9 @@ static void logSASGameRecordGameState(const char* szRowType)
 	// <!-- custom: This session boundary is a useful timing anchor: on a new game it measures initialization, and on load it measures recorder setup before the finalized save context is available.
 	// An assertion-enabled Debug-opt run caught countCivPlayersEverAlive here after initialization (`Should use getCivPlayersEverAlive instead`); read AdvCiv's maintained getter instead.
 	// This fixed the SGR assertion. (GPT-5.6-Sol + GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
-	logSASGameRecord("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d sessionWallMilliseconds=%u",
-		szRowType, getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(),
+	// <!-- custom: processId and processStartUtc identify the Civ4 client that wrote this file; processUtc is the DLL-load time and is not unique when two clients start together, as they did when LLM_Helpers/game_runs/run_autoplay.py ran two autoplays at once. (Claude Code Opus 5.5) -->
+	logSASGameRecord("%s processUtc=%s processId=%u processStartUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d sessionWallMilliseconds=%u",
+		szRowType, getSASProcessUtcTimestamp().GetCString(), (uint)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASGameRecordLogTimestamp().GetCString(),
 		getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(),
 		kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(),
 		kGame.countCivPlayersAlive(), kGame.getCivPlayersEverAlive(), kGame.getNumHumanPlayers(),
@@ -3408,8 +3409,9 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	resetSASGameRecordState();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s sessionWallMilliseconds=0",
-		getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(),
+	// <!-- custom: processId and processStartUtc identify the Civ4 client that wrote this file; processUtc is the DLL-load time and is not unique when two clients start together, as they did when LLM_Helpers/game_runs/run_autoplay.py ran two autoplays at once. (Claude Code Opus 5.5) -->
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s processId=%u processStartUtc=%s utc=%s logFile=%s sessionWallMilliseconds=0",
+		getSASProcessUtcTimestamp().GetCString(), (uint)GetCurrentProcessId(), getSASExecutableProcessStartUtc().GetCString(), getSASGameRecordLogTimestamp().GetCString(),
 		getSASDiagnosticQuoted(getSASGameRecordLogName().GetCString()).GetCString());
 	// <!-- custom: Static mod/source/binary provenance is already final once this DLL is running, so keep it immediately after the lifecycle marker instead of burying it behind generated game context. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();

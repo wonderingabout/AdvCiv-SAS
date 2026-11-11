@@ -32,12 +32,20 @@ def main() -> None:
     # <!-- custom: Only the desktop app writes the export ZIP, so Codex could not produce one; the app keeps the same records in the local <session-id>.jsonl, which any agent can read.
     # Exporting this session by zipping that log first gave the same transcript format. (Claude code Opus 5.5) -->
     if source_path.suffix.lower() == ".jsonl":
-        rows = source_path.read_text(encoding="utf-8").splitlines()
+        rows = source_path.read_text(encoding="utf-8").split("\n")
     else:
-        rows = zipfile.ZipFile(source_path).read("transcript.jsonl").decode("utf-8").splitlines()
+        rows = zipfile.ZipFile(source_path).read("transcript.jsonl").decode("utf-8").split("\n")
+    # <!-- custom: str.splitlines() also splits on Unicode line separators such as U+2028 inside the JSON text, which cut 3 records of a long session in half on 2026-11-10; JSONL records end only at a newline. (Claude Code Opus 5.5) -->
+    rows = [row for row in rows if row.strip()]
     # <!-- custom: The desktop export is a raw JSONL log, and copying from the chat view captured only a small slice of a long session.
     # Keep user/assistant prose in full but reduce each tool call to a one-line marker; thinking and raw tool output are omitted, which shrank a 2 MB log to about 24 KB. (Claude code Opus 5.5) -->
     # <!-- custom: Stable === USER === and === CLAUDE === separators make message boundaries easy to grep in long handoff transcripts, as in openai_chat_export_to_txt.py. (Claude code Opus 5.5) -->
+    # <!-- custom: Agents export their own live session as a backup every while, and the app may be writing the log's last line at that moment: skip only an unfinished final line; a broken line elsewhere still fails loudly. (Claude Code Opus 5.5) -->
+    if rows:
+        try:
+            json.loads(rows[-1])
+        except ValueError:
+            rows = rows[:-1]
     parts = []
     for row in rows:
         record = json.loads(row)

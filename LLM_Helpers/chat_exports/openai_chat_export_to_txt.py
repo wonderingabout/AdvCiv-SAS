@@ -9,9 +9,20 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
+# <!-- custom: sys prints --tail as UTF-8, since a cp1252 console garbled the agent header's middle dot. (Claude Code Opus 5.5) -->
+import sys
 
 # <!-- custom: Use the same configurable output folder as the Claude transcript helper. (GPT-6.1-Sol) -->
 from chat_export_paths import DEFAULT_EXPORT_DIR
+
+
+def latest_codex_rollout():
+    # <!-- custom: Codex files each chat under the day it started (~/.codex/sessions/<y>/<m>/<d>/rollout-*.jsonl), so the chat open today can sit in an October folder; pick the most recently written log instead. (Claude Code Opus 5.5) -->
+    root = Path.home() / ".codex"
+    logs = list(root.glob("sessions/*/*/*/rollout-*.jsonl")) + list(root.glob("archived_sessions/rollout-*.jsonl"))
+    if not logs:
+        raise ValueError(f"No Codex rollout logs under {root}.")
+    return max(logs, key=lambda path: path.stat().st_mtime)
 
 
 def codex_messages(source):
@@ -127,9 +138,14 @@ def shared_chat_messages(url):
 def main():
     parser = argparse.ArgumentParser(description="Export a Codex session, ChatGPT app pages or a shared ChatGPT conversation to TXT.")
     parser.add_argument("source", choices=("codex", "chatgpt", "share"))
-    parser.add_argument("input", help="Codex rollout JSONL, ChatGPT read_thread JSON pages, or a ChatGPT share URL.")
+    parser.add_argument("input", nargs="?", help="Codex rollout JSONL, ChatGPT read_thread JSON pages, or a ChatGPT share URL. For codex, omit it to use the most recently written Codex log.")
     parser.add_argument("--output", type=Path, help=f"TXT destination. Defaults to an input-based filename in {DEFAULT_EXPORT_DIR}.")
+    # <!-- custom: An agent waiting for Codex's answer needs only its last few messages; on 2026-11-10 Claude Code exported the whole 3 MB chat and cut its end with awk each time.
+    # --tail prints them instead of writing a file. (Claude Code Opus 5.5) -->
+    parser.add_argument("--tail", type=int, help="print only the last N messages to the console instead of writing a file")
     args = parser.parse_args()
+    if args.input is None and args.source != "codex":
+        parser.error("input is required for chatgpt and share")
     try:
         if args.source == "share":
             share = re.fullmatch(r"https://chatgpt\.com/share/([0-9a-fA-F-]{36})/?", args.input)
@@ -139,7 +155,7 @@ def main():
             filename = f"chatgpt-share-{share[1]}-{stamp}.txt"
             messages = shared_chat_messages(args.input)
         else:
-            source = Path(args.input)
+            source = Path(args.input) if args.input else latest_codex_rollout()
             filename = f"{args.source}-{source.stem}.txt"
             reader = codex_messages if args.source == "codex" else chatgpt_messages
             messages = reader(source)
@@ -148,6 +164,10 @@ def main():
         entries = [f"=== {role} ===\n{message}" for role, message in messages if message.strip()]
         if not entries:
             raise ValueError("No conversation text found.")
+        if args.tail:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            print("\n\n".join(entries[-args.tail:]))
+            return
         if args.output is None:
             output.parent.mkdir(parents=True, exist_ok=True)
         with output.open("x", encoding="utf-8") as stream:

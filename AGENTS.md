@@ -197,6 +197,15 @@ Use these specialized records for inherited regressions, suspicious behavior cha
 - Within AdvCiv-SAS's mod repo, generate/use `LLM_Helpers/context/commit_diffs/` for exact inherited ancestry and [`LLM_Helpers/context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) for imported map-script originals.
 - External review/tuning tools live under `LLM_Helpers/`; local platform-specific tests live under [`tests/`](/tests/README.md). Workflow-helper regression tests remain under `.github/workflows/tests/` and run in CI as well as locally.
   - The helpers sit in folders named by job, such as `LLM_Helpers/audits/ci_report.py`; put a new helper in the folder of its job and describe it in that folder's README section, which [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) checks. See [Folders](/LLM_Helpers/README.md#folders).
+  - To test a change in game, an agent can run autoplay itself: [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4 into a save or a new game, plays the requested turns, closes Civ4 and reports the outcome and logs; [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) explains how.
+    - Before these tools, every in-game check waited on the user to start Civ4, load a save and type a turn count, so agents tested less and later than they could. A run now takes under a minute for 100 turns on a Huge map, so testing a change in game is cheap enough to do routinely.
+    - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) screenshots or clicks a Civ4 window, so an agent can see what a player would, for example whether a popup is waiting. It works on other apps' windows too, such as another agent's; see [README_Desktop_Windows.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+      - A message typed into another agent's chat starts with `[<agent> <model> · <UTC time>]`, such as `[Claude Code Opus 5.5 · 2026-11-10 19:35:12.345 UTC]` (to the millisecond, since agents can exchange several messages a minute), and no greeting: the chat shows the user as its sender, so the tag tells everyone who really wrote it and when.
+        - It ends with a closing tag on its own line, such as `[/Claude Code Opus 5.5 · Reply: user]`, which is easy to grep (`^\[/`).
+        - Text before the header or after the closing tag, such as a stray "nd", came from someone else, usually the user typing there, so quote it rather than act on it.
+    - When you find how to do something in the game window, such as scrolling a table, closing a screen or opening an advisor, record it in [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) with what you tried and what worked or did not.
+      - Clicks depend on window size and layout, so a recorded working sequence, and why the others failed, saves the next agent from rediscovering it by trial and error.
+    - Check that the user is not using Civ4 first: the user often has it open for other reasons, and a click or a launched game would land in the middle of their session. Both tools act only on the processes they start or are given by ID, so they never touch another window by accident.
   - Run the local diagnostic writer harness when changing its buffering, paths, retries or lifecycle checkpoints; it exercises real Windows I/O with VC2003 without building/installing a game DLL. It is not part of gameplay or normal DLL builds.
 - Shared development context lives under [`LLM_Helpers/context/`](/LLM_Helpers/context/).
   - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/packaging/refresh_commit_diffs.py` to refresh it independently.
@@ -248,9 +257,9 @@ In particular but not only, these are usually helpful:
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
-- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines).
+- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped and named by process (e.g., `BBAI_20261110T165714Z_26088_load1.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines).
   - BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
-- usually timestamped like "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord_20260710T064839Z_load1.log" (after enabling the corresponding AdvCiv-SAS game-record XML defines).
+- usually timestamped and named by process like "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord_20261110T165714Z_26088_load1.log" (after enabling the corresponding AdvCiv-SAS game-record XML defines).
   - This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics.
   - It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces.
   - It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
@@ -284,6 +293,10 @@ For finding key documentation, use grep/search as needed; documentation indexes 
 
 Older identifiers can be looked up through the [Deprecated reference index](/_1_AdvCiv-SAS/Docs/Deprecated/README.md). For example, pre-shortening SAS define names are listed in [`global_define_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), associated with KI#1001.2; `SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT` became `SAS_COMMERCE_SLIDERS_FAST_INCR_PCT`.
 
+When renaming a significant SAS define, add a row to that table with both names and their byte lengths, as the table began with the 42-byte shortening pass; the retired-name check then rejects the old spelling in active files.
+
+For example, `SAS_UWAI_HIGH_UTILITY_LOG_THRESH` was renamed to `SAS_BBAI_UWAI_HIGH_UTILITY_LOG_THRESH` on 2026-11-10: UWAI's reports had since been merged into BBAI logging as the `SAS_BBAI_UWAI_*` levels, and the prefix groups it with the other logging defines. It had sat far down among the UWAI gameplay tunables, where it was hard to find or use.
+
 Compile errors (e.g., for a "Debug-opt" build) at:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Debug-opt\AdvCiv.log"
@@ -307,6 +320,14 @@ Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpf
 ### Information Fetching online
 
 If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
+
+- Agents may now search themselves when their setup allows: Claude Code has a web search tool and a built-in browser pane kept apart from the user's own browser and data, and Codex has its own web search. Ask the user when your setup has neither.
+- Your training data stops at a cutoff date, often months before the session, so anything newer is missing from what you know: new models, app features, tool and library versions, game patches or mod releases. Do not tell the user something "does not exist yet", "is not released" or "is not visible" from memory alone; the user reports agents doing this often.
+  - Check first: compare the session's date with your cutoff, look at local evidence (installed programs, files, the app's own interface in a screenshot), and search the web. If you cannot check, say that it is unknown to you rather than denying it.
+  - Example (2026-11-10): Codex's model picker listed GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra and other models that an agent trained earlier would not know. The screenshot settled it; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#codex-the-chatgpt-desktop-app).
+  - The same holds for interfaces: the Claude and Codex apps changed often enough that the guide dates every finding, and an agent's idea of where a button is can be months old. Look before assuming.
+  - A search tool's summaries can be wrong too: on 2026-11-10 they gave equal US dollar prices for two plans, while the official pages, read in the agent's own browser, showed different euro prices for the user's region.
+    - Read the original page for anything that changes or depends on the user's region, and treat search results as leads; see [Browsers for agents](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#browsers-for-agents).
 
 ### Suggesting tools and ideas
 
@@ -428,6 +449,9 @@ If a program, package or other tool would help, suggest it to the user rather th
 - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
 - When a code comment explains a Known Issue, its cause, related behavior, constraints or a fix/prepared fix, include its exact greppable reference, such as `See KI#382.3.` for the startup-record fix. Treat it as a closing note: in a multiline comment, place it on the final line immediately before the model credit.
   - For example, if a fix for KI#382.3 spanned five separate C++ locations, two Python locations and one XML setting, add `See KI#382.3.` to the relevant comment at each location. The same applies to related code explaining the cause or a constraint, so readers can find the issue's wider context; unrelated changes in the same commit do not need the reference.
+  - Do the same in documentation wherever a guide, the Main Changes Guide or the Logging Inventory describes an issue's cause, fix or workaround, linking the KI there.
+  - Why spray the reference this widely: one grep for the number then lists every place tied to that issue, in code and docs alike. A reader revisiting the issue, reviewing its fix or changing nearby code finds all of them at once instead of reconstructing them, and the KI entry gives the evidence behind each.
+    - Example: KI#1081 (shared `PythonErr.log` and autosaves between clients) is referenced from the runner and the autoplay request hook, the four per-process file-naming comments in the DLL and exit observer, and the Game Runs Guide and Logging Inventory, so a grep for `KI#1081` shows why each of those places names its files by process.
 
 ### Rationale and presentation
 
@@ -783,6 +807,8 @@ Clear, accurate explanations help users and developers understand the code and i
 ### XML
 
 - In `Assets/XML/GlobalDefines_advciv_sas.xml`, keep related blocks adjacent or separate thematic groups with exactly three blank lines: users read and edit this configuration file directly, so the wider separators make its sections easier to scan. Preserve blank lines inside comments and text values. Other XML files retain their existing spacing conventions.
+  - Group by what a define is for, not by how it is used. For example, the recorders (assertions, BBAI, SASGameRecord, Runtime) observe the game and stay off for players, while the hands-free switches after them (FastSave, the AI Auto Play defaults, `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON`, `SAS_UI_DAWN_OF_MAN_ON`) change what a player sees or must click.
+    - Both serve unattended runs, so they sit next to each other, but they are different concepts, so three blank lines separate the two groups, while the hands-free switches stay adjacent to one another.
 - Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
 - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
 - Do not write gameplay values into pedia texts: the Sevopedia already lists an asset's effects next to its text, while a sentence such as "gives +1 happiness and +1 culture" silently goes stale on the next rebalance.
@@ -937,6 +963,13 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
 
 - By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
 - If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md).
+- When running a task end to end or autonomously, such as testing with [unattended game runs](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md), compile yourself as often as the task needs rather than waiting on the user.
+  - The default above exists to save the user's time and the agent's tokens on routine checks. In an autonomous loop the agent compiling is what saves the user's time: stopping to ask for each build would bring back the waiting the loop removes.
+  - Prefer the sequential builds (`Release`, `Debug-opt`) over the parallel `-fast` ones when convenient: we build many DLLs, and the parallel build kept every CPU core busy for about 80 seconds saved per build.
+    - That is why Debug-opt was made sequential ([KI#38.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)); the user often works on the same PC meanwhile.
+    - Use a `-fast` build when it is genuinely needed, for example `Assert-fast`, the only report-wrapper build with assertions on (25 seconds).
+  - Installing a DLL for a local test copies only the DLL into `Assets/`. Its `.build.json` joins it only for an intentional shipped `Release` update, as under [DLL inclusion in commits](#dll-inclusion-in-commits), because CI checks that a shipped DLL and its report change together.
+    - Never ship an assertion or Debug-opt DLL: players would get assertion logging and its slower code, and CI accepts only a `Release` report.
 - Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
   - The compiler is at `C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe`; the environment setup in [`run_writer_tests.py`](/tests/diagnostics/run_writer_tests.py) uses VS2010's `vcvars32.bat` while explicitly selecting VC2003.
   - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
@@ -969,6 +1002,7 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
 - Before editing runtime-sensitive files, check for Civ4 processes with PowerShell: `Get-Process -Name Civ4BeyondSword -ErrorAction SilentlyContinue`. Process presence confirms only that the executable has not exited; it does not prove a visible window, responsiveness, initialized gameplay or active autoplay.
   - A process can be starting, hidden, unresponsive or stranded after a failure. Use available window/response evidence and status/log progression when assessing its condition; an unchanged status file alone does not prove a hang because idle play and long initialization need not publish updates.
   - When the optional `Logs/SASRuntimeStatus.json` exists, use its DLL/process/session/autoplay fields as additional current-state evidence; verify the reported DLL identity against the intended build before treating a run as validation. Match `processId` and `processStartUtc` to the live process before trusting `RUNNING`: a crash can leave the last JSON behind.
+    - With several clients open, `SASRuntimeStatus.json` shows only the latest writer, so it can describe another client; read the process's own `SASRuntimeStatus_<processStartUtc>_<pid>.json` instead, whose name proves whose state it is. See KI#1081.
   - Enabled runtime diagnostics use [SASRuntimeExitObserver.ps1](/Assets/SASRuntimeExitObserver.ps1) to record final process-handle exit evidence in `exitObservation` and a `process_exit` history row.
     - Its matching `SASRuntimeExit_*.json` confirms attachment with WAITING, then records EXITED independently of the current snapshot; inspect `failureDialog` and `dialogObserverState` for a recognized runtime-error, crash-dump prompt or reviewed Gamebryo/NiDX9 video-allocation dialog while the process remains alive. Launch/attachment/I/O can fail, so retain the direct process check.
       - For failure-time memory/context availability and coverage limits, see the [failure observations](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#sasruntimeexit_json-exit-observation); recorded measurements are context rather than a diagnosis.
@@ -1013,3 +1047,6 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 - The Recycle Bin lists each item with its original folder, and Windows' Restore puts it back intact.
 - If an item cannot go to the Recycle Bin, for example because the call fails or Windows would delete it permanently, ask the user what to do instead of deleting it directly.
 - A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
+- Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a subfolder. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD, so the user moved them into old subfolders such as `old10-part2`.
+  - The slowdown grows faster than the file count, as the user experienced it; the exact threshold was not measured.
+  - Agents list and sort these folders often, for example to find the newest screenshot, so a lean folder saves needless disk work on every look.

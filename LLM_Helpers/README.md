@@ -33,6 +33,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy) and others |
+| `game_runs/` | running the game itself without a person at the keyboard: [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
@@ -154,6 +155,11 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
       - [Safety rule for source-rewrite helpers](#safety-rule-for-source-rewrite-helpers)
   - [Markdown documentation cleanup helpers](#markdown-documentation-cleanup-helpers)
     - [`reflow_markdown_prose.py`](#reflow_markdown_prosepy)
+- [`game_runs/`](#game_runs)
+  - [Unattended game runs](#unattended-game-runs)
+    - [`run_autoplay.py`](#run_autoplaypy)
+    - [`desktop_windows.py`](#desktop_windowspy)
+    - [`agent_message.py`](#agent_messagepy)
 - [`packaging/`](#packaging)
   - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
     - [`make_light_source_zip.py`](#make_light_source_zippy)
@@ -655,7 +661,8 @@ Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review arti
 
 Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message boundaries. Run `rg -n "^=== " chat.txt` to find them with line numbers. The Claude helper uses the same format with `=== CLAUDE ===`.
 
-- **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory.
+- **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
+  - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
 - **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
   - Follow `page.nextCursor` until `page.hasMore` is false. Save the decoded page objects as a JSON array in fetch order, newest page first. Use `maxOutputCharsPerItem=20000` and check truncation flags. The converter rejects flagged text and a reported missing oldest page.
   - The desktop tool can return a partial chat even when it reports no older page. In the Marsh example it returned 10 messages while the share snapshot contained 34.
@@ -666,6 +673,7 @@ Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message bou
 
 ```bash
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex rollout.jsonl --output codex-chat.txt
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --tail 3
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
 ```
 
@@ -903,6 +911,7 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
   - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
   - `on` includes All, Team and Direct chat text in local SGR logs. For a channel-isolation test, enable only the desired chat switch in XML instead.
   - `off` restores the shipped values, including withholding text for all three chat channels. Use `status` to print the current values without writing.
+  - `on` also skips the Dawn of Man screen (`SAS_UI_DAWN_OF_MAN_ON=0`), which players keep; [`hands_free_defaults.py`](/.github/workflows/README.md#buildruntimehands_free_defaultspy) checks that it ships as `1`.
 - Edits only those values in place and preserves the file's CRLF line endings.
 - Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
 
@@ -1621,6 +1630,65 @@ python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --in-place
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --in-place
 ```
+
+## `game_runs/`
+
+### Unattended game runs
+
+These helpers let an agent run Civ4 itself: load a save or start a new game, autoplay, look at the window and exit, with no clicks from the user. The [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) explains how each step works, what was tested and what did not work.
+
+#### `run_autoplay.py`
+
+- Launches Civ4 into a save (`/FXSLOAD=`) or a new game (`--new-game`, through `QuickStart`), runs AI Auto Play for `--turns`, reports how the run ended, closes Civ4 and writes `summary.json`.
+- The request reaches the game through an `[SASAutoplay]` section in a per-run `ini=` file, read by [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py).
+- Needs `SAS_RUNTIME_STATUS_ON=1`: completion comes from the process's own `SASRuntimeHistory_<processStartUtc>_<pid>.jsonl`.
+- Outcomes: `COMPLETED`, `REQUEST_FAILED`, `ENDED_EARLY`, `NOT_STARTED`, `STALLED`, `FAILURE_DIALOG`, `EXITED`, `TIMED_OUT`. The exit code is 0 only for `COMPLETED`.
+- Options:
+  - `--debug-mode` turns on Debug Mode, which seems to change the game ([KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)).
+  - `--keep-open` leaves Civ4 running; `--multiple` allows other clients and passes Civ4's `multiple` argument.
+  - `--map`, `--world-size`, `--speed`, `--handicap`, `--era`, `--climate`, `--sea-level`, `--fixed-seeds` and `--leaders` set up a new game.
+- Writes to `Downloads/AdvCiv-SAS_LLM/autoplay_runs/<run id>/`; change it with `--output-root`.
+
+```bash
+python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave" --turns 100
+python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-size WORLDSIZE_STANDARD --era ERA_ANCIENT --fixed-seeds --leaders "LEADER_ALEXANDER,-,LEADER_MANSA_MUSA" --turns 60
+```
+
+#### `desktop_windows.py`
+
+- `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
+  - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
+  - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
+  - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
+- `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
+- `clipboard --out shot.png` saves an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself; it accepts `--crop` and `--scale` too and refuses when the clipboard holds no image.
+- A screenshot captures only the game window, at its current place and size. The default `--method window` (Windows' `PrintWindow`) works while the window is covered; `--method screen` brings it to the front and copies its screen area. Neither can capture a minimized window. It needs Pillow.
+- Coordinates are physical pixels from the window's top-left corner, as in its screenshots; the tool makes itself DPI-aware, since display scaling otherwise cropped them.
+- Mouse clicks reach the game; keystrokes did not, so `paste` and `key` are for other apps.
+
+```bash
+python LLM_Helpers/game_runs/desktop_windows.py list
+python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 15692 --out shot.png
+python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `agent_message.py`
+
+- Sends a message from one agent to the Codex or Claude app in the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention): a header with the sender and the UTC time to the millisecond, the text, and a closing tag such as `[/Claude Code Opus 5.5 · Reply: user]`.
+- Before pasting it checks that the target's message box holds no text, and refuses if it does: someone may be typing there. It then pastes and presses Enter (or Ctrl+Enter with `--queue`) in one focus grab and gives focus back, using `desktop_windows.py`.
+  - Written on 2026-11-10 after two hand-made sends picked up the user's keystrokes, which landed in Codex while it was briefly in front.
+- The click point and text area are window-relative positions for each app maximized on a 3840x2100 screen, observed on 2026-11-10. The apps change their layout often; override them with `--box` and `--text-area` after a screenshot.
+- `--dry-run` prints the message without sending it.
+- `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
+
+```bash
+python LLM_Helpers/game_runs/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "Claude app" --text "Please review the unstaged change."
+python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.1-Sol" --reply user --file answer.txt
+```
+
+- Added with help of Claude Code Opus 5.5.
 
 ## `packaging/`
 

@@ -1,0 +1,464 @@
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+
+# <!-- custom: Windows-side helpers for a running Civ4 window or any other app's: find it by process ID, take a screenshot, click, hover, scroll, paste text, press a key, close it, or launch Civ4 detached from the caller.
+# Named civ4_window.py until 2026-11-10, before its first commit; renamed once it also drove other agents' apps such as Codex and the Claude app.
+# Coordinates are physical pixels relative to the window's top-left corner, as in the screenshots; the process is made DPI-aware first, because without it a 150% display scale returned a 1284x747 rectangle for a 1926x1120 window and cropped the screenshot.
+# Keystrokes did not reach the game's Ctrl+Shift+X chooser while mouse clicks did, so paste and key are for other apps, such as messaging the Codex or Claude app. (Claude Code Opus 5.5) -->
+
+# <!-- custom: argparse parses the subcommands; ctypes calls user32/gdi32/kernel32 for windows, input and bitmaps. (Claude Code Opus 5.5) -->
+import argparse
+import ctypes
+import ctypes.wintypes as wt
+# <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+USER32 = ctypes.windll.user32
+WM_CLOSE = 0x0010
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
+
+# <!-- custom: Civ4 lives here on the development machine; pass --civ4-dir elsewhere. (Claude Code Opus 5.5) -->
+DEFAULT_CIV4_DIR = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword")
+EXE_NAME = "Civ4BeyondSword.exe"
+
+
+def make_dpi_aware():
+	try:
+		ctypes.windll.shcore.SetProcessDpiAwareness(2)
+	except (AttributeError, OSError):
+		USER32.SetProcessDPIAware()
+
+
+def find_window(pid):
+	# <!-- custom: Return the visible top-level window owned by pid that has a title, or None. (Claude Code Opus 5.5) -->
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def callback(hwnd, _lparam):
+		owner = wt.DWORD()
+		USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+		if owner.value == pid and USER32.IsWindowVisible(hwnd) and USER32.GetWindowTextLengthW(hwnd) > 0:
+			found.append(hwnd)
+		return True
+
+	USER32.EnumWindows(proc_type(callback), 0)
+	return found[0] if found else None
+
+
+def window_rect(hwnd):
+	rect = wt.RECT()
+	if not USER32.GetWindowRect(hwnd, ctypes.byref(rect)):
+		raise OSError("GetWindowRect failed")
+	return rect.left, rect.top, rect.right, rect.bottom
+
+
+def window_title(hwnd):
+	buffer = ctypes.create_unicode_buffer(256)
+	USER32.GetWindowTextW(hwnd, buffer, 256)
+	return buffer.value
+
+
+def print_window_image(hwnd):
+	# <!-- custom: Ask the window to draw itself into a bitmap (PrintWindow with PW_RENDERFULLCONTENT), so it need not be in front or uncovered.
+	# Tested 2026-11-10 during autoplay: with Notepad covering the game it still captured the game, two captures 3 seconds apart differed as turns advanced, and a minimized window gave only its 237x39 title bar. (Claude Code Opus 5.5) -->
+	# <!-- custom: Pillow turns the PrintWindow bitmap into an image; imported here so list/click/close work without it. (Claude Code Opus 5.5) -->
+	from PIL import Image
+	gdi32 = ctypes.windll.gdi32
+	left, top, right, bottom = window_rect(hwnd)
+	width, height = right - left, bottom - top
+	window_dc = USER32.GetWindowDC(hwnd)
+	memory_dc = gdi32.CreateCompatibleDC(window_dc)
+	bitmap = gdi32.CreateCompatibleBitmap(window_dc, width, height)
+	old = gdi32.SelectObject(memory_dc, bitmap)
+	try:
+		if not USER32.PrintWindow(hwnd, memory_dc, 2):
+			raise OSError("PrintWindow failed")
+
+		class BITMAPINFOHEADER(ctypes.Structure):
+			_fields_ = [("biSize", wt.DWORD), ("biWidth", wt.LONG), ("biHeight", wt.LONG), ("biPlanes", wt.WORD), ("biBitCount", wt.WORD), ("biCompression", wt.DWORD), ("biSizeImage", wt.DWORD), ("biXPelsPerMeter", wt.LONG), ("biYPelsPerMeter", wt.LONG), ("biClrUsed", wt.DWORD), ("biClrImportant", wt.DWORD)]
+
+		header = BITMAPINFOHEADER(ctypes.sizeof(BITMAPINFOHEADER), width, -height, 1, 32, 0, 0, 0, 0, 0, 0)
+		buffer = ctypes.create_string_buffer(width * height * 4)
+		if not gdi32.GetDIBits(memory_dc, bitmap, 0, height, buffer, ctypes.byref(header), 0):
+			raise OSError("GetDIBits failed")
+		return Image.frombuffer("RGB", (width, height), buffer, "raw", "BGRX", 0, 1)
+	finally:
+		gdi32.SelectObject(memory_dc, old)
+		gdi32.DeleteObject(bitmap)
+		gdi32.DeleteDC(memory_dc)
+		USER32.ReleaseDC(hwnd, window_dc)
+
+
+def screenshot(pid, out_path, method="window", crop=None, scale=1.0):
+	# <!-- custom: method "window": PrintWindow, which leaves the window where it is; "screen": bring the window to the front and grab its screen area. (Claude Code Opus 5.5) -->
+	# <!-- custom: Pillow's ImageGrab copies the window's screen area for the screen method. (Claude Code Opus 5.5) -->
+	from PIL import ImageGrab
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	box = window_rect(hwnd)
+	if method == "window":
+		image = print_window_image(hwnd)
+	elif method == "screen":
+		USER32.SetForegroundWindow(hwnd)
+		time.sleep(0.4)
+		box = window_rect(hwnd)
+		image = ImageGrab.grab(bbox=box, all_screens=True)
+	else:
+		raise ValueError("unknown screenshot method %r" % method)
+	# <!-- custom: crop is (left, top, right, bottom) in window pixels and scale shrinks the result: a full 3840-pixel window cost many tokens per read, so on 2026-11-10 nearly every screenshot was cropped and shrunk with throwaway Pillow code; these two options replace it. (Claude Code Opus 5.5) -->
+	if crop:
+		image = image.crop(tuple(crop))
+	if scale != 1.0:
+		image = image.resize((max(1, int(image.width * scale)), max(1, int(image.height * scale))))
+	out_path = Path(out_path)
+	out_path.parent.mkdir(parents=True, exist_ok=True)
+	image.save(out_path)
+	return out_path, box
+
+
+def save_clipboard_image(out_path, crop=None, scale=1.0):
+	# <!-- custom: Save an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself (a queued message, a tooltip), as on 2026-11-10.
+	# crop is in screen pixels of the capture. (Claude Code Opus 5.5) -->
+	# <!-- custom: Pillow's ImageGrab reads the clipboard image. (Claude Code Opus 5.5) -->
+	from PIL import ImageGrab
+	image = ImageGrab.grabclipboard()
+	if image is None or isinstance(image, list):
+		raise RuntimeError("the clipboard holds no image")
+	if crop:
+		image = image.crop(tuple(crop))
+	if scale != 1.0:
+		image = image.resize((max(1, int(image.width * scale)), max(1, int(image.height * scale))))
+	out_path = Path(out_path)
+	out_path.parent.mkdir(parents=True, exist_ok=True)
+	image.save(out_path)
+	return out_path, image.size
+
+
+def window_point(pid, x, y):
+	# <!-- custom: Shared by click, hover and scroll: find pid's window and turn a window-relative point into a screen point, refusing one outside the window. (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	left, top, right, bottom = window_rect(hwnd)
+	if not (0 <= x < right - left and 0 <= y < bottom - top):
+		raise ValueError("point %d,%d lies outside the %dx%d window" % (x, y, right - left, bottom - top))
+	return hwnd, left + x, top + y
+
+
+def window_pid(hwnd):
+	owner = wt.DWORD()
+	USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+	return owner.value
+
+
+def bring_to_front(hwnd, pid):
+	# <!-- custom: Windows' foreground lock refuses SetForegroundWindow from a background process: on 2026-11-10 pastes between the Codex and Claude apps failed twice, each time leaving the app last typed into in front.
+	# Retrying with this thread attached to the foreground window's input thread, the usual workaround, lets the switch through; the click and paste checks still refuse if it does not. (Claude Code Opus 5.5) -->
+	USER32.SetForegroundWindow(hwnd)
+	time.sleep(0.15)
+	foreground = USER32.GetForegroundWindow()
+	if window_pid(foreground) == pid:
+		return foreground
+	kernel32 = ctypes.windll.kernel32
+	foreground_thread = USER32.GetWindowThreadProcessId(foreground, None)
+	our_thread = kernel32.GetCurrentThreadId()
+	USER32.AttachThreadInput(our_thread, foreground_thread, True)
+	try:
+		USER32.BringWindowToTop(hwnd)
+		USER32.SetForegroundWindow(hwnd)
+	finally:
+		USER32.AttachThreadInput(our_thread, foreground_thread, False)
+	time.sleep(0.3)
+	return USER32.GetForegroundWindow()
+
+
+def click(pid, x, y):
+	# <!-- custom: Codex's 2026-11-10 review found that click pressed the mouse even when the window had not come to the front or the point lay outside it, so the click could land in whatever window was there, such as the user's. Check the bounds, the foreground window and the window under the point before pressing; a Civ4 popup is a separate window of the same process, so the last check compares processes, not handles. (Claude Code Opus 5.5) -->
+	hwnd, screen_x, screen_y = window_point(pid, x, y)
+	foreground = bring_to_front(hwnd, pid)
+	if window_pid(foreground) != pid:
+		raise RuntimeError("process %d's window did not come to the front; the foreground window belongs to process %d" % (pid, window_pid(foreground)))
+	under = USER32.WindowFromPoint(wt.POINT(screen_x, screen_y))
+	if not under or window_pid(under) != pid:
+		raise RuntimeError("screen point %d,%d is covered by a window of process %d" % (screen_x, screen_y, window_pid(under) if under else 0))
+	USER32.SetCursorPos(screen_x, screen_y)
+	time.sleep(0.05)
+	USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+	time.sleep(0.08)
+	USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+	return screen_x, screen_y
+
+
+def hover(pid, x, y):
+	# <!-- custom: Move the pointer without clicking or focusing, to reveal tooltips such as Codex's usage reset times.
+	# A click into the Claude app while the user typed there would have taken focus from their typing; a hover takes none. (Claude Code Opus 5.5) -->
+	_hwnd, screen_x, screen_y = window_point(pid, x, y)
+	USER32.SetCursorPos(screen_x, screen_y)
+	return screen_x, screen_y
+
+
+def scroll(pid, x, y, clicks):
+	# <!-- custom: Wheel events reach the window under the pointer without focusing it (Windows 10 scrolls inactive windows), so scrolling, like hovering, leaves the user's typing alone.
+	# Positive clicks scroll up, negative down; one click is one wheel notch (120). (Claude Code Opus 5.5) -->
+	hover(pid, x, y)
+	step = 120 if clicks > 0 else -120
+	for _ in range(abs(clicks)):
+		USER32.mouse_event(0x0800, 0, 0, ctypes.c_uint32(step).value, 0)
+		time.sleep(0.03)
+
+
+CF_UNICODETEXT = 13
+GMEM_MOVEABLE = 0x0002
+KEYEVENTF_KEYUP = 0x0002
+VK_CONTROL = 0x11
+# <!-- custom: Each key is (virtual key, modifiers); ctrl+enter queues a message in the Claude app or Codex while it works ("Ctrl+Enter to queue for later"); ctrl+a then backspace clears a box the agent filled itself. (Claude Code Opus 5.5) -->
+KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ())}
+
+
+def clipboard_text():
+	# <!-- custom: Return the clipboard's text, or None when it holds none, so paste can put the user's clipboard back.
+	# Pointer-sized results need explicit restypes on 64-bit Python, or ctypes truncates them to int. (Claude Code Opus 5.5) -->
+	kernel32 = ctypes.windll.kernel32
+	USER32.GetClipboardData.restype = ctypes.c_void_p
+	kernel32.GlobalLock.restype = ctypes.c_void_p
+	kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
+	kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
+	if not USER32.OpenClipboard(None):
+		raise OSError("OpenClipboard failed")
+	try:
+		handle = USER32.GetClipboardData(CF_UNICODETEXT)
+		if not handle:
+			return None
+		pointer = kernel32.GlobalLock(handle)
+		try:
+			return ctypes.wstring_at(pointer)
+		finally:
+			kernel32.GlobalUnlock(handle)
+	finally:
+		USER32.CloseClipboard()
+
+
+def set_clipboard_text(text):
+	kernel32 = ctypes.windll.kernel32
+	kernel32.GlobalAlloc.restype = ctypes.c_void_p
+	kernel32.GlobalLock.restype = ctypes.c_void_p
+	kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
+	kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
+	USER32.SetClipboardData.argtypes = [ctypes.c_uint, ctypes.c_void_p]
+	USER32.SetClipboardData.restype = ctypes.c_void_p
+	data = ctypes.create_unicode_buffer(text)
+	if not USER32.OpenClipboard(None):
+		raise OSError("OpenClipboard failed")
+	try:
+		USER32.EmptyClipboard()
+		handle = kernel32.GlobalAlloc(GMEM_MOVEABLE, ctypes.sizeof(data))
+		pointer = kernel32.GlobalLock(handle)
+		ctypes.memmove(pointer, data, ctypes.sizeof(data))
+		kernel32.GlobalUnlock(handle)
+		if not USER32.SetClipboardData(CF_UNICODETEXT, handle):
+			raise OSError("SetClipboardData failed")
+	finally:
+		USER32.CloseClipboard()
+
+
+def tap(vk, modifiers=()):
+	for modifier in modifiers:
+		USER32.keybd_event(modifier, 0, 0, 0)
+		time.sleep(0.04)
+	USER32.keybd_event(vk, 0, 0, 0)
+	time.sleep(0.06)
+	USER32.keybd_event(vk, 0, KEYEVENTF_KEYUP, 0)
+	for modifier in reversed(modifiers):
+		time.sleep(0.04)
+		USER32.keybd_event(modifier, 0, KEYEVENTF_KEYUP, 0)
+	time.sleep(0.15)
+
+
+def paste(pid, x, y, text, send=None):
+	# <!-- custom: Click a message box and paste text into it without sending, so the agent can screenshot the box before pressing Enter with the key command.
+	# Replaces the one-off keys.ps1 script the first Codex message used.
+	# Keystrokes reached the Codex app on 2026-11-10 but not Civ4, whose DirectX input ignores them.
+	# Pasting does not clear the box: a draft the user left there would be sent with the message, so check the box in a screenshot first.
+	# The user's clipboard text is restored afterwards; a non-text clipboard, such as an image, is not.
+	# The clipboard is replaced only after click's checks pass, so a refused click leaves it untouched, as Codex's 2026-11-10 review asked. (Claude Code Opus 5.5) -->
+	# <!-- custom: Pasting must bring the window to the front, so keys the user types meanwhile land there: on 2026-11-10, while the user typed in the Claude app, two pastes into Codex arrived with stray letters before the header ("nd", "i s"), although the box was empty just before.
+	# So send (Enter in the same focus grab) shortens the time away from the user's window, and focus goes back to the window that was in front, shrinking the gap to about a second; the message header and Reply: line let the recipient spot what still slips in. (Claude Code Opus 5.5) -->
+	previous = USER32.GetForegroundWindow()
+	saved = clipboard_text()
+	point = click(pid, x, y)
+	set_clipboard_text(text)
+	try:
+		tap(ord("V"), (VK_CONTROL,))
+		time.sleep(0.3)
+		if send:
+			tap(*KEYS[send])
+	finally:
+		if saved is not None:
+			set_clipboard_text(saved)
+		give_focus_back(previous, pid)
+	return point
+
+
+def user_idle_seconds():
+	# <!-- custom: Seconds since the last keyboard or mouse input anywhere on the desktop (GetLastInputInfo).
+	# The tool's own clicks and keys count as input too, so read it before acting, not after. (Claude Code Opus 5.5) -->
+	class LASTINPUTINFO(ctypes.Structure):
+		_fields_ = [("cbSize", wt.UINT), ("dwTime", wt.DWORD)]
+
+	info = LASTINPUTINFO(ctypes.sizeof(LASTINPUTINFO), 0)
+	if not USER32.GetLastInputInfo(ctypes.byref(info)):
+		raise OSError("GetLastInputInfo failed")
+	return ((ctypes.windll.kernel32.GetTickCount() - info.dwTime) & 0xFFFFFFFF) / 1000.0
+
+
+def wait_for_idle_user(idle_seconds, timeout_seconds):
+	# <!-- custom: Wait until nobody has typed or moved the mouse for idle_seconds, so a paste does not mix with the user's typing; return False if that never happens within timeout_seconds. (Claude Code Opus 5.5) -->
+	deadline = time.monotonic() + timeout_seconds
+	while user_idle_seconds() < idle_seconds:
+		if time.monotonic() > deadline:
+			return False
+		time.sleep(0.25)
+	return True
+
+
+def give_focus_back(previous, pid):
+	# <!-- custom: Return focus to the window that was in front before paste or key took it, usually the user's, unless that was the target itself. (Claude Code Opus 5.5) -->
+	if previous and window_pid(previous) not in (0, pid):
+		bring_to_front(previous, window_pid(previous))
+
+
+def key(pid, name):
+	# <!-- custom: Press one key, such as Enter to send a pasted message, after checking the window is in front, as click does. (Claude Code Opus 5.5) -->
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	previous = USER32.GetForegroundWindow()
+	if window_pid(bring_to_front(hwnd, pid)) != pid:
+		raise RuntimeError("process %d's window did not come to the front" % pid)
+	try:
+		tap(*KEYS[name])
+	finally:
+		give_focus_back(previous, pid)
+
+
+def request_close(pid):
+	# <!-- custom: WM_CLOSE is what the title bar's X sends; Civ4 exited with code 0 and no confirmation dialog when tested in game. (Claude Code Opus 5.5) -->
+	hwnd = find_window(pid)
+	if hwnd is None:
+		return False
+	return bool(USER32.PostMessageW(hwnd, WM_CLOSE, 0, 0))
+
+
+def process_alive(pid):
+	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # <!-- custom: PROCESS_QUERY_LIMITED_INFORMATION (Claude Code Opus 5.5) -->
+	if not handle:
+		return False
+	code = wt.DWORD()
+	ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
+	ctypes.windll.kernel32.CloseHandle(handle)
+	return code.value == 259  # <!-- custom: STILL_ACTIVE (Claude Code Opus 5.5) -->
+
+
+def civ4_processes():
+	# <!-- custom: Return [(pid, command line)] for every running Civ4 client. (Claude Code Opus 5.5) -->
+	command = "Get-CimInstance Win32_Process -Filter \"Name='%s'\" | ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }" % EXE_NAME
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout
+	result = []
+	for line in output.splitlines():
+		if "\t" in line:
+			pid, cmd = line.split("\t", 1)
+			result.append((int(pid), cmd))
+	return result
+
+
+def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
+	# <!-- custom: Start Civ4 through WMI so it is not a child of the caller: an agent stopping its shell command once killed the game and its Runtime observers with it. (Claude Code Opus 5.5) -->
+	exe = Path(civ4_dir) / EXE_NAME
+	command_line = '"%s" %s' % (exe, arguments)
+	ps = "$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:SAS_LAUNCH_CMD; CurrentDirectory = $env:SAS_LAUNCH_DIR }; \"$($r.ReturnValue) $($r.ProcessId)\""
+	env = dict(__import__("os").environ, SAS_LAUNCH_CMD=command_line, SAS_LAUNCH_DIR=str(civ4_dir))
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, check=True, env=env).stdout.split()
+	if len(output) != 2 or output[0] != "0":
+		raise RuntimeError("Win32_Process.Create failed: %s" % " ".join(output))
+	return int(output[1])
+
+
+def main():
+	parser = argparse.ArgumentParser(description="Screenshot, click, type into or close a running Civ4 window or any other app's window by process ID.")
+	sub = parser.add_subparsers(dest="command", required=True)
+	sub.add_parser("list", help="list running Civ4 processes and their command lines")
+	shot = sub.add_parser("screenshot", help="save a PNG of the window")
+	shot.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"), help="keep only this window-relative rectangle")
+	shot.add_argument("--scale", type=float, default=1.0, help="shrink the result, e.g. 0.5; crops read far cheaper than full windows")
+	clip = sub.add_parser("clipboard", help="save the image on the clipboard, such as the user's screen capture")
+	clip.add_argument("--out", type=Path, required=True)
+	clip.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"))
+	clip.add_argument("--scale", type=float, default=1.0)
+	shot.add_argument("--pid", type=int, required=True)
+	shot.add_argument("--out", required=True)
+	shot.add_argument("--method", choices=("window", "screen"), default="window", help="window: PrintWindow, works while covered; screen: bring to front and grab the screen area")
+	press = sub.add_parser("click", help="left-click a window-relative point (physical pixels, as in screenshots)")
+	press.add_argument("--pid", type=int, required=True)
+	press.add_argument("x", type=int)
+	press.add_argument("y", type=int)
+	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
+	point.add_argument("--pid", type=int, required=True)
+	point.add_argument("x", type=int)
+	point.add_argument("y", type=int)
+	wheel = sub.add_parser("scroll", help="turn the mouse wheel over a window-relative point; positive clicks scroll up, negative down")
+	wheel.add_argument("--pid", type=int, required=True)
+	wheel.add_argument("x", type=int)
+	wheel.add_argument("y", type=int)
+	wheel.add_argument("clicks", type=int)
+	box = sub.add_parser("paste", help="click a window-relative point, such as a message box, and paste text without sending it")
+	box.add_argument("--pid", type=int, required=True)
+	box.add_argument("x", type=int)
+	box.add_argument("y", type=int)
+	source = box.add_mutually_exclusive_group(required=True)
+	source.add_argument("--text")
+	source.add_argument("--file", type=Path, help="UTF-8 file holding the text, which avoids shell quoting")
+	box.add_argument("--send", choices=["enter", "ctrl+enter"], help="also press this key in the same focus grab, so the user's window is left for less time")
+	press_key = sub.add_parser("key", help="bring the window to the front and press one key, e.g. enter to send a pasted message")
+	press_key.add_argument("--pid", type=int, required=True)
+	press_key.add_argument("name", choices=sorted(KEYS))
+	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
+	close.add_argument("--pid", type=int, required=True)
+	args = parser.parse_args()
+
+	if args.command == "list":
+		for pid, cmd in civ4_processes():
+			print("%d\t%s" % (pid, cmd))
+	elif args.command == "screenshot":
+		path, box = screenshot(args.pid, args.out, args.method, args.crop, args.scale)
+		print("saved %s window=%s" % (path, box))
+	elif args.command == "clipboard":
+		path, size = save_clipboard_image(args.out, args.crop, args.scale)
+		print("saved %s size=%dx%d" % ((path,) + size))
+	elif args.command == "click":
+		print("clicked screen point %d,%d" % click(args.pid, args.x, args.y))
+	elif args.command == "hover":
+		print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
+	elif args.command == "scroll":
+		scroll(args.pid, args.x, args.y, args.clicks)
+		print("scrolled %d at %d,%d" % (args.clicks, args.x, args.y))
+	elif args.command == "paste":
+		text = args.text if args.text is not None else args.file.read_text(encoding="utf-8")
+		print("pasted %d characters at screen point %d,%d" % ((len(text),) + paste(args.pid, args.x, args.y, text, args.send)))
+	elif args.command == "key":
+		key(args.pid, args.name)
+		print("pressed %s" % args.name)
+	elif args.command == "close":
+		if not request_close(args.pid):
+			sys.exit("no window for process %d" % args.pid)
+		print("WM_CLOSE sent to %d" % args.pid)
+
+
+if __name__ == "__main__":
+	main()

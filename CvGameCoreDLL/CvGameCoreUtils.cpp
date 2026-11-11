@@ -1397,29 +1397,21 @@ CvString getSASDiagnosticOrDash(CvString const& szValue)
 
 // <!-- custom: BBAI and SASGameRecord use the same timestamp/context/active-player filename rules.
 // Centralize the filename construction while each log keeps its own session state and rollover timing. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Timestamped names now carry the Windows process ID after the second-resolution timestamp, e.g. SASGameRecord_20261110T163126Z_3104_load1.log.
+// Two single-player clients launched in the same second would otherwise have opened the same file, and in network multiplayer the ID replaces the active player's seat number, which told two local clients apart but not two separate matches.
+// Fixed-name logs keep the seat number in multiplayer, since without a timestamp it is what keeps two seats' files apart. See KI#1081. (Claude Code Opus 5.5) -->
 CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped)
 {
 	CvString szLogName;
-	if (GC.getGame().isNetworkMultiPlayer())
+	if (bTimestamped)
 	{
-		if (bTimestamped)
-		{
-			if (!szContext.empty())
-				szLogName.Format("%s%d_%s_%s.log", szBaseName, (int)GC.getGame().getActivePlayer(), szTimestamp.GetCString(), szContext.GetCString());
-			else szLogName.Format("%s%d_%s.log", szBaseName, (int)GC.getGame().getActivePlayer(), szTimestamp.GetCString());
-		}
-		else szLogName.Format("%s%d.log", szBaseName, (int)GC.getGame().getActivePlayer());
+		if (!szContext.empty())
+			szLogName.Format("%s_%s_%u_%s.log", szBaseName, szTimestamp.GetCString(), (uint)GetCurrentProcessId(), szContext.GetCString());
+		else szLogName.Format("%s_%s_%u.log", szBaseName, szTimestamp.GetCString(), (uint)GetCurrentProcessId());
 	}
-	else
-	{
-		if (bTimestamped)
-		{
-			if (!szContext.empty())
-				szLogName.Format("%s_%s_%s.log", szBaseName, szTimestamp.GetCString(), szContext.GetCString());
-			else szLogName.Format("%s_%s.log", szBaseName, szTimestamp.GetCString());
-		}
-		else szLogName.Format("%s.log", szBaseName);
-	}
+	else if (GC.getGame().isNetworkMultiPlayer())
+		szLogName.Format("%s%d.log", szBaseName, (int)GC.getGame().getActivePlayer());
+	else szLogName.Format("%s.log", szBaseName);
 	return szLogName;
 }
 

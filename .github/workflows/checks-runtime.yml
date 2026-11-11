@@ -32,6 +32,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/aip_predump_values.py
 
+      - name: Hands-free switch shipped values
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/runtime/hands_free_defaults.py
+
       - name: World-size alignment
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/runtime/worldsizes.py

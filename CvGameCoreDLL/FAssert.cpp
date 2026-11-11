@@ -365,7 +365,8 @@ namespace
 			szContextWide[iI] = (wchar_t)(unsigned char)g_szSASAssertionLogContext[iI];
 		szContextWide[iI] = L'\0';
 		// <!-- custom: Match the established BBAI/SASGameRecord filename shape: early failures stay in _startup, while established games use _newN/_loadN and the process-wide assertion number still links chronology across files. (ChatGPT-5.6-Sol) -->
-		int const iPathChars = _snwprintf(g_szSASAssertionLogPath, SAS_ASSERT_LOG_PATH_CHARS - 1, L"%ls\\SASAssertions_%ls_%ls.log", szLogDirectory, szCompactUtcWide, szContextWide);
+		// <!-- custom: Add the process ID after the millisecond timestamp, matching SGR, BBAI and Runtime file names, so clients started together cannot share a file and each assertion log names its writer. See KI#1081. (Claude Code Opus 5.5) -->
+		int const iPathChars = _snwprintf(g_szSASAssertionLogPath, SAS_ASSERT_LOG_PATH_CHARS - 1, L"%ls\\SASAssertions_%ls_%lu_%ls.log", szLogDirectory, szCompactUtcWide, (unsigned long)GetCurrentProcessId(), szContextWide);
 		g_szSASAssertionLogPath[SAS_ASSERT_LOG_PATH_CHARS - 1] = L'\0';
 		if (iPathChars < 0 || (size_t)iPathChars >= SAS_ASSERT_LOG_PATH_CHARS - 1)
 		{
