@@ -24,7 +24,7 @@ except ImportError:
 # <!-- custom: Helpers now sit in LLM_Helpers folders named by job, so find the repo root from the LLM_Helpers folder instead of a fixed parent depth. (Claude code Opus 5.5) -->
 MOD_ROOT = next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent
 CIV4_ROOT = MOD_ROOT.parents[2]
-LLM_EXTRACTED = Path.home() / "Downloads" / "AdvCiv-SAS_LLM" / "fpks_extracted_and_svn"
+LLM_EXTRACTED = Path.home() / "Downloads" / "AdvCiv-SAS_LLM" / "mod_repos"
 # <!-- custom: Searched in this order, like the game: the mod, then BtS, Warlords and the original game, loose files before packed ones; extracted mods last. (Claude code Opus 5.5) -->
 DEFAULT_ROOTS = (MOD_ROOT / "Assets", MOD_ROOT, CIV4_ROOT / "Beyond the Sword" / "Assets", CIV4_ROOT / "Warlords" / "Assets", CIV4_ROOT / "Assets", LLM_EXTRACTED / "c2cmerged", LLM_EXTRACTED / "history_rewritten", LLM_EXTRACTED / "Realism" / "Assets")
 DEFAULT_FPKS = tuple(sorted((CIV4_ROOT / "Beyond the Sword" / "Assets").glob("*.FPK"))) + tuple(sorted((CIV4_ROOT / "Warlords" / "Assets").glob("*.FPK"))) + tuple(sorted((CIV4_ROOT / "Assets").glob("*.FPK")))

@@ -94,6 +94,19 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
     - [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) can switch the usual development diagnostics on or back to shipped defaults.
     - Temporarily disabling local diagnostics can simplify committing, amending or rebasing; afterward restore the user's previous unstaged values, including BBAI or other diagnostics where applicable, before handing back for testing unless there is a specific reason to leave them disabled. Make that exception clear to the user, who may otherwise forget or not notice that diagnostics are off.
 - Do not commit changes without explicit user approval; leave the completed candidate for review first.
+- For a lengthy, iterative commit candidate, review and fix freely as you go, but leave final validation, meaning the full CI run, the demo screenshots for documentation and the Release DLL, until last, and do each once when everything is clear.
+  - All three go stale whenever the work changes direction, so redoing them at every iteration wastes time and tokens and pulls attention away from the work itself; done once at the end, they are quicker and the iterations get deeper focus.
+  - Example (2026-11-12): while curating the Simple Game map list (KI#1082), the three 1.311 demo screenshots were retaken for 34 maps, then the list became 41 and finally 38, so each retake was soon out of date.
+  - Mind the order of the last steps, and stay flexible: a step being next in the plan does not make it due. Any later edit can make an early CI run or build stale, wasting the time and CPU it took.
+    - Ironically, this very note, a reminder to run CI last, was added to AGENTS.md after a CI run, so it alone needed another one (2026-11-12). So add such notes before running CI, not after.
+    - Claude Code Opus 5.5, which wrote that line, added it before its next CI run, so it technically obeyed the rule.
+      - Yet just after writing it, it ran the full CI again, even though some files were still unstaged and the user had not said the work was ready to commit or agreed with it. The run was premature: the review could still find something new worth the time, and any change it brought would mean yet another run.
+      - Obeying the rule alone, then, did not serve its purpose, which is to validate once everything is settled.
+      - Keep iterating as long as the work needs; just judge when it is time for the final go. Before a full CI run, check `git status` for unstaged or unreviewed changes and whether the user has approved them; if not, wait.
+    - Similarly, the same day, a Release DLL was built because the plan had reached its end. The user was still reviewing and had not decided to commit, so any change the review brought would need another build.
+      - A build for testing is fine at any step, as often as the testing needs. A build only for shipping, such as the Release DLL, waits until the review is done, the user has approved and CI has passed; built earlier, it is premature and risks being wasted.
+  - Waiting for the final go is about running CI and builds at the right time, not about holding findings back. If you notice something during a final CI run or compile, mention it, even if it means another run: a long-term improvement is worth considering, even if it turns out unfounded, more than saving one short-term rerun.
+  - Quick checks that guide the next step still belong during iteration and need not wait, such as a Python 2.4 compile, a `cl.exe /Zs` pass, a Debug-opt build to test a change in game, or one in-game capture confirming that the 38 rows fit without a scrollbar; that capture is a check, not a demo screenshot.
 - In long, technical or iterative uncommitted work (most jobs finish without much complication and usually do not need this), feel free to save a backup outside the repo at key steps, where greps will not find it. Then you can go back to the last good step instead of rewriting or reanalyzing it, or getting lost among iterations; without one, that work can be lost.
   - Timestamped names also line up with the logs of AI runs made at each step. Delete old backups once they clutter or are no longer useful (commit done and finalized some time later) or remind the user of it.
   - Staged and unstaged diffs: `ts=$(date +%Y%m%dT%H%M%S); d=/c/Users/PC/Downloads/AdvCiv-SAS_diff_backups; mkdir -p $d && git diff --staged --ignore-space-at-eol > $d/staged_$ts.diff && git diff --ignore-space-at-eol > $d/unstaged_$ts.diff`.
@@ -133,6 +146,14 @@ On your end you generally don't need to update them unless our infrastructure ch
 - GitHub workflow YAML files must remain directly under `.github/workflows/`; mirror the helper hierarchy through workflow filenames and display names. Give each check a descriptive named step so GitHub shows its progress and result separately.
 - Note: not every CI failure needs a repository fix: a transient failure may pass when unchanged content is submitted again, for example by rerunning the job or amending without content changes to trigger a new SHA/run. Inspect the error before patching; see [KI#38.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.6) for a confirmed identical-tree retry.
   - Be especially cautious when the same check passes locally but fails on GitHub: inspect the error and differing conditions before changing code. Patching an unconfirmed cause or weakening a check can introduce regressions or hide future defects; a local pass alone does not establish that CI is wrong.
+    - On 2026-11-12, GitHub's SASGameRecord revision history check failed on a missing revision bump that local CI had passed.
+      - Claude Code Opus 5.5's assessment was technically correct: the check had failed as designed, and adding the bump would make it pass.
+      - However, the user had not yet understood the failure and was asking about the basics. While working through them, the user wondered why it had not failed locally too.
+        - That showed it should have: we run our CI locally as well, to improve code quality and catch regressions before they reach GitHub, so we want it to fail here too.
+      - That question found the real issue: the check inspected only existing commits, so it could not see a staged candidate, and seven other checks shared that design.
+        - The problem was therefore structural and widespread, and it called for rethinking what these checks are for rather than adding one more revision bump: `ci_report.py` now judges staged changes as a temporary commit, covering all eight.
+      - So when such an issue comes up, fix the case at hand, but keep the bigger picture in view: audit how the failure relates to the rest of the repository, and if it turns out structural or connected to other parts, assess what else may need to change and what seems best to address it broadly.
+        - As with the CI-order rule under [Review and staging](#review-and-staging), a technically correct answer can still miss the intent.
 
 ### Release preparation
 
@@ -166,8 +187,16 @@ Use these specialized records for inherited regressions, suspicious behavior cha
 
 - "Archaeology" broadly means a focused source/history/provenance investigation; it is not limited to the named historical-archaeology record or the C++ File Audit Album. The album preserves a systematic file audit; its findings can still prompt archaeology when their origin needs tracing.
 - For a defect/crash that may be inherited, start with the greppable `LLM_Helpers/context/commit_diffs/` corpus and its `INDEX.txt` / `PATH_HISTORY_INDEX.txt`, then inspect the introducing/preserving diffs and matching Git-log evidence.
+  - The corpus is more than the diffs: each commit is one file holding its message, changed paths and diff, so a single grep over the folder searches all of history at once and each hit names its commit.
+    - Git can search history too, but slowly, since it recomputes every diff: on 2026-11-12, `git log -G getProductionBarPercentages` over our 6,750 commits had not finished after 10 minutes, while `rg` over `commit_diffs/` found the same text in 28 commits in 0.2 s.
+    - Any grep tool works on it, including VS Code's search, and agents without our Git history, such as ChatGPT with a light-source ZIP, can search it the same way.
+    - SVN offers even less: `svn log --search` matches only messages, authors and paths, and each revision's diff must be fetched from the server, so code that a revision changed cannot be searched at all without an export.
+    - The SVN exports (`svn_history/`) use the same format, so Better BTS AI, Realism Invictus and our own history read alike.
   - For origins older than K-Mod's first snapshot, `LLM_Helpers/context/svn_history/bbai/` holds Better BTS AI's SVN history in the same greppable form; see [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
   - Local agents such as Codex can grep the generated `.diff` files directly in the working tree.
+    - Side note: the local copy is Git-ignored, so repository-wide searches skip it, which keeps ordinary searches free of history matches. For archaeology, search `LLM_Helpers/context/commit_diffs/` itself.
+      - Example (2026-11-12): a repository-wide search for "wanderingabout", the name ChatGPT-4o used for the user, found nothing, while the folder held it in 10 commits from SAS 4835 to 5312.
+      - So the skip is usually fine, archaeology included, since most searches concern current code or docs, and searching without the corpus is more efficient; just keep it in mind when a search specifically needs the corpus, where an empty result would otherwise look like the text never existed.
   - External agents such as ChatGPT can use the same corpus when it is supplied through a full-history light-source ZIP; the ZIP intentionally carries these greppable commit diffs for the same archaeology workflow.
   - Comparison trees (AdvCiv, K-Mod, Taurus, Civ4CE/BtS, etc.) support lineage, but current tip-state presence alone does not prove origin.
   - Assess and explain what each relevant link in the causal chain contributed: introducing the faulty assumption, activating or worsening it, partially repairing it, or merely preserving it. Cite the relevant changes/commits and dates when useful; leave uncertain causes explicitly uncertain.
@@ -200,6 +229,12 @@ Use these specialized records for inherited regressions, suspicious behavior cha
 - External review/tuning tools live under `LLM_Helpers/`; local platform-specific tests live under [`tests/`](/tests/README.md). Workflow-helper regression tests remain under `.github/workflows/tests/` and run in CI as well as locally.
   - When you write a script you or another agent would likely need again, add it to `LLM_Helpers/` or extend an existing helper instead of leaving it in a scratchpad: the next agent can then improve it rather than rediscover it, imperfectly.
     - For example, `desktop_windows.py` began as one-off screenshot and click code during the 2026-11-10 autoplay work, and on 2026-11-11 the step reading and turn ranking used to study a Codex review became `openai_chat_export_to_txt.py --steps` and `--longest`.
+    - On 2026-11-12 the WorldBuilder mapping alone produced three more:
+      - [`contact_sheet.py`](/LLM_Helpers/README.md#contact_sheetpy): the agent kept rewriting code to put the same crop of several screenshots on one sheet until the user pointed it out.
+      - [`start_game.py`](/LLM_Helpers/README.md#start_gamepy): starts a turn-0 game with a chosen map, size and options through a per-run INI, which the later Advanced Start and SAS48 passes reused at once.
+      - [`map_preview_dds.py`](/LLM_Helpers/README.md#map_preview_ddspy): grew from a minimap capture prototype into the tool that made 13 World Picker previews with no user step.
+      - Once in the repo, they could be reviewed: Codex's review of `map_preview_dds.py` found it missed PerfectMongoose (`return False`, not `0`). The fix now lives in one classifier that the tool and its CI check share, so they cannot disagree again. A scratchpad copy would have kept the bug and been rewritten next time.
+    - Also add small improvements to helpers when you find them, instead of working around them: a flag, a clearer error or a missing case. The next agent then starts from the better version.
   - The helpers sit in folders named by job, such as `LLM_Helpers/audits/ci_report.py`; put a new helper in the folder of its job and describe it in that folder's README section, which [`folder_indexes.py`](/.github/workflows/README.md#builddocumentationfolder_indexespy) checks. See [Folders](/LLM_Helpers/README.md#folders).
   - To test a change in game, an agent can run autoplay itself: [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches Civ4 into a save or a new game, plays the requested turns, closes Civ4 and reports the outcome and logs; [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) explains how.
     - Before these tools, every in-game check waited on the user to start Civ4, load a save and type a turn count, so agents tested less and later than they could. A run now takes under a minute for 100 turns on a Huge map, so testing a change in game is cheap enough to do routinely.
@@ -210,9 +245,11 @@ Use these specialized records for inherited regressions, suspicious behavior cha
       - Where [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy) clicks in each app is data, not code: [`app_layouts.json`](/LLM_Helpers/game_runs/ui_maps/app_layouts.json) holds a dated layout per window size. App updates move these points, so when `--check-box` finds no layout or misreads the box, re-measure and update the file; the README entry gives the steps.
     - When you find how to do something in the game window, such as scrolling a table, closing a screen or opening an advisor, record it in [README_Game_Runs.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md) with what you tried and what worked or did not.
       - Clicks depend on window size and layout, so a recorded working sequence, and why the others failed, saves the next agent from rediscovering it by trial and error.
-    - Check that the user is not using Civ4 first: the user often has it open for other reasons, and a click or a launched game would land in the middle of their session. Both tools act only on the processes they start or are given by ID.
+    - Check whether the user has Civ4 open first: the user often has it open for other reasons, and a click or a launched game while the user is actively playing would land in the middle of their session. Otherwise take the window over as below. Both tools act only on the processes they start or are given by ID.
       - If Windows refuses to bring the target forward, `desktop_windows.py` may click its title bar after checking that the point belongs to the target process.
-      - A Civ4 the agent started for its own task, such as mapping the interface or a test game, the agent may close itself when done, without asking; one the user opened stays the user's to close.
+      - A Civ4 the agent started for its own task, such as mapping the interface or a test game, the agent may close itself when done, without asking.
+      - If the user has a Civ4 window open and has not said to leave it alone, take it over rather than opening a second client the user would close later anyway (the user's rule, 2026-11-12). Drive it directly, for example with `capture_screens.py --pid`, or, when the task needs a fresh launch such as `run_autoplay.py --new-game`, close it and start your own in its place.
+        - The tools wait until the user is idle before each click. Start a second client with `multiple` only when the task needs two clients at once, such as a LAN test.
   - Run the local diagnostic writer harness when changing its buffering, paths, retries or lifecycle checkpoints; it exercises real Windows I/O with VC2003 without building/installing a game DLL. It is not part of gameplay or normal DLL builds.
 - Shared development context lives under [`LLM_Helpers/context/`](/LLM_Helpers/context/).
   - Normal full-history light-source ZIP generation includes freshly generated commit diffs at that same canonical path and refreshes the Git-ignored local generated copy after the ZIP succeeds; use `python LLM_Helpers/packaging/refresh_commit_diffs.py` to refresh it independently.
@@ -229,9 +266,19 @@ If you don't know how to do something, generally mostly for UI stuff as we like 
 
 - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
 - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
-- Realism Invictus: the SVN working copy is at "C:\Users\PC\Downloads\AdvCiv-SAS_LLM\fpks_extracted_and_svn\Realism" (see [Local LLM working folder](#local-llm-working-folder)); the installed "Realism Invictus" mod folder is a separate copy. Update the SVN working copy when a current reference is needed; do not assume the installed copy follows it.
+- Realism Invictus: the SVN working copy is at "C:\Users\PC\Downloads\AdvCiv-SAS_LLM\mod_repos\Realism" (see [Local LLM working folder](#local-llm-working-folder)); the installed "Realism Invictus" mod folder is a separate copy. Update the SVN working copy when a current reference is needed; do not assume the installed copy follows it.
 
 While doing so and comparing with our approach and what our mod does, in the end we'd adjust for our AdvCiv-based mod and not strictly copy paste it, unless it is fine for our needs. We should properly credit them as such in code comments or docs when we do so.
+
+- A model credit covers the comment's wording, not the finding behind it, so never restate another mod's comment as a custom comment to satisfy CI. Quote it as is instead, without reflowing, and keep our own notes apart, saying only what we changed.
+  - In code, a custom line saying it is a quote, such as "Quoted from", and naming the source and revision, then the source's lines, each starting with `// >` or `# >`; `source_change_provenance.py` accepts such a quote, and `exe_internals_placement.py` lets one stand in the DLL source.
+  - Example (2026-11-12): the globe patch's comments described RI's shared-function finding and its 7-byte cave in our voice under `(Claude code Opus 5.5)`. The user caught it; a line-by-line comparison with RI's `SelfMod.cpp` showed that only the cave's content and the size formula were ours, so RI's two explanations are now quoted in it.
+
+- A port is a chance to improve, not just reproduce: aim for universal, dynamic and tunable rather than a minimal reimplementation of the original's hardcoded values, so players, modmods and agents can tune it without a DLL compile.
+  - Example (2026-11-12, KI#1082): RI sizes the main-menu box with `aSetupW[4] = { 850, 850, 1005, 1150 }` and the globe with `aWorldPickerNum[4] = { 256, 256, 302, 345 }`, one fixed value per font setting, compiled into its DLL.
+    - Why that hurts: nobody can tune it without a DLL compile, which players and most modders cannot do; it ignores the resolution, so a Normal-font player keeps the stock 850 x 569 at 4K while 1150 x 800 overflows a 1366 x 768 screen; and it never uses the space actually available.
+    - Ours applies `size = window * PCT / 100 + ADD` per side for the box and `box * PCT / 100 + ADD` for the globe, read from XML (`SAS_EXE_P_DYNAM_MAIN_MENU_*`). When the user's eye showed the globe still used half its panel, the defaults were retuned to fill it without a single recompile.
+  - Keep the true constants, such as an EXE's stock 850 x 569, as facts in comments rather than settings; make tunable what a player or modmod might want to change.
 
 Example of UI tip discovered: links to a Sevopedia category with no native widget first used `WidgetTypes.WIDGET_PYTHON` with a custom data1 code, as Middle-earth's PlatyPedia and C2C do.
 
@@ -242,14 +289,16 @@ Example of UI tip discovered: links to a Sevopedia category with no native widge
 
 `C:\Users\PC\Downloads\AdvCiv-SAS_LLM` holds local material for agents, outside the repo so it stays out of Git, greps of the working tree and light-source ZIPs.
 
-Make sure to ask before deleting or moving files/folders inside it: its extracted mods and chat exports would be slow or impossible to recover; however feel free to add stuff you find useful though or ask the user if in doubt.
+Make sure to ask before deleting or moving files/folders inside it: its mod repositories, history exports and chat exports would be slow or impossible to recover; however feel free to add stuff you find useful though or ask the user if in doubt.
 
-- `fpks_extracted_and_svn/` holds other mods' files in greppable form, unlike the packed FPKs of installed mods: grep or copy art and XML there instead of guessing what an FPK contains.
-  - `Realism/`: the Realism Invictus SVN working copy, which can be updated for a current reference; the installed "Realism Invictus" mod folder is a separate copy.
-  - `c2cmerged/`: Caveman2Cosmos's FPKs, extracted; C2C also has an SVN that was not updated since.
-  - `history_rewritten/`: History Rewritten's FPKs, extracted.
-  - FPKs were extracted with PakBuild, for convenient searching with grep. Since 2026-11-08 an agent can also list, read or extract any `.FPK` itself with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
-    - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
+- `mod_repos/` holds other mods' development versions, SVN working copies or Git clones: their latest code, XML and art, unpacked and greppable, and the base for exporting their history as greppable diffs.
+  - `Realism/`: Realism Invictus's SVN working copy; update it with `C:\Program Files\SlikSvn\bin\svn.exe update <folder>`.
+  - `c2c_github/`: a blobless clone of Caveman2Cosmos's GitHub repository, with its art unpacked in `UnpackedArt/`; update it with `git pull`. Its history starts in 2019, when C2C moved to GitHub; the 2010-2019 history is only in C2C's SourceForge SVN, which now carries packed builds for players.
+  - Release versions stay in the Civ4 `Mods` folder for playing: their FPKs load much faster than unpacked art, and a few large files instead of thousands of small ones keep disk-wide tools such as WizTree, Everything or a global search lighter, as under [File management](#file-management).
+    - Take the latest art from the development version here, or read an installed mod's FPKs directly with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy); see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
+  - To look at an installed mod's leaders or units, no extraction is needed: `nif_preview.py --mod` renders one by its `ART_DEF_` name and `art_gallery.py` a filtered grid, finding files in the mod, its FPKs and the base game as the game does; see [Other mods' art](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#other-mods-art).
+- `svn_history/ri/`: Realism Invictus's SVN history as greppable diffs, art and Civilopedia text left out; see [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy). Git repositories export the same way with [`git_history_to_diffs.py`](/LLM_Helpers/README.md#git_history_to_diffspy). Both sit here rather than in `LLM_Helpers/context/` because these mods are not in our ancestry.
+- `exe_analysis/`: the decrypted, read-only copy of the Steam `Civ4BeyondSword.exe` and its Ghidra project, for EXE memory patches; see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#reading-the-exe-with-ghidra).
 - `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
 - Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
 
@@ -363,6 +412,8 @@ If a program, package or other tool would help, suggest it to the user rather th
   - Incomplete rationale: saying `SCALE` is clearer does not explain what it improves on.
   - Clearer rationale: `SAS_SGR_MAP_ASCII_OVERVIEW_1_SCALE_PCT` became `SAS_SGR_MAP_ASCII_SCALE_1_PCT`; `MAP_ASCII` already identifies the text map, so removing `OVERVIEW` shortens the name and avoids confusion with the unrelated Domestic Advisor Overview tabs. The improvement comes from that comparison and retained context, not from `SCALE` alone.
 - Before adding or revising documentation, check that the destination and level of detail fit its purpose.
+  - When a subject has its own guide, its knowledge goes there and other documents only link to it. For example, everything about EXE memory patches, including the `LLM_Helpers/exe_analysis/` helpers and their pitfalls, lives in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md).
+    - On 2026-11-12 the same Ghidra setup and pitfalls had been written in three places, the tools table, the helpers README and the guide, so a fix to one would have left the others stale; the tools table and helper entries became short links.
   - For example, a Changes tab description in the root README should introduce what users can do. A `(Requires AdvCiv-SAS 6685+)` bullet followed by nested grouping conditions belongs in the Main Changes Guide; detailed LOG captures belong in `README_Logging_Inventory.md`. Keep a brief explanation and links in the root README instead of copying the same detail there.
 - Describe current behavior and limits without implying future commitments, for example "Performance was not measured" rather than "Performance has not yet been measured". Mention possible extensions only when useful, using wording such as "A possible extension would be..."; otherwise omit speculative plans.
 - Similarly, in documentation and code comments, prefer durable facts and rationale over vague progress labels such as "in progress" or "not yet". These add maintenance burden: we may forget to update them, as has happened before, and future work may change direction or never happen. When status matters, describe the concrete limitation or use a dated historical note.
@@ -432,6 +483,8 @@ If a program, package or other tool would help, suggest it to the user rather th
 - Place a change's comment immediately before its first changed line, including a newly added enclosing brace. If an unchanged gameplay line precedes a new hook, put the hook comment after that line: for example, leave `kUI.setEndTurnMessage(true);` above the comment for the added Runtime notification, so the marker does not imply we changed the inherited flag assignment.
 - Generally preserve model-name credits as context for chronology, authorship and intent, and prefer appending your own (e.g., `+ GPT-6.1-Sol`). Credits may be dropped when clearly stale, for example when a comment is removed or its explanation is entirely replaced.
   - CI conservatively catches clear credit loss but can miss substantial rewording that retains earlier reasoning; review attribution manually rather than forcing old credits onto genuinely replaced explanations.
+  - Join contributors with a plain `+`, without role labels: a fix prompted by another agent's review is credited `(Claude code Opus 5.5 + GPT-6.1-Sol)`, not `+ GPT-6.1-Sol review`.
+    - Everyone contributed one way or another, and tracking who reviewed, drafted or fixed what is tedious for little gain; one consistent form keeps the focus on the work. When the comment says what a review found, the prose already tells that story, such as "Codex reproduced a `--reason` containing `--`..." (the user's preference, 2026-11-12).
 
 ### Preserving meaning and technical detail
 
@@ -1038,7 +1091,9 @@ Get-ChildItem -Path 'CvGameCoreDLL/Project/*/CvGameCoreDLL.dll.build.json' -File
   - Another mod may be running. The process command line names it: `(Get-CimInstance Win32_Process -Filter "Name='Civ4BeyondSword.exe'").CommandLine` ends with `"mod=\<name>"`. Another mod loads its own files, so editing AdvCiv-SAS files is safe.
     - Example (2026-11-07): the command line showed `mod=\Realism Invictus`, while `SASRuntimeStatus.json` still described an earlier AdvCiv-SAS process that had exited cleanly; matching `processId` to the live process exposed the mismatch.
   - The user may also be browsing the Sevopedia or playing casually, with no current test, autoplay or later replay depending on the files being edited.
-  - If AdvCiv-SAS itself is running and its purpose is unclear, ask the user; edits are fine once they confirm.
+  - If AdvCiv-SAS itself is running, close it and go on, unless the user has said to leave it alone: the user's standing rule (2026-11-12) is that agents may close or reuse the user's Civ4 instances without asking, as under [Research and references](#source-analysis).
+    - Asking costs the user a round trip, and the result is the same as the user closing it. Reuse the open client when the task allows it, since that is cheaper than closing and relaunching.
+    - Example (2026-11-12): an agent found the user's AdvCiv-SAS client open, held a define rename and 18 preview runs, and asked twice; the user replied that agents do not need to ask.
 
 - While a validation autoplay is running:
   - Documentation and C++ source/header edits are safe because the live game does not reload them.
@@ -1071,3 +1126,4 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 - A direct delete is fine where you judge nothing of value can be lost, for example an agent's own temporary files in its session scratchpad; when in doubt, use the Recycle Bin.
 - Keep folders that agents or the user open often to roughly 1,000 to 2,000 files, and move older files into a dated subfolder: every listing of a crowded folder strains the hardware needlessly, while moving old files keeps them all. On 2026-11-10 the Civ4 `ScreenShots` folder, with 3,000+ images, was slow to list even on an SSD.
   - [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) does the moving, and the [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md) lists the folders that grow.
+    - `run_autoplay.py` runs it at the end of every run, so the folders it fills are tidied without anyone remembering; `archive_old_files.py --all --apply` checks every known folder by hand.

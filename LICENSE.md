@@ -12,6 +12,14 @@ This mod may include third-party assets (music, images, code, etc.). Where possi
 
 This mod is provided "as is" without warranty. The authors are not liable for any damage, data loss, or issues arising from its use.
 
+### The game's executable
+
+AdvCiv-SAS does not include or distribute `Civ4BeyondSword.exe`, a modified copy of it, or any part of its code. AdvCiv-SAS requires a legitimately owned copy of Civilization IV: Beyond the Sword.
+
+Some features may be made by the AdvCiv-SAS DLL changing a few bytes of the player's own installed game in memory while it runs, as AdvCiv and other mods such as Realism Invictus do; the file on disk is never changed. These runtime patches are used at the player's own risk, like the rest of the mod.
+
+The [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) documents how such patches are studied, only as general information and without any warranty. It does not encourage anyone to disassemble, patch or otherwise modify the game, and anyone who follows it does so at their own risk and responsibility, including for complying with the game's license.
+
 ## License and reuse
 
 AdvCiv-SAS generally allows reuse of AdvCiv-SAS-original work, on the condition that the project credits AdvCiv-SAS. Example of credit:
@@ -90,6 +98,10 @@ If there is any doubt about whether a project is permitted, its author or mainta
 The maintainer is under no obligation to grant an exception or to respond. Silence, lack of a response, or absence of an objection does not constitute permission.
 
 The AdvCiv-SAS maintainer may also, at their sole discretion, approve, excuse, waive, or choose not to enforce any requirement or restriction in these reuse terms in a particular case, including an attribution requirement.
+
+For example, AdvCiv, the mod AdvCiv-SAS is based on, authored and maintained by f1rpo, or any other work by f1rpo, including but not only Taurus, may review any AdvCiv-SAS-original work, including but not only the [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt), and incorporate or modify any small or big part of it (except distributing the entire full AdvCiv-SAS mod as a whole), or any other unrelated part of the code with or without credit of any detail.
+
+It may also distribute that incorporated work on or through CivFanatics, despite the [CivFanatics distribution restriction](#civfanatics-distribution-restriction), as a link, as part of an AdvCiv release, or as an archive.
 
 Any such decision applies only to the specific person, project, use, and circumstances concerned unless explicitly stated otherwise. It does not amend these terms generally, establish a precedent, waive the same requirement in another case, or entitle another person or project to equivalent treatment.
 

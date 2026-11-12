@@ -107,7 +107,7 @@ SAS ships one archive, `Assets/BML.fpk`, with 37 terrain, route and building tex
 
 Extraction keeps the archive's folders, so an extracted model still finds its textures beside it; the Quarry render below came from those 21 extracted files. `art_preview.py` reads packed files directly without extracting them.
 
-The already extracted mods in the local LLM working folder stay convenient for searching with grep, but they are no longer the only way to look inside a mod's art: any `.FPK` can now be listed, read or extracted on demand.
+Any `.FPK` can now be listed, read or extracted on demand, so the extracted copies of Caveman2Cosmos and History Rewritten that used to sit in the local LLM working folder were deleted on 2026-11-12; Caveman2Cosmos's GitHub clone there now holds its unpacked art.
 
 Checking the atlas numbering, with every file read straight from `Art0.FPK`: BtS's button atlas with cell 2,9 marked, that cell cut out, and BtS's standalone Quarry button.
 

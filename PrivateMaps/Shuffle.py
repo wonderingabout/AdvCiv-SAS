@@ -6,6 +6,9 @@
 #	Copyright (c) 2005, 2006 Firaxis Games, Inc. All rights reserved.
 #-----------------------------------------------------------------------------
 #
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 
 from CvPythonExtensions import *
 from SAS_WorldSizeUtils import *
@@ -30,7 +33,8 @@ def getDescription():
 # <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
 # return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
 def isAdvancedMap():
-	"This map should not show up in simple mode"
+	# <!-- custom: Kept out of Simple Game, though it now has room: this Civ3-style random map type overlaps RandomScriptMap, which picks a whole random script.
+	# It stays in Custom Game. See KI#1082. (Claude code Opus 5.5) -->
 	return 1
 
 def getNumCustomMapOptions():

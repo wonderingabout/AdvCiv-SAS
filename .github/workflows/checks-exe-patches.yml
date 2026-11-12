@@ -1,0 +1,32 @@
+name: Checks - EXE patches
+
+on:
+  push:
+  pull_request:
+    # <!-- custom: Ignore the long-lived reference compare from main to the mirrored base AdvCiv 1.14 branch.
+    # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5) -->
+    branches-ignore:
+      - "1.14"
+  workflow_dispatch:
+
+# <!-- custom: The EXE patches have their own category, as the guide and helpers they protect have their own folders: the EXE guide stays out of player archives, and files that ship describe a patch's effect, not the EXE's internals. Both checks ran under Repository before 2026-11-12. (Claude code Opus 5.5) -->
+jobs:
+  exe_patches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        # <!-- custom: Each check runs even when an earlier one failed, so one push reports every failure at once rather than stopping at the first; the job still fails, and a setup failure still stops the checks. (Claude code Opus 5.5) -->
+        id: setup
+        with:
+          python-version: "3.x"
+
+      # <!-- custom: Only export-ignore keeps the EXE patches guide, its helpers and the files describing them out of player archives, so fail if any line goes missing. (Claude code Opus 5.5) -->
+      - name: EXE patches export-ignore
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/exe_patches/exe_patches_export_ignore.py
+
+      # <!-- custom: Files that ship may describe a patch's effect and link to the guide; the EXE's internals stay in the export-ignored guide and helpers. (Claude code Opus 5.5) -->
+      - name: EXE internals stay out of shipping files
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/exe_patches/exe_internals_placement.py

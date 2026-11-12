@@ -104,6 +104,97 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 
 
 
+	<!-- custom: EXE runtime patches: the DLL changes a few bytes of Civ4BeyondSword.exe in memory while it runs; the file on disk is never changed.
+	See The game's executable in LICENSE.md. Credit: the patches and their approach come from Realism Invictus (Walter Hawkwood and team), which grew AdvCiv's own SelfMod.cpp by f1rpo; thanks to them for finding and sharing these. (Claude code Opus 5.5) -->
+	<!-- custom: Master switch: 0 turns off every EXE patch, AdvCiv's own (plot indicator size, help text area width) included, in case one causes trouble with some edition of BtS or operating system; was AdvCiv's DISABLE_EXE_RUNTIME_MODS, with the opposite polarity. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Which EXE builds to patch. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_STEAM_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: GOG/CD builds: untested by us; a patch that does not recognize the EXE skips itself. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_GOG_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: AdvCiv's own patches by f1rpo, each with its own switch now that SAS ports more: the size of the balloon icons over plots, set by BUG's Map tab (advc.092b), and the width of the help text area at the lower left (advc.092c).
+	Both followed only the master switch before. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_PLOT_INDICATOR_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_HELP_TEXT_AREA_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Sizes Simple Game, multiplayer staging and scenario setup to the screen, instead of BtS's fixed 850 x 569 box.
+	Ported from Realism Invictus. See KI#1082. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The box's size, for width and height: game window size * PCT / 100 + ADD, so it adjusts to any resolution by itself.
+	PCT scales with the screen; ADD, in pixels and possibly negative, leaves room for what does not, such as the main menu's bottom bar, which keeps the same pixel height at every resolution: the default height, 100% - 86 px, reaches that bar.
+	PCT 0 makes ADD a fixed size in pixels. See KI#1082. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_PCT</DefineName>
+		<iDefineIntVal>85</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_ADD</DefineName>
+		<iDefineIntVal>-86</iDefineIntVal>
+	</Define>
+	<!-- custom: Safety limits: pixels of the window left free, top and bottom (or left and right) together, whatever the values above, unless the window is too small to leave them beside BtS's stock box.
+	HEIGHT 80 keeps GO BACK on the bottom bar visible; WIDTH 0 lets the box reach the window's sides.
+	A negative value counts as 0, a size under BtS's stock 850 x 569 keeps the stock size for that side, and a value leaving less than the stock size free is ignored for that side. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_WIDTH_FREE_MIN</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_FREE_MIN</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: Grows the rotating world-picker globe, and the map preview on it, with the box above, instead of BtS's fixed 450 x 320 inside the box's large black panel; needs SAS_EXE_P_DYNAM_MAIN_MENU_ON.
+	Ported from Realism Invictus. See KI#1082. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The globe's size, for width and height: box size * PCT / 100 + ADD, the same formula as the box's but applied to the box, so it adjusts at any resolution.
+	A result under 1 px keeps BtS's 450 x 320 for that side; the globe never grows past the box.
+	The defaults nearly fill the map step's black panel in BtS's shape; check a change with Great_Plains, whose picture fills the globe's whole area; was 43% x 50% at first, which left a wide margin. See KI#1082. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_WIDTH_PCT</DefineName>
+		<iDefineIntVal>55</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_WIDTH_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_PCT</DefineName>
+		<iDefineIntVal>65</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_HEIGHT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited.
 	Keep in [1..4] (GPT-5.3-Codex).
 	Base Civ4 Font size: 1. -->
@@ -2521,7 +2612,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>200</iDefineIntVal>
+		<iDefineIntVal>201</iDefineIntVal>
 	</Define>
 
 

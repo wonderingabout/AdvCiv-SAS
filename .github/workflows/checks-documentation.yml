@@ -73,6 +73,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/drive_links.py
 
+      # <!-- custom: A disclaimer protects only if readers meet it before anything else, so keep each listed guide's disclaimer directly under its title. (Claude code Opus 5.5) -->
+      - name: Guide disclaimers first
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/disclaimers_first.py
+
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

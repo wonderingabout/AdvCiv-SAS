@@ -29,7 +29,7 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_LAKES_DESCR"
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
+	# <!-- custom: Hidden from Simple Game again: Water already covers lake-heavy maps, so this frees a row; it stays in Custom Game. See KI#1082. (Claude code Opus 5.5) -->
 	return 1
 
 def getNumCustomMapOptions():

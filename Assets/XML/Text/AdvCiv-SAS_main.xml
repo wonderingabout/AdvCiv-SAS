@@ -1404,6 +1404,38 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 
 
+	<!-- custom: was "Select a[SPACE]", which the setup screens put before each map script option's name, giving titles such as "SELECT A ELEPHANT", "SELECT A REGIONS" or "SELECT A OIL AND ALUMINIUM" (spotted by the user, 2026-11-12).
+	The prefix made every title longer, and so harder to read, for no gain: the screen itself asks for a choice, so the option's name alone says it, as "WORLD SIZE", "HANDICAP" and "GAME SPEED" already did.
+	"Select:" was tried first and kept the redundancy. See KI#1083. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A</Tag>
+		<English></English>
+	</TEXT>
+	<!-- custom: the full step titles lose "Select a" for the same reason, so every setup step is titled by its subject alone; were "Select a Map", "Select a Civilization", "Select a Climate", "Select a Sealevel", "Select a Difficulty" and "Select a Scenario". See KI#1083. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_MAP</Tag>
+		<English>Map</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_CIV</Tag>
+		<English>Civilization</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_CLIMATE</Tag>
+		<English>Climate</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_SEALEVEL</Tag>
+		<English>Sea Level</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_DIFFICULTY</Tag>
+		<English>Handicap</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_A_SCENARIO</Tag>
+		<English>Scenario</English>
+	</TEXT>
 	<!-- custom: rename "SEALEVEL" to "SEA LEVEL". -->
 	<TEXT>
 		<Tag>TXT_KEY_MAIN_MENU_SELECT_SEALEVEL_TITLE</Tag>

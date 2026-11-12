@@ -6,9 +6,18 @@
 # The data lives here as code so each screen reads as one block and the file stays one control per line; edit a screen here and rerun to regenerate the JSON, which also checks that every "to" names an existing screen. (Claude Code Opus 5.5) -->
 
 # <!-- custom: json writes and rereads the map; sys and pathlib find the output. (Claude Code Opus 5.5) -->
+# <!-- custom: importlib loads simple_game_scripts.shown_scripts from the parent game_runs/ folder, for the Simple Game map list; it shares that classifier with map_preview_dds.py and the CI check, and ships in GitHub ZIPs, unlike the CI check it was first loaded from. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+import importlib.util
 import json
 import sys
 from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[3]
+_SGS_SPEC = importlib.util.spec_from_file_location("simple_game_scripts", REPO / "LLM_Helpers" / "game_runs" / "simple_game_scripts.py")
+if _SGS_SPEC is None or _SGS_SPEC.loader is None:
+	raise SystemExit("cannot load LLM_Helpers/game_runs/simple_game_scripts.py")
+simple_game_scripts = importlib.util.module_from_spec(_SGS_SPEC)
+_SGS_SPEC.loader.exec_module(simple_game_scripts)
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else str(Path(__file__).resolve().parent / "civ4_ui_map.json")
 T = "2026-11-11"
@@ -17,12 +26,14 @@ copyright = "AI, UI, logging, or other modifications first developed in AdvCiv-S
 about = ("Civ4's screens, from the main menu to the screens and popups of a game, how to reach each one and where its controls are, explored on %s at 1920x1080 windowed (a 1926x1120 window). "
 	"Each control has its window-relative xy, the screen it leads to (to) when clicked, and a short note; a screen's tests list keys or clicks tried and what they did, while the story behind them, quirks and failed tries are in README_Game_Runs.md; controls marked 'not clicked' have real effects, such as starting a game, switching mod, going online or closing Civ4, and were left alone. "
 	"desktop_windows.py click --point SCREEN.CONTROL clicks one, such as single_player.load_game. Menu items sit at x 965 from y 575, 45 px apart. "
+	"Since 2026-11-12 the setup screens (Simple Game, scenario lists, BTS Content, Load a Mod) fill the window, 85%% wide and its height minus 86 px (KI#1082); their footer OK and GO BACK did not move, and the lists inside were re-measured. "
 	"Each control sits on one line so the screens read like tables. These positions change with the resolution or the mod's UI code; re-check them with check_points.py after such a change.") % T
 
 
 # <!-- custom: Helpers: c builds one control, menu places the nth item of a main menu column, dd one Custom Game dropdown, read_shortcuts the Sevopedia's key lists. (Claude Code Opus 5.5) -->
+# <!-- custom: Controls are dicts of mixed values (a list xy, string to and note), typed as such so a type checker accepts both. (Claude code Opus 5.5) -->
 def c(xy, to=None, note=""):
-	d = {"xy": list(xy)}
+	d: dict[str, object] = {"xy": list(xy)}
 	if to:
 		d["to"] = to
 	if note:
@@ -35,7 +46,7 @@ def menu(i):
 
 
 def dd(xy, span, note=""):
-	d = {"xy": list(xy), "span": list(span)}
+	d: dict[str, object] = {"xy": list(xy), "span": list(span)}
 	if note:
 		d["note"] = note
 	return d
@@ -99,11 +110,11 @@ S["load_dialog"] = {"reach": "single_player.load_game", "controls": {
 	"filename": c((980, 978), None, "file name field"),
 	"ok": c((1732, 978), None, NC + "loads the selected save"), "cancel": c((1732, 1018), "single_player")}}
 S["scenario_list"] = {"reach": "single_player.play_scenario or single_player.custom_scenario", "controls": {
-	"list": c((700, 580), None, "WorldBuilder saves, x 543-871, y 300-857"),
-	"preview": c((1130, 580), None, "globe, name and map size, x 886-1377"),
+	"list": c((460, 600), None, "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857); see KI#1082"),
+	"preview": c((1290, 430), None, "globe, name and map size, x 822-1758 since the 2026-11-12 enlarged setup screen (was x 886-1377)"),
 	"ok": c((1857, 1094), None, NC + "starts the scenario"), "go_back": c((100, 1094), "single_player")}}
 S["bts_content"] = {"reach": "single_player.bts_content", "controls": {
-	"list": c((700, 580), None, "scenarios of other installed mods, each with map size, description and its Mod Folder"),
+	"list": c((460, 600), None, "scenarios of other installed mods, each with map size, description and its Mod Folder; x 152-790 since the 2026-11-12 enlarged setup screen. Its title shows raw markup, <COLOR=165,165,165,255>BTS CONTENT</COLOR>, once the header is visible"),
 	"ok": c((1857, 1094), None, NC + "loads the other mod's scenario"), "go_back": c((100, 1094), "single_player")}}
 S["custom_game"] = {"reach": "single_player.custom_game", "note": "Civ4 remembers these settings for the next custom game, so none was changed.", "controls": {
 	"player_rows": c((280, 144), None, "one row per player, 47 px apart from y 144, scrollbar at x 1866; columns: type or name x 280, team x 590, civilization x 1030, leader x 1474, difficulty x 1720"),
@@ -143,14 +154,84 @@ S["custom_game"]["map_script_options"] = {
 	"SAS_Longworld": "LongWorld Height (4 Plots (Recommended)), Width Per Player (12 (Recommended)), Revolving World (WrapX (Recommended))",
 	"Earth2": "none"}
 S["custom_game"]["controls"]["victories"]["note"] = "checkboxes at x 1400, 35 px apart from y 560: Time, Conquest, Domination, Cultural, Space Race, Diplomatic"
-steps = [("map", "map script list with preview and description"), ("climate_size", "Climate and Sea Level radio buttons, World Size slider from Random to SAS48"),
-	("map_option", "the map script's own option, such as Archipelago's landmass type"), ("civilization", "civilization list, leaders column, description"),
-	("names", "Leader Name, Civ Description, Short Description and Civ Adjective fields"), ("handicap_speed", "Handicap and Game Speed lists with a summary of the earlier choices")]
+# <!-- custom: Simple Game's six steps, re-mapped on 2026-11-12 after the enlarged setup screen (KI#1082): every list row now has a named control, generated from its item names and row spacing.
+# The previous chat edited the JSON directly instead, so a rerun of this generator dropped that work; the data now lives here. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+def slug(text):
+	import re
+	return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+
+
+def rows(prefix, names, x, y, step, note=None):
+	# <!-- custom: One control per list row, named prefix + slug of its item; note is None (no note), a callable on the item, or a fixed string. (Claude code Opus 5.5) -->
+	out = {}
+	for i, name in enumerate(names):
+		text = note(name) if callable(note) else note
+		out[prefix + slug(name)] = c((x, y + step * i), None, str(text or ""))
+	return out
+
+
+# <!-- custom: The map list is derived from the scripts themselves, in Civ4's case-insensitive order, instead of typed here: a script added, removed or hidden from Simple Game changes the rows at once, and the CI check ui_map_sync.py fails until the JSON is regenerated.
+# The list's place and capacity follow the box, sized by the SAS_EXE_P_DYNAM_MAIN_MENU_* formula read from GlobalDefines_advciv_sas.xml, so a changed default moves the rows here too; the first version hardcoded 38 rows from y 148. (Claude code Opus 5.5) -->
+SIMPLE_MAPS = sorted(simple_game_scripts.shown_scripts(REPO / "PrivateMaps"), key=str.lower)
+def simple_game_box(client):
+	# <!-- custom: The box sasSetupScreenGetSize computes for this client size, at least the stock 850 x 569 and within the window minus FREE_MIN, as SelfMod.cpp does. (Claude code Opus 5.5) -->
+	import re
+	xml = (REPO / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml").read_text(encoding="utf-8")
+	def define(name):
+		found = re.search(r"<DefineName>SAS_EXE_P_DYNAM_MAIN_MENU_%s</DefineName>\s*<iDefineIntVal>(-?\d+)" % name, xml)
+		if found is None:
+			raise SystemExit("SAS_EXE_P_DYNAM_MAIN_MENU_%s is missing from GlobalDefines_advciv_sas.xml" % name)
+		return int(found.group(1))
+	size = []
+	for side, stock, window in (("WIDTH", 850, client[0]), ("HEIGHT", 569, client[1])):
+		free = window - max(0, define(side + "_FREE_MIN"))
+		cap = free if free >= stock else window
+		size.append(min(max(window * define(side + "_PCT") // 100 + define(side + "_ADD"), stock), cap))
+	return size
+
+
+# <!-- custom: Fixed facts of the theme, measured on the user's 1920 x 1080 capture on 2026-11-12: the window's client area starts 3 px right and 37 px down, the list's first row is centred 56 + 12 px below the box's top and 53 px in from its left, rows are 24 px tall, and the list ends 13 px above the box's bottom. (Claude code Opus 5.5) -->
+CLIENT = (1920, 1080)
+CLIENT_OFFSET = (3, 37)
+LIST_TOP, LIST_BOTTOM, LIST_LEFT, ROW = 56, 13, 53, 24
+BOX = simple_game_box(CLIENT)
+SIMPLE_MAP_ROWS = (BOX[1] - LIST_TOP - LIST_BOTTOM) // ROW
+SIMPLE_MAP_X = CLIENT_OFFSET[0] + (CLIENT[0] - BOX[0]) // 2 + LIST_LEFT
+SIMPLE_MAP_Y = CLIENT_OFFSET[1] + (CLIENT[1] - BOX[1]) // 2 + LIST_TOP + ROW // 2
+if len(SIMPLE_MAPS) > SIMPLE_MAP_ROWS:
+	raise SystemExit("%d scripts are shown in Simple Game, but only %d rows fit at 1920 x 1080 without a scrollbar; re-measure the map list's points (README_Game_Runs.md) or hide a script" % (len(SIMPLE_MAPS), SIMPLE_MAP_ROWS))
+SIZE_STOPS = (("Random", 214), ("Arena", 352), ("Duel", 488), ("Tiny", 625), ("Small", 762), ("Standard", 899), ("Large", 1035), ("Huge", 1172), ("SAS24", 1309), ("SAS32", 1446), ("SAS40", 1582), ("SAS48", 1719))
+MAP_OPTIONS = (("archipelago__", ["Random", "Snaky Continents", "Archipelago", "Tiny Islands"], ""),
+	("btg_cross__", ["Flat", "Cylindrical", "Toroidal"], ""),
+	("highlands__", ["Random", "Scattered", "Ridgelines", "Clustered"], ""),
+	("pangaea__", ["Random", "Natural", "Pressed", "Solid"], ""),
+	("sas_longworld__", ["%d Plots" % n if n != 4 else "4 Plots (Recommended)" for n in range(2, 8)], ""),
+	("tectonics__", ["Random", "Earthlike (80% water)", "Earthlike (70% water)", "Earthlike (60% water)", "Pangaea (70% water)", "Lakes (30% water)", "Islands (90% water)", "Mediterranean (45% water)", "Randomized Earth (67% water)", "Randomized Earth (Old World Start)"], ""),
+	("planet_generator_0_68__", ["First Time (FT) Random"] + ["FT Random (%s continents)" % r for r in ("1 - 3", "1 - 5", "1 - 7", "2 - 5", "2 - 7", "2 - 13", "2 - 15", "3 - 7", "3 - 13", "3 - 15", "3 - 18")] + ["One continent"] + ["%d continents" % n for n in range(2, 19)], ""),
+	("tectonics_aridity__", ["Random", "Arid", "Normal", "Wet", "No ice"], "second option step, SELECT AN ARIDITY LEVEL: "),
+	("perfectmongoose__", ["Perlin Noise", "Plate Tectonics"], "SELECT A LAND SHAPE: "))
+MAP_OPTIONS[6][1][4] = "FT Random (2 - 5 continents, default)"
+SIMPLE_CIVS = ["Random"] + ["%s Empire" % n for n in ("Arabian", "Aztec", "Babylonian", "Byzantine", "Carthaginian", "Celtic", "Chinese", "Dutch", "Egyptian", "English", "Ethiopian", "French", "German", "Greek", "Holy Roman", "Incan", "Indian", "Irish", "Japanese", "Khmer")] + ["Kingdom of Benin"] + ["%s Empire" % n for n in ("Korean", "Mali", "Maya", "Mongolian", "Native American", "Ottoman", "Persian", "Portuguese", "Roman", "Russian", "Scandinavian", "Spanish", "Sumerian")] + ["United States of America", "Zulu Empire"]
+step_controls = [rows("map_", SIMPLE_MAPS, SIMPLE_MAP_X, SIMPLE_MAP_Y, ROW),
+	dict(list(rows("climate_", ["Random", "Temperate", "Tropical", "Arid", "Rocky", "Cold"], 180, 178, 32).items()) + list(rows("sea_", ["Random", "Low", "Medium", "High"], 509, 178, 32).items()) + [("size_" + slug(name), c((x, 1042), None, "slider stop; clicking the track was not tested")) for name, x in SIZE_STOPS]),
+	{},
+	dict(list(rows("civ_", SIMPLE_CIVS, 200, 148, 24).items()) + [("leader_%d" % (i + 1), c((1688, 218 + 82 * i), None, "leader portraits of the selected civilization, top to bottom; English shows three")) for i in range(3)]),
+	rows("", ["Leader Name", "Civ Description", "Short Description", "Civ Adjective"], 1033, 653, 39),
+	dict(list(rows("handicap_", ["Rookie", "Settler", "Chieftain", "Warlord", "Noble", "Prince", "Monarch", "Emperor", "Immortal", "Deity", "Deity Plus"], 180, 178, 24).items()) + [("speed_" + slug(item.split(" (")[0]), c((180, 876 + 24 * i), None, item)) for i, item in enumerate(S["custom_game"]["dropdowns"]["speed"]["items"])])]
+for prefix, names, note in MAP_OPTIONS:
+	step_controls[2].update(rows(prefix, names, 200, 148, 24, lambda name, note=note: note + name))
+steps = [("map", "SELECT A MAP: the map script list, 24 px apart from y 148, with preview and description; all 38 scripts fit, the 38 rows that show at once since the 2026-11-12 enlarged setup screen (KI#1082)"),
+	("climate_size", "WORLD SIZE: Climate and Sea Level radio buttons, 32 px apart from y 178, and the World Size slider at y 1042 with 12 stops from Random to SAS48"),
+	("map_option", "the map script's own option, a list 24 px apart from y 148: Archipelago and Tectonics landmass type, BTG_Cross world wrap, Highlands mountain pattern, Pangaea shoreline, Planet_Generator_0_68 continents, SAS_Longworld height, PerfectMongoose land shape"),
+	("civilization", "SELECT A CIVILIZATION: Random and 36 civilizations, 24 px apart from y 148, all visible since the enlarged setup screen; the leaders column on the right and the selected leader's portrait, traits, units and buildings"),
+	("names", "YOUR DETAILS: the leader's portrait, then Leader Name, Civ Description, Short Description and Civ Adjective fields; this box grows only in height and stays about 900 px wide, x 512-1415"),
+	("handicap_speed", "GAME SNAPSHOT: Handicap list, 24 px apart from y 178, Game Speed list from y 876, and a summary of map, size, climate, sea level, era and the player's details")]
 keys = ["simple_game_%d_%s" % (n, t) for n, (t, _d) in enumerate(steps, 1)]
 for n, (title, desc) in enumerate(steps, 1):
 	ok = c((1857, 1094), None, NC + "starts the game") if n == 6 else c((1857, 1094), keys[n])
 	back = c((100, 1094), "single_player" if n == 1 else keys[n - 2])
-	S[keys[n - 1]] = {"reach": "single_player.simple_game, then OK %d time(s)" % (n - 1), "shows": desc, "controls": {"ok": ok, "go_back": back}}
+	S[keys[n - 1]] = {"reach": "single_player.simple_game, then OK %d time(s)" % (n - 1), "shows": desc, "controls": dict(list(step_controls[n - 1].items()) + [("ok", ok), ("go_back", back)])}
+S["simple_game_3_map_option"]["about"] = "Mapped on 2026-11-12 for popular scripts; controls are named SCRIPT__OPTION. Continents, Earth2, Fractal and Inland_Sea have no option step: their OK leads straight to simple_game_4_civilization. A script can also have several option steps, each its own screen at this position: Tectonics asks for its landmass type, then an aridity level, so count its OKs accordingly. Each script remembers its last choice, so the selected row is not always the default."
 S["multiplayer"] = {"reach": "main_menu.multiplayer", "controls": {
 	"lan_games": c(menu(0), "lan_lobby"), "gamespy_lobby": c(menu(1), None, NC + "the old online service; drawn grey"),
 	"hot_seat": c(menu(2), "hot_seat"), "play_by_email": c(menu(3), "play_by_email"), "go_back": c((100, 1094), "main_menu")}}
@@ -186,7 +267,7 @@ S["bug_menu"] = {"reach": "options.bug_menu, or ingame_menu: BUG Menu", "shows":
 	"tabs": c((540, 272), None, "tab names along y 272: General x 540, Map 604, City Screen 682, Advisors 776, Alerts 850, Scores 914, Time 976, Unit Icons 1054, Odds 1130, Unit Names 1210, Autolog 1302, System 1380"),
 	"help": c((922, 888), None, "BUG Mod Help"), "exit": c((1034, 888), None, "closes the BUG menu")}}
 S["load_a_mod"] = {"reach": "advanced.load_a_mod", "controls": {
-	"list": c((620, 600), None, "installed mods, the current one selected, preview on the right"),
+	"list": c((460, 600), None, "installed mods, the current one selected, preview on the right; x 152-790 since the 2026-11-12 enlarged setup screen"),
 	"ok": c((1857, 1094), None, NC + "switches mod and restarts the game"), "go_back": c((100, 1094), "advanced")}}
 S["credits"] = {"reach": "advanced.credits", "shows": "scrolling credits in a panel", "controls": {"go_back": c((100, 1094), "advanced")}}
 S["sevopedia"] = {"reach": "main_menu.sevopedia", "shows": "see the pedia_* points in civ4_points.json and civ4_sevopedia_map.json", "controls": {"exit": c((1866, 1094), "main_menu")}}
@@ -440,6 +521,61 @@ S["city_screen"]["tests"] += [
 	["six citizen - clicks afterwards", "left one Citizen specialist where an Engineer had been, so assignments do not simply undo; check the column after each click"],
 	["the ten production filters in a big late-game city", "inconclusive: after the first filter click the screen was back on the main map, so the next clicks hit the main screen; the user was moving the mouse meanwhile, which most likely caused it; retest one click at a time with a screenshot after each"]]
 S["advisors"]["controls"]["exit_tab"] = c((1446, 1091), "game_main", "EXIT, the last tab of every advisor")
+# <!-- custom: WorldBuilder's tool icons, from their tooltips on 2026-11-12 (hovered with hover_tooltips.py --front --wait 4; without the window in front or with a shorter wait none showed): two rows of six at the top right, 35 px apart.
+# Then each mode was clicked on 2026-11-12 in the user's turn-0 game; the notes say what opened. (Claude code Opus 5.5) -->
+WB_ICONS = (("landmark_mode", "Enter landmark mode", "a map click asks Enter caption (text field, OK) and puts a sign with that text on the plot; a right-click removes it"),
+	("erase_mode", "Enter erase mode", "one map click removes everything placed on the plot at once: units, resource and improvement were all gone after one click"),
+	("change_all_plots", "Change All Plots", "a modal panel at the right: Add Mountain, Add Hill, Add Grass, Add Ocean, Cancel (about (1780, 308)); until Cancel, other icons and tooltips do nothing. Add Hill turned every plot of the map into a hill, the ocean included, with no undo (2026-11-12, test game; the log showed DEBUG Event: WBAllPlotsPopup)"),
+	("save", "Save", "a Save File dialog in Saves/WorldBuilder for .CivBeyondSwordWBSave files: folder tree, file list, Filename, File Type, OK (1619, 904) and Cancel (1619, 943); entering WorldBuilder itself had written WBQuickSave"),
+	("load", "Load", "a Load File dialog with the same layout and folder; Cancel at (1620, 944)"), ("exit", "Exit World Builder", "back to the game; reopening with Ctrl+W resets every panel's size and position"),
+	("edit_unit_mode", "Edit Unit Mode", "a map click on a unit opens World Builder Edit Control: Choose Unit (a dropdown of the plot's units, the unit's name, Experience and Level spinners, a UNITAI_ dropdown, Add Script) and Promotions (a click toggles one; a yellow frame means the unit has it); a click on an empty plot opens nothing"),
+	("edit_city_mode", "Edit City Mode", "a map click on a city opens World Builder Edit Control: City Data (name, Population, Culture, Gold, Add Script, then rows for religions, holy cities, corporations and headquarters, whose clicks toggle) and Buildings (a click toggles one; a yellow frame means the city has it)"),
+	("player_mode", "Player Mode", "the mode panel top left with Units, Buildings and Technologies tabs; click an item (yellow frame), then a plot: a unit is placed for the player in the dropdown; a right-click on a plot removes its units. A building clicked onto a city showed no effect (use Edit City instead)"),
+	("map_mode", "Map Mode", "the mode panel with Improvements, Resources, Terrains and Territory tabs, and a brush size dropdown; click an item, then a plot: it paints that item. A right-click removes a resource, improvement, feature, route or ownership, but not a terrain or plot type, which are changed by painting another"),
+	("reveal_tile_mode", "Reveal Tile Mode", "Reveal All Tiles (1718, 134) and Unreveal All Tiles (1753, 134) for the player in the dropdown; unrevealed plots show hatched; a map click reveals that plot"),
+	("diplomacy_mode", "Diplomacy Mode", "a centred Diplomacy panel: the leader whose relations are edited, a vassal dropdown, then per other player a War with or Peace with dropdown and an AI attitude weight slider from -100 to 100; Restore Defaults and Exit; choosing War with set it at once, and Peace with set it back"))
+S["worldbuilder"] = {"reach": "Ctrl+W from a game", "shows": "the map with a tool panel top right (two rows of six icons, a player dropdown and Add Techs by Era) and a mode panel top left, such as Player Mode with Units, Buildings and Technologies tabs",
+	"note": "In Player Mode and Map Mode a click on the map edits the game: on 2026-11-12 a drag that missed the panel's grip moved the panel, and the tab clicks that followed landed on the map and placed Lions; the vertical drag that was meant to shrink the panel also painted a Lion on each plot it crossed. A right-click on a plot in Player Mode removes its units, as the user pointed out, which removed all eleven. Click only on panels, start a drag exactly on the grip, and screenshot after each drag.",
+	"tests": [
+		["right-click a plot in Player Mode", "removes the units on it (a desktop_windows.py drag --button right with the same start and end point is a right-click)"],
+		["drag the panel grip", "resizes the panel; a press beside the grip moves the whole panel instead"],
+		["Change All Plots open, then other icons or hovers", "nothing happens until its Cancel is clicked"],
+		["Map Mode, 3x3 brush: paint territory, then right-click", "9 plots changed owner, and the right-click cleared all 9"],
+		["Map Mode: desert, then right-click", "the desert stayed; painting grassland restored the plot"],
+		["Player Mode: a building clicked on an empty land plot (SAS48, 2026-11-12)", "founded a city there with that building, a capital with the Palace; a research choice popup then opened and blocked other clicks until answered"],
+		["Player Mode, Technologies: click a tech; Add Techs by Era: Add all Ancient Techs", "a click toggles the tech for the selected player (yellow frame = known); the era item framed every Ancient tech, and the panel jumped back to the Units tab"],
+		["Edit Unit or Edit City: Add Script", "asks Enter your script name (field at about (1700, 185), OK (1703, 235)); the text is stored and shown when reopened; OK with an empty field kept the old text, so this popup cannot clear a script"],
+		["Edit City: Population up arrow", "the city grew at once (the banner showed 2)"],
+		["Map Mode: Regenerate Map Using Current Map Script (the crosshair at (1718, 134))", "did nothing in a game where a city had been founded"],
+		["Diplomacy Mode with 48 players (SAS48)", "about 6 player columns show at a time, with a horizontal scrollbar; the panel already spans x 110-1818, so no size fits 48"],
+		["closing the client while in WorldBuilder", "it ignored the close request; run_autoplay.close_civ4 forced it after its wait, so leave WorldBuilder first"]],
+	"controls": dict((name, c((1718 + 35 * (i % 6), 63 if i < 6 else 98), None, "tooltip: %s; %s" % (tip, done))) for i, (name, tip, done) in enumerate(WB_ICONS))}
+S["worldbuilder"]["controls"].update({
+	"panel_tabs": c((46, 82), None, "the mode panel's tabs at y 82: Player Mode has Units x 46, Buildings x 119, Technologies x 222; Map Mode, once widened, Improvements x 80, Resources x 190, Terrains x 278 (terrain types, plot types, features, then routes) and Territory x 362; at the default width arrows at about (298, 84) scroll the tab strip"),
+	"map_brush_size": c((1825, 135), None, "Map Mode and Reveal Tile Mode: brush size 1x1, 3x3 or 5x5, items 26 px apart; the target icon left of it at (1718, 134)"),
+	"reveal_all": c((1718, 134), None, "Reveal Tile Mode: tooltip Reveal All Tiles; not clicked"), "unreveal_all": c((1753, 134), None, "Reveal Tile Mode: tooltip Unreveal All Tiles; not clicked"),
+	"diplomacy_panel": c((962, 575), None, "Diplomacy Mode: a centred panel, x 107-1820, y 382-768: a leader dropdown (296, 492), War with ?, AI Attitude Weight and a vassal dropdown (Not a Vassal) at (296, 591), then one column per other player with a Peace with dropdown and a -100 to 100 slider, a horizontal scrollbar, Restore Defaults (962, 691) and Exit (962, 730); nothing was changed"),
+	"panel_items": c((39, 121), None, "item grid, 7 per row at the default size, about 34 px apart from (39, 121); hovering shows the item's Sevopedia-style help, such as Lion or Swift Worker"),
+	"panel_collapse": c((305, 46), None, "the arrow at the panel's top right: collapses it"),
+	"panel_grip": c((302, 267), None, "the yellow grip at the panel's bottom right, at the default size: drag it to resize the panel; sizes reset when WorldBuilder is reopened. Edit Control has a grip too: for Edit City, from (1104, 799) to (1478, 799) shows all buildings in 9 rows of 18 with a spare row; for Edit Unit, from (1125, 735) to (1261, 735) shows all 57 promotions in 5 rows of 12; both widen from the centre. Sizes chosen with the user on 2026-11-12, each the smallest that shows every tab without scrolling, with one spare row for new buildings: Player Mode, grip to (648, 470): 18 columns, Units 8 rows, Buildings 9 plus the spare, Technologies 6. Map Mode, grip to about (429, 292): 11 columns, all four tab names without arrows, Territory's 49 slots (48 players and the Barbarians; empty ones show a skull and the tooltip None) in 5 rows"),
+	"player_dropdown": c((1805, 135), None, "the player being edited: PC, then every leader, items 26 px apart from y 169; a second click on it closes it unchanged"),
+	"add_techs_by_era": c((1805, 171), None, "Add all Ancient, Classical, Medieval, Renaissance, Industrial, Modern or Future Techs to that player, items 26 px apart from y 205; opened only to read, a second click closed it unchanged")})
+
+
+# <!-- custom: Advanced Start, explored on 2026-11-12 in an agent's own Standard Pangaea game.
+# A QuickStart game with the option gave 0 points, as the setup's Advanced Start Base Points (400 by default) come only through Custom Game; the game reads no points key from the INI.
+# Custom Game in a client started from a per-run INI copy keeps the user's INI untouched. (Claude code Opus 5.5) -->
+S["advanced_start"] = {"reach": "Custom Game with the Advanced Start option ticked (custom_game options, first box), then Launch",
+	"shows": "the points box top left (points, Begin!, Cost Here), 10 turns of Universal Peace Remaining, and an Advanced Start panel at the bottom left with Cities, Units, Improvements, Visibility and Techs tabs",
+	"note": "Select an item, hover a plot to see Cost Here (0 means it cannot go there, as a Cottage on forest showed), click to buy; a right-click on the plot sells it back for the full price. Items marked Not removable in their help (City, Culture, buildings, Visibility, Techs) cannot be sold. A new city asks for a name, and the first one also opens a research choice popup; answer them before the next click.",
+	"controls": {
+	"points": c((75, 66), None, "points left; leftover points became gold after Begin!"),
+	"begin": c((117, 97), "game_main", "ends Advanced Start; the game then asks the capital what to build"),
+	"cost_here": c((100, 136), None, "the price of the selected item on the hovered plot"),
+	"tab_cities": c((337, 987)), "tab_units": c((397, 987)), "tab_improvements": c((490, 987)), "tab_visibility": c((597, 987)), "tab_techs": c((672, 987)),
+	"items": c((330, 1026), None, "the tab's items from here, about 34 px apart. Cities: City (Not removable), Population Point (33, then 36 for the next), Culture (Not removable), Build Improvements (Automated) below at (330, 1058), then the civilization's buildings (Not removable). Units: Settler (National Unit, 1 allowed), Worker (90 on the capital), a third unit. Improvements: Cottage. Visibility: one eye that reveals a plot for 2. Techs: one item that opens the Technology Advisor"),
+	"automate": c((330, 1058), None, "Build Improvements (Automated): spent 239 of 248 points at once, including a second city (Akkad), whose name popup then had to be answered"),
+	"techs_advisor": c((70, 176), None, "after the Techs item: the Technology Advisor; clicking a tech title (Fishing) set it as research, 1. Fishing, without spending points; EXIT at (1660, 1090)")}}
 
 
 # <!-- custom: Popups and dialogs that open over a game. (Claude Code Opus 5.5) -->
@@ -494,7 +630,7 @@ items = list(S.items())
 for si, (k, v) in enumerate(items):
 	lines.append('    %s: {' % json.dumps(k))
 	lines.append('      "reach": %s,' % json.dumps(v["reach"]))
-	for extra in ("shows", "note", "list_layout"):
+	for extra in ("shows", "about", "note", "list_layout"):
 		if extra in v:
 			lines.append('      %s: %s,' % (json.dumps(extra), json.dumps(v[extra])))
 	if "tests" in v:

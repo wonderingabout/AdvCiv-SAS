@@ -29,9 +29,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_BOREAL_DESCR"
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	# <!-- custom: keep Boreal out of Simple Game by design; return 1 hides it there while keeping the script available in advanced/custom setup. (GPT-5.3-Codex) -->
-	return 1
+	# <!-- custom: Shown in Simple Game, although BtS marked it advanced: since KI#1082 the setup screen has room for more scripts, and it adds variety, with its cold, northern lands. (GPT-5.3-Codex + Claude code Opus 5.5) -->
+	return 0
 
 def isClimateMap():
 	return 0

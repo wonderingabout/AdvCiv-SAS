@@ -113,6 +113,14 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 201 - SAS practical 6749
+
+- **Date:** 2026-11-12
+- **Git commit:** pending
+- **Change:** A new reader of the record: `map_preview_dds.py` takes the map's plot grid from this client's `GAME_RECORD_GAME_SETTINGS` row (`map=WxH`) to give each Simple Game preview the map's shape. The record's own output is unchanged.
+  - Like `compare_sasgamerecord_rng.py`, it now depends on that row, so a change to its `map` field should also check this tool. See KI#1082.
+  - The commit first shipped without this bump: the local CI run passed, as the revision check judges commits and the change was not committed yet, while GitHub failed it. `ci_report.py` now judges the staged candidate as a temporary commit, so such a gap shows before the commit.
+
 ### Revision 200 - SAS practical 6747
 
 - **Date:** 2026-11-11

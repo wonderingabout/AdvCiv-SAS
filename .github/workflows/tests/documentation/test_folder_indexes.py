@@ -105,6 +105,45 @@ class HelperDocOrderTests(unittest.TestCase):
             self.assertTrue(any("not in alphabetical order" in error for error in errors))
             self.assertTrue(any("README_New.md is not listed" in error for error in errors))
 
+    def guide_documented(self, folder, section, guide_text):
+        # <!-- custom: A fixture with the real exe_analysis/ folder and its guide, whose README section and guide text each test varies. (Claude code Opus 5.5) -->
+        guide = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"][0]
+        helpers = HELPERS_README.replace("| `balance/` | tuning |", "| `balance/` | tuning |\n| `exe_analysis/` | EXE |") + "\n## `exe_analysis/`\n\n" + section
+        root = self.repository(folder, helpers=helpers)
+        for path in ("LLM_Helpers/exe_analysis/dump.py", "LLM_Helpers/exe_analysis/ghidra_scripts/Describe.java"):
+            (root / path).parent.mkdir(parents=True, exist_ok=True)
+            (root / path).write_text("", encoding="utf-8")
+        (root / guide).parent.mkdir(parents=True, exist_ok=True)
+        (root / guide).write_text(guide_text, encoding="utf-8")
+        return root, guide
+
+    def pointer(self):
+        guide, disclaimer = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"]
+        return "See the [guide](/%s) and the [disclaimer](%s).\n" % (guide, disclaimer)
+
+    def test_guide_documented_folder_passes_as_pointer(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, self.pointer(), "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertEqual(self.errors(root), [])
+
+    def test_guide_documented_folder_rejects_subsections_and_unnamed_helpers(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, self.pointer() + "\n### `dump.py`\n\nDetails.\n", "# Guide\n\n`dump.py` only\n")
+            errors = self.errors(root)
+            self.assertTrue(any("has subsection" in error for error in errors))
+            self.assertTrue(any("Describe.java: not described" in error for error in errors))
+
+    def test_guide_documented_folder_rejects_description_lines(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root, _ = self.guide_documented(folder, "Helpers that read the EXE.\n\n" + self.pointer(), "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertTrue(any("has 2 lines" in error for error in self.errors(root)))
+
+    def test_guide_documented_folder_needs_both_links(self):
+        with tempfile.TemporaryDirectory() as folder:
+            guide = checker.GUIDE_DOCUMENTED_FOLDERS["exe_analysis"][0]
+            root, _ = self.guide_documented(folder, "See the [guide](/%s).\n" % guide, "# Guide\n\n`dump.py` and `Describe.java`\n")
+            self.assertTrue(any("must link to /LICENSE.md" in error for error in self.errors(root)))
+
     def test_unsorted_workflow_helpers_fail(self):
         with tempfile.TemporaryDirectory() as folder:
             workflows = WORKFLOWS_README.replace("#### `build/assets/fonts.py`\n\n#### `build/assets/tech_audio.py`", "#### `build/assets/tech_audio.py`\n\n#### `build/assets/fonts.py`")

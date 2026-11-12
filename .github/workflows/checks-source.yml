@@ -39,6 +39,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/raw_getinfotype.py
 
+      - name: Lint suppressions name their rule and reason
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/lint_suppressions.py
+
       - name: Custom-comment logical reflow
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python LLM_Helpers/formatting/reflow_custom_comments.py --check

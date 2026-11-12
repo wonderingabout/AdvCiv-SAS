@@ -88,6 +88,12 @@
 /_1_AdvCiv-SAS/Docs/examples/fpk    export-ignore
 /_1_AdvCiv-SAS/Docs/examples/fpk/**  export-ignore
 
+# <!-- custom: The EXE patch helpers and their guide are for studying the game's EXE, which players do not need; keep them in Git and the light-source ZIP for agents, but out of player/GitHub Download ZIP archives. The decrypted EXE copy itself is never in the repository.
+# Keep every other file that describes what the guide holds out of these archives too, such as /AGENTS.md and /.github/ (folder_indexes.py and the workflows README) above. A file that ships, such as LLM_Helpers/README.md or the Modding Resources README, may only link to the guide and its disclaimer. exe_patches_export_ignore.py fails if these lines go missing, and exe_internals_placement.py if a shipping file describes the EXE's internals; both live in .github/workflows/build/exe_patches/. (Claude code Opus 5.5) -->
+/LLM_Helpers/exe_analysis/    export-ignore
+/LLM_Helpers/exe_analysis/**  export-ignore
+/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md  export-ignore
+
 # <!-- custom: Local platform-specific harnesses are development tools, not gameplay/release content; keep them in Git and the dedicated light-source ZIP. (GPT-6.1-Sol) -->
 /tests/    export-ignore
 /tests/**  export-ignore

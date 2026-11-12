@@ -335,8 +335,11 @@ def main():
             messages = shared_chat_messages(args.input)
         else:
             source = Path(args.input) if args.input else latest_codex_rollout()
+            # <!-- custom: A UTC timestamp in the default name lets one thread be exported again later: the bare rollout name refused a second snapshot of the same Codex thread with "File exists" (2026-11-12).
+            # Existing files are still never overwritten. (Claude code Opus 5.5) -->
+            snapshot = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
             if args.markdown and args.source == "codex":
-                output = args.output or DEFAULT_EXPORT_DIR / f"codex-{source.stem}.md.txt"
+                output = args.output or DEFAULT_EXPORT_DIR / f"codex-{source.stem}-{snapshot}.md.txt"
                 if args.output is None:
                     output.parent.mkdir(parents=True, exist_ok=True)
                 with output.open("x", encoding="utf-8") as stream:
@@ -348,7 +351,7 @@ def main():
                 for minutes, begin, step_count, words in sorted(codex_turns(source), reverse=True)[:args.longest]:
                     print(f"{minutes:6.1f} min  {step_count:3d} steps  {begin:%Y-%m-%d %H:%M} UTC  {words}")
                 return
-            filename = f"{args.source}-{source.stem}.txt"
+            filename = f"{args.source}-{source.stem}-{snapshot}.txt"
             messages = codex_messages(source, args.steps) if args.source == "codex" else chatgpt_messages(source)
         output = args.output or DEFAULT_EXPORT_DIR / filename
         # <!-- custom: Stable speaker separators make it easy to grep message boundaries in long handoff transcripts. (GPT-6.1-Sol) -->

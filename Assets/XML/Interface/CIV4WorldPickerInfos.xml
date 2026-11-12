@@ -2,6 +2,10 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jason Winokur (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!--
+AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- -->
 <!-- custom: Long_Comments_XML.txt #357 -->
 <!-- World Picker -->
@@ -148,6 +152,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_ARCH03.dds</WaterLevelGlossPath> <!-- High -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the large frozen inland sea and scattered snow show the cold, lake-filled land best. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Boreal</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -175,6 +180,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the cleanest, most even cross with full arms. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>BTG_Cross</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -202,6 +208,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the clearest grid of crosses with the fewest gaps. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>BTG_Grid</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -229,6 +236,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath>
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the clearest ring of land around the lagoon and its central island. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>BTG_Lagoon</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -321,6 +329,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most recognizable continents: the Americas, Africa, Eurasia and Australia. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Earth2</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -348,6 +357,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most regular rows of equal islands, made at SAS48 like the hand-made original. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Equal_Islands_V2_beta</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -369,7 +379,7 @@
 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
 			</Climates>
 			<WaterLevelDecals>
-				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta_SAS48.dds</WaterLevelDecalPath>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta.dds</WaterLevelDecalPath>
 			</WaterLevelDecals>
 			<WaterLevelGloss>
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
@@ -483,6 +493,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most visible mix of hills, lakes and green land. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Highlands</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -548,6 +559,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_IceAge03.dds</WaterLevelGlossPath> <!-- High -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the inland sea with its peninsulas, closest to the hand-made original. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Inland_Sea</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -575,6 +587,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most lakes spread across the land, which is what the script is about. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Lakes</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -632,6 +645,7 @@
 				<!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the three are nearly identical; the first shows the ring and its mountain centre cleanly. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Donut</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -697,6 +711,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: a central landmass reaching toward the corners, closest to the hand-made original. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Peirce</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -724,6 +739,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most continuous ring of land around the central sea. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Ring</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -751,6 +767,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the roundest, most clearly facing islands. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>SAS_Large_Facing_Islands</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -778,6 +795,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the three are nearly identical; the first is as clear as any. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>SAS_Longworld</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -805,6 +823,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most even parallel strips of land. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>SAS_Parallel_Lines</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -832,6 +851,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the clearest spikes along the avenues. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>SAS_Spiky_Avenues</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -897,6 +917,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most water channels winding through the land. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Water</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -924,6 +945,7 @@
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
 			</WaterLevelGloss>
 		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: the most distinct spokes around the hub. See KI#1082. (Claude code Opus 5.5) -->
 		<WorldPickerInfo>
 			<MapName>Wheel</MapName>
 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
@@ -946,6 +968,398 @@
 			</Climates>
 			<WaterLevelDecals>
 				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds</WaterLevelDecalPath>
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; a single run, not chosen among variants. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Arboria</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Arboria/FLAT_Arboria.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 3 of 3, chosen by the user, whose reason, a matter of taste: no reason given. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Custom_Continents</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Custom_Continents/FLAT_Custom_Continents.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by the user, whose reason, a matter of taste: no reason given. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Fantasy_Realm</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Fantasy_Realm/FLAT_Fantasy_Realm.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 3 of 3, chosen by the user, whose reason, a matter of taste: a hybrid of water and clearer rocky land. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Global_Highlands</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Global_Highlands/FLAT_Global_Highlands.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 3 of 3, chosen by the user, whose reason, a matter of taste: clear enough. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Hemispheres</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Hemispheres/FLAT_Hemispheres.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by the user, whose reason, a matter of taste: best shows the tail of islands at the bottom. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Medium_and_Small</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Medium_and_Small/FLAT_Medium_and_Small.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 3 of 3, chosen by the user, whose reason, a matter of taste: for very random maps a dark globe might do, but if not, 3 is fine; the agent kept 3, as every Fractal map shares one style. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Fractal</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Fractal/FLAT_Fractal.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by the user, whose reason, a matter of taste: not grid-like, unlike Equal_Islands. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Islands</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Islands/FLAT_Islands.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by the user, whose reason, a matter of taste: funny. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Planet_Generator_0_68</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Planet_Generator_0_68/FLAT_Planet_Generator_0_68.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by the user, whose reason, a matter of taste: 1 is cool, but 2 shows the densest green at a glance. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Rainforest</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Rainforest/FLAT_Rainforest.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by the user, whose reason, a matter of taste: 2 looks fine, or 3. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Tectonics</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Tectonics/FLAT_Tectonics.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by the user, whose reason, a matter of taste: 1 or 2; not 3, too island-like. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>not_too_Big_or_Small</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/not_too_Big_or_Small/FLAT_not_too_Big_or_Small.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 2 of 3, chosen by the user, whose reason, a matter of taste: 1 is too symmetric; 2 looks more continental than 3, which is archipelago-like. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>Mixed_Continents</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Mixed_Continents/FLAT_Mixed_Continents.dds</WaterLevelDecalPath> <!-- Random -->
+			</WaterLevelDecals>
+			<WaterLevelGloss>
+				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+			</WaterLevelGloss>
+		</WorldPickerInfo>
+		<!-- custom: Preview made by LLM_Helpers/game_runs/map_preview_dds.py from the minimap at turn 0 on 2026-11-12; variant 1 of 3, chosen by Claude code Opus 5.5, whose reason, a matter of taste: two sizeable continents among islands best show PerfectWorld's tectonic, continental style; 2 is one central mass, 3 mostly scattered islands. See KI#1082. (Claude code Opus 5.5) -->
+		<WorldPickerInfo>
+			<MapName>PerfectMongoose</MapName>
+			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+			<Sizes>
+				<Size>1.0</Size> <!-- Random -->
+				<Size>0.128</Size> <!-- Arena (14x10) -->
+				<Size>0.214</Size> <!-- Duel -->
+				<Size>0.358</Size> <!-- Tiny -->
+				<Size>0.604</Size> <!-- Small -->
+				<Size>1.0</Size> <!-- Standard -->
+				<Size>1.463</Size> <!-- Large -->
+				<Size>2.308</Size> <!-- Huge -->
+				<Size>3.141</Size> <!-- SAS24 -->
+				<Size>4.103</Size> <!-- SAS32 -->
+				<Size>5.192</Size> <!-- SAS40 -->
+				<Size>6.346</Size> <!-- SAS48 -->
+			</Sizes>
+			<Climates>
+				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+			</Climates>
+			<WaterLevelDecals>
+				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/PerfectMongoose/FLAT_PerfectMongoose.dds</WaterLevelDecalPath> <!-- Random -->
 			</WaterLevelDecals>
 			<WaterLevelGloss>
 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->

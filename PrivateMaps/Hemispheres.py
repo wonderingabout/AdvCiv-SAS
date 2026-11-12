@@ -8,6 +8,9 @@
 #	Copyright (c) 2007 Firaxis Games, Inc. All rights reserved.
 #-----------------------------------------------------------------------------
 #
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 
 from CvPythonExtensions import *
 from SAS_WorldSizeUtils import *
@@ -41,8 +44,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_LEFT_AND_RIGHT_DESCR"
 
 def isAdvancedMap():
-	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
-	return 1
+	# <!-- custom: shown in Simple Game again, as in BtS: it was hidden to keep the list short enough for the EXE's fixed 850 x 569 box, which SAS_EXE_P_DYNAM_MAIN_MENU_ON now sizes from the game window. See KI#1082. (Claude code Opus 5.5) -->
+	return 0
 
 def getNumCustomMapOptions():
 	return 3

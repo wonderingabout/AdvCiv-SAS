@@ -16,6 +16,7 @@ These settings were declared in base AdvCiv 1.14; their treatment in SAS differs
 | --- | --- | --- |
 | `SAVE_VERSION` in `GlobalDefines_advc.xml` | `SAS_SAVE_VERSION` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) | The editable declaration moved; after XML loading, the DLL derives the old `SAVE_VERSION` key from the SAS setting for engine/BUG consumers. It is not a second independent setting. See [KI#166.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166.2). |
 | `REPORT_INTERVAL` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old periodic UWAI reporting control was removed when diagnostics moved into timestamped BBAI output; this is not a one-to-one rename. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
+| `DISABLE_EXE_RUNTIME_MODS` in `GlobalDefines_advc.xml` | `SAS_EXE_P_ON` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) | Moved on 2026-11-12 with its polarity inverted: `1` now means patches on. It sits with the per-build and per-patch `SAS_EXE_P_*` switches, and still turns off AdvCiv's own EXE patches too. |
 | `UWAI_REPORT_THRESH` and `UWAI_REPORT_THRESH_HUMAN` in `GlobalDefines_devel.xml` | `SAS_BBAI_UWAI_*` log levels | The old war-utility thresholds no longer configure SAS diagnostics; use the relevant category's log level. See [KI#505.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505.3). |
 
 ## SAS name conversion table

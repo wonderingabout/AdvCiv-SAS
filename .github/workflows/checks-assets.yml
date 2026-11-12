@@ -47,3 +47,7 @@ jobs:
       - name: ArtDefine structure
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/assets/art_define_structure.py
+
+      - name: Simple Game map previews
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/assets/map_previews.py

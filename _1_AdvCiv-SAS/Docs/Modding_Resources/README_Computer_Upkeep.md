@@ -56,10 +56,14 @@ In one parallel save-load run on 2026-11-11, the final PNG was about 921 KB, the
 - It refuses to move `ScreenShots` or `Logs` while Civ4 runs, since Civ4 writes there and an open log must not move mid-write.
 - Earlier archive folders, whose names start with `old`, are never moved again, so it can run as often as needed.
 - Civ4 recreates a fixed-name log such as `PythonErr.log` if an old copy was moved.
+- `--all` checks every folder it knows (ScreenShots, Logs, autoplay screenshots) at once. Replays are left out, since the Hall of Fame reads that folder.
+- Nobody needs to remember it: since 2026-11-12, [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) runs it at the end of every run, once its own client is closed, archiving any of those folders that holds more than 1,000 entries. That day `Logs` held 5,363 files, and 4,363 moved.
+  - A GitHub check cannot do this, since these folders exist only on the user's computer; the tool that fills them is the natural place to tidy them.
 
 ```bash
 python LLM_Helpers/housekeeping/archive_old_files.py logs
 python LLM_Helpers/housekeeping/archive_old_files.py logs --apply
+python LLM_Helpers/housekeeping/archive_old_files.py --all --apply
 ```
 
 To archive just the autoplay PNGs, close Civ4 and preview the shared screenshot folder from PowerShell. If the preview looks right, rerun with `--apply` to move the older PNGs into a dated `old_*` folder there.

@@ -23,7 +23,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_BIG_AND_SMALL_DESCR"
 
 def isAdvancedMap():
-	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
+	# <!-- custom: Kept out of Simple Game, though it now has room: not_too_Big_or_Small covers the same mix of large and small landmasses.
+	# It stays in Custom Game. See KI#1082. (Claude code Opus 5.5) -->
 	return 1
 
 def getNumPlotsPercent(argsList):

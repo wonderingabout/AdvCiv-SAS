@@ -22,6 +22,15 @@ from pathlib import Path
 # <!-- custom: desktop_windows, beside this script, launches, screenshots and closes Civ4. (Claude Code Opus 5.5) -->
 import desktop_windows
 
+# <!-- custom: importlib loads housekeeping/archive_old_files.py from its file for the folder upkeep at the end of a run, without a sys.path entry. (Claude code Opus 5.5) -->
+import importlib.util
+
+_ARCHIVE_SPEC = importlib.util.spec_from_file_location("archive_old_files", Path(__file__).resolve().parents[1] / "housekeeping" / "archive_old_files.py")
+if _ARCHIVE_SPEC is None or _ARCHIVE_SPEC.loader is None:
+	raise SystemExit("cannot load LLM_Helpers/housekeeping/archive_old_files.py")
+archive_old_files = importlib.util.module_from_spec(_ARCHIVE_SPEC)
+_ARCHIVE_SPEC.loader.exec_module(archive_old_files)
+
 REPO_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "LLM_Helpers").parent
 MOD_FOLDER = REPO_ROOT.name
 USER_DIR = Path(os.environ["USERPROFILE"]) / "Documents" / "My Games" / "beyond the sword"
@@ -81,9 +90,11 @@ def write_request_ini(base_ini, out_ini, turns, debug_mode, run_id, alias, game_
 		lines.append(line)
 	if overrides:
 		raise ValueError("%s lacks the keys %s" % (base_ini, ", ".join(sorted(overrides))))
-	lines += ["", "[SASAutoplay]", "Turns = %d" % turns, "DebugMode = %d" % int(debug_mode), "RunId = %s" % run_id]
-	if leaders:
-		lines.append("Leaders = %s" % leaders)
+	# <!-- custom: turns=None writes no request, so the game waits at turn 0 without autoplay: map_preview_dds.py needs a map with no cities yet (2026-11-12). (Claude code Opus 5.5) -->
+	if turns is not None:
+		lines += ["", "[SASAutoplay]", "Turns = %d" % turns, "DebugMode = %d" % int(debug_mode), "RunId = %s" % run_id]
+		if leaders:
+			lines.append("Leaders = %s" % leaders)
 	lines.append("")
 	out_ini.write_bytes("\r\n".join(lines).encode("latin-1"))
 
@@ -326,10 +337,12 @@ def main():
 				if pid is not None:
 					closed = close_civ4(pid) if desktop_windows.process_alive(pid) else "ALREADY_EXITED"
 			finally:
-				try:
-					ini_path.unlink()
-				except OSError:
-					pass
+				# <!-- custom: Civ4 also leaves a .bak copy of the INI it was started with; 56 of them had piled up in the game folder by 2026-11-12. (Claude code Opus 5.5) -->
+				for leftover in (ini_path, ini_path.with_name(ini_path.name + ".bak")):
+					try:
+						leftover.unlink()
+					except OSError:
+						pass
 	time.sleep(2)
 
 	errors = python_errors(launched)
@@ -372,6 +385,12 @@ def main():
 	summary_temp.replace(summary_path)
 	print(summary_text)
 	print("summary: %s" % summary_path)
+	# <!-- custom: Tidies the folders this runner fills, Logs and the autoplay screenshots, once its own client is closed: a folder over 1,000 entries keeps its newest 1,000 and moves the rest into an old_<UTC> subfolder.
+	# The user asked on 2026-11-12 for upkeep that agents need not remember, as Logs had grown to 5,363 files; archive_crowded does nothing while any Civ4 runs, such as a client left open with --keep-open. (Claude code Opus 5.5) -->
+	try:
+		archive_old_files.archive_crowded()
+	except OSError as error:
+		print("folder upkeep skipped: %s" % error)
 	sys.exit(0 if outcome == COMPLETED else 1)
 
 

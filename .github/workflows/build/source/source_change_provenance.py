@@ -354,6 +354,20 @@ def without_sas_header(block: CommentBlock) -> str:
     return normalize_comment_text("\n".join(kept))
 
 
+# <!-- custom: Porting Realism Invictus's world-picker patch, our custom comments restated RI's findings in our own voice under our model credit, which the user caught on 2026-11-12: paraphrase blurred whose finding it was, and reflow would have changed RI's wording.
+# So another mod's comment is quoted as is: every line starts with ">", directly under a custom line that says it is a quote, such as "Quoted from", and names the source, so the quote keeps the source's wording and layout and the credit marks only who quoted it. (Claude code Opus 5.5) -->
+# <!-- custom: Any wording that says it is a quote counts, "Quoted from", "Quote of" or "quoting", since "Quoted from" was only an example (the user, 2026-11-12). (Claude code Opus 5.5) -->
+QUOTE_INTRO_RE = re.compile(r"\bquot(?:e|ed|es|ing)\b", re.I)
+QUOTE_LINE_RE = re.compile(r"^[ \t]*(?://|#)[ \t]?>")
+
+
+def quoted_source_block(block: CommentBlock, new_comments: list[CommentBlock]) -> bool:
+    lines = [line for line in block.raw.splitlines() if line.strip()]
+    if not lines or not all(QUOTE_LINE_RE.match(line) for line in lines):
+        return False
+    return any(other.custom and other.end == block.start - 1 and QUOTE_INTRO_RE.search(other.raw) for other in new_comments)
+
+
 def exempt_new_comment(block: CommentBlock) -> bool:
     payload = normalize_comment_text(block.text)
     if not payload:
@@ -1025,7 +1039,7 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     for index, block in enumerate(added_legacy):
         if generated_header:
             continue
-        if exempt_new_comment(block) or index in code_exempt or (restored_comment is not None and restored_comment(block.raw)):
+        if exempt_new_comment(block) or index in code_exempt or quoted_source_block(block, new_comments) or (restored_comment is not None and restored_comment(block.raw)):
             continue
         if removed_without_header[without_sas_header(block)] > 0:
             removed_without_header[without_sas_header(block)] -= 1

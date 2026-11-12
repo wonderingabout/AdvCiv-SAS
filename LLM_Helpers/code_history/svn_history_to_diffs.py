@@ -58,8 +58,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--label", required=True, help="Short name that prefixes each file, for example BBAI")
     parser.add_argument("--start", type=int, default=1, help="First revision (default 1)")
     parser.add_argument("--end", type=int, default=None, help="Last revision (default: the latest)")
-    parser.add_argument("--summarize", action="append", default=[], metavar="GLOB", help="Path glob to list without fetching its contents, such as vendored libraries. Repeatable.")
+    # <!-- custom: Realism Invictus lives at /realism/bts/trunk/mod inside the shared civ4mods repository, so a root export would mix in every other mod. (Claude code Opus 5.5) -->
+    parser.add_argument("--path", action="append", default=[], metavar="PREFIX", help="Keep only changes under this repository path, for example /realism/bts/trunk/mod; revisions with none are skipped. Repeatable.")
+    parser.add_argument("--summarize", action="append", default=[], metavar="GLOB", help="Path glob to list without fetching its contents, such as vendored libraries or art folders. Repeatable.")
     parser.add_argument("--workers", type=int, default=4, help="Revisions fetched in parallel (default 4)")
+    # <!-- custom: RI's 630-revision export took about two hours oldest-first, while the revisions we wanted first (2026's EXE patches and Python reload) were the last ones. (Claude code Opus 5.5) -->
+    parser.add_argument("--newest-first", action="store_true", help="Fetch the newest revisions first, so recent history is readable while older revisions are still downloading")
     parser.add_argument("--max-file-patch-bytes", type=int, default=DEFAULT_MAX_FILE_PATCH_BYTES)
     parser.add_argument("--max-file-changed-lines", type=int, default=DEFAULT_MAX_FILE_CHANGED_LINES)
     parser.add_argument("--max-revision-patch-bytes", type=int, default=DEFAULT_MAX_REVISION_PATCH_BYTES)
@@ -88,12 +92,14 @@ def log_report(root_url: str, revision_range: str) -> ET.Element:
     return ET.fromstring(open_url(urllib.request.Request(root_url, data=body, method="REPORT", headers={"Content-Type": "text/xml"})))
 
 
-def fetch_log(root_url: str) -> list[Revision]:
+def fetch_log(root_url: str, start: int, end: int | None) -> tuple[int, list[Revision]]:
     # <!-- custom: Log from the repository root: a path-scoped log would silently miss history under older locations, and copy origins come from the same report.
-    # With no revision range, SourceForge's server returned only the latest revision, so read that first and then request the span explicitly. (Claude code Opus 5.5) -->
+    # With no revision range, SourceForge's server returned only the latest revision, so read that first and then request the span explicitly.
+    # The span used to start at r1 whatever --start said; it now covers only the requested revisions, since RI's shared repository logs thousands of other mods' revisions before r5000. (Claude code Opus 5.5) -->
     youngest = int(log_report(root_url, "").find("S:log-item", NS).findtext("D:version-name", namespaces=NS))
+    last = youngest if end is None else min(end, youngest)
     revisions = []
-    for item in log_report(root_url, f"<S:start-revision>1</S:start-revision><S:end-revision>{youngest}</S:end-revision>").findall("S:log-item", NS):
+    for item in log_report(root_url, f"<S:start-revision>{start}</S:start-revision><S:end-revision>{last}</S:end-revision>").findall("S:log-item", NS):
         changes = []
         for element in item:
             action = ACTIONS.get(element.tag.split("}")[1])
@@ -102,7 +108,16 @@ def fetch_log(root_url: str) -> list[Revision]:
             copy_rev = element.get("copyfrom-rev")
             changes.append(Change(action, element.text or "", element.get("node-kind", "unknown"), element.get("text-mods") != "false", element.get("copyfrom-path"), int(copy_rev) if copy_rev else None))
         revisions.append(Revision(int(item.findtext("D:version-name", namespaces=NS)), item.findtext("D:creator-displayname", "(no author)", NS), item.findtext("S:date", "", NS), item.findtext("D:comment", "", NS) or "", tuple(sorted(changes, key=lambda change: change.path))))
-    return sorted(revisions, key=lambda revision: revision.number)
+    return youngest, sorted(revisions, key=lambda revision: revision.number)
+
+
+def in_scope(path: str, prefixes: list[str]) -> bool:
+    return not prefixes or any(path == prefix or path.startswith(prefix.rstrip("/") + "/") for prefix in prefixes)
+
+
+def scope_revision(revision: Revision, prefixes: list[str]) -> Revision:
+    # <!-- custom: Copy origins outside the scope are kept on the change itself, so a file copied in from another mod still diffs against its source. (Claude code Opus 5.5) -->
+    return Revision(revision.number, revision.author, revision.date, revision.message, tuple(change for change in revision.changes if in_scope(change.path, prefixes)))
 
 
 def fetch_file(root_url: str, path: str, revision: int) -> bytes | None:
@@ -248,15 +263,17 @@ def main() -> int:
     args = parse_args()
     root_url = args.url.rstrip("/") + "/"
     args.out.mkdir(parents=True, exist_ok=True)
-    all_revisions = fetch_log(root_url)
-    revisions = [revision for revision in all_revisions if revision.number >= args.start and (args.end is None or revision.number <= args.end)]
+    youngest, logged = fetch_log(root_url, args.start, args.end)
+    scoped = [scope_revision(revision, args.path) for revision in logged]
+    revisions = [revision for revision in scoped if revision.changes or not args.path]
     if not revisions:
-        print(f"No revisions in range; the repository has r{all_revisions[0].number}-r{all_revisions[-1].number}.", file=sys.stderr)
+        print(f"No revisions in range{' under ' + ', '.join(args.path) if args.path else ''}; the repository's latest is r{youngest}.", file=sys.stderr)
         return 1
     print(f"{args.label}: r{revisions[0].number}-r{revisions[-1].number}, {len(revisions)} revisions, {sum(len(revision.changes) for revision in revisions)} changed paths")
     failures = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = {pool.submit(render_revision, root_url, revision, args): revision.number for revision in revisions}
+        order = reversed(revisions) if args.newest_first else revisions
+        futures = {pool.submit(render_revision, root_url, revision, args): revision.number for revision in order}
         for done, future in enumerate(concurrent.futures.as_completed(futures), 1):
             if future.exception() is not None:
                 failures.append((futures[future], future.exception()))

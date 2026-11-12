@@ -1251,7 +1251,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1078 - (Worked around inherited BtS limits for new SAS Peat) A bonus could not be found when a feature was cleared, unlike ore found by mining, and XML cannot keep Marsh under a Farm only on Rice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1078)\
 [KI#1079 - (Guarded inherited BtS/AdvCiv mismatch with SAS CI) Python showed at most 5 corporation inputs, although the game uses every input listed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1079)\
 [KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)\
-[KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)
+[KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)\
+[KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
+[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)
 
 <a id="ki-1"></a>
 
@@ -37592,3 +37594,56 @@ Civ4's EXE writes every client's Python errors to the same `Logs/PythonErr.log` 
 - SAS's own files no longer collide: Runtime, SASGameRecord, BBAI and assertion files carry the process ID since Runtime18 and SGR199; see the [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once).
 
 Found by Claude code Opus 5.5 while testing parallel autoplay runs requested by wonderingabout, thanks.
+
+<a id="ki-1082"></a>
+
+## KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps
+
+Simple Game (BtS's "Play Now"), multiplayer staging and scenario setup open in a centred box whose size the EXE hardcodes as 850 x 569, at every resolution and font size; Custom Game already fills the window. Python, XML and the DLL could not change it.
+
+- To fit more maps and game speeds into that box, commit d194577b3 (2026-01-04), made with the help of GPT-5.2-Codex, tightened the radio buttons and set `Layout_MainMenu_OuterMargin`'s top to -48 in [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm), which pushed the box's title, such as "SELECT A MAP", off its top.
+  - The `1.310_main_menu_simple_game` screenshots in [Simple Game rework](/README.md#simple-game-rework) show that look; base AdvCiv's title shows in `_0_Legacy/Images/main_menu/0.310_main_menu_simple_game_select_map.JPG`.
+- Realism Invictus patches the EXE's size function in memory (`setSetupScreenSize`, r5619/r5620, 2026-08-23), with one fixed size per font setting. On 2026-11-12 we ported it into [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp); see the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
+  - A first port with one fixed size, 1150 x 800, showed all 23 maps without scrolling. But 1150 x 800 is taller than a 1366 x 768 screen, and 2400 x 1400 in a 1920 x 1080 window spilled off every edge, hiding the map list and GO BACK.
+  - So the function now jumps to our own, which measures the game window each time a setup screen opens and returns `window size * PCT / 100 + ADD` for each side, from the `SAS_EXE_P_DYNAM_MAIN_MENU_*` defines in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+    - The defaults, 85% wide and 100% - 86 px high, reach the main menu's bottom bar, about 44 px, as the advisors reach theirs: 100% - 120 px left a visible gap above it, 100% - 88 px a 1 px dark line, and 100% - 84 px covered half its gold stripe; pixel rows showed -86 and -87 render alike, with the box's own black 1 px border on the stripe's top row.
+    - The bar keeps its pixel height at every resolution, so one ADD fits all. Tested in 1920 x 1080, 2560 x 1380 and 3806 x 2100 windows and in 1920 x 1080 fullscreen. A PCT of 0 makes ADD a fixed size.
+  - A result larger than the window is cut to the window's width and to its height minus `SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_FREE_MIN`, 80 px by default; assertion builds report it. A first clamp to the full window kept the map list visible at 150% x 150% but still covered GO BACK, since the main menu's bottom bar sits under the centred box; leaving twice the bar's height keeps it clear.
+- With the larger box, the theme's top margin is back to -4, like its sides, so the title shows again; the tighter radio buttons stay. On 2026-11-12 the defaults showed "SELECT A MAP" and all 23 maps, clear of the bottom bar.
+- The eleven map scripts SAS had hidden from Simple Game to keep its list short, such as Big_and_Small, Lakes, Tectonics, PerfectMongoose and Terra, show there again, as in BtS and AdvCiv: on 2026-11-12 all 34 fit without scrolling at 1920 x 1080, which fits 38 rows.
+  - Later that day the list was curated with the user: RandomScriptMap, Custom_Continents, Arboria, Islands, Boreal, Rainforest, Global_Highlands and Fantasy_Realm, which BtS had marked advanced, were shown.
+  - Earth2, Lakes, Shuffle and Big_and_Small were hidden, as more randomizing scripts, Water, RandomScriptMap and not_too_Big_or_Small cover them, and SAS_Simple_Flat_Grass stays out as a bland test sandbox. That makes 38 scripts, exactly the 38 rows that fit at 1920 x 1080.
+  - A script without isAdvancedMap stays out of Simple Game: SAS_Simple_Flat_Grass appeared once it was given one returning 0.
+- With the header back, Single Player's BTS Content screen shows its title as raw markup, `<COLOR=165,165,165,255>BTS CONTENT</COLOR>` (2026-11-12, 1920 x 1080): the grey color tag of its menu item seems reused as the title.
+  - Base AdvCiv 1.14 shows the same raw title, so the issue is inherited, and the SAS -48 margin had only hidden it. That text is in no XML file, and its source was not traced. BTS Content lists other installed mods' scenarios, such as Caveman2Cosmos's.
+- With `SAS_EXE_P_ON` or `SAS_EXE_P_DYNAM_MAIN_MENU_ON` at 0, or on an EXE whose bytes do not match, the box stays 850 x 569, now with its title: on 2026-11-12 it showed 21 of the 23 maps, Water and Wheel needing a scroll.
+
+Found by wonderingabout, who had hidden the title to fit more maps; patch ported and extended with the help of Claude code Opus 5.5, reviewed by Codex (GPT-6.1-Sol), from Realism Invictus's work by Walter Hawkwood, thanks.
+
+2026-11-12 follow-up, the world-picker globe: in the enlarged box, the rotating globe and the map preview on it stayed at BtS's 450 x 320, small inside a black panel that had grown to 927 x 559 at 1920 x 1080 and 1253 x 709 at 2560 x 1380.
+
+- All the setup screens build that globe through one shared EXE function, which SAS hooks as Realism Invictus does; the technical details are in the EXE patches guide, which is kept out of player archives.
+- RI scales the globe by one fixed factor per font setting. A first SAS version scaled it by the box's growth over 850 x 569, but with a fixed shape; on the user's request it now uses the box's own formula, applied to the box: `globe size = box size * PCT / 100 + ADD` for each side (`SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_*`), tunable without a DLL compile. A result under 1 px keeps the stock size, and the globe never grows past the box.
+- The defaults, 43% of the box's width and 50% of its height, keep about BtS's shape inside the panel: 702 x 497 at 1920 x 1080 and 936 x 647 at 2560 x 1380, both checked in game on 2026-11-12. Custom Game shows no globe and is unaffected.
+- It is hooked only when the box patch is applied, since it follows the box, and has its own switch, `SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_ON`.
+
+2026-11-12 second follow-up, sizing the globe to its panel: the user pointed out that much of the panel was still unused black, and by painting the area's real border on screenshots that the globe's area is not plain black: it has its own starfield.
+
+- The earlier panel measurement above, 927 x 559 at 1920 x 1080, was wrong: a script scanned for dark pixels, and the dark globe broke its scan. Read by eye, the map step's panel is about 926 x 671 at 1920 x 1080, 1251 x 903 at 2560 x 1380 and 1912 x 1312 in a maximized 4K window, about 57% x 67% of the box at all three. The globe's area, at 43% x 50%, used little more than half of it.
+- The globe's area is a rectangle with rounded corners, centred in the panel. Overlaying a Great_Plains capture on a Pangaea one showed the same rectangle: Great_Plains' flat BtS picture fills it up to its rounded corners, while Pangaea's 3D globe fills about 87% of its height and the starfield the rest. SAS's .dds previews fill only its middle, which is why they looked lost in black.
+- So Great_Plains, the largest content, is the check for overflow. The defaults became 55% x 65% of the box, about 898 x 646 at 1920 x 1080, just inside the map step's panel and in BtS's 450 x 320 shape.
+- A full round of Great_Plains (map, world size, game snapshot) and of Pangaea (map, world size, Shoreline, game snapshot) at 1920 x 1080, 2560 x 1380 and 4K showed every content inside its frame, the game snapshot's panel being the tightest. All 38 Simple Game scripts were checked on the map step at 1920 x 1080, with nothing cropped.
+- A globe taller than a step's panel, as on some option steps in a first test, is clipped at the panel's frame and does not spill over it.
+- Painting near-black pixels white (`contact_sheet.py --black-to-white`, the user's idea) shows the area's outline against the panel.
+
+<a id="ki-1083"></a>
+
+## KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix
+
+On every setup screen of Simple Game, a map script's own options, such as Pangaea's Shoreline or BTG_Cross's Regions, are titled by the EXE as `TXT_KEY_MAIN_MENU_SELECT_A`, "Select a ", followed by the option's name. That read well for "SELECT A MAP" but gave "SELECT A ELEPHANT", "SELECT A REGIONS" or "SELECT A OIL AND ALUMINIUM".
+
+- The title is built in the EXE, so the SAS fix is in text: `TXT_KEY_MAIN_MENU_SELECT_A` is now empty in [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml), leaving the option's name alone, such as "SHORELINE" or "ELEPHANT" (checked in game on 2026-11-12).
+- "Select:" was tried first; it fixed the grammar but kept the redundancy. The prefix made every title longer, and so harder to read, for no gain: the screen itself asks for a choice, as "WORLD SIZE", "HANDICAP" and "GAME SPEED" already showed.
+- The full step titles lost it too, for consistency: "SELECT A MAP" became "MAP", and likewise CIVILIZATION, CLIMATE, SEA LEVEL, HANDICAP and SCENARIO. See the [Main Changes Guide (Renaming)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming).
+
+Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)); fixed with the help of Claude code Opus 5.5, thanks.

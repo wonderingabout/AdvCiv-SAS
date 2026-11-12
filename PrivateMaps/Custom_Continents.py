@@ -138,8 +138,8 @@ def addBonusType(argsList):
 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: Shown in Simple Game, although BtS marked it advanced: since KI#1082 the setup screen has room for more scripts, and it adds variety, with its own continent settings. (Claude code Opus 5.5) -->
+	return 0
 
 def minStartingDistanceModifier():
 	return -12

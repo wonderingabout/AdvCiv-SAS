@@ -1,5 +1,17 @@
 # README (Modding Resources)
 
+> **Disclaimer:** I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
+>
+> I did have previous knowledge though.
+>
+> I cannot be assumed or expected to be available or responsible to provide any coding help or feedback (i'd prefer to have my peace of mind rather, even though i may occasionnaly or more often, but not guaranteed and maybe not if i don't want or do so or any other reason or not, but i might or might not, just this is a fair warning/caution point about that, anyways), however i hope these few ressources i have accumulated may help those who wish to start their own mod.
+>
+> I can also not be held responsible for any damage resulting of following these instructions, whether these are followed correctly or incorrectly. I am only providing them as general information, and while i hope it helps, you are responsible for checking it, verifying it, and using it, and any consequence that may happen as a result.
+>
+> Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
+>
+> Else or additionally, you may find more help in the relevant project's own documentation/GitHub or another modding community you trust. Hopefully this data i provided is also helpful though.
+
 This is a non-exhaustive page containing some resources i found helpful and general help on how i modded AdvCiv-SAS.
 
 - This folder holds the guides for changing the mod: compiling, releasing, art tools and the diagnostic logs.
@@ -8,7 +20,6 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 
 ## Menu
 
-[Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#modding-disclaimer-and-general-information)\
 [Guides in this folder](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#guides-in-this-folder)\
 [LLM-assisted source analysis](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#llm-assisted-source-analysis)\
 &emsp;[Light-source analysis](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#light-source-analysis)\
@@ -58,26 +69,13 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 [Example of performance optimization of python loading time (as in when we load the code) and loading times](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times)\
 [Drive](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#drive)
 
-## Modding disclaimer and general information
-
-I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
-
-I did have previous knowledge though.
-
-I cannot be assumed or expected to be available or responsible to provide any coding help or feedback (i'd prefer to have my peace of mind rather, even though i may occasionnaly or more often, but not guaranteed and maybe not if i don't want or do so or any other reason or not, but i might or might not, just this is a fair warning/caution point about that, anyways), however i hope these few ressources i have accumulated may help those who wish to start their own mod.
-
-I can also not be held responsible for any damage resulting of following these instructions, whether these are followed correctly or incorrectly. I am only providing them as general information, and while i hope it helps, you are responsible for checking it, verifying it, and using it, and any consequence that may happen as a result.
-
-Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
-
-Else or additionally, you may find more help in the relevant project's own documentation/GitHub or another modding community you trust. Hopefully this data i provided is also helpful though.
-
 ## Guides in this folder
 
 - [Art tools guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md): viewing .dds, .tga, .nif and .FPK art, and editing the game font; for the user and AI/LLM helpers
 - [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md): compiling without needless strain and keeping often-listed folders small; for the user and AI/LLM helpers
 - [Desktop windows guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md): how agents read and work with windows on Windows 10, including the Codex and Claude apps and their usage limits
 - [DLL compilation guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md): command-line workflow primarily for AI/LLM helpers
+- [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): see the corresponding [disclaimer](/LICENSE.md#the-games-executable)
 - [Game runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md): launching Civ4 into a save or new game, unattended autoplay, screenshots and parallel runs; for AI/LLM helpers
 - [Logging flushing comparison](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md): revision 154 writer measurements
 - [Logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md): every log file, its controls and samples
@@ -536,7 +534,10 @@ Installed, as checked on 2026-11-08:
 | VC2003 Toolkit, VS2010 Express | Building the DLL, and `cl.exe /Zs` syntax checks of single files; see the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) |
 | WinDbg's `cdbX86.exe` | Reading crash dumps |
 | Civ4 itself, driven from the command line | Launching a save, autoplaying and exiting with [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy), and screenshots or clicks in the game window with [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy); both added on 2026-11-10 and need no install beyond Pillow |
+| Subversion 1.14 command line (`C:\Program Files\SlikSvn\bin\svn.exe`, `winget install Slik.Subversion`) | Updating SVN working copies such as Realism Invictus's without TortoiseSVN's windows, and `svn log` of one file; installed on 2026-11-12. TortoiseSVN 1.14 shares the same working copy format, so the user can keep using either; see note 3.4 under [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building) |
 | PakBuild, Dragon UnPACKer, NifSkope | Windowed tools for `.FPK` archives and `.nif` models, which the user runs; agents read the same files with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) and `nif_preview.py` |
+
+For other tools, see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) and the corresponding [disclaimer](/LICENSE.md#the-games-executable).
 
 Worth suggesting, not installed:
 
@@ -1031,6 +1032,8 @@ Be careful to import all nif related files in the same folder in your mod (or in
 
 Note: be careful, in some mods/cases the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered across RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, see screenshots in the drive link above for details/example), in such cases, i would recommend rather to use PakBuild, see [README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details; note 2 about this: in some mods like c2c for example, unpacking in a fodler where you unpacked before seems to create some elements to be missing, 13 by unpacking all fpks in same folder one by one vs 17 files by doing it manually with dragon unpacker, adjust as you see fit the note in this paragraph
 
+note 1.1 / update (2026-11-12): [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) lists any FPK and extracts files from it by pattern, keeping their folders, so files scattered across several FPKs, such as RI's smokehouse, are quick to gather into one folder; see note 3.5 below and the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md#packed-fpk-archives).
+
 note 2: sometimes the .kfm is base civ4 for example of the of arabian old camel archer so can't find it in the ri mod, a hint to that may be if a ctrl+f of the filename for example "ArabiaCamelArcher.kfm" with one result in our art assets xml before we added it from another mod in the xml, or 2+ results after adding the .kfm in xml too (before finding the actual .kfm file in the mod, then it i very likely the .kfm is a base civ4 file and thus can't be found in any mod unless they especially copy it again in exact same path or path specified which there should be no strong reason to do ince the file already exists in base civ4), so in short if can't find the .kfm or maybe perhaps even the .nif in the mod, in any .fpk or such mod files too perhaps, then maybe the file is a base civ4 one so just leave path as it is without changing path to your mod specific paths, for example for the camel archer `Art/Units/Unique/Arabia/CamelArcher/ArabiaCamelArcher.kfm` (default keep as is) not `Art/AdvCiv_SAS/Units/Camel_Archer/nif/ArabiaCamelArcher.kfm` while desperately trying to find a file that maybe doesn't exist, but many assets have their own ;kfm though so make sure to search too, but generally they should be in path specified in one of the .fpks of the mod or raw path if they don't use fpk for this asset, hopefully helpful, if still no luck try to find the asset in another mod perhaps, hopefully i found the trick before ditching the ri mod files i had already downloaded, so all works.
 
 Like this for example if it helps too. (not saying this is a standard or ideal to follow, just how i do it so far)
@@ -1052,6 +1055,16 @@ note 3.2 / update: i have found that as of now for ri mod in particular, downloa
 Thanks for assets to ri mod and for providing this version that happens to have no fpk to save my sanity and time or whatnot.
 
 note 3.3 / update (2026-11-07): for mods without an SVN, extracting their .fpk files once with PakBuild into a folder outside the mod gives the same convenience: the files can be searched and copied directly instead of browsing each .fpk.
+
+note 3.4 / update (2026-11-12): agents can now update the Realism Invictus SVN copy themselves, without clicking through TortoiseSVN: the Subversion command line (SlikSVN 1.14) was installed, and it reads the same working copy as TortoiseSVN 1.14.
+
+For example `& 'C:\Program Files\SlikSvn\bin\svn.exe' update "$env:USERPROFILE\Downloads\AdvCiv-SAS_LLM\mod_repos\Realism"` updated it from r5642 to r5655, and `svn log -q <file>` lists the revisions that changed one file.
+
+To read RI's code history as greppable diffs, see [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
+
+note 3.5 / update (2026-11-12): extracting FPKs by hand is no longer needed: [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) lists, reads and extracts any .fpk directly, however many parts a mod splits its art into, so the extracted copies of Caveman2Cosmos and History Rewritten were deleted.
+
+For Caveman2Cosmos, a clone of its GitHub repository now gives its current unpacked art and history; see [Local LLM working folder](/AGENTS.md#local-llm-working-folder).
 
 For example, History Rewritten's extracted Peat folder showed that its model loads its textures by name from its own folder, so the whole folder could be copied as is, and that Caveman2Cosmos ships the same files.
 

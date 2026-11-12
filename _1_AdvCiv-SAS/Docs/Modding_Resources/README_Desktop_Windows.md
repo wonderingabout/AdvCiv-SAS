@@ -477,6 +477,8 @@ python LLM_Helpers/game_runs/desktop_windows.py key --pid 8572 enter
   - with only the empty-box check, a send arrived with the user's keys at both ends ("and re" before the header, "diso" after the `Reply:` line);
   - with a 2.5-second idle wait, only "ve" slipped in before the header;
   - each time Codex spotted the stray text thanks to the delimiters below, so the convention works even when the timing does not.
+- It brings the target forward itself: it asks Windows first, retries attached to the foreground window's input, and as a last resort clicks the target's title bar, but only after checking that the window under that point is the target, so a covering window is never clicked.
+  - Tested on 2026-11-12, when the user deliberately put an Explorer window over Codex's half of the screen: the review request reached Codex intact, and nothing was typed into Explorer.
 - For the sending agent: the user keeps working on the same PC and is not part of these exchanges, so the timing is the agent's job. Let the helper wait for a quiet moment; if it gives up because the user kept typing, try again later rather than shortening the wait, and check every reply for stray text around the delimiters.
 
 Every message one agent sends another opens with a header and closes with a closing tag on its own last line:

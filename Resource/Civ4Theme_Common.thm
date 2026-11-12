@@ -98,7 +98,10 @@ with GFC_Control
 			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(20,8,20,20);
 			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(4,4,4,4);
 			// <!-- custom: Change A: empirically expand main menu panel occupancy by pushing Layout_MainMenu_OuterMargin into negative space. Old values (20,8,20,20) and C2C (4,4,4,4) left too much unused area. (GPT-5.2-Codex (summarized)). Applying this change A frees a lot of margins on top (in particular to remove the unneeded header that takes a lot of room and that is really not that pretty so better remove anyway maybe), bottom, left, and right sides. Unlike change B, change A does not allow to have radio buttons tighter so it doesn't help that much to reduce the need for scrolling, but still a bit, and most importantly is much prettier and feels modern looking i think at least more so. -->
-			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(-4,-48,-4,-6);
+			// <!-- custom: Top margin was -48, which pushed Play Now's title (e.g. "SELECT A MAP") off the top of the box to fit more rows into the EXE's fixed 850 x 569 setup screen.
+			// SAS_EXE_P_DYNAM_MAIN_MENU_ON now sizes that screen from the game window, so the title fits again; the tighter sides, bottom and radio buttons stay. See KI#1082. (Claude code Opus 5.5) -->
+			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(-4,-48,-4,-6);
+			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(-4,-4,-4,-6);
 			}
 		}										
 

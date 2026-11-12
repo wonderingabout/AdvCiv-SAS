@@ -10,6 +10,7 @@
 #include "FVariableSystem.h"
 #include "BBAILog.h" // <!-- custom: Cache XML-backed BBAI diagnostic levels after all GlobalDefines overrides load so widespread disabled gates are direct reads. (ChatGPT-5.6-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Cache the structured recorder level once after all GlobalDefines overrides load so its widespread disabled hot gates are direct reads. (ChatGPT-5.6-Sol) -->
+#include "SelfMod.h" // <!-- custom: smc::BtS_EXE, to apply the setup screen size patch before the main menu opens. (Claude code Opus 5.5) -->
 // <advc> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
 #undef GC
 #define GC CvGlobals::getInstance() // </advc>
@@ -805,6 +806,8 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	TestScaledNum(); // </advc.fract>
 	getUWAI().doXML(); // advc.104x
 	GC.setXMLLoadUtility(this); // advc.003v
+	// <!-- custom: Resize the pre-game setup screens here, before the main menu can open one; GlobalDefines are loaded by now. See KI#1082. (Claude code Opus 5.5) -->
+	smc::BtS_EXE.patchSetupScreenSize();
 
 	return true;
 }

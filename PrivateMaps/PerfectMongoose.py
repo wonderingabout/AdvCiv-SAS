@@ -6349,8 +6349,8 @@ def isRandomCustomMapOption(argsList):
 #
 
 def isAdvancedMap():
-	# <!-- custom: Hide PerfectMongoose from Simple Game list for map-pool cleanup; keep available in Custom Game. (GPT-5.3-Codex) -->
-	return True
+	# <!-- custom: Shown in Simple Game again, as in BtS and AdvCiv: it was hidden to keep the list short enough for the EXE's fixed 850 x 569 box, which SAS_EXE_P_DYNAM_MAIN_MENU_ON now sizes from the game window. See KI#1082. (GPT-5.3-Codex + Claude code Opus 5.5) -->
+	return False
 
 def isClimateMap():
 	return False

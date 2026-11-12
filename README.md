@@ -24,6 +24,10 @@ A significant UI addition is optional text upscaling (regardless of game resolut
 
 Or the new Scoreboard scroll up and scroll down buttons, center scroll on the active player, toggle autocenter scroll on the active player, toggle lock hover, and toggle background style buttons, and the do not render beyond bottom of commerce sliders behaviour.
 
+Some UI enhancements take on the work of other mods, such as Realism Invictus's EXE memory patches, which we enhanced further: for example, the setup screens' size is tunable in XML, so players can adjust it without recompiling the DLL, and a universal formula adjusts it dynamically/automatically to any screen resolution so they usually need no adjustment, unlike RI's hardcoded coordinates per font size.
+
+The same formula, applied to the box, sizes the map step's rotating globe, which now nearly fills its panel. See [Enlarged main menu setup screens](/README.md#enlarged-main-menu-setup-screens-at-any-resolution-exe-memory-patch-from-realism-invictus).
+
 New mechanics as well, including but not only:
 
 - new Game Speeds (`Nitro`, `Turbo`, `Slow`, `Very Slow`)
@@ -167,6 +171,8 @@ For license, reuse, distribution and possibly other terms, including project-spe
 &emsp;[Home page](/README.md#home-page)\
 &emsp;[Multiple random Main Menu Musics](/README.md#multiple-random-main-menu-musics)\
 &emsp;[Simple Game rework](/README.md#simple-game-rework)\
+&emsp;&emsp;[Enlarged main menu setup screens at any resolution (EXE memory patch from Realism Invictus)](/README.md#enlarged-main-menu-setup-screens-at-any-resolution-exe-memory-patch-from-realism-invictus)\
+&emsp;&emsp;[Tighter rows, and the header back](/README.md#tighter-rows-and-the-header-back)\
 [UI (Ingame)](/README.md#ui-ingame)\
 &emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)\
 &emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-summary-tab-battles-tab-composition-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)\
@@ -354,6 +360,58 @@ These music scripts are playable via Sevopedia Music and the Sevopedia Media Pla
 
 ### Simple Game rework
 
+Simple Game is the main menu's quick setup that BtS calls "Play Now"; AdvCiv-SAS renamed it, as C2C does, because it is clearer and contrasts better with Custom Game. See [Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming).
+
+The main menu's Simple Game screen is now enlarged to fill the screen at any resolution. It used to be a small 850 x 569 box: map scripts, world sizes, civilizations and map options did not all fit, so players had to scroll through long lists, and some, such as the many world sizes, could not be shown in full at all.
+
+Two changes fix this together: the box itself is enlarged, and its rows are tighter. At 1920x1080, all 38 map scripts and all 36 civilizations now show without scrolling.
+
+The same defaults at 1920x1080, 1440p and 4K, for maps, with BTG_Cross on the enlarged globe:
+
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1080p.JPG" alt="1.311_main_menu_simple_game_exe_p_1080p.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1440p.JPG" alt="1.311_main_menu_simple_game_exe_p_1440p.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_4k.JPG" alt="1.311_main_menu_simple_game_exe_p_4k.JPG" width="250"></img>
+
+And for civilizations, with Ireland, one of the civilizations AdvCiv-SAS adds:
+
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1080p.JPG" alt="1.312_main_menu_simple_game_civs_exe_p_1080p.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1440p.JPG" alt="1.312_main_menu_simple_game_civs_exe_p_1440p.JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_4k.JPG" alt="1.312_main_menu_simple_game_civs_exe_p_4k.JPG" width="250"></img>
+
+A full Simple Game round on Pangaea with Ireland at 1920x1080, from the map to the game's start: the 3D globe floats on the map step, and the next steps zoom into it.
+
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(1).JPG" alt="1.313_main_menu_simple_game_exe_p (1).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(2).JPG" alt="1.313_main_menu_simple_game_exe_p (2).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(3).JPG" alt="1.313_main_menu_simple_game_exe_p (3).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(4).JPG" alt="1.313_main_menu_simple_game_exe_p (4).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(5).JPG" alt="1.313_main_menu_simple_game_exe_p (5).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(6).JPG" alt="1.313_main_menu_simple_game_exe_p (6).JPG" width="250"></img>
+<img src="/_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p%20(7).JPG" alt="1.313_main_menu_simple_game_exe_p (7).JPG" width="250"></img>
+
+#### Enlarged main menu setup screens at any resolution (EXE memory patch from Realism Invictus)
+
+Simple Game, multiplayer staging and scenario setup share one box, whose size BtS's EXE fixes at 850 x 569, whatever the screen; Python, XML and the DLL cannot change it.
+
+Realism Invictus solved this with an EXE memory patch: at startup, its DLL rewrites a few bytes of the running game's code, never the EXE file itself. Thanks a lot to Walter Hawkwood and the RI team for finding it and sharing their work; see [Credits](/_1_AdvCiv-SAS/Docs/README_References.md#credits).
+
+AdvCiv-SAS took on that work and enhanced it:
+
+- RI sets one fixed size per font setting. AdvCiv-SAS replaces the EXE's size function with its own, which measures the game window each time a setup screen opens, so the box adjusts automatically to any resolution, be it 1920x1080, 1440p or 4K, and to a resolution change during play.
+- One universal formula covers every screen, filling it the same way: `size = window size * PCT / 100 + ADD`, for width and height. The percentage scales with the screen, and the added pixels cover what does not, such as the main menu's bottom bar, which keeps its pixel height at every resolution. The defaults, 85% wide and 100% - 86 px high, reach that bar as the advisors reach theirs.
+- It is tunable in XML, without a DLL recompile, through the `SAS_EXE_P_DYNAM_MAIN_MENU_*` defines in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). Players need not touch it, since it adjusts by itself, but can: a PCT of 0 makes ADD a fixed size in pixels, and `SAS_EXE_P_ON` switches every EXE patch off.
+- A size larger than the window is cut to fit, keeping GO BACK visible (in a window too small for that, the box keeps BtS's stock size), and the patch checks the EXE's bytes first, so an unknown EXE simply keeps the stock box.
+- The rotating globe on the map step, with the map preview on it, now grows with the box too, nearly filling its black panel at any resolution, instead of staying at BtS's 450 x 320.
+  - It uses the same universal formula, applied to the box: `globe size = box size * PCT / 100 + ADD` for each side, tunable in XML with the `SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_*` defines, where RI scales it by a fixed factor per font setting.
+- With the room it frees, the list now offers 38 map scripts, up from 23: most of those SAS had hidden to keep it short are back, and more were added, such as Arboria, Boreal, Islands, Rainforest and RandomScriptMap.
+
+Ported and enhanced with the help of Claude Code Opus 5.5, with a review by Codex (GPT-6.1-Sol), thanks; the earlier header and margin work in commit d194577b3 was done with the help of GPT-5.2-Codex.
+
+Change in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082) and the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
+
+#### Tighter rows, and the header back
+
+The tighter rows, based on C2C's, still fit more on the enlarged screen. An earlier version also hid the header (such as "SELECT A MAP") to gain room; that is no longer needed, so the header is back. See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
+
 Edited the .thm as well. Was done with the help of GPT-5.2-Codex, based on C2C's implementation of tighter radio buttons. I also added some beautification to remove the header and more of the margins as well.
 
 Very cool clarification idea by chatgpt 5.2 (web) as part of adding new game speeds, which i then fine tuned or adjusted a bit and expanded on such as in: `"Normal (500 / 100%)"` bullet; `Epic (750 / 150%)` bullet; `GAME SPEED (50 000 BC - 2105 AD)` when necessary, and reworded other fields or blurbs as well. Thanks a lot!
@@ -363,6 +421,8 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
 Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena).
 
 Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [BTG_Cross.py](/PrivateMaps/BTG_Cross.py), new .dds for maps, etc. See [Readme.md: Mapscripts](/README.md#mapscripts).
+
+The earlier version, before the screen was enlarged:
 
 <img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(1).JPG" alt="1.310_main_menu_simple_game (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/main_menu/1.310_main_menu_simple_game%20(2).JPG" alt="1.310_main_menu_simple_game (2).JPG" width="250"></img>
@@ -1195,25 +1255,27 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
 
 ### New .dds for mapscripts in Simple Game
 
-As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds, as a dark globe or inaccurate dds was not accurate or informative or immersive: adjusted a ratio in the the EXE of around 467 W x 377 H at 1080p, empirically with Paint.NET with a canvas size of 336 W x 256 H with empty bands to avoid overfill and preserve image ratio.
+Each map script shown in Simple Game gets a preview of a typical map on its World Picker globe, instead of the dark default globe, which tells little about the map.
 
-This definitely feels like masonry but works and fun xd i guess after having tediously figured out the optimal or that fits quite well dimensions and way to do it xd then it only needs iterating.
+Since 2026-11-12 [`map_preview_dds.py`](/LLM_Helpers/README.md#map_preview_ddspy) makes them without any step from the user: an agent ran it for every script, one after another, each time starting Civ4 itself and closing it afterwards. It replaces the earlier hand-made method in Paint.NET.
 
-Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
+- It first made the 14 previews that were missing. The same day it redid the 18 the user had made by hand, so all 32 SAS previews now share one format and one method.
 
-<img src="/_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map%20(1).PNG" alt="1.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map%20(2).PNG" alt="1.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+- It starts a game on the map script at turn 0, before any city exists, and turns on Debug Mode to reveal the whole map.
+- It moves the camera to three places by clicking the minimap and takes a quick volley of three captures at each. Keeping the median of each pixel drops the camera frame, which covers a pixel only in the shots from one place, and the selected unit's blinking dot.
+- It keeps the map's real shape from the game record and fits it into the same 336 x 256 frame the hand-made previews used, with transparent bands around the map, and writes the script's World Picker entry with a comment saying how it was made and who chose it.
+- The `.dds` conversion needs no image editor: Pillow, the Python imaging library, saves the picture directly as DXT1, the compressed `.dds` format the hand-made previews used and Civ4 reads. Hand-made files also carried mipmaps, smaller copies for distant views, which Pillow does not write; the globe shows the generated previews just as well.
+- `--variants 3` makes three previews from three newly generated maps, numbered on one sheet, and `--pick N` installs the one chosen. The sheet below is the first batch, from which the user chose each script's preview; for the redone 18 and PerfectMongoose, the agent chose, and its reasons are in the comments.
+- It can redo any set of previews: one or a few named scripts, `--handmade` for the old hand-made ones, or `--all`.
+- RandomScriptMap keeps the default globe on purpose, since it picks another script each game. A CI check, [`map_previews.py`](/.github/workflows/README.md#buildassetsmap_previewspy), flags any other shown script without a preview, so new or newly shown scripts are not forgotten.
+
+<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3211_map_preview_dds_variants.PNG" alt="1.3211_map_preview_dds_variants.PNG" width="250">
+
+Generated previews in Simple Game, three distinct scripts: BTG_Cross, Rainforest and Equal_Islands_V2_beta.
 
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(1).JPG" alt="1.3201_maps_simple_game (1).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(2).JPG" alt="1.3201_maps_simple_game (2).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(3).JPG" alt="1.3201_maps_simple_game (3).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(4).JPG" alt="1.3201_maps_simple_game (4).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(5).JPG" alt="1.3201_maps_simple_game (5).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(6).JPG" alt="1.3201_maps_simple_game (6).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(7).JPG" alt="1.3201_maps_simple_game (7).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(8).JPG" alt="1.3201_maps_simple_game (8).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(9).JPG" alt="1.3201_maps_simple_game (9).JPG" width="250"></img>
-<img src="/_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game%20(10).JPG" alt="1.3201_maps_simple_game (10).JPG" width="250"></img>
 
 ## SASFastSave
 

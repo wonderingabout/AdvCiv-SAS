@@ -72,6 +72,10 @@
 #      I could also rewrite the whole rivers thing...
 
 # advc: Some imports were unused
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 from CvPythonExtensions import *
 #import CvUtil
 import CvMapGeneratorUtil
@@ -107,8 +111,8 @@ def getDescription():
 # <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
 # return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: shown in Simple Game again, as in BtS: it was hidden to keep the list short enough for the EXE's fixed 850 x 569 box, which SAS_EXE_P_DYNAM_MAIN_MENU_ON now sizes from the game window. See KI#1082. (Claude code Opus 5.5) -->
+	return 0
 
 def isSeaLevelMap():
 	return 0

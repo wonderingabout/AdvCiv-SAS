@@ -29,11 +29,18 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
-| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
-| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy) and others |
-| `game_runs/` | running the game itself without a person at the keyboard: [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy) chooses a dropdown item by name and `capture_dropdowns.py` captures their lists, from the screen map `civ4_ui_map.json`; [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order and puts a capture of each on one sheet; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
+| `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
+| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
+| `game_runs/` | running the game itself without a person at the keyboard, in the six groups below |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open |
+| `game_runs/`: driving windows | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
+| `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
+| `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
+| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet |
+| `game_runs/`: art and sound from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 
@@ -114,6 +121,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
     - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
   - [`svn_history_to_diffs.py`](#svn_history_to_diffspy)
+  - [`git_history_to_diffs.py`](#git_history_to_diffspy)
   - [`svn_history_verify.py`](#svn_history_verifypy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
 - [`context/`](#context)
@@ -126,6 +134,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
   - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
     - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
+- [`exe_analysis/`](#exe_analysis)
 - [`formatting/`](#formatting)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
   - [Custom-comment logical reflow](#custom-comment-logical-reflow)
@@ -139,6 +148,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
+    - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
     - [`reflow_cpp_logging_calls.py`](#reflow_cpp_logging_callspy)
     - [`collapse_cpp_log_guards.py`](#collapse_cpp_log_guardspy)
@@ -165,6 +175,11 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
     - [`run_steps.py`](#run_stepspy)
+    - [`capture_screens.py`](#capture_screenspy)
+    - [`contact_sheet.py`](#contact_sheetpy)
+    - [`map_preview_dds.py`](#map_preview_ddspy)
+    - [`simple_game_scripts.py`](#simple_game_scriptspy)
+    - [`start_game.py`](#start_gamepy)
     - [`map_sevopedia.py`](#map_sevopediapy)
     - [`sound_check.py`](#sound_checkpy)
 - [`housekeeping/`](#housekeeping)
@@ -299,9 +314,13 @@ python LLM_Helpers/art_viewing/movie_frames.py Assets/Art/AdvCiv_SAS/Buildings/N
 Writes every CI failure to one text file, so one pass can fix them all rather than one push per failure.
 
 - `python LLM_Helpers/audits/ci_report.py`: runs each workflow's `run:` steps here. New checks need no change to the helper, as it reads the workflows.
-  - It compares with what GitHub would: the upstream commit when HEAD differs from it, which after an amend is the commit being replaced, else the parent. `--base` overrides this.
+  - It compares with what GitHub would: the upstream commit when HEAD differs from it, which after an amend is the commit being replaced; HEAD itself when HEAD is pushed and the working tree holds the next commit's edits; else the parent. `--base` overrides this.
+    - On 2026-11-12 the parent was used for an uncommitted candidate on top of a pushed HEAD, which mixed that pushed commit's changes into the report.
     - On 2026-11-09 a run compared with the parent passed, as `plot_scene.py` was new there, while GitHub, comparing with the replaced commit, failed a changed signature.
-  - Checks read the working tree, and those comparing commits see only base..HEAD, so commit or amend before trusting them.
+  - Most checks read the working tree. Eight judge the commits of a push instead: the SASGameRecord and Runtime revision checks, the commit-reference check, the four DLL checks and the KI title check.
+    - So staged changes become a temporary commit on top of HEAD, made with `git commit-tree`, which moves no branch and touches no file, and those checks judge it as the pushed commit. Unstaged development values stay out, as they would from the real commit.
+    - `--message FILE` gives that commit the draft message; without it, a placeholder makes the title and `Update DLL` checks fail as a reminder. With nothing staged, they judge HEAD.
+    - Before 2026-11-12 these checks only saw commits, so an uncommitted candidate passed them without being judged. A run passed locally while GitHub failed the commit that followed: `map_preview_dds.py` had begun reading SGR rows without the `SAS_SGR_REVISION` bump the rule asks for. Rerun on that state, the new run fails the same check, as GitHub did.
   - The diagnostic default checks read staged content, so unstaged development values do not fail them.
   - Markdownlint and Python 2.4 run through local Node.js and `C:\Python24\python.exe`; a missing tool is listed as not covered. The predump refresh workflow is not run.
 - `python LLM_Helpers/audits/ci_report.py github`: reads GitHub's results for a commit, `--sha` or HEAD. Failed workflows and steps come from the public API; their failure text needs `gh auth login` once, as GitHub gives logs only to signed-in users.
@@ -769,6 +788,7 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
 
 - Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
 - It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
+  - The SlikSVN command line was installed on 2026-11-12 for updating working copies (see [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers)); this exporter still does not need it.
 - How it talks to the server:
   - The log is a WebDAV `REPORT` request sent to the repository root. It returns each revision's author, date, message, changed paths and copy origins.
   - Each file version is a plain `GET` of `<root>!svn/bc/<revision>/<path>`, and the script compares the versions itself with `difflib`.
@@ -792,6 +812,40 @@ The Better BTS AI export, from the repository root, takes about 15 minutes and 3
 
 ```bash
 python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
+```
+
+Realism Invictus (added 2026-11-12) shows two options for other mods' repositories:
+
+- `--path` keeps only changes under one repository folder. RI lives at `/realism/bts/trunk/mod` inside the shared `civ4mods` repository, so without it the export would mix in other mods.
+- `--start` now limits the log request too; it used to download the log from r1 whatever the range.
+- RI is not in our ancestry, so its export goes to the [local LLM working folder](/AGENTS.md#local-llm-working-folder), not `LLM_Helpers/context/`: it stays out of Git and light-source ZIPs.
+- The `--summarize` globs skip art, sounds and Civilopedia text, which hold most of RI's changed files and bytes but matter little to us; the paths stay listed, so a reader still sees which art a revision touched.
+  - In a test of r5650 to r5655, art was 324 of r5650's 346 changed paths, and four Civilopedia files were about 600 KB of r5651's 1.1 MB diff. In-game text such as `CIV4GameText_*.xml` is kept.
+- The first export started at r5000, which covers all of RI's EXE memory-patch file `GameCore/CvGameCoreDLL/SelfMod.cpp`, added in r5383 (2023-09); the same command with `--start 1` then added RI's earlier history, keeping the files already exported. RI's folder first appears at r2719.
+
+Run it from Git Bash with `MSYS_NO_PATHCONV=1`, which stops Git Bash from rewriting `/realism/...` into a Windows path:
+
+```bash
+MSYS_NO_PATHCONV=1 py -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4mods/code/ --path /realism/bts/trunk/mod --label RI --start 1 --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/svn_history/ri" --summarize "*/Assets/Art/*" --summarize "*/GraphicsUpgrade/*" --summarize "*/Assets/Sounds/*" --summarize "*/Resource/*" --summarize "*/Assets/XML/Text/Civilopedia_*" --workers 6 --newest-first
+```
+
+It ran at about 5 revisions a minute, so about two hours for 630 revisions. `--newest-first` fetches the latest revisions first, so 2026's memory-patch and Python-reload revisions arrive at the start of the run instead of at the end.
+
+- The full export of 2026-11-12 holds 2,755 revisions, r2719 to r5655, and its two indexes, 249 MB; coverage was 1,089 full, 1,527 partial and 139 summary-only, mostly because of the skipped art and Civilopedia text. The first 630, from r5000, took about two hours; the rest ran in the background the same day.
+- A brief network outage made 26 revisions fail with `getaddrinfo failed`; rerunning the same command fetched only those, as existing files are kept.
+
+### `git_history_to_diffs.py`
+
+The Git counterpart of [`svn_history_to_diffs.py`](#svn_history_to_diffspy), for other mods' Git repositories: one greppable file per commit, with its message, changed paths and diff, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt` in the same format, so Git and SVN histories read alike. Written on 2026-11-12 for Caveman2Cosmos, whose development moved to GitHub in 2019.
+
+- Our own [`commit_diffs/`](#context) still come from `make_light_source_zip.py`, whose exclusions and history segments are specific to AdvCiv-SAS; this helper takes any repository.
+- Commits are numbered from the oldest, so numbers stay stable as new commits arrive. Merge commits list their paths without a patch, since the merged commits carry their own diffs.
+- It works on a blobless clone (`git clone --filter=blob:none`). Binary files and `--summarize` paths are listed without their contents, so their blobs are never downloaded; text diffs fetch what they need.
+- Interrupted runs resume, and failures are collected and reported together, as with the SVN exporter.
+- A first trial on 2026-11-12 exported C2C's newest 30 commits in about 2 minutes, 3.2 MB, mostly spent downloading blobs; the full 9,293 commits would take hours, so run it in the background.
+
+```bash
+py -u LLM_Helpers/code_history/git_history_to_diffs.py --repo "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/mod_repos/c2c_github" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/git_history/c2c" --label C2C --summarize "UnpackedArt/*" --summarize "ArtSource/*" --summarize "Assets/art/*" --summarize "Assets/Sounds/*" --newest-first
 ```
 
 ### `svn_history_verify.py`
@@ -943,6 +997,10 @@ python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py off
 ```
 
 - Added with help of Claude code Opus 5.5.
+
+## `exe_analysis/`
+
+See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) and the corresponding [disclaimer](/LICENSE.md#the-games-executable).
 
 ## `formatting/`
 
@@ -1242,6 +1300,23 @@ python LLM_Helpers\formatting\fix_line_endings.py --diff
 python LLM_Helpers\formatting\fix_line_endings.py --in-place
 python LLM_Helpers\formatting\fix_line_endings.py Assets\Python PrivateMaps --diff
 python LLM_Helpers\formatting\fix_line_endings.py Assets\Python PrivateMaps --in-place
+```
+
+#### `rename_identifiers.py`
+
+Renames identifiers, such as SAS defines, in every tracked or new untracked text file at once: C++, XML, map scripts, `.thm` theme files and docs.
+
+- Written on 2026-11-12 for the `SAS_EXE_PATCH_*` rename, which reached 15 files of 7 kinds; hand edits miss files and can turn CRLF into LF.
+- Each `OLD=NEW` pair can be a whole name or a prefix, matched only at an identifier's start; where several match, the longest wins, so `SAS_EXE_PATCH_SETUP_SCREEN_=...` beats `SAS_EXE_PATCH_=...`.
+- Rewrites bytes, so line endings and encodings stay as they were.
+- Skips verbatim history (git logs, archived changelogs, `LLM_Helpers/context/`) and the [deprecated-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), whose old-name column must stay; add or fix that table's rows by hand. `--include-history` overrides it.
+- `--exclude PATH` leaves a file alone, such as this entry, which describes the `SAS_EXE_PATCH_*` rename by its old names.
+- Dry run by default: lists each file with its count. It fails if a new `SAS_` name passes the 42-byte limit of KI#1001.2.
+- Before running it with `--write`, check that Civ4 is not running this mod, since it edits XML and Python.
+
+```powershell
+python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ SAS_EXE_PATCH_SETUP_SCREEN_=SAS_EXE_P_MAIN_MENU_
+python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ --write
 ```
 
 ### C++ source cleanup helpers
@@ -1770,7 +1845,9 @@ python LLM_Helpers/game_runs/capture_dropdowns.py --pid 21184 --only size era --
   - It reads the mod rather than screenshots: the BUG tab files in `Assets/Python/BUG/Tabs` name each field and `Assets/Config` defines it. It follows only the panels a tab actually builds, since AdvCiv left some disabled panels' code in place.
   - Use `--include-saved-values` to compare with the values saved in `My Games/beyond the sword/AdvCiv-SAS/Settings`. That report goes to the Git-ignored `LLM_Helpers/outputs/bug_options_local.txt` by default.
   - On 2026-11-11 it listed 309 fields in 12 tabs, and showed that the turns on city bars are not a BUG setting: they are "Numbers on City Bar" on the Options screen's Graphics tab.
-- `ui_maps/make_civ4_ui_map.py` writes `civ4_ui_map.json`: edit a screen there and rerun. It also reads every shortcut from the Sevopedia's Shortcuts text, so the map's `shortcuts` stay current.
+- `ui_maps/make_civ4_ui_map.py` writes `civ4_ui_map.json`: edit a screen there and rerun, never the JSON itself.
+  - It derives the Simple Game map list from the map scripts, so a script added, removed or hidden changes the rows by itself. CI's [`ui_map_sync.py`](/.github/workflows/README.md#buildrepositoryui_map_syncpy) fails until the JSON is regenerated, and the generator stops if more scripts are shown than the 38 rows that fit at 1920 x 1080.
+  - On 2026-11-12 the setup-screen and WorldBuilder updates went straight into the JSON, so GPT-6.1-Sol's review found that a rerun would drop them; the generator now holds them and reproduces the JSON. It also reads every shortcut from the Sevopedia's Shortcuts text, so the map's `shortcuts` stay current.
 
 ```bash
 python LLM_Helpers/game_runs/hover_tooltips.py --pid 12224 --front --area 0 420 960 960 --out tips gold=1755,52 f1=1650,79
@@ -1805,6 +1882,77 @@ python LLM_Helpers/game_runs/run_steps.py --pid 20608 --out steps.png --crop 0 3
 ```
 
 - In GPT-6.1-Sol's live check on 2026-11-12, this sequence opened Sevopedia from the main menu, filtered Units, selected the War Chariot and captured its tooltip. Replace the example PID with the target client's PID. The runner was added by Claude Code Opus 5.5.
+
+#### `capture_screens.py`
+
+- Launches Civ4 into a mod itself, runs `point:SCREEN.CONTROL`, `click:X,Y`, `hover:X,Y`, `key:NAME` (such as `ctrl+w`), `shot:NAME` and `wait:SECONDS` steps, saves each `shot` as a full-size PNG, then closes its own client.
+  - Its settings go into a per-run copy of `CivilizationIV.ini`, passed with `ini=` as `run_autoplay.py` does, so the user's INI is never written.
+  - Use it where `run_steps.py`'s one sheet is too small to read positions, or where the game must start at another resolution.
+- `--size 2560x1380` and `--fullscreen` change that per-run copy only; `--multiple` starts an extra client beside one already running, such as the user's; `--maximize 1` fits the window to a monitor's work area first, so a window as large as a 4K screen clears the taskbar. Named points are measured at 1920x1080, so at another size click by `click:X,Y` read off a screenshot.
+- `--pid` drives a client that is already running instead, such as the user's idle window, which the user allows (see AGENTS.md); it leaves that window open.
+- It waits until the user has been idle before each click, acts only on its own process or the one given by `--pid`, and stops that process if it ignores the close request, as a fullscreen client did.
+- Written on 2026-11-12 by Claude Code Opus 5.5 from the one-off scripts of the setup-screen tests ([KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)), which each redid the same launch, INI and cleanup steps.
+  - That day it checked the new Simple Game points: Pangaea's Solid shoreline, the Zulu civilization and Marathon speed each landed, and it caught Deity and Deity+ sharing one point name.
+- `--keep-open` leaves a successful run's client open for more steps with `--pid`, such as at 1440p and 4K, where the named points do not fit and each step's positions are read off its screenshot; a failed run is still closed.
+
+```bash
+python LLM_Helpers/game_runs/capture_screens.py --out captures point:main_menu.single_player point:single_player.simple_game point:simple_game_1_map.map_pangaea shot:maps
+python LLM_Helpers/game_runs/capture_screens.py --out captures --size 3840x2060 --maximize 1 shot:menu_4k click:1922,1065 shot:single_player_4k
+```
+
+#### `contact_sheet.py`
+
+- Tiles the same regions of several screenshots into one labelled PNG, so a capture series is read in one image instead of one full-size file each. `--region L,T,R,B` repeats to keep several parts of each capture side by side, such as a panel and the icons at the top right; `--columns` and `--scale` set the layout.
+- Written on 2026-11-12 while mapping WorldBuilder, after the same crop-and-tile code had been retyped for each round of `capture_screens.py` captures.
+- `--black-to-white MAX` paints pixels whose channels are all at most MAX white. The world-picker globe draws its own black inside a black panel, so on 2026-11-12 its size could not be judged until the user suggested painting the black white.
+
+```bash
+python LLM_Helpers/game_runs/contact_sheet.py --out sheet.png --region 0,30,760,560 --region 1500,30,1926,300 --columns 3 a.png b.png c.png
+```
+
+#### `map_preview_dds.py`
+
+- Makes the World Picker preview `Assets/Art/AdvCiv_SAS/Maps/<Script>/FLAT_<Script>.dds` that Simple Game shows for a map script, and adds the script's `WorldPickerInfo` entry when it has none. It replaces the earlier hand-made method in Paint.NET; the root README's [New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game) shows the first batch of variants.
+  - It starts its own QuickStart game on the script through a per-run INI without an autoplay request, so the game waits at turn 0 and no city marks the minimap, then turns on Debug Mode with Ctrl+Z to reveal the map.
+  - It clicks the minimap at three places to move the camera and takes a volley of three captures at each, since the selected unit's minimap dot blinks (the user's suggestion); the per-pixel median of the nine drops the camera frame and that dot, and remaining white unit dots take their neighbourhood's median.
+  - The minimap letterboxes maps of another shape, with a thin panel edge at its left, so the map is cut to the widest run of map columns and rows; the plot grid from this client's SASGameRecord (`map=WxH`), when recorded, sets the shape.
+    - The result sits in a 250 x 154 box centred in 336 x 256 with transparent bands, like the hand-made previews, and Pillow saves it straight to DXT1 `.dds` (`image.save(path, "DDS", pixel_format="DXT1")`), the format the hand-made previews use, without the mipmaps they carry.
+  - `--variants N` makes N previews from N generated maps with a numbered sheet to compare them; `--pick K` then installs variant K without starting Civ4. `--list-missing` lists the shown scripts with no World Picker entry, which display the dark default globe; `--missing` makes all of them.
+  - `--pick` adds the World Picker entry, or updates an existing one, with a comment saying the preview was made by this script and which variant was chosen; [`map_previews.py`](/.github/workflows/README.md#buildassetsmap_previewspy) in CI fails while a shown script still has none.
+  - `--chooser` names who chose it: the user by default, or an agent such as `"Claude code Opus 5.5"`.
+  - Updating an existing entry replaces its comment and points it at the standard `FLAT_<Script>.dds`; an old file with another name, such as Equal_Islands' `_SAS48` one, goes to the Recycle Bin.
+  - Besides named scripts, `--all` covers every shown script whose preview is SAS's or missing, leaving RandomScriptMap and BtS's own previews such as Pangaea's, and `--handmade` the previews still marked as made by hand. On 2026-11-12 the 18 hand-made ones were redone for one consistent format, at Standard size except Equal_Islands at SAS48, like the user's original.
+  - `--reason` keeps why that variant was chosen in the same comment. The user's reasons for the first batch (2026-11-12), such as Rainforest 2 for "shows the densest green at a glance" or Mixed_Continents 2 for looking "more continental than 3, which is archipelago-like", are examples of taste, not rules.
+    - An agent choosing a preview itself should pick the variant that best shows what the script makes and how it differs from similar scripts, and adjust as it sees fit.
+  - Installing refuses while any Civ4 runs, since it edits game XML and art, and checks the new XML before writing the `.dds`, so a rejected entry changes neither file. A single run with `--keep-open` therefore needs `--no-dds`, or `--variants` and a later `--pick`.
+- Written on 2026-11-12. Arboria's preview, its first, showed in Simple Game like the hand-made Boreal one, though Pillow writes no mipmaps.
+
+```bash
+python LLM_Helpers/game_runs/map_preview_dds.py --list-missing
+python LLM_Helpers/game_runs/map_preview_dds.py Fractal --variants 3
+python LLM_Helpers/game_runs/map_preview_dds.py Fractal --pick 2
+python LLM_Helpers/game_runs/map_preview_dds.py --handmade --variants 3
+python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude code Opus 5.5" --reason "the most distinct spokes"
+```
+
+#### `simple_game_scripts.py`
+
+- `shown_scripts` lists the map scripts Simple Game shows, those whose `isAdvancedMap` returns `0` or `False`, ignoring comments; `DEFAULT_GLOBE_ON_PURPOSE` names the shown scripts that keep the default globe, with the reason.
+- `map_preview_dds.py`, `ui_maps/make_civ4_ui_map.py` and the CI check [`map_previews.py`](/.github/workflows/README.md#buildassetsmap_previewspy) all use it, so they cannot disagree.
+  - It sits here rather than in the CI check, where it began, because GitHub ZIP downloads leave out `.github/` but keep `LLM_Helpers/`: loading it from `.github/` made both helpers fail at startup from a ZIP, as Codex found on 2026-11-12. See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
+
+#### `start_game.py`
+
+- Starts a QuickStart game at turn 0 with `--map`, `--world-size` and any `--option GAMEOPTION_...`, through a per-run copy of `CivilizationIV.ini` with no autoplay request, and leaves it open for the other tools to drive with `--pid`. The user's INI and Custom Game choices are not changed.
+  - The INI's `GameOptions` is one digit per option in `CIV4GameOptionInfos.xml` order, so `GAMEOPTION_ADVANCED_START`, the first, is its first digit.
+  - It waits until the window is full size and two captures 3 s apart barely differ, and `--debug-mode` then presses Ctrl+Z to reveal the map.
+- Written on 2026-11-12 to map WorldBuilder on a 48-player SAS48 map and the Advanced Start screen.
+  - `--option GAMEOPTION_ADVANCED_START` starts Advanced Start with 0 points, since QuickStart skips the setup's Advanced Start Base Points; go through Custom Game for points, as the UI map's `advanced_start` screen describes.
+
+```bash
+python LLM_Helpers/game_runs/start_game.py --map Pangaea --world-size WORLDSIZE_SAS48 --debug-mode
+python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
+```
 
 #### `map_sevopedia.py`
 
@@ -1847,7 +1995,10 @@ Keeps a folder's newest entries, 1,000 by default, and moves the rest into one `
 
 ```bash
 python LLM_Helpers/housekeeping/archive_old_files.py logs --apply
+python LLM_Helpers/housekeeping/archive_old_files.py --all --apply
 ```
+
+- `--all` checks every known folder; `run_autoplay.py` calls the same check at the end of each run, so the folders it fills stay under about 1,000 entries without anyone remembering.
 
 ### Screenshot privacy
 

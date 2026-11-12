@@ -140,8 +140,8 @@ def getDescription():
 #
 #	
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: Shown in Simple Game, although BtS marked it advanced: since KI#1082 the setup screen has room for more scripts, and it adds variety, as it picks a random script itself. (Claude code Opus 5.5) -->
+	return 0
 
 #-----------------------------------------------------------------------------
 #

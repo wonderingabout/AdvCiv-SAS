@@ -114,8 +114,8 @@ def isRandomCustomMapOption(argsList):
 	return option_random[iOption]
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: Shown in Simple Game, although BtS marked it advanced: since KI#1082 the setup screen has room for more scripts, and it adds variety, with its highland terrain. (Claude code Opus 5.5) -->
+	return 0
 
 def getWrapX():
 	map = CyMap()

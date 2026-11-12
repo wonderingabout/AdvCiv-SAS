@@ -42,6 +42,14 @@ EXE_RUNTIME_REFERENCE_KEYS = {
 	# No static mod/base/vanilla reference, but changing the High label changed its Custom Game list text in-game; Low uses the matching EXE convention.
 	"TXT_KEY_SEALEVEL_HIGH_RECOMMEND",
 	"TXT_KEY_SEALEVEL_LOW_RECOMMEND",
+	# <!-- custom: The EXE builds the setup screens' titles from these keys, "Select a " plus the option's name, with no reference in any XML, Python or DLL file; dropping the prefix changed the titles in game on 2026-11-12. See KI#1083. (Claude code Opus 5.5) -->
+	"TXT_KEY_MAIN_MENU_SELECT_A",
+	"TXT_KEY_MAIN_MENU_SELECT_A_CIV",
+	"TXT_KEY_MAIN_MENU_SELECT_A_CLIMATE",
+	"TXT_KEY_MAIN_MENU_SELECT_A_DIFFICULTY",
+	"TXT_KEY_MAIN_MENU_SELECT_A_MAP",
+	"TXT_KEY_MAIN_MENU_SELECT_A_SCENARIO",
+	"TXT_KEY_MAIN_MENU_SELECT_A_SEALEVEL",
 }
 INHERITED_PEDIA_REFERENCE_KEYS = {
 	# <!-- custom: These descriptions are overridden by SAS, but their Civilopedia text remains inherited from the base game or expansion.

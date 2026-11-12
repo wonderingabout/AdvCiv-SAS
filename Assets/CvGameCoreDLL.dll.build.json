@@ -3,39 +3,60 @@
     "purpose":  "Informational build report only: not read or required by Civilization IV or normal gameplay. Supports CI checks for committed DLL updates and investigation of build, runtime or AI issues alongside game logs.",
     "configuration":  "Release",
     "target":  "Release",
-    "request":  "BUILD",
-    "startedUtc":  "2026-11-10T23:06:04.522Z",
+    "request":  "REBUILD",
+    "startedUtc":  "2026-11-12T20:54:28.890Z",
     "branch":  "main",
-    "commit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-    "workingTreeStatus":  "M  .github/workflows/README.md\nA  .github/workflows/build/runtime/hands_free_defaults.py\nM  .github/workflows/build/xml/retired_global_define_names.py\nM  .github/workflows/checks-runtime.yml\nM  AGENTS.md\n M Assets/CvGameCoreDLL.dll\nM  Assets/Python/Contrib/AIAutoPlay.py\nA  Assets/Python/SASAutoplayRequest.py\nM  Assets/Python/SASGameRecordSettings.py\nM  Assets/Python/Screens/CvDawnOfMan.py\nM  Assets/SASRuntimeExitObserver.ps1\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/BBAILog.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.cpp\nM  CvGameCoreDLL/CvInitCore.cpp\nM  CvGameCoreDLL/CvInitCore.h\nM  CvGameCoreDLL/FAssert.cpp\nM  CvGameCoreDLL/SASGameRecordLog.cpp\nM  CvGameCoreDLL/SASRuntimeStatus.cpp\nM  LLM_Helpers/README.md\nM  LLM_Helpers/audits/ci_report.py\nM  LLM_Helpers/chat_exports/claude_session_export_to_txt.py\nM  LLM_Helpers/chat_exports/openai_chat_export_to_txt.py\nM  LLM_Helpers/diagnostics/toggle_dev_diagnostics.py\nA  LLM_Helpers/game_runs/agent_message.py\nA  LLM_Helpers/game_runs/desktop_windows.py\nA  LLM_Helpers/game_runs/run_autoplay.py\nM  README.md\nM  _1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md\nM  _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Multiple_Instances.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASRuntime.md\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_answer_from_own_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_answer_from_web_search_summaries.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_context_panel.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_context_panel_session_end.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_ctrl_enter_queued_strip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_effort_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_handoff_running_indicators.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_model_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_pending_composer.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_permission_mode_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queue_remove_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queued_message_cancel_edit.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queued_message_send_now.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_sidebar_child_sessions.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_stop_button_while_working.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_at_a_glance.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_click_popup.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_hover_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_red_near_limit.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_yellow_high_use.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_idle.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_model_effort_control.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_text_send.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_effort_slider_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_model_list_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_previous_messages_expanded.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_previous_messages_steps.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_queued_message_steer.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_running_command_shell_preview.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_plan_limits.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_steer_received_mid_task.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_stop_button_while_working.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_popup_5hour_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_popup_weekly_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_wheel_at_a_glance.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_worked_for_expanded.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_working_thinking_indicator.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_chatgpt_plus_in_agent_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_claude_pro_in_agent_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_headless_clean_chrome.PNG\nM  _1_AdvCiv-SAS/Images/README.md",
+    "commit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+    "workingTreeStatus":  "M  .gitattributes\nM  .github/workflows/README.md\nA  .github/workflows/build/assets/map_previews.py\nA  .github/workflows/build/documentation/disclaimers_first.py\nM  .github/workflows/build/documentation/folder_indexes.py\nA  .github/workflows/build/exe_patches/exe_internals_placement.py\nA  .github/workflows/build/exe_patches/exe_patches_export_ignore.py\nA  .github/workflows/build/repository/ui_map_sync.py\nA  .github/workflows/build/source/lint_suppressions.py\nM  .github/workflows/build/source/source_change_provenance.py\nM  .github/workflows/build/xml/sas_text_references.py\nM  .github/workflows/checks-assets.yml\nM  .github/workflows/checks-documentation.yml\nA  .github/workflows/checks-exe-patches.yml\nM  .github/workflows/checks-repository.yml\nM  .github/workflows/checks-source.yml\nM  .github/workflows/checks-tests.yml\nA  .github/workflows/tests/assets/test_map_previews.py\nA  .github/workflows/tests/documentation/test_disclaimers_first.py\nM  .github/workflows/tests/documentation/test_folder_indexes.py\nA  .github/workflows/tests/exe_patches/__init__.py\nA  .github/workflows/tests/exe_patches/test_exe_patches_export_ignore.py\nA  .github/workflows/tests/source/test_lint_suppressions.py\nM  .github/workflows/tests/source/test_source_change_provenance.py\nMM AGENTS.md\nA  Assets/Art/AdvCiv_SAS/Maps/Arboria/FLAT_Arboria.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Grid/FLAT_BTG_Grid.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Custom_Continents/FLAT_Custom_Continents.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta.dds\nD  Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta_SAS48.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Fantasy_Realm/FLAT_Fantasy_Realm.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Fractal/FLAT_Fractal.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Global_Highlands/FLAT_Global_Highlands.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Hemispheres/FLAT_Hemispheres.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Islands/FLAT_Islands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Medium_and_Small/FLAT_Medium_and_Small.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Mixed_Continents/FLAT_Mixed_Continents.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Peirce/FLAT_Peirce.dds\nA  Assets/Art/AdvCiv_SAS/Maps/PerfectMongoose/FLAT_PerfectMongoose.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Planet_Generator_0_68/FLAT_Planet_Generator_0_68.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Rainforest/FLAT_Rainforest.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Tectonics/FLAT_Tectonics.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds\nA  Assets/Art/AdvCiv_SAS/Maps/not_too_Big_or_Small/FLAT_not_too_Big_or_Small.dds\n M Assets/CvGameCoreDLL.dll\nM  Assets/XML/GlobalDefines_advc.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Interface/CIV4WorldPickerInfos.xml\nM  Assets/XML/Text/AdvCiv-SAS_main.xml\nM  CvGameCoreDLL/CvXMLLoadUtilitySet.cpp\nM  CvGameCoreDLL/SelfMod.cpp\nM  CvGameCoreDLL/SelfMod.h\nM  LICENSE.md\nM  LLM_Helpers/README.md\nM  LLM_Helpers/art_viewing/art_preview.py\nM  LLM_Helpers/audits/ci_report.py\nM  LLM_Helpers/chat_exports/openai_chat_export_to_txt.py\nA  LLM_Helpers/code_history/git_history_to_diffs.py\nM  LLM_Helpers/code_history/svn_history_to_diffs.py\nA  LLM_Helpers/exe_analysis/describe_exe_sites.py\nA  LLM_Helpers/exe_analysis/dump_exe_image.py\nA  LLM_Helpers/exe_analysis/ghidra_scripts/DescribeAddresses.java\nM  LLM_Helpers/formatting/reflow_cpp_logging_calls.py\nA  LLM_Helpers/formatting/rename_identifiers.py\nA  LLM_Helpers/game_runs/capture_screens.py\nA  LLM_Helpers/game_runs/contact_sheet.py\nM  LLM_Helpers/game_runs/desktop_windows.py\nA  LLM_Helpers/game_runs/map_preview_dds.py\nM  LLM_Helpers/game_runs/run_autoplay.py\nA  LLM_Helpers/game_runs/simple_game_scripts.py\nA  LLM_Helpers/game_runs/start_game.py\nM  LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json\nM  LLM_Helpers/game_runs/ui_maps/make_civ4_ui_map.py\nM  LLM_Helpers/housekeeping/archive_old_files.py\nM  PrivateMaps/Arboria.py\nM  PrivateMaps/Big_and_Small.py\nM  PrivateMaps/Boreal.py\nM  PrivateMaps/Custom_Continents.py\nM  PrivateMaps/Earth2.py\nM  PrivateMaps/Fantasy_Realm.py\nM  PrivateMaps/Global_Highlands.py\nM  PrivateMaps/Great_Plains.py\nM  PrivateMaps/Hemispheres.py\nM  PrivateMaps/Islands.py\nM  PrivateMaps/Lakes.py\nM  PrivateMaps/Mixed_Continents.py\nM  PrivateMaps/Oasis.py\nM  PrivateMaps/PerfectMongoose.py\nM  PrivateMaps/Rainforest.py\nM  PrivateMaps/RandomScriptMap.py\nM  PrivateMaps/Shuffle.py\nM  PrivateMaps/Tectonics.py\nM  PrivateMaps/Terra.py\nM  README.md\nM  Resource/Civ4Theme_Common.thm\nM  _1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md\nM  _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_References.md\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1080p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1440p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_4k.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1080p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1440p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_4k.JPG\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (1).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (2).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (3).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (4).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (5).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (6).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (7).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (1).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (10).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (2).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (3).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (4).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (5).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (6).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (7).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (8).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (9).JPG\"\nA  _1_AdvCiv-SAS/Images/mapscript_previews/1.3211_map_preview_dds_variants.PNG\nD  \"_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (1).PNG\"\nD  \"_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (2).PNG\"",
     "invocation":  {
-                       "entryMode":  "IDE_SWITCH",
+                       "entryMode":  "DIRECT_WRAPPER",
                        "powershellVersion":  "5.1.19041.6456",
                        "powershellEdition":  "Desktop",
                        "clrVersion":  "4.0.30319.42000",
-                       "processBits":  32,
+                       "processBits":  64,
                        "ancestorState":  "OBSERVED",
                        "ancestors":  [
                                          {
-                                             "processId":  23068,
+                                             "processId":  37380,
                                              "name":  "cmd.exe",
-                                             "path":  "C:\\Windows\\SysWOW64\\cmd.exe",
+                                             "path":  "c:\\windows\\system32\\cmd.exe",
                                              "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
                                              "productVersion":  "10.0.19041.4522"
                                          },
                                          {
-                                             "processId":  23588,
-                                             "name":  "MSBuild.exe",
-                                             "path":  "C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe",
-                                             "fileVersion":  "4.8.9037.0 built by: NET481REL1",
-                                             "productVersion":  "4.8.9037.0"
+                                             "processId":  25808,
+                                             "name":  "powershell.exe",
+                                             "path":  "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+                                             "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
+                                             "productVersion":  "10.0.19041.4522"
                                          },
                                          {
-                                             "processId":  20096,
-                                             "name":  "VCExpress.exe",
-                                             "path":  "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\Common7\\IDE\\VCExpress.exe",
-                                             "fileVersion":  "10.0.30319.1 built by: RTMRel",
-                                             "productVersion":  "10.0.30319.1"
+                                             "processId":  25268,
+                                             "name":  "cmd.exe",
+                                             "path":  "C:\\Windows\\System32\\cmd.exe",
+                                             "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
+                                             "productVersion":  "10.0.19041.4522"
+                                         },
+                                         {
+                                             "processId":  24432,
+                                             "name":  "claude.exe",
+                                             "path":  "C:\\Users\\PC\\AppData\\Local\\Claude-Data\\claude_pzs8sxrjxfjjc\\claude-code\\2.1.321\\d0e23af87588\\claude.exe",
+                                             "fileVersion":  "2.1.321.0",
+                                             "productVersion":  "2.1.321.0"
+                                         },
+                                         {
+                                             "processId":  19188,
+                                             "name":  "claude.exe",
+                                             "path":  "C:\\Program Files\\WindowsApps\\Claude_5.1231.2.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe",
+                                             "fileVersion":  "5.1231.2",
+                                             "productVersion":  "5.1231.2"
+                                         },
+                                         {
+                                             "processId":  5328,
+                                             "name":  "explorer.exe",
+                                             "path":  "C:\\Windows\\Explorer.EXE",
+                                             "fileVersion":  "10.0.19041.4522 (WinBuild.160101.0800)",
+                                             "productVersion":  "10.0.19041.4522"
                                          }
                                      ]
                    },
@@ -81,119 +102,192 @@
                   },
     "sourceProvenance":  {
                              "available":  true,
-                             "commit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
+                             "commit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
                              "branch":  "main",
-                             "version":  "6745",
+                             "version":  "6748",
                              "history":  "FULL",
                              "defaultBranch":  "main",
-                             "defaultCommit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-                             "defaultVersion":  "6745",
+                             "defaultCommit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+                             "defaultVersion":  "6748",
                              "defaultRefSource":  "LOCAL_BRANCH",
-                             "mergeBaseCommit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-                             "mergeBaseVersion":  "6745",
+                             "mergeBaseCommit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+                             "mergeBaseVersion":  "6748",
                              "branchRelation":  "AT_DEFAULT",
                              "currentOnlyCommits":  0,
                              "defaultOnlyCommits":  0,
                              "stagedCodeRulesDiff":  {
                                                          "available":  true,
                                                          "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                         "diffBytes":  39632,
-                                                         "sha256":  "7CE520EDCE8E3927DFC1AE4D3E6C31F9F9DEE6DC2A4109C65D174F356639F98D",
-                                                         "fileCount":  13,
+                                                         "diffBytes":  149142,
+                                                         "sha256":  "34C63FBC707B44190A246E6176937108394469D841A975EC060EBA73540FD2D9",
+                                                         "fileCount":  26,
                                                          "files":  [
                                                                        {
-                                                                           "path":  "Assets/Python/Contrib/AIAutoPlay.py",
-                                                                           "diffBytes":  1454,
-                                                                           "sha256":  "572EB75CE1752066B237E5E1F89DB263AD2404151464000DD8F2FE3F82BDED35"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/SASAutoplayRequest.py",
-                                                                           "diffBytes":  6448,
-                                                                           "sha256":  "8AA474DADA3F798BB5897461A098A77BFAD6BE907F3608D2016D1729DB3E851A"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/SASGameRecordSettings.py",
-                                                                           "diffBytes":  757,
-                                                                           "sha256":  "B1C337EEB884AC8A5DEF0C07E947192DFF2C5E087D98F145828E16718FF4939D"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/Python/Screens/CvDawnOfMan.py",
-                                                                           "diffBytes":  1485,
-                                                                           "sha256":  "CA9A5CA2CAB977BB3A1B3D4C0776C42F9B92432ADA538F2458CA324D6CDCEF5F"
-                                                                       },
-                                                                       {
-                                                                           "path":  "Assets/SASRuntimeExitObserver.ps1",
-                                                                           "diffBytes":  2065,
-                                                                           "sha256":  "18541CC5A065FC839936C762AF970EC952EEC10EE0BB57D0EEA086A30EF14D3B"
+                                                                           "path":  "Assets/XML/GlobalDefines_advc.xml",
+                                                                           "diffBytes":  1166,
+                                                                           "sha256":  "DB3C5A3EF72D465EB0FD18985457A75ACBEEDC4997DB5D7F46F5A76806A8FCC4"
                                                                        },
                                                                        {
                                                                            "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                           "diffBytes":  5205,
-                                                                           "sha256":  "33312B24F6A3240ECE71CCE785D535D8A9B80F1650DB256646A020C4D0911DF8"
+                                                                           "diffBytes":  5774,
+                                                                           "sha256":  "9A835A24E0B4D63BBE155AF34D93C6B10356538B58953E9228B47B56259B49E2"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/BBAILog.cpp",
-                                                                           "diffBytes":  3437,
-                                                                           "sha256":  "32556ACC8BA5891E86FD75E49D24E4E6D66CF7DF842CF39D32C74630B2FC6603"
+                                                                           "path":  "Assets/XML/Interface/CIV4WorldPickerInfos.xml",
+                                                                           "diffBytes":  31523,
+                                                                           "sha256":  "5ADBE80DA7685547804B1005627618A7E5E3F82B650AECFADC736033E3239D99"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
-                                                                           "diffBytes":  2538,
-                                                                           "sha256":  "51B6A27B35854620AF49D668185748681FB9E688137E197D454DB4ED81AE118A"
+                                                                           "path":  "Assets/XML/Text/AdvCiv-SAS_main.xml",
+                                                                           "diffBytes":  2004,
+                                                                           "sha256":  "F23A8537EAD623E27D3D0B12AF70E6F9CACD12EA8758E88563452B0B76168ADC"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/CvInitCore.cpp",
-                                                                           "diffBytes":  4842,
-                                                                           "sha256":  "9FCFF71F130864E3FB526D68D9EF6F7E7A66AE02B13A57956361DA0E18DED13F"
+                                                                           "path":  "CvGameCoreDLL/CvXMLLoadUtilitySet.cpp",
+                                                                           "diffBytes":  1399,
+                                                                           "sha256":  "CFE7C94DF8AB43E9C27A30002499BC01A75A217DF67640004C07F5C72E57374F"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/CvInitCore.h",
-                                                                           "diffBytes":  622,
-                                                                           "sha256":  "0CE3A440E2D35E608DD87CF3751E64D5E6BA4EFA72B44DC5D46D22DE568F7F78"
+                                                                           "path":  "CvGameCoreDLL/SelfMod.cpp",
+                                                                           "diffBytes":  24348,
+                                                                           "sha256":  "DB78599C1FF5D107C8FA0F5259FCF7AFE767A29962F0A7A500F1F624D503917E"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/FAssert.cpp",
-                                                                           "diffBytes":  1405,
-                                                                           "sha256":  "47689A36D9B89A9DAE345D1CE76B10F67F8DF3BF0F57EB13A152899288AF6577"
+                                                                           "path":  "CvGameCoreDLL/SelfMod.h",
+                                                                           "diffBytes":  1599,
+                                                                           "sha256":  "B137FFA9C1EAF00738737BF8CC7605E54712CDF6EA3FD603D0F5237290E957A5"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
-                                                                           "diffBytes":  3511,
-                                                                           "sha256":  "5BD548D978C6112A3149DA421185CE50EB081F7EF7EC5BFA9914A2919DB5E41E"
+                                                                           "path":  "PrivateMaps/Arboria.py",
+                                                                           "diffBytes":  629,
+                                                                           "sha256":  "F07AEDC61D6B6AD54EFBB58B31D3EF73C5E699A0C377417946B0A061BAFC0E02"
                                                                        },
                                                                        {
-                                                                           "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
-                                                                           "diffBytes":  5863,
-                                                                           "sha256":  "83C6B75320D6D422156F1D3DD8D0EDA5581B02231842EF4ECF8D88364BE3AB49"
+                                                                           "path":  "PrivateMaps/Big_and_Small.py",
+                                                                           "diffBytes":  735,
+                                                                           "sha256":  "F7991E340DFE537DDCCD84A9581DC48971A367891F07EFF06E359533C6490AB0"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Boreal.py",
+                                                                           "diffBytes":  810,
+                                                                           "sha256":  "23F6387E02A244ACD01CC0B39D20564DBA111949C4DF475458199D8D5B27B780"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Custom_Continents.py",
+                                                                           "diffBytes":  783,
+                                                                           "sha256":  "CF5D92399F312F6A576A178682FD5DABB9DC2EF247C3442BE77198D3A5A46529"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Earth2.py",
+                                                                           "diffBytes":  628,
+                                                                           "sha256":  "53AC1FAFC49CA30E8B787496540DD8189ABC481E178EC8BBF37889BBBBD5A599"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Fantasy_Realm.py",
+                                                                           "diffBytes":  670,
+                                                                           "sha256":  "C28AE0D02521D0B8E08BE93C562AF624DE91891541C9522CA2072BBC310AE46D"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Global_Highlands.py",
+                                                                           "diffBytes":  675,
+                                                                           "sha256":  "F9B0FC4C6A728AE150B569A327635CFCE595E9A1A3C6C350DF053BAEA62FBA12"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Great_Plains.py",
+                                                                           "diffBytes":  773,
+                                                                           "sha256":  "72F7C23D6E9381CAB855B5408CC396E7D3C7B73C6B9D49A29BCAE4F836F24A86"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Hemispheres.py",
+                                                                           "diffBytes":  36385,
+                                                                           "sha256":  "1DAD8B1ED9C825BFDC3A33FDCBC8FFA7AAC956071993F03F5F03B52B6C92C399"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Islands.py",
+                                                                           "diffBytes":  632,
+                                                                           "sha256":  "A9C6D80A1E5633BEEC8D9CE9ECC38FF291F164BDFE7BF95DFBAF4606386E237E"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Lakes.py",
+                                                                           "diffBytes":  576,
+                                                                           "sha256":  "1B4C0410E999DF5C3714E8BBD363BC033A2EC0A556D978DE160EEED91DDBFC7D"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Mixed_Continents.py",
+                                                                           "diffBytes":  31513,
+                                                                           "sha256":  "ACC95289364997ABE3875FB859718492DA5836173D86BCE88CCE0529F726FC25"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Oasis.py",
+                                                                           "diffBytes":  748,
+                                                                           "sha256":  "7FF7F17CE1E8E51485C61785B2F082509C54A1E93D97D3815E7D0D25BF6D01E7"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/PerfectMongoose.py",
+                                                                           "diffBytes":  804,
+                                                                           "sha256":  "C0F7B52CE4C2D4E965C9C343745B38753119A91ABF61935C8EC119C84721777A"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Rainforest.py",
+                                                                           "diffBytes":  648,
+                                                                           "sha256":  "2D872F3A7E738446A51E8A5BE7D5AC7101645264BAD0F5C40DF6A080B06CB279"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/RandomScriptMap.py",
+                                                                           "diffBytes":  686,
+                                                                           "sha256":  "EE424FB4C144DF76E3F7D8287DA91818E8C5D170A7DB20004E0CD77058BA74CD"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Shuffle.py",
+                                                                           "diffBytes":  1225,
+                                                                           "sha256":  "C40856AA0573C1B71156188C73A48EEC004A350A3D8F89A243F976C060CD1929"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Tectonics.py",
+                                                                           "diffBytes":  1214,
+                                                                           "sha256":  "434ED4238820C8A59FCEE33BD9FD320F39A6035A77A153D2334AFE4B2F76DDFB"
+                                                                       },
+                                                                       {
+                                                                           "path":  "PrivateMaps/Terra.py",
+                                                                           "diffBytes":  1195,
+                                                                           "sha256":  "0BF35B71FC3E306B2932AB94098765A69F3CA9A064AB927C2A763396B0779346"
                                                                        }
                                                                    ]
                                                      },
                              "unstagedCodeRulesDiff":  {
                                                            "available":  true,
                                                            "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                           "diffBytes":  6162,
-                                                           "sha256":  "117D4667E890883B72D041DF701242D929706455E1137F6D8757E06F72686D74",
+                                                           "diffBytes":  5152,
+                                                           "sha256":  "350817E8DA6E03314A63580954B6EA711CC17273FE2592779F38FC0CCE3F8CC0",
                                                            "fileCount":  1,
                                                            "files":  [
                                                                          {
                                                                              "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                             "diffBytes":  6162,
-                                                                             "sha256":  "117D4667E890883B72D041DF701242D929706455E1137F6D8757E06F72686D74"
+                                                                             "diffBytes":  5152,
+                                                                             "sha256":  "350817E8DA6E03314A63580954B6EA711CC17273FE2592779F38FC0CCE3F8CC0"
                                                                          }
                                                                      ]
                                                        }
                          },
     "tempBefore":  {
-                       "directoryPresent":  false,
-                       "objectCount":  0,
+                       "directoryPresent":  true,
+                       "objectCount":  169,
                        "incompleteMarkerCount":  0,
-                       "pchPresent":  false,
+                       "pchPresent":  true,
                        "pdbPresent":  false
                    },
-    "dllBefore":  null,
+    "dllBefore":  {
+                      "sizeBytes":  8466432,
+                      "modifiedUtc":  "2026-11-12T20:00:26.737Z",
+                      "sha256":  "8D763B5181CA32265E7AC98E7007FB664356EBCE5971456FA373806BE3B7D6B9"
+                  },
     "status":  "SUCCEEDED",
     "logFile":  "AdvCiv.log",
     "steps":  [
+                  {
+                      "command":  "nmake clean /NOLOGO",
+                      "exitCode":  0
+                  },
                   {
                       "command":  "nmake source_list /NOLOGO",
                       "exitCode":  0
@@ -319,7 +413,7 @@
                               {
                                   "path":  "CvGameCoreDLL/BBAILog.cpp",
                                   "sizeBytes":  34507,
-                                  "modifiedUtc":  "2026-11-10T18:55:52.281Z",
+                                  "modifiedUtc":  "2026-11-11T01:09:45.952Z",
                                   "sha256":  "9B90CF50A5F07CC93C515E3CEBACB2C45681707481526D560810E86C581C397D"
                               },
                               {
@@ -438,9 +532,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvCityAI.cpp",
-                                  "sizeBytes":  1261574,
-                                  "modifiedUtc":  "2026-11-09T20:44:09.370Z",
-                                  "sha256":  "D4E36099821259B3AAB24904B97224DE24BD7B6FA9A00D1BF6C985210DBFF9C0"
+                                  "sizeBytes":  1261872,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.330Z",
+                                  "sha256":  "DC05D00569E150E807B83C7F8EBF349F98CD0595E7FABDD62154086C5B70BD91"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvCityAI.h",
@@ -727,15 +821,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
-                                  "sizeBytes":  154265,
-                                  "modifiedUtc":  "2026-11-10T18:45:13.198Z",
-                                  "sha256":  "6375A80929152D45704C983C09DD6010038D21ECC005A5084660609C614E4B2A"
+                                  "sizeBytes":  155581,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.330Z",
+                                  "sha256":  "F91FCFA7FA3BED547FECF35E8BC8C6CA54801EACE18D02AB044E69DDAC846109"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameCoreUtils.h",
-                                  "sizeBytes":  45231,
-                                  "modifiedUtc":  "2026-11-10T07:15:31.447Z",
-                                  "sha256":  "8594C5936CF4D51720D91A4E818FDBB9816F38B70E27EEAA7EDF68899B62412E"
+                                  "sizeBytes":  46443,
+                                  "modifiedUtc":  "2026-11-11T15:01:51.723Z",
+                                  "sha256":  "3A8CEDDF23BE0D20DAFDFF1844E92B73F21B166F091D0E274818F8AF1E79F316"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvGameInterface.cpp",
@@ -1017,13 +1111,13 @@
                               {
                                   "path":  "CvGameCoreDLL/CvInitCore.cpp",
                                   "sizeBytes":  67872,
-                                  "modifiedUtc":  "2026-11-10T16:53:43.891Z",
+                                  "modifiedUtc":  "2026-11-11T01:09:45.952Z",
                                   "sha256":  "136DEFB348F55965A052B6D3FAC480A476199434EFB77B5C0A8ED61BD962F210"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvInitCore.h",
                                   "sizeBytes":  17610,
-                                  "modifiedUtc":  "2026-11-10T16:53:27.621Z",
+                                  "modifiedUtc":  "2026-11-11T01:09:45.952Z",
                                   "sha256":  "68037D15845839E3770CDE47C0B7A22702328A52C646732600B9117C744D4A09"
                               },
                               {
@@ -1100,9 +1194,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayerAI.cpp",
-                                  "sizeBytes":  1361688,
-                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
-                                  "sha256":  "BA7EB9345A93691FF95F208B9E6382FBBA60AF85573019D211F18FF5D633713C"
+                                  "sizeBytes":  1361787,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.330Z",
+                                  "sha256":  "73129A4AAB84463454A639A41613F274E66F3C23D4648FD2420F3AE2BC81E157"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlayerAI.h",
@@ -1112,9 +1206,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlot.cpp",
-                                  "sizeBytes":  277966,
-                                  "modifiedUtc":  "2026-11-09T11:04:33.465Z",
-                                  "sha256":  "D46E99E6FF62FC9EE79E0721732079B32DE09E67293405F6ADCDBD1E7DA27B55"
+                                  "sizeBytes":  278070,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.330Z",
+                                  "sha256":  "8291D74FAE45F9AC55F8812E72704719334CA32AD11C6D8867DDBBF751938E58"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvPlot.h",
@@ -1316,9 +1410,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvUnitAI.cpp",
-                                  "sizeBytes":  1537076,
-                                  "modifiedUtc":  "2026-11-10T10:44:33.443Z",
-                                  "sha256":  "374DEEEBC808D2A95D3133A8234669FF0DD72B0814D195082135FB0397362BCF"
+                                  "sizeBytes":  1537232,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.345Z",
+                                  "sha256":  "61CF5B3DB8585C2E3C5E82C18FC37286DB767D5FCE8479D15F5E871ACD9C4468"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvUnitAI.h",
@@ -1358,9 +1452,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/CvXMLLoadUtilitySet.cpp",
-                                  "sizeBytes":  93936,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.463Z",
-                                  "sha256":  "298F8EC7162B2087AA9064B4E0B0A132A8859D18FEB7716416D59B11F0B96432"
+                                  "sizeBytes":  94285,
+                                  "modifiedUtc":  "2026-11-12T10:49:34.663Z",
+                                  "sha256":  "691424D62C9F7F5EF3EE23477D076384AD45C86B505E267438C01704E7E22518"
                               },
                               {
                                   "path":  "CvGameCoreDLL/CyArea.cpp",
@@ -1812,7 +1906,7 @@
                               {
                                   "path":  "CvGameCoreDLL/FAssert.cpp",
                                   "sizeBytes":  37274,
-                                  "modifiedUtc":  "2026-11-10T18:45:13.198Z",
+                                  "modifiedUtc":  "2026-11-11T01:09:45.952Z",
                                   "sha256":  "2D08DC7EA284733CE3807B6EC3A0A69C4B5571FB265FCC74432720E328A64845"
                               },
                               {
@@ -2081,9 +2175,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/Project/build_with_report.ps1",
-                                  "sizeBytes":  34110,
-                                  "modifiedUtc":  "2026-10-29T12:55:58.313Z",
-                                  "sha256":  "EDB3D2B20F7AF8DB3F99B2F5730F1FACF7CABD9907AC86605232D4F4425A7EA6"
+                                  "sizeBytes":  35710,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.345Z",
+                                  "sha256":  "C9D30EB666DEDB9A4DA13FAE73D8D4ECE2F5D6D60061D2FFF8E9F514F0FC9718"
                               },
                               {
                                   "path":  "CvGameCoreDLL/Project/CvGameCoreDLL.def",
@@ -2111,9 +2205,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/Project/Makefile.user",
-                                  "sizeBytes":  2013,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.541Z",
-                                  "sha256":  "6B1E629C9C4D1B578C78A576284DE3FCE8A6117897483AFE7AFE0E8D091BFC36"
+                                  "sizeBytes":  2178,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.345Z",
+                                  "sha256":  "73F08061465A7B85BF2F26712C41B566FE864D8E4A2910B51E94683C43859DEE"
                               },
                               {
                                   "path":  "CvGameCoreDLL/Project/resource.h",
@@ -2183,9 +2277,9 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
-                                  "sizeBytes":  1243713,
-                                  "modifiedUtc":  "2026-11-10T16:28:45.100Z",
-                                  "sha256":  "5458F5A23049CC27C07C15BD3F417F3EB1DC9D70F72F1C688A98102CB3FD16EF"
+                                  "sizeBytes":  1245957,
+                                  "modifiedUtc":  "2026-11-11T14:57:24.345Z",
+                                  "sha256":  "456A472E29EECA904F1D7572D4558850F229E57CD23737E4C11ECA5912B386B6"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SASGameRecordLog.h",
@@ -2196,7 +2290,7 @@
                               {
                                   "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
                                   "sizeBytes":  126791,
-                                  "modifiedUtc":  "2026-11-10T18:45:13.198Z",
+                                  "modifiedUtc":  "2026-11-11T01:09:45.973Z",
                                   "sha256":  "A947CDC6669A47E9AA3C5F5B8864072EC8B69D1A20D0C15C9619AFB6BEC8ECA2"
                               },
                               {
@@ -2231,15 +2325,15 @@
                               },
                               {
                                   "path":  "CvGameCoreDLL/SelfMod.cpp",
-                                  "sizeBytes":  20035,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.571Z",
-                                  "sha256":  "FACDFBD2B727B20586F090733B751E88A7F2DBF475C7481FDC3D32418654ED0C"
+                                  "sizeBytes":  42050,
+                                  "modifiedUtc":  "2026-11-12T20:50:55.180Z",
+                                  "sha256":  "D78ADA7106CFCFC42AB2252EE6895EA88E3D485E33F9940EB8546F33467DAC8C"
                               },
                               {
                                   "path":  "CvGameCoreDLL/SelfMod.h",
-                                  "sizeBytes":  976,
-                                  "modifiedUtc":  "2026-10-28T10:08:25.571Z",
-                                  "sha256":  "9542652139035D17BA6C6B3BFE3892D571D8804D4B4B12EA735786D5ADB223C8"
+                                  "sizeBytes":  1853,
+                                  "modifiedUtc":  "2026-11-12T19:50:14.582Z",
+                                  "sha256":  "42FC781E415B2E798A0C61C0AFE26DF93A2B4767E5E8441DC9E41962663ED52E"
                               },
                               {
                                   "path":  "CvGameCoreDLL/Shelf.cpp",
@@ -2411,11 +2505,36 @@
                               }
                           ],
     "sincePreviousBuild":  {
-                               "available":  false,
-                               "reason":  "NO_COMPLETED_BUILD_SOURCE_SNAPSHOT"
+                               "available":  true,
+                               "scope":  "PREVIOUS_BUILD_END_TO_CURRENT_BUILD_START",
+                               "previousStartedUtc":  "2026-11-12T19:58:34.609Z",
+                               "previousEndedUtc":  "2026-11-12T20:00:26.784Z",
+                               "previousConfiguration":  "Release",
+                               "previousRequest":  "BUILD",
+                               "previousStatus":  "SUCCEEDED",
+                               "previousCommit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+                               "previousFileCount":  362,
+                               "currentFileCount":  362,
+                               "changedCount":  1,
+                               "changes":  [
+                                               {
+                                                   "path":  "CvGameCoreDLL/SelfMod.cpp",
+                                                   "change":  "CONTENT_CHANGED",
+                                                   "after":  {
+                                                                 "sizeBytes":  42050,
+                                                                 "modifiedUtc":  "2026-11-12T20:50:55.180Z",
+                                                                 "sha256":  "D78ADA7106CFCFC42AB2252EE6895EA88E3D485E33F9940EB8546F33467DAC8C"
+                                                             },
+                                                   "before":  {
+                                                                  "sizeBytes":  39391,
+                                                                  "modifiedUtc":  "2026-11-12T19:56:56.246Z",
+                                                                  "sha256":  "ECD3DDA11153B1880D2DC091F5C76351A7A96E3C4ED355EF897E4BDBC9F7B70E"
+                                                              }
+                                               }
+                                           ]
                            },
-    "endedUtc":  "2026-11-10T23:07:57.840Z",
-    "durationMilliseconds":  113304,
+    "endedUtc":  "2026-11-12T20:56:21.876Z",
+    "durationMilliseconds":  112975,
     "exitCode":  0,
     "warningCount":  0,
     "errorCount":  0,
@@ -2425,108 +2544,173 @@
     "recognizedErrorLines":  [
 
                              ],
-    "commitAfter":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-    "workingTreeStatusAfter":  "M  .github/workflows/README.md\nA  .github/workflows/build/runtime/hands_free_defaults.py\nM  .github/workflows/build/xml/retired_global_define_names.py\nM  .github/workflows/checks-runtime.yml\nM  AGENTS.md\n M Assets/CvGameCoreDLL.dll\nM  Assets/Python/Contrib/AIAutoPlay.py\nA  Assets/Python/SASAutoplayRequest.py\nM  Assets/Python/SASGameRecordSettings.py\nM  Assets/Python/Screens/CvDawnOfMan.py\nM  Assets/SASRuntimeExitObserver.ps1\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  CvGameCoreDLL/BBAILog.cpp\nM  CvGameCoreDLL/CvGameCoreUtils.cpp\nM  CvGameCoreDLL/CvInitCore.cpp\nM  CvGameCoreDLL/CvInitCore.h\nM  CvGameCoreDLL/FAssert.cpp\nM  CvGameCoreDLL/SASGameRecordLog.cpp\nM  CvGameCoreDLL/SASRuntimeStatus.cpp\nM  LLM_Helpers/README.md\nM  LLM_Helpers/audits/ci_report.py\nM  LLM_Helpers/chat_exports/claude_session_export_to_txt.py\nM  LLM_Helpers/chat_exports/openai_chat_export_to_txt.py\nM  LLM_Helpers/diagnostics/toggle_dev_diagnostics.py\nA  LLM_Helpers/game_runs/agent_message.py\nA  LLM_Helpers/game_runs/desktop_windows.py\nA  LLM_Helpers/game_runs/run_autoplay.py\nM  README.md\nM  _1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md\nM  _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_Multiple_Instances.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md\nM  _1_AdvCiv-SAS/Docs/revisions/SASRuntime.md\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_answer_from_own_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_answer_from_web_search_summaries.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_context_panel.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_context_panel_session_end.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_ctrl_enter_queued_strip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_effort_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_handoff_running_indicators.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_model_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_pending_composer.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_permission_mode_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queue_remove_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queued_message_cancel_edit.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_queued_message_send_now.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_sidebar_child_sessions.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_stop_button_while_working.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_at_a_glance.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_click_popup.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_hover_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_red_near_limit.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_ring_yellow_high_use.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_idle.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_model_effort_control.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_composer_text_send.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_effort_slider_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_model_list_menu.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_previous_messages_expanded.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_previous_messages_steps.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_queued_message_steer.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_running_command_shell_preview.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_plan_limits.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_steer_received_mid_task.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_stop_button_while_working.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_popup_5hour_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_popup_weekly_tooltip.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_wheel_at_a_glance.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_worked_for_expanded.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_working_thinking_indicator.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_chatgpt_plus_in_agent_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_claude_pro_in_agent_browser.PNG\nA  _1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_pricing_page_headless_clean_chrome.PNG\nM  _1_AdvCiv-SAS/Images/README.md\n?? CvGameCoreDLL/Project/temp_files/Release/",
+    "commitAfter":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+    "workingTreeStatusAfter":  "M  .gitattributes\nM  .github/workflows/README.md\nA  .github/workflows/build/assets/map_previews.py\nA  .github/workflows/build/documentation/disclaimers_first.py\nM  .github/workflows/build/documentation/folder_indexes.py\nA  .github/workflows/build/exe_patches/exe_internals_placement.py\nA  .github/workflows/build/exe_patches/exe_patches_export_ignore.py\nA  .github/workflows/build/repository/ui_map_sync.py\nA  .github/workflows/build/source/lint_suppressions.py\nM  .github/workflows/build/source/source_change_provenance.py\nM  .github/workflows/build/xml/sas_text_references.py\nM  .github/workflows/checks-assets.yml\nM  .github/workflows/checks-documentation.yml\nA  .github/workflows/checks-exe-patches.yml\nM  .github/workflows/checks-repository.yml\nM  .github/workflows/checks-source.yml\nM  .github/workflows/checks-tests.yml\nA  .github/workflows/tests/assets/test_map_previews.py\nA  .github/workflows/tests/documentation/test_disclaimers_first.py\nM  .github/workflows/tests/documentation/test_folder_indexes.py\nA  .github/workflows/tests/exe_patches/__init__.py\nA  .github/workflows/tests/exe_patches/test_exe_patches_export_ignore.py\nA  .github/workflows/tests/source/test_lint_suppressions.py\nM  .github/workflows/tests/source/test_source_change_provenance.py\nMM AGENTS.md\nA  Assets/Art/AdvCiv_SAS/Maps/Arboria/FLAT_Arboria.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Grid/FLAT_BTG_Grid.dds\nM  Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Custom_Continents/FLAT_Custom_Continents.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta.dds\nD  Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/FLAT_Equal_Islands_V2_beta_SAS48.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Fantasy_Realm/FLAT_Fantasy_Realm.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Fractal/FLAT_Fractal.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Global_Highlands/FLAT_Global_Highlands.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Hemispheres/FLAT_Hemispheres.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Islands/FLAT_Islands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Medium_and_Small/FLAT_Medium_and_Small.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Mixed_Continents/FLAT_Mixed_Continents.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Peirce/FLAT_Peirce.dds\nA  Assets/Art/AdvCiv_SAS/Maps/PerfectMongoose/FLAT_PerfectMongoose.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Planet_Generator_0_68/FLAT_Planet_Generator_0_68.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Rainforest/FLAT_Rainforest.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Longworld/FLAT_SAS_Longworld.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds\nM  Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds\nA  Assets/Art/AdvCiv_SAS/Maps/Tectonics/FLAT_Tectonics.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds\nM  Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds\nA  Assets/Art/AdvCiv_SAS/Maps/not_too_Big_or_Small/FLAT_not_too_Big_or_Small.dds\n M Assets/CvGameCoreDLL.dll\nM  Assets/XML/GlobalDefines_advc.xml\nMM Assets/XML/GlobalDefines_advciv_sas.xml\nM  Assets/XML/Interface/CIV4WorldPickerInfos.xml\nM  Assets/XML/Text/AdvCiv-SAS_main.xml\nM  CvGameCoreDLL/CvXMLLoadUtilitySet.cpp\nM  CvGameCoreDLL/SelfMod.cpp\nM  CvGameCoreDLL/SelfMod.h\nM  LICENSE.md\nM  LLM_Helpers/README.md\nM  LLM_Helpers/art_viewing/art_preview.py\nM  LLM_Helpers/audits/ci_report.py\nM  LLM_Helpers/chat_exports/openai_chat_export_to_txt.py\nA  LLM_Helpers/code_history/git_history_to_diffs.py\nM  LLM_Helpers/code_history/svn_history_to_diffs.py\nA  LLM_Helpers/exe_analysis/describe_exe_sites.py\nA  LLM_Helpers/exe_analysis/dump_exe_image.py\nA  LLM_Helpers/exe_analysis/ghidra_scripts/DescribeAddresses.java\nM  LLM_Helpers/formatting/reflow_cpp_logging_calls.py\nA  LLM_Helpers/formatting/rename_identifiers.py\nA  LLM_Helpers/game_runs/capture_screens.py\nA  LLM_Helpers/game_runs/contact_sheet.py\nM  LLM_Helpers/game_runs/desktop_windows.py\nA  LLM_Helpers/game_runs/map_preview_dds.py\nM  LLM_Helpers/game_runs/run_autoplay.py\nA  LLM_Helpers/game_runs/simple_game_scripts.py\nA  LLM_Helpers/game_runs/start_game.py\nM  LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json\nM  LLM_Helpers/game_runs/ui_maps/make_civ4_ui_map.py\nM  LLM_Helpers/housekeeping/archive_old_files.py\nM  PrivateMaps/Arboria.py\nM  PrivateMaps/Big_and_Small.py\nM  PrivateMaps/Boreal.py\nM  PrivateMaps/Custom_Continents.py\nM  PrivateMaps/Earth2.py\nM  PrivateMaps/Fantasy_Realm.py\nM  PrivateMaps/Global_Highlands.py\nM  PrivateMaps/Great_Plains.py\nM  PrivateMaps/Hemispheres.py\nM  PrivateMaps/Islands.py\nM  PrivateMaps/Lakes.py\nM  PrivateMaps/Mixed_Continents.py\nM  PrivateMaps/Oasis.py\nM  PrivateMaps/PerfectMongoose.py\nM  PrivateMaps/Rainforest.py\nM  PrivateMaps/RandomScriptMap.py\nM  PrivateMaps/Shuffle.py\nM  PrivateMaps/Tectonics.py\nM  PrivateMaps/Terra.py\nM  README.md\nM  Resource/Civ4Theme_Common.thm\nM  _1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md\nA  _1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md\nM  _1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md\nM  _1_AdvCiv-SAS/Docs/README_Known_Issues.md\nM  _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md\nM  _1_AdvCiv-SAS/Docs/README_References.md\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1080p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_1440p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.311_main_menu_simple_game_exe_p_4k.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1080p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_1440p.JPG\nA  _1_AdvCiv-SAS/Images/main_menu/1.312_main_menu_simple_game_civs_exe_p_4k.JPG\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (1).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (2).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (3).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (4).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (5).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (6).JPG\"\nA  \"_1_AdvCiv-SAS/Images/main_menu/1.313_main_menu_simple_game_exe_p (7).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (1).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (10).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (2).JPG\"\nM  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (3).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (4).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (5).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (6).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (7).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (8).JPG\"\nD  \"_1_AdvCiv-SAS/Images/mapscript_previews/1.3201_maps_simple_game (9).JPG\"\nA  _1_AdvCiv-SAS/Images/mapscript_previews/1.3211_map_preview_dds_variants.PNG\nD  \"_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (1).PNG\"\nD  \"_1_AdvCiv-SAS/Images/tools/1.3210_technique_paint_net_fast_resize_map (2).PNG\"",
     "sourceProvenanceAfter":  {
                                   "available":  true,
-                                  "commit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
+                                  "commit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
                                   "branch":  "main",
-                                  "version":  "6745",
+                                  "version":  "6748",
                                   "history":  "FULL",
                                   "defaultBranch":  "main",
-                                  "defaultCommit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-                                  "defaultVersion":  "6745",
+                                  "defaultCommit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+                                  "defaultVersion":  "6748",
                                   "defaultRefSource":  "LOCAL_BRANCH",
-                                  "mergeBaseCommit":  "fca9414d3a580167f46379b9ddae09b50b2d3926",
-                                  "mergeBaseVersion":  "6745",
+                                  "mergeBaseCommit":  "e07f72bc15a5093fb4ff94e8ea4f4360c7b2778e",
+                                  "mergeBaseVersion":  "6748",
                                   "branchRelation":  "AT_DEFAULT",
                                   "currentOnlyCommits":  0,
                                   "defaultOnlyCommits":  0,
                                   "stagedCodeRulesDiff":  {
                                                               "available":  true,
                                                               "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                              "diffBytes":  39632,
-                                                              "sha256":  "7CE520EDCE8E3927DFC1AE4D3E6C31F9F9DEE6DC2A4109C65D174F356639F98D",
-                                                              "fileCount":  13,
+                                                              "diffBytes":  149142,
+                                                              "sha256":  "34C63FBC707B44190A246E6176937108394469D841A975EC060EBA73540FD2D9",
+                                                              "fileCount":  26,
                                                               "files":  [
                                                                             {
-                                                                                "path":  "Assets/Python/Contrib/AIAutoPlay.py",
-                                                                                "diffBytes":  1454,
-                                                                                "sha256":  "572EB75CE1752066B237E5E1F89DB263AD2404151464000DD8F2FE3F82BDED35"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/SASAutoplayRequest.py",
-                                                                                "diffBytes":  6448,
-                                                                                "sha256":  "8AA474DADA3F798BB5897461A098A77BFAD6BE907F3608D2016D1729DB3E851A"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/SASGameRecordSettings.py",
-                                                                                "diffBytes":  757,
-                                                                                "sha256":  "B1C337EEB884AC8A5DEF0C07E947192DFF2C5E087D98F145828E16718FF4939D"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/Python/Screens/CvDawnOfMan.py",
-                                                                                "diffBytes":  1485,
-                                                                                "sha256":  "CA9A5CA2CAB977BB3A1B3D4C0776C42F9B92432ADA538F2458CA324D6CDCEF5F"
-                                                                            },
-                                                                            {
-                                                                                "path":  "Assets/SASRuntimeExitObserver.ps1",
-                                                                                "diffBytes":  2065,
-                                                                                "sha256":  "18541CC5A065FC839936C762AF970EC952EEC10EE0BB57D0EEA086A30EF14D3B"
+                                                                                "path":  "Assets/XML/GlobalDefines_advc.xml",
+                                                                                "diffBytes":  1166,
+                                                                                "sha256":  "DB3C5A3EF72D465EB0FD18985457A75ACBEEDC4997DB5D7F46F5A76806A8FCC4"
                                                                             },
                                                                             {
                                                                                 "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                                "diffBytes":  5205,
-                                                                                "sha256":  "33312B24F6A3240ECE71CCE785D535D8A9B80F1650DB256646A020C4D0911DF8"
+                                                                                "diffBytes":  5774,
+                                                                                "sha256":  "9A835A24E0B4D63BBE155AF34D93C6B10356538B58953E9228B47B56259B49E2"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/BBAILog.cpp",
-                                                                                "diffBytes":  3437,
-                                                                                "sha256":  "32556ACC8BA5891E86FD75E49D24E4E6D66CF7DF842CF39D32C74630B2FC6603"
+                                                                                "path":  "Assets/XML/Interface/CIV4WorldPickerInfos.xml",
+                                                                                "diffBytes":  31523,
+                                                                                "sha256":  "5ADBE80DA7685547804B1005627618A7E5E3F82B650AECFADC736033E3239D99"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/CvGameCoreUtils.cpp",
-                                                                                "diffBytes":  2538,
-                                                                                "sha256":  "51B6A27B35854620AF49D668185748681FB9E688137E197D454DB4ED81AE118A"
+                                                                                "path":  "Assets/XML/Text/AdvCiv-SAS_main.xml",
+                                                                                "diffBytes":  2004,
+                                                                                "sha256":  "F23A8537EAD623E27D3D0B12AF70E6F9CACD12EA8758E88563452B0B76168ADC"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/CvInitCore.cpp",
-                                                                                "diffBytes":  4842,
-                                                                                "sha256":  "9FCFF71F130864E3FB526D68D9EF6F7E7A66AE02B13A57956361DA0E18DED13F"
+                                                                                "path":  "CvGameCoreDLL/CvXMLLoadUtilitySet.cpp",
+                                                                                "diffBytes":  1399,
+                                                                                "sha256":  "CFE7C94DF8AB43E9C27A30002499BC01A75A217DF67640004C07F5C72E57374F"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/CvInitCore.h",
-                                                                                "diffBytes":  622,
-                                                                                "sha256":  "0CE3A440E2D35E608DD87CF3751E64D5E6BA4EFA72B44DC5D46D22DE568F7F78"
+                                                                                "path":  "CvGameCoreDLL/SelfMod.cpp",
+                                                                                "diffBytes":  24348,
+                                                                                "sha256":  "DB78599C1FF5D107C8FA0F5259FCF7AFE767A29962F0A7A500F1F624D503917E"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/FAssert.cpp",
-                                                                                "diffBytes":  1405,
-                                                                                "sha256":  "47689A36D9B89A9DAE345D1CE76B10F67F8DF3BF0F57EB13A152899288AF6577"
+                                                                                "path":  "CvGameCoreDLL/SelfMod.h",
+                                                                                "diffBytes":  1599,
+                                                                                "sha256":  "B137FFA9C1EAF00738737BF8CC7605E54712CDF6EA3FD603D0F5237290E957A5"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/SASGameRecordLog.cpp",
-                                                                                "diffBytes":  3511,
-                                                                                "sha256":  "5BD548D978C6112A3149DA421185CE50EB081F7EF7EC5BFA9914A2919DB5E41E"
+                                                                                "path":  "PrivateMaps/Arboria.py",
+                                                                                "diffBytes":  629,
+                                                                                "sha256":  "F07AEDC61D6B6AD54EFBB58B31D3EF73C5E699A0C377417946B0A061BAFC0E02"
                                                                             },
                                                                             {
-                                                                                "path":  "CvGameCoreDLL/SASRuntimeStatus.cpp",
-                                                                                "diffBytes":  5863,
-                                                                                "sha256":  "83C6B75320D6D422156F1D3DD8D0EDA5581B02231842EF4ECF8D88364BE3AB49"
+                                                                                "path":  "PrivateMaps/Big_and_Small.py",
+                                                                                "diffBytes":  735,
+                                                                                "sha256":  "F7991E340DFE537DDCCD84A9581DC48971A367891F07EFF06E359533C6490AB0"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Boreal.py",
+                                                                                "diffBytes":  810,
+                                                                                "sha256":  "23F6387E02A244ACD01CC0B39D20564DBA111949C4DF475458199D8D5B27B780"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Custom_Continents.py",
+                                                                                "diffBytes":  783,
+                                                                                "sha256":  "CF5D92399F312F6A576A178682FD5DABB9DC2EF247C3442BE77198D3A5A46529"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Earth2.py",
+                                                                                "diffBytes":  628,
+                                                                                "sha256":  "53AC1FAFC49CA30E8B787496540DD8189ABC481E178EC8BBF37889BBBBD5A599"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Fantasy_Realm.py",
+                                                                                "diffBytes":  670,
+                                                                                "sha256":  "C28AE0D02521D0B8E08BE93C562AF624DE91891541C9522CA2072BBC310AE46D"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Global_Highlands.py",
+                                                                                "diffBytes":  675,
+                                                                                "sha256":  "F9B0FC4C6A728AE150B569A327635CFCE595E9A1A3C6C350DF053BAEA62FBA12"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Great_Plains.py",
+                                                                                "diffBytes":  773,
+                                                                                "sha256":  "72F7C23D6E9381CAB855B5408CC396E7D3C7B73C6B9D49A29BCAE4F836F24A86"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Hemispheres.py",
+                                                                                "diffBytes":  36385,
+                                                                                "sha256":  "1DAD8B1ED9C825BFDC3A33FDCBC8FFA7AAC956071993F03F5F03B52B6C92C399"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Islands.py",
+                                                                                "diffBytes":  632,
+                                                                                "sha256":  "A9C6D80A1E5633BEEC8D9CE9ECC38FF291F164BDFE7BF95DFBAF4606386E237E"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Lakes.py",
+                                                                                "diffBytes":  576,
+                                                                                "sha256":  "1B4C0410E999DF5C3714E8BBD363BC033A2EC0A556D978DE160EEED91DDBFC7D"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Mixed_Continents.py",
+                                                                                "diffBytes":  31513,
+                                                                                "sha256":  "ACC95289364997ABE3875FB859718492DA5836173D86BCE88CCE0529F726FC25"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Oasis.py",
+                                                                                "diffBytes":  748,
+                                                                                "sha256":  "7FF7F17CE1E8E51485C61785B2F082509C54A1E93D97D3815E7D0D25BF6D01E7"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/PerfectMongoose.py",
+                                                                                "diffBytes":  804,
+                                                                                "sha256":  "C0F7B52CE4C2D4E965C9C343745B38753119A91ABF61935C8EC119C84721777A"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Rainforest.py",
+                                                                                "diffBytes":  648,
+                                                                                "sha256":  "2D872F3A7E738446A51E8A5BE7D5AC7101645264BAD0F5C40DF6A080B06CB279"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/RandomScriptMap.py",
+                                                                                "diffBytes":  686,
+                                                                                "sha256":  "EE424FB4C144DF76E3F7D8287DA91818E8C5D170A7DB20004E0CD77058BA74CD"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Shuffle.py",
+                                                                                "diffBytes":  1225,
+                                                                                "sha256":  "C40856AA0573C1B71156188C73A48EEC004A350A3D8F89A243F976C060CD1929"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Tectonics.py",
+                                                                                "diffBytes":  1214,
+                                                                                "sha256":  "434ED4238820C8A59FCEE33BD9FD320F39A6035A77A153D2334AFE4B2F76DDFB"
+                                                                            },
+                                                                            {
+                                                                                "path":  "PrivateMaps/Terra.py",
+                                                                                "diffBytes":  1195,
+                                                                                "sha256":  "0BF35B71FC3E306B2932AB94098765A69F3CA9A064AB927C2A763396B0779346"
                                                                             }
                                                                         ]
                                                           },
                                   "unstagedCodeRulesDiff":  {
                                                                 "available":  true,
                                                                 "scope":  "TRACKED_RUNTIME_CODE_RULES",
-                                                                "diffBytes":  6162,
-                                                                "sha256":  "117D4667E890883B72D041DF701242D929706455E1137F6D8757E06F72686D74",
+                                                                "diffBytes":  5152,
+                                                                "sha256":  "350817E8DA6E03314A63580954B6EA711CC17273FE2592779F38FC0CCE3F8CC0",
                                                                 "fileCount":  1,
                                                                 "files":  [
                                                                               {
                                                                                   "path":  "Assets/XML/GlobalDefines_advciv_sas.xml",
-                                                                                  "diffBytes":  6162,
-                                                                                  "sha256":  "117D4667E890883B72D041DF701242D929706455E1137F6D8757E06F72686D74"
+                                                                                  "diffBytes":  5152,
+                                                                                  "sha256":  "350817E8DA6E03314A63580954B6EA711CC17273FE2592779F38FC0CCE3F8CC0"
                                                                               }
                                                                           ]
                                                             }
@@ -2539,9 +2723,9 @@
                       "pdbPresent":  false
                   },
     "dllAfter":  {
-                     "sizeBytes":  8462336,
-                     "modifiedUtc":  "2026-11-10T23:07:57.796Z",
-                     "sha256":  "D923426766D7BF6B1E009AB060CB3132D14CDB032E095FFCC3DB4BE111E68049"
+                     "sizeBytes":  8466432,
+                     "modifiedUtc":  "2026-11-12T20:56:21.809Z",
+                     "sha256":  "B3481A1CCD0E76E1FD3498CEA539D4B31C106C6C265451D8283BDFFA586D42EA"
                  },
     "buildInputChanges":  [
 

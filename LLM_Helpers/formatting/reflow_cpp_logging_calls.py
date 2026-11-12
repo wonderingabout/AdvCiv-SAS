@@ -325,7 +325,9 @@ def reflow_text(text: str, trigger_width: int = 180, wrap_width: int = 140, coll
         if not too_long:
             continue
 
-        indent = re.match(r"[ \t]*", text[line_start:start]).group(0)  # type: ignore[union-attr]
+        # <!-- custom: The leading spaces and tabs, by slicing: re.match is typed as possibly None although [ \t]* always matches, which needed a type: ignore. (Claude code Opus 5.5) -->
+        prefix = text[line_start:start]
+        indent = prefix[:len(prefix) - len(prefix.lstrip(" \t"))]
         continuation = indent + "\t"
         string_first = args[0].lstrip().startswith('"')
         remaining = [arg.strip() for arg in (args[1:] if string_first else args)]

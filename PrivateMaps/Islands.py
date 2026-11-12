@@ -26,8 +26,8 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_ISLANDS_DESCR"
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 1
+	# <!-- custom: Shown in Simple Game, although BtS marked it advanced: since KI#1082 the setup screen has room for more scripts, and it adds variety, with island play. (Claude code Opus 5.5) -->
+	return 0
 
 def getNumCustomMapOptions():
 	return 4

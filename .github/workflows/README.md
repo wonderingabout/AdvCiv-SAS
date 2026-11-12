@@ -28,6 +28,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/assets/art_define_structure.py`](#buildassetsart_define_structurepy)
     - [`build/assets/fonts.py`](#buildassetsfontspy)
     - [`build/assets/leader_audio.py`](#buildassetsleader_audiopy)
+    - [`build/assets/map_previews.py`](#buildassetsmap_previewspy)
     - [`build/assets/opening_music.py`](#buildassetsopening_musicpy)
     - [`build/assets/tech_audio.py`](#buildassetstech_audiopy)
   - [Diagnostics](#diagnostics)
@@ -43,6 +44,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Documentation](#documentation)
     - [`build/documentation/art_samples.py`](#builddocumentationart_samplespy)
     - [`build/documentation/diagnostic_artifact_names.py`](#builddocumentationdiagnostic_artifact_namespy)
+    - [`build/documentation/disclaimers_first.py`](#builddocumentationdisclaimers_firstpy)
     - [`build/documentation/drive_links.py`](#builddocumentationdrive_linkspy)
     - [`build/documentation/example_file_locations.py`](#builddocumentationexample_file_locationspy)
     - [`build/documentation/folder_indexes.py`](#builddocumentationfolder_indexespy)
@@ -55,6 +57,9 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
+  - [EXE patches](#exe-patches)
+    - [`build/exe_patches/exe_internals_placement.py`](#buildexe_patchesexe_internals_placementpy)
+    - [`build/exe_patches/exe_patches_export_ignore.py`](#buildexe_patchesexe_patches_export_ignorepy)
   - [Hygiene](#hygiene)
     - [`build/hygiene/control_characters.py`](#buildhygienecontrol_characterspy)
     - [`build/hygiene/line_endings.py`](#buildhygieneline_endingspy)
@@ -72,6 +77,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
+    - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
     - [`build/repository/workflow_keep_going.py`](#buildrepositoryworkflow_keep_goingpy)
   - [Runtime](#runtime)
@@ -232,6 +238,7 @@ The automated layout has two matching layers: workflow categories at `.github/wo
 | `build/assets/` | `checks-assets.yml` |
 | `build/diagnostics/` | `checks-diagnostics.yml` |
 | `build/documentation/` | `checks-documentation.yml`; Markdown lint additionally uses `documentation-markdownlint.yml` |
+| `build/exe_patches/` | `checks-exe-patches.yml` |
 | `build/hygiene/` | `checks-hygiene.yml` |
 | `build/python/` | `python24-compile.yml`; `python-ruff.yml` invokes Ruff directly |
 | `build/repository/` | `checks-repository.yml` |
@@ -291,6 +298,12 @@ Verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
 Verifies every non-empty leader diplomacy-audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename. This catches per-era mapping typos such as Stalin's former Renaissance `AS2D_DIPLO_STALIN_EARLY_INTROO` reference instead of silently losing the intended diplomacy intro.
 
 See [KI#1031](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1031).
+
+#### `build/assets/map_previews.py`
+
+Fails for each map script shown in Simple Game (its `isAdvancedMap` returns 0 or `False`, as read by the shared [`simple_game_scripts.py`](/LLM_Helpers/README.md#simple_game_scriptspy)) that has no `WorldPickerInfo` entry in `CIV4WorldPickerInfos.xml`, since such a script shows the dark default globe, and for each SAS preview path in that file whose `.dds` is missing. Its message gives the `map_preview_dds.py --variants 3` command that makes one.
+
+On 2026-11-12, 14 of the 38 shown scripts had no preview and nothing had flagged it. Scripts that keep the default globe on purpose are listed in `DEFAULT_GLOBE_ON_PURPOSE` with their reason, such as RandomScriptMap, which picks another script each game; the check also fails when a listed script gains an entry, so the list stays current. See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
 
 #### `build/assets/opening_music.py`
 
@@ -462,6 +475,18 @@ Requires explicit generated diagnostic paths in the root README's relevant secti
 - Requires a visible inline-code path such as `Logs/SASRuntimeExit_*.json`; mentions only inside fenced samples or hidden comments do not count. Documents explain the base directory instead of hardcoding the user's Windows profile.
 - The small publisher set is audited each run, including documentation-only edits. This is a scoped discoverability guard, not an arbitrary-language path parser or a requirement to list unrelated JSON settings/captures; update the scope if a new publisher uses another naming/path construction.
 
+#### `build/documentation/disclaimers_first.py`
+
+Requires each listed guide's disclaimer directly under its title, before its description and menu: a disclaimer only protects if readers meet it before anything else.
+
+- On 2026-11-12 the user asked that the modding disclaimer of the [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md) guide and the disclaimer of the new [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) stay first.
+  - A first draft made them the first sections after the description; the user preferred them directly under the title, as a quote block starting with a plain `> **Disclaimer:**`, which covers the whole guide, and with no heading or menu entry.
+- The guides and their labels are listed in `REQUIRED_DISCLAIMERS`; add a guide there when it gets a disclaimer. A missing guide or label fails loudly, so a rename cannot silently drop the check.
+
+```bash
+python .github/workflows/build/documentation/disclaimers_first.py
+```
+
 #### `build/documentation/drive_links.py`
 
 Requires each Google Drive file or folder to be linked at most once per Markdown document, and every Drive link to have a recognised form with an ID (`/drive/folders/<id>`, `/file/d/<id>`, `?id=<id>` or a Docs `/d/<id>`).
@@ -491,6 +516,8 @@ Keeps folder indexes listing what their folders hold, in alphabetical order, so 
 - Only `README.md` may sit directly in `LLM_Helpers/`; every other helper belongs in the folder of its job.
 - Every `LLM_Helpers` folder has a `` ## `folder/` `` section and a Folders table row, both alphabetical, and every helper file is named in its folder's section. `context/` is described as a whole.
   - It found `light_source_python24_linux.py` undescribed when it was added on 2026-11-10.
+  - Exception: a folder in `GUIDE_DOCUMENTED_FOLDERS` is documented only in its guide, so every helper file in it, Ghidra `.java` scripts included, must be named in that guide instead, and its README section must be a single line linking to the guide and its disclaimer, with no subsections.
+    - Since 2026-11-12 `exe_analysis/` is documented in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): its technical details stay for agents in Git and the light-source ZIP, but out of player downloads, while the README, which ships, says only "See the EXE patches guide and the corresponding disclaimer", so a downloaded ZIP holds no description of the EXE work.
 - This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical.
 - Every guide in `_1_AdvCiv-SAS/Docs/Modding_Resources/` is listed under its README's "Guides in this folder", by file name; a list that claims to cover its folder should not need remembering either.
 
@@ -630,6 +657,30 @@ Keeps SAS-branded mod source and shipped runtime companions discoverable in both
   - This preserves the clean baseline without reading every source file on every run; Git supplies the path inventory and only the two documents are parsed.
 - Run a complete current-tree audit with `python .github/workflows/build/documentation/sas_source_guide.py --all`; updating the checker itself or lacking a comparison base also audits the full scope. Normal local review uses `--base-ref HEAD`.
 - Reports all missing references together and never inserts a bare file list automatically: links belong beside the relevant feature, with enough explanation to make them useful.
+
+### EXE patches
+
+Checks that keep the EXE patches' material where it belongs: the guide and `LLM_Helpers/exe_analysis/` stay out of player archives, and files that ship describe a patch's effect, not the EXE's internals. Both ran under Repository until 2026-11-12; the user asked for their own category, as the material they protect has its own folders.
+
+#### `build/exe_patches/exe_internals_placement.py`
+
+Fails when a file that ships to players describes the EXE's internals: a decrypted copy of the EXE, Ghidra or its `FUN_` names, a code cave, or an EXE code address outside `CvGameCoreDLL/`, whose patch code needs them. Such details belong in the export-ignored EXE patches guide and `LLM_Helpers/exe_analysis/`; shipping files describe a patch's effect and link to the guide.
+
+- Added on 2026-11-12, when the user's review found these details had spread into shipping files: a Known Issues paragraph on the globe patch's code cave, and notes in the Game Runs guide, the UI map generator and `SelfMod.cpp` comments. [`exe_patches_export_ignore.py`](#buildexe_patchesexe_patches_export_ignorepy) checked only that the guide stays export-ignored, not what other files say.
+- Files under export-ignored folders such as `.github/` count as not shipping; inherited `_0_Legacy/` copies are skipped, since AdvCiv's manual quotes its own, already public, patch addresses.
+- In `CvGameCoreDLL/`, lines of another mod's comment quoted as is (`// >`, under a line saying it is a quote) are allowed, such as Realism Invictus's notes naming Ghidra's `FUN_` functions: that text is already public in that mod's DLL source, and rewording it would blur whose finding it is.
+
+#### `build/exe_patches/exe_patches_export_ignore.py`
+
+Fails if the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md), its `LLM_Helpers/exe_analysis/` helpers, or the files describing them (`AGENTS.md` and `.github/`) lose their `export-ignore` in `.gitattributes`.
+
+- They stay in Git and the light-source ZIP for agents but out of player and GitHub Download ZIP archives, and only those `.gitattributes` lines keep them out; on 2026-11-12 the user asked for this check so a deleted line cannot pass unnoticed. The [`folder_indexes.py`](#builddocumentationfolder_indexespy) exception keeps what does ship to a link.
+- It asks Git for each path's effective attribute. Folders are queried with a trailing `/`: `git check-attr` reported `.github` as unspecified but `.github/` as set, since `/.github/` matches directories only, while `git archive` still skipped the whole folder.
+- A listed path that no longer exists fails too, so a move cannot silently drop the check; update `REQUIRED` in the script then.
+
+```bash
+python .github/workflows/build/exe_patches/exe_patches_export_ignore.py
+```
 
 ### Hygiene
 
@@ -860,6 +911,14 @@ The same day the zero-byte `.gitkeep` that kept the folder in fresh clones for t
 
 This helps catch stale fast-compile intermediates and forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.2)).
 
+#### `build/repository/ui_map_sync.py`
+
+Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_map.py` into a temporary file and fails unless it matches the committed JSON byte for byte.
+
+- The JSON is generated: edit the generator, never the JSON. On 2026-11-12 an agent had edited the JSON directly, so rerunning the generator would have dropped the WorldBuilder mapping, as Codex's review found.
+- The generator derives the Simple Game map list from the map scripts, through the same classifier as [`map_previews.py`](#buildassetsmap_previewspy), so a script added, removed or hidden from Simple Game also fails this check until the JSON is regenerated, with each row's point placed 24 px below the last.
+- The generator itself fails when more scripts are shown than the 38 rows that fit at 1920 x 1080 without a scrollbar, since the list's points would then need re-measuring.
+
 #### `build/repository/version_metadata.py`
 
 Verifies the tracked `Assets/SASModVersion.txt` archive marker retains its Git `export-subst` version-anchor describe, commit, and commit-date placeholders, and that `.gitattributes` still marks the file `export-subst`.
@@ -941,6 +1000,13 @@ Verifies that no `// <!-- custom:` or `# <!-- custom:` comment in DLL sources, r
 - A scripted edit once inserted retirement notes two levels too deep in `RiseFall.cpp` and `GroupPathFinder.cpp`; the code still compiled, so only review noticed ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)).
 - Requiring both neighbours to be shallower allows ordinary end-of-block notes, and a comment directly under a block opener (`{`, `:`, `(`, `,`, `\`), including commented-out code, is skipped.
 
+#### `build/source/lint_suppressions.py`
+
+Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python that does not name its rule, such as `noqa: E402`, or gives no reason on the same line or the line above. AGENTS.md asks to fix the cause first and to explain any suppression that remains.
+
+- Added on 2026-11-12, when two late imports after a `sys.path` entry each needed a `noqa`, one with no reason. Both were fixed at the cause by loading the module with `importlib`, and the check's first run found one more, a `type: ignore` around `re.match`, fixed by slicing.
+- Comments are read with Python's tokenizer, so suppression text inside strings, such as test fixtures, is not counted; verbatim third-party copies under `LLM_Helpers/context/` and `_0_Legacy/` are skipped.
+
 #### `build/source/python_resource_api.py`
 
 Checks consumers of `SASVisualUtils` and `SASTextScale` against their source-derived API, without importing Civ4 or maintaining one spelling guard per resource family. `checks-source.yml` runs it as **Shared Python resource API contracts**.
@@ -1006,6 +1072,7 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
+- another mod's comment may be quoted as is, without a model credit or reflow: a custom line saying it is a quote, such as "Quoted from", and naming the source, then lines each starting with `// >` or `# >`; our own prose mixed into the quote still fails. Added on 2026-11-12 after the globe patch's comments restated Realism Invictus's findings in our voice;
 - added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits, which include mod-component credits written as "by <Name>, ver." (e.g. `*ActualQuotes* by Willowmound, ver. 4.20`);
   - in XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;
 - newly added/changed direct C++ JSON `Format`/`format` literals keep one object field per adjacent string literal, matching the Runtime formatters without changing emitted JSON bytes; unchanged inherited groups and commented-out examples are excluded;

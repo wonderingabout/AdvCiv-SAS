@@ -34,6 +34,7 @@ PYTHON24 = Path(r"C:\Python24\python.exe")
 # <!-- custom: The checks of shipped diagnostic and hands-free defaults read staged content here, as development values usually stay enabled and unstaged. (Claude code Opus 5.5) -->
 STAGED_CHECKS = re.compile(r"(build/(?:diagnostics/(?:bbai_log|runtime_status|sas_game_record_log)|runtime/hands_free_defaults)\.py)")
 LOG_LINES = 200
+PLACEHOLDER_MESSAGE = "Local CI candidate (no commit message given)\n"
 
 
 def git(*args):
@@ -44,7 +45,14 @@ def default_base():
 	# <!-- custom: The base GitHub would compare with: the upstream commit when HEAD differs from it, which after an amend is the commit being replaced, else the parent.
 	# Comparing an amended commit with its parent passed locally on 2026-11-09, as plot_scene.py was new there, while GitHub, comparing with the replaced commit, failed a changed signature. (Claude code Opus 5.5) -->
 	upstream = git("rev-parse", "--verify", "-q", "@{u}")
-	return upstream if upstream and upstream != git("rev-parse", "HEAD") else git("rev-parse", "HEAD~1")
+	head = git("rev-parse", "HEAD")
+	if upstream and upstream != head:
+		return upstream
+	# <!-- custom: When HEAD is already pushed and the working tree holds the next commit's edits, GitHub will compare that commit with HEAD, not with HEAD's parent.
+	# On 2026-11-12 the parent mixed the pushed commit's changes into an uncommitted candidate's report; the parent stays the base only for rechecking a clean, pushed HEAD. (Claude code Opus 5.5) -->
+	if upstream and git("status", "--porcelain", "--untracked-files=no"):
+		return head
+	return git("rev-parse", "HEAD~1")
 
 
 def bash_program():
@@ -103,15 +111,33 @@ def tail(text):
 	return "\n".join((["[... %d earlier lines omitted]" % (len(lines) - LOG_LINES)] if len(lines) > LOG_LINES else []) + lines[-LOG_LINES:])
 
 
+def candidate_commit(message):
+	# <!-- custom: Eight checks judge the commits of a push, not the files on disk: the SASGameRecord and Runtime revision checks, the commit-reference check, the four DLL checks and the KI title check.
+	# So before a commit they had nothing new to judge and passed silently: on 2026-11-12 a local run passed while GitHub failed the commit that followed, as map_preview_dds.py had begun reading SGR rows without the SAS_SGR_REVISION bump the rule asks for.
+	# The staged files become a temporary commit on top of HEAD, made with git commit-tree, which records a commit object without moving any branch or touching the working tree; it is passed to the checks as the pushed commit. (Claude code Opus 5.5) -->
+	tree = git("write-tree")
+	result = subprocess.run(["git", "commit-tree", tree, "-p", "HEAD"], input=message, capture_output=True, text=True, encoding="utf-8", cwd=REPO)
+	if result.returncode:
+		raise SystemExit("could not make the candidate commit: %s" % result.stderr.strip())
+	return result.stdout.strip()
+
+
 def local_report(args):
 	head = git("rev-parse", "HEAD")
 	base = git("rev-parse", args.base) if args.base else default_base()
+	# <!-- custom: Staged changes are the next commit, so the commit checks judge them as one; unstaged development values stay out, as they would from the real commit. (Claude code Opus 5.5) -->
+	staged = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=REPO).returncode != 0
+	if staged:
+		message = args.message.read_text(encoding="utf-8") if args.message else PLACEHOLDER_MESSAGE
+		head = candidate_commit(message)
+	else:
+		message = git("log", "-1", "--format=%B")
+	commits = git("rev-list", "--reverse", "%s..%s" % (base, head)).split() or [head]
 	expressions = {"github.event_name": "push", "github.event.pull_request.base.sha || github.event.before": base, "github.event.before": base, "github.sha": head, "github.ref_name": "main", "github.event.repository.default_branch": "main", "github.ref": "refs/heads/main", "github.workspace": REPO.as_posix()}
 	with tempfile.TemporaryDirectory() as folder:
 		event_path = Path(folder) / "event.json"
-		message = git("log", "-1", "--format=%B")
 		# <!-- custom: The push event's fields the checks read; without a real file six of them failed with Permission denied. (Claude code Opus 5.5) -->
-		event_path.write_text(json.dumps({"before": base, "after": head, "ref": "refs/heads/main", "forced": False, "head_commit": {"id": head, "message": message}, "commits": [{"id": head, "message": message}], "repository": {"default_branch": "main"}}), encoding="utf-8")
+		event_path.write_text(json.dumps({"before": base, "after": head, "ref": "refs/heads/main", "forced": False, "head_commit": {"id": head, "message": message}, "commits": [{"id": commit, "message": git("log", "-1", "--format=%B", commit)} for commit in commits], "repository": {"default_branch": "main"}}), encoding="utf-8")
 		shared_env = {"GITHUB_SHA": head, "GITHUB_EVENT_NAME": "push", "GITHUB_REF_NAME": "main", "GITHUB_WORKSPACE": str(REPO), "GITHUB_EVENT_PATH": str(event_path), "GITHUB_OUTPUT": os.devnull, "GITHUB_STEP_SUMMARY": os.devnull, "PYTHONIOENCODING": "utf-8"}
 		native, missing = native_steps()
 		steps = workflow_steps(expressions) + native
@@ -119,7 +145,11 @@ def local_report(args):
 		with ThreadPoolExecutor(args.jobs) as pool:
 			results = list(pool.map(lambda step: run_step(step, shared_env, bash), steps))
 	failures = [result for result in results if result[1]]
-	lines = ["Local CI report: %d of %d steps failed" % (len(failures), len(results)), "HEAD %s, compared with %s" % (head[:12], base[:12]), "Checks read the working tree; those comparing commits see only base..HEAD, so commit or amend before trusting them."]
+	if staged:
+		judged = "Staged changes judged as a temporary commit %s on HEAD, compared with %s, with %s." % (head[:12], base[:12], "the message from %s" % args.message if args.message else "a placeholder message, so the title and Update DLL checks may fail: pass --message with the draft")
+	else:
+		judged = "Nothing staged, so the commit checks judge HEAD %s, compared with %s; stage the candidate for them to judge it." % (head[:12], base[:12])
+	lines = ["Local CI report: %d of %d steps failed" % (len(failures), len(results)), judged, "Other checks read the working tree, unstaged development values included."]
 	lines += ["Not covered: %s" % item for item in [*NOT_RUN[:1], *missing]]
 	for (workflow, name, command, _), code, output in failures:
 		lines += ["", "=" * 8 + " FAIL %s: %s (exit %d)" % (workflow, name, code), command.strip()[:300], "-" * 8, tail(output)]
@@ -166,6 +196,7 @@ def main():
 	parser = argparse.ArgumentParser(description="Collect every CI failure into one text file, from a local run of the workflows or from GitHub's results.")
 	parser.add_argument("source", nargs="?", choices=("local", "github"), default="local", help="run the workflows' steps here, or read GitHub's results (default: local)")
 	parser.add_argument("--base", help="local: the commit to compare with (default: what GitHub would use)")
+	parser.add_argument("--message", type=Path, help="local: a file with the draft commit message, used for the staged candidate commit")
 	parser.add_argument("--sha", help="github: the commit to read (default: HEAD)")
 	parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="report file (default: LLM_Helpers/outputs/ci_report.txt, Git-ignored)")
 	parser.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) // 2))

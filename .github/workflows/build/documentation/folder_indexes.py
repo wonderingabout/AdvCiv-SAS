@@ -20,6 +20,12 @@ NOT_FOLDERS = {"outputs", "__pycache__"}
 UNLISTED_FOLDERS = {"context"}
 HELPER_SUFFIXES = {".py", ".json"}
 GUIDES = "_1_AdvCiv-SAS/Docs/Modding_Resources"
+# <!-- custom: Folders whose helpers are documented only in a guide, so that guide is the one place for their subject.
+# On 2026-11-12 the Ghidra setup and pitfalls had been written in the tools table, this README and the EXE patches guide, so a fix to one would have left the others stale.
+# For these, every helper (Ghidra's .java scripts included) must be named in the guide, and the README section must stay a pointer: one line linking to the guide and its disclaimer.
+# The guide is left out of player downloads while this README ships, so the user wanted the line to say "see" without describing the helpers, and a check so it stays that way. (Claude code Opus 5.5) -->
+GUIDE_DOCUMENTED_FOLDERS = {"exe_analysis": (GUIDES + "/README_EXE_Patches.md", "/LICENSE.md#the-games-executable")}
+GUIDE_DOCUMENTED_SUFFIXES = HELPER_SUFFIXES | {".java"}
 GUIDES_HEADING = "Guides in this folder"
 
 
@@ -73,9 +79,35 @@ def check_helpers(root):
             continue
         end = next(i for i in h2 if i > index)
         section = "\n".join(lines[index:end])
+        if name in GUIDE_DOCUMENTED_FOLDERS:
+            errors += check_guide_documented(root, name, index, end, found, section)
+            continue
         for path in sorted((base / name).rglob("*")):
             if path.suffix in HELPER_SUFFIXES and "__pycache__" not in path.parts and path.name not in section:
                 errors.append("%s: not described in the `%s/` section of %s/README.md" % (path.relative_to(root).as_posix(), name, HELPERS))
+    return errors
+
+
+def check_guide_documented(root, name, start, end, found, section):
+    errors = []
+    guide, disclaimer = GUIDE_DOCUMENTED_FOLDERS[name]
+    where = "the `%s/` section of %s/README.md" % (name, HELPERS)
+    body = [line for line in section.splitlines()[1:] if line.strip()]
+    if len(body) != 1:
+        errors.append("%s has %d lines; keep it the single line pointing to %s and its disclaimer, since its helpers are documented only there" % (where, len(body), guide))
+    for target in ("/" + guide, disclaimer):
+        if target not in section:
+            errors.append("%s must link to %s" % (where, target))
+    for index, _, title in found:
+        if start < index < end:
+            errors.append("%s has subsection %r; its helpers are documented only in %s, so keep the section a short pointer" % (where, title, guide))
+    guide_path = root / guide
+    if not guide_path.is_file():
+        return errors + ["%s documents %s/%s/ but does not exist" % (guide, HELPERS, name)]
+    text = guide_path.read_text(encoding="utf-8")
+    for path in sorted((root / HELPERS / name).rglob("*")):
+        if path.suffix in GUIDE_DOCUMENTED_SUFFIXES and "__pycache__" not in path.parts and path.name not in text:
+            errors.append("%s: not described in %s, where %s/%s/ is documented" % (path.relative_to(root).as_posix(), guide, HELPERS, name))
     return errors
 
 

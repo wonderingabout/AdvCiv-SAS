@@ -267,6 +267,20 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         errors = self.errors("CvGameCoreDLL/Test.cpp", old, new)
         self.assertTrue(any("new/rewritten non-custom comment" in error for error in errors))
 
+    # <!-- custom: Another mod's comment quoted as is passes under a line saying it is a quote, in any wording; the same lines without it, or prose mixed into the quote, still fail. (Claude code Opus 5.5) -->
+    def test_quoted_source_comment_is_allowed(self):
+        old = "int value = 1;\n"
+        quote = "//\t> The size is a call ARGUMENT (no immediate to poke),\n//\t> so we inline-detour the shared function.\n"
+        intro = "// <!-- custom: Quoted from RI's SelfMod.cpp r5655, WorldPickerSizePatch; RI's words, not ours. (Claude code Opus 5.5) -->\n"
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, intro + quote + old), [])
+        other = intro.replace("Quoted from RI's", "RI's comment, quoting its")
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, other + quote + old), [])
+        errors = self.errors("CvGameCoreDLL/Test.cpp", old, quote + old)
+        self.assertTrue(any("new/rewritten non-custom comment" in error for error in errors))
+        mixed = intro + quote + "// Our own unmarked prose.\n" + old
+        errors = self.errors("CvGameCoreDLL/Test.cpp", old, mixed)
+        self.assertTrue(any("new/rewritten non-custom comment" in error for error in errors))
+
     def test_stale_legacy_comment_can_be_removed(self):
         old = "// Stale inherited description.\nint value = 1;\n"
         new = "int value = 1;\n"

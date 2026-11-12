@@ -50,7 +50,7 @@ def getDescription():
     return "TXT_KEY_MAP_SCRIPT_EARTH2_DESCR"
 
 def isAdvancedMap():
-    "This map should not show up in simple mode"
+    # <!-- custom: Hidden from Simple Game again: we prefer more randomizing scripts, and its civilization placement is weak at low player counts; it stays in Custom Game. See KI#1082. (Claude code Opus 5.5) -->
     return 1
 
 def getGridSize(argsList):

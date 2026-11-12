@@ -30,6 +30,9 @@ jobs:
       - name: Documentation helper tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python -m unittest discover -s .github/workflows/tests/documentation -t .github/workflows -v
+      - name: EXE patches helper tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python -m unittest discover -s .github/workflows/tests/exe_patches -t .github/workflows -v
       - name: Hygiene helper tests
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python -m unittest discover -s .github/workflows/tests/hygiene -t .github/workflows -v

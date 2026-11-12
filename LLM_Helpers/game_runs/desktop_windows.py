@@ -51,6 +51,8 @@ def find_window(pid):
 
 
 def window_rect(hwnd):
+	# <!-- custom: Made DPI-aware here too, as screenshot and window_point already were: helpers that imported this module and called window_rect directly read, at 150% scaling, a 1926 x 1120 Civ4 window as 1284 x 747 (map_preview_dds.py's size check, 2026-11-12). (Claude code Opus 5.5) -->
+	make_dpi_aware()
 	rect = wt.RECT()
 	if not USER32.GetWindowRect(hwnd, ctypes.byref(rect)):
 		raise OSError("GetWindowRect failed")
