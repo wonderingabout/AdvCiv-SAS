@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check maintained Markdown
-        uses: DavidAnson/markdownlint-cli2-action@v24.2.0
+        uses: DavidAnson/markdownlint-cli2-action@v25.0.0
         with:
           config: .markdownlint-cli2.jsonc
           # <!-- custom: An empty glob input avoids the action's default root wildcard; use only the shared configuration's document scope. (GPT-6.1-Sol) -->
