@@ -328,12 +328,13 @@ build: $(Target_BIN)
 # Redirect before ECHO: the first draft lost numeric values because cmd.exe parsed adjacent digits as redirection descriptors. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 precompile: build_provenance Target_unfinished $(Target_PCH)
 
+# <!-- custom: find.exe is named by its System32 path: a bare FIND resolved to Git Bash's Unix find when a build inherited Git Bash's PATH, which crawled all of C: while the build waited (2026-11-11 and 2026-11-13); in Visual C++ 2010 Express and PowerShell a bare FIND already resolved to this same program. makefile_windows_tools.py keeps it so. See KI#38.7. (Claude code Opus 5.5) -->
 build_provenance: Make_Dir
 	@> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_REQUEST "UNKNOWN"
 	@IF DEFINED SAS_BUILD_REQUEST >> "$(Target_BUILD_PROVENANCE)" ECHO #undef SAS_BUILD_REQUEST
 	@IF DEFINED SAS_BUILD_REQUEST >> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_REQUEST "%SAS_BUILD_REQUEST%"
-	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.obj" 2^>NUL ^| FIND /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_OBJECT_COUNT %i
-	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.@" 2^>NUL ^| FIND /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_INCOMPLETE_MARKER_COUNT %i
+	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.obj" 2^>NUL ^| %SystemRoot%\System32\find.exe /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_OBJECT_COUNT %i
+	@FOR /F %i IN ('DIR /S /B "$(TEMP_TARGET_FILES)\*.@" 2^>NUL ^| %SystemRoot%\System32\find.exe /C /V ""') DO @>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_INCOMPLETE_MARKER_COUNT %i
 	@IF EXIST "$(Target_PCH)" (>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_PCH 1) ELSE (>> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_PREEXISTING_PCH 0)
 	@IF EXIST "$(TEMP_TARGET_FILES)\CvGameCoreUtils.obj" DEL "$(TEMP_TARGET_FILES)\CvGameCoreUtils.obj"
 # <!-- custom: End SASGameRecord embedded build snapshot. (GPT-6.1-Sol) -->

@@ -556,6 +556,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_HOVER</Tag>
 		<English>Enter the user defined naming convention for combat units 'MOUNTED RANGED'.</English>
 	</TEXT>
+	<!-- custom: SAS's split of UNITCOMBAT_MELEE into MELEE_POLEARM and MELEE_SHOCK replaced BUG's Combat_MELEE naming option with these two. See KI#1087. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_POLEARM_TEXT</Tag>
+		<English>Naming Convention: Combat[MELEE POLEARM]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_POLEARM_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MELEE POLEARM'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_SHOCK_TEXT</Tag>
+		<English>Naming Convention: Combat[MELEE SHOCK]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_SHOCK_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MELEE SHOCK'.</English>
+	</TEXT>
 
 
 	<!-- custom: rename "Play Now" to "Simple Game" (matches code name, and is as the C2C mod does for example too) -->
@@ -3259,6 +3276,15 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED</Tag>
 		<English>Congratulations, you have trained your first Mounted (Ranged) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+	</TEXT>
+	<!-- custom: The two melee feats had no text after the split of UNITCOMBAT_MELEE, so the first Swordsman's popup showed the key itself, TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK, seen through SASPilot at turn 139 of a fog-on game (2026-11-13). Adapted from BtS's TXT_KEY_FEAT_UNITCOMBAT_MELEE. See KI#1085. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MELEE_POLEARM</Tag>
+		<English>Congratulations, you have trained your first Melee (Polearm) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units form the backbone of your earliest armies.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK</Tag>
+		<English>Congratulations, you have trained your first Melee (Shock) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units form the backbone of your earliest armies.</English>
 	</TEXT>
 
 

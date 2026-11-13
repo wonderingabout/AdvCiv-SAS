@@ -6,6 +6,12 @@ AdvCiv-SAS is available at the [ModDB website](https://www.moddb.com/mods/advciv
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
+An important milestone is the addition of SASPilot, a new Civ4 CLI API that allows local agents (e.g. Claude Code, Codex) to control Civ 4 and analyze its game state perfectly, without having to rely on tedious and unclear UI. The video demos also feature autonomous peer-agentic ping-pong coding. Conceptual inspiration from [noreff's CivAI](https://github.com/noreff/civai). TODO writeup.
+
+<a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>
+
+Parts [1](https://www.youtube.com/watch?v=hr-L3UdaKVk) and [3](https://www.youtube.com/watch?v=A1Yi7047ZI8) are currently also available on YouTube.
+
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
 As for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Route (e.g. Road and Railroad), Expanded Text Panels), Legend links to Sevopedia entries to various UI tabs including in Sevopedia, advisors, etc.
@@ -80,6 +86,7 @@ Alongside this observability, other changes move towards "hands-free" play and t
 - Scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
 - The Dawn of Man screen, still on by default, can now optionally be turned off, so a new or loaded game opens straight on the map, saving a click each time you start or load a game, for example before autoplaying by hand.
+- Likewise the screens that only inform, the tech splash and the era, wonder, religion and project movies, each have their own switch, all on by default; turned off, the game goes on without waiting for a click, while the event log still reports what happened.
 - `SASAssertions_*.log` (for diagnostic DLLs) adds automatic assertion logging and silent handling, so no user intervention is tediously needed to click them all one by one in their popup that pauses autoplay (sometimes ~10,000+ manual clicks per game). Silent option settings are e.g. "Ignore Once", or revert to base behaviour (logs are live-viewable, consistent with the "open-brain" point too).
 
 For local AI/LLM agents in particular:
@@ -535,9 +542,11 @@ We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
-Note: a hybrid DLL compute + Python caching version was tried but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
+Note: a hybrid DLL compute + Python caching version was tried in the [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+
+Both were visual impressions, not measured. The [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#the-same-question-for-the-timeline-tab-january-2026) compares them with the measured Python-or-DLL test of the agent pilot and the later finding that the tab's time went into the EXE building its table.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>

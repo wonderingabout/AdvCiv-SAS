@@ -19,6 +19,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 &emsp;[The main menu and the Sevopedia](#the-main-menu-and-the-sevopedia)\
 &emsp;[The screens outside a game](#the-screens-outside-a-game)\
 &emsp;[Inside a game](#inside-a-game)\
+&emsp;[After a crash](#after-a-crash)\
 &emsp;[Hearing the game](#hearing-the-game)\
 [What did not work, and why](#what-did-not-work-and-why)\
 [Limits](#limits)
@@ -28,6 +29,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Launch Civ4 into a save made with this mod, or start a new game with a chosen map, size, speed, difficulty, era and leaders.
 - Run AI Auto Play for a requested number of turns, optionally in Debug Mode so a watching user sees the whole map.
 - Tell how the run ended: completed, ended early, never started, stalled, crashed or timed out.
+- Read and drive a running game as JSON, without the window: the pilot, added on 2026-11-13, has its own [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md).
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.
@@ -93,6 +95,8 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 
 - `--new-game` sets the INI's `QuickStart = 1`, which starts a game straight from the INI's `[GAME]` settings, without menus.
 - `--map` (script name without `.py`), `--world-size`, `--speed`, `--handicap`, `--era`, `--climate` and `--sea-level` override the user's last settings. Other settings, such as the game options string, come from the user's INI.
+  - That string, `GameOptions`, has one digit per option in `CIV4GameOptionInfos.xml` order. On 2026-11-13 the user's INI had only digit 23 set, `GAMEOPTION_NO_EVENTS`: the user tests with random events off, as they add variation between runs that says nothing about the AI. Unattended new games inherit it; keep it on for benchmarks and comparisons.
+  - `pilot.py ping` lists a running game's enabled options as `gameOptions`, to confirm what a run really used; [`start_game.py --option`](/LLM_Helpers/README.md#start_gamepy) turns others on.
 - `--fixed-seeds` sets `SyncRandSeed` and `MapRandSeed` to `1`. Two such games on Standard Pangaea matched at every RNG and state checkpoint over 60 turns, so a repeatable benchmark needs no save.
 - `--leaders` names a leader for each civilization slot in order, with `-` keeping the random one. Each leader brings the first playable civilization that lists it; a requested leader already drawn for another slot is swapped with it.
   - Tested on 2026-11-10: `LEADER_ALEXANDER,-,LEADER_MANSA_MUSA,LEADER_GANDHI` gave Alexander, a random leader, Mansa Musa and Gandhi, and SGR recorded the three as chosen rather than random.
@@ -368,6 +372,7 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - No option or Python call hides the minimap's white camera frame: `setShowInterface(INTERFACE_MINIMAP_ONLY)` hides the rest of the interface, `CONTROL_BARE_MAP` hides units and symbols.
     - Planned instead: capture the minimap three times with the camera in different places (click the minimap) and keep each pixel's median, which drops the frame even over snow; merge as PNG, compress only the final `.dds`.
   - Ctrl+W opens WorldBuilder from a game. Its tool icons sit in two rows of six at the top right, about y 63 and 98, x 1718 to 1893, 35 px apart, beside the Units, Buildings and Technologies panel at the top left.
+    - Through the pilot, `control control=CONTROL_WORLD_BUILDER` first shows an "Are you sure?" panel at the top right, whose "Enter WorldBuilder" sat at (1700, 180) in the 1080p window on 2026-11-13; the pilot lets this confirmation through, as it comes from a person's choice. The same control again leaves WorldBuilder without asking, and the fog comes back. WorldBuilder shows the whole map, rivals' cities included.
     - Their tooltips, recorded as the `worldbuilder` screen in `civ4_ui_map.json`: Enter erase mode, Change All Plots, Save, Load, Exit World Builder on the top row after Enter landmark mode, and Edit Unit, Edit City, Player, Map, Reveal Tile and Diplomacy modes below. What each mode opens is recorded there too.
     - Tooltips appeared only with Civ4 in front and a few seconds' dwell: `hover_tooltips.py --front --wait 4` showed all twelve, while hovers from `capture_screens.py`, which does not bring the window forward, showed none (2026-11-12).
     - Change All Plots opens a modal panel: until its Cancel is clicked, other icons, hovers and tooltips do nothing.
@@ -416,6 +421,9 @@ The same map holds the in-game screens, explored on 2026-11-11 on a turn-200 Pan
 - Unit cycling, on a stack of about 33 units on the capital's tile, whose icons show in a row above the action bar: period selected the next unit in that row and comma the previous one; W outlined about 8 units at once.
   - In that row a click selected about 8 units, most likely the group the unit was in, Ctrl+click all 11 of its type, Shift+click added more, and Alt+click nearly the whole tile. `desktop_windows.py click --with ctrl` holds the key during the click.
 - End Turn, the green circle at (1688, 955), ended turn 200; a research chooser and a production chooser followed, each a click.
+- Two screens met on 2026-11-13 at turn 148, in the 1920 x 1080 windowed client:
+  - "Save Error", raised by saving over an existing file: OK at (922, 634) overwrites, Cancel beside it at about (996, 634). The pilot's `save` now refuses an existing file unless `overwrite=true`, so it no longer raises this prompt.
+  - A tech splash shown at once when a tech is traded: Continue at (968, 868). The pilot's `todo` lists such a screen under `infoScreens`, and `turn` closes it as a notice.
 - The two arrows left of the minimap select the previous or next city without opening it: the map centres on it and the bottom panel shows its production choices. Esc goes back to the unit.
   - They sit right beside End Turn, about 15 px away on either side, so aim carefully: a few pixels off ends the turn, as the user warned. Shift+Enter is the deliberate way to end a turn.
   - The panel at the bottom left reads "Unit Stack (N)" with the selected units by type, and in the unit row only the selected units have a yellow outline: both show at a glance whether a whole army is selected, as the user pointed out when only 3 of 14 were.
@@ -488,6 +496,24 @@ The same map holds the in-game screens, explored on 2026-11-11 on a turn-200 Pan
   - the player is named "Autoplay" after an autoplay run;
   - a second click on a city tile once closed the city screen;
   - on the user's French AZERTY layout, `type 2` first typed "é", since digits need Shift there; `type` now asks the active layout which keys each character needs. The Sevopedia search box differs and needs `type --us-keys`, as above.
+
+### After a crash
+
+When Civ4 crashes but stays open, it shows its own "Program Execution Problem" dialog with three buttons.
+
+It is a separate window of the Civ4 process, so `desktop_windows.py` reaches it by the same `--pid`, and its buttons are named points in [civ4_points.json](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), under the layouts `crash-dump-dialog` and `crash-dump-saved`, keyed by the dialogs' own sizes (524 x 455 and 544 x 241).
+
+Mapped by Claude Code Opus 5.5 on 2026-11-13 during [KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084).
+
+1. Spot it without a screenshot: with `SAS_RUNTIME_STATUS_ON` at 1, the process's `Logs/SASRuntimeExit_<start>_<pid>.json` shows `failureDialog.kind` `CIV4_CRASH_DUMP_PROMPT` and `visible` true. Without it, a screenshot of the PID is the dialog's size, 524 x 455.
+2. Before taking a dump, move away an earlier `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp` worth keeping: Civ4 writes every dump to that one name.
+3. `python desktop_windows.py click --pid <pid> --point crash_full_dump` writes the whole process memory, about 1.5 GB for a Huge late game; `crash_normal_dump` writes a smaller one and `crash_no_dump` closes Civ4 without a file.
+4. Civ4 then shows "Saved dump file to ...". `python desktop_windows.py click --pid <pid> --point crash_dump_saved_ok` closes it, and Civ4 exits.
+5. Keep the dump with the DLL and PDB it was made with, and read it as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
+   - When `kb` stops in the EXE, which has no unwind information, `dds esp L800` lists older return addresses on the stack; those in `CvGameCoreDLL` show which DLL code ran just before.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_civ4_crash_dump_saved.PNG" alt="llm_civ4_crash_dump_saved.PNG" width="250">
 
 ### Hearing the game
 

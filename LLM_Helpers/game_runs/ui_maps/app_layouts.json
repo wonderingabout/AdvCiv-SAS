@@ -1,6 +1,107 @@
 {
   "copyright": "AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy). (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md). JSON allows no comments, so this notice and the description below are fields.",
-  "about": "Window-relative points (physical pixels from the window's top-left corner, as in desktop_windows.py screenshots) where agent_message.py clicks each app's message box and checks it is empty. width is the window's outer width used to pick a layout. text is the area (left, top, right, bottom) that must hold no dark text; it starts just right of where the blinking text cursor sits. When an app update or a new layout moves these, re-measure as the LLM_Helpers README's agent_message.py section describes and update measured. Each layout is kept on one line on purpose, unlike program-written JSON such as the Runtime files: the layouts line up like table rows, so apps and window sizes compare at a glance, and a re-measure edits one line.",
+  "about": "Window-relative points (physical pixels from the window's top-left corner, as in desktop_windows.py screenshots) where agent_message.py clicks each app's message box and checks it is empty. width is the window's outer width used to pick a layout. text is the area (left, top, right, bottom) that must hold no dark text; it starts just right of where the blinking text cursor sits. When an app update or a new layout moves these, re-measure as the LLM_Helpers README's agent_message.py section describes and update measured. Each composer layout under apps stays on one line so window sizes compare like table rows. The usage layouts keep named controls and crops on separate lines so an agent can find or update one entry directly.",
+  "usage": {
+    "about": "GPT-6.1-Sol mapped these usage controls from live captures on 2026-11-13 and Claude Code's 2026-11-10/11 test commands. Coordinates and crops are physical pixels relative to the outer window. A matching size is necessary, and the user must verify the named screen and panel state on a fresh capture before acting.",
+    "layouts": {
+      "codex-usage-half": {
+        "window": [1920, 2100],
+        "title": "ChatGPT",
+        "measured": "2026-11-11 and 2026-11-13",
+        "conditions": "Right half of a 4K work area with chat list collapsed. Wheel, popup row hovers and Manage usage checked on 2026-11-13. Account-menu route from 2026-11-11. Chat crops measured with a full-width chat and single-line composer. The latest-message control can move as the draft grows.",
+        "points": {
+          "indicator": [46, 1973],
+          "account": [44, 2052],
+          "settings": [188, 1938],
+          "usage-billing": [250, 1183],
+          "back": [32, 32],
+          "five-hour": [300, 1780],
+          "weekly": [300, 1835],
+          "manage": [184, 1970],
+          "chat-scroll": [1000, 1450]
+        },
+        "crops": {
+          "indicator": [18, 1940, 74, 2005],
+          "settings": [715, 125, 1880, 1065],
+          "popup": [90, 1672, 552, 2003],
+          "five-hour-tooltip": [570, 1750, 754, 1803],
+          "weekly-tooltip": [570, 1806, 768, 1858],
+          "chat-latest-status": [965, 1770, 1045, 1865],
+          "composer-action": [1595, 1988, 1658, 2064]
+        }
+      },
+      "codex-usage-max": {
+        "window": [3840, 2100],
+        "title": "ChatGPT",
+        "measured": "2026-11-10",
+        "conditions": "Maximized 4K work area. Row hovers and Manage usage require the popup to be open.",
+        "points": {
+          "indicator": [46, 1973],
+          "five-hour": [300, 1780],
+          "weekly": [300, 1835],
+          "manage": [184, 1970]
+        },
+        "crops": {
+          "indicator": [18, 1940, 74, 2005],
+          "popup": [0, 1650, 600, 2020]
+        }
+      },
+      "claude-usage-half": {
+        "window": [1940, 2112],
+        "title": "Claude",
+        "measured": "2026-11-11",
+        "conditions": "Left half of a 4K work area with chat list and session rail collapsed. See all requires the usage popup.",
+        "points": {
+          "indicator": [1563, 2067],
+          "see-all": [1537, 1870],
+          "close-settings": [1774, 426]
+        },
+        "crops": {
+          "indicator": [1535, 2045, 1590, 2095],
+          "popup": [980, 1820, 1600, 2080],
+          "settings": [130, 390, 1820, 1710]
+        }
+      },
+      "claude-usage-half-rail": {
+        "window": [1940, 2110],
+        "title": "Claude",
+        "measured": "2026-11-13",
+        "conditions": "Left half of a 4K work area with chat list collapsed and session rail open. See all was measured with three usage rows. Expand This week only when collapsed.",
+        "points": {
+          "indicator": [1315, 2068],
+          "see-all": [1273, 1808],
+          "this-week": [629, 780],
+          "close-settings": [1775, 427],
+          "limit-auto-continue": [170, 1585],
+          "limit-auto-continue-enabled": [170, 1552],
+          "limit-try-again": [543, 1664],
+          "limit-try-again-enabled": [543, 1631],
+          "limit-open-usage-settings": [758, 1664],
+          "limit-open-usage-settings-enabled": [758, 1631]
+        },
+        "crops": {
+          "indicator": [1000, 2044, 1350, 2090],
+          "tooltip": [1212, 1963, 1422, 2044],
+          "popup": [752, 1778, 1328, 2025],
+          "settings": [486, 485, 1790, 1030],
+          "limit-card": [125, 1370, 930, 1728]
+        }
+      },
+      "claude-usage-max": {
+        "window": [3862, 2122],
+        "title": "Claude",
+        "measured": "2026-11-10",
+        "conditions": "Maximized 4K work area with both side panels open.",
+        "points": {
+          "indicator": [2755, 2080]
+        },
+        "crops": {
+          "indicator": [2650, 2000, 2850, 2122],
+          "popup": [2150, 1810, 2830, 2112]
+        }
+      }
+    }
+  },
   "apps": {
     "codex": {
       "process": "ChatGPT",

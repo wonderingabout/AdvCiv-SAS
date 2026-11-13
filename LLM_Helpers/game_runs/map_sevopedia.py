@@ -26,7 +26,8 @@ import desktop_windows
 HERE = Path(__file__).resolve().parent
 POINTS_FILE = HERE / "ui_maps" / "civ4_points.json"
 MAP_FILE = HERE / "ui_maps" / "civ4_sevopedia_map.json"
-TEMPLATE_FILE = HERE / "ui_maps" / "civ4_expand_button.png"
+# <!-- custom: Keep the EXPAND crop with the Sevopedia images so the template is also included in light-source ZIPs. (GPT-6.1-Sol) -->
+TEMPLATE_FILE = HERE.parents[1] / "_1_AdvCiv-SAS" / "Images" / "sevopedia" / "civ4_expand_button.png"
 # <!-- custom: The page area between the title bar and the bottom buttons, right of the category list, at 1920x1080 windowed. (Claude Code Opus 5.5) -->
 CONTENT = (180, 45, 1926, 1075)
 # <!-- custom: An idle spot on the bottom bar, so the pointer leaves no tooltip over the page in the screenshot. (Claude Code Opus 5.5) -->

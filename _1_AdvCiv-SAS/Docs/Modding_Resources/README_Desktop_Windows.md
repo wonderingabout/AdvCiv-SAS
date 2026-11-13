@@ -17,6 +17,7 @@ Expect to update it: these apps change their interfaces often, and every finding
 &emsp;[Claude menus, panels and startup](#claude-menus-panels-and-startup)\
 &emsp;[Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings)\
 &emsp;[Codex usage and limit resets](#codex-usage-and-limit-resets)\
+[Quick usage map](#quick-usage-map)\
 [How fast agents use their limits](#how-fast-agents-use-their-limits)\
 [Sharing limits between agents](#sharing-limits-between-agents)\
 [Reference screenshots](#reference-screenshots)\
@@ -41,13 +42,15 @@ Everything here uses [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windo
 ```bash
 python LLM_Helpers/game_runs/desktop_windows.py list
 python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 8572 --out shot.png
-python LLM_Helpers/game_runs/desktop_windows.py hover --pid 8572 300 1780
-python LLM_Helpers/game_runs/desktop_windows.py click --pid 8572 46 1973
+python LLM_Helpers/game_runs/desktop_windows.py click --pid 8572 --layout codex-usage-max --point indicator
+python LLM_Helpers/game_runs/desktop_windows.py hover --pid 8572 --layout codex-usage-max --point five-hour
 ```
 
 - `list` names only Civ4 clients. For other apps, find the process ID with PowerShell, for example `Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object Id, ProcessName, MainWindowTitle`. On 2026-11-10 the Codex app ran as `ChatGPT` and Claude Code's app as `claude`.
 - Coordinates are physical pixels from the window's top-left corner, as in its screenshots. A screenshot shown to an agent is often scaled down, so multiply back by the scale the viewer reports before clicking.
 - The [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#screenshots-and-clicks) covers the screenshot methods and what was tested on Civ4.
+
+On 2026-11-13, the ChatGPT computer-use skill found Claude's window, but capture timed out twice and the accessibility view had no usage controls. `desktop_windows.py screenshot` used `PrintWindow` and captured it in about 0.2 seconds without taking focus. Use the [named usage crops](#quick-usage-map) for this check. A window-only capture can miss a transient tooltip, so check the image after hovering.
 
 ## Look, then act
 
@@ -107,8 +110,15 @@ Its message box has three states, told apart by the round button at its bottom r
 - **Usage:** the gray wheel at the bottom left opens a popup with the 5-hour and weekly limits as percentages left; hovering a row shows its reset time ("Resets in 23m", "Resets in 6d 19h").
   - "Manage usage" in that popup opens the app's own Settings > Usage & billing page, not a browser. It repeats both limits with countdowns. Its back arrow, top left, returns to the chat.
   - Those limits are shared across Codex and ChatGPT's other agent products; ordinary chats are not counted.
-  - Its colour turns red when 10% or less of a limit remains, in the user's recollection.
+  - On 2026-11-13 the five-hour arc was red when the account reported 10% left. Hovering the wheel alone produced no visible tooltip in the window capture. Click it, then hover a limit row for the reset countdown.
   - **At a glance, without opening it:** the wheel has two arcs, the top one for the 5-hour limit and the bottom one for the weekly limit, and the dark part of each shows what is **left**. On 2026-11-10 a top arc about half dark and a bottom arc about four-fifths dark matched the popup's "55% left" and "81% left". The user spotted this; a cropped, enlarged screenshot of the wheel reads it.
+- **Find the latest message.** If Codex is scrolled up, look just above the composer. The user's 2026-11-13 capture shows a round down arrow after a reply. During a live turn, the same area showed three dots while the composer still had its square Stop button. The round control can move with draft height, so confirm its position in a fresh capture before clicking the arrow. For a script, scroll the chat pane down instead. The measured half-window layout provides `chat-scroll`, `chat-latest-status` and `composer-action`. The mapped scroll brought the chat to the bottom and the dots disappeared while the turn continued. Use the composer crop to check whether a turn is still running.
+
+  ```powershell
+  $codexWindow = Get-Process ChatGPT | Where-Object { $_.MainWindowHandle -ne 0 }
+  python LLM_Helpers/game_runs/desktop_windows.py scroll --pid $codexWindow.Id --layout codex-usage-half --point chat-scroll --clicks -40
+  ```
+
 - **Model, effort and permissions:** under the message box, "GPT-6.1 Sol Medium" with a down arrow, left of the microphone, picks the model and effort; "Full access" at the bottom left is the permission mode.
   - Clicking it, or Ctrl+Shift+M as its tooltip says, opens an effort slider: Medium was the second of six stops, with a lightning icon at the left and a reset icon at the right.
   - Clicking the model name under "Medium" ("GPT-6.1 Sol ›") opens the model list: Default (a recommended set), GPT-6.1 Sol, GPT-6 Astra, GPT-6.1 Terra, GPT-6 Sol, GPT-6 Luna, GPT-5.6 Sol, GPT-5.6 Terra and GPT-5.6 Luna, with a check mark on the current one. Hovering the name does not open it.
@@ -154,6 +164,10 @@ Learned on 2026-11-11, with Codex on the right half of the user's second 4K moni
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_new_chat_composer.PNG" alt="llm_codex_new_chat_composer.PNG" width="250">
 
 ## VS Code
+
+On 2026-11-13, the user's VS Code changes view missed `llm_codex_usage_wheel_red_near_limit.PNG` until they closed and reopened the editor. A path-specific `git status --short` already showed it as untracked. `git ls-tree -r --name-only HEAD -- <path>` also confirmed that the reset-settings screenshot was already committed.
+
+The user has seen similar stale views while reviewing code. If a file seems missing or a diff looks older than expected, check Git from the same checkout before redoing the work. Use `git status --short` for new files and `git diff HEAD -- <path>` for changes to tracked files. If VS Code still disagrees, close and reopen it.
 
 The user reviews diffs and searches the code in VS Code, so its window shows what the user is looking at. `desktop_windows.py screenshot --pid <VS Code's PID>` reads it through PrintWindow, without clicking or bringing it forward, so the user can keep typing; find the PID by the window title, which ends in "Visual Studio Code".
 
@@ -229,6 +243,7 @@ Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly l
   - **Full reset,** expiring Dec 10.
   - **Fable reset,** expiring Nov 17. It refills the 5-hour limit and the Fable allowance and gives back what Fable used of the weekly limit, without resetting the whole week.
   - Each has a "Reset for free" button. Resets are rare, so using one is the user's call: an agent can say when one would help, for example when it or Codex is near a limit with work in flight.
+- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SAS Pilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room. In **Settings > Usage**, check **Current session**, the overall weekly usage, and the Fable weekly allowance if your plan shows one. During the launch offer, Fable could have its own weekly cap within the overall allowance. A Fable reset restores the Fable portion of weekly usage and refills the shared 5-hour window where applicable. See [Claude Fable 5.2 launch offers](https://support.claude.com/en/articles/17506494-claude-fable-5-2-launch-offers) and [How usage limits work](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).
 - The page also offers Upgrade plan, Buy usage credits and a usage-credits switch. These cost money, so they are the user's alone.
 - Near the limit, an "Approaching 5-hour limit" banner with a "Get more usage" button appears above the message box.
 - The **Prompt suggestions** setting, on by default, spends one more model request after every reply to suggest a next prompt. Turning it off saves that usage.
@@ -236,21 +251,81 @@ Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly l
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_usage_popup.PNG" alt="llm_claude_usage_popup.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_settings_usage_resets.PNG" alt="llm_claude_settings_usage_resets.PNG" width="250">
 
+On 2026-11-13, Claude showed a **5-hour limit reached** card inside the chat, above the composer. It offered **Auto-continue when limits reset**, **Try again**, and **Open usage settings**. This card is separate from the usage ring and the warning above the composer.
+
+The `claude-usage-half-rail` layout has a `limit-card` screenshot crop and named points for its three controls. The points were measured with the chat scrolled all the way to the latest reply. Three wheel notches up moved the card out of the saved crop. Scrolling back to the bottom restored it. Check the crop before clicking, even when the window size matches.
+
+Enabling auto-continue replaced the reset explanation with **Auto-resuming at 1:41 AM** and moved the controls up 33 px. Use the points ending in `-enabled` for that state. Disabling it restored the original card. Both states were verified before the reset. The card had no close button, and the limit banner above the composer is a separate indicator.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_limit_auto_continue.PNG" alt="llm_claude_limit_auto_continue.PNG" width="250">
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_limit_auto_continue_enabled.PNG" alt="llm_claude_limit_auto_continue_enabled.PNG" width="250">
+
 ### Codex usage and limit resets
 
 The same day, on the user's ChatGPT Plus plan. Codex counts what is left where the Claude app counts what is used: its 5-hour limit showed 55% left, resetting in 1 h 56 min, and its weekly limit 66% left.
 
-- **Getting there:** the account button at the bottom of Codex's left icon strip, at (44, 2052) in the half-screen window, opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
+- **Getting there:** the account button at the bottom of Codex's left icon strip opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
 - The limits are shared across Codex and OpenAI's other work tools; the page says ChatGPT chat conversations are not counted.
-- **Usage limit resets:** 1 available, a Full reset (weekly + 5-hour) expiring Dec 1, with a "Use reset" button and a History tab.
-- **"Allow your assistant to use resets":** a switch, off by default. With it on, Codex may use a reset only when the user explicitly asks for it in a conversation and the current limit has 10% or less left, and never automatically. Turning it on is the user's call.
+- **Usage limit resets:** **Available** lists unspent resets and their expiry dates. A **Full reset (Weekly + 5 hr)** restores both windows. **Use reset** redeems one, and **History** shows past resets.
+- **Allow your assistant to use resets:** the screenshot shows the switch off. The UI says an assistant can use a reset with the switch on, an explicit request in the conversation, and 10% or less remaining in the current limit. Resets are never used automatically.
 - **Credits:** a balance (0), "Add more" and an automatic-reload switch. These cost money, so they are the user's alone.
 - Settings is left with the Back arrow at the top left.
 
-Between the two apps, a reset can go to whichever agent runs low first: on 2026-11-11 Claude Code was at 96% used while Codex still had over half of both limits left, so Codex could take on more of the work until Claude's limit reset.
+If only the 5-hour window runs out, check its scheduled reset and how much weekly usage is left. When the window is about to refill and the weekly allowance has room, wait for the scheduled refill and save the full reset for when the weekly allowance is low too.
+
+On 2026-11-13, the user still saw the out-of-usage banner after the displayed reset time. Codex's read-only `get_usage_limits` later showed the 5-hour window had refilled. If the banner lingers, give it a moment and compare it with a fresh usage reading when available. If the app still blocks the next turn after the refill, save any draft and [quit and reopen Codex](#updating-quitting-and-starting-codex). If Codex cannot take another turn, the user or another desktop agent can reopen it.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_stale_after_reset.PNG" alt="llm_codex_usage_stale_after_reset.PNG" width="250">
+
+When one agent is close to its limit, the other may have room to take over. On 2026-11-11 Claude Code was at 96% used while Codex still had over half of both limits left, so Codex could take on more of the work until Claude's window refilled.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_limits.PNG" alt="llm_codex_settings_usage_limits.PNG" width="250">
+The settings capture below shows the permission switch and one available full reset at the time of capture.
+
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_resets.PNG" alt="llm_codex_settings_usage_resets.PNG" width="250">
+
+Later on 2026-11-13, `get_usage_limits` showed **4% weekly left**, **79% five-hour left**, and **two available full resets**. This is an example of why to check both windows when the wheel turns red. The existing wheel capture shows the appearance near a limit. Open its popup or use the read-only counters to identify which limit is low.
+
+## Quick usage map
+
+For agent-to-agent checks, use structured usage data when available. Codex's read-only `get_usage_limits` was verified on 2026-11-13 and returns percentage used. Claude Code can use `get_usage` when available. If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time. Use a named screenshot crop when checking what the app actually shows. The screenshot command prints the PNG path for the agent to open.
+
+The user keeps both left chat lists collapsed to free up chat width and can reopen them when switching chats. Claude's right context rail stays open because it takes little space in this layout. The [desktop layout map](/LLM_Helpers/game_runs/ui_maps/app_layouts.json) stores window-relative points and crops, one named entry per line, so agents can find a control by name and review a remap in one diff line. Use the layout whose window size and panel arrangement match your capture. A raw point copied from the older Claude session would miss the ring with the session rail open.
+
+Start with a named crop. The command below was checked on the current Claude layout. For the current Codex half-window, use the ChatGPT window PID and `--layout codex-usage-half` with the same crop name.
+
+```powershell
+$claudeWindow = Get-Process Claude | Where-Object { $_.MainWindowHandle -ne 0 }
+python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid $claudeWindow.Id --layout claude-usage-half-rail --crop-name indicator --out "$env:TEMP/claude-usage-ring.png"
+```
+
+For Claude, hover the ring for the five-hour tooltip. Click the ring for percentages and resets, then **See all** for **Settings > Usage**. Expand **This week** there if present to see any Fable allowance. For Codex, click the wheel first, then hover the five-hour or weekly row for its reset time. **Manage usage** opens **Settings > Usage & billing**.
+
+Use `hover` or `click` with the same `--layout` and `--point NAME`. Check a fresh capture before clicking a popup or settings control. The script checks the app title and outer size, and the capture tells you which screen and panels are open. Mapped hovers and clicks wait for three seconds of keyboard and mouse inactivity by default. Capture alone needs no idle wait.
+
+| Layout | Points for `hover` or `click` | Screenshot crops |
+| --- | --- | --- |
+| `claude-usage-half-rail` | `indicator`, `see-all`, `this-week`, `close-settings` | `indicator`, `tooltip`, `popup`, `settings` |
+| `claude-usage-half` | `indicator`, `see-all`, `close-settings` | `indicator`, `popup`, `settings` |
+| `claude-usage-max` | `indicator` | `indicator`, `popup` |
+| `codex-usage-half` | `indicator`, `five-hour`, `weekly`, `manage`, `back`. The account-menu route uses `account`, `settings`, and `usage-billing`. | `indicator`, `popup`, `five-hour-tooltip`, `weekly-tooltip`, `settings` |
+| `codex-usage-max` | `indicator`, `five-hour`, `weekly`, `manage` | `indicator`, `popup` |
+
+The rail-open Claude route was verified on 2026-11-13, including hover, the three-row popup, **See all**, and expanding **This week**. Check the popup before clicking **See all**, since its position can move when the number of meters changes. The warning ribbon appears near a limit and is separate from the ring. The Codex half-window route was checked on the same day from the wheel through both reset tooltips and **Manage usage**. **Back** returned to the chat. If the UI moves, take a fresh window capture and update only the matching layout in `app_layouts.json`. See the [indicator and popup screenshots](#reference-screenshots), [Claude Usage page](#claude-usage-limit-resets-and-settings), and [Codex Usage & billing page](#codex-usage-and-limit-resets) for what to look for.
+
+The captures below are from that Claude run. The hover shows the five-hour meter, the popup shows all three meters, and the settings crop shows that Fable's launch allowance was capped at half the weekly limit.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_tooltip.PNG" alt="llm_claude_fable_usage_tooltip.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_popup.PNG" alt="llm_claude_fable_usage_popup.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_settings.PNG" alt="llm_claude_fable_usage_settings.PNG" width="250">
+
+Codex's half-window popup, reset tooltips, and Usage & billing page from the same day:
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_half_usage_popup.PNG" alt="llm_codex_half_usage_popup.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_half_usage_five-hour.PNG" alt="llm_codex_half_usage_five-hour.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_half_usage_weekly.PNG" alt="llm_codex_half_usage_weekly.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_half_usage_settings.PNG" alt="llm_codex_half_usage_settings.PNG" width="250">
 
 ## How fast agents use their limits
 
@@ -322,6 +397,12 @@ The user calls this tokenmaxxing: using every agent's allowance fully across the
 ## Reference screenshots
 
 Crops of the elements above, taken on 2026-11-10. They show the interfaces as they were that day; compare with a fresh screenshot before relying on a position, as the apps update often.
+
+On 2026-11-13, the user captured the down arrow above the composer. Codex captured the same area showing activity dots during a live turn, and the red usage arc near the five-hour limit.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_chat_jump_to_latest.PNG" alt="llm_codex_chat_jump_to_latest.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_chat_latest_activity.PNG" alt="llm_codex_chat_latest_activity.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_wheel_red_near_limit.PNG" alt="llm_codex_usage_wheel_red_near_limit.PNG" width="250">
 
 Codex's usage popup, with the reset tooltip of the 5-hour and weekly rows, and the limits on its Usage & billing page:
 

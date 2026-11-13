@@ -82,7 +82,9 @@ def name_keys(repo_root: Path) -> set[str]:
 # <!-- custom: The lists began with "#" provenance lines, which Rainbow CSV's CSVLint in VS Code reported as rows with the wrong column count.
 # They are now plain TSV with one header row, so table tools read them cleanly; the provenance lives in this script and the workflows README. (Claude code Opus 5.5) -->
 NAMES_HEADER = "tag\tsource\tname"
-MANIFEST_HEADER = "tag\tsource\tsha256"
+# <!-- custom: "game" is the first BtS, Warlords or vanilla layer defining the tag, or "-". "source" names base AdvCiv first, but SAS loads its own text files, not base AdvCiv's originals, so a tag listed as "advciv" may be defined nowhere the game reads.
+# Codex's review of KI#1085's check found that it counted such tags as defined; checks asking what the game can show use game_defined_tags instead. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+MANIFEST_HEADER = "tag\tsource\tsha256\tgame"
 
 
 def read_rows(path: Path, header: str) -> list[list[str]]:
@@ -97,11 +99,16 @@ def read_names(path: Path) -> dict[str, str]:
 
 
 def read_manifest(path: Path) -> dict[str, tuple[str, str]]:
-	return {tag: (source, digest) for tag, source, digest in read_rows(path, MANIFEST_HEADER)}
+	return {tag: (source, digest) for tag, source, digest, _game in read_rows(path, MANIFEST_HEADER)}
+
+
+def game_defined_tags(path: Path) -> set[str]:
+	return {tag for tag, _source, _digest, game in read_rows(path, MANIFEST_HEADER) if game != "-"}
 
 
 def write_manifest(repo_root: Path, civ4_root: Path) -> int:
 	inherited: dict[str, tuple[str, str]] = {}
+	game: dict[str, str] = {}
 	names: dict[str, tuple[str, str]] = {}
 	wanted = name_keys(repo_root)
 	listing = subprocess.run(["git", "-C", str(repo_root), "ls-tree", "--name-only", BASE_ADVCIV_COMMIT, TEXT_DIR + "/"], capture_output=True, text=True, check=True).stdout.split("\n")
@@ -118,11 +125,12 @@ def write_manifest(repo_root: Path, civ4_root: Path) -> int:
 		for path in files:
 			for tag, english, _line in text_entries(Path(path).read_bytes()):
 				inherited.setdefault(tag, (source, english_hash(english)))
+				game.setdefault(tag, source)
 				if tag in wanted:
 					names.setdefault(tag, (source, display_text(english)))
 	# <!-- custom: Hash list: inherited English per GameText tag (base AdvCiv, else BtS, else Warlords, else vanilla), first 16 hex digits of SHA-256.
 	# Names list: readable English for the leader/civilization keys only. (Claude code Opus 5.5) -->
-	lines = [MANIFEST_HEADER] + [f"{tag}\t{source}\t{digest}" for tag, (source, digest) in sorted(inherited.items())]
+	lines = [MANIFEST_HEADER] + [f"{tag}\t{source}\t{digest}\t{game.get(tag, '-')}" for tag, (source, digest) in sorted(inherited.items())]
 	MANIFEST.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 	print(f"wrote {len(inherited)} inherited text hashes to {MANIFEST}")
 	lines = [NAMES_HEADER] + [f"{tag}\t{source}\t{name}" for tag, (source, name) in sorted(names.items())]

@@ -811,10 +811,373 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
 	}
 }
 
+// <!-- custom: Closing a popup that is already on display did not work for SASPilot (2026-11-13): advc.004x's killAll and clearQueuedPopups removed only queued ones, and a cancel request checked in OnFocus was never reached, because the EXE calls OnFocus when a popup comes up, not while it sits there.
+// Only one popup shows at a time, so an unanswered one also holds back all later ones.
+// So while held, a popup is not launched at all: a copy of its info is kept for the pilot to list and answer through OnOkClicked, and returning false makes the EXE drop it, as SAS already does for informational popups during AI Auto Play (KI#203).
+// The game re-requests some choices on every update, such as research, so an identical held popup is not added twice, and the list is capped. (Claude code Fable 5.2) -->
+static bool g_bSASPilotPopupsHeld = false;
+static std::vector<CvPopupInfo> g_aSASPilotHeldPopups;
+// <!-- custom: Each held popup has an ID that is never reused in the process, as Codex's review found that answering by list position could answer another popup once the list shifted, after a prune or a reload. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+static std::vector<int> g_aiSASPilotHeldPopupIds;
+static int g_iSASPilotNextPopupId = 1;
+
+void setSASPilotPopupsHeld(bool bHeld)
+{
+	g_bSASPilotPopupsHeld = bHeld;
+	if (bHeld)
+		return;
+	// <!-- custom: Switching holding off used to clear the held list, so a person taking over from the pilot lost every unanswered choice (Codex's review).
+	// The ones that still apply go back through the usual popup route, so the window shows them. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	PlayerTypes const eActive = GC.getGame().getActivePlayer();
+	if (eActive != NO_PLAYER)
+	{
+		pruneSASPilotHeldPopups();
+		for (size_t i = 0; i < g_aSASPilotHeldPopups.size(); i++)
+		{
+			CvPopupInfo* pInfo = new CvPopupInfo();
+			*pInfo = g_aSASPilotHeldPopups[i];
+			gDLL->UI().addPopup(pInfo, eActive);
+		}
+	}
+	clearSASPilotHeldPopups();
+}
+
+bool isSASPilotPopupsHeld()
+{
+	return g_bSASPilotPopupsHeld;
+}
+
+int getNumSASPilotHeldPopups()
+{
+	return (int)g_aSASPilotHeldPopups.size();
+}
+
+CvPopupInfo const& getSASPilotHeldPopup(int iIndex)
+{
+	return g_aSASPilotHeldPopups[iIndex];
+}
+
+int getSASPilotHeldPopupId(int iIndex)
+{
+	return g_aiSASPilotHeldPopupIds[iIndex];
+}
+
+int findSASPilotHeldPopup(int iId)
+{
+	for (size_t i = 0; i < g_aiSASPilotHeldPopupIds.size(); i++)
+	{
+		if (g_aiSASPilotHeldPopupIds[i] == iId)
+			return (int)i;
+	}
+	return -1;
+}
+
+void removeSASPilotHeldPopup(int iIndex)
+{
+	g_aSASPilotHeldPopups.erase(g_aSASPilotHeldPopups.begin() + iIndex);
+	g_aiSASPilotHeldPopupIds.erase(g_aiSASPilotHeldPopupIds.begin() + iIndex);
+}
+
+// <!-- custom: The held list is not saved with the game, and on 2026-11-13 a save loaded in the same process still listed the previous game's popups; CvGame::reset clears it. (Claude code Opus 5.5) -->
+void clearSASPilotHeldPopups()
+{
+	g_aSASPilotHeldPopups.clear();
+	g_aiSASPilotHeldPopupIds.clear();
+}
+
+// <!-- custom: OnFocus drops a popup that no longer applies just before showing it, such as choose-tech once research is set; a held popup never reaches OnFocus, so on 2026-11-13 a settled choose-tech popup stayed listed for turns.
+// This applies the same rules as OnFocus to the held list, which the pilot does before listing and answering; keep the two in step.
+// Listing must not change the game, so a production popup that OnFocus would postpone (disorder, automated production) stays held instead of being dropped and re-requested; Codex's review noted that marking the city dirty here let a read change scheduling.
+// Not mirrored: OnFocus's election and vote checks and Python focus callbacks, as the pilot has not met those popups yet. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+void pruneSASPilotHeldPopups()
+{
+	PlayerTypes const eActive = GC.getGame().getActivePlayer();
+	if (eActive == NO_PLAYER)
+	{
+		// <!-- custom: Was g_aSASPilotHeldPopups.clear() alone, which left the parallel ID list longer than the popup list. (Claude code Fable 5.2) -->
+		clearSASPilotHeldPopups();
+		return;
+	}
+	CvPlayer const& kActive = GET_PLAYER(eActive);
+	bool const bOver = (GC.getGame().getGameState() == GAMESTATE_OVER);
+	for (int i = (int)g_aSASPilotHeldPopups.size() - 1; i >= 0; i--)
+	{
+		CvPopupInfo const& kInfo = g_aSASPilotHeldPopups[i];
+		bool bStale = false;
+		switch (kInfo.getButtonPopupType())
+		{
+		case BUTTONPOPUP_CHOOSETECH:
+			if (kInfo.getData1() == 0)
+				bStale = (bOver || kActive.getCurrentResearch() != NO_TECH);
+			else bStale = !kActive.isChoosingFreeTech();
+			break;
+		case BUTTONPOPUP_CHANGERELIGION:
+			bStale = (bOver || !kActive.canChangeReligion());
+			break;
+		case BUTTONPOPUP_CHOOSEPRODUCTION:
+		{
+			CvCity const* pCity = kActive.getCity(kInfo.getData1());
+			bStale = (bOver || pCity == NULL || pCity->isProduction());
+			break;
+		}
+		case BUTTONPOPUP_RAZECITY:
+		case BUTTONPOPUP_DISBANDCITY:
+			bStale = (kActive.getCity(kInfo.getData1()) == NULL);
+			break;
+		case BUTTONPOPUP_CHANGECIVIC:
+			bStale = (bOver || !kActive.canDoAnyRevolution());
+			break;
+		// <!-- custom: A vote whose triggered data is gone has been decided; the launcher refuses it in that case too. (Claude code Opus 5.5) -->
+		case BUTTONPOPUP_DIPLOVOTE:
+			bStale = (bOver || GC.getGame().getVoteTriggered(kInfo.getData1()) == NULL);
+			break;
+		default:
+			break;
+		}
+		if (bStale)
+			removeSASPilotHeldPopup(i);
+	}
+}
+
+// <!-- custom: Which popups the pilot holds, shared by launchButtonPopup and the queue taking in CvPlayer::takeSASPilotQueuedPopups so the two cannot differ. (Claude code Opus 5.5) -->
+bool isSASPilotPopupHoldable(ButtonPopupTypes eType)
+{
+	// <!-- custom: The Esc menu and its confirmations come from a person at the window, who must stay able to leave a piloted game. (Claude code Fable 5.2) -->
+	// <!-- custom: BUTTONPOPUP_PYTHON_SCREEN asks to open a screen, such as Dawn of Man, rather than to make a choice, so it is launched as usual (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	return (g_bSASPilotPopupsHeld && eType != BUTTONPOPUP_MAIN_MENU && eType != BUTTONPOPUP_CONFIRM_MENU && eType != BUTTONPOPUP_PYTHON_SCREEN);
+}
+
+// <!-- custom: The buttons the pilot may answer a held popup with, as "id=NAME" joined by commas, empty for a type 'answer' does not take.
+// The pilot first checked a button only against the type's highest number, so raze button 1 passed when canRaze was false and button 2 (liberate) when the popup would not show it (Codex's review); these are the conditions of each launch function, so keep them in step.
+// Buttons that only open a screen or the city (raze 3, civics 2, an event's examine-city) are left out, as they make no choice.
+// Adopting a civic is listed whenever the revolution is possible: advc.004o hides that button when other new civics are also available, to send the player to the advisor, which the pilot does not use.
+// An event's buttons are the EventTypes it can choose, so their IDs are not 0, 1, 2. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+std::string getSASPilotPopupButtons(CvPopupInfo const& kInfo)
+{
+	PlayerTypes const eActive = GC.getGame().getActivePlayer();
+	if (eActive == NO_PLAYER)
+		return "";
+	CvPlayer& kActive = GET_PLAYER(eActive);
+	switch (kInfo.getButtonPopupType())
+	{
+	case BUTTONPOPUP_CHOOSEPRODUCTION:
+	case BUTTONPOPUP_CHOOSETECH:
+		// <!-- custom: Their real buttons are handled by widgets, not OnOkClicked, so 0 only drops the popup; 'produce' and 'research' make the choice. (Claude code Fable 5.2) -->
+		return "0=DISMISS";
+	case BUTTONPOPUP_RAZECITY:
+	{
+		CvCity* pCity = kActive.getCity(kInfo.getData1());
+		if (pCity == NULL)
+			return "";
+		std::string szButtons = "0=KEEP";
+		if (kActive.canRaze(*pCity))
+			szButtons += ",1=RAZE";
+		if (kInfo.getData2() != NO_PLAYER)
+			szButtons += ",2=LIBERATE";
+		return szButtons;
+	}
+	case BUTTONPOPUP_DISBANDCITY:
+		return (kActive.getCity(kInfo.getData1()) == NULL ? "" : "0=KEEP,1=DISBAND");
+	// <!-- custom: The advisor's tip to build something in a city (CvAdvisorUtils.py), such as Hippo's Colosseum at turn 174 of the fog-on playthrough (2026-11-13), could only be dropped by the pilot. Its handler is cityWarningOnClickedCallback in the default screens module, which OnOkClicked reaches for BUTTONPOPUP_PYTHON; only that exact callback is listed, so no other Python popup can be answered blind.
+	// The button IDs are SASPopupChoices.CITY_RECOMMENDATION's: 0 accept, 1 refuse; 2, examine, opens the city screen and makes no choice. Accept is offered only while the city can still build the item, as a tip held a few turns can go stale (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	case BUTTONPOPUP_PYTHON:
+	{
+		if (kInfo.getOnClickedPythonCallback() != "cityWarningOnClickedCallback" || !kInfo.getPythonModule().empty())
+			return "";
+		CvCity const* pCity = kActive.getCity(kInfo.getData1());
+		if (pCity == NULL)
+			return "";
+		bool bCanBuild = false;
+		switch ((OrderTypes)kInfo.getData2())
+		{
+		case ORDER_CONSTRUCT: bCanBuild = pCity->canConstruct((BuildingTypes)kInfo.getData3()); break;
+		case ORDER_TRAIN: bCanBuild = pCity->canTrain((UnitTypes)kInfo.getData3()); break;
+		case ORDER_CREATE: bCanBuild = pCity->canCreate((ProjectTypes)kInfo.getData3()); break;
+		default: break;
+		}
+		return (bCanBuild ? "0=ACCEPT_RECOMMENDATION,1=REFUSE_RECOMMENDATION" : "1=REFUSE_RECOMMENDATION");
+	}
+	case BUTTONPOPUP_CHANGECIVIC:
+	{
+		CivicTypes const eCivic = (CivicTypes)kInfo.getData2();
+		if (eCivic != NO_CIVIC)
+		{
+			CivicMap aeNewCivics;
+			kActive.getCivics(aeNewCivics);
+			aeNewCivics.set((CivicOptionTypes)kInfo.getData1(), eCivic);
+			if (kActive.canRevolution(aeNewCivics))
+			{
+				// <!-- custom: As launchChangeCivicsPopup: advc.004o shows the adopt button only when no other new civic could be adopted too. The first version listed it whenever the revolution was possible; Codex's review asked for the launcher's exact rule, and the pilot's 'civics' command adopts several civics at once in the other case. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+				bool bStartButton = true;
+				FOR_EACH_ENUM(Civic)
+				{
+					if (eLoopCivic != aeNewCivics.get(GC.getInfo(eLoopCivic).getCivicOptionType()) && !kActive.isCivic(eLoopCivic) && kActive.canDoCivics(eLoopCivic))
+					{
+						bStartButton = false;
+						break;
+					}
+				}
+				if (bStartButton || GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent() > 1000)
+					return "0=ADOPT_CIVIC,1=DECLINE_CIVIC";
+			}
+		}
+		return "1=DECLINE_CIVIC";
+	}
+	case BUTTONPOPUP_CHANGERELIGION:
+		if (kInfo.getData1() != NO_RELIGION && kActive.canConvert((ReligionTypes)kInfo.getData1()))
+			return "0=CONVERT,1=DECLINE_CONVERSION";
+		return "1=DECLINE_CONVERSION";
+	case BUTTONPOPUP_DECLAREWARMOVE:
+		return "0=DECLARE_WAR,1=CANCEL";
+	case BUTTONPOPUP_CONFIRMCOMMAND:
+		return "0=YES,1=NO";
+	case BUTTONPOPUP_DEAL_CANCELED:
+		return "0=CANCEL_DEAL,1=KEEP_DEAL";
+	// <!-- custom: A vote of the Apostolic Palace or the United Nations, data1 the triggered vote's ID; the buttons are launchDiploVotePopup's: the eligible teams by ID for an election, else YES and NO, NEVER when the resolution can be defied, and ABSTAIN under its condition; OnOkClicked sends the button as the vote.
+	// The first one, at turn 137 of the fog-on playthrough (2026-11-13), was held with no buttons, so the pilot could not vote. (Claude code Opus 5.5) -->
+	case BUTTONPOPUP_DIPLOVOTE:
+	{
+		VoteTriggeredData const* pVoteTriggered = GC.getGame().getVoteTriggered(kInfo.getData1());
+		if (pVoteTriggered == NULL)
+			return "";
+		VoteTypes const eVote = pVoteTriggered->kVoteOption.eVote;
+		VoteSourceTypes const eVoteSource = pVoteTriggered->eVoteSource;
+		std::string szButtons;
+		TeamTypes eMasterTeam = NO_TEAM;
+		bool bEligible = false;
+		if (GC.getGame().isTeamVote(eVote))
+		{
+			eMasterTeam = GET_TEAM(kActive.getTeam()).getMasterTeam();
+			if (eMasterTeam == kActive.getTeam() || !GC.getGame().isTeamVoteEligible(eMasterTeam, eVoteSource))
+				eMasterTeam = NO_TEAM;
+			for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+			{
+				if (!GC.getGame().isTeamVoteEligible(itTeam->getID(), eVoteSource))
+					continue;
+				if (eMasterTeam == NO_TEAM || eMasterTeam == itTeam->getID() || itTeam->isActive())
+				{
+					char szId[32];
+					_snprintf(szId, sizeof(szId), "%d=TEAM_%d", (int)itTeam->getID(), (int)itTeam->getID());
+					szId[sizeof(szId) - 1] = '\0';
+					if (!szButtons.empty())
+						szButtons += ',';
+					szButtons += szId;
+					bEligible = true;
+				}
+			}
+		}
+		else
+		{
+			szButtons = "-2=YES,-3=NO";
+			if (kActive.canDefyResolution(eVoteSource, pVoteTriggered->kVoteOption))
+				szButtons += ",-5=NEVER";
+			bEligible = true;
+		}
+		if (eMasterTeam == NO_TEAM || !bEligible)
+		{
+			if (!szButtons.empty())
+				szButtons += ',';
+			szButtons += "-4=ABSTAIN";
+		}
+		return szButtons;
+	}
+	case BUTTONPOPUP_EVENT:
+	{
+		EventTriggeredData* pTriggeredData = kActive.getEventTriggered(kInfo.getData1());
+		if (pTriggeredData == NULL || pTriggeredData->m_eTrigger == NO_EVENTTRIGGER)
+			return "";
+		CvEventTriggerInfo const& kTrigger = GC.getInfo(pTriggeredData->m_eTrigger);
+		std::string szButtons;
+		for (int i = 0; i < kTrigger.getNumEvents(); i++)
+		{
+			EventTypes const eEvent = (EventTypes)kTrigger.getEvent(i);
+			if (!kActive.canDoEvent(eEvent, *pTriggeredData))
+				continue;
+			char szId[16];
+			_snprintf(szId, sizeof(szId), "%d", (int)eEvent);
+			szId[sizeof(szId) - 1] = '\0';
+			if (!szButtons.empty())
+				szButtons += ',';
+			szButtons += szId;
+			szButtons += '=';
+			szButtons += GC.getInfo(eEvent).getType();
+		}
+		return szButtons;
+	}
+	default:
+		return "";
+	}
+}
+
+// <!-- custom: Whether iButton is one of getSASPilotPopupButtons' IDs, checked in the DLL before the handler runs so no client can pass a button the game would not offer. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+bool isSASPilotPopupButtonOffered(CvPopupInfo const& kInfo, int iButton)
+{
+	std::string const szButtons = getSASPilotPopupButtons(kInfo);
+	size_t iStart = 0;
+	while (iStart < szButtons.length())
+	{
+		if (atoi(szButtons.c_str() + iStart) == iButton)
+			return true;
+		size_t const iComma = szButtons.find(',', iStart);
+		if (iComma == std::string::npos)
+			break;
+		iStart = iComma + 1;
+	}
+	return false;
+}
+
+// <!-- custom: launchEventPopup checks an event before showing it and cleans up when it cannot be shown: it rechecks the trigger (advc.001) and deletes the triggered data when the trigger no longer holds or no choice is available. A held popup never reaches the launcher, so the pilot's hold does the same first (Codex's review). Not tried on a real event. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+static bool isSASPilotEventPopupLaunchable(CvPopupInfo const& kInfo)
+{
+	PlayerTypes const eActive = GC.getGame().getActivePlayer();
+	if (eActive == NO_PLAYER)
+		return false;
+	CvPlayer& kActive = GET_PLAYER(eActive);
+	EventTriggeredData* pTriggeredData = kActive.getEventTriggered(kInfo.getData1());
+	if (pTriggeredData == NULL || pTriggeredData->m_eTrigger == NO_EVENTTRIGGER)
+		return false;
+	if (kActive.initTriggeredData(pTriggeredData->m_eTrigger) == NULL)
+	{
+		kActive.deleteEventTriggered(pTriggeredData->getID());
+		return false;
+	}
+	CvEventTriggerInfo const& kTrigger = GC.getInfo(pTriggeredData->m_eTrigger);
+	for (int i = 0; i < kTrigger.getNumEvents(); i++)
+	{
+		if (kActive.canDoEvent((EventTypes)kTrigger.getEvent(i), *pTriggeredData))
+			return true;
+	}
+	kActive.deleteEventTriggered(pTriggeredData->getID());
+	return false;
+}
+
+void holdSASPilotPopup(CvPopupInfo const& kInfo)
+{
+	if (kInfo.getButtonPopupType() == BUTTONPOPUP_EVENT && !isSASPilotEventPopupLaunchable(kInfo))
+		return;
+	for (size_t i = 0; i < g_aSASPilotHeldPopups.size(); i++)
+	{
+		CvPopupInfo const& kHeld = g_aSASPilotHeldPopups[i];
+		if (kHeld.getButtonPopupType() == kInfo.getButtonPopupType() && kHeld.getData1() == kInfo.getData1() && kHeld.getData2() == kInfo.getData2() && kHeld.getData3() == kInfo.getData3() && kHeld.getText() == kInfo.getText())
+			return;
+	}
+	if (g_aSASPilotHeldPopups.size() >= 100)
+		removeSASPilotHeldPopup(0);
+	g_aSASPilotHeldPopups.push_back(kInfo);
+	g_aiSASPilotHeldPopupIds.push_back(g_iSASPilotNextPopupId++);
+}
+
 // returns false if popup is not launched
 bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
 	ButtonPopupTypes const eType = info.getButtonPopupType();
+	if (isSASPilotPopupHoldable(eType))
+	{
+		holdSASPilotPopup(info);
+		// <!-- custom: As at the end of this function, so killAll's count of relaunched popups stays right (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		GET_PLAYER(getActivePlayer()).reportButtonPopupLaunched();
+		return false;
+	}
 	// <advc.706>
 	CvGame& kGame = GC.getGame();
 	// <!-- custom: BUTTONPOPUP_TEXT has only an informational body and its OK handler performs no action.

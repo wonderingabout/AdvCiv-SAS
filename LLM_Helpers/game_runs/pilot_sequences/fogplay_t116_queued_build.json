@@ -1,0 +1,14 @@
+{
+ "about": "Turn 116 of the 2026-11-13 fog-on playthrough: a Work Boat in Hippo is sent to the crab at (41,31) and fishing boats are queued behind the move. The first pilot passed a mission AI plot with its orders, and the build was cancelled at turn 117 by the KI#176 stale-target guard; the crab must have fishing boats by turn 118.",
+ "save": "sas_pilot_fogplay_t116.CivBeyondSwordSave",
+ "steps": [
+  {"cmd": "move", "args": {"unit": 147468, "x": 41, "y": 31}},
+  {"cmd": "mission", "args": {"unit": 147468, "mission": "MISSION_BUILD", "data1": "BUILD_FISHING_BOATS", "append": 1}},
+  {"cmd": "produce", "args": {"city": "Hippo", "item": "UNIT_WORKBOAT"}},
+  {"cmd": "endturn"},
+  {"cmd": "plot", "args": {"x": 41, "y": 31}, "afterTurn": "steps[3].result.gameTurn"},
+  {"cmd": "endturn"},
+  {"cmd": "plot", "args": {"x": 41, "y": 31}, "afterTurn": "steps[5].result.gameTurn"},
+  {"cmd": "py", "args": {"code": "(map.plot(41, 31).getImprovementType() == gc.getInfoTypeForString('IMPROVEMENT_FISHING_BOATS'), player.getUnit(147468) is None or player.getUnit(147468).isNone())"}, "expect": [true, true]}
+ ]
+}

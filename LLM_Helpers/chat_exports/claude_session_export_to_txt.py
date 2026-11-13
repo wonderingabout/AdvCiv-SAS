@@ -16,17 +16,51 @@ import zipfile
 # <!-- custom: Use the same configurable output folder as the Codex and ChatGPT transcript helper. (GPT-6.1-Sol) -->
 # <!-- custom: latest_claude_session finds this repository's newest session log in the same shared path module. (Claude code Opus 5.5) -->
 from chat_export_paths import DEFAULT_EXPORT_DIR, latest_claude_session
+# <!-- custom: --list needs the project's log folder (claude_project_dir), re to count each log's "model" fields and datetime to print each log's last write time. (Claude code Fable 5.2) -->
+from chat_export_paths import claude_project_dir
+import datetime
+import re
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Convert a Claude Code session log (local .jsonl, or a desktop session-export ZIP holding transcript.jsonl) into a readable .txt chat transcript.")
     parser.add_argument("source_path", nargs="?", help="Local session log <session-id>.jsonl or a session-export ZIP such as Downloads/session-export-<id>.zip. Defaults to this repository's most recently modified session log.")
     parser.add_argument("--output", default=None, help=f"Output .txt path. Defaults to {DEFAULT_EXPORT_DIR / 'claude-<input-stem>.txt'}.")
+    parser.add_argument("--list", type=int, nargs="?", const=10, default=None, metavar="N", help="List this repository's N most recent session logs (default 10) with their last write time, size, model and opening words, instead of exporting.")
     return parser.parse_args()
+
+
+# <!-- custom: Asked on 2026-11-13 to read "the last Fable chat, then the last Opus chat", the agent had to grep every log's "model" field by hand, since the newest log is the asking session itself and filenames are only session IDs.
+# List the recent logs with their most frequent model and first user words, so a session can be picked by who wrote it and what it was about. (Claude code Fable 5.2) -->
+def list_sessions(count: int) -> None:
+    sessions = sorted(claude_project_dir().glob("*.jsonl"), key=lambda path: path.stat().st_mtime, reverse=True)[:count]
+    for path in sessions:
+        text = path.read_text(encoding="utf-8")
+        models = {}
+        for model in re.findall(r'"model":"([^"<]+)"', text):
+            models[model] = models.get(model, 0) + 1
+        model = max(models, key=models.get) if models else "-"
+        opening = "-"
+        for row in text.split("\n"):
+            # <!-- custom: Cheap pre-filter: only user rows are decoded, as a long log holds thousands of rows. (Claude code Fable 5.2) -->
+            if '"type":"user"' not in row:
+                continue
+            content = json.loads(row).get("message", {}).get("content")
+            if isinstance(content, list):
+                content = " ".join(block.get("text", "") for block in content if block.get("type") == "text")
+            if content and content.strip() and not content.lstrip().startswith("<"):
+                # <!-- custom: The first test stopped with UnicodeEncodeError on an emoji in an opening line: the Windows console is cp1252, so print non-ASCII characters as "?". (Claude code Fable 5.2) -->
+                opening = " ".join(content.split())[:90].encode("ascii", "replace").decode("ascii")
+                break
+        stat = path.stat()
+        print("%s  %s  %8d KB  %-18s %s" % (datetime.datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M"), path.name, stat.st_size // 1024, model, opening))
 
 
 def main() -> None:
     args = parse_args()
+    if args.list is not None:
+        list_sessions(args.list)
+        return
     source_path = Path(args.source_path) if args.source_path else latest_claude_session()
     output = Path(args.output) if args.output else DEFAULT_EXPORT_DIR / f"claude-{source_path.stem}.txt"
     # <!-- custom: Only the desktop app writes the export ZIP, so Codex could not produce one; the app keeps the same records in the local <session-id>.jsonl, which any agent can read.

@@ -12,6 +12,9 @@ import argparse
 import ctypes
 import ctypes.wintypes as wt
 # <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
+import os
+import shutil
+import struct
 import subprocess
 import sys
 import time
@@ -553,6 +556,99 @@ def request_close(pid):
 	return bool(USER32.PostMessageW(hwnd, WM_CLOSE, 0, 0))
 
 
+DUMP_FILE = Path(os.environ.get("LOCALAPPDATA", "")) / "Temp" / "Civ4BeyondSword.exe.dmp"
+DUMP_BUTTONS = {"full": "Full Dump", "normal": "Normal Dump"}
+
+
+def find_button(pid, label):
+	# <!-- custom: The button of that label in any top-level window of pid, such as the crash prompt's "Full Dump", or None. (Claude code Opus 5.5) -->
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	# <!-- custom: WM_GETTEXT with a timeout, as Microsoft recommends for another process's controls, and the class checked, so a hung dialog or a same-named label cannot be taken for the button (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	def child(hwnd, _lparam):
+		class_name = ctypes.create_unicode_buffer(64)
+		USER32.GetClassNameW(hwnd, class_name, 64)
+		if class_name.value.lower() != "button":
+			return True
+		buffer = ctypes.create_unicode_buffer(128)
+		result = ctypes.c_size_t()
+		if USER32.SendMessageTimeoutW(hwnd, 0x000D, 128, buffer, 0x0002, 1000, ctypes.byref(result)) and buffer.value.replace("&", "") == label:
+			found.append(hwnd)
+		return True
+
+	def top(hwnd, _lparam):
+		owner = wt.DWORD()
+		USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+		if owner.value == pid:
+			USER32.EnumChildWindows(hwnd, proc_type(child), 0)
+		return True
+
+	USER32.EnumWindows(proc_type(top), 0)
+	return found[0] if found else None
+
+
+def minidump_pid(path):
+	# <!-- custom: The process ID a minidump records in its MiscInfo stream (type 15; ProcessId at offset 8 when Flags1 has bit 1), or None. 'dump' checks it, as every Civ4 writes the same file name (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	with open(path, "rb") as stream:
+		header = stream.read(32)
+		if header[:4] != b"MDMP":
+			return None
+		count, directory = struct.unpack_from("<II", header, 8)
+		stream.seek(directory)
+		entries = stream.read(12 * count)
+		for i in range(count):
+			kind, size, rva = struct.unpack_from("<III", entries, 12 * i)
+			if kind == 15 and size >= 12:
+				stream.seek(rva)
+				flags, process_id = struct.unpack_from("<II", stream.read(12), 4)
+				return process_id if flags & 1 else None
+	return None
+
+
+def save_dump(pid, kind="full", timeout=300.0):
+	# <!-- custom: At KI#1088's crash prompt (2026-11-13) a full dump took three tries: clicking by window coordinates, then two wait loops that started PowerShell on each pass and showed nothing for minutes. This presses the button by its label with BM_CLICK, which needs no focus or coordinates, then waits for the file to be finished, about a dozen seconds for 1.38 GB.
+	# BM_CLICK can fail on an inactive dialog (Microsoft's documentation, as Codex noted); the timeout then reports no dump rather than a stale one. Not yet tried on a real prompt.
+	# A full dump is the user's rule (README_DLL_Compilation.md): a normal one lacks the heap. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	button = find_button(pid, DUMP_BUTTONS[kind])
+	if button is None:
+		raise SystemExit("no %r button in process %d's windows; is the crash prompt up?" % (DUMP_BUTTONS[kind], pid))
+	# <!-- custom: Codex's review: the first version accepted a file from just before the press and took two equal sizes for the end, which a pause in writing also gives. Now the file must differ from its state before the press, and it is done once it can be opened without sharing writes, which fails while the writer still holds it. The name is shared by every Civ4, so a second client's crash would replace it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	before = None
+	if DUMP_FILE.exists():
+		stat = DUMP_FILE.stat()
+		before = (stat.st_mtime, stat.st_size)
+	if not USER32.PostMessageW(button, 0x00F5, 0, 0):
+		raise SystemExit("could not send the click to %r: Windows error %d" % (DUMP_BUTTONS[kind], ctypes.GetLastError()))
+	deadline = time.monotonic() + timeout
+	while time.monotonic() < deadline:
+		time.sleep(2.0)
+		if not DUMP_FILE.exists():
+			continue
+		stat = DUMP_FILE.stat()
+		if (stat.st_mtime, stat.st_size) == before or stat.st_size == 0:
+			continue
+		kernel32 = ctypes.windll.kernel32
+		# <!-- custom: A handle is pointer-sized, so the restype is set, as for the clipboard calls above. (Claude code Opus 5.5) -->
+		kernel32.CreateFileW.restype = ctypes.c_void_p
+		kernel32.CreateFileW.argtypes = [wt.LPCWSTR, wt.DWORD, wt.DWORD, ctypes.c_void_p, wt.DWORD, wt.DWORD, ctypes.c_void_p]
+		kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+		handle = kernel32.CreateFileW(str(DUMP_FILE), 0x80000000, 0x00000001, None, 3, 0, None)
+		if handle is None or handle == ctypes.c_void_p(-1).value:
+			continue
+		# <!-- custom: While this handle denies writing, no other Civ4 can replace the file, so its process ID is checked and it is copied under a name of its own before the handle is let go; the first version closed the handle and then read the size, which could have been a replacement's (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		try:
+			dump_pid = minidump_pid(DUMP_FILE)
+			if dump_pid != pid:
+				raise SystemExit("the dump at %s is from process %s, not %d" % (DUMP_FILE, dump_pid, pid))
+			kept = DUMP_FILE.with_name("Civ4BeyondSword_%d_%s.dmp" % (pid, time.strftime("%Y%m%dT%H%M%S")))
+			shutil.copyfile(DUMP_FILE, kept)
+		finally:
+			kernel32.CloseHandle(handle)
+		return kept, kept.stat().st_size
+	raise SystemExit("no finished dump at %s within %g s" % (DUMP_FILE, timeout))
+
+
 def process_alive(pid):
 	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # <!-- custom: PROCESS_QUERY_LIMITED_INFORMATION (Claude Code Opus 5.5) -->
 	if not handle:
@@ -585,6 +681,29 @@ def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 	if len(output) != 2 or output[0] != "0":
 		raise RuntimeError("Win32_Process.Create failed: %s" % " ".join(output))
 	return int(output[1])
+
+
+def usage_geometry(pid, name, layout_name, kind):
+	# <!-- custom: Desktop usage positions move with panels even at the same size, so choose a measured layout explicitly.
+	# Check the target title and exact outer size before using a saved point or crop. (GPT-6.1-Sol) -->
+	import json
+	path = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
+	layouts = json.loads(path.read_text(encoding="utf-8"))["usage"]["layouts"]
+	layout = layouts.get(layout_name)
+	if layout is None:
+		sys.exit("unknown usage layout %r; known: %s" % (layout_name, ", ".join(sorted(layouts))))
+	hwnd = find_window(pid)
+	if hwnd is None:
+		sys.exit("no window for process %d" % pid)
+	left, top, right, bottom = window_rect(hwnd)
+	size = [right - left, bottom - top]
+	if window_title(hwnd) != layout["title"] or size != layout["window"]:
+		sys.exit("usage layout %s requires the %s window at %dx%d; process %d has a %dx%d window" %
+			(layout_name, layout["title"], *layout["window"], pid, *size))
+	entries = layout[kind]
+	if name not in entries:
+		sys.exit("no %s named %r in %s; known: %s" % (kind[:-1], name, layout_name, ", ".join(sorted(entries))))
+	return tuple(entries[name])
 
 
 def named_point(pid, name):
@@ -676,6 +795,8 @@ def main():
 	sub.add_parser("list", help="list running Civ4 processes and their command lines")
 	shot = sub.add_parser("screenshot", help="save a PNG of the window")
 	shot.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"), help="keep only this window-relative rectangle")
+	shot.add_argument("--layout", help="desktop usage layout from app_layouts.json, required with --crop-name")
+	shot.add_argument("--crop-name", help="named crop from the selected desktop usage layout")
 	shot.add_argument("--scale", type=float, default=1.0, help="shrink the result, e.g. 0.5; crops read far cheaper than full windows")
 	clip = sub.add_parser("clipboard", help="save the image on the clipboard, such as the user's screen capture")
 	clip.add_argument("--out", type=Path, required=True)
@@ -688,19 +809,24 @@ def main():
 	press.add_argument("--pid", type=int, required=True)
 	press.add_argument("x", type=int, nargs="?")
 	press.add_argument("y", type=int, nargs="?")
-	press.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
+	press.add_argument("--point", help="a named Civ4 point or a desktop usage point with --layout")
+	press.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
 	press.add_argument("--double", action="store_true", help="double-click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
 	point.add_argument("x", type=int, nargs="?")
 	point.add_argument("y", type=int, nargs="?")
-	point.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
+	point.add_argument("--point", help="a named Civ4 point or a desktop usage point with --layout")
+	point.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	wheel = sub.add_parser("scroll", help="turn the mouse wheel over a window-relative point; positive clicks scroll up, negative down")
 	wheel.add_argument("--pid", type=int, required=True)
-	wheel.add_argument("x", type=int)
-	wheel.add_argument("y", type=int)
-	wheel.add_argument("clicks", type=int)
+	wheel.add_argument("x", type=int, nargs="?")
+	wheel.add_argument("y", type=int, nargs="?")
+	wheel.add_argument("clicks", type=int, nargs="?")
+	wheel.add_argument("--clicks", dest="mapped_clicks", type=int, help="wheel clicks when using a named point")
+	wheel.add_argument("--layout", help="desktop layout from app_layouts.json")
+	wheel.add_argument("--point", help="named scroll point in the selected desktop layout")
 	pull = sub.add_parser("drag", help="press a mouse button at one window point, move to another and release, e.g. to turn a 3D view")
 	pull.add_argument("--pid", type=int, required=True)
 	for name in ("x1", "y1", "x2", "y2"):
@@ -727,6 +853,10 @@ def main():
 	typing.add_argument("--us-keys", action="store_true", help="send ASCII as US-keyboard keys whatever the layout, for Civ4's Sevopedia search box, which reads key codes; Civ4's own text boxes, such as the autoplay turn box, need the default")
 	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
 	close.add_argument("--pid", type=int, required=True)
+	dump = sub.add_parser("dump", help="at Civ4's crash prompt, press Full Dump (or --kind normal) by its label and wait until the .dmp file is written")
+	dump.add_argument("--pid", type=int, required=True)
+	dump.add_argument("--kind", choices=("full", "normal"), default="full")
+	dump.add_argument("--timeout", type=float, default=300.0)
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
@@ -734,7 +864,7 @@ def main():
 	place.add_argument("part", choices=("full", "left", "right"))
 	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".
 	# So these wait, by default, until the user has been idle for a few seconds; the same rule agent_message.py follows. (Claude Code Opus 5.5) -->
-	for focusing in (press, pull, box, press_key, typing):
+	for focusing in (press, pull, box, press_key, typing, point, wheel):
 		focusing.add_argument("--idle-seconds", type=float, default=3.0, help="first wait until nobody has typed or moved the mouse for this long; 0 skips the wait")
 		focusing.add_argument("--idle-timeout", type=float, default=300.0, help="give up after this many seconds of waiting")
 	args = parser.parse_args()
@@ -742,20 +872,29 @@ def main():
 		parser.error("drag --steps must be positive")
 	if args.command == "type" and args.us_keys and any(character not in US_KEYS for character in args.text):
 		parser.error("--us-keys accepts only printable ASCII")
-	if args.command in ("click", "drag", "paste", "key", "type") and args.idle_seconds > 0 and not wait_for_idle_user(args.idle_seconds, args.idle_timeout):
+	# <!-- custom: Mapped desktop hovers and scrolls move the user's pointer too, so wait for idle just as for clicks. (GPT-6.1-Sol) -->
+	waits_for_idle = args.command in ("click", "drag", "paste", "key", "type") or (args.command in ("hover", "scroll") and args.layout)
+	if waits_for_idle and args.idle_seconds > 0 and not wait_for_idle_user(args.idle_seconds, args.idle_timeout):
 		sys.exit("the user kept typing or moving the mouse for %d s; nothing was sent" % args.idle_timeout)
 
 	if args.command == "list":
 		for pid, cmd in civ4_processes():
 			print("%d\t%s" % (pid, cmd))
 	elif args.command == "screenshot":
-		path, box = screenshot(args.pid, args.out, args.method, args.crop, args.scale)
+		if bool(args.crop_name) != bool(args.layout) or (args.crop_name and args.crop):
+			parser.error("use --layout and --crop-name together, or pass --crop")
+		crop = usage_geometry(args.pid, args.crop_name, args.layout, "crops") if args.crop_name else args.crop
+		path, box = screenshot(args.pid, args.out, args.method, crop, args.scale)
 		print("saved %s window=%s" % (path, box))
 	elif args.command == "clipboard":
 		path, size = save_clipboard_image(args.out, args.crop, args.scale)
 		print("saved %s size=%dx%d" % ((path,) + size))
 	elif args.command in ("click", "hover"):
-		if args.point:
+		if args.layout:
+			if not args.point or args.x is not None or args.y is not None:
+				parser.error("--layout needs --point NAME instead of x and y")
+			args.x, args.y = usage_geometry(args.pid, args.point, args.layout, "points")
+		elif args.point:
 			args.x, args.y = named_point(args.pid, args.point)
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
@@ -767,6 +906,13 @@ def main():
 		start, end = drag(args.pid, args.x1, args.y1, args.x2, args.y2, args.button, args.steps, tuple(MODIFIER_VKS[m] for m in args.modifiers))
 		print("dragged %s from %d,%d to %d,%d" % ((args.button,) + start + end))
 	elif args.command == "scroll":
+		if args.layout or args.point or args.mapped_clicks is not None:
+			if not args.layout or not args.point or args.mapped_clicks is None or args.x is not None:
+				parser.error("mapped scroll needs --layout, --point and --clicks instead of x y clicks")
+			args.x, args.y = usage_geometry(args.pid, args.point, args.layout, "points")
+			args.clicks = args.mapped_clicks
+		elif args.clicks is None:
+			parser.error("scroll needs x y clicks")
 		scroll(args.pid, args.x, args.y, args.clicks)
 		print("scrolled %d at %d,%d" % (args.clicks, args.x, args.y))
 	elif args.command == "paste":
@@ -782,6 +928,9 @@ def main():
 		if not request_close(args.pid):
 			sys.exit("no window for process %d" % args.pid)
 		print("WM_CLOSE sent to %d" % args.pid)
+	elif args.command == "dump":
+		(path, size) = save_dump(args.pid, args.kind, args.timeout)
+		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
 	elif args.command == "monitors":
 		for number, area in enumerate(monitors(), 1):
 			print("%d\twork area %d,%d to %d,%d (%dx%d)" % ((number,) + area + (area[2] - area[0], area[3] - area[1])))

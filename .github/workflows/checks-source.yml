@@ -39,6 +39,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/raw_getinfotype.py
 
+      - name: Sevopedia pages read only defined self.top attributes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/sevopedia_top_attributes.py
+
       - name: Lint suppressions name their rule and reason
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/lint_suppressions.py

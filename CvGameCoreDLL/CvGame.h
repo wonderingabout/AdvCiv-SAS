@@ -1169,4 +1169,18 @@ inline CvRandom& mapRand() { return CVGAME_INSTANCE_FOR_RNG.getMapRand(); }
 	(MapRandNum(iNumLots) == 0)
 // </advc.007c>
 
+// <!-- custom: SASPilot's plots as JSON, written in C++ as it was about 25 times faster than the Python writer; see "Would the DLL be faster?" in README_Pilot.md. (Claude code Opus 5.5) -->
+// <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so the pilot can play with what a player sees. (Claude code Fable 5.2) -->
+std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
+std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
+// <!-- custom: The diplomacy table's items for 'trade' and 'techs', in C++ as the Python loop was the slowest list command measured (3.5 ms). (Claude code Opus 5.5) -->
+std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly);
+std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
+std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
+std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: The city sites the window circles for a selected Settler; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: A deal proposed to an AI as the diplomacy screen does; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: Opens the diplomacy screen on its trade table with a deal on it; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: Groups units as selecting them together does; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+bool chooseSASPilotFreeTech(int iTech, int iHeldId); // <!-- custom: Chooses a free tech as the tech chooser does; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+
 #endif

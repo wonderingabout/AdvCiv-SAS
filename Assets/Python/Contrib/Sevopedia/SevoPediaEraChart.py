@@ -304,8 +304,7 @@ class SevoPediaEraChart:
 			return (chart_sort_key(0, iRowIndex), "")
 
 		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
-		yes_text = localText.getText("TXT_KEY_YES", ())
-		no_text = localText.getText("TXT_KEY_NO", ())
+		# <!-- custom: Removed yes_text and no_text, read from TXT_KEY_YES and TXT_KEY_NO, which no loaded text defines, so they held the keys themselves; _format_bool never used them, as the chart shows "+" and blank, which the Eras page confirmed in game on 2026-11-13. Found by the undefined-key check added to sas_text_references.py. See KI#1085. (Claude code Opus 5.5) -->
 
 		era_types = []
 		era_labels = []
@@ -382,7 +381,7 @@ class SevoPediaEraChart:
 			for era_type in era_types:
 				val = parsed_data.get(era_type, {}).get(field_name, "")
 				if value_type == "bool":
-					val = self._format_bool(val, yes_text, no_text)
+					val = self._format_bool(val)
 				row.append(chart_font2(val))
 
 			table.append(row)
@@ -390,7 +389,7 @@ class SevoPediaEraChart:
 
 		return table
 
-	def _format_bool(self, value, yes_text, no_text):
+	def _format_bool(self, value):
 		# <!-- custom: normalize bool strings from Cy* getters so chart uses + / empty instead of True/False. (GPT-5.2-Codex) -->
 		if value in (True, "1", 1):
 			return "+"

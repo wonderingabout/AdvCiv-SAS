@@ -75,6 +75,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/dll_runtime_revision.py`](#buildrepositorydll_runtime_revisionpy)
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
+    - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
@@ -91,6 +92,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
+    - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
   - [XML and rules](#xml-and-rules)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
@@ -123,6 +125,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
     - [`build/xml/true_starts_coverage.py`](#buildxmltrue_starts_coveragepy)
     - [`build/xml/turn_define_gamespeed.py`](#buildxmlturn_define_gamespeedpy)
+    - [`build/xml/unit_naming_combat_types.py`](#buildxmlunit_naming_combat_typespy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
@@ -553,11 +556,12 @@ To refresh, run `python LLM_Helpers/code_history/convert_advciv_manual_to_txt.py
 
 #### `build/documentation/image_filename_policy.py`
 
-Keeps maintained documentation/reference image filenames unambiguous across [`_0_Legacy/Images/`](/_0_Legacy/Images/) and [`_1_AdvCiv-SAS/Images/`](/_1_AdvCiv-SAS/Images/). The check is intentionally limited to these documentation trees rather than gameplay art, where inherited assets can legitimately reuse basenames.
+Keeps maintained documentation/reference image filenames unambiguous across [`_0_Legacy/Images/`](/_0_Legacy/Images/) and [`_1_AdvCiv-SAS/Images/`](/_1_AdvCiv-SAS/Images/). These naming rules apply to the maintained image trees. Inherited gameplay art can reuse basenames.
 
 - Legacy/base-reference screenshots use the `0.x` namespace; numbered current AdvCiv-SAS images use `1.x`. Descriptive unnumbered SAS images remain valid when a numbered series is not useful.
 - Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
 - `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
+- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets. The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
 - The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
 
 The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
@@ -686,7 +690,7 @@ python .github/workflows/build/exe_patches/exe_patches_export_ignore.py
 
 #### `build/hygiene/control_characters.py`
 
-Rejects stray control characters (NUL, BEL and other C0 control bytes except tab, line feed, carriage return and form feed, plus DEL) in tracked and untracked text-format files.
+Rejects stray control characters (NUL, BEL, form feed and other C0 control bytes except tab, line feed and carriage return, plus DEL) in tracked and untracked text-format files.
 
 - It reports the file, line and a readable escape of the surrounding text.
 - Binary formats such as `.lnk`, `.ani` and `.chm` legitimately contain such bytes and are not scanned.
@@ -696,6 +700,7 @@ Rejects stray control characters (NUL, BEL and other C0 control bytes except tab
   - A repository-wide scan found no other text file affected; this check keeps it that way.
 - PowerShell double-quoted strings also silently drop a backtick before most other characters (`` `_web` `` became `_web`).
   - Prefer single-quoted strings or here-strings when generating Markdown with backticks.
+- Form feed was allowed at first, as an old page break, though no text file held one. On 2026-11-13 text written through Claude Code's Bash lost backslashes, so `\find.exe` became a form feed and `ind.exe` in the Makefile and in this README, four slips in one session, and this check passed each time. It now rejects form feed too, and scans `.tsv`. See KI#38.7.
 
 #### `build/hygiene/line_endings.py`
 
@@ -897,6 +902,13 @@ Requires a commit that adds Known Issues to name them, so the commit that opened
 python .github/workflows/build/repository/ki_commit_titles.py
 ```
 
+#### `build/repository/makefile_windows_tools.py`
+
+Fails when the DLL Makefiles call a tool that both Windows and Git ship under the same name (`find`, `sort`, `expand`, `tar`, `timeout`, `whoami`) without its `System32` path, or contain a control character other than tab and line ends.
+
+- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited. It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- The control-character test came from the fix itself: written through a shell, `\find.exe` became a form feed and `ind.exe`, which the name test could not see. Writing this README entry through the same shell then did it again; the Edit tool, which no shell touches, put it right.
+
 #### `build/repository/project_sources.py`
 
 Checks that root `CvGameCoreDLL/*.cpp` and `*.h` files appear under the matching `ClCompile`/`ClInclude` project entries, and reports stale or misclassified root entries. NMake discovers sources independently, so a successful build does not prove that files are visible in the VC2010 IDE. Project-local resources and nested generated files are excluded.
@@ -980,6 +992,7 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 Requires the shipped values of the hands-free switches, which spare players clicks and manual steps, so players still get them.
 
 - `SAS_UI_DAWN_OF_MAN_ON=1` keeps the Dawn of Man screen for players; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally.
+- The same holds since 2026-11-13 for the tech splash and the era, wonder, religion and project movies (`SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON`).
 - The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
 - Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
 
@@ -1061,6 +1074,13 @@ Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, t
 Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly.
 
 Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+
+#### `build/source/sevopedia_top_attributes.py`
+
+Fails when a Sevopedia page reads `self.top.X` and `SevoPediaMain.py` neither assigns `self.X`, defines `def X` or a class attribute `X`, nor does any page assign `self.top.X`. Python finds such a mistake only when the line runs, so it can hide behind one key press.
+
+- Added on 2026-11-13 for [KI#1086](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086): the move of the Sevopedia colors into `SASVisuals.Color` left `SevoPediaIndex.py` reading `self.top.COLOR_HIGHLIGHT_TEXT`, which raised a Python exception on Down after a search.
+- Files are read with Python's tokenizer, so a comment such as "Was self.top.COLOR_HIGHLIGHT_TEXT" or a string holding the same text does not count; a first draft cut comments by hand, which Codex's review showed a string or an escaped quote could fool. No page reads a member of BtS's `CvPediaScreen` base class, which CI does not have; a page that starts to would need it listed.
 
 #### `build/source/source_change_provenance.py`
 
@@ -1354,6 +1374,8 @@ It also keeps SAS pedia names consistent: a SAS text used as an XML `<Civilopedi
 
 Verifies every `TXT_KEY` defined across all SAS-owned GameText files (`Assets/XML/Text/AdvCiv-SAS*.xml`) is referenced by active mod XML, BUG configuration, Python, map-script Python, or C++.
 
+The other direction too: every `TXT_KEY` used by active mod XML, Config, Python, map scripts or C++ must be defined by mod GameText or the inherited text, reading a `CHANGED_` tag as its key. Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key. Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
+
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 
 Other explicit exceptions cover confirmed inherited base references, empirically confirmed EXE runtime references with no static reference, and BUG option-key families constructed dynamically at runtime. Every passing run prints the exact keys in each exception group so accepted uncertainty stays visible in CI.
@@ -1397,6 +1419,13 @@ The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names
 This naming rule was added after auditing turn gates while implementing non-combat food-production allocation: the new production gate correctly needed `TrainPercent` scaling, nearby UWAI contact limits correctly represented unscaled movement/path turns, and the victory-denial countdown windows were found to need `VictoryDelayPercent` scaling.
 
 The checker intentionally validates naming/declared intent rather than trying to infer the correct scaling formula from C++: code review still decides whether a Normal-speed value should use `TrainPercent`, `ConstructPercent`, `VictoryDelayPercent`, or another game-speed field. The explicit names make that audit grep-friendly and prevent ambiguous raw turn gates from being added silently.
+
+#### `build/xml/unit_naming_combat_types.py`
+
+Fails when BUG's [`Unit Naming.xml`](/Assets/Config/Unit%20Naming.xml) or its options tab lacks a `Combat_<type>` option for a unit combat type in `CIV4UnitCombatInfos.xml`, lists one for a type that no longer exists, or an option lacks its `_TEXT` or `_HOVER` text. BUG raises `ConfigError` for an unknown option, so a missing one breaks Unit Naming for every unit of that type.
+
+- Added on 2026-11-13 for [KI#1087](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087): SAS's split of `UNITCOMBAT_MELEE` into polearm and shock left only `Combat_MELEE`, so with Unit Naming on every Spearman or Swordsman raised a Python exception.
+- The option texts are built from the option ID, so `sas_text_references.py` counts them as a dynamic family and cannot check them; this check does.
 
 #### `build/xml/wonder_cost_columns.py`
 

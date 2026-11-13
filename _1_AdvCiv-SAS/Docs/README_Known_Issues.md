@@ -81,6 +81,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#38.4 - (Fixed XML launch failure; confirmed the previous SAS define sentinel/guard is validated) UTF-8 BOM prevented SAS GlobalDefines from loading](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.4)\
 [KI#38.5 - (Fixed/Diagnosed DLL build-tooling defect) fastdep access-violated on a redundant include with a trailing custom comment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.5)\
 [KI#38.6 - (Observed transient CI failure; cause undetermined) GitHub fixture cleanup failed, then an identical-tree retry passed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.6)\
+[KI#38.7 - (Fixed in the SAS Makefile, guarded by CI) A DLL build started from Git Bash ran Git's Unix find for the Makefile's FIND and stalled while it scanned the C drive](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7)\
 [KI#39 - (Seemingly fixed or enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if production is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast, as well as being braver in our own cultural borders or moving to other cities needing improvements rather than being parked in current city and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
@@ -267,6 +268,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#174.2 - (Fixed/Improved) Base AdvCiv/K-Mod one-copy Project reevaluation could scatter stored production across successive cities and discard major invested production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-174.2)\
 [KI#175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-175)\
 [KI#176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176)\
+[KI#176.2 - (Fixed inherited Civ IV Python binding) Queued missions could not omit their AI plot or unit from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176.2)\
 [KI#177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-177)\
 [KI#178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-178)\
 [KI#178.2 - (Fixed AdvCiv-SAS regression found during KI#144.2 follow-up) First-capital dynamic bonus value double-counted generic resource happiness/health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-178.2)\
@@ -1253,7 +1255,15 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)\
 [KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)\
 [KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
-[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)
+[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
+[KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
+[KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
+[KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
+[KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
+[KI#1088 - (Avoided in the SAS pilot) Loading a save while a diplomacy screen was open, which only the pilot could do, sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
+[KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so with two clients a dump cannot be told apart by its name and a second crash replaces the first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)\
+[KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
+[KI#1091 - (Fixed inherited Civ IV Python bindings) Combat strength and firepower rejected absent plot and attacker arguments](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)
 
 <a id="ki-1"></a>
 
@@ -3714,6 +3724,21 @@ Error: Process completed with exit code 1.
 ```
 
 No source fix was needed for the identical-tree run to pass. The cause remains undetermined; this is a second observation of intermittent fixture cleanup failure, not evidence that arbitrary CI failures can be dismissed. Reported/retried by wonderingabout; GitHub tree/job verification and documentation by GPT-6.1-Sol (Codex).
+
+<a id="ki-38.7"></a>
+
+## KI#38.7 - (Fixed in the SAS Makefile, guarded by CI) A DLL build started from Git Bash ran Git's Unix find for the Makefile's FIND and stalled while it scanned the C drive
+
+- The Makefile's build provenance step counts leftover objects with `DIR /S /B ... | FIND /C /V ""`. A bare `FIND` runs whichever `find.exe` comes first on `PATH`, and a build started from Git Bash, or from a `cmd.exe` that Git Bash launched, inherits Git's `PATH`, where `C:\Program Files\Git\usr\bin\find.exe` comes first.
+  - Git's Unix `find` read the arguments as folders and crawled all of C:, so the build stalled: the report stayed `RUNNING` with no `cl.exe` process, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines.
+  - It happened on 2026-11-11 and again on 2026-11-13, although the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) said not to build from Git Bash after the first time.
+- Fixed by calling `%SystemRoot%\System32\find.exe` by its path in the [Makefile](/CvGameCoreDLL/Project/Makefile). In Visual C++ 2010 Express and in PowerShell, a bare `FIND` already resolved to this same program, so IDE builds run what they ran before.
+  - Tested in a `cmd.exe` whose `PATH` began with Git's `find`: the provenance line counted 3 test objects correctly. A full Debug-opt build through the changed Makefile then succeeded from Git Bash with no warnings, its provenance line writing `SAS_BUILD_PREEXISTING_OBJECT_COUNT 0` after the clean rebuild, as expected. Not yet confirmed from the IDE itself.
+- Guarded by [`makefile_windows_tools.py`](/.github/workflows/README.md#buildrepositorymakefile_windows_toolspy), which fails on a bare call to a tool both Windows and Git ship, and by [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy), which also takes Git's folders off `PATH` for its builds.
+
+Found by Claude code Opus 5.5 on 2026-11-11, and again on 2026-11-13, when wonderingabout asked whether the rule could be enforced rather than remembered.
+
+Update (2026-11-13, later session): writing that fix through Claude Code's Bash had turned `\find.exe` into a form feed and `ind.exe`, in the Makefile and in the workflows README, so the repository-wide [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy) should have failed. It passed, because it allowed form feed as an old page break, although no text file held one. It now rejects form feed too; a scan of all 2,018 text files found none.
 
 <a id="ki-39"></a>
 
@@ -14953,6 +14978,24 @@ WORKER_MISSION_EXECUTION phase=result turn=181 player=7 Native American Empire w
 In the confirming run, the old Mine-to-Cottage corruption on `(59,24)` no longer appeared. The Worker cancelled the stale build, replanned normally, and moved to a valid new target.
 
 Fixed with the help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+
+Later finding (2026-11-13): the guard acts on any group whose mission AI plot is set, human ones included. The window's own orders set none (`CvNetPushMission` passes `NO_MISSIONAI, NULL, NULL`), and bypass this case.
+
+SASPilot passed the unit's plot to `CySelectionGroup.pushMission`. At the next turn, the guard cancelled the Work Boat's queued fishing boats because it was away from the plot where the move had been issued.
+
+SASPilot now passes none, as the window does, and the wrapper takes Python's `None` (see [KI#176.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176.2)). For the playthrough, see "A fog-on playthrough" in the [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#a-fog-on-playthrough). Found by Claude Code Opus 5.5.
+
+<a id="ki-176.2"></a>
+
+## KI#176.2 - (Fixed inherited Civ IV Python binding) Queued missions could not omit their AI plot or unit from Python
+
+`CySelectionGroup.pushMission` dereferenced both Python arguments before forwarding them to C++. Native orders from the UI pass null pointers for both when there is no AI mission target.
+
+The local Civ4CE vanilla, Warlords and BtS SDK copies all contain the defect. The initial K-Mod snapshot (`2414225e6`, 2010-12-27) and base AdvCiv 1.14 preserve it.
+
+The wrapper now passes `None` through as null. In the Pilot playthrough, passing a plot as a workaround left a stale mission target and triggered the separate KI#176 guard. The `fogplay_t116_queued_build.json` sequence checks that the Work Boat completes its queued fishing boats.
+
+Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.1-Sol).
 
 <a id="ki-177"></a>
 
@@ -37647,3 +37690,139 @@ On every setup screen of Simple Game, a map script's own options, such as Pangae
 - The full step titles lost it too, for consistency: "SELECT A MAP" became "MAP", and likewise CIVILIZATION, CLIMATE, SEA LEVEL, HANDICAP and SCENARIO. See the [Main Changes Guide (Renaming)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming).
 
 Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)); fixed with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1084"></a>
+
+## KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked
+
+On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `pilot.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
+
+It started as Codex's suggested check that held popups survive a save and reload ([Popups in the Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#popups)), so the pilot's new popup code was suspected first. Each step below removed one suspect:
+
+| What ran in one Civ4 | Result |
+| --- | --- |
+| Small new game, then load the Huge turn-305 save | worked |
+| Huge turn-305 save, then load a small save | crashed after 2 s |
+| Huge turn-305 save, list popups, save, reload | crashed after 6 s, three of three |
+| Same, without listing popups, so nothing taken from the queue or held | crashed |
+| Same, with the pilot's popup holding switched off | crashed |
+| Same, with no save before the reload | crashed |
+| Same, with the committed DLL from Git instead of the day's Debug-opt build | crashed |
+| Same, with the pilot switched off in the request that started the load | crashed |
+| Same, with SGR, Runtime and the other development diagnostics at shipped defaults | crashed |
+| Huge turn-305 save, list popups, reload (first try) | worked once; the same steps then crashed twice |
+
+So the crash comes from leaving this game, not from loading it, and from none of the pilot's code, the day's DLL changes or the development diagnostics; the one success was luck. Whether a player leaving such a game through the menus also crashes was not tried, nor base AdvCiv.
+
+- The full dump, `Civ4BeyondSword.exe.dmp`, is kept with its matching Debug-opt DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_huge_t305_leaving_game` (1.5 GB, outside the repository). It was read as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
+  - `.ecxr; kb` stopped in the EXE: `call dword ptr [eax+4]` with `eax=bf800000`, a virtual call through an object whose first word was the float -1.0 rather than a table pointer, as in memory already freed or reused. The EXE has no unwind information, so the stack ended after six EXE frames.
+  - `dds esp L800` found older return addresses on the stack, among them `CvPlayer::nextUnit` and `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`: the EXE had been walking a player's units through the DLL just before.
+  - A possible reading, not shown: the EXE frees a unit's or plot's graphics while tearing the game down and then calls one it already freed; the large unit count may matter, as small games reloaded without trouble the same day.
+- The saves are `huge_t305_civic.CivBeyondSwordSave` and `held_roundtrip.CivBeyondSwordSave`, made by the pilot on 2026-11-13 from a Pangaea Huge game with fixed seeds autoplayed to turn 300.
+- Workaround for agents: in a big late game, load a save with `pilot.py close` and `pilot.py start --save` rather than `pilot.py menu path=`; a fresh Civ4 loaded both saves without trouble.
+- Steps to take it further: try the same reload in base AdvCiv, leave the game through the main menu as a player would, and compare a Huge game at turn 100 and 200 to see whether size or unit count sets it off.
+
+Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-6.1-Sol) suggested the save-and-reload check; wonderingabout saw the first crash and asked for it to be captured and debugged.
+
+<a id="ki-1085"></a>
+
+## KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK
+
+- Seen through SASPilot on 2026-11-13, at turn 139 of a fog-on game: the "first Swordsman" notice read `TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK`. A player sees the same popup.
+  - SAS split BtS's `UNITCOMBAT_MELEE` into `UNITCOMBAT_MELEE_POLEARM` and `UNITCOMBAT_MELEE_SHOCK`, and `CvAdvisorUtils.py` asks for a feat text per type, but only the archer and mounted feats got text.
+  - In game, translating a key that no loaded text defines returns the key itself, which is what the popup showed.
+- Fixed in [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml) with both texts, adapted from BtS's `TXT_KEY_FEAT_UNITCOMBAT_MELEE`, confirmed in game.
+- Guarded by [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy), which now also fails on any `TXT_KEY` that active mod XML, Config, Python, map scripts or C++ uses but no mod or inherited text defines.
+  - The audit behind it found 72 such keys. Two were SAS's own, `TXT_KEY_YES` and `TXT_KEY_NO` in [`SevoPediaEraChart.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py), read but never shown, as the Era Chart writes "+" and blank; the lookups were removed.
+  - A first count also took the Trireme's pedia text for missing: Warlords defines it only as `CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA`, and the EXE reads a `CHANGED_` tag as the key after the prefix, as the Sevopedia showed. The check follows that rule.
+  - The other 68 were already used without text by base AdvCiv 1.14, mostly Firaxis XML naming strategy, help and pedia texts it never wrote (control, specialist, era, victory and world-size infos) and BUG or BULL leftovers. They are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv), and a listed key that becomes defined or unused fails, so the list shrinks as gaps are fixed. Which of them a player can see was not checked.
+
+Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
+
+- Later on 2026-11-13, Codex's (GPT-6.1-Sol) review of the check led to four changes:
+  - **Loaded text only.** The inherited-text hash list names base AdvCiv first, and SAS does not load base AdvCiv's original files but its own copies, so 2,302 tags defined only there counted as defined. The list gained a `game` column, the first BtS, Warlords or vanilla layer defining each tag, and the check counts only those. No key in use depended on it yet; a SAS copy deleted later would have.
+  - **Identifiers are not keys.** `self.TXT_KEY_DICT` in `CvForeignAdvisor.py` is an attribute, so a token after a letter, digit, `_` or `.` no longer counts, and its row left the list.
+  - **One rule for both directions.** The diplomacy check now uses the same definitions, `CHANGED_` tags included. The `CHANGED_` rule rests on the Trireme's pedia text, read in game.
+  - **Stock texts for 16 controls.** BtS pointed them at `TXT_KEY_ACTION_*_HELP` keys no text defines, while its texts are named `TXT_KEY_ACTION_CONTROL_*_HELP`. Next Unit and Previous Unit even used a help key as their name. [`CIV4ControlInfos.xml`](/Assets/XML/Units/CIV4ControlInfos.xml) now uses the stock texts, matched by meaning, and in game Next Unit reads "Next Unit" with "Cycle unit selection to the next unit on the tile." Seventeen keys left the list, 51 remain; where a player would see these texts was not traced.
+  - Codex also noted that keys assembled at run time are invisible to the check. Looking for families keyed by unit combat found [KI#1087](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087), BUG's Unit Naming options, which has its own check.
+
+<a id="ki-1086"></a>
+
+## KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception
+
+- Seen on 2026-11-13 during a SASPilot UI demo: after typing "galley" in the Sevopedia search box, Down on the Index page raised `SevoPediaMain instance has no attribute 'COLOR_HIGHLIGHT_TEXT'`. A player pressing Down there gets the same.
+  - On 2026-10-20 SAS moved the Sevopedia's colors from `SevoPediaMain` attributes into `SASVisuals.Color`, but [`SevoPediaIndex.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py) kept reading `self.top.COLOR_HIGHLIGHT_TEXT` in its keyboard cursor.
+  - Python looks attributes up only when the line runs, so neither the Python 2.4 compile check nor loading the Sevopedia could catch it; only that key press did.
+- Fixed by reading `SASVisuals.Color.HIGHLIGHT_TEXT`, as the rest of the Sevopedia does. Confirmed in game on 2026-11-13: after searching "galley" and "gal", Down moved the highlight across the matches and `PythonErr.log` stayed empty.
+- Guarded by [`sevopedia_top_attributes.py`](/.github/workflows/README.md#buildsourcesevopedia_top_attributespy), which fails on any `self.top.X` a Sevopedia page reads that `SevoPediaMain.py` does not define and no page assigns. Run against the old `SevoPediaIndex.py`, it reports this line; an audit of the 74 names the pages read found no other. It reads the files with Python's tokenizer, after Codex's review showed that a first draft, which cut comments by hand, could take a string for code.
+
+Found by Claude code Opus 5.5 on 2026-11-13, through the pilot's desktop demo.
+
+<a id="ki-1087"></a>
+
+## KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception
+
+- Found on 2026-11-13 while answering Codex's review of [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085), which noted that the text-key check cannot see keys built at run time. Looking for families keyed by unit combat types led to BUG's Unit Naming.
+  - For each unit it names, `UnitNameEventManager.py` asks for the option `Combat_<type>`, and BUG raises `ConfigError` for an option it does not know. Unit Naming is off by default, so only players who turn it on in the BUG menu meet it.
+  - SAS split `UNITCOMBAT_MELEE` into `UNITCOMBAT_MELEE_POLEARM` and `UNITCOMBAT_MELEE_SHOCK`, and gave its archer and mounted splits their options, but [`Unit Naming.xml`](/Assets/Config/Unit%20Naming.xml) and [`BugUnitNameOptionsTab.py`](/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py) kept only `Combat_MELEE`.
+  - Reproduced through SASPilot by calling the handler's own lookup: a crossbow unit returned its naming pattern, while both melee types raised `Option UnitNaming__Combat_MELEE_SHOCK not found in mod UnitNaming` (and `_POLEARM`).
+- Fixed by replacing `Combat_MELEE` with `Combat_MELEE_POLEARM` and `Combat_MELEE_SHOCK` in the config and its options tab, with texts in [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml). Confirmed in game after a restart: both types return the default pattern, and the BUG menu's Unit Names tab shows the two new rows with their text.
+  - A player who had set a pattern for the old option keeps it in `Unit Naming.ini` as `CombatMELEE`, but nothing reads it now; it has to be entered again for each of the two new options.
+  - A search of the mod's Python, XML and C++ for the old `UNITCOMBAT_MELEE` then found only comments, so with KI#1085's feat texts the split is now covered everywhere it was referenced.
+- Guarded by [`unit_naming_combat_types.py`](/.github/workflows/README.md#buildxmlunit_naming_combat_typespy), which fails when the config or the tab lacks an option for a type in `CIV4UnitCombatInfos.xml`, lists one for a type that no longer exists, or an option lacks its `_TEXT` or `_HOVER` text. Run against the old config and tab, it reports all six problems.
+
+Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) review.
+
+<a id="ki-1088"></a>
+
+## KI#1088 - (Avoided in the SAS pilot) Loading a save while a diplomacy screen was open, which only the pilot could do, sometimes crashed Civ4 while it tore down the game
+
+- Seen on 2026-11-13 while testing the pilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `pilot.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
+  - **First crash:** in the DLL, during teardown: `CvPlayer::reset`, `CvPlayer::uninit`, then `FFreeListTrashArray<CvPlotGroup>::removeAll` read the first entry of a player's plot-group list and found the object pointer `0xFFFFFFFF`, faulting at address `ffffffff`. That client had loaded once before while a diplomacy screen was open.
+  - **Second crash:** in the EXE, reading `ff800003`, a float-like value where a pointer should be. On the stack were `getDiplomacyScreen` and, as in [KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084), `CvPlayer::nextUnit` with `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`. It came on the fourth load made while a diplomacy screen was open; the pilot's new refusal had been saved but not yet reloaded by the game.
+- What separated the loads, in two clients on the same save:
+  - **Screen closed first:** 8 of 8 loads worked, five of them right after a trade made through the screen.
+  - **Screen open:** the screen stayed open over the reloaded game with the old partner and offers each time, and 1 of 4 loads crashed.
+- A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only the pilot's `menu path=` could load past it.
+- Avoided in [`SASPilotCommands.py`](/LLM_Helpers/game_runs/SASPilotCommands.py): `menu` now refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
+- Dumps, each with the DLL and PDB of the Debug-opt build that crashed, outside the repository:
+  - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups`: the first crash, a normal dump (22 MB), so the heap and the plot-group list cannot be read.
+  - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
+
+Found by Claude code Opus 5.5 on 2026-11-13, while testing the pilot's trade table; wonderingabout saw both crashes and asked for full dumps.
+
+<a id="ki-1089"></a>
+
+## KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so with two clients a dump cannot be told apart by its name and a second crash replaces the first
+
+- At a crash, the EXE's "Program Execution Problem" prompt writes `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`, the same name for every process. Agents now run parallel clients (`multiple`, KI#1081), so the file at that path can come from another client, or be replaced by a second crash before it is kept.
+  - The name carries no process ID, unlike SAS's own logs, which KI#1081 named by process. The prompt and the dump writer are the EXE's, so the name itself cannot be changed from the mod.
+- Worked around in [`desktop_windows.py dump --pid`](/LLM_Helpers/README.md#desktop_windowspy), which presses Full Dump by its label and waits for the file:
+  - It reads the process ID the minidump records in its MiscInfo stream and refuses a dump from another process. Read from both KI#1088 dumps, it gave 15292 and 22356, their two crashed clients.
+  - It copies the dump to `Civ4BeyondSword_<pid>_<time>.dmp` while holding the original open without shared writing, so no other client can replace it in between, and reports the copy.
+  - It has not yet met a real crash prompt; Codex's review noted that the click, `BM_CLICK`, can fail on an inactive dialog, which the tool would report as no dump within its timeout.
+- See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) for reading a dump and the full-dump rule.
+
+Found by Claude code Opus 5.5 with Codex (GPT-6.1-Sol) on 2026-11-13, while writing the dump tool after KI#1088's dump took three tries; wonderingabout suggested recording it as a KI.
+
+<a id="ki-1090"></a>
+
+## KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production
+
+`CyEnumsInterface.cpp` exported `TaskTypes.TASK_CONSCRIPT` with the value of `TASK_HURRY`. Passing that enum to a Python city task selected the hurry-production handler instead of drafting. The normal Draft button already sends the correct C++ enum.
+
+The local Civ4CE vanilla, Warlords and BtS SDK copies all contain the defect. The initial K-Mod snapshot (`2414225e6`, 2010-12-27) and base AdvCiv 1.14 preserve it.
+
+Claude Code Fable 5.2 found and fixed the binding while reading the task list for SASPilot. Claude Code Opus 5.5 verified in game that drafting now reads 10 and hurry stays 9, where both read 9 before. Codex (GPT-6.1-Sol) checked the SDK lineage and the native Draft path.
+
+<a id="ki-1091"></a>
+
+## KI#1091 - (Fixed inherited Civ IV Python bindings) Combat strength and firepower rejected absent plot and attacker arguments
+
+`CyUnit` dereferenced the plot and attacker in `maxCombatStr`, `currCombatStr`, `currFirepower`, `maxCombatStrFloat` and `currCombatStrFloat` even when Python passed `None`. The native methods accept null pointers, including when asking for an attacker's own strength.
+
+The local Civ4CE vanilla, Warlords and BtS SDK copies all contain the defect. The initial K-Mod snapshot (`2414225e6`, 2010-12-27) and base AdvCiv 1.14 preserve it.
+
+SASPilot's `odds` exposed this when `currCombatStrFloat(None, None)` raised a C++ exception in game. The five wrappers now pass null through.
+
+Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.1-Sol).

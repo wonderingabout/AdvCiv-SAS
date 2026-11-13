@@ -372,6 +372,26 @@ public:
 
 	bool isEventActive(int /*EventTriggerTypes*/ eTrigger);
 	void doControl(int iControl);
+	// <!-- custom: SASPilot lists, closes and answers the active player's popups from Python, which had no access to them. (Claude code Fable 5.2) -->
+	std::wstring getSASPilotPopups();
+	void closeSASPilotPopups(int iButtonPopupType, int iData1);
+	bool answerSASPilotPopup(int iHeldId, int iButton, std::wstring szEditBox);
+	void setSASPilotPopupsHeld(bool bHeld);
+	bool isSASPilotPopupsHeld();
+	// <!-- custom: SASPilot reads plots as JSON written in C++, about 25 times faster than its Python writer. (Claude code Opus 5.5) -->
+	// <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so the pilot can play with what a player sees. (Claude code Fable 5.2) -->
+	std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
+	std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
+	std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+	std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
+	std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
+	std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: For the pilot's 'sites' command. (Claude code Opus 5.5) -->
+	std::string proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: For the pilot's 'propose' command. (Claude code Opus 5.5) -->
+	bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: For the pilot's 'contact give= take='. (Claude code Opus 5.5) -->
+	std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: For the pilot's 'group' command. (Claude code Opus 5.5) -->
+	bool chooseSASPilotFreeTech(int iTech, int iHeldId); // <!-- custom: For the pilot's 'freetech' command. (Claude code Opus 5.5) -->
+	bool isSASPilotChoosingFreeTech(); // <!-- custom: For the pilot's 'todo': whether a free tech is still owed, which a chooser left on display cannot tell. (Claude code Opus 5.5) -->
+	bool dropSASPilotPopup(int iHeldId, int iButtonPopupType, int iData1, int iData3, std::wstring szText); // <!-- custom: For the pilot's notices. (Claude code Opus 5.5) -->
 
 	void setCityBarWidth(bool bWide); // advc.095
 	void setHelpTextAreaWidth(float fWidth); // advc.092c

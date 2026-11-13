@@ -2,11 +2,15 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Soren Johnson (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
+<!-- AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy) -->
+<!-- (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md) -->
 
 <!-- advc: Copied from BtS. I've left it in the Units folder, note, however,
 	 that controls are global and very much not tied to units. -->
 <Civ4ControlInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<!--Changes must be reflected in CvEnums.h-->
+	<!-- custom: BtS pointed 16 controls at TXT_KEY_ACTION_*_HELP keys that no text defines, while its own texts for them are named TXT_KEY_ACTION_CONTROL_*_HELP; Next Unit and Previous Unit even used the undefined TXT_KEY_ACTION_PREVIOUS_PLOT_UNIT_HELP as their name, so the game returned the raw key.
+	These controls now use the stock texts, matched by meaning: Next and Previous Unit cycle the units on the selected plot (CvGame::doControl), hence NEXT_UNIT with CONTROL_NEXT_PLOT_UNIT_HELP. Last Unit, Ping, Sign and the toggles keep their keys, as no stock text describes them. Suggested by Codex's review of KI#1085's check. See KI#1085. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	<ControlInfos>
 		<ControlInfo>
 			<Type>CONTROL_CENTERONSELECTION</Type>
@@ -86,7 +90,7 @@
 		<ControlInfo>
 			<Type>CONTROL_NEXTCITY</Type>
 			<Description>TXT_KEY_ACTION_NEXT_CITY</Description>
-			<Help>TXT_KEY_ACTION_NEXT_CITY_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_NEXT_CITY_HELP</Help>
 			<HotKey>KB_HOME</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -101,7 +105,7 @@
 		<ControlInfo>
 			<Type>CONTROL_PREVCITY</Type>
 			<Description>TXT_KEY_ACTION_PREVIOUS_CITY</Description>
-			<Help>TXT_KEY_ACTION_PREVIOUS_CITY_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_PREVIOUS_CITY_HELP</Help>
 			<HotKey>KB_END</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -115,8 +119,8 @@
 		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_NEXTUNIT</Type>
-			<Description>TXT_KEY_ACTION_PREVIOUS_PLOT_UNIT_HELP</Description>
-			<Help>TXT_KEY_ACTION_NEXT_UNIT_HELP</Help>
+			<Description>TXT_KEY_ACTION_NEXT_UNIT</Description>
+			<Help>TXT_KEY_ACTION_CONTROL_NEXT_PLOT_UNIT_HELP</Help>
 			<HotKey>KB_PERIOD</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -130,8 +134,8 @@
 		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_PREVUNIT</Type>
-			<Description>TXT_KEY_ACTION_PREVIOUS_PLOT_UNIT_HELP</Description>
-			<Help>TXT_KEY_ACTION_PREVIOUS_UNIT_HELP</Help>
+			<Description>TXT_KEY_ACTION_PREVIOUS_UNIT</Description>
+			<Help>TXT_KEY_ACTION_CONTROL_PREVIOUS_PLOT_UNIT_HELP</Help>
 			<HotKey>KB_COMMA</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -146,7 +150,7 @@
 		<ControlInfo>
 			<Type>CONTROL_CYCLEUNIT</Type>
 			<Description>TXT_KEY_ACTION_CYCLE_UNITS</Description>
-			<Help>TXT_KEY_ACTION_CYCLE_UNITS_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_CYCLES_UNIT_HELP</Help>
 			<HotKey>KB_RETURN</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -161,7 +165,7 @@
 		<ControlInfo>
 			<Type>CONTROL_CYCLEUNIT_ALT</Type>
 			<Description>TXT_KEY_ACTION_CYCLE_UNITS_ALT</Description>
-			<Help>TXT_KEY_ACTION_CYCLE_UNITS_ALT_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_CYCLE_UNIT_ALT_HELP</Help>
 			<HotKey>KB_W</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -176,7 +180,7 @@
 		<ControlInfo>
 			<Type>CONTROL_CYCLEWORKER</Type>
 			<Description>TXT_KEY_ACTION_CYCLE_WORKERS</Description>
-			<Help>TXT_KEY_ACTION_CYCLE_WORKERS_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_WORKERS_HELP</Help>
 			<HotKey>KB_SLASH</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -206,7 +210,7 @@
 		<ControlInfo>
 			<Type>CONTROL_ENDTURN</Type>
 			<Description>TXT_KEY_ACTION_ENDTURN</Description>
-			<Help>TXT_KEY_ACTION_ENDTURN_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_ENDTURN_HELP</Help>
 			<HotKey>KB_RETURN</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -221,7 +225,7 @@
 		<ControlInfo>
 			<Type>CONTROL_ENDTURN_ALT</Type>
 			<Description>TXT_KEY_ACTION_ENDTURN_ALT</Description>
-			<Help>TXT_KEY_ACTION_ENDTURN_ALT_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_ENDTURN_ALT_HELP</Help>
 			<HotKey>KB_SPACE</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -236,7 +240,7 @@
 		<ControlInfo>
 			<Type>CONTROL_FORCEENDTURN</Type>
 			<Description>TXT_KEY_ACTION_FORCE_ENDTURN</Description>
-			<Help>TXT_KEY_ACTION_FORCE_ENDTURN_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_FORCE_ENDTURN_HELP</Help>
 			<HotKey>KB_RETURN</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>1</bShiftDown>
@@ -251,7 +255,7 @@
 		<ControlInfo>
 			<Type>CONTROL_AUTOMOVES</Type>
 			<Description>TXT_KEY_ACTION_AUTOMOVES</Description>
-			<Help>TXT_KEY_ACTION_AUTOMOVES_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_AUTOMOVES_HELP</Help>
 			<HotKey>KB_A</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -401,7 +405,7 @@
 		<ControlInfo>
 			<Type>CONTROL_LOAD_GAME</Type>
 			<Description>TXT_KEY_ACTION_LOAD_GAME</Description>
-			<Help>TXT_KEY_ACTION_LOAD_GAME_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_LOAD_GAME_HELP</Help>
 			<HotKey>KB_L</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -416,7 +420,7 @@
 		<ControlInfo>
 			<Type>CONTROL_OPTIONS_SCREEN</Type>
 			<Description>TXT_KEY_ACTION_OPTIONS_SCREEN</Description>
-			<Help>TXT_KEY_ACTION_OPTIONS_SCREEN_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_OPTIONS_SCREEN_HELP</Help>
 			<HotKey>KB_O</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -431,7 +435,7 @@
 		<ControlInfo>
 			<Type>CONTROL_RETIRE</Type>
 			<Description>TXT_KEY_ACTION_RETIRE</Description>
-			<Help>TXT_KEY_ACTION_RETIRE_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_RETIRE_HELP</Help>
 			<HotKey>KB_Q</HotKey>
 			<bAltDown>1</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -446,7 +450,7 @@
 		<ControlInfo>
 			<Type>CONTROL_SAVE_GROUP</Type>
 			<Description>TXT_KEY_ACTION_SAVE_GROUP</Description>
-			<Help>TXT_KEY_ACTION_SAVE_GROUP_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_SAVE_GROUP_HELP</Help>
 			<HotKey>KB_S</HotKey>
 			<bAltDown>1</bAltDown>
 			<bShiftDown>0</bShiftDown>
@@ -461,7 +465,7 @@
 		<ControlInfo>
 			<Type>CONTROL_SAVE_NORMAL</Type>
 			<Description>TXT_KEY_ACTION_SAVE_NORMAL</Description>
-			<Help>TXT_KEY_ACTION_SAVE_GAME_HELP</Help>
+			<Help>TXT_KEY_ACTION_CONTROL_SAVE_GAME_HELP</Help>
 			<HotKey>KB_S</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>

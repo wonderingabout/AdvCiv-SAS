@@ -13,7 +13,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 # <!-- custom: The inherited-text hash manifest lists every GameText tag that BtS/vanilla/base AdvCiv define, which the GitHub mod-only checkout otherwise cannot see. (Claude code Opus 5.5) -->
-from xml_sas_text_inherited import MANIFEST, read_manifest
+from xml_sas_text_inherited import MANIFEST, game_defined_tags
 
 
 TARGET_GLOB = "Assets/XML/Text/AdvCiv-SAS*.xml"
@@ -25,7 +25,8 @@ TAG_SPAN_RE = re.compile(r"<Tag>.*?</Tag>", re.DOTALL | re.IGNORECASE)
 XML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 CPP_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"(?m)^\s*(?://|#).*$")
-TOKEN_RE = re.compile(r"TXT_KEY_[A-Z0-9_]+")
+# <!-- custom: Not after a letter, digit, "_" or ".": Python's self.TXT_KEY_DICT is an attribute, not a text key, yet it was counted as an undefined one (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+TOKEN_RE = re.compile(r"(?<![\w.])TXT_KEY_[A-Z0-9_]+")
 DYNAMIC_PREFIXES = ("TXT_KEY_BUG_OPT_", "TXT_KEY_BUG_OPTLABEL_")
 INHERITED_REFERENCE_KEYS = {
 	# Confirmed in inherited BTS/vanilla Python or XML; the GitHub checkout contains the mod only.
@@ -88,7 +89,11 @@ def collect_definitions(paths: list[Path]) -> set[str]:
 
 
 def collect_references(repo_root: Path) -> set[str]:
-	references: set[str] = set()
+	return set(collect_reference_files(repo_root))
+
+
+def collect_reference_files(repo_root: Path) -> dict[str, set[str]]:
+	references: dict[str, set[str]] = {}
 	seen: set[Path] = set()
 	for pattern in REFERENCE_GLOBS:
 		for path in repo_root.glob(pattern):
@@ -101,7 +106,8 @@ def collect_references(repo_root: Path) -> set[str]:
 				text = XML_COMMENT_RE.sub("", TAG_SPAN_RE.sub("", text))
 			else:
 				text = LINE_COMMENT_RE.sub("", CPP_BLOCK_COMMENT_RE.sub("", text))
-			references.update(TOKEN_RE.findall(text))
+			for key in TOKEN_RE.findall(text):
+				references.setdefault(key, set()).add(path.relative_to(repo_root).as_posix())
 	return references
 
 
@@ -137,12 +143,51 @@ def collect_missing_sas_pedia_references(repo_root: Path, sas_definitions: set[s
 
 
 def collect_missing_diplomacy_text(repo_root: Path) -> list[str]:
-	defined = set(read_manifest(MANIFEST))
+	# <!-- custom: Shares collect_all_text_definitions with the undefined-key check, so both read CHANGED_ tags and the loaded layers alike; it kept its own copy without the CHANGED_ rule until Codex's review. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	defined = collect_all_text_definitions(repo_root)
+	text = XML_COMMENT_RE.sub("", read_text(repo_root / DIPLOMACY_INFOS))
+	return sorted(set(DIPLOMACY_TEXT_RE.findall(text)) - defined)
+
+
+# <!-- custom: The opposite direction: every TXT_KEY that active mod XML, Config, Python, map scripts or C++ uses must be defined by mod GameText or by the BtS, Warlords or vanilla text, whatever the defining file's prefix; base AdvCiv's original files do not count, as SAS loads its own copies instead.
+# An undefined key is shown as the key itself: SAS split BtS's melee unit combat into polearm and shock, and the first Swordsman's congratulation popup read TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK, seen through SASPilot on 2026-11-13; translating such keys in game returned them unchanged.
+# A token ending in "_" is a prefix completed at run time, as BUG's option keys are. The EXE also reads a tag CHANGED_<key> as a definition of <key>: Warlords defines the Trireme's pedia text only as CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA, and the Sevopedia shows it.
+# Keys that base AdvCiv 1.14 already used without defining (Firaxis XML pointing at strategy, help and pedia texts it never wrote, BUG and BULL leftovers) are listed in UNDEFINED_INHERITED with the first file using each; a key there that becomes defined or unused fails, so the list stays a record of real gaps. See KI#1085. (Claude code Opus 5.5) -->
+UNDEFINED_INHERITED = Path(__file__).with_name("xml_text_undefined_inherited.tsv")
+UNDEFINED_INHERITED_HEADER = "tag	first_reference"
+
+
+def collect_all_text_definitions(repo_root: Path) -> set[str]:
+	defined = game_defined_tags(MANIFEST)
 	for path in repo_root.glob(ALL_TEXT_GLOB):
 		for block in TEXT_BLOCK_RE.findall(XML_COMMENT_RE.sub("", read_text(path))):
 			defined.update(ANY_TAG_DEF_RE.findall(block))
-	text = XML_COMMENT_RE.sub("", read_text(repo_root / DIPLOMACY_INFOS))
-	return sorted(set(DIPLOMACY_TEXT_RE.findall(text)) - defined)
+	defined |= {key[len("CHANGED_"):] for key in defined if key.startswith("CHANGED_")}
+	return defined
+
+
+def read_undefined_inherited() -> set[str]:
+	lines = UNDEFINED_INHERITED.read_text(encoding="utf-8").splitlines()
+	if not lines or lines[0] != UNDEFINED_INHERITED_HEADER:
+		raise RuntimeError(f"{UNDEFINED_INHERITED.name} must start with the header {UNDEFINED_INHERITED_HEADER!r}")
+	return {line.split("	", 1)[0] for line in lines[1:] if line.strip()}
+
+
+def collect_undefined_references(repo_root: Path) -> list[str]:
+	defined = collect_all_text_definitions(repo_root)
+	references = collect_reference_files(repo_root)
+	accepted = read_undefined_inherited()
+	failures = []
+	for key in sorted(references):
+		if key.endswith("_") or key in defined or key in accepted:
+			continue
+		failures.append(f"{key}: used by {', '.join(sorted(references[key])[:3])}, but neither mod GameText nor the inherited base AdvCiv/BtS/Warlords/vanilla text defines it, so the game shows the key itself")
+	for key in sorted(accepted):
+		if key in defined:
+			failures.append(f"{key}: listed in {UNDEFINED_INHERITED.name} as undefined, but text now defines it; remove it from the list")
+		elif key not in references:
+			failures.append(f"{key}: listed in {UNDEFINED_INHERITED.name} as undefined, but nothing uses it any more; remove it from the list")
+	return failures
 
 
 # <!-- custom: Accepted inherited keys go stale when SAS stops defining the key (for example after moving identical text back to base AdvCiv on 2026-11-04); fail so the lists stay a record of real exceptions. (Claude code Opus 5.5) -->
@@ -168,6 +213,7 @@ def check_sas_text_references(repo_root: Path) -> tuple[list[str], list[str], li
 	missing_pedia, inherited_pedia = collect_missing_sas_pedia_references(repo_root, definitions, all_mod_definitions)
 	missing_pedia += [f"{DIPLOMACY_INFOS} references {key}, but neither mod GameText nor the inherited base AdvCiv/BtS/Warlords/vanilla text defines it" for key in collect_missing_diplomacy_text(repo_root)]
 	missing_pedia += [f"{key}: listed as an accepted inherited reference, but no longer needed; remove it from the list" for key in collect_stale_accepted_keys(definitions, inherited_pedia)]
+	missing_pedia += collect_undefined_references(repo_root)
 	return unused, missing_pedia, inherited, inherited_pedia, exe_runtime, dynamic, len(definitions), len(targets)
 
 

@@ -17,16 +17,16 @@ LEGACY_IMAGES = "_0_Legacy/Images/"
 SAS_IMAGES = "_1_AdvCiv-SAS/Images/"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tga", ".dds", ".ico"}
 
+# <!-- custom: The two Images trees hold maintained screenshots and templates. Civ4 art
+# and resources use their runtime layout, and the FPK example preserves its extracted path. (GPT-6.1-Sol) -->
+IMAGE_DIRECTORIES = (LEGACY_IMAGES, SAS_IMAGES, "Assets/Art/", "Assets/Res/")
+IMAGE_FILE_EXCEPTIONS = {
+    "_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds",
+}
+
 
 def image_paths(paths):
-    result = []
-    for value in paths:
-        path = PurePosixPath(value)
-        if path.suffix.lower() not in IMAGE_SUFFIXES:
-            continue
-        if value.startswith((LEGACY_IMAGES, SAS_IMAGES)):
-            result.append(value)
-    return sorted(set(result))
+    return sorted({value for value in paths if PurePosixPath(value).suffix.lower() in IMAGE_SUFFIXES})
 
 
 # <!-- custom: The legacy tree is a subset of the SAS tree, so only legacy-to-SAS direction is checked: each _0_Legacy top-level folder (Docs, Images) and each _0_Legacy/Images subfolder (advisors, sevopedia, ...) must also exist in the SAS tree.
@@ -55,6 +55,10 @@ def filename_errors(paths):
     errors = mirror_errors(paths)
     by_name = defaultdict(list)
     for value in images:
+        if not value.startswith(IMAGE_DIRECTORIES) and value not in IMAGE_FILE_EXCEPTIONS:
+            errors.append(f"{value}: image outside allowed locations. Put maintained images in {SAS_IMAGES}")
+        if not value.startswith((LEGACY_IMAGES, SAS_IMAGES)):
+            continue
         name = PurePosixPath(value).name
         by_name[name.casefold()].append(value)
         if value.startswith(LEGACY_IMAGES) and not name.startswith("0."):
@@ -74,7 +78,7 @@ def check(repo):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check maintained documentation image namespaces and basename uniqueness.")
+    parser = argparse.ArgumentParser(description="Check maintained image namespaces, basename uniqueness and allowed image locations.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     args = parser.parse_args()
     errors = check(args.repo_root)

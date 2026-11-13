@@ -31,6 +31,12 @@ DEV_DIAGNOSTICS = {
     "SAS_RUNTIME_SOURCE_WATCH_ON": (0, 1),
     # <!-- custom: Not a diagnostic but the same kind of local switch: skip the Dawn of Man screen during development and agent runs; players keep it. (Claude Code Opus 5.5) -->
     "SAS_UI_DAWN_OF_MAN_ON": (1, 0),
+    # <!-- custom: The same for the screens that only inform, one switch each, added after a traded tech's splash held up a pilot game (2026-11-13). (Claude code Opus 5.5) -->
+    "SAS_UI_TECH_SPLASH_ON": (1, 0),
+    "SAS_UI_ERA_MOVIE_ON": (1, 0),
+    "SAS_UI_WONDER_MOVIE_ON": (1, 0),
+    "SAS_UI_RELIGION_MOVIE_ON": (1, 0),
+    "SAS_UI_PROJECT_MOVIE_ON": (1, 0),
 }
 
 

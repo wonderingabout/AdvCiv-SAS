@@ -112,6 +112,10 @@ Start it from PowerShell or `cmd`, not Git Bash, whose `PATH` puts Unix tools fi
 
 - On 2026-11-11 an agent launched the same batch file from Git Bash. The Makefile's provenance step, `DIR /S /B ... | FIND /C /V ""`, then ran Git's `find` instead of Windows `FIND`, which scanned the whole C: drive while the build waited.
 - In PowerShell, `find.exe` resolves to `C:\Windows\System32\find.exe`, so the build was stopped, `temp_files/Release` cleaned, and the build started again from there; it succeeded in 112 seconds with no warnings.
+- On 2026-11-13 a Claude Code Opus 5.5 agent repeated it, although this section and its own memory notes held the rule: it started the build through `cmd.exe` from Git Bash, assuming `cmd.exe` was enough, but `cmd.exe` inherits Git Bash's `PATH`. The report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines.
+  - A rule that agents must remember had failed twice in three days, so the Makefile now calls `%SystemRoot%\System32\find.exe` by its path, and [`makefile_windows_tools.py`](/.github/workflows/README.md#buildrepositorymakefile_windows_toolspy) fails on a bare call to any tool both Windows and Git ship. The provenance line then counted 3 test objects correctly in a `cmd.exe` whose `PATH` began with Git's `find`.
+  - [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy) also takes Git's folders off `PATH` and sets up `vcvars32.bat`, so a terminal build from any shell is one command: `python LLM_Helpers/dll_builds/build_dll.py build`.
+  - Starting from PowerShell remains the plain way; the Makefile fix only means a mistake there no longer stalls the build. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 
 ### Example build output
 
@@ -184,6 +188,14 @@ The useful debugger commands are compact:
 - `.frame N; dv /t` selects a stack frame and shows its typed locals. Debug-opt is optimized, so treat surprising local values as leads rather than authoritative state.
 - `dt TypeName address` inspects a typed object, `dd address` displays raw memory and `u FunctionName` disassembles a function when the ordinary stack is insufficient.
 - `.reload /f CvGameCoreDLL.dll` forces symbol reloading after correcting the symbol path.
+
+At Civ4's "Program Execution Problem" prompt, always choose **Full Dump** (the user's rule, 2026-11-13). A normal dump holds the stack and registers but not the heap, so the objects a crash points at cannot be read.
+
+- On 2026-11-13 an agent chose Normal Dump for a crash in `FFreeListTrashArray<CvPlotGroup>::removeAll` ([KI#1088](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)): the 22 MB dump gave the stack and the bad pointer, but not the plot-group list or the player it belonged to.
+- The prompt's buttons in its 524 x 455 window: Normal Dump at about (90, 416), Full Dump at (258, 416), No Dump at (430, 416). `desktop_windows.py screenshot --pid` captures the prompt itself while it is up, and `click --pid` aims inside it.
+- A full dump of a Small game took about a dozen seconds and 1.38 GB, written to `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`; the process stays alive a little after. Check the file size once or twice rather than waiting in a long loop: a loop that started PowerShell on each pass and piped through `tail` showed nothing for minutes on 2026-11-13.
+- [`desktop_windows.py dump --pid <pid>`](/LLM_Helpers/README.md#desktop_windowspy) does both steps: it presses Full Dump by its label, with no coordinates or focus, and returns once the file differs from before the press and its writer has let go of it (it opens without shared writing). Added after KI#1088's dump took three tries; it has not yet met a real crash prompt. Every Civ4 writes the same file name, so it checks the process ID the dump records (its MiscInfo stream; read correctly from both KI#1088 dumps) and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` while still holding the original, so another client's crash cannot replace it in between ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)).
+- Keep each valuable dump with its matching DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/<date>_<what>/`, outside the repository, and write that path in its KI so a grep finds it.
 
 `Civ4BeyondSword.exe.dmp` is replaced by a later crash, so preserve a valuable dump before reproducing another one. The dump, installed DLL and PDB must all belong to the same build; source-line information from a different build is not reliable.
 

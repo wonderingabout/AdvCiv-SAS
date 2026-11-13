@@ -17,6 +17,7 @@ import Popup as PyPopup
 from SASUtils import findInfoTypeNumOrFail
 import SASFastSave
 import SASAutoplayRequest # <!-- custom: Starts autoplay requested by an [SASAutoplay] section in an ini= launch file, for unattended runs. (Claude Code Opus 5.5) -->
+import SASPilot # <!-- custom: Serves an external agent's command-line requests when the pilot is switched on. (Claude code Fable 5.2) -->
 
 import ChangePlayer
 import time # Erik (BM1)
@@ -78,6 +79,11 @@ class AIAutoPlay :
 		self.customEM.addEventHandler( 'OnLoad', SASAutoplayRequest.onLoadGame )
 		self.customEM.addEventHandler( 'GameStart', SASAutoplayRequest.onGameStart )
 		self.customEM.addEventHandler( 'gameUpdate', SASAutoplayRequest.onGameUpdate )
+		# <!-- custom: SASPilot's mailbox is served on game updates, and on per-frame updates when those are enabled. (Claude code Fable 5.2) -->
+		self.customEM.addEventHandler( 'gameUpdate', SASPilot.onGameUpdate )
+		self.customEM.addEventHandler( 'Update', SASPilot.onUpdate )
+		# <!-- custom: SASPilot counts loads so its client can tell a newly loaded game from the one before. (Claude code Opus 5.5) -->
+		self.customEM.addEventHandler( 'OnLoad', SASPilot.onLoad )
 
 		self.customEM.setPopupHandler( 7050, ["toAIChooserPopup",self.AIChooserHandler,self.blankHandler] )
 		self.customEM.setPopupHandler( 7052, ["pickHumanPopup",self.pickHumanHandler,self.blankHandler] )

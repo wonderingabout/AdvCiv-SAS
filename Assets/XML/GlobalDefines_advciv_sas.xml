@@ -2740,11 +2740,45 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: 1 lets an external agent read and drive this game from the command line: SASPilot.py then serves JSON requests from the folder SASPilot/<process ID> beside CivilizationIV.ini, including arbitrary Python run inside the game.
+	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how LLM_Helpers/game_runs/pilot.py starts its games.
+	Read once, on the first game update. (Claude code Fable 5.2) -->
+	<Define>
+		<DefineName>SAS_PILOT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: 1 shows the Dawn of Man screen at a game's start, as in base AdvCiv; 0 skips it, for hands-free runs and agents that start many games.
 	Autoplay already passes it, but a game started or loaded for a quick look still waited on its Continue button.
 	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude Code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_DAWN_OF_MAN_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 shows the tech splash when a tech is acquired, as in base AdvCiv; 0 skips it. The event log still says "You have discovered ...".
+	At turn 148 of a pilot playthrough (2026-11-13), a tech bought from an AI put its splash on display at once and the window waited on its Continue button; agents and unattended runs only click through these screens.
+	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_TECH_SPLASH_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 plays the movie shown when a player enters a new era, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_ERA_MOVIE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 plays a wonder's movie when the player completes it, as in base AdvCiv; 0 skips it. Each kind of movie has its own switch, so a player can keep some. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_WONDER_MOVIE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 plays the movie shown when the player founds a religion, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_RELIGION_MOVIE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 plays a project's movie when the player completes it, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_PROJECT_MOVIE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 

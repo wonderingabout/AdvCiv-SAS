@@ -1097,6 +1097,15 @@ public:
 	DllExport const CvPopupQueue& getPopups() const;
 	// <advc.004x>
 	void killAll(ButtonPopupTypes ePopupType, int iData1 = -1);
+	// <!-- custom: SASPilot drops or answers this player's popups without the window; see the definitions. (Claude code Fable 5.2) -->
+	void closeSASPilotPopups(ButtonPopupTypes ePopupType, int iData1);
+	// <!-- custom: Moves holdable popups from this player's queue into the pilot's held list. (Claude code Opus 5.5) -->
+	void takeSASPilotQueuedPopups();
+	bool dropSASPilotPopup(int iHeldId, ButtonPopupTypes ePopupType, int iData1, int iData3, CvWString const& szText); // <!-- custom: Drops one notice exactly; see the definition. (Claude code Opus 5.5) -->
+	// <!-- custom: Takes the held popup's ID from getSASPilotPopups, which was a list position before Codex's review. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	bool answerSASPilotPopup(int iHeldId, int iButton, CvWString const& szEditBox);
+	// <!-- custom: SASPilot's 'propose' asks this AI player to weigh an offer through the EXE's own entry, AI_considerOfferExternal, so SASGameRecord records it as a person's offer; that wrapper is private, and the first build failed with C2248 calling it from CvGameInterface.cpp. Non-virtual, so the class layout the EXE relies on is unchanged. (Claude code Opus 5.5) -->
+	bool considerSASPilotOffer(PlayerTypes ePlayer, CLinkList<TradeData>& kTheirList, CLinkList<TradeData>& kOurList) { return AI_considerOfferExternal(ePlayer, &kTheirList, &kOurList, 1); }
 	void playButtonPopupSound(LPCTSTR pszSound) const;
 	void reportButtonPopupLaunched();
 	// </advc.004x>

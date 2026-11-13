@@ -43,11 +43,20 @@ def codex_message_text(item, omit_agents=False):
     return "\n\n".join(parts)
 
 
+def open_codex_log(source):
+    # <!-- custom: Codex compresses older logs to rollout-*.jsonl.zst; the January 2026 History tab sessions were only readable that way (2026-11-13). zstandard is a pip package, imported only for such a file. (Claude Code Opus 5.5) -->
+    if source.suffix == ".zst":
+        import io
+        import zstandard
+        return io.BufferedReader(zstandard.ZstdDecompressor().stream_reader(source.open("rb"), closefd=True))
+    return source.open("rb")
+
+
 def codex_messages(source, steps=False):
     # <!-- custom: Read original conversation messages instead of compaction snapshots, which can repeat older turns. (GPT-6.1-Sol) -->
     # <!-- custom: steps also yields the commands Codex ran and the start of their output, which its app folds under "Worked for".
     # On 2026-11-11 they showed how a review reproduced its findings with a Python harness; unfolding them in the app took clicks that brought its window forward. (Claude Code Opus 5.5) -->
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for number, line in enumerate(stream, 1):
             try:
                 record = json.loads(line)
@@ -86,7 +95,7 @@ def codex_turns(source):
     # <!-- custom: Lists each turn's duration, step count and opening user words, to find long turns worth reading in full. (Claude Code Opus 5.5) -->
     started, steps, first_words, turns = {}, {}, {}, []
     current = None
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for line in stream:
             record = json.loads(line)
             item = record.get("payload", {})
@@ -188,7 +197,7 @@ def codex_markdown(source, steps=False):
     # This writes it from the log instead: the user's message quoted, a details block with Codex's progress notes and grouped commands, then its final answer, plus each turn's working time, which the copy lacks. (Claude Code Opus 5.5) -->
     out = ["# " + codex_title(source), ""]
     turn = None
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for line in stream:
             record = json.loads(line)
             item = record.get("payload", {})

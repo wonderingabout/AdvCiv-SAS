@@ -5,6 +5,10 @@
 
 	Copyright (c) 2008 The BUG Mod.
 -->
+<!--
+	AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+	(c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+-->
 <!-- custom: add new unit combat types or modify existing ones -->
 <mod id="UnitNaming" 
 	 name="Unit Naming" 
@@ -41,7 +45,10 @@
 					type="string" default="DEFAULT"/>
 			<option id="Combat_HELICOPTER" key="CombatHELICOPTER" 
 					type="string" default="DEFAULT"/>
-			<option id="Combat_MELEE" key="CombatMELEE" 
+			<!-- custom: Was Combat_MELEE. SAS split UNITCOMBAT_MELEE into MELEE_POLEARM and MELEE_SHOCK without options for them, so with Unit Naming on, every Spearman or Swordsman raised "Option UnitNaming__Combat_MELEE_SHOCK not found", reproduced through SASPilot on 2026-11-13. See KI#1087. (Claude code Opus 5.5) -->
+			<option id="Combat_MELEE_POLEARM" key="CombatMELEEPOLEARM"
+					type="string" default="DEFAULT"/>
+			<option id="Combat_MELEE_SHOCK" key="CombatMELEESHOCK"
 					type="string" default="DEFAULT"/>
 			<option id="Combat_MOUNTED_MELEE" key="CombatMOUNTEDMELEE" 
 					type="string" default="DEFAULT"/>

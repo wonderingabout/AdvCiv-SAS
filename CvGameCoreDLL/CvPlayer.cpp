@@ -26,6 +26,8 @@
 #include "SASGameRecordLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "RiseFall.h" // advc.708: Needed only for savegame compatibility
 #include "SelfMod.h" // advc.092b
+#include "CvDLLButtonPopup.h" // <!-- custom: closeSASPilotPopups and answerSASPilotPopup use the held-popup list and call the response handler OnOkClicked directly. (Claude code Fable 5.2) -->
+#include "CvPopupReturn.h" // <!-- custom: answerSASPilotPopup builds the PopupReturn that handler reads; a forward declaration cannot construct one. (Claude code Fable 5.2) -->
 
 namespace
 {
@@ -15619,7 +15621,12 @@ void CvPlayer::write(FDataStreamBase* pStream)
 			currentPopups.clear();
 			clearPopups();
 		} // </advc.001>
-		CvPopupQueue::_Alloc::size_type iSize = m_listPopups.size() + currentPopups.size();
+		// <!-- custom: The pilot's held popups are this player's unanswered choices, but they live outside the queue, so a save lost them; Codex's review found that listing moved queued ones there too.
+		// They are written with the queue, so a load puts them back in it and the pilot holds them again. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		int iSASPilotHeld = 0;
+		if (isActive() && isHuman() && !GC.getGame().isNetworkMultiPlayer())
+			iSASPilotHeld = getNumSASPilotHeldPopups();
+		CvPopupQueue::_Alloc::size_type iSize = m_listPopups.size() + currentPopups.size() + iSASPilotHeld;
 		pStream->Write(iSize);
 		CvPopupQueue::iterator it;
 		for (it = currentPopups.begin(); it != currentPopups.end(); ++it)
@@ -15628,6 +15635,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
 			if (pInfo != NULL)
 				pInfo->write(*pStream);
 		}
+		for (int i = 0; i < iSASPilotHeld; i++)
+			getSASPilotHeldPopup(i).write(*pStream);
 		for (it = m_listPopups.begin(); it != m_listPopups.end(); ++it)
 		{
 			CvPopupInfo* pInfo = *it;
@@ -21167,6 +21176,118 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
 	/*	Note: The EXE will fetch the CvPopupInfo in m_listPopups,
 		create CvPopup objects (which the DLL can't do) and
 		launch them through CvDLLButtonPopup::launchButtonPopup. */
+}
+
+// <!-- custom: Drops this player's unanswered popups for SASPilot: the held ones of a type (NO_BUTTONPOPUP: any) and data1 (-1: any), and the queued ones through advc.004x's killAll or, for all types, the DLL's own queue and the EXE's.
+// A popup already on display stays; see launchButtonPopup for what was tried. Dropping a choice does not make it.
+// Same limits as killAll: the active human player, not in network games. (Claude code Fable 5.2) -->
+// <!-- custom: With AdvCiv's Minimize Pop-Ups, the EXE leaves popups in this queue until every unit has moved, so at turn 304 of a Huge game with 150 units a civics popup sat there for turns, out of reach of 'answer' (2026-11-13).
+// The pilot drives without moving every unit, so it takes the popups it holds out of the queue itself, before listing or answering them; others, such as Python screens, stay for the EXE. (Claude code Opus 5.5) -->
+void CvPlayer::takeSASPilotQueuedPopups()
+{
+	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
+		return;
+	// <!-- custom: killAll puts relaunched popups at the front and counts them to keep their sound quiet; one taken here never launches, so it is counted as launched, or a later popup would lose its sound (Codex's review).
+	// Only a popup taken from that counted front run lowers the count: counting every taken popup let a popup the pilot leaves at the front, such as a Python screen, replay its sound (Codex's next review). (Claude code Opus 5.5 + Fable 5.2 + GPT-6.1-Sol) -->
+	int iRelaunchingLeft = m_iButtonPopupsRelaunching;
+	int iPos = 0;
+	CvPopupQueue::iterator it = m_listPopups.begin();
+	while (it != m_listPopups.end())
+	{
+		CvPopupInfo* pInfo = *it;
+		if (isSASPilotPopupHoldable(pInfo->getButtonPopupType()))
+		{
+			holdSASPilotPopup(*pInfo);
+			SAFE_DELETE(pInfo);
+			it = m_listPopups.erase(it);
+			if (iPos < iRelaunchingLeft)
+			{
+				reportButtonPopupLaunched();
+				iRelaunchingLeft--;
+			}
+		}
+		else
+		{
+			++it;
+			iPos++;
+		}
+	}
+}
+
+// <!-- custom: Drops one popup that only informs, for SASPilot's notices: the held one with iHeldId, or with -1 the first queued one of exactly this type, data1, data3 and text. Codex's review found that dropping notices through closeSASPilotPopups also ran killAll, which recalls and relaunches the popups on display, and that a negative data1 there means any; this touches nothing else. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+bool CvPlayer::dropSASPilotPopup(int iHeldId, ButtonPopupTypes ePopupType, int iData1, int iData3, CvWString const& szText)
+{
+	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
+		return false;
+	if (iHeldId >= 0)
+	{
+		int const iHeldIndex = findSASPilotHeldPopup(iHeldId);
+		if (iHeldIndex < 0)
+			return false;
+		removeSASPilotHeldPopup(iHeldIndex);
+		return true;
+	}
+	int iPos = 0;
+	for (CvPopupQueue::iterator it = m_listPopups.begin(); it != m_listPopups.end(); ++it)
+	{
+		CvPopupInfo* pInfo = *it;
+		if (pInfo->getButtonPopupType() == ePopupType && pInfo->getData1() == iData1 && pInfo->getData3() == iData3 && szText == pInfo->getText())
+		{
+			// <!-- custom: A popup dropped from killAll's counted front run of relaunched popups never launches, so count it as launched, as takeSASPilotQueuedPopups does, or the next popup would launch without its sound (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			if (iPos < m_iButtonPopupsRelaunching)
+				reportButtonPopupLaunched();
+			SAFE_DELETE(pInfo);
+			m_listPopups.erase(it);
+			return true;
+		}
+		iPos++;
+	}
+	return false;
+}
+
+void CvPlayer::closeSASPilotPopups(ButtonPopupTypes ePopupType, int iData1)
+{
+	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
+		return;
+	for (int i = getNumSASPilotHeldPopups() - 1; i >= 0; i--)
+	{
+		CvPopupInfo const& kHeld = getSASPilotHeldPopup(i);
+		if ((ePopupType == NO_BUTTONPOPUP || kHeld.getButtonPopupType() == ePopupType) && (iData1 < 0 || kHeld.getData1() == iData1))
+			removeSASPilotHeldPopup(i);
+	}
+	if (ePopupType != NO_BUTTONPOPUP)
+	{
+		killAll(ePopupType, iData1);
+		return;
+	}
+	clearPopups();
+	gDLL->UI().clearQueuedPopups();
+}
+
+// <!-- custom: Answers the held popup at iHeldIndex as if its button iButton had been clicked, with szEditBox as its edit box text, and removes it from the held list.
+// The handler gets a copy of the info, as answering can add or drop held popups, and no CvPopup, as none was launched; OnOkClicked passes that pointer only to Runtime status, which ignores NULL.
+// Returns false when there is no such held popup. (Claude code Fable 5.2) -->
+// <!-- custom: Answers by ID and prunes first, so a popup settled since it was listed is refused rather than answered. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+bool CvPlayer::answerSASPilotPopup(int iHeldId, int iButton, CvWString const& szEditBox)
+{
+	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
+		return false;
+	takeSASPilotQueuedPopups();
+	pruneSASPilotHeldPopups();
+	int const iHeldIndex = findSASPilotHeldPopup(iHeldId);
+	if (iHeldIndex < 0)
+		return false;
+	CvPopupInfo kInfo;
+	kInfo = getSASPilotHeldPopup(iHeldIndex);
+	// <!-- custom: Refused before the popup is taken, so a wrong button leaves the choice held. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	if (!isSASPilotPopupButtonOffered(kInfo, iButton))
+		return false;
+	removeSASPilotHeldPopup(iHeldIndex);
+	PopupReturn kReturn;
+	kReturn.setButtonClicked(iButton);
+	kReturn.setEditBoxString(szEditBox);
+	CvDLLButtonPopup::getInstance().OnOkClicked(NULL, &kReturn, kInfo);
+	return true;
 }
 
 /*	Wrapper for CvDLLInterfaceIFaceBase::playGeneralSound that suppresses

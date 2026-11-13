@@ -702,29 +702,30 @@ int CyUnit::baseCombatStr()
 	return m_pUnit ? m_pUnit->baseCombatStr() : -1;
 }
 
+// <!-- custom: Vanilla Civ IV dereferenced pPlot and pAttacker here and in the four wrappers below, while CvUnit takes NULL for both (an attacker's own strength is currCombatStr(NULL, NULL)); from Python, unit.currCombatStrFloat(None, None) raised "unidentifiable C++ exception" when SASPilot's 'odds' asked for the attacker's strength (2026-11-13). Pass NULL through. See KI#1091. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 int CyUnit::maxCombatStr(CyPlot* pPlot, CyUnit* pAttacker)
 {
-	return m_pUnit ? m_pUnit->maxCombatStr(pPlot->getPlot(), pAttacker->getUnit()) : -1;
+	return m_pUnit ? m_pUnit->maxCombatStr(pPlot == NULL ? NULL : pPlot->getPlot(), pAttacker == NULL ? NULL : pAttacker->getUnit()) : -1;
 }
 
 int CyUnit::currCombatStr(CyPlot* pPlot, CyUnit* pAttacker)
 {
-	return m_pUnit ? m_pUnit->currCombatStr(pPlot->getPlot(), pAttacker->getUnit()) : -1;
+	return m_pUnit ? m_pUnit->currCombatStr(pPlot == NULL ? NULL : pPlot->getPlot(), pAttacker == NULL ? NULL : pAttacker->getUnit()) : -1;
 }
 
 int CyUnit::currFirepower(CyPlot* pPlot, CyUnit* pAttacker)
 {
-	return m_pUnit ? m_pUnit->currFirepower(pPlot->getPlot(), pAttacker->getUnit()) : -1;
+	return m_pUnit ? m_pUnit->currFirepower(pPlot == NULL ? NULL : pPlot->getPlot(), pAttacker == NULL ? NULL : pAttacker->getUnit()) : -1;
 }
 
 float CyUnit::maxCombatStrFloat(CyPlot* pPlot, CyUnit* pAttacker)
 {
-	return m_pUnit ? m_pUnit->maxCombatStrFloat(pPlot->getPlot(), pAttacker->getUnit()) : 0.0f;
+	return m_pUnit ? m_pUnit->maxCombatStrFloat(pPlot == NULL ? NULL : pPlot->getPlot(), pAttacker == NULL ? NULL : pAttacker->getUnit()) : 0.0f;
 }
 
 float CyUnit::currCombatStrFloat(CyPlot* pPlot, CyUnit* pAttacker)
 {
-	return m_pUnit ? m_pUnit->currCombatStrFloat(pPlot->getPlot(), pAttacker->getUnit()) : 0.0f;
+	return m_pUnit ? m_pUnit->currCombatStrFloat(pPlot == NULL ? NULL : pPlot->getPlot(), pAttacker == NULL ? NULL : pAttacker->getUnit()) : 0.0f;
 }
 
 bool CyUnit::canFight()

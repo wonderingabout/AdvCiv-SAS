@@ -32,10 +32,11 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
+| `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the six groups below |
-| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; [`pilot.py`](#pilotpy-and-saspilotcommandspy) reads and drives a running game as JSON, without the UI, and `pilot_replay.py` replays its commands against a save to catch changed answers |
 | `game_runs/`: driving windows | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
@@ -134,8 +135,12 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
   - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
     - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
+- [`dll_builds/`](#dll_builds)
+  - [`build_dll.py`](#build_dllpy)
 - [`exe_analysis/`](#exe_analysis)
 - [`formatting/`](#formatting)
+  - [UI-map JSON formatting](#ui-map-json-formatting)
+    - [`format_ui_map_json.py`](#format_ui_map_jsonpy)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
   - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
@@ -147,6 +152,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`collapse_flat_literals.py`](#collapse_flat_literalspy)
     - [`wrap_python2_prints_for_linting.py`](#wrap_python2_prints_for_lintingpy)
     - [`collapse_multiline_brackets.py`](#collapse_multiline_bracketspy)
+    - [`apply_replacements.py`](#apply_replacementspy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
@@ -179,6 +185,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`contact_sheet.py`](#contact_sheetpy)
     - [`map_preview_dds.py`](#map_preview_ddspy)
     - [`simple_game_scripts.py`](#simple_game_scriptspy)
+    - [`pilot.py` and `SASPilotCommands.py`](#pilotpy-and-saspilotcommandspy)
     - [`start_game.py`](#start_gamepy)
     - [`map_sevopedia.py`](#map_sevopediapy)
     - [`sound_check.py`](#sound_checkpy)
@@ -695,6 +702,7 @@ Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message bou
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
   - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
   - `--steps` includes tool calls and short output excerpts in the plain-text export. With `--markdown`, it adds output excerpts to the command summaries already present. For example, the output of the Python harness used in the 2026-11-11 peer review shows which suspected bugs reproduced.
+  - Older logs are compressed as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded; to find a session, search the decompressed logs by date folder (`sessions/<y>/<m>/<d>/`).
   - `--longest N` lists the N longest turns with their duration, step count and opening words, to find a turn worth reading in full.
   - `--markdown` reconstructs a readable layout from the session log, with the prompt, collapsible progress notes and command summaries, the reply, and the turn duration. It uses the title from `~/.codex/session_index.jsonl` when available. The app's **Copy as Markdown** uses similar formatting, and grouping can differ.
     - On 2026-11-11 it wrote a 161,000-line chat in about 2 seconds, while the app's copy of that chat had copied nothing for several tries.
@@ -753,6 +761,12 @@ python ./LLM_Helpers/chat_exports/claude_session_export_to_txt.py "C:/Users/PC/D
 ```
 
 - The transcript ends where the log was read; convert again for later messages.
+- `--list [N]` lists the N most recent session logs (default 10) with their last write time, size, model and opening words, instead of exporting.
+  - Log filenames are only session IDs and the newest log is usually the asking session itself, so "the last Fable chat" or "the last Opus chat" (2026-11-13) could not be picked without grepping each log's `"model"` field by hand.
+
+```bash
+python ./LLM_Helpers/chat_exports/claude_session_export_to_txt.py --list 5
+```
 
 ## `code_history/`
 
@@ -998,11 +1012,43 @@ python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py off
 
 - Added with help of Claude code Opus 5.5.
 
+## `dll_builds/`
+
+### `build_dll.py`
+
+Builds the DLL through [`build_with_report.ps1`](/CvGameCoreDLL/Project/build_with_report.ps1), or checks C++ files with VC2003's `cl.exe /Zs`, with the Visual C++ 2010 environment from `vcvars32.bat` set up first. It works from Git Bash too: the build runs under `cmd.exe`, with Git's folders taken off `PATH` and `System32` first.
+
+```bash
+python LLM_Helpers/dll_builds/build_dll.py syntax CvGameInterface.cpp CyGame.cpp
+```
+
+```bash
+python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
+```
+
+- `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
+- `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
+- Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
+- The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited. The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
+
 ## `exe_analysis/`
 
 See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) and the corresponding [disclaimer](/LICENSE.md#the-games-executable).
 
 ## `formatting/`
+
+### UI-map JSON formatting
+
+#### `format_ui_map_json.py`
+
+[`format_ui_map_json.py`](/LLM_Helpers/formatting/format_ui_map_json.py) gives each named entry a line while keeping integer arrays such as click points and crop rectangles together. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
+
+```powershell
+python LLM_Helpers/formatting/format_ui_map_json.py LLM_Helpers/game_runs/ui_maps/app_layouts.json --section usage
+```
+
+This prints a preview. Add `--in-place` to save it. Regenerate `civ4_ui_map.json` and `civ4_sevopedia_map.json` with their own scripts so the generated maps keep their respective layouts.
 
 ### Source blank-line cleanup
 
@@ -1278,6 +1324,18 @@ Example:
 
 ```powershell
 python LLM_Helpers\formatting\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+```
+
+#### `apply_replacements.py`
+
+Applies exact text replacements to one file from a patch file, for edits too many or too long to make one by one.
+
+- The patch file holds blocks of `<<<<<<< OLD`, the text to find, `=======`, the text to put, and `>>>>>>> NEW`, each marker on its own line. Every old text must occur exactly once, or `--count` times; otherwise nothing is written and every failing block is listed.
+- Keeps the file's CRLF or LF and its encoding (`--encoding cp1252` for legacy sources); `--dry-run` only checks.
+- Why it exists: on 2026-11-13 two agents patching SASPilot wrote this script about ten times in their scratchpads. Passing the texts through a shell kept failing: heredocs mangled backslashes and regex escapes, an apostrophe ended a quoted block, and `sed` left mixed line endings. Write the patch file with the agent's file-writing tool, which involves no shell quoting.
+
+```bash
+python ./LLM_Helpers/formatting/apply_replacements.py CvGameCoreDLL/CvPlayer.cpp patch.txt --dry-run
 ```
 
 #### `fix_line_endings.py`
@@ -1752,6 +1810,7 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 
 - `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
+  - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
   - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
   - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
 - `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
@@ -1941,6 +2000,22 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
 - `map_preview_dds.py`, `ui_maps/make_civ4_ui_map.py` and the CI check [`map_previews.py`](/.github/workflows/README.md#buildassetsmap_previewspy) all use it, so they cannot disagree.
   - It sits here rather than in the CI check, where it began, because GitHub ZIP downloads leave out `.github/` but keep `LLM_Helpers/`: loading it from `.github/` made both helpers fail at startup from a ZIP, as Codex found on 2026-11-12. See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
 
+#### `pilot.py` and `SASPilotCommands.py`
+
+- `pilot.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
+- `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
+  - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/game_runs/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
+- The pilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `pilot.py start` writes.
+- Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md).
+- Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
+- `pilot_replay.py` replays a sequence from [`pilot_sequences/`](/LLM_Helpers/game_runs/pilot_sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#replaying-commands).
+  - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
+- [`pilot_checks/`](/LLM_Helpers/game_runs/pilot_checks/) holds snippets run inside the game with `pilot.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
+
+```bash
+python LLM_Helpers/game_runs/pilot_replay.py LLM_Helpers/game_runs/pilot_sequences/fogplay_t115_core.json
+```
+
 #### `start_game.py`
 
 - Starts a QuickStart game at turn 0 with `--map`, `--world-size` and any `--option GAMEOPTION_...`, through a per-run copy of `CivilizationIV.ini` with no autoplay request, and leaves it open for the other tools to drive with `--pid`. The user's INI and Custom Game choices are not changed.
@@ -1957,7 +2032,7 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
 #### `map_sevopedia.py`
 
 - Clicks each Sevopedia category in a running Civ4 and records where its page's panels and EXPAND buttons are, in [`civ4_sevopedia_map.json`](/LLM_Helpers/game_runs/ui_maps/civ4_sevopedia_map.json), so an agent can click into a page without first reading a full screenshot.
-  - Panels are found by their greyish-purple fill against the brownish parchment, and EXPAND buttons by matching [`civ4_expand_button.png`](/LLM_Helpers/game_runs/ui_maps/civ4_expand_button.png). A panel mostly covered by pictures can be missed.
+  - Panels are found by their greyish-purple fill against the brownish parchment, and EXPAND buttons by matching [`civ4_expand_button.png`](/_1_AdvCiv-SAS/Images/sevopedia/civ4_expand_button.png). A panel mostly covered by pictures can be missed.
   - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
 - It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
 - The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.

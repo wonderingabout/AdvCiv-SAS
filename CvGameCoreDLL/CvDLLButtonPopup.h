@@ -7,6 +7,23 @@ class CvPopup;
 class PopupReturn;
 class CvPopupInfo;
 
+// <!-- custom: SASPilot drives the game without the window, where a launched popup stays until someone clicks it, so launchButtonPopup can hold popups back instead; see the definitions.
+// Free functions, so the class the EXE calls through its virtual table is untouched. (Claude code Fable 5.2) -->
+void setSASPilotPopupsHeld(bool bHeld);
+bool isSASPilotPopupsHeld();
+int getNumSASPilotHeldPopups();
+CvPopupInfo const& getSASPilotHeldPopup(int iIndex);
+void removeSASPilotHeldPopup(int iIndex);
+int getSASPilotHeldPopupId(int iIndex);
+int findSASPilotHeldPopup(int iId);
+void clearSASPilotHeldPopups();
+bool isSASPilotPopupHoldable(ButtonPopupTypes eType);
+void holdSASPilotPopup(CvPopupInfo const& kInfo);
+void pruneSASPilotHeldPopups();
+// <!-- custom: The buttons a held popup can be answered with, for the pilot to list and for answerSASPilotPopup to check. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+std::string getSASPilotPopupButtons(CvPopupInfo const& kInfo);
+bool isSASPilotPopupButtonOffered(CvPopupInfo const& kInfo, int iButton);
+
 class CvDLLButtonPopup
 {
 public:

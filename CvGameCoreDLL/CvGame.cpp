@@ -32,6 +32,7 @@
 #include "CvGameCoreUtils.h" // <!-- custom: Save-checkpoint provenance reuses the shared UTC formatter so serialized checkpoint identity and diagnostics use the same stable timestamp syntax. (ChatGPT-5.6-Sol) -->
 #include "ModName.h" // <!-- custom: Persist the cached runtime version/SHA identity into each game's source-transition history. (ChatGPT-5.6-Sol) -->
 #include "CvBugOptions.h" // K-Mod
+#include "CvDLLButtonPopup.h" // <!-- custom: reset clears the pilot's held popups. (Claude code Opus 5.5) -->
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
 	(Won't matter so long as CvGame is a singleton class.) */
@@ -726,6 +727,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("GAME_RESET");
 		else if (isSASBBAILogEnabled()) flushSASDiagnosticLogs(true);
 	}
+	clearSASPilotHeldPopups(); // <!-- custom: The pilot's held popups belong to the game being replaced, on a load or a new game. (Claude code Opus 5.5) -->
 	uninit();
 
 	m_bAllGameDataRead = false; // advc;

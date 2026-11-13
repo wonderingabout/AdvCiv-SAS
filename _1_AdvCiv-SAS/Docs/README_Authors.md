@@ -145,7 +145,7 @@ I made a YouTube demo to show how it works and how impressive and useful Codex c
 
 The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
 
-<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="/_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_demo_ireland_gpt_5_3_codex.png" alt="youtube_demo_ireland_gpt_5_3_codex.png" width="640"></a>
 
 #### add and use LLM_Helpers for speeds calibration and autotuning
 

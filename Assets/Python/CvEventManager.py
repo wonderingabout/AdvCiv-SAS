@@ -824,7 +824,10 @@ class CvEventManager:
 	def onCityBuilt(self, argsList):
 		'City Built'
 		city = argsList[0]
-		if (city.getOwner() == gc.getGame().getActivePlayer()):
+		# <!-- custom: The name-your-city prompt is a Python popup, which the DLL can neither list nor close, so it stayed in the window for a whole piloted game and held back every later popup; skip it while SASPilot drives.
+		# Imported here, at use, so this module's load order is unchanged. (Claude code Fable 5.2) -->
+		import SASPilot
+		if (city.getOwner() == gc.getGame().getActivePlayer() and not SASPilot.isEnabled()):
 			self.__eventEditCityNameBegin(city, False)
 		# <advc.007>
 		if (not self.__LOG_CITYBUILT):

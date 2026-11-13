@@ -1,0 +1,13 @@
+{
+ "about": "Turn 148 of the 2026-11-13 fog-on playthrough, before Navigation was bought. Opens Pacal's trade table with his Navigation on it and asks 'What do you want for this?'. The pilot's first version left the screen's columns of tradeable items empty, and with nothing of ours to ask for Pacal gave Navigation away; with the columns filled he asks 65 gold, as through the window from the same save. Then checks that a read token from before the counter-offer is refused, leaves, and checks that no gold or tech changed hands.",
+ "save": "sas_pilot_fogplay_t148.CivBeyondSwordSave",
+ "steps": [
+  {"cmd": "contact", "args": {"with": 1, "take": ["TRADE_TECHNOLOGIES:TECH_NAVIGATION"]}},
+  {"cmd": "diplo", "sleep": 2, "ignore": ["screen", "aiText"]},
+  {"cmd": "reply", "args": {"n": 0}, "from": {"screen": "steps[1].result.screen"}, "ignore": ["screen", "aiText"]},
+  {"cmd": "diplo", "sleep": 1, "ignore": ["screen", "aiText"]},
+  {"cmd": "reply", "args": {"n": 0}, "from": {"screen": "steps[1].result.screen"}, "expectError": true},
+  {"cmd": "reply", "args": {"n": 3}, "from": {"screen": "steps[3].result.screen"}, "ignore": ["screen"]},
+  {"cmd": "py", "args": {"code": "(gc.getPlayer(0).getGold(), gc.getTeam(0).isHasTech(gc.getInfoTypeForString('TECH_NAVIGATION')))"}, "expect": [288, false]}
+ ]
+}

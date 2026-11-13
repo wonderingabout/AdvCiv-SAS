@@ -17,6 +17,11 @@ DebugLogging = False
 gc = CyGlobalContext()
 localText = CyTranslator()
 
+# <!-- custom: What the diplomacy screen shows, for SASPilot's 'diplo' and 'reply': CyDiplomacy has getters for the deal on the table but none for the AI's line or the replies offered, which only this module knows as it builds them.
+# Seven AI contacts reached the pilot's player in a 97-turn fog-on game (2026-11-13), offers and a religion demand among them, and the pilot saw none. Bookkeeping only: it changes nothing on the screen. (Claude code Opus 5.5) -->
+SASPilotScreen = {"open": False, "who": -1, "aiComment": -1, "aiText": u"", "responses": [], "screen": 0, "conversation": 0}
+
+
 class CvDiplomacy:
 	# Code used by Civ Diplomacy interface
 	#
@@ -30,6 +35,8 @@ class CvDiplomacy:
 		self.iLastResponseID = -1
 
 		self.diploScreen = CyDiplomacy()
+		# <!-- custom: For SASPilot's conversation count; see setAIComment. (Claude code Opus 5.5) -->
+		self.bSASPilotResponding = False
 
 	def setDebugLogging(self, bDebugLogging):
 		global DebugLogging
@@ -43,6 +50,9 @@ class CvDiplomacy:
 
 		# Eliminate previous comments
 		self.diploScreen.clearUserComments()
+		# <!-- custom: Cleared with the buttons, and counted, for SASPilot: CvDiplomacyInterface.refresh calls determineResponses without setAIComment, so the replies the pilot kept from setAIComment stayed answerable after the screen had new buttons (Codex's review). 'reply' must name the count 'diplo' gave, so a late reply cannot answer a newer screen. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		SASPilotScreen["responses"] = []
+		SASPilotScreen["screen"] += 1
 
 		# If the AI is declaring war
 		if (self.isComment(eComment, "AI_DIPLOCOMMENT_DECLARE_WAR") ):
@@ -344,6 +354,8 @@ class CvDiplomacy:
 		iComment = self.getCommentID( eComment )
 		# <!-- custom: diplomacy response-option text uses label scaling for readability consistency with other upscaled UI screens. (GPT-5.3-Codex) -->
 		szComment, tArgs = self.getScaledDiplomacyDisplayText(self.getDiplomacyComment(iComment), args)
+		# <!-- custom: Each reply the screen offers, for SASPilot's 'reply', which calls handleUserResponse with the same comment and data as the click would; see SASPilotScreen. (Claude code Opus 5.5) -->
+		SASPilotScreen["responses"].append({"comment": iComment, "data1": iData1, "data2": iData2, "text": szComment, "args": tArgs})
 		self.diploScreen.addUserComment( iComment, iData1, iData2, szComment, tArgs)
 
 	def setAIComment (self, eComment, *args):
@@ -360,6 +372,17 @@ class CvDiplomacy:
 		# <!-- custom: diplomacy main AI line text uses label scaling so upscaled UI font settings apply here too. (GPT-5.3-Codex) -->
 		AIString, args = self.getScaledDiplomacyDisplayText(AIString, args)
 
+		# <!-- custom: The AI's line as the screen gets it, with its arguments, for SASPilot; see SASPilotScreen. determineResponses below refills the replies. (Claude code Opus 5.5) -->
+		# <!-- custom: The comment's raw ID, which the pilot resolves when it reads it: the first version looked its type up here, an extra lookup in every player's diplomacy (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		# <!-- custom: The pilot counted a conversation only when one of its own reads found the screen newly open, so a screen closed and reopened between two reads kept the old count and an old read token could answer it (Codex's review).
+		# The EXE's beginDiplomacy entry point builds a fresh instance and calls setAIComment first, while handleUserResponse and dealCanceled mark theirs as responding before any AI line, so this counts each conversation once, as it begins. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		if not self.bSASPilotResponding:
+			SASPilotScreen["conversation"] += 1
+		SASPilotScreen["open"] = True
+		SASPilotScreen["who"] = self.diploScreen.getWhoTradingWith()
+		SASPilotScreen["aiComment"] = eComment
+		SASPilotScreen["aiText"] = AIString
+		SASPilotScreen["aiArgs"] = args
 		self.diploScreen.setAIString(AIString, args)
 		self.diploScreen.setAIComment(eComment)
 		self.determineResponses(eComment)
@@ -514,6 +537,7 @@ class CvDiplomacy:
 		if DebugLogging:
 			CvUtil.pyPrintRecord("DIPLOMACY_USER_RESPONSE", "commentId=%s data1=%d data2=%d" % (eComment, iData1, iData2))
 
+		self.bSASPilotResponding = True
 		diploScreen = CyDiplomacy()
 		# <!-- custom: Record the selected XML reply before its existing handler can change/close the conversation; resolved deals, demands and war changes remain separate gameplay evidence.
 		# Gate before the counterpart lookup and shared helper call so disabled SGR tracing adds no diagnostic context collection. (GPT-6.1-Sol) -->
@@ -765,10 +789,13 @@ class CvDiplomacy:
 		# K-Mod end
 
 		else:
+			# <!-- custom: The replies that end the conversation land here; SASPilot then reports the screen as closed. (Claude code Opus 5.5) -->
+			SASPilotScreen["open"] = False
 			diploScreen.closeScreen()
 
 	def dealCanceled( self ):
 
+		self.bSASPilotResponding = True
 		self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_TRADING"))
 
 		return

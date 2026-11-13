@@ -45,6 +45,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/ui_map_sync.py
 
+      - name: Makefile calls Windows tools by their System32 path
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/makefile_windows_tools.py
+
       - name: IDE source/header coverage
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/project_sources.py
