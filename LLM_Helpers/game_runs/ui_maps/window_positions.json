@@ -1,0 +1,23 @@
+{
+ "pilot-watch-4k": {
+  "saved": "2026-11-14",
+  "windows": {
+   "civ4": {
+    "exe": "Civ4BeyondSword.exe",
+    "frame": [0, 0, 1922, 1118]
+   },
+   "claude": {
+    "exe": "claude.exe",
+    "frame": [3840, 0, 5760, 2100]
+   },
+   "codex": {
+    "exe": "ChatGPT.exe",
+    "frame": [5760, 0, 7680, 2100]
+   }
+  },
+  "workAreas": [
+   [0, 0, 3840, 2100],
+   [3840, 0, 7680, 2100]
+  ]
+ }
+}

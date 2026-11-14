@@ -11,6 +11,9 @@
 import argparse
 import ctypes
 import ctypes.wintypes as wt
+# <!-- custom: json reads and writes the named window layouts of 'positions'. (Claude Code Opus 5.5) -->
+from importlib import import_module
+import json
 # <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
 import os
 import shutil
@@ -19,6 +22,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+format_json = import_module("formatting.json_format").format_json
 
 USER32 = ctypes.windll.user32
 WM_CLOSE = 0x0010
@@ -686,7 +692,6 @@ def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 def usage_geometry(pid, name, layout_name, kind):
 	# <!-- custom: Desktop usage positions move with panels even at the same size, so choose a measured layout explicitly.
 	# Check the target title and exact outer size before using a saved point or crop. (GPT-6.1-Sol) -->
-	import json
 	path = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
 	layouts = json.loads(path.read_text(encoding="utf-8"))["usage"]["layouts"]
 	layout = layouts.get(layout_name)
@@ -711,7 +716,6 @@ def named_point(pid, name):
 	# On 2026-11-11 the user suggested keeping them as data like the agent apps' app_layouts.json, so they live in civ4_points.json, keyed by the window's outer size.
 	# The points are window-relative, so where the window sits on the screen does not matter; a different size, such as another game resolution, fails loudly instead of clicking a wrong spot. (Claude Code Opus 5.5) -->
 	# <!-- custom: json reads the points file; imported here since only named points need it. (Claude Code Opus 5.5) -->
-	import json
 	make_dpi_aware()
 	hwnd = find_window(pid)
 	if hwnd is None:
@@ -759,7 +763,7 @@ def monitors():
 	return sorted(areas)
 
 
-def move(pid, monitor, part):
+def move(pid, monitor, part, size=None, beside=None):
 	# <!-- custom: Maximized, the Claude and Codex apps each spread a chat column about 1,200 px wide across a 3,840 px 4K window, leaving most of it empty (screenshots of 2026-11-11).
 	# On 2026-11-11 the user suggested sharing one monitor between them, half each, to free the other.
 	# The window is restored from maximized first.
@@ -773,13 +777,32 @@ def move(pid, monitor, part):
 		raise ValueError("monitor %d not found; this computer has %d" % (monitor, len(areas)))
 	left, top, right, bottom = areas[monitor - 1]
 	middle = (left + right) // 2
-	target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
+	# <!-- custom: topleft and beside came from watching the pilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the pilot_console console filling the rest.
+	# topleft keeps the window's size (or --size, the visible frame's width and height); beside fills the work area right of another process's window. (Claude Code Opus 5.5) -->
+	if part == "beside":
+		if beside is None:
+			raise ValueError("beside needs --beside <pid>")
+		other = find_window(beside)
+		if other is None:
+			raise OSError("no window for process %d" % beside)
+		other_frame = wt.RECT()
+		ctypes.windll.dwmapi.DwmGetWindowAttribute(other, 9, ctypes.byref(other_frame), ctypes.sizeof(other_frame))
+		target = (min(max(other_frame.right, left), right), right)
+	elif part == "topleft":
+		target = None
+	else:
+		target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
 	USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
 	outer = window_rect(hwnd)
 	border_left, border_top = frame.left - outer[0], frame.top - outer[1]
 	border_right, border_bottom = outer[2] - frame.right, outer[3] - frame.bottom
+	if target is None:
+		if size is None:
+			size = (frame.right - frame.left, frame.bottom - frame.top)
+		target = (left, left + size[0])
+		bottom = top + size[1]
 	x = target[0] - border_left
 	y = top - border_top
 	width = target[1] - target[0] + border_left + border_right
@@ -787,6 +810,123 @@ def move(pid, monitor, part):
 	# <!-- custom: 0x0014 is SWP_NOZORDER | SWP_NOACTIVATE, so the move neither raises the window nor takes focus from the user. (Claude Code Opus 5.5) -->
 	USER32.SetWindowPos(hwnd, None, x, y, width, height, 0x0014)
 	return window_rect(hwnd)
+
+
+def visible_frame(pid):
+	# <!-- custom: The window's visible frame from DWM, without Windows 10's invisible resize border; (left, top, right, bottom). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise OSError("no window for process %d" % pid)
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	return (frame.left, frame.top, frame.right, frame.bottom)
+
+
+def place_frame(pid, left, top, right, bottom):
+	# <!-- custom: Put the window's visible frame exactly on a rectangle, the invisible border added around it as in 'move'; for layouts 'move' has no name for, such as pilot_console.py's bands of one Civ4 and its console per client (2026-11-14). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise OSError("no window for process %d" % pid)
+	return place_window(hwnd, left, top, right, bottom)
+
+
+def place_window(hwnd, left, top, right, bottom):
+	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so pilot_console.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	make_dpi_aware()
+	USER32.ShowWindow(hwnd, 9)
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	outer = window_rect(hwnd)
+	border_left, border_top = frame.left - outer[0], frame.top - outer[1]
+	border_right, border_bottom = outer[2] - frame.right, outer[3] - frame.bottom
+	USER32.SetWindowPos(hwnd, None, left - border_left, top - border_top, right - left + border_left + border_right, bottom - top + border_top + border_bottom, 0x0014)
+	return window_rect(hwnd)
+
+
+# <!-- custom: Named window layouts, so the agents' and the game's windows can be put back without the user: the user asked to remember the Claude and Codex app positions too, in case they are moved or a layout is changed (2026-11-14).
+# Windows are found by their program's file name, as process IDs change with each launch; the Codex desktop app runs as ChatGPT.exe. Frames are the visible frames in physical pixels, measured on the user's two 3840x2160 monitors. (Claude Code Opus 5.5) -->
+# <!-- custom: Use the shared formatter so each saved window frame and monitor rectangle stays on one line. (GPT-6.1-Sol) -->
+POSITIONS_FILE = Path(__file__).resolve().parent / "ui_maps" / "window_positions.json"
+POSITION_APPS = {"claude": "claude.exe", "codex": "ChatGPT.exe", "civ4": "Civ4BeyondSword.exe"}
+
+
+def image_name(pid):
+	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+	if not handle:
+		return None
+	try:
+		buffer = ctypes.create_unicode_buffer(520)
+		size = wt.DWORD(520)
+		if not ctypes.windll.kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+			return None
+		return os.path.basename(buffer.value)
+	finally:
+		ctypes.windll.kernel32.CloseHandle(handle)
+
+
+def app_window(exe):
+	# <!-- custom: The largest visible, titled, not minimized top-level window of a program, or None. (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def callback(hwnd, _):
+		if USER32.IsWindowVisible(hwnd) and not USER32.IsIconic(hwnd) and window_title(hwnd):
+			name = image_name(window_pid(hwnd))
+			if name is not None and name.lower() == exe.lower():
+				rect = window_rect(hwnd)
+				found.append(((rect[2] - rect[0]) * (rect[3] - rect[1]), hwnd))
+		return True
+
+	USER32.EnumWindows(proc_type(callback), 0)
+	if not found:
+		return None
+	return max(found)[1]
+
+
+def hwnd_frame(hwnd):
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	return [frame.left, frame.top, frame.right, frame.bottom]
+
+
+def load_positions():
+	if POSITIONS_FILE.is_file():
+		return json.loads(POSITIONS_FILE.read_text(encoding="utf-8"))
+	return {}
+
+
+def save_positions(name, apps):
+	layouts = load_positions()
+	windows = {}
+	for app in apps:
+		hwnd = app_window(POSITION_APPS[app])
+		if hwnd is None:
+			print("%s: no visible window; not saved" % app)
+			continue
+		windows[app] = {"exe": POSITION_APPS[app], "frame": hwnd_frame(hwnd)}
+	layouts[name] = {"saved": time.strftime("%Y-%m-%d"), "workAreas": [list(area) for area in monitors()], "windows": windows}
+	POSITIONS_FILE.write_text(format_json(layouts, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+	return layouts[name]
+
+
+def restore_positions(name):
+	layouts = load_positions()
+	if name not in layouts:
+		raise ValueError("no layout %r; saved: %s" % (name, ", ".join(sorted(layouts)) or "none"))
+	# <!-- custom: A layout saved on other monitors could put a window off screen, so a changed set of work areas is reported rather than ignored. (Claude Code Opus 5.5) -->
+	if layouts[name].get("workAreas") != [list(area) for area in monitors()]:
+		print("warning: the monitors differ from when %r was saved" % name)
+	result = {}
+	for app, entry in sorted(layouts[name]["windows"].items()):
+		hwnd = app_window(entry["exe"])
+		if hwnd is None:
+			result[app] = "no visible window"
+			continue
+		result[app] = place_window(hwnd, *entry["frame"])
+	return result
 
 
 def main():
@@ -857,11 +997,17 @@ def main():
 	dump.add_argument("--pid", type=int, required=True)
 	dump.add_argument("--kind", choices=("full", "normal"), default="full")
 	dump.add_argument("--timeout", type=float, default=300.0)
+	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in ui_maps/window_positions.json")
+	keep.add_argument("action", choices=("save", "restore", "list"))
+	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
+	keep.add_argument("--apps", nargs="+", choices=sorted(POSITION_APPS), default=sorted(POSITION_APPS), help="save: which windows (default all three)")
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
-	place.add_argument("part", choices=("full", "left", "right"))
+	place.add_argument("part", choices=("full", "left", "right", "topleft", "beside"), help="full, left or right half; topleft: the work area's top-left corner at the window's own size or --size; beside: the area right of --beside's window")
+	place.add_argument("--size", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="topleft: the visible frame's size instead of the current one")
+	place.add_argument("--beside", type=int, help="beside: the process whose window to fill the area right of")
 	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".
 	# So these wait, by default, until the user has been idle for a few seconds; the same rule agent_message.py follows. (Claude Code Opus 5.5) -->
 	for focusing in (press, pull, box, press_key, typing, point, wheel):
@@ -934,8 +1080,15 @@ def main():
 	elif args.command == "monitors":
 		for number, area in enumerate(monitors(), 1):
 			print("%d\twork area %d,%d to %d,%d (%dx%d)" % ((number,) + area + (area[2] - area[0], area[3] - area[1])))
+	elif args.command == "positions":
+		if args.action == "save":
+			print(format_json(save_positions(args.name, args.apps), indent=1))
+		elif args.action == "restore":
+			print(format_json(restore_positions(args.name), indent=1))
+		else:
+			print(format_json(load_positions(), indent=1, sort_keys=True))
 	elif args.command == "move":
-		print("window now at %s" % (move(args.pid, args.monitor, args.part),))
+		print("window now at %s" % (move(args.pid, args.monitor, args.part, args.size, args.beside),))
 
 
 if __name__ == "__main__":

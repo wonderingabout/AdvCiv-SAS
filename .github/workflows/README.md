@@ -226,7 +226,7 @@ npx markdownlint-cli2@0.23.2
 
 ## Python 2.4 compile workflow
 
-[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and the in-game `LLM_Helpers/game_runs/SASPilotCommands.py` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
 
 This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4.
 
@@ -268,7 +268,7 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
-The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling. The Pilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -772,7 +772,7 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as the Pilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -926,6 +926,8 @@ This helps catch stale fast-compile intermediates and forgetting to replace the 
 #### `build/repository/ui_map_sync.py`
 
 Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_map.py` into a temporary file and fails unless it matches the committed JSON byte for byte.
+
+The repository workflow also runs [`json_format.py`](/LLM_Helpers/formatting/json_format.py) on the saved window positions and Sevopedia map. The same formatter writes those files, so integer coordinates stay together on one line. The check's error gives the command to reformat the file.
 
 - The JSON is generated: edit the generator, never the JSON. On 2026-11-12 an agent had edited the JSON directly, so rerunning the generator would have dropped the WorldBuilder mapping, as Codex's review found.
 - The generator derives the Simple Game map list from the map scripts, through the same classifier as [`map_previews.py`](#buildassetsmap_previewspy), so a script added, removed or hidden from Simple Game also fails this check until the JSON is regenerated, with each row's point placed 24 px below the last.

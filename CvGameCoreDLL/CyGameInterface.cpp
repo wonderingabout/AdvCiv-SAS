@@ -379,6 +379,10 @@ void CyGamePythonInterface()
 		.def("getSASPilotUnitsJson", &CyGame::getSASPilotUnitsJson, "string (int iPlayer, int iFogTeam) - a player's units as JSON, or every living player's with -1, written in C++; with a fog team, only those it sees")
 		// <!-- custom: Python's 'trade' and 'techs' read the diplomacy table's items from this, as the Python loop over every tradeable item took 3.5 ms of game time per call (2026-11-13). (Claude code Opus 5.5) -->
 		.def("getSASPilotTradeItemsJson", &CyGame::getSASPilotTradeItemsJson, "string (int iGiver, int iReceiver, int iKindOnly) - what iGiver could put on the diplomacy table for iReceiver, as JSON with each AI denial; iKindOnly a TradeableItems kind or -1 for all")
+		// <!-- custom: Python's 'spy' lists a spy's missions from this, as the costs depend on the spy, which CyPlayer.getEspionageMissionCost does not take (2026-11-14). (Claude code Opus 5.5) -->
+		.def("getSASPilotEspionageJson", &CyGame::getSASPilotEspionageJson, "string (int iPlayer, int iUnit) - the espionage missions and targets the unit could run where it stands, with their costs, as the window's espionage popups offer them, as JSON")
+		// <!-- custom: Python's 'workers' compares the city AI's best build per plot with the pilot's own choice; CvCityAI keeps it per plot but Python had no getter (2026-11-14). (Claude code Opus 5.5) -->
+		.def("getSASPilotCityBuildsJson", &CyGame::getSASPilotCityBuildsJson, "string (int iPlayer, int iCity) - each plot of a city's radius with the city AI's best build there and its value, and whether the city works it, as JSON")
 		.def("getSASPilotPlotsJson", &CyGame::getSASPilotPlotsJson, "string (int iX, int iY, int iRadius, int iFogTeam) - the plots within a radius as JSON, written in C++; with a fog team, only what it knows")
 		// <!-- custom: Python's generatePath gives no steps, and Python cannot read the player's on-screen messages; the pilot needs both to play as a person does. (Claude code Fable 5.2) -->
 		.def("getSASPilotPathJson", &CyGame::getSASPilotPathJson, "string (int iPlayer, int iUnit, int iX, int iY, int iFlags) - the steps of a unit's path to a plot as JSON")

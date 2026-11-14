@@ -1263,7 +1263,10 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1088 - (Avoided in the SAS pilot) Loading a save while a diplomacy screen was open, which only the pilot could do, sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
 [KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so with two clients a dump cannot be told apart by its name and a second crash replaces the first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)\
 [KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
-[KI#1091 - (Fixed inherited Civ IV Python bindings) Combat strength and firepower rejected absent plot and attacker arguments](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)
+[KI#1091 - (Fixed inherited Civ IV Python bindings) Combat strength and firepower rejected absent plot and attacker arguments](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
+[KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
+[KI#1093 - (Fixed in SAS) Inside Civ4, Python's time.time() moves in 128-second steps, so the pilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
+[KI#1094 - (Fixed in SAS) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)
 
 <a id="ki-1"></a>
 
@@ -37826,3 +37829,37 @@ The local Civ4CE vanilla, Warlords and BtS SDK copies all contain the defect. Th
 SASPilot's `odds` exposed this when `currCombatStrFloat(None, None)` raised a C++ exception in game. The five wrappers now pass null through.
 
 Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.1-Sol).
+
+<a id="ki-1092"></a>
+
+## KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out
+
+- The Summary tab's upgradeable units (count and Min/Avg/Max/Total cost), added by SAS, tested each unit's XML upgrade classes only. The game's `CvUnit::upgradeAvailable` follows the chain: an Archer, whose XML upgrade is the Longbowman, may upgrade straight to Musketman once Longbowmen are past.
+- Found at turn 265 of the pilot's modern-era baseline (Large Pangaea, 2026-11-14), comparing the pilot's new `military` command with the screen: the Summary showed 24 units for 2,574 gold, while `canUpgrade` allowed an Archer, a War Elephant, an Axeman and a Galley as well. Running the screen's own rule in the game gave the same 24, so the difference was the rule, not the data.
+  - The screen also counts units that cannot upgrade where they stand, such as two Galleons at sea; that is by design, as it shows what could be upgraded, while the pilot's `military` lists what can be now.
+- Fixed in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py): the targets come from `upgradeAvailable`, still cached per unit type, as the answer depends only on the type and the owner's civilization.
+
+Found by Claude Code Opus 5.5 during a visual pass over the advisors that the user suggested, to see what the pilot was missing.
+
+<a id="ki-1093"></a>
+
+## KI#1093 - (Fixed in SAS) Inside Civ4, Python's time.time() moves in 128-second steps, so the pilot's queued contact never expired and blocked every later contact
+
+- Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
+- Found at turn 291 of the pilot's modern baseline (2026-11-14): two `pilot.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
+- Fixed in [SASPilotCommands.py](/LLM_Helpers/game_runs/SASPilotCommands.py) with `time.clock()`, which counts from the process start, small enough to stay precise; the pilot's timings already used it. No other in-game Python in the mod calls `time.time()`; any later interval measured inside the game should use `time.clock()` too.
+
+Found by Claude Code Opus 5.5 while asking Kublai Khan for peace through the pilot.
+
+<a id="ki-1094"></a>
+
+## KI#1094 - (Fixed in SAS) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on
+
+- Found at turns 291 and 292 of the pilot's modern baseline (Large Pangaea, 2026-11-14), after Kublai Khan, who had just completed the Internet, declared war and took three cities. On the diplomacy screen, "Suggest peace" made Kublai offer a plain peace treaty (`AI_DIPLOCOMMENT_TRY_THIS_DEAL`); accepting it answered "We're glad you accepted our offer.", yet `isAtWar` stayed true, twice, and a later `propose` of the same treaty was refused.
+- Cause: `CvDeal::addTradeItems` returns before making peace when `isSASUWAIVictoryDenialPeaceDealBlocked` holds, meaning either team is a configured victory threat (`isSASUWAIVictoryDenialPeaceThreat`: a victory countdown within `SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS`, or stage-4 victory, or a stage-3 Space threat). Its comment calls it the final safety guard for human and unusual trade paths. The AI's own peace paths check the same test first (`CvPlayerAI` peace negotiation and UWAI), but the AI's counter-proposal to a human's request does not, so it offers a treaty the deal then drops, and the screen reports success. Which of the three criteria Kublai met was not checked.
+- A possible fix would be a trade denial for `TRADE_PEACE_TREATY` under the same test, so the AI neither offers nor accepts it and the screen shows why, as other refusals do; this changes how the victory-denial feature presents itself to players, so it waits for the user's decision.
+
+Found by Claude Code Opus 5.5 while asking for peace through the pilot.
+
+- Fixed the same day, after the user agreed that the screen's answer should match the decision. A shared test, `isSASVictoryDenialPeaceBundleBlocked` in [CvGameCoreUtils.cpp](/CvGameCoreDLL/CvGameCoreUtils.cpp) (teams at war, a peace treaty in the deal, no surrender, either side a victory-denial threat), is now asked in `CvPlayerAI::AI_counterPropose`, both before it adds a treaty and when one is already on the table (Codex noted that a treaty supplied by the human skips the adding branch), and in `CvPlayerAI::AI_considerOffer`, so a treaty offered by a human or by the pilot's `propose` is refused too. `CvDeal`'s guard stays as the final safety net; surrender still ends a war.
+- Tested on the turn-292 save with a Debug-opt build: "Suggest peace" to Kublai now answers `AI_DIPLOCOMMENT_NO_PEACE` ("No! Mongolian laws demand that you be further punished for your insolence!") and `propose` returns `accepted: false`, while Isabella, not a victory threat, still offered peace, and accepting it ended that war.

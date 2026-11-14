@@ -15,6 +15,7 @@ import zipfile
 
 # <!-- custom: Use the same configurable output folder as the Codex and ChatGPT transcript helper. (GPT-6.1-Sol) -->
 # <!-- custom: latest_claude_session finds this repository's newest session log in the same shared path module. (Claude code Opus 5.5) -->
+from chat_export_format import format_message
 from chat_export_paths import DEFAULT_EXPORT_DIR, latest_claude_session
 # <!-- custom: --list needs the project's log folder (claude_project_dir), re to count each log's "model" fields and datetime to print each log's last write time. (Claude code Fable 5.2) -->
 from chat_export_paths import claude_project_dir
@@ -73,7 +74,6 @@ def main() -> None:
     rows = [row for row in rows if row.strip()]
     # <!-- custom: The desktop export is a raw JSONL log, and copying from the chat view captured only a small slice of a long session.
     # Keep user/assistant prose in full but reduce each tool call to a one-line marker; thinking and raw tool output are omitted, which shrank a 2 MB log to about 24 KB. (Claude code Opus 5.5) -->
-    # <!-- custom: Stable === USER === and === CLAUDE === separators make message boundaries easy to grep in long handoff transcripts, as in openai_chat_export_to_txt.py. (Claude code Opus 5.5) -->
     # <!-- custom: Agents export their own live session as a backup every while, and the app may be writing the log's last line at that moment: skip only an unfinished final line; a broken line elsewhere still fails loudly. (Claude Code Opus 5.5) -->
     if rows:
         try:
@@ -81,20 +81,22 @@ def main() -> None:
         except ValueError:
             rows = rows[:-1]
     parts = []
+    counters = {}
     for row in rows:
         record = json.loads(row)
         role = record.get("type")
         if role not in ("user", "assistant"):
             continue
+        label = "USER" if role == "user" else "CLAUDE"
+        timestamp = record.get("timestamp")
         content = record["message"]["content"]
+        # <!-- custom: String content can belong to either role; preserve its actual speaker just as the text-block path does. (GPT-6.1-Sol) -->
         if isinstance(content, str):
-            # <!-- custom: String content can belong to either role; preserve its actual speaker just as the text-block path does. (GPT-6.1-Sol) -->
-            parts.append("=== %s ===\n%s\n" % ("USER" if role == "user" else "CLAUDE", content.strip()))
-            continue
+            content = [{"type": "text", "text": content}]
         for block in content:
             block_type = block.get("type")
             if block_type == "text" and block.get("text", "").strip():
-                parts.append("=== %s ===\n%s\n" % ("USER" if role == "user" else "CLAUDE", block["text"].strip()))
+                parts.append(format_message(counters, label, block["text"].strip(), timestamp) + "\n")
             elif block_type == "tool_use":
                 tool_input = block.get("input", {})
                 desc = tool_input.get("description") or tool_input.get("file_path") or tool_input.get("pattern") or tool_input.get("query") or ""

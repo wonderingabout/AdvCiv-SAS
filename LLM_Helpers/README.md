@@ -28,7 +28,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `art_viewing/` | finding, rendering and comparing art: [`nif_preview.py`](#nif_previewpy), [`civ4_assets.py`](#civ4_assetspy), [`fpk_tool.py`](#fpk_toolpy), [`gamefont_tga.py`](#gamefont_tgapy), [`regenerate_art_samples.py`](#regenerate_art_samplespy) and others |
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
-| `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
+| `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy) and [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), with shared path and formatting helpers |
 | `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
@@ -140,7 +140,9 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`exe_analysis/`](#exe_analysis)
 - [`formatting/`](#formatting)
   - [UI-map JSON formatting](#ui-map-json-formatting)
-    - [`format_ui_map_json.py`](#format_ui_map_jsonpy)
+    - [`json_format.py`](#json_formatpy)
+  - [Console colors](#console-colors)
+    - [`console_colors.py`](#console_colorspy)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
   - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`reflow_custom_comments.py`](#reflow_custom_commentspy)
@@ -693,11 +695,15 @@ Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review arti
 
 ## `chat_exports/`
 
+[`chat_export_format.py`](/LLM_Helpers/chat_exports/chat_export_format.py) holds the speaker markers both transcript helpers write, such as `=== USER 00042 | <UTC time> ===`, counting each speaker separately so a message is easy to cite; Codex progress notes share Codex's count.
+
 ### Codex and ChatGPT transcript helper
 
 [openai_chat_export_to_txt.py](/LLM_Helpers/chat_exports/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex progress updates, and omits raw tool logs and attachments. Use Python 3.
 
-Speaker separators such as `=== USER ===` and `=== CHATGPT ===` mark message boundaries. Run `rg -n "^=== " chat.txt` to find them with line numbers. The Claude helper uses the same format with `=== CLAUDE ===`.
+Plain-text exports number each speaker separately, so a chat starts with markers such as `=== USER 00001 ===` and `=== CHATGPT 00001 ===`. Run `rg -n "^=== " chat.txt` to find them with line numbers. Codex progress updates share Codex's sequence, and `--tail` retains the numbers from the full export.
+
+Claude and Codex use the timestamp of each source record, for example `=== CLAUDE 00001 | 2026-11-14T11:08:32.532Z ===`. ChatGPT app pages provide turn times, so a sole user message gets the turn start and a sole reply gets the turn completion, shown in UTC to milliseconds. Share-link exports omit timestamps because the rendered messages this helper reads do not supply them.
 
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
   - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
@@ -752,7 +758,7 @@ The exporter writes a timestamped `chatgpt-share-<share-id>-<timestamp>.txt` to 
   - Copying from the chat view captured only a small slice of a long session, and `/export` was unavailable in the desktop session.
 - Keeps user and Claude messages in full and reduces each tool call to a one-line `[tool: name - description]` marker; thinking and raw tool output are omitted.
   - On the first use, this reduced a 2 MB `transcript.jsonl` to about 24 KB.
-- Marks each message with a `=== USER ===` or `=== CLAUDE ===` separator, the same format as the [Codex and ChatGPT transcript helper](#codex-and-chatgpt-transcript-helper). Run `rg -n "^=== " chat.txt` to list message boundaries with line numbers.
+- Uses the same [numbered speaker markers](#codex-and-chatgpt-transcript-helper) as the Codex and ChatGPT helper. When a Claude log record has multiple text blocks, each exported block gets its own number and uses that record’s timestamp.
 - Uses only Python 3's standard library and writes `claude-<input-stem>.txt` in the shared export folder by default:
 
 ```bash
@@ -1040,15 +1046,24 @@ See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Pat
 
 ### UI-map JSON formatting
 
-#### `format_ui_map_json.py`
+#### `json_format.py`
 
-[`format_ui_map_json.py`](/LLM_Helpers/formatting/format_ui_map_json.py) gives each named entry a line while keeping integer arrays such as click points and crop rectangles together. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
+[`json_format.py`](/LLM_Helpers/formatting/json_format.py) keeps integer arrays such as click points, saved window frames and crop rectangles together. The same module formats SASPilotConsole replies with a line-width limit. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
 
 ```powershell
-python LLM_Helpers/formatting/format_ui_map_json.py LLM_Helpers/game_runs/ui_maps/app_layouts.json --section usage
+python LLM_Helpers/formatting/json_format.py LLM_Helpers/game_runs/ui_maps/app_layouts.json --section usage
 ```
 
 This prints a preview. Add `--in-place` to save it. Regenerate `civ4_ui_map.json` and `civ4_sevopedia_map.json` with their own scripts so the generated maps keep their respective layouts.
+
+### Console colors
+
+#### `console_colors.py`
+
+[`console_colors.py`](/LLM_Helpers/formatting/console_colors.py) holds the colors our helpers use when printing for a person, by role: errors red, banners yellow, results sky blue, notes bold orchid, code light green, everything else in the console's own color. `enable()` switches a Windows console to virtual-terminal processing and leaves output to a pipe or file plain; `paint(text, role)` colors a string; `to_html(text)` turns colored text into a page in the same colors, for documentation.
+
+- It began in `pilot_console.py` on 2026-11-14, where the user chose the roles and colors; the user then asked for it to be shared, so other helpers that print for a person read alike. Agents read the plain logs instead, whose fields match the roles (see the [SASPilot command log](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
+- A fresh Windows 10 console showed all five roles, the 256-color sky blue and light green included; a screenshot scaled to 0.6 washed the sky blue out to white, so check colors at full size.
 
 ### Source blank-line cleanup
 
@@ -1810,6 +1825,7 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 
 - `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
+  - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `ui_maps/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
   - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
   - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
@@ -2010,6 +2026,10 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
 - Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
 - `pilot_replay.py` replays a sequence from [`pilot_sequences/`](/LLM_Helpers/game_runs/pilot_sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#replaying-commands).
   - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
+- `pilot.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`pilot_console.py`](/LLM_Helpers/game_runs/pilot_console.py) opens SASPilotConsole, showing orders by default and reads with `--all`. Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole).
+- [`pilot_scout.py`](/LLM_Helpers/game_runs/pilot_scout.py) is a read-only opening experiment for locked play clients. It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder. `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear. See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
+- [`pilot_explore.py`](/LLM_Helpers/game_runs/pilot_explore.py) moves several scouting units a turn at a time, each looping around its own center with `pilot_scout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units. Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
+- [`pilot_sites.py`](/LLM_Helpers/game_runs/pilot_sites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
 - [`pilot_checks/`](/LLM_Helpers/game_runs/pilot_checks/) holds snippets run inside the game with `pilot.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
 
 ```bash

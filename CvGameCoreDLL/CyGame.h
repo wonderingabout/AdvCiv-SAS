@@ -382,7 +382,9 @@ public:
 	// <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so the pilot can play with what a player sees. (Claude code Fable 5.2) -->
 	std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
 	std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
-	std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+	std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly);
+	std::string getSASPilotCityBuildsJson(int iPlayer, int iCity); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+	std::string getSASPilotEspionageJson(int iPlayer, int iUnit); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) --> // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 	std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 	std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
 	std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: For the pilot's 'sites' command. (Claude code Opus 5.5) -->

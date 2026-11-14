@@ -3187,14 +3187,24 @@ namespace
 	// <!-- custom: The brief unit of _unitBrief in SASPilotCommands.py, keys sorted as the Python writer sorts them; used inside plots and by getSASPilotUnitsJson. (Claude code Opus 5.5) -->
 	void appendSASPilotUnitJson(std::string& szOut, CvUnit const& kUnit)
 	{
+		// <!-- custom: experience, level and a unit's own name (BUG Unit Naming's or a Great General's; left out when it has none) added after a look at the Military Advisor's individual-unit list, which shows them, while 'units' needed one 'unit' request per unit for them (2026-11-14). (Claude code Opus 5.5) -->
 		szOut += "{\"damage\":";
 		appendSASPilotJsonInt(szOut, kUnit.getDamage());
+		szOut += ",\"experience\":";
+		appendSASPilotJsonInt(szOut, kUnit.getExperience());
 		szOut += ",\"group\":";
 		appendSASPilotJsonInt(szOut, kUnit.getGroupID());
 		szOut += ",\"id\":";
 		appendSASPilotJsonInt(szOut, kUnit.getID());
+		szOut += ",\"level\":";
+		appendSASPilotJsonInt(szOut, kUnit.getLevel());
 		szOut += ",\"movesLeft\":";
 		appendSASPilotJsonInt(szOut, kUnit.movesLeft());
+		if (!kUnit.getNameNoDesc().empty())
+		{
+			szOut += ",\"name\":";
+			appendSASPilotJsonWide(szOut, kUnit.getNameNoDesc().GetCString());
+		}
 		szOut += ",\"owner\":";
 		appendSASPilotJsonInt(szOut, kUnit.getOwner());
 		szOut += ",\"type\":";
@@ -3214,8 +3224,11 @@ namespace
 	{
 		bool const bFog = (eFogTeam != NO_TEAM);
 		bool const bSeen = (!bFog || kPlot.isVisible(eFogTeam));
+		// <!-- custom: The area ID is null with fog: it comes from the true map, so in the scouting trial (2026-11-14) the bay by the capital and a sea seen far south-west shared one ID, telling that they connect through plots nobody had seen. (Claude code Opus 5.5) -->
 		szOut += "{\"area\":";
-		appendSASPilotJsonInt(szOut, kPlot.getArea().getID());
+		if (bFog)
+			szOut += "null";
+		else appendSASPilotJsonInt(szOut, kPlot.getArea().getID());
 		szOut += ",\"bonus\":";
 		BonusTypes const eBonus = kPlot.getBonusType(eFogTeam);
 		appendSASPilotJsonType(szOut, eBonus == NO_BONUS ? NULL : GC.getInfo(eBonus).getType());
@@ -3418,6 +3431,171 @@ std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly)
 			}
 			szOut += '}';
 		}
+	}
+	szOut += ']';
+	return szOut;
+}
+
+
+namespace
+{
+	// <!-- custom: One espionage choice: the mission, and for a two-phase one its target and the target's name, with the cost the window shows. (Claude code Opus 5.5) -->
+	void appendSASPilotSpyChoice(std::string& szOut, bool& bFirst, EspionageMissionTypes eMission, int iData, char const* szTargetType, wchar const* szTargetName, int iCost)
+	{
+		if (!bFirst)
+			szOut += ',';
+		bFirst = false;
+		szOut += "{\"cost\": ";
+		appendSASPilotJsonInt(szOut, iCost);
+		szOut += ", \"data\": ";
+		appendSASPilotJsonInt(szOut, iData);
+		szOut += ", \"mission\": ";
+		appendSASPilotJsonType(szOut, GC.getInfo(eMission).getType());
+		if (szTargetType != NULL)
+		{
+			szOut += ", \"what\": ";
+			appendSASPilotJsonType(szOut, szTargetType);
+		}
+		else if (szTargetName != NULL)
+		{
+			szOut += ", \"what\": ";
+			appendSASPilotJsonWide(szOut, szTargetName);
+		}
+		szOut += '}';
+	}
+}
+
+// <!-- custom: The espionage missions a spy could run where it stands, for the pilot's 'spy': what the window's two popups offer, the mission list (launchDoEspionagePopup) and, for a two-phase mission, its targets (launchDoEspionageTargetPopup), each with the cost the window shows.
+// Written in C++ as the cost depends on the spy (getEspionageUnit and getEspionageMissionCost with that unit), which the Python bindings do not pass. Missions with no target data give data -1; the mission is then run with 'mission' as the window's click does, MISSION_ESPIONAGE with the mission and data (2026-11-14). (Claude code Opus 5.5) -->
+std::string getSASPilotEspionageJson(int iPlayer, int iUnit)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_CIV_PLAYERS)
+		return "null";
+	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+	CvUnit const* pSpy = kPlayer.getUnit(iUnit);
+	if (pSpy == NULL || pSpy->getGroup() == NULL)
+		return "null";
+	CvSelectionGroup const& kGroup = *pSpy->getGroup();
+	CvPlot const& kPlot = pSpy->getPlot();
+	PlayerTypes const eTarget = kPlot.getOwner();
+	if (eTarget == NO_PLAYER || kGroup.getEspionageUnit() == NULL)
+		return "[]";
+	std::string szOut;
+	szOut += '[';
+	bool bFirst = true;
+	for (int i = 0; i < GC.getNumEspionageMissionInfos(); i++)
+	{
+		EspionageMissionTypes const eMission = (EspionageMissionTypes)i;
+		CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
+		if (kMission.isPassive() || kGroup.getEspionageUnit(eMission) == NULL)
+			continue;
+		if (!kMission.isTwoPhases())
+		{
+			int const iCost = kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, -1, kGroup.getEspionageUnit(eMission));
+			if (iCost > 0)
+				appendSASPilotSpyChoice(szOut, bFirst, eMission, -1, NULL, NULL, iCost);
+			continue;
+		}
+		// <!-- custom: Each branch is the target popup's, in its order. (Claude code Opus 5.5) -->
+		if (kMission.getDestroyBuildingCostFactor() > 0)
+		{
+			CvCity const* pCity = kPlot.getPlotCity();
+			for (int iBuilding = 0; pCity != NULL && iBuilding < GC.getNumBuildingInfos(); iBuilding++)
+			{
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, iBuilding);
+				if (pTargetSpy != NULL && pCity->getNumRealBuilding((BuildingTypes)iBuilding) > 0)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, iBuilding, GC.getInfo((BuildingTypes)iBuilding).getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, iBuilding, pTargetSpy));
+			}
+		}
+		else if (kMission.getDestroyUnitCostFactor() > 0)
+		{
+			FOR_EACH_UNIT_IN(pTargetUnit, kPlot)
+			{
+				if (pTargetUnit == NULL || pTargetUnit->getTeam() != TEAMID(eTarget))
+					continue;
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, pTargetUnit->getID());
+				if (pTargetSpy != NULL)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, pTargetUnit->getID(), pTargetUnit->getUnitInfo().getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, pTargetUnit->getID(), pTargetSpy));
+			}
+		}
+		else if (kMission.getDestroyProjectCostFactor() > 0)
+		{
+			FOR_EACH_ENUM(Project)
+			{
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, eLoopProject);
+				if (pTargetSpy != NULL && GET_TEAM(TEAMID(eTarget)).getProjectCount(eLoopProject) > 0)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, eLoopProject, GC.getInfo(eLoopProject).getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, eLoopProject, pTargetSpy));
+			}
+		}
+		else if (kMission.getBuyTechCostFactor() > 0)
+		{
+			FOR_EACH_ENUM(Tech)
+			{
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, eLoopTech);
+				if (pTargetSpy != NULL)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, eLoopTech, GC.getInfo(eLoopTech).getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, eLoopTech, pTargetSpy));
+			}
+		}
+		else if (kMission.getSwitchCivicCostFactor() > 0)
+		{
+			FOR_EACH_ENUM(Civic)
+			{
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, eLoopCivic);
+				if (pTargetSpy != NULL)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, eLoopCivic, GC.getInfo(eLoopCivic).getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, eLoopCivic, pTargetSpy));
+			}
+		}
+		else if (kMission.getSwitchReligionCostFactor() > 0)
+		{
+			FOR_EACH_ENUM(Religion)
+			{
+				CvUnit const* pTargetSpy = kGroup.getEspionageUnit(eMission, eLoopReligion);
+				if (pTargetSpy != NULL)
+					appendSASPilotSpyChoice(szOut, bFirst, eMission, eLoopReligion, GC.getInfo(eLoopReligion).getType(), NULL, kPlayer.getEspionageMissionCost(eMission, eTarget, &kPlot, eLoopReligion, pTargetSpy));
+			}
+		}
+	}
+	szOut += ']';
+	return szOut;
+}
+
+
+// <!-- custom: Each plot of a city's radius with the build the city AI would have a Worker make there and that build's value, for the pilot's 'workers' command.
+// Until then the pilot could only automate Workers: the user wanted it to choose builds itself and compare them with the AI's choice (2026-11-14). CvCityAI keeps these per plot (AI_updateBestBuild, each turn), and Python had no getter for them. (Claude code Opus 5.5) -->
+std::string getSASPilotCityBuildsJson(int iPlayer, int iCity)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_CIV_PLAYERS)
+		return "null";
+	CvCity const* pCity = GET_PLAYER((PlayerTypes)iPlayer).getCity(iCity);
+	if (pCity == NULL)
+		return "null";
+	CvCityAI const& kCity = pCity->AI();
+	std::string szOut;
+	szOut.reserve(4096);
+	szOut += '[';
+	bool bFirst = true;
+	FOR_EACH_ENUM(CityPlot)
+	{
+		CvPlot const* pPlot = kCity.getCityIndexPlot(eLoopCityPlot);
+		if (pPlot == NULL)
+			continue;
+		if (!bFirst)
+			szOut += ',';
+		bFirst = false;
+		BuildTypes const eBest = kCity.AI_getBestBuild(eLoopCityPlot);
+		szOut += "{\"bestBuild\": ";
+		if (eBest == NO_BUILD)
+			szOut += "null";
+		else appendSASPilotJsonType(szOut, GC.getInfo(eBest).getType());
+		szOut += ", \"bestValue\": ";
+		appendSASPilotJsonInt(szOut, kCity.AI_getBestBuildValue(eLoopCityPlot));
+		szOut += ", \"worked\": ";
+		szOut += (kCity.isWorkingPlot(eLoopCityPlot) ? "true" : "false");
+		szOut += ", \"x\": ";
+		appendSASPilotJsonInt(szOut, pPlot->getX());
+		szOut += ", \"y\": ";
+		appendSASPilotJsonInt(szOut, pPlot->getY());
+		szOut += '}';
 	}
 	szOut += ']';
 	return szOut;

@@ -2573,6 +2573,31 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
 	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
 }
 
+// <!-- custom: Whether a deal between two teams at war is a non-surrender peace treaty that the victory-denial rule keeps from taking effect: CvDeal::addTradeItems returns before making such a peace.
+// The AI's counter-proposal to a human's "Suggest peace" did not ask, so it offered the treaty, the screen answered "We're glad you accepted our offer.", and the war went on (Kublai Khan, turns 291-292 of a pilot game, 2026-11-14).
+// Shared by AI_counterPropose and AI_considerOffer, so the AI refuses such peace on the screen instead, as CvDeal would; surrender keeps its exception. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+bool isSASVictoryDenialPeaceBundleBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList)
+{
+	if (!::atWar(eFirstTeam, eSecondTeam))
+		return false;
+	if (CvDeal::isVassalTrade(kFirstList) || CvDeal::isVassalTrade(kSecondList))
+		return false;
+	bool bPeaceTreaty = false;
+	FOR_EACH_TRADE_ITEM(kFirstList)
+	{
+		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+			bPeaceTreaty = true;
+	}
+	FOR_EACH_TRADE_ITEM(kSecondList)
+	{
+		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+			bPeaceTreaty = true;
+	}
+	if (!bPeaceTreaty)
+		return false;
+	return (isSASUWAIVictoryDenialPeaceThreat(eFirstTeam) || isSASUWAIVictoryDenialPeaceThreat(eSecondTeam));
+}
+
 int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam)
 {
 	return getSASLeadingSpaceshipPartsBuilt() - getSASTeamSpaceshipPartsBuilt(eTeam);

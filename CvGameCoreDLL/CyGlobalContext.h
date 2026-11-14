@@ -92,6 +92,8 @@ public:
 	CvReligionInfo* getReligionInfo(int i) const;
 	CvCorporationInfo* getCorporationInfo(int i) const;
 	CvControlInfo* getControlInfo(int i) const;
+	// <!-- custom: New getter so Python can read which mission an interface mode such as INTERFACEMODE_RECON gives when a plot is clicked; the pilot's 'targets' command reads it from CIV4InterfaceModeInfos.xml instead of copying that table. (Claude code Opus 5.5) -->
+	CvInterfaceModeInfo* getInterfaceModeInfo(int i) const;
 	CvTechInfo* getTechInfo(int i) const;
 	CvSpecialBuildingInfo* getSpecialBuildingInfo(int i) const;
 	CvPromotionInfo* getPromotionInfo(int i) const;

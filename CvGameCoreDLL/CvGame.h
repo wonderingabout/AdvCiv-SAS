@@ -1175,6 +1175,10 @@ std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
 std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
 // <!-- custom: The diplomacy table's items for 'trade' and 'techs', in C++ as the Python loop was the slowest list command measured (3.5 ms). (Claude code Opus 5.5) -->
 std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly);
+// <!-- custom: A spy's espionage missions and targets with their costs, for the pilot's 'spy'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string getSASPilotEspionageJson(int iPlayer, int iUnit);
+// <!-- custom: The city AI's best build per plot of a city, for the pilot's 'workers'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string getSASPilotCityBuildsJson(int iPlayer, int iCity);
 std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
 std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: The city sites the window circles for a selected Settler; see CvGameInterface.cpp. (Claude code Opus 5.5) -->

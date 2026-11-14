@@ -1702,6 +1702,16 @@ std::string CyGame::getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKi
 	return ::getSASPilotTradeItemsJson(iGiver, iReceiver, iKindOnly);
 }
 
+std::string CyGame::getSASPilotEspionageJson(int iPlayer, int iUnit)
+{
+	return ::getSASPilotEspionageJson(iPlayer, iUnit);
+}
+
+std::string CyGame::getSASPilotCityBuildsJson(int iPlayer, int iCity)
+{
+	return ::getSASPilotCityBuildsJson(iPlayer, iCity);
+}
+
 std::string CyGame::getSASPilotUnitsJson(int iPlayer, int iFogTeam)
 {
 	return ::getSASPilotUnitsJson(iPlayer, iFogTeam);

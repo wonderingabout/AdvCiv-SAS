@@ -9,6 +9,8 @@
 # <!-- custom: imp loads the command module from its file, os handles the mailbox folder and PID, sys and traceback report a failed reload; BugPath finds the mod and user folders; SASAutoplayRequest shares its ini= reader. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
 import imp
+# <!-- custom: md5 for the command file's content digest; hashlib came only with Python 2.5. (Claude code Opus 5.5) -->
+import md5
 import os
 import sys
 import traceback
@@ -26,29 +28,43 @@ _bEnabled = None
 _commands = None
 _commandsPath = None
 _commandsStamp = None
+_commandsDigest = None
 _szReloadError = None
 # <!-- custom: Survives hot reloads of the command module: mailbox folder, tick counters and the "py" command's namespace. (Claude code Fable 5.2) -->
-state = {"mailbox": None, "ticks": {"gameUpdate": 0, "Update": 0, "screenUpdate": 0}, "py": {}, "served": 0, "loads": 0}
+state = {"mailbox": None, "ticks": {"gameUpdate": 0, "Update": 0, "screenUpdate": 0}, "py": {}, "served": 0, "loads": 0, "tickErrorCount": 0}
 
 # <!-- custom: Ticks between checks of the command file's size and mtime.
 # The embedded Python clock moves in coarse steps (SASPythonLogging records a 15-second trial where it stayed fixed), so intervals count ticks, not seconds. (Claude code Fable 5.2) -->
 _RELOAD_CHECK_TICKS = 20
+# <!-- custom: Every this many reload checks, the content is compared too; see _loadCommands. (Claude code Opus 5.5) -->
+_DIGEST_EVERY_CHECKS = 10
 
 
-def _resolveEnabled():
-	if gc.getDefineINT("SAS_PILOT_ON") > 0:
-		return True
+def _pilotSection():
+	# <!-- custom: The [SASPilot] keys of the per-run INI, lower-cased, or {} without one. (Claude code Opus 5.5) -->
 	path = SASAutoplayRequest._findRequestIni()
 	if path is None:
-		return False
+		return {}
 	from configobj import ConfigObj
 	config = ConfigObj(path, list_values=False, interpolation=False)
 	for name in config.keys():
 		if name.lower() == _SECTION.lower():
-			for key in config[name].keys():
-				if key.lower() == "on":
-					return int(str(config[name][key]).strip()) > 0
-	return False
+			return dict([(key.lower(), str(config[name][key]).strip()) for key in config[name].keys()])
+	return {}
+
+
+def _resolveEnabled():
+	# <!-- custom: The XML switch is read first, as before the session ID came, so a malformed per-run INI cannot stop a pilot that SAS_PILOT_ON turns on (Codex's review); it then runs without a session. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	if gc.getDefineINT("SAS_PILOT_ON") > 0:
+		try:
+			state["session"] = _pilotSection().get("session")
+		except:
+			state["session"] = None
+		return True
+	section = _pilotSection()
+	# <!-- custom: The launch's session ID, which pilot.py start writes beside On = 1 and finds again in hello.json; requests must carry it, see SASPilotCommands._serve. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	state["session"] = section.get("session")
+	return int(section.get("on", "0")) > 0
 
 
 def _fileStamp(path):
@@ -57,18 +73,32 @@ def _fileStamp(path):
 	return (st[6], st[8])
 
 
-def _loadCommands():
-	global _commands, _commandsStamp, _szReloadError
+def _readCommandsFile():
+	handle = open(_commandsPath, "rb")
+	data = handle.read()
+	handle.close()
+	return data
+
+
+def _loadCommands(bCompareContent=False):
+	global _commands, _commandsStamp, _commandsDigest, _szReloadError
 	stamp = _fileStamp(_commandsPath)
+	data = None
 	if stamp == _commandsStamp:
-		return
+		# <!-- custom: ChatGPT's review (2026-11-14): an edit of the same size within the same second keeps (size, mtime), so it could be missed for good. The content's MD5 is compared every SASPilot._DIGEST_EVERY_CHECKS checks rather than every check, as reading 110 KB a few times a second would cost every player-visible frame more than the rare miss it catches. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+		if not bCompareContent:
+			return
+		data = _readCommandsFile()
+		if md5.new(data).hexdigest() == _commandsDigest:
+			return
 	_commandsStamp = stamp
 	try:
 		# <!-- custom: Civ4 caches the mod's Python at startup, so an ordinary import or reload() would return the code from launch (civai found the same); loading from the file picks up edits without restarting Civ4.
 		# imp.load_source did that but left a SASPilotCommands.pyc beside the source, so compile the text ourselves into a fresh module. (Claude code Fable 5.2) -->
-		handle = open(_commandsPath, "rb")
-		source = handle.read().replace("\r\n", "\n")
-		handle.close()
+		if data is None:
+			data = _readCommandsFile()
+		_commandsDigest = md5.new(data).hexdigest()
+		source = data.replace("\r\n", "\n")
 		module = imp.new_module(_COMMANDS_NAME)
 		module.__file__ = _commandsPath
 		# <!-- custom: Was the statement form exec ... in module.__dict__, which Ruff's modern parser cannot read; eval of an "exec" code object runs it the same way in Python 2.4 (Codex found it). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
@@ -93,6 +123,13 @@ def _start():
 	mailbox = os.path.join(BugPath.getRootDir(), "SASPilot", str(os.getpid()))
 	if not os.path.isdir(mailbox):
 		os.makedirs(mailbox)
+	# <!-- custom: The folder is named by PID, which Windows recycles, so it can hold a dead process's hello, requests and replies; Codex's review found an old req_ would then run in the new game. No request can be for this process yet, as clients wait for its hello, so they are cleared, and hello.json carries the launch's session ID for pilot.py start to match. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	for name in os.listdir(mailbox):
+		if name.endswith(".json") and name.split("_", 1)[0] in ("hello.json", "req", "run", "rep", "tmp"):
+			try:
+				os.remove(os.path.join(mailbox, name))
+			except OSError:
+				pass
 	state["mailbox"] = mailbox
 	_loadCommands()
 	CvUtil.pyPrintRecord("SAS_PILOT", "outcome=STARTED mailbox=%s" % mailbox)
@@ -110,9 +147,10 @@ def _tick(szEvent):
 	ticks[szEvent] = ticks[szEvent] + 1
 	# <!-- custom: Which event served the last request, so timings show whether game updates or per-frame updates set the pace. (Claude code Opus 5.5) -->
 	state["lastTick"] = szEvent
-	if (ticks["gameUpdate"] + ticks["Update"] + ticks["screenUpdate"]) % _RELOAD_CHECK_TICKS == 0:
+	iTicks = ticks["gameUpdate"] + ticks["Update"] + ticks["screenUpdate"]
+	if iTicks % _RELOAD_CHECK_TICKS == 0:
 		try:
-			_loadCommands()
+			_loadCommands(iTicks % (_RELOAD_CHECK_TICKS * _DIGEST_EVERY_CHECKS) == 0)
 		except OSError:
 			pass  # <!-- custom: the file is being rewritten; the next check reads it (Claude code Fable 5.2) -->
 	if _commands is not None:
@@ -130,9 +168,21 @@ def _safeTick(szEvent):
 	try:
 		_tick(szEvent)
 	except:
-		if state.get("tickError") is None:
-			state["tickError"] = szEvent + ": " + traceback.format_exc()
-			CvUtil.pyPrintRecord("SAS_PILOT", "outcome=TICK_ERROR error=%s" % repr(state["tickError"]))
+		_keepTickError(szEvent)
+		return
+	# <!-- custom: ChatGPT's review (2026-11-14): tickError was kept only while it was None and never cleared, so after a recovery 'ping' showed the old error for good and a later, different error was never logged. A tick that runs through now clears it; tickErrorCount and lastTickError keep the history. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+	if state.get("tickError") is not None:
+		state["tickError"] = None
+
+
+def _keepTickError(szEvent):
+	# <!-- custom: Logs an error only when it differs from the last one kept, as a failing hook repeats it on every frame. (Claude code Opus 5.5) -->
+	szError = szEvent + ": " + traceback.format_exc()
+	state["tickErrorCount"] = state.get("tickErrorCount", 0) + 1
+	if szError != state.get("lastTickError"):
+		CvUtil.pyPrintRecord("SAS_PILOT", "outcome=TICK_ERROR count=%d error=%s" % (state["tickErrorCount"], repr(szError)))
+	state["tickError"] = szError
+	state["lastTickError"] = szError
 
 
 def onGameUpdate(argsList):
@@ -153,9 +203,7 @@ def onLoad(argsList):
 		if bOn and hasattr(gc.getGame(), "setSASPilotPopupsHeld"):
 			gc.getGame().setSASPilotPopupsHeld(True)
 	except:
-		if state.get("tickError") is None:
-			state["tickError"] = "OnLoad: " + traceback.format_exc()
-			CvUtil.pyPrintRecord("SAS_PILOT", "outcome=TICK_ERROR error=%s" % repr(state["tickError"]))
+		_keepTickError("OnLoad")
 
 
 def onUpdate(argsList):

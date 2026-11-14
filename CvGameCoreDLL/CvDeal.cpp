@@ -232,6 +232,8 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 	// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard. Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals; later runs showed stage-4 and configured stage-3 Space threats also making peace before the disruption window.
 	// This safety guard formerly ran after the deal was logged and its trade value was processed. A fresh Pangaea diagnostic run therefore produced 57 ineffective treaty deals that AI_negotiatePeace reported as successful while the guard kept the teams at war.
 	// Reject non-surrender peace before logging or processing the bundle while either side remains a configured victory threat. UWAI now uses the shared threat test to avoid proposing the same blocked treaty through its ordinary peace path. (GPT-5.5 + GPT-5.6-Sol) -->
+	// <!-- custom: A human asking for peace got the treaty offered by the AI's counter-proposal, which did not run this test, and the screen reported it accepted while this return kept the war going (pilot playthrough, turns 291-292, 2026-11-14).
+	// AI_counterPropose and AI_considerOffer now refuse such a treaty first through isSASVictoryDenialPeaceBundleBlocked; this stays the final safety net. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if (bMakingPeace && !bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
 		return;
 	bool const bLogDealAction = (gGameRecordLogLevel >= 2);
