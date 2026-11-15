@@ -48,6 +48,7 @@ public:
 	// <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// <!-- custom: Promotion icon size was hardcoded inside setUnitHelp; expose it as a parameter so Python UI callers can request a clean advisor-specific size instead of rewriting emitted image markup. (GPT-5.5) -->
 	// <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void setSASUnitStateHelp(CvWStringBuffer& szString, CvUnit const& kUnit); // <!-- custom: A unit's automation, activity or mission and a ready promotion as text, for setUnitHelp. (Claude code Opus 5.5) -->
 	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false, bool bColorAllegiance = false, bool bOmitOwner = false, bool bIndicator = false, int iPromotionIconSize = 16);
 	// advc.004 (Exposed to Python, replacing redundant code in CyMainInterface.py)
 	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit, int iHP = -1); // advc.048c

@@ -7,6 +7,14 @@
 # 'fog on=1' switches to what the active player's team knows, to play as a person would; see cmd_fog. (Claude code Fable 5.2)
 # Python 2.4 has no json module, so the encoder and decoder below are our own. (Claude code Fable 5.2) -->
 
+# <!-- custom: This API keeps growing, with plain fact commands (what a screen shows) and strategic ones that combine them (targets, settings' leader personalities); the user's rule (2026-11-15). Add commands freely, and keep them reusable:
+# make a 'py' snippet a command once a later game would ask it again; build a new command on existing ones and shared helpers (targets calls relations and borders, settings and its possibleLeaders share _leaderFacts) rather than copying their code;
+# reuse a screen's own code where a player-visible screen already decides what is known (timeline calls CvInfoScreen.getTimelineRecords), so the pilot and the screen cannot disagree; keep to what the player may know unless the command is meant to be omniscient.
+# Reuse data SAS already prepared for its screens too: settings ranks each leader's AI personality from the Sevopedia leader panel's predumped cache (SevoPediaLeaderCachePredumped, one of SAS's oldest additions, which CI keeps in step with the leader XML) rather than ranking the leaders again.
+# A suggestion, not a rule: what a player needs to see, the pilot likely needs too, and the reverse. When the pilot needed a unit's fortified state (islands replay, 2026-11-15), the player saw it only as an icon, so both may gain from showing it as text; an agent looking for a pilot field can ask whether a player screen deserves it as well, and a new screen feature whether the pilot should read it.
+# The AI's own ratings, such as found values or the city governor's picks, are a reference to weigh, not the answer: they follow the AI's general rules, which may not fit the game at hand. At turn 57 of the islands replay (2026-11-15) AI_foundValue rated only one site on our island and gave 0 to every coastal corner near our cities, while the user's plan for an isolated island, claiming the coast by settling its corners with overlap accepted, favours exactly those; 'plansites legal=1' shows them beside the AI's value so the agent can choose.
+# Measure before moving a command to C++: on 2026-11-15, with 48 players, most took 1 to 25 ms in game, and world dropped from 52 to 4 ms by finding its wonder buildings once rather than per city. (Claude code Opus 5.5) -->
+
 # <!-- custom: os handles mailbox files, sys and traceback capture output and errors of a request; CvScreensInterface opens advisors and Sevopedia pages. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
 import os
@@ -367,6 +375,9 @@ def _cities(player):
 
 def _unit(args):
 	player = _player(args)
+	# <!-- custom: 'sites' without unit= first failed as a bare KeyError: 'unit' (islands replay, 2026-11-15); name the missing argument instead. (Claude code Opus 5.5) -->
+	if not args.has_key("unit"):
+		raise ValueError("this command needs unit=<id>; 'units' lists ours")
 	unit = player.getUnit(int(args["unit"]))
 	if unit is None or unit.isNone():
 		raise ValueError("player %d has no unit %s" % (player.getID(), args["unit"]))
@@ -400,13 +411,50 @@ def _yields(getter):
 
 # Views
 
-def _unitBrief(unit):
+def _unitBrief(unit, iFogTeam=None):
 	# <!-- custom: The 'units' list and the units inside plots come from appendSASPilotUnitJson in CvGameInterface.cpp instead; keep the two writers' fields the same. (Claude code Opus 5.5) -->
 	# <!-- custom: experience, level and the unit's own name added as in the C++ writer (2026-11-14). (Claude code Opus 5.5) -->
 	result = {"id": unit.getID(), "type": gc.getUnitInfo(unit.getUnitType()).getType(), "x": unit.getX(), "y": unit.getY(), "owner": unit.getOwner(), "movesLeft": unit.movesLeft(), "damage": unit.getDamage(), "group": unit.getGroupID(), "experience": unit.getExperience(), "level": unit.getLevel()}
 	if unit.getNameNoDesc():
 		result["name"] = unit.getNameNoDesc()
+	# <!-- custom: The unit's state as in the C++ writer (2026-11-15): for every unit in the full view, and for our own units under fog, as the game shows rivals' states nowhere.
+	# iFogTeam is the request's (_fogTeam(args)); the first version read the session switch alone, so 'fog=1' on one request still gave a rival's orders, which the C++ writer omits (Codex's review). Callers without a request leave it None for the session switch. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	if iFogTeam is None:
+		iFogTeam = _fogTeam({})
+	group = unit.getGroup()
+	if iFogTeam < 0 or unit.getTeam() == iFogTeam:
+		result["activity"] = _enumName(ActivityTypes, group.getActivityType())
+		result["automate"] = _enumName(AutomateTypes, group.getAutomateType())
+		result["fortifyTurns"] = unit.getFortifyTurns()
+		result["promotionReady"] = bool(unit.isPromotionReady())
+		result["mission"] = None
+		if group.getLengthMissionQueue() > 0:
+			result["mission"] = gc.getMissionInfo(group.getMissionType(0)).getType()
+			dest = _headMissionPlot(group, iFogTeam)
+			if dest is not None:
+				result["missionPlot"] = [dest.getX(), dest.getY()]
 	return result
+
+
+def _headMissionPlot(group, iViewTeam):
+	# <!-- custom: As getSASHeadMissionPlot in CvGameCoreUtils.cpp: the head mission target, Move To and Route To by their plot, Move To Unit by the target unit plot only while iViewTeam (-1: always) sees it; lastMissionPlot gave the end of the queue and the live position of a rival out of sight (Codex's review, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	eMission = group.getMissionType(0)
+	if eMission in (MissionTypes.MISSION_MOVE_TO, MissionTypes.MISSION_ROUTE_TO):
+		plot = CyMap().plot(group.getMissionData1(0), group.getMissionData2(0))
+		if plot is None or plot.isNone():
+			return None
+		return plot
+	if eMission == MissionTypes.MISSION_MOVE_TO_UNIT:
+		iOwner = group.getMissionData1(0)
+		if iOwner < 0 or iOwner >= gc.getMAX_PLAYERS():
+			return None
+		target = gc.getPlayer(iOwner).getUnit(group.getMissionData2(0))
+		if target is None or target.isNone():
+			return None
+		if iViewTeam >= 0 and target.getTeam() != iViewTeam and (not target.plot().isVisible(iViewTeam, False) or target.isInvisible(iViewTeam, False)):
+			return None
+		return target.plot()
+	return None
 
 
 def _missionQueue(group):
@@ -420,8 +468,9 @@ def _missionQueue(group):
 	return queue
 
 
-def _unitFull(unit):
-	result = _unitBrief(unit)
+def _unitFull(unit, iFogTeam=None):
+	# <!-- custom: iFogTeam passed on to the briefs, as with _unitBrief: 'unit unit=<ours> fog=1' with the session switch off still gave the live missionPlot of a followed rival (Codex's review, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	result = _unitBrief(unit, iFogTeam)
 	group = unit.getGroup()
 	result["name"] = unit.getName()
 	result["strength"] = unit.baseCombatStr()
@@ -441,7 +490,7 @@ def _unitFull(unit):
 		result["transport"] = unit.getTransportUnit().getID()
 	if unit.hasCargo():
 		plot = unit.plot()
-		result["cargoUnits"] = [_unitBrief(plot.getUnit(i)) for i in range(plot.getNumUnits()) if plot.getUnit(i).isCargo() and plot.getUnit(i).getTransportUnit().getID() == unit.getID() and plot.getUnit(i).getOwner() == unit.getOwner()]
+		result["cargoUnits"] = [_unitBrief(plot.getUnit(i), iFogTeam) for i in range(plot.getNumUnits()) if plot.getUnit(i).isCargo() and plot.getUnit(i).getTransportUnit().getID() == unit.getID() and plot.getUnit(i).getOwner() == unit.getOwner()]
 	result["groupSize"] = group.getNumUnits()
 	# <!-- custom: These first came as numbers ("activity": 6, "automate": 3) while every other type is a name; the fog-on playthrough (2026-11-13) needed the enum read up to know a scout was exploring. (Claude code Opus 5.5) -->
 	result["activity"] = _enumName(ActivityTypes, group.getActivityType())
@@ -727,7 +776,7 @@ def cmd_players(args):
 	return result
 
 
-_HELP["units"] = "A player's units, briefly, or every living player's with player=all. args: player."
+_HELP["units"] = "A player's units, briefly, or every living player's with player=all. Each has its state, as its hover help shows it (for every unit in the full view, for our own under fog): activity, automate, head mission and its target plot (missionPlot; a unit target only while in sight), fortifyTurns and promotionReady. args: player."
 
 
 def cmd_units(args):
@@ -751,16 +800,37 @@ def cmd_unit(args):
 		# <!-- custom: 'units' left out invisible units such as spies and submarines, but 'unit' by ID still gave them, and a rival unit's orders and mission queue with them (Codex's review). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		if unit.isInvisible(_fogTeam(args), False):
 			raise ValueError("unit %d is not in sight; fog is on" % unit.getID())
-		result = _unitBrief(unit)
+		result = _unitBrief(unit, _fogTeam(args))
 		result["strength"] = unit.baseCombatStr()
 		result["promotions"] = [gc.getPromotionInfo(i).getType() for i in range(gc.getNumPromotionInfos()) if unit.isHasPromotion(i)]
 		return result
-	result = _unitFull(unit)
+	result = _unitFull(unit, _fogTeam(args))
 	result["actions"] = _unitActions(unit)
 	return result
 
 
 _HELP["cities"] = "A player's cities, briefly. args: player."
+
+
+_HELP["hover"] = "The hover text a player reads for units, as plain text: without unit, each of the player's units in one line, as the plot hover lists them; with unit, that unit's full hover, as the plot list shows it. Under fog, another player's unit only while the active team sees it. args: unit, player."
+
+
+def cmd_hover(args):
+	# <!-- custom: Checking the unit-state hover text (2026-11-15) took a 'py' call to CyGameTextMgr().getSpecificUnitHelp; any later change to that text, or a question about what a player sees, asks it again. (Claude code Opus 5.5) -->
+	iTeam = _fogTeam(args)
+	if args.get("unit") is None:
+		player = _player(args)
+		# <!-- custom: The list too keeps to what the team sees under fog: the first version filtered only one unit, so 'hover player=<rival>' listed the rival's every unit (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		result = []
+		for unit in _units(player):
+			if iTeam >= 0 and unit.getTeam() != iTeam and (not unit.plot().isVisible(iTeam, False) or unit.isInvisible(iTeam, False)):
+				continue
+			result.append({"id": unit.getID(), "text": _plainText(CyGameTextMgr().getSpecificUnitHelp(unit, True, False))})
+		return result
+	unit = _unit(args)
+	if iTeam >= 0 and unit.getTeam() != iTeam and (not unit.plot().isVisible(iTeam, False) or unit.isInvisible(iTeam, False)):
+		raise ValueError("unit %d is not in sight; fog is on" % unit.getID())
+	return {"id": unit.getID(), "text": _plainText(CyGameTextMgr().getSpecificUnitHelp(unit, False, False))}
 
 
 def cmd_cities(args):
@@ -793,6 +863,24 @@ def cmd_city(args):
 	result = _cityFull(city)
 	result["options"] = _cityOptions(city)
 	return result
+
+
+_HELP["buildable"] = "The buildings a city can build now, as its build menu offers them: each with its cost, the hammers already in it and the turns at the current rate; 'trainable' is the same for units. args: city, player."
+
+
+def cmd_buildable(args):
+	# <!-- custom: At the founding of The Hague at turn 57 of the islands replay (2026-11-15), choosing its first build took a 'py' call for the buildings it could make; every new city asks it again. (Claude code Opus 5.5) -->
+	city = _city(args)
+	player = gc.getPlayer(city.getOwner())
+	result = []
+	for i in range(gc.getNumBuildingInfos()):
+		if not city.canConstruct(i, False, False, False):
+			continue
+		# <!-- custom: With what the building gives a city where it counts most often: happiness, health and culture, as at turn 81 of the islands replay (2026-11-15) Utrecht reached its happiness limit and choosing a building to lift it took the XML. CyCity.getBuildingHappiness and getBuildingHealth give the amount in this city. (Claude code Opus 5.5) -->
+		info = gc.getBuildingInfo(i)
+		result.append({"building": info.getType(), "cost": player.getBuildingProductionNeeded(i), "stored": city.getBuildingProduction(i), "turns": city.getBuildingProductionTurnsLeft(i, 0), "happiness": city.getBuildingHappiness(i), "health": city.getBuildingHealth(i), "culture": info.getObsoleteSafeCommerceChange(CommerceTypes.COMMERCE_CULTURE)})
+	result.sort(lambda a, b: cmp(a["turns"], b["turns"]))
+	return {"city": city.getName(), "buildings": result}
 
 
 _HELP["trainable"] = "The units a city can train now, for choosing value per hammer: each with its turns, cost, strength, moves, strength per 100 hammers (strengthPer100Hammers, integer), and what strength alone does not show: first strikes and their chance, collateral damage and how many units it reaches, withdrawal chance, bombard rate, city attack and defense bonuses, and bonuses against unit types (versus, in percent). Military units first, sorted by strength per 100 hammers, which misleads for siege: cityAttackPer100Hammers (with the city attack bonus), combatLimit (a siege unit cannot kill) and the effects weigh as much. args: city, player."
@@ -851,10 +939,11 @@ def cmd_plot(args):
 	return RawJson(text[1:-1])
 
 
-_HELP["plots"] = "The plots within a radius, in full. With fog on, only the plots the active team has revealed, each as it last saw it and with units only where it sees now. Center it on coordinates, one of our units or a city. args: x, y, unit, city, radius (default 1; the larger map side covers the whole map), fog (optional, overrides the 'fog' switch for this request), player."
+_HELP["plots"] = "The plots within a radius, in full. With fog on, only the plots the active team has revealed, each as it last saw it and with units only where it sees now. Center it on coordinates, one of our units, a city or the plot the camera looks at (camera=1). args: x, y, unit, city, camera, radius (default 1; the larger map side covers the whole map), fog (optional, overrides the 'fog' switch for this request), player."
 
 
 def cmd_plots(args):
+	_cameraCenter(args)
 	anchors = sum([args.get(key) is not None for key in ("x", "unit", "city")])
 	if anchors != 1 or (args.get("x") is None) != (args.get("y") is None):
 		raise ValueError("give x and y, a unit, or a city as the center")
@@ -869,11 +958,88 @@ def cmd_plots(args):
 	return RawJson(_plotsJson(plot.getX(), plot.getY(), int(args.get("radius", 1)), _fogTeam(args)))
 
 
+_HELP["potential"] = "What each revealed plot of a square could yield once improved, for judging sites and Workers by more than today's yields: each plot's yields now, and every improvement the player could build there, with its yields as [food, production, commerce] and now=true when it can start today (false: a tech is missing). Yields count the player's techs now, so later tech bonuses (a Cottage growing, Farms with Biology) are not in them. Center as for 'plots': x and y, unit, city or camera=1; radius (default 2, a city's square). args: x, y, unit, city, camera, radius, player."
+
+
+def cmd_potential(args):
+	# <!-- custom: The user's point at turn 59 of the islands replay (2026-11-15): judging plots by today's yields rated a site with two Clams below plain coast, as an unimproved Clam reads as coast until Fishing Boats; the same holds for grassland a Cottage would make commercial.
+	# Each improvement build the player could make (CyPlayer.canBuild; bTestVisible=True skips its tech and gold checks, for builds a tech away), and the yields it gives: the nature yield, without the feature when the build removes it, plus CyPlot.calculateImprovementYieldChange.
+	# That binding takes a fourth argument, bOptimal, but AdvCiv's C++ has three and always counts the owner's current techs, so future tech bonuses are not counted.
+	# Under fog a build that only a hidden bonus makes valid is left out, as canBuild reads the true bonus and would reveal it. (Claude code Opus 5.5) -->
+	_cameraCenter(args)
+	player = _player(args)
+	iTeam = player.getTeam()
+	iFogTeam = _fogTeam(args)
+	if args.get("unit") is not None:
+		center = _unit(args).plot()
+	elif args.get("city") is not None:
+		center = _city(args).plot()
+	else:
+		center = _plot(args)
+	iRadius = int(args.get("radius", 2))
+	kMap = gc.getMap()
+	# <!-- custom: Bounded: a negative radius returned nothing silently and a mistyped large one could stall the game thread (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	if iRadius < 0 or iRadius > 15:
+		raise ValueError("radius must be between 0 and 15")
+	builds = [i for i in range(gc.getNumBuildInfos()) if gc.getBuildInfo(i).getImprovement() >= 0]
+	result = []
+	for dy in range(-iRadius, iRadius + 1):
+		for dx in range(-iRadius, iRadius + 1):
+			plot = plotXY(center.getX(), center.getY(), dx, dy)
+			if plot is None or plot.isNone() or not plot.isRevealed(iTeam, False):
+				continue
+			iFeature = plot.getFeatureType()
+			iTrueBonus = plot.getBonusType(-1)
+			bHiddenBonus = iFogTeam >= 0 and iTrueBonus >= 0 and plot.getBonusType(iTeam) != iTrueBonus
+			options = []
+			for iBuild in builds:
+				if not player.canBuild(plot, iBuild, False, True):
+					continue
+				info = gc.getBuildInfo(iBuild)
+				iImprovement = info.getImprovement()
+				# <!-- custom: Left out only when nothing but that bonus makes the improvement valid here: the first filter also dropped improvements the terrain or feature allows anyway, and their absence hinted at the bonus (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+				kImprovement = gc.getImprovementInfo(iImprovement)
+				if bHiddenBonus and kImprovement.isImprovementBonusMakesValid(iTrueBonus) and not (kImprovement.getTerrainMakesValid(plot.getTerrainType()) or (iFeature >= 0 and kImprovement.getFeatureMakesValid(iFeature)) or (plot.isHills() and kImprovement.isHillsMakesValid()) or (plot.isFreshWater() and kImprovement.isFreshWaterMakesValid()) or (plot.isRiverSide() and kImprovement.isRiverSideMakesValid())):
+					continue
+				bRemove = iFeature >= 0 and info.isFeatureRemove(iFeature)
+				yields = [plot.calculateNatureYield(YieldTypes(j), TeamTypes(iTeam), bRemove) + plot.calculateImprovementYieldChange(ImprovementTypes(iImprovement), YieldTypes(j), PlayerTypes(player.getID()), False) for j in range(YieldTypes.NUM_YIELD_TYPES)]
+				options.append({"build": info.getType(), "improvement": gc.getImprovementInfo(iImprovement).getType(), "yields": yields, "now": bool(player.canBuild(plot, iBuild, False, False))})
+			# <!-- custom: Out of sight, the yields the team would see: nature yield plus the improvement it last saw there, not the live one, which showed an improvement a rival had built out of sight (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			bVisible = iFogTeam < 0 or plot.isVisible(iFogTeam, False)
+			if bVisible:
+				yields = _yields(plot.getYield)
+			else:
+				iSeen = plot.getRevealedImprovementType(iFogTeam, False)
+				yields = []
+				for j in range(YieldTypes.NUM_YIELD_TYPES):
+					iYield = plot.calculateNatureYield(YieldTypes(j), TeamTypes(iTeam), False)
+					if iSeen >= 0:
+						iYield += plot.calculateImprovementYieldChange(ImprovementTypes(iSeen), YieldTypes(j), PlayerTypes(player.getID()), False)
+					yields.append(iYield)
+			result.append({"x": plot.getX(), "y": plot.getY(), "yields": yields, "visible": bool(bVisible), "options": options})
+	return result
+
+
 # <!-- custom: Export canonical coordinates for the desktop map renderer. Under fog, use the game's remembered ownership, improvements and routes, and withhold fields without a last-seen accessor until the tile is visible. (GPT-6.1-Sol) -->
 _TRADE_NEIGHBORS = ((1, 0), (0, 1), (1, 1), (-1, 1))
 
 
+def _cameraCenter(args):
+	# <!-- custom: camera=1 centers a request on the plot the main view looks at, as the user asked (2026-11-15) for the area around where a player looks. CyCamera.GetLookAt fills a point it is given, and CyMap.pointToPlot turns that into a plot; the first try, GetLookAt() with no argument, did not match its C++ signature. (Claude code Opus 5.5) -->
+	if not args.get("camera"):
+		return
+	point = NiPoint3(0.0, 0.0, 0.0)
+	CyCamera().GetLookAt(point)
+	plot = CyMap().pointToPlot(point.x, point.y)
+	if plot is None or plot.isNone():
+		raise ValueError("the camera looks at no plot")
+	del args["camera"]
+	args["x"] = plot.getX()
+	args["y"] = plot.getY()
+
+
 def _gridBounds(kMap, args):
+	_cameraCenter(args)
 	width = kMap.getGridWidth()
 	height = kMap.getGridHeight()
 	if args.get("box") is not None:
@@ -927,7 +1093,26 @@ def _gridTradeLinks(kMap, plots, iTeam):
 	return links
 
 
-_HELP["grid"] = "Fetch structured map tiles, river boundaries and optional trade-network links. With no area, fetch the map. The box is inclusive; a center and radius clip to map bounds. With fog on, fogEdge lists the unrevealed plots next to a revealed one, each with only water true or false, which the coastline art shows a player at the fog's edge; edge=0 leaves it out. args: box ([west,south,east,north]), x, y, city, unit, radius, network, edge, player."
+_HELP["grid"] = "Fetch structured map tiles, river boundaries and optional trade-network links. With no area, fetch the map. The box is inclusive; a center and radius clip to map bounds. With fog on, fogEdge lists the unrevealed plots next to a revealed one, each with only water true or false, which the coastline art shows a player at the fog's edge; edge=0 leaves it out. args: box ([west,south,east,north]), x, y, city, unit, camera (1: the plot the main view looks at), radius, network, edge, player."
+
+
+_HELP["signs"] = "The map's signs a player sees, as the window shows them: each with its plot, caption and owner (-1 for a sign everyone sees). The user's signs are read here too. args: player."
+
+
+def cmd_signs(args):
+	# <!-- custom: Checking the city-site signs 'mark' placed (islands replay, 2026-11-15) took a 'py' call: 'grid' lists the dot map but not signs, and the user marks the map with signs too. A player sees their own signs and those placed for everyone (player -1). (Claude code Opus 5.5) -->
+	player = _player(args)
+	engine = CyEngine()
+	result = []
+	for i in range(engine.getNumSigns()):
+		sign = engine.getSignByIndex(i)
+		# <!-- custom: int(): getPlayerType returns a PlayerTypes value, which the first reply wrote as the string "0". (Claude code Opus 5.5) -->
+		iOwner = int(sign.getPlayerType())
+		if iOwner != -1 and iOwner != player.getID():
+			continue
+		plot = sign.getPlot()
+		result.append({"x": plot.getX(), "y": plot.getY(), "caption": sign.getCaption(), "owner": iOwner})
+	return result
 
 
 _HELP["mark"] = "Mark a candidate city site the way a player does with BUG's dot map (Alt+X): a city dot and cross at x, y in that overlay, which the player sees, edits and keeps with the save, plus a sign when text is given; 'grid' lists the dot map's cities, the player's own included. clear=1 removes the dot (and sign) at x, y. Cosmetic: nothing in the game changes. args: x, y, text, color (COLOR_ type, default COLOR_GREEN), layer (dot-map layer, default 0), clear."
@@ -961,7 +1146,8 @@ def cmd_mark(args):
 		# <!-- custom: Only a COLOR_ type in the colour table: getInfoTypeForString accepts types of any table, so color=TECH_AGRICULTURE passed and stored an unrelated index in BUG's dot map (Codex's review, round 38). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		szColor = args.get("color") or "COLOR_GREEN"
 		iColor = gc.getInfoTypeForString(szColor)
-		if not szColor.startswith("COLOR_") or iColor < 0 or iColor >= gc.getNumColorInfos() or gc.getColorInfo(iColor).getType() != szColor:
+		# <!-- custom: The check first also compared iColor with gc.getNumColorInfos, which Python does not have: every 'mark' failed with an AttributeError (islands replay, 2026-11-15). Type names are unique across tables, so a COLOR_ name that resolves is a colour; its type is compared back. (Claude code Opus 5.5) -->
+		if not szColor.startswith("COLOR_") or iColor < 0 or gc.getColorInfo(iColor).getType() != szColor:
 			raise ValueError("unknown color %s; give a COLOR_ type" % szColor)
 		dotMap.addCityAt(point, iColor, int(args.get("layer", 0)))
 		if args.get("text"):
@@ -1233,7 +1419,8 @@ _HELP["todo"] = "What waits for the player's orders: cities with an empty build 
 def cmd_todo(args):
 	# <!-- custom: The game's choose-production and choose-tech popups only show in the window and do not stop 'endturn': 22 turns ended with an empty queue and no research (2026-11-13), so the pilot has to ask what is idle. (Claude code Fable 5.2) -->
 	player = _player(args)
-	result = {"turnActive": player.isTurnActive()}
+	# <!-- custom: The game turn too: a turn loop of the islands replay (2026-11-15) asked it with a 'py' call after each endturn; the year with it, as autosaves are named by year (AutoSave_BC-2120 was turn 68). (Claude code Opus 5.5) -->
+	result = {"turn": gc.getGame().getGameTurn(), "year": gc.getGame().getGameTurnYear(), "turnActive": player.isTurnActive()}
 	result["idleCities"] = [_cityBrief(city) for city in _cities(player) if city.getOrderQueueLength() == 0]
 	result["needsResearch"] = (player.getCurrentResearch() < 0)
 	# <!-- custom: An automated group, such as a scout on Explore, was listed as idle every turn of the fog-on playthrough (2026-11-13), while the window does not ask for its orders; leave such groups out. (Claude code Opus 5.5) -->
@@ -1264,6 +1451,8 @@ def cmd_todo(args):
 		displayed = [popup for popup in _popups() if popup["state"] == "DISPLAYED" and popup["type"] == "BUTTONPOPUP_CHOOSETECH" and popup["data1"] > 0]
 		if displayed and _pilotGame("isSASPilotChoosingFreeTech").isSASPilotChoosingFreeTech():
 			result["freeTechOwed"] = displayed[0]["data1"]
+	# <!-- custom: One flag for a turn loop: at turn 65 of the islands replay (2026-11-15) Pericles opened first contact, and a loop that stopped only for idle cities, units, popups and research ended the turn against the open diplomacy screen six times. True while anything here waits on the player. (Claude code Opus 5.5) -->
+	result["blocking"] = bool(result["idleCities"] or result["idleUnits"] or result["needsResearch"] or result.get("heldPopups") or result.get("diplomacy") or result.get("freeTechOwed"))
 	return result
 
 
@@ -1782,7 +1971,7 @@ def describe(target):
 
 # Order commands
 
-_HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. args: unit, mission, data1, data2, flags, append, player."
+_HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. Under fog, MISSION_MOVE_TO_UNIT (data1=owner, data2=unit) follows only our own team's units. args: unit, mission, data1, data2, flags, append, player."
 
 
 def cmd_mission(args):
@@ -1804,6 +1993,15 @@ def cmd_mission(args):
 	# <!-- custom: The check above then refused 'MISSION_FOUND append=1' right after a 'move': canStartMission returns false while the group is busy, as it was a few ms into its move, and the same call passed seconds later (2026-11-13). isBusy is not exposed to Python, and the window does not check a shift-clicked mission either; the game checks it when it starts and drops it if invalid, and the unit then shows in 'todo'. So a mission queued behind others is not checked here. (Claude code Opus 5.5) -->
 	# <!-- custom: The data checks run for an immediate mission too: Codex's review found that a move given at once with coordinates off the map, or a build index out of range, reached native code that assumes them valid, as only queued missions were checked. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	_checkMissionData(eMission, iData1, iData2, bQueued)
+	# <!-- custom: Under fog, a Move To Unit only toward a unit of our own team: the game takes any owner and unit ID, so the order would follow a rival out of sight.
+	# A first version accepted a rival in sight, but the queued mission keeps steering toward the target's live position on later turns, so our unit's moves would still track it through fog (Codex's reviews of the unit state, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	iFogTeam = _fogTeam(args)
+	if iFogTeam >= 0 and eMission == MissionTypes.MISSION_MOVE_TO_UNIT:
+		target = None
+		if iData1 >= 0 and iData1 < gc.getMAX_PLAYERS():
+			target = gc.getPlayer(iData1).getUnit(iData2)
+		if target is None or target.isNone() or target.getTeam() != iFogTeam:
+			raise ValueError("under fog, MISSION_MOVE_TO_UNIT follows only our own team's units; for a rival, move to the plot where it is seen")
 	# <!-- custom: Nor a new order for a unit with no moves left, which the window takes and starts next turn: at turn 118 of the turn-0 game (2026-11-14) a Worker busy clearing jungle was given a replacement queue, which this check refused as "moves left 0", so its old Mine order stayed. The game checks the order when it starts, as for a queued one. (Claude code Opus 5.5) -->
 	if not bQueued and unit.movesLeft() > 0 and not group.canStartMission(eMission, iData1, iData2, plot, False):
 		# <!-- custom: Two Field Guns refused a move to Ecbatana on turn 285 (2026-11-14) with no reason given: they were in a 9-unit group that a move of one of its units had already sent there. Say the moves left and the group, so such a refusal explains itself. (Claude code Opus 5.5) -->
@@ -1825,6 +2023,39 @@ def cmd_mission(args):
 
 
 # <!-- custom: Missions that take no data, which can be queued behind others with data -1. (Claude code Opus 5.5) -->
+_HELP["buildsteps"] = "A Worker's plan over several plots in one order, as shift-clicks queue it in the window: steps=BUILD_ROAD@99,26;BUILD_FARM@100,27 moves to each plot and builds there, in order, each through the checks 'mission' makes. It replaces the unit's queue unless append=1. Returns the queue. args: unit, steps, append, player."
+
+
+def cmd_buildsteps(args):
+	# <!-- custom: At turn 66 of the islands replay (2026-11-15) roads to the Sheep and the Cattle took eight 'mission' calls from a shell loop (move, build, move, build); any Worker plan over several plots asks the same. (Claude code Opus 5.5) -->
+	unit = _unit(args)
+	steps = []
+	for szStep in str(args["steps"]).split(";"):
+		szStep = szStep.strip()
+		if not szStep:
+			continue
+		if szStep.count("@") != 1:
+			raise ValueError("step %s is not BUILD_TYPE@x,y" % szStep)
+		(szBuild, szPlot) = szStep.split("@")
+		(szX, szY) = szPlot.split(",")
+		steps.append((szBuild.strip(), int(szX), int(szY)))
+	if not steps:
+		raise ValueError("no steps; give steps=BUILD_TYPE@x,y;BUILD_TYPE@x,y")
+	bAppend = bool(args.get("append"))
+	for (szBuild, x, y) in steps:
+		base = {"unit": unit.getID(), "player": unit.getOwner()}
+		move = dict(base)
+		move.update({"mission": "MISSION_MOVE_TO", "data1": x, "data2": y, "append": bAppend})
+		if (unit.getX(), unit.getY()) != (x, y) or bAppend:
+			cmd_mission(move)
+			bAppend = True
+		build = dict(base)
+		build.update({"mission": "MISSION_BUILD", "data1": szBuild, "append": bAppend})
+		cmd_mission(build)
+		bAppend = True
+	return {"unit": unit.getID(), "missions": _missionQueue(unit.getGroup())}
+
+
 _HELP["settle"] = "Give every idle group the first of MISSION_FORTIFY, MISSION_SLEEP or MISSION_SKIP it can start, as a player would before ending the turn: 'todo's idleUnits, once per group. MISSION_SKIP lasts one turn, so those units come back. args: player."
 
 
@@ -1994,13 +2225,877 @@ def cmd_borders(args):
 	return {"landPlots": land.get(player.getID(), 0), "players": rows}
 
 
-_HELP["reminders"] = "What a player would want pointed out, beyond what 'todo' says must be decided before the turn ends: no research, an empty build queue, a starving or angry city, a wounded unit outside our borders, gold that runs out within ten turns at the current rate, and techs we could trade to a met player now. Each entry has its check, a text and the thing it is about. Only what the player's own screens show. args: player."
+_HELP["targets"] = "War targets and threats side by side, facts rather than one score. Per player met: power against ours (per mille, where the scoreboard shows it), our frontier and the distance from their nearest seen city to ours (from 'borders'), cities seen, war, their attitude toward us and whether we are their worst enemy; then the diplomatic cost of a war on them: who is Pleased or Friendly with them (angered), who has them as worst enemy or fights them (pleased), who would join a war on them if asked, and the players a war on them also brings in, their defensive pacts, masters and vassals. 'threat' flags a rival at least as strong as us that is Annoyed or Furious with us, has us as worst enemy or fights us, however far away: an attack from far is rarer but happens. Sorted by frontier. args: player."
+
+
+def cmd_targets(args):
+	# <!-- custom: The user's points at turn 200 of a Large autoplay (2026-11-15): pick a target on more than weakness and nearness, as a war costs attitude with the target's friends (and expansion annoys some anyway), attacking someone's friend angers them, and a strong rival far away rarely attacks but is not harmless. 'relations' and 'borders' each held part of this; this puts it in one row per player. (Claude code Opus 5.5) -->
+	player = _player(args)
+	team = gc.getTeam(player.getTeam())
+	fronts = dict([(row["player"], row) for row in cmd_borders(args)["players"]])
+	relations = cmd_relations(args)["players"]
+	rows = []
+	for entry in relations:
+		iOther = entry["player"]
+		other = gc.getPlayer(iOther)
+		otherTeam = gc.getTeam(other.getTeam())
+		front = fronts.get(iOther, {})
+		row = {"player": iOther, "name": entry["name"], "powerRatioPerMille": entry.get("powerRatioPerMille"), "frontier": front.get("frontier", 0), "closestCityDistance": entry.get("closestCityDistance"),
+			"citiesSeen": entry["citiesSeen"], "atWar": entry["atWar"], "attitudeToUs": entry["attitude"][9:], "attitudeValue": entry.get("attitudeValue"),
+			"weAreWorstEnemy": bool(not otherTeam.isHuman() and other.getWorstEnemyName() and other.getWorstEnemyName() == team.getName())}
+		angered = []
+		pleased = []
+		joiners = []
+		for third in relations:
+			if third["player"] == iOther:
+				continue
+			view = third["viewsOf"].get(entry["name"])
+			if view is None:
+				continue
+			if view["attitude"] in ("PLEASED", "FRIENDLY"):
+				angered.append(third["name"])
+			if view["worstEnemy"] or view["atWar"]:
+				pleased.append(third["name"])
+			if view.get("wouldJoinWarIfAsked"):
+				joiners.append(third["name"])
+		row["angered"] = angered
+		row["pleased"] = pleased
+		row["wouldJoinIfAsked"] = joiners
+		# <!-- custom: A war on a vassal is a war on its master, and a defensive pact brings the partner in; both are known to a player from the Foreign Advisor. (Claude code Opus 5.5) -->
+		row["alsoAtWarWith"] = [gc.getPlayer(i).getName() for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and gc.getPlayer(i).getTeam() != other.getTeam() and gc.getPlayer(i).getTeam() != player.getTeam()
+			and team.isHasMet(gc.getPlayer(i).getTeam()) and (otherTeam.isDefensivePact(gc.getPlayer(i).getTeam()) or otherTeam.isVassal(gc.getPlayer(i).getTeam()) or gc.getTeam(gc.getPlayer(i).getTeam()).isVassal(other.getTeam()))]
+		if otherTeam.isVassal(player.getTeam()):
+			row["ourVassal"] = True
+		iRatio = row["powerRatioPerMille"]
+		row["threat"] = bool(iRatio is not None and iRatio >= 1000 and (row["attitudeToUs"] in ("ANNOYED", "FURIOUS") or row["weAreWorstEnemy"] or row["atWar"]))
+		rows.append(row)
+	rows.sort(lambda a, b: cmp(b["frontier"], a["frontier"]))
+	return {"players": rows}
+
+
+_HELP["rivalcities"] = "Rival cities near ours, as a player can judge them: per seen city within 'range' plots of our nearest city (default 12; player=<id> of the owner to keep one rival), its owner, population, capital, coast, the defense bonus its city bar shows, the defenders on it when we see the plot now, the bonuses in its radius we do not have, and an estimate of its food surplus and production from the tiles we have seen, assuming it works its best tiles for its population. Beside them our cities' population (average and largest) and the game's progress. args: range, owner, player."
+
+
+def cmd_rivalcities(args):
+	# <!-- custom: The user's next step in choosing a target at turn 200 of a Large autoplay (2026-11-15): look at the nearby cities, how well guarded, which bonuses they have that we lack, their population against ours and the game's stage, their growth and production; estimated from the yields we can see when we cannot look inside. (Claude code Opus 5.5) -->
+	player = _player(args)
+	_requireOwnTeamUnderFog(args, player, "rival cities")
+	iTeam = _fogTeam(args)
+	iSeeTeam = player.getTeam()
+	team = gc.getTeam(iSeeTeam)
+	iRange = int(args.get("range", 12))
+	ours = _cities(player)
+	if not ours:
+		raise ValueError("player %d has no city to measure from" % player.getID())
+	game = gc.getGame()
+	pops = [city.getPopulation() for city in ours]
+	result = {"turn": game.getGameTurn(), "estimatedEndTurn": game.getEstimateEndTurn(), "ourCities": len(ours), "ourAveragePopulation": sum(pops) / len(pops), "ourLargestPopulation": max(pops)}
+	iFoodPerPop = gc.getFOOD_CONSUMPTION_PER_POPULATION()
+	cities = []
+	for iOwner in range(gc.getMAX_CIV_PLAYERS()):
+		other = gc.getPlayer(iOwner)
+		if iOwner == player.getID() or not other.isAlive() or not team.isHasMet(other.getTeam()):
+			continue
+		if args.get("owner") is not None and int(args["owner"]) != iOwner:
+			continue
+		for city in _cities(other):
+			if iTeam >= 0 and not city.isRevealed(iTeam, False):
+				continue
+			iDistance = min([plotDistance(city.getX(), city.getY(), mine.getX(), mine.getY()) for mine in ours])
+			if iDistance > iRange:
+				continue
+			row = {"owner": iOwner, "ownerName": other.getName(), "name": city.getName(), "x": city.getX(), "y": city.getY(), "distance": iDistance, "population": city.getPopulation(),
+				"capital": bool(city.isCapital()), "coastal": bool(city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN())), "defensePercent": city.getDefenseModifier(False)}
+			center = city.plot()
+			# <!-- custom: Defenders only while we see the plot now, as the window shows a city's units; otherwise null, not an empty list, which would read as undefended. (Claude code Opus 5.5) -->
+			row["defenders"] = None
+			if iTeam < 0 or center.isVisible(iSeeTeam, False):
+				units = [center.getUnit(i) for i in range(center.getNumUnits())]
+				# <!-- custom: CyUnit.canDefend takes the plot, unlike CvUnit::canDefend's default argument: canDefend() failed with a Boost ArgumentError on the first run. (Claude code Opus 5.5) -->
+				row["defenders"] = [{"unit": gc.getUnitInfo(unit.getUnitType()).getType(), "strength": unit.baseCombatStr(), "damage": unit.getDamage()} for unit in units if unit.canDefend(center) and not unit.isInvisible(iSeeTeam, False)]
+			lacking = {}
+			tiles = []
+			for i in range(gc.getNUM_CITY_PLOTS()):
+				plot = city.getCityIndexPlot(i)
+				if plot is None or plot.isNone() or (iTeam >= 0 and not plot.isRevealed(iTeam, False)):
+					continue
+				iBonus = plot.getBonusType(iSeeTeam)
+				iPlotOwner = plot.getOwner()
+				if iTeam >= 0:
+					iPlotOwner = plot.getRevealedOwner(iTeam, False)
+				if iBonus >= 0 and iPlotOwner == iOwner and player.getNumAvailableBonuses(iBonus) == 0:
+					lacking[gc.getBonusInfo(iBonus).getType()] = True
+				# <!-- custom: Yields from what we have seen: the plot's nature for our team plus the improvement we last saw there, for the owner, not the live yield, which would tell of improvements built out of sight. (Claude code Opus 5.5) -->
+				iImprovement = plot.getImprovementType()
+				if iTeam >= 0:
+					iImprovement = plot.getRevealedImprovementType(iTeam, False)
+				yields = []
+				# <!-- custom: Both yield calls are bound with some enum types themselves, so plain ints failed with Boost ArgumentErrors on the first runs: calculateNatureYield wants YieldTypes and TeamTypes, calculateImprovementYieldChange YieldTypes but ints for the improvement and player. (Claude code Opus 5.5) -->
+				for iYield in range(3):
+					iAmount = plot.calculateNatureYield(YieldTypes(iYield), TeamTypes(iSeeTeam), False)
+					if iImprovement >= 0:
+						iAmount += plot.calculateImprovementYieldChange(iImprovement, YieldTypes(iYield), iOwner, False)
+					yields.append(max(0, iAmount))
+				if i == 0:
+					center_yields = yields
+				elif iPlotOwner == iOwner:
+					tiles.append(yields)
+			row["bonusesWeLack"] = sorted(lacking.keys())
+			# <!-- custom: Best tiles by food twice plus production plus commerce, as a city governor favours food; the estimate ignores specialists, buildings, health and happiness, so it is a rough guide. (Claude code Opus 5.5) -->
+			tiles.sort(lambda a, b: cmp(2 * b[0] + b[1] + b[2], 2 * a[0] + a[1] + a[2]))
+			worked = tiles[:city.getPopulation()]
+			row["estimate"] = {"foodSurplus": center_yields[0] + sum([t[0] for t in worked]) - iFoodPerPop * city.getPopulation(), "production": center_yields[1] + sum([t[1] for t in worked]),
+				"commerce": center_yields[2] + sum([t[2] for t in worked]), "tilesSeen": len(tiles), "tilesWorked": len(worked)}
+			cities.append(row)
+	cities.sort(lambda a, b: cmp(a["distance"], b["distance"]))
+	result["cities"] = cities
+	return result
+
+
+_HELP["world"] = "What every player can know about the world, met or not, as the Info screen's Top 5 Cities / Wonders tab shows it: each world wonder built with its year (negative BC, as the tab dates it), and its owner and city only where the tab names them (our team, a player met, or a city seen; otherwise null); national and team wonders of our team and of met players in cities seen; every project built, its team named once met; the five top cities by the tab's own ranking with size, founding turn and world wonders, named with their owner only once seen, and from their wonders what a player can work out: the owner the Wonders list gives one of them (ownerFromWonders), the religions whose holy city it is (a shrine), and foundedAtStart (a capital, so each is another civilization); how many rivals are alive against how many we have met (the Victory screen's Rivals left); each founded religion's turn and world influence with its holy city and leader once seen, each corporation's headquarters once seen; and each vote source, whether its building stands, its builder once met, its religion and total votes. The rival averages in 'demographics' count unmet rivals too. args: player."
+
+
+def cmd_world(args):
+	# <!-- custom: The user's point at turn 120 of a SAS48 island autoplay (2026-11-15): with only 2 of the rivals met, the Wonders tab still dated 20 wonders built by "Unknown" owners and the Top 5 Cities showed four unknown cities' sizes, founding dates and wonders. Public intelligence a player has, which no command read. Follows CvInfoScreen's tests. (Claude code Opus 5.5) -->
+	player = _player(args)
+	team = gc.getTeam(player.getTeam())
+	iTeam = player.getTeam()
+	wonders = []
+	nationalWonders = []
+	ranked = []
+	# <!-- custom: The wonder buildings are found once, not per city: the first version tested every building's XML for every city, and at turn 120 of the SAS48 islands save (48 players) world took 52 ms in game, and 4 ms after this change, with the same reply. (Claude code Opus 5.5) -->
+	worldWonderIds = []
+	nationalWonderIds = []
+	for iBuilding in range(gc.getNumBuildingInfos()):
+		info = gc.getBuildingInfo(iBuilding)
+		buildingClass = gc.getBuildingClassInfo(info.getBuildingClassType())
+		if buildingClass.getMaxGlobalInstances() > -1:
+			worldWonderIds.append((iBuilding, info.getType()))
+		# <!-- custom: The tab's National Wonders mode (the user's follow-up): national and team wonders of our team, and of a met player only in a city we have seen, so these are not public like world wonders. (Claude code Opus 5.5) -->
+		elif (buildingClass.getMaxPlayerInstances() > -1 or buildingClass.getMaxTeamInstances() > -1) and not info.isCapital():
+			nationalWonderIds.append((iBuilding, info.getType()))
+	for iOwner in range(gc.getMAX_PLAYERS()):
+		owner = gc.getPlayer(iOwner)
+		if not owner.isAlive():
+			continue
+		bKnown = owner.getTeam() == iTeam or team.isHasMet(owner.getTeam())
+		for city in _cities(owner):
+			bSeen = city.isRevealed(iTeam, False)
+			cityWonders = []
+			if owner.getTeam() == iTeam or (bKnown and bSeen):
+				for iBuilding, szType in nationalWonderIds:
+					if city.getNumBuilding(iBuilding) > 0:
+						nationalWonders.append({"wonder": szType, "year": city.getBuildingOriginalTime(iBuilding), "owner": owner.getName(), "city": city.getName()})
+			for iBuilding, szType in worldWonderIds:
+				if city.getNumBuilding(iBuilding) > 0:
+					cityWonders.append(szType)
+					entry = {"wonder": szType, "year": city.getBuildingOriginalTime(iBuilding), "owner": None, "city": None}
+					# <!-- custom: As the tab's list does (advc.001d): the owner is named for our team, a player met or a city seen, as its borders' colour tells whose it is; the city only once seen. (Claude code Opus 5.5) -->
+					if bKnown or bSeen:
+						entry["owner"] = owner.getName()
+						entry["ownerId"] = iOwner
+					if bSeen:
+						entry["city"] = city.getName()
+					wonders.append(entry)
+			if not owner.isBarbarian():
+				# <!-- custom: The tab's ranking, CvInfoScreen.calculateTopCities: (culture / 5 + food + production + gold rates) times population. Its getFoodRate and the others are PyHelpers' PyCity wrappers over getYieldRate, which CyCity lacks: the first run failed on getFoodRate. (Claude code Opus 5.5) -->
+				iValue = (city.getCulture(iOwner) / 5 + city.getYieldRate(YieldTypes.YIELD_FOOD) + city.getYieldRate(YieldTypes.YIELD_PRODUCTION) + city.getYieldRate(YieldTypes.YIELD_COMMERCE)) * city.getPopulation()
+				row = {"population": city.getPopulation(), "founded": city.getGameTurnFounded(), "wonders": cityWonders, "name": None, "owner": None}
+				if bSeen:
+					row["name"] = city.getName()
+					row["owner"] = owner.getName()
+				ranked.append((iValue, row))
+	wonders.sort(lambda a, b: cmp(a["year"], b["year"]))
+	ranked.sort(lambda a, b: cmp(b[0], a[0]))
+	# <!-- custom: The user hoped a top city's name would tell an unmet rival's civilization; it does not: unseen cities show "UNKNOWN", and AdvCiv (advc.001d) even dropped BtS's naming of a met player's unseen city. Its wonder icons still tell what a player can work out from the two public lists:
+	# a wonder the Wonders tab gives an owner names the top city's owner (at turn 120 of the SAS48 islands save, the Natya Shastra made the third an unseen Maya city); a shrine marks a religion's holy city; a city founded on the start turn is a capital, so each is another civilization. (Claude code Opus 5.5) -->
+	# <!-- custom: By player ID, not name: in the same save the Settings tab listed a second, unmet Pacal II of Maya beside the met one, as random setups can repeat a leader or civilization. (Claude code Opus 5.5) -->
+	wonderOwners = {}
+	for entry in wonders:
+		if entry["owner"] is not None:
+			wonderOwners[entry["wonder"]] = entry["ownerId"]
+	iStartTurn = gc.getGame().getStartTurn()
+	for (iValue, row) in ranked[:5]:
+		row["foundedAtStart"] = row["founded"] == iStartTurn
+		row["holyCityOf"] = []
+		inferred = []
+		for szWonder in row["wonders"]:
+			info = gc.getBuildingInfo(gc.getInfoTypeForString(szWonder))
+			iReligion = info.getHolyCity()
+			if iReligion == -1:
+				iReligion = info.getGlobalReligionCommerce()
+			if iReligion != -1:
+				row["holyCityOf"].append(gc.getReligionInfo(iReligion).getType())
+			if row["owner"] is None and wonderOwners.has_key(szWonder) and wonderOwners[szWonder] not in inferred:
+				inferred.append(wonderOwners[szWonder])
+		row["ownerFromWonders"] = None
+		if len(inferred) == 1:
+			row["ownerFromWonders"] = {"id": inferred[0], "name": gc.getPlayer(inferred[0]).getName()}
+	rivals =[gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isMinorCiv() and gc.getPlayer(i).getTeam() != iTeam]
+	game = gc.getGame()
+	# <!-- custom: The tab's Projects mode: every project any team has built is listed, its team named only for ours or a met one, and without a date, as the tab shows them; so a mod-mod's early project shows up even from players not met. (Claude code Opus 5.5) -->
+	projects = []
+	for iLoopTeam in range(gc.getMAX_TEAMS()):
+		loopTeam = gc.getTeam(iLoopTeam)
+		if not loopTeam.isAlive() or loopTeam.isBarbarian():
+			continue
+		for iProject in range(gc.getNumProjectInfos()):
+			for i in range(loopTeam.getProjectCount(iProject)):
+				builder = None
+				if iLoopTeam == iTeam or team.isHasMet(iLoopTeam):
+					builder = loopTeam.getName()
+				projects.append({"project": gc.getProjectInfo(iProject).getType(), "builder": builder})
+	# <!-- custom: The Policy Advisor's Religions and Corporations tabs, the user's next pointer at the same turn: every founded religion's date and world influence, which count unmet civs, but its holy city and leader only once the city is seen, as CvPolicyAdvisorScreen tests (advc.001d); likewise a corporation's headquarters. (Claude code Opus 5.5) -->
+	religions = []
+	for iReligion in range(gc.getNumReligionInfos()):
+		iFounded = game.getReligionGameTurnFounded(iReligion)
+		if iFounded < 0:
+			continue
+		row = {"religion": gc.getReligionInfo(iReligion).getType(), "foundedTurn": iFounded, "influencePercent": game.calculateReligionPercent(iReligion), "holyCity": None, "leader": None}
+		holy = game.getHolyCity(iReligion)
+		if not holy.isNone() and holy.isRevealed(iTeam, False):
+			row["holyCity"] = holy.getName()
+			row["leader"] = gc.getPlayer(holy.getOwner()).getName()
+		religions.append(row)
+	corporations = []
+	for iCorporation in range(gc.getNumCorporationInfos()):
+		iFounded = game.getCorporationGameTurnFounded(iCorporation)
+		if iFounded < 0:
+			continue
+		row = {"corporation": gc.getCorporationInfo(iCorporation).getType(), "foundedTurn": iFounded, "headquarters": None, "owner": None}
+		hq = game.getHeadquarters(iCorporation)
+		if not hq.isNone() and hq.isRevealed(iTeam, False):
+			row["headquarters"] = hq.getName()
+			row["owner"] = gc.getPlayer(hq.getOwner()).getName()
+		corporations.append(row)
+	# <!-- custom: The Victory screen's diplomatic rows and Resolutions tab: whether each vote building stands, its builder only when met ("Built by An Unknown Civilization" otherwise, which raised KI#118.2 before its fix), the vote source's religion, and its total votes, which grow with that religion's or the world's population, met or not. (Claude code Opus 5.5) -->
+	voteSources = []
+	for iSource in range(gc.getNumVoteSourceInfos()):
+		row = {"voteSource": gc.getVoteSourceInfo(iSource).getType(), "built": False, "builder": None, "religion": _typeOrNone(gc.getReligionInfo, game.getVoteSourceReligion(iSource))}
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			if gc.getBuildingInfo(iBuilding).getVoteSourceType() != iSource:
+				continue
+			iClass = gc.getBuildingInfo(iBuilding).getBuildingClassType()
+			for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+				loopTeam = gc.getTeam(iLoopTeam)
+				if loopTeam.isAlive() and not loopTeam.isBarbarian() and loopTeam.getBuildingClassCount(iClass) > 0:
+					row["built"] = True
+					if iLoopTeam == iTeam or team.isHasMet(iLoopTeam):
+						row["builder"] = loopTeam.getName()
+		if game.isDiploVote(iSource):
+			row["totalVotes"] = max([0] + [game.countPossibleVote(iVote, iSource) for iVote in range(gc.getNumVoteInfos())])
+		voteSources.append(row)
+	return {"wonders": wonders, "topCities": [row for (iValue, row) in ranked[:5]], "rivalsAlive": len(rivals), "rivalsMet": len([p for p in rivals if team.isHasMet(p.getTeam())]), "religions": religions, "corporations": corporations, "voteSources": voteSources, "nationalWonders": nationalWonders, "projects": projects}
+
+
+_HELP["timeline"] = "The Info screen's Timeline tab as entries, newest first: the same filter, so only what the player may know: events of met players in plots revealed to us (era changes, first discoveries, Great People born, cities founded where we saw the owner, wars, wonders), plus the public announcements every player gets, religion and corporation foundings and world wonders, in their faraway-land form where the tab words them so. Each entry has its turn, date, text, kind (MAJOR_EVENT or CITY_FOUNDED), its player once met (else null) and public (a public announcement). since=<turn> keeps later turns, find=<text> entries whose text holds it (any case), public=1 only public announcements; limit (default 40) caps the list, 'total' counts every match. args: since, find, public, limit, player."
+
+
+def cmd_timeline(args):
+	# <!-- custom: The user's follow-up after the public-information survey (2026-11-15): the Timeline shows met rivals' era changes, first discoveries and Great People, which no command read. Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so the pilot and the tab share one filter and the open screen's own state and cache stay untouched. (Claude code Opus 5.5) -->
+	import copy
+	player = _player(args)
+	iTeam = player.getTeam()
+	team = gc.getTeam(iTeam)
+	view = copy.copy(CvScreensInterface.infoScreen)
+	view.iActivePlayer = player.getID()
+	view.pActivePlayer = player
+	view.iActiveTeam = iTeam
+	view.pActiveTeam = team
+	view.bRevealAll = False
+	# <!-- custom: The screen sets TEXT_TIMELINE_UNKNOWN_CITY in initText when it opens, not in __init__: the first run, with the Info screen never opened, failed on that attribute. Calling initText then failed on X_EXIT, as it also sizes the layout, so only the one text the records need is set here, from the screen's own key. (Claude code Opus 5.5) -->
+	view.TEXT_TIMELINE_UNKNOWN_CITY = CyTranslator().getText("TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY", ())
+	replayInfo = CyReplayInfo()
+	replayInfo.createInfo(player.getID())
+	kinds = {}
+	for szName in ("REPLAY_MESSAGE_MAJOR_EVENT", "REPLAY_MESSAGE_CITY_FOUNDED", "REPLAY_MESSAGE_PLOT_OWNER_CHANGE"):
+		eKind = getattr(ReplayMessageTypes, szName, None)
+		if eKind is not None:
+			kinds[int(eKind)] = szName[len("REPLAY_MESSAGE_"):]
+	iSince = int(args.get("since", -1))
+	szFind = args.get("find", "").lower()
+	bPublicOnly = str(args.get("public", "0")) == "1"
+	iLimit = int(args.get("limit", 40))
+	entries = []
+	iTotal = 0
+	for iTurn, szDate, szText, eColor, iPlayer, eKind, bMet, bPublic in view.getTimelineRecords(replayInfo):
+		if iTurn < iSince or (bPublicOnly and not bPublic) or (szFind and szText.lower().find(szFind) == -1):
+			continue
+		iTotal += 1
+		if len(entries) >= iLimit:
+			continue
+		szPlayer = None
+		# <!-- custom: The record carries the replay's own player even for an unmet one, whose name a player does not know, so it is named only once met. (Claude code Opus 5.5) -->
+		if iPlayer > -1 and (bMet or gc.getPlayer(iPlayer).getTeam() == iTeam):
+			szPlayer = gc.getPlayer(iPlayer).getName()
+		entries.append({"turn": iTurn, "date": szDate, "text": szText, "kind": kinds.get(int(eKind), int(eKind)), "player": szPlayer, "public": bool(bPublic)})
+	return {"entries": entries, "total": iTotal, "turn": gc.getGame().getGameTurn()}
+
+
+# <!-- custom: The AI personality fields the Sevopedia's leader panel shows that most change a game (the user's point: Gandhi, Willem and Pacal do not make the same game as Montezuma, Boudica and Caesar). (Claude code Opus 5.5) -->
+_PERSONALITY_FIELDS = (("totalWar", "getMaxWarRand"), ("limitedWar", "getLimitedWarRand"), ("dogpileWar", "getDogpileWarRand"), ("makePeace", "getMakePeaceRand"), ("nearbyWarPowerRatio", "getMaxWarNearbyPowerRatio"), ("baseAttitude", "getBaseAttitude"), ("peaceWeight", "getBasePeaceWeight"), ("warmongerRespect", "getWarmongerRespect"), ("wonders", "getWonderConstructRand"), ("buildUnits", "getBuildUnitProb"), ("razeCity", "getRazeCityProb"), ("riskyAttacks", "getBaseAttackOddsChange"), ("cultureVictory", "getCultureVictoryWeight"), ("spaceVictory", "getSpaceVictoryWeight"), ("conquestVictory", "getConquestVictoryWeight"), ("dominationVictory", "getDominationVictoryWeight"), ("diplomacyVictory", "getDiplomacyVictoryWeight"))
+
+
+def _personality(eLeader):
+	# <!-- custom: raw is the live XML value; rank is the panel's own 0-100 standing among all leaders from its predumped cache (SevoPediaLeaderCachePredumped), already inverted where a lower raw value means more of it, e.g. a lower iMaxWarRand means total war more often, so a higher rank always means more of what the field names.
+	# The cache is keyed by leader index; CI's aip_predump_values.py checks it against the leader XML, and on 2026-11-15 all 4290 values matched the live game. (Claude code Opus 5.5) -->
+	import SevoPediaLeaderCachePredumped
+	leaderInfo = gc.getLeaderHeadInfo(eLeader)
+	cached = SevoPediaLeaderCachePredumped.LEADERS_INFO_CACHED.get(eLeader, {})
+	row = {}
+	for szName, szGetter in _PERSONALITY_FIELDS:
+		iRank = None
+		if cached.has_key(szGetter):
+			iRank = cached[szGetter][1]
+		row[szName] = {"raw": getattr(leaderInfo, szGetter)(), "rank": iRank}
+	row["favoriteCivic"] = None
+	if leaderInfo.getFavoriteCivic() != -1:
+		row["favoriteCivic"] = gc.getCivicInfo(leaderInfo.getFavoriteCivic()).getType()
+	return row
+
+
+def _leaderFacts(eLeader):
+	# <!-- custom: A leader's type, traits and AI personality, shared by settings' named leaders and its possibleLeaders, which first rebuilt the traits inline. (Claude code Opus 5.5) -->
+	leaderInfo = gc.getLeaderHeadInfo(eLeader)
+	return {"leader": leaderInfo.getType(), "traits": [gc.getTraitInfo(i).getType() for i in range(gc.getNumTraitInfos()) if leaderInfo.hasTrait(i)], "personality": _personality(eLeader)}
+
+
+def _settingsCiv(eLeader, eCiv):
+	# <!-- custom: A leader's traits and a civilization's unique units and buildings, as XML facts the Sevopedia shows anyone; None where the Settings tab does not tell which leader or civilization it is. (Claude code Opus 5.5) -->
+	row = {"leader": None, "traits": None, "personality": None, "civilization": None, "uniqueUnits": None, "uniqueBuildings": None}
+	if eLeader != -1:
+		row.update(_leaderFacts(eLeader))
+	if eCiv != -1:
+		civ = gc.getCivilizationInfo(eCiv)
+		row["civilization"] = civ.getType()
+		row["uniqueUnits"] = []
+		for iClass in range(gc.getNumUnitClassInfos()):
+			eUnit = civ.getCivilizationUnits(iClass)
+			if eUnit != -1 and eUnit != gc.getUnitClassInfo(iClass).getDefaultUnitIndex():
+				row["uniqueUnits"].append(gc.getUnitInfo(eUnit).getType())
+		row["uniqueBuildings"] = []
+		for iClass in range(gc.getNumBuildingClassInfos()):
+			eBuilding = civ.getCivilizationBuildings(iClass)
+			if eBuilding != -1 and eBuilding != gc.getBuildingClassInfo(iClass).getDefaultBuildingIndex():
+				row["uniqueBuildings"].append(gc.getBuildingInfo(eBuilding).getType())
+	return row
+
+
+_HELP["settings"] = "The Victory screen's Settings tab: the game being played. Our leader and civilization with traits, unique units and buildings, and whether we were chosen at random; difficulty (ours, the game's, and the AI's under Rise and Fall); map script, world size with the real grid, climate, sea level, non-default map options and the AI's land-heavy / naval-heavy reading of the map; players ever alive and whether all or none were random; starting era and turn, game speed; game options, disabled victories, Aggressive AI, Advanced Start points, and in multiplayer its options, turn limit and city elimination; the mod build running and the builds the save was made with. Then the rivals as the tab lists them: those met with ID, name, leader, civilization, traits and uniques, and, when the civilizations and leaders chosen at setup are known (advc.190c), those not met that were not random, with only the leader or the civilization when the other was random (then possibleLeaders with their traits, or possibleCivilizations, the picks the known half allows unless Lead Any Civ is on), and a count of fully random ones (unknownRivals). Every leader named comes with its AI personality as the Sevopedia's leader panel ranks it: war odds (total, limited, dogpile), making peace, attitude, peace weight, respect for warmongers, wonders, units, razing, risky attacks, each victory's weight and the favorite civic, each with its raw XML value and its 0-100 rank among all leaders (higher means more of it). args: player."
+
+
+def cmd_settings(args):
+	# <!-- custom: The user's point (2026-11-15): you need to know what game you are playing before making decisions. Follows CvVictoryScreen.showGameSettingsScreen line by line; the tab shows a rival not met only when the setup is known and that pick was not random, the same here. (Claude code Opus 5.5) -->
+	player = _player(args)
+	g = gc.getGame()
+	m = gc.getMap()
+	bSetupKnown = g.isCivLeaderSetupKnown()
+	bAllRandom = bSetupKnown
+	bNoneRandom = bSetupKnown
+	if bSetupKnown:
+		for i in range(gc.getMAX_CIV_PLAYERS()):
+			p = gc.getPlayer(i)
+			if not p.isEverAlive() or p.isMinorCiv():
+				continue
+			if p.wasCivRandomlyChosen() or p.wasLeaderRandomlyChosen():
+				bNoneRandom = False
+			if not p.wasCivRandomlyChosen() or not p.wasLeaderRandomlyChosen():
+				bAllRandom = False
+	us = _settingsCiv(player.getLeaderType(), player.getCivilizationType())
+	us["name"] = player.getName()
+	us["civRandom"] = None
+	us["leaderRandom"] = None
+	if bSetupKnown and not bAllRandom and not bNoneRandom:
+		us["civRandom"] = bool(player.wasCivRandomlyChosen())
+		us["leaderRandom"] = bool(player.wasLeaderRandomlyChosen())
+	handicap = {"player": gc.getHandicapInfo(player.getHandicapType()).getType(), "game": gc.getHandicapInfo(g.getHandicapType()).getType(), "ai": None}
+	if g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+		handicap["ai"] = gc.getHandicapInfo(g.getAIHandicap()).getType()
+	mapOptions = []
+	for i in range(m.getNumCustomMapOptions()):
+		szDesc = m.getNonDefaultCustomMapOptionDesc(i)
+		if len(szDesc) > 0:
+			mapOptions.append(szDesc)
+	result = {"us": us, "handicap": handicap, "mapScript": m.getMapScriptName(), "worldSize": gc.getWorldInfo(m.getWorldSize()).getType(), "grid": [m.getGridWidth(), m.getGridHeight()], "climate": gc.getClimateInfo(m.getClimate()).getType(), "seaLevel": gc.getSeaLevelInfo(m.getSeaLevel()).getType(), "mapOptions": mapOptions, "mapOptionsAll": _mapOptionsAll(m.getMapScriptName()), "landHeavy": bool(g.isLandHeavyMapnameCached()), "navalHeavy": bool(g.isNavalHeavyMapnameCached())}
+	result["playersEverAlive"] = g.countCivPlayersEverAlive()
+	result["allRandom"] = bAllRandom
+	result["noneRandom"] = bNoneRandom and not g.isScenario()
+	result["startEra"] = gc.getEraInfo(g.getStartEra()).getType()
+	result["startTurn"] = g.getStartTurn()
+	result["gameSpeed"] = gc.getGameSpeedInfo(g.getGameSpeedType()).getType()
+	result["options"] = [gc.getGameOptionInfo(i).getType() for i in range(GameOptionTypes.NUM_GAMEOPTION_TYPES) if g.isOption(i)]
+	result["victoriesDisabled"] = [gc.getVictoryInfo(i).getType() for i in range(gc.getNumVictoryInfos()) if not g.isVictoryValid(i)]
+	result["legacyAI"] = bool(g.useKModAI())
+	result["advancedStartPoints"] = None
+	if g.isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START):
+		result["advancedStartPoints"] = g.getNumAdvancedStartPoints()
+	if g.isGameMultiPlayer():
+		result["mpOptions"] = [gc.getMPOptionInfo(i).getType() for i in range(gc.getNumMPOptionInfos()) if g.isMPOption(i)]
+		result["maxTurns"] = g.getMaxTurns()
+		result["maxCityElimination"] = g.getMaxCityElimination()
+	met = []
+	notMet = []
+	iUnknown = 0
+	for i in range(gc.getMAX_CIV_PLAYERS()):
+		p = gc.getPlayer(i)
+		if not p.isEverAlive() or i == player.getID() or p.isMinorCiv():
+			continue
+		if gc.getTeam(p.getTeam()).isHasMet(player.getTeam()):
+			row = _settingsCiv(p.getLeaderType(), p.getCivilizationType())
+			row["id"] = i
+			row["name"] = p.getName()
+			row["alive"] = bool(p.isAlive())
+			met.append(row)
+		elif bSetupKnown:
+			if p.wasCivRandomlyChosen() and p.wasLeaderRandomlyChosen():
+				iUnknown += 1
+				continue
+			eLeader = -1
+			eCiv = -1
+			if not p.wasLeaderRandomlyChosen():
+				eLeader = p.getLeaderType()
+			if not p.wasCivRandomlyChosen():
+				eCiv = p.getCivilizationType()
+			row = _settingsCiv(eLeader, eCiv)
+			# <!-- custom: A random pick is drawn from what the known half allows (CvInitCore: a random leader among the civilization's isLeaders, a random civilization among the playable ones that list the leader), unless Lead Any Civ is on, so a player narrows it with the Sevopedia: at turn 120 of the SAS48 islands save, five rivals were listed by civilization only. (Claude code Opus 5.5) -->
+			row["possibleLeaders"] = None
+			row["possibleCivilizations"] = None
+			if not g.isOption(GameOptionTypes.GAMEOPTION_LEAD_ANY_CIV):
+				if eLeader == -1 and eCiv != -1:
+					civ = gc.getCivilizationInfo(eCiv)
+					row["possibleLeaders"] = [_leaderFacts(l) for l in range(gc.getNumLeaderHeadInfos()) if civ.isLeaders(l)]
+				if eCiv == -1 and eLeader != -1:
+					row["possibleCivilizations"] = [gc.getCivilizationInfo(c).getType() for c in range(gc.getNumCivilizationInfos()) if gc.getCivilizationInfo(c).isPlayable() and gc.getCivilizationInfo(c).isLeaders(eLeader)]
+			notMet.append(row)
+	# <!-- custom: The tab's last Settings rows: the mod build running and the builds this save was made and continued with. (Claude code Opus 5.5) -->
+	import CvModName
+	result["runtimeSource"] = CvModName.getDisplayNameAndVersion()
+	result["saveHistory"] = [{"version": CvModName.formatVersionDetails(g.getSASVersionHistoryVersion(i), g.getSASVersionHistoryCommitHash(i), g.getSASVersionHistoryDirtyState(i)), "turn": g.getSASVersionHistoryTurn(i)} for i in range(g.getNumSASVersionHistoryEntries())]
+	result["setupKnown"] = bool(bSetupKnown)
+	result["met"] = met
+	result["notMet"] = notMet
+	result["unknownRivals"] = iUnknown
+	return result
+
+
+_HELP["victory"] = "The Victory screen's Victories tab, per victory still valid: Time (turns left, our score and the best met team's), Conquest (rivals left, met, our vassals), Domination (the population and land shares needed, ours, the best met team's), Cultural (Legendary cities needed and their culture, our best cities' culture and turns to it, and the best met team's seen cities), Space Race (each part needed, ours and the best met team's). The tab's percentages divide by the whole world, unmet players included, so 'world' gives what they imply: the world's population and land plots, and the population held by everyone but us. Vote sources are in 'world'. args: player."
+
+
+def _victoryValue(loopTeam, szKind, iArg):
+	if szKind == "score":
+		return gc.getGame().getTeamScore(loopTeam.getID())
+	if szKind == "population":
+		return loopTeam.getTotalPopulation()
+	if szKind == "land":
+		return loopTeam.getTotalLand()
+	if szKind == "project":
+		return loopTeam.getProjectCount(iArg)
+	return loopTeam.getBuildingClassCount(iArg)
+
+
+def _victoryBestMet(iTeam, szKind, iArg=-1):
+	# <!-- custom: The tab's 'best' column: the met team, not ours, with the highest value; None when no met team has any. A value kind rather than a lambda, as AGENTS.md avoids closures in Civ4 Python. (Claude code Opus 5.5) -->
+	team = gc.getTeam(iTeam)
+	iBest = -1
+	best = 0
+	for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+		loopTeam = gc.getTeam(iLoopTeam)
+		if iLoopTeam != iTeam and loopTeam.isAlive() and not loopTeam.isMinorCiv() and not loopTeam.isBarbarian() and team.isHasMet(iLoopTeam):
+			value = _victoryValue(loopTeam, szKind, iArg)
+			if value > best:
+				best = value
+				iBest = iLoopTeam
+	if iBest == -1:
+		return None
+	return {"team": gc.getTeam(iBest).getName(), "teamId": iBest, "value": best}
+
+
+def _victoryCultureCities(screenObject, iTeam, victory):
+	return [{"city": c[1].getName(), "culture": c[0], "turnsLeft": c[2]} for c in screenObject.getListCultureCities(iTeam, victory)]
+
+
+def cmd_victory(args):
+	# <!-- custom: The user's follow-up after the Settings tab (2026-11-15). Follows CvVictoryScreen.showVictoryConditionScreen; the culture rows reuse its getListCultureCities, which lists only cities the active team has seen (advc.001d). (Claude code Opus 5.5) -->
+	player = _player(args)
+	iTeam = player.getTeam()
+	team = gc.getTeam(iTeam)
+	g = gc.getGame()
+	import GameUtil
+	screenObject = CvScreensInterface.victoryScreen
+	iTotalPop = g.getTotalPopulation()
+	iLandPlots = gc.getMap().getLandPlots()
+	iRivals = 0
+	iMet = 0
+	iVassals = 0
+	for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+		loopTeam = gc.getTeam(iLoopTeam)
+		if iLoopTeam != iTeam and loopTeam.isAlive() and not loopTeam.isMinorCiv() and not loopTeam.isBarbarian():
+			iRivals += 1
+			if team.isHasMet(iLoopTeam):
+				iMet += 1
+			if loopTeam.isVassal(iTeam):
+				iVassals += 1
+	# <!-- custom: Our share of world population and land is our total over the world's, which counts unmet players: so the world totals, and the population everyone but us holds, are public even before contact. (Claude code Opus 5.5) -->
+	world = {"population": iTotalPop, "landPlots": iLandPlots, "ourPopulation": team.getTotalPopulation(), "populationNotOurs": iTotalPop - team.getTotalPopulation(), "ourLand": team.getTotalLand()}
+	victories = []
+	for iVictory in range(gc.getNumVictoryInfos()):
+		if not g.isVictoryValid(iVictory):
+			continue
+		victory = gc.getVictoryInfo(iVictory)
+		row = {"victory": victory.getType()}
+		if victory.isEndScore() or victory.isTargetScore():
+			row["score"] = g.getTeamScore(iTeam)
+			row["bestMetScore"] = _victoryBestMet(iTeam, "score")
+			if victory.isEndScore() and g.getMaxTurns() > g.getElapsedGameTurns():
+				row["turnsLeft"] = g.getMaxTurns() - g.getElapsedGameTurns()
+			if victory.isTargetScore() and g.getTargetScore() != 0:
+				row["targetScore"] = g.getTargetScore()
+		if victory.isConquest():
+			row["rivalsLeft"] = iRivals
+			row["rivalsMet"] = iMet
+			row["ourVassals"] = iVassals
+		if g.getAdjustedPopulationPercent(iVictory) > 0:
+			bestPop = _victoryBestMet(iTeam, "population")
+			if bestPop is not None:
+				bestPop["percent"] = bestPop["value"] * 100.0 / max(1, iTotalPop)
+			row["populationPercentNeeded"] = g.getAdjustedPopulationPercent(iVictory)
+			row["ourPopulationPercent"] = team.getTotalPopulation() * 100.0 / max(1, iTotalPop)
+			row["bestMetPopulation"] = bestPop
+		if g.getAdjustedLandPercent(iVictory) > 0:
+			bestLand = _victoryBestMet(iTeam, "land")
+			if bestLand is not None:
+				bestLand["percent"] = bestLand["value"] * 100.0 / max(1, iLandPlots)
+			row["landPercentNeeded"] = g.getAdjustedLandPercent(iVictory)
+			row["ourLandPercent"] = team.getTotalLand() * 100.0 / max(1, iLandPlots)
+			row["bestMetLand"] = bestLand
+		if victory.getReligionPercent() > 0:
+			row["religionPercentNeeded"] = victory.getReligionPercent()
+			row["religions"] = [{"religion": gc.getReligionInfo(i).getType(), "percent": g.calculateReligionPercent(i), "ourHolyCity": bool(team.hasHolyCity(i))} for i in range(gc.getNumReligionInfos()) if g.getReligionGameTurnFounded(i) >= 0]
+		if victory.getCityCulture() != CultureLevelTypes.NO_CULTURELEVEL and victory.getNumCultureCities() > 0:
+			iThreshold = GameUtil.getCultureThreshold(victory.getCityCulture())
+			row["cultureCitiesNeeded"] = victory.getNumCultureCities()
+			row["cultureLevel"] = gc.getCultureLevelInfo(victory.getCityCulture()).getType()
+			row["cultureThreshold"] = iThreshold
+			row["ourCultureCities"] = _victoryCultureCities(screenObject, iTeam, victory)
+			# <!-- custom: As the tab picks it (K-Mod): the met team whose best seen cities, each capped at the threshold, hold the most culture. (Claude code Opus 5.5) -->
+			iBestTeam = -1
+			iBestTotal = 0
+			for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
+				loopTeam = gc.getTeam(iLoopTeam)
+				if iLoopTeam != iTeam and loopTeam.isAlive() and not loopTeam.isMinorCiv() and not loopTeam.isBarbarian() and team.isHasMet(iLoopTeam):
+					iTotal = 0
+					for c in screenObject.getListCultureCities(iLoopTeam, victory):
+						iTotal += min(c[0], iThreshold)
+					if iTotal >= iBestTotal:
+						iBestTotal = iTotal
+						iBestTeam = iLoopTeam
+			row["bestMetCultureCities"] = None
+			if iBestTeam != -1:
+				row["bestMetCultureCities"] = {"team": gc.getTeam(iBestTeam).getName(), "teamId": iBestTeam, "cities": _victoryCultureCities(screenObject, iBestTeam, victory)}
+		parts = []
+		for iProject in range(gc.getNumProjectInfos()):
+			info = gc.getProjectInfo(iProject)
+			if info.getVictoryThreshold(iVictory) > 0:
+				parts.append({"project": info.getType(), "needed": info.getVictoryThreshold(iVictory), "minimum": info.getVictoryMinThreshold(iVictory), "ours": team.getProjectCount(iProject), "bestMet": _victoryBestMet(iTeam, "project", iProject)})
+		if parts:
+			row["spaceParts"] = parts
+		buildings = []
+		for iClass in range(gc.getNumBuildingClassInfos()):
+			if gc.getBuildingClassInfo(iClass).getVictoryThreshold(iVictory) > 0:
+				buildings.append({"buildingClass": gc.getBuildingClassInfo(iClass).getType(), "needed": gc.getBuildingClassInfo(iClass).getVictoryThreshold(iVictory), "ours": team.getBuildingClassCount(iClass), "bestMet": _victoryBestMet(iTeam, "buildingClass", iClass)})
+		if buildings:
+			row["buildings"] = buildings
+		victories.append(row)
+	return {"victories": victories, "world": world, "turn": g.getGameTurn()}
+
+
+_HELP["geography"] = "The map's composition as our team knows it, with takeaways. From the plots we have revealed: land and water seen (open ocean apart), each landmass seen with its land plots, our cities and each owner's plots and seen cities on it, unowned land, and whether it is fully explored (no seen land plot of it next to an unrevealed plot); then each met rival, whether it shares a landmass with us and whether we have open borders. Beside them the settings that describe the map: script, size and grid, sea level, non-default map options, and the AI's landHeavy / navalHeavy reading, which changes its unit choices. 'takeaways' turns these into short strategic notes: rivals on our landmass or none, room left to settle, exploration left, and what contact gives (research speed from met teams knowing a tech, trades) and open borders overseas (trade routes, entry into their waters). 'landmasses' counts those seen with the mean and median size of the fully explored ones; 'bonusesSeen' the bonuses on seen plots that our techs reveal, with their share. 'seaCrossing' lists our civilization's ships, whether each may enter ocean and the tech path to it, and the seen landmasses our coast reaches through seen water that is not open ocean. 'preview' gives the script's World Picker image, as every player sees it at setup. args: player."
+
+
+def _seaCrossing(player, team, iTeam, cyMap, iOcean, areas):
+	# <!-- custom: The user's point on the SAS48 islands save (2026-11-15): the AI there needed to explore other islands, and whether rows of islands can be crossed before ocean ships depends on the map and the rules, so ask the engine rather than guess from the script.
+	# Ships: each of our civilization's sea units, whether it may enter ocean (CvUnitInfo's TerrainImpassable, unless its TerrainPassableTech is known), and the tech path to it, as 'research' would queue it. (Claude code Opus 5.5) -->
+	ships = []
+	memo = {}
+	civ = gc.getCivilizationInfo(player.getCivilizationType())
+	for iClass in range(gc.getNumUnitClassInfos()):
+		iUnit = civ.getCivilizationUnits(iClass)
+		if iUnit == -1:
+			continue
+		info = gc.getUnitInfo(iUnit)
+		if info.getDomainType() != DomainTypes.DOMAIN_SEA:
+			continue
+		bOcean = not info.getTerrainImpassable(iOcean)
+		iPassTech = info.getTerrainPassableTech(iOcean)
+		if not bOcean and iPassTech != -1 and team.isHasTech(iPassTech):
+			bOcean = True
+		techs = [info.getPrereqAndTech()] + [info.getPrereqAndTechs(i) for i in range(gc.getNUM_UNIT_AND_TECH_PREREQS())]
+		techs = [i for i in techs if i >= 0]
+		path = []
+		seen = {}
+		for iTech in techs:
+			_techPathVisit(player, team, iTech, path, seen, memo)
+		# <!-- custom: getResearchTurnsLeft gives -1 with no research rate, as before the first city: the turn-0 run summed them to "-22 turns", so turns stay None then. (Claude code Opus 5.5) -->
+		turns = [player.getResearchTurnsLeft(i, True) for i in path]
+		iTurns = None
+		if -1 not in turns:
+			iTurns = sum(turns)
+		ships.append({"unit": info.getType(), "canEnterOcean": bOcean, "techs": [gc.getTechInfo(i).getType() for i in techs], "techsMissing": len(path), "pathBeakers": sum([team.getResearchCost(i) - team.getResearchProgress(i) for i in path]), "pathTurns": iTurns})
+	ships.sort(lambda a, b: cmp(a["pathBeakers"], b["pathBeakers"]))
+	# <!-- custom: Reach along seen coast and lakes: from the water next to our landmasses, through revealed water that is not open ocean, which other seen landmasses touch it. Unrevealed water stops the walk, so a landmass absent here may still be reachable; a ship that cannot enter ocean is held to this. (Claude code Opus 5.5) -->
+	ourAreas = {}
+	for a in areas.values():
+		if a["ours"]:
+			ourAreas[a["area"]] = True
+	frontier = []
+	visited = {}
+	for i in range(cyMap.numPlots()):
+		plot = cyMap.plotByIndex(i)
+		if plot.isWater() or not ourAreas.has_key(plot.getArea()) or not plot.isRevealed(iTeam, False):
+			continue
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+			if adjacent is not None and not adjacent.isNone() and adjacent.isWater() and adjacent.isRevealed(iTeam, False) and adjacent.getTerrainType() != iOcean:
+				iIndex = cyMap.plotNum(adjacent.getX(), adjacent.getY())
+				if not visited.has_key(iIndex):
+					visited[iIndex] = True
+					frontier.append(adjacent)
+	reached = {}
+	while frontier:
+		plot = frontier.pop()
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+			if adjacent is None or adjacent.isNone() or not adjacent.isRevealed(iTeam, False):
+				continue
+			if not adjacent.isWater():
+				if not ourAreas.has_key(adjacent.getArea()):
+					reached[adjacent.getArea()] = True
+				continue
+			if adjacent.getTerrainType() == iOcean:
+				continue
+			iIndex = cyMap.plotNum(adjacent.getX(), adjacent.getY())
+			if not visited.has_key(iIndex):
+				visited[iIndex] = True
+				frontier.append(adjacent)
+	coastReach = [{"area": iArea, "landPlotsSeen": areas[iArea]["landPlotsSeen"], "owners": areas[iArea]["owners"].keys()} for iArea in reached.keys() if areas.has_key(iArea)]
+	return {"ships": ships, "coastWaterSeen": len(visited), "landmassesReachedAlongCoast": coastReach}
+
+
+def cmd_geography(args):
+	# <!-- custom: The user's point (2026-11-15): record the map's composition with takeaways, not flags: navalHeavy means snaky continents on Archipelago and islets with its Tiny Islands option, and on SAS Large Facing Islands, where every met rival lay over water, little army is needed, though an unexpected one can surprise. Observed geography decides the notes rather than the script's name, which only hints; the script and options are returned beside them. (Claude code Opus 5.5) -->
+	player = _player(args)
+	iTeam = player.getTeam()
+	team = gc.getTeam(iTeam)
+	cyMap = gc.getMap()
+	g = gc.getGame()
+	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iLandSeen = 0
+	iWaterSeen = 0
+	iOceanSeen = 0
+	areas = {}
+	bonuses = {}
+	for i in range(cyMap.numPlots()):
+		plot = cyMap.plotByIndex(i)
+		if not plot.isRevealed(iTeam, False):
+			continue
+		# <!-- custom: getBonusType(team) hides a bonus whose reveal tech the team lacks, as the map does for a player. (Claude code Opus 5.5) -->
+		iBonus = plot.getBonusType(iTeam)
+		if iBonus != -1:
+			szBonus = gc.getBonusInfo(iBonus).getType()
+			bonuses[szBonus] = bonuses.get(szBonus, 0) + 1
+		if plot.isWater():
+			iWaterSeen += 1
+			if plot.getTerrainType() == iOcean:
+				iOceanSeen += 1
+			continue
+		iLandSeen += 1
+		iArea = plot.getArea()
+		if not areas.has_key(iArea):
+			areas[iArea] = {"area": iArea, "landPlotsSeen": 0, "ourCities": 0, "owners": {}, "citiesSeen": {}, "unownedPlots": 0, "explored": True}
+		area = areas[iArea]
+		area["landPlotsSeen"] += 1
+		iOwner = plot.getRevealedOwner(iTeam, False)
+		if iOwner == -1:
+			area["unownedPlots"] += 1
+		else:
+			szOwner = gc.getPlayer(iOwner).getName()
+			area["owners"][szOwner] = area["owners"].get(szOwner, 0) + 1
+		if plot.isCity() and plot.getPlotCity().isRevealed(iTeam, False):
+			iCityOwner = plot.getRevealedOwner(iTeam, False)
+			if iCityOwner != -1 and gc.getPlayer(iCityOwner).getTeam() == iTeam:
+				area["ourCities"] += 1
+			elif iCityOwner != -1:
+				szOwner = gc.getPlayer(iCityOwner).getName()
+				area["citiesSeen"][szOwner] = area["citiesSeen"].get(szOwner, 0) + 1
+		# <!-- custom: A landmass is fully explored when none of its seen land touches an unrevealed plot: beyond one, it may go on. (Claude code Opus 5.5) -->
+		if area["explored"]:
+			for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+				adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+				if adjacent is not None and not adjacent.isNone() and not adjacent.isRevealed(iTeam, False):
+					area["explored"] = False
+					break
+	# <!-- custom: Ours are the landmasses with our cities, or, before the first city, those our land units stand on: at turn 0 of the islands replay our own island counted as another landmass. (Claude code Opus 5.5) -->
+	for a in areas.values():
+		a["ours"] = a["ourCities"] > 0
+	if not [a for a in areas.values() if a["ours"]]:
+		(unit, it) = player.firstUnit(False)
+		while unit:
+			if unit.getDomainType() == DomainTypes.DOMAIN_LAND and areas.has_key(unit.plot().getArea()):
+				areas[unit.plot().getArea()]["ours"] = True
+			(unit, it) = player.nextUnit(it, False)
+	ours = [a for a in areas.values() if a["ours"]]
+	others = [a for a in areas.values() if not a["ours"]]
+	ours.sort(lambda a, b: cmp(b["landPlotsSeen"], a["landPlotsSeen"]))
+	others.sort(lambda a, b: cmp(b["landPlotsSeen"], a["landPlotsSeen"]))
+	# <!-- custom: The user's follow-up: how many landmasses, their typical size and the bonus mix. Sizes are exact only for landmasses fully explored, so the mean and median count those alone. (Claude code Opus 5.5) -->
+	exploredSizes = [a["landPlotsSeen"] for a in areas.values() if a["explored"]]
+	exploredSizes.sort()
+	landmasses = {"seen": len(areas), "fullyExplored": len(exploredSizes), "exploredMean": None, "exploredMedian": None}
+	if exploredSizes:
+		landmasses["exploredMean"] = sum(exploredSizes) / float(len(exploredSizes))
+		# <!-- custom: The middle size, or the mean of the two middle ones: the first version took the upper one, so a Huge Pangaea's two explored landmasses of 3 and 1495 plots gave a median of 1495. (Claude code Opus 5.5) -->
+		iMid = len(exploredSizes) / 2
+		if len(exploredSizes) % 2:
+			landmasses["exploredMedian"] = float(exploredSizes[iMid])
+		else:
+			landmasses["exploredMedian"] = (exploredSizes[iMid - 1] + exploredSizes[iMid]) / 2.0
+	iBonusTotal = sum(bonuses.values())
+	bonusMix = [{"bonus": szBonus, "plots": iCount, "percent": iCount * 100.0 / iBonusTotal} for szBonus, iCount in bonuses.items()]
+	bonusMix.sort(lambda a, b: cmp(b["plots"], a["plots"]))
+	rivals = []
+	for iLoop in range(gc.getMAX_CIV_PLAYERS()):
+		loopPlayer = gc.getPlayer(iLoop)
+		if not loopPlayer.isAlive() or loopPlayer.getTeam() == iTeam or loopPlayer.isMinorCiv() or not team.isHasMet(loopPlayer.getTeam()):
+			continue
+		szName = loopPlayer.getName()
+		bShares = False
+		for a in ours:
+			if a["owners"].has_key(szName) or a["citiesSeen"].has_key(szName):
+				bShares = True
+		rivals.append({"player": iLoop, "name": szName, "sharesOurLandmass": bShares, "openBorders": bool(team.isOpenBorders(loopPlayer.getTeam())), "atWar": bool(team.isAtWar(loopPlayer.getTeam()))})
+	mapOptions = []
+	for i in range(cyMap.getNumCustomMapOptions()):
+		szDesc = cyMap.getNonDefaultCustomMapOptionDesc(i)
+		if len(szDesc) > 0:
+			mapOptions.append(szDesc)
+	crossing = _seaCrossing(player, team, iTeam, cyMap, iOcean, areas)
+	takeaways = []
+	landRivals = [r["name"] for r in rivals if r["sharesOurLandmass"]]
+	bOursExplored = len(ours) > 0
+	iRoom = 0
+	for a in ours:
+		bOursExplored = bOursExplored and a["explored"]
+		iRoom += a["unownedPlots"]
+	if landRivals:
+		takeaways.append("Land neighbours on our landmass: %s. A war can come over land; keep defenders where our borders meet." % ", ".join(landRivals))
+	elif bOursExplored:
+		takeaways.append("No met rival on our landmass, and all of it is seen: an invasion must come by sea, which needs transports and shows its ships first. Defend the coastal cities that face rivals and keep the army light; for the same reason a rival may not expect an army of ours.")
+	else:
+		takeaways.append("No met rival seen on our landmass yet, but it is not fully explored: explore before judging how safe it is.")
+	# <!-- custom: Room only from a 3x3 block of unowned land up: the first run, at turn 120 of the SAS48 islands save, called a single unowned plot "room to settle". (Claude code Opus 5.5) -->
+	# <!-- custom: Shared with rivals, unowned plots are mostly gaps between borders, not room: at turn 300 of a Huge Pangaea, 58 of them lay between 14 neighbours, which the first wording called room to settle before rivals arrive. (Claude code Opus 5.5) -->
+	if iRoom >= 9 and not landRivals:
+		takeaways.append("%d unowned land plots seen on our landmass: room to settle before rivals arrive." % iRoom)
+	elif iRoom >= 9:
+		takeaways.append("%d unowned land plots seen on our landmass, shared with rivals: mostly gaps between borders; 'sites' tells whether any is worth a city." % iRoom)
+	elif ours:
+		takeaways.append("Our landmass is nearly all ours (%d unowned plots seen): further growth means settling overseas or taking cities." % iRoom)
+	iRivalsAlive = len([1 for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isMinorCiv() and gc.getPlayer(i).getTeam() != iTeam])
+	# <!-- custom: The user's point (2026-11-15): contact is more than trade; the islands autoplay was far behind for lacking it. With TECH_DIFFUSION_ENABLE off, as in SAS, CvPlayer::calculateResearchModifier adds TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER times the met teams knowing a tech over all teams alive, met or not: there 30 x 2 / 48, at most 1.25% faster research on any tech, against up to 30% with every team met. (Claude code Opus 5.5) -->
+	iTeamsAlive = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian()])
+	iMetTeams = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if i != iTeam and gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian() and team.isHasMet(i)])
+	szContact = "We have seen %d%% of the map and met %d of %d rivals." % ((iLandSeen + iWaterSeen) * 100 / max(1, cyMap.numPlots()), len(rivals), iRivalsAlive)
+	if not gc.getDefineINT("TECH_DIFFUSION_ENABLE"):
+		iMax = gc.getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER")
+		# <!-- custom: Our own team counts among the teams alive but never knows the tech it researches, so everyone met gives (teams alive - 1) / teams alive of the modifier: 28% of 30 with 15 teams, not the 30% the first wording said. (Claude code Opus 5.5) -->
+		szContact += " Contact speeds research: each met team knowing a tech adds %d%% / %d teams alive to it, so ours tops out at %.2f%% against %.2f%% with everyone met; met teams also trade techs, open borders and resources." % (iMax, iTeamsAlive, iMax * iMetTeams / float(max(1, iTeamsAlive)), iMax * (iTeamsAlive - 1) / float(max(1, iTeamsAlive)))
+	takeaways.append(szContact)
+	overseas = [r["name"] for r in rivals if not r["sharesOurLandmass"] and not r["openBorders"] and not r["atWar"]]
+	if overseas:
+		# <!-- custom: CvTeam::isFreeTrade needs open borders for foreign trade routes, CvCity adds OVERSEAS_TRADE_MODIFIER to a route to another landmass, and CvUnit::canEnterTerritory keeps our units and ships out of their borders without open borders or war. (Claude code Opus 5.5) -->
+		takeaways.append("No open borders with overseas rivals %s: open borders allow foreign trade routes, which to another landmass also earn the overseas bonus (%d%%), and let our ships and units enter their borders, to explore past them or reach further rivals." % (", ".join(overseas), gc.getDefineINT("OVERSEAS_TRADE_MODIFIER")))
+	oceanShips = [s for s in crossing["ships"] if s["canEnterOcean"]]
+	if others and not landRivals:
+		if crossing["landmassesReachedAlongCoast"]:
+			takeaways.append("%d other seen landmass(es) reached along coast without open ocean: ships that cannot enter ocean (Work Boats, early galleys) can get there." % len(crossing["landmassesReachedAlongCoast"]))
+		else:
+			takeaways.append("No other seen landmass reached along seen coast: open ocean, or water not yet seen, lies between.")
+		if oceanShips:
+			first = oceanShips[0]
+			if first["techsMissing"] == 0:
+				takeaways.append("%s can enter ocean and needs no new tech: build it to explore and meet rivals." % first["unit"])
+			else:
+				szTurns = "no research rate yet"
+				if first["pathTurns"] is not None:
+					szTurns = "about %d turns at the current rate" % first["pathTurns"]
+				takeaways.append("The first ocean-going ship, %s, is %d techs away (%d beakers, %s): the way to explore past the ocean and meet the rivals there." % (first["unit"], first["techsMissing"], first["pathBeakers"], szTurns))
+	if g.isNavalHeavyMapnameCached() and not g.isLandHeavyMapnameCached():
+		takeaways.append("The AI reads this map as naval-heavy: it scraps land units first, pays more to upgrade them, and favours coastal city sites and naval targets.")
+	elif g.isLandHeavyMapnameCached() and not g.isNavalHeavyMapnameCached():
+		takeaways.append("The AI reads this map as land-heavy: it scraps naval units first and pays more to upgrade them.")
+	# <!-- custom: The World Picker's preview of the script, which every player sees at setup, for an agent to look at (the user's suggestion): a sample of the script, not this game's map, but it shows the shape, rows of islands, snaky continents or islets. Renders by map_preview_dds.py are listed too, as an image reader may not open DDS. (Claude code Opus 5.5) -->
+	import BugPath
+	szScript = cyMap.getMapScriptName()
+	preview = {"dds": None, "png": []}
+	szDds = os.path.join(BugPath.getModDir(), "Assets", "Art", "AdvCiv_SAS", "Maps", szScript, "FLAT_" + szScript + ".dds")
+	if os.path.isfile(szDds):
+		preview["dds"] = szDds
+	szPngDir = os.path.join(BugPath.getModDir(), "LLM_Helpers", "outputs", "map_previews")
+	if os.path.isdir(szPngDir):
+		preview["png"] = [os.path.join(szPngDir, n) for n in os.listdir(szPngDir) if n.startswith("FLAT_" + szScript + "_") and n.endswith(".png")]
+		preview["png"].sort()
+	return {"seaCrossing": crossing, "landmasses": landmasses, "bonusesSeen": bonusMix, "preview": preview, "settings": {"mapScript": cyMap.getMapScriptName(), "mapDescription": _mapDescription(cyMap.getMapScriptName()), "mapOptionsAll": _mapOptionsAll(cyMap.getMapScriptName()), "coastLaneRows": _coastLaneRows(player), "worldSize": gc.getWorldInfo(cyMap.getWorldSize()).getType(), "grid": [cyMap.getGridWidth(), cyMap.getGridHeight()], "seaLevel": gc.getSeaLevelInfo(cyMap.getSeaLevel()).getType(), "mapOptions": mapOptions, "landHeavy": bool(g.isLandHeavyMapnameCached()), "navalHeavy": bool(g.isNavalHeavyMapnameCached())}, "seen": {"plots": iLandSeen + iWaterSeen, "ofMap": cyMap.numPlots(), "land": iLandSeen, "water": iWaterSeen, "ocean": iOceanSeen}, "ourLandmasses": ours, "otherLandmasses": others, "rivals": rivals, "takeaways": takeaways}
+
+
+_HELP["shore"] = "A plot's relation to water, for choosing a city site on an island or a coast: coastal (a city there can build ships and harbours), fresh water, river, lake, how many adjacent plots are water and how many ocean, and for a Farm whether the plot is irrigated or can take irrigation now (fresh water or an irrigated neighbour). Only plots the team has revealed, as the map shows them. 'sites' (served by the DLL) does not give these. args: x, y, player."
+
+
+def cmd_shore(args):
+	# <!-- custom: At turn 0 of the islands replay (2026-11-15) the capital site was chosen between (98,25) and (99,25), and whether either could build boats took a 'py' snippet; on an island map that question comes at every founding, so it is a command (the user's rule: a snippet a later game would ask again). (Claude code Opus 5.5) -->
+	player = _player(args)
+	iTeam = player.getTeam()
+	plot = gc.getMap().plot(int(args["x"]), int(args["y"]))
+	if plot is None or plot.isNone():
+		raise ValueError("no plot at %s,%s" % (args["x"], args["y"]))
+	if _fogTeam(args) >= 0 and not plot.isRevealed(iTeam, False):
+		raise ValueError("plot %s,%s is not revealed to our team" % (args["x"], args["y"]))
+	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iWater = 0
+	iOceanAdjacent = 0
+	iUnknown = 0
+	for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+		adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+		if adjacent is None or adjacent.isNone():
+			continue
+		if _fogTeam(args) >= 0 and not adjacent.isRevealed(iTeam, False):
+			iUnknown += 1
+			continue
+		if adjacent.isWater():
+			iWater += 1
+			if adjacent.getTerrainType() == iOcean:
+				iOceanAdjacent += 1
+	# <!-- custom: At turn 61 of the islands replay, whether Farms at (100,27) and (95,25) would be watered took a 'py' snippet: (100,27) had fresh water, while the Rice at (95,25) had neither water nor an irrigated neighbour. (Claude code Opus 5.5) -->
+	return {"x": plot.getX(), "y": plot.getY(), "water": bool(plot.isWater()), "coastal": bool(plot.isCoastalLand()), "freshWater": bool(plot.isFreshWater()), "river": bool(plot.isRiver()), "lake": bool(plot.isLake()), "adjacentWater": iWater, "adjacentOcean": iOceanAdjacent, "adjacentUnrevealed": iUnknown, "irrigated": bool(plot.isIrrigated()), "irrigationAvailable": bool(plot.isIrrigationAvailable(False))}
+
+
+_HELP["reminders"] = "What a player would want pointed out, beyond what 'todo' says must be decided before the turn ends: no ship exploring while teams are unmet and seen water borders the unknown (waterScouting), unowned land of our landmass out of sight where Barbarians can spawn, with a plot to watch it from (fogBusting), no research, an empty build queue, a starving or angry city, a city growing within 5 turns past its happy or healthy limit, a wounded unit outside our borders, gold that runs out within ten turns at the current rate, and techs we could trade to a met player now. Each entry has its check, a text and the thing it is about. Only what the player's own screens show. A food bonus two or more of our cities reach, worked by none or by a city with more food than another that reaches it, comes with the 'work' click that moves it (sharedBonuses). A met rival whose attitude, the techs and resources it would trade, or the resources we could offer it (last copies marked) changed since the last call (rivalMoods; the first call states each). mute=CHECK silences a check for the session, mute=CHECK@x,y one entry by its plot; unmute=CHECK, CHECK@x,y or all lifts it; the muted list comes with each reply. args: player, mute, unmute."
 
 
 def _remindResearch(player, args):
 	if player.getCurrentResearch() < 0:
 		return [{"text": "no research chosen"}]
-	return []
+	# <!-- custom: The user's rule at turn 74 of the islands replay (2026-11-15): being ahead lets a player sell each new tech to several rivals, while researching what everyone sells wastes the turns. So current research that a met rival would trade us now is pointed out, with what no met rival has, to research and sell instead (from 'techs'). (Claude code Opus 5.5) -->
+	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	iTech = player.getCurrentResearch()
+	szTech = gc.getTechInfo(iTech).getType()
+	sellers = []
+	for entry in market["wanted"]:
+		if entry["tech"] == szTech:
+			sellers = [holder["name"] for holder in entry["holders"] if holder["canTrade"] and holder["denial"] is None]
+	if not sellers:
+		return []
+	nobody = [entry["tech"] for entry in market["nobodyHas"] if entry["xmlTradeable"]]
+	return [{"text": "%s, our research, is for sale from %s: buy it, and research what no met rival has instead (%s)" % (szTech, ", ".join(sellers), ", ".join(nobody) or "none tradeable"), "tech": szTech, "sellers": sellers, "nobodyHas": nobody}]
 
 
 def _remindCities(player, args):
@@ -2014,6 +3109,15 @@ def _remindCities(player, args):
 			result.append({"text": "%s starves: food %d a turn" % (name, city.foodDifference(True)), "city": city.getID()})
 		if city.angryPopulation(0) > 0:
 			result.append({"text": "%s has %d angry citizens" % (name, city.angryPopulation(0)), "city": city.getID()})
+		# <!-- custom: The user's idea while reading the domestic overview at turn 71 of the islands replay (2026-11-15): what the overview implies but does not say, a city about to grow past its happy or healthy limit. Utrecht had one happy face to spare and grew in 7 turns. Within 5 turns of growing, with no face to spare: the new citizen would be unhappy (works nothing) or unhealthy (costs a food each turn). The city screen then shows why, and a happiness resource, a whip or a specialist are the usual answers. (Claude code Opus 5.5) -->
+		iGrow = city.getFoodTurnsLeft()
+		if city.foodDifference(True) > 0 and iGrow <= 5:
+			iHappy = city.happyLevel() - city.unhappyLevel(0)
+			iHealth = city.goodHealth() - city.badHealth(False)
+			if iHappy <= 0:
+				result.append({"text": "%s grows in %d turn(s) with no happy face to spare: the new citizen would be unhappy" % (name, iGrow), "city": city.getID(), "growsIn": iGrow, "happyMargin": iHappy, "limit": "happiness"})
+			if iHealth <= 0:
+				result.append({"text": "%s grows in %d turn(s) with no health to spare: the new citizen would cost a food each turn" % (name, iGrow), "city": city.getID(), "growsIn": iGrow, "healthMargin": iHealth, "limit": "health"})
 		(city, iterator) = player.nextCity(iterator, False)
 	return result
 
@@ -2077,9 +3181,62 @@ def _openScreens():
 				result.append(szName)
 		except Exception:
 			continue
+	# <!-- custom: The Greatest Civilizations screen (CvTopCivs) has no getScreen method, so the loop above missed it: at turn 82 of the islands replay (2026-11-15) the user saw it up while 'todo' reported nothing. Its screen object exists once shown. (Claude code Opus 5.5) -->
+	topCivs = getattr(CvScreensInterface, "topCivs", None)
+	if topCivs is not None and getattr(topCivs, "screen", None) is not None:
+		try:
+			if topCivs.screen.isActive():
+				result.append("topCivs")
+		except Exception:
+			pass
 	if CyInterface().isCityScreenUp():
 		result.append("cityScreen")
 	return result
+
+
+_HELP["topcivs"] = "The Greatest Civilizations screen, while it is up (it comes now and then, while the player has met half the teams or fewer): what it ranks (wealth, power, tech, culture or land) and the top eight as the player reads them, met players by name and the others unknown, and whether we are among them. The values behind the ranks are not shown, as on screen. args: player."
+
+
+def cmd_topcivs(args):
+	# <!-- custom: The user saw this screen at turn 82 of the islands replay (2026-11-15) and asked that the pilot map it: a ranking of the most powerful civilizations, public in that a player reads it, all eight unknown to us then. CvTopCivs keeps its ranking in aiTopCivsValues but not which category it chose, so the category is found by matching the order against each measure, as makeList computes them. (Claude code Opus 5.5) -->
+	import CvScreensInterface
+	topCivs = getattr(CvScreensInterface, "topCivs", None)
+	if topCivs is None or getattr(topCivs, "screen", None) is None or not topCivs.screen.isActive():
+		raise ValueError("the Greatest Civilizations screen is not up")
+	player = _player(args)
+	team = gc.getTeam(player.getTeam())
+	# <!-- custom: CvEventManager shows the screen through a throwaway CvTopCivs instance (CvTopCivs.CvTopCivs().turnChecker), so the module's topCivs object holds no ranking: the first version read aiTopCivsValues from it and failed. Until the game keeps the last ranking, only the screen being up is known. (Claude code Opus 5.5) -->
+	if not hasattr(topCivs, "aiTopCivsValues"):
+		raise ValueError("the Greatest Civilizations screen is up, but the game keeps its ranking only in a throwaway CvTopCivs instance (CvEventManager), so it cannot be read; look at the screen, or close it with 'closescreens'")
+	values = topCivs.aiTopCivsValues
+	measures = {}
+	for (iValue, iPlayer) in values[:3]:
+		other = gc.getPlayer(iPlayer)
+		otherTeam = gc.getTeam(other.getTeam())
+		iTechCost = 0
+		for i in range(gc.getNumTechInfos()):
+			if otherTeam.isHasTech(i):
+				iTechCost += gc.getTechInfo(i).getResearchCost()
+		for (szName, iMeasure) in (("power", other.getPower()), ("tech", iTechCost), ("culture", other.countTotalCulture()), ("land", other.getTotalLand()), ("wealth", otherTeam.AI_estimateYieldRate(iPlayer, YieldTypes.YIELD_COMMERCE))):
+			if iMeasure == iValue:
+				measures[szName] = measures.get(szName, 0) + 1
+	category = None
+	for (szName, iMatches) in measures.items():
+		if iMatches == len(values[:3]):
+			category = szName
+	iRanks = 8
+	if gc.getGame().countCivPlayersAlive() == iRanks + 1:
+		iRanks = 7
+	ranks = []
+	bUs = False
+	for i in range(min(iRanks, len(values))):
+		iPlayer = values[i][1]
+		other = gc.getPlayer(iPlayer)
+		bKnown = iPlayer == player.getID() or team.isHasMet(other.getTeam())
+		if iPlayer == player.getID():
+			bUs = True
+		ranks.append({"rank": i + 1, "player": (bKnown and iPlayer) or None, "name": (bKnown and other.getName()) or "unknown"})
+	return {"category": category, "ranks": ranks, "weAreInTop": bUs}
 
 
 _HELP["closescreens"] = "Close the screens left open in the window, as Esc or their Exit button does: every advisor or other Python screen 'todo' lists in openScreens, and the city screen; or only one with name (as openScreens names it, or cityScreen). Returns what was closed. args: name."
@@ -2095,6 +3252,9 @@ def cmd_closescreens(args):
 			continue
 		if szName == "cityScreen":
 			CyInterface().clearSelectedCities()
+		# <!-- custom: The Greatest Civilizations screen has no getScreen; its screen object is closed directly, as its Exit button does (islands replay, 2026-11-15). (Claude code Opus 5.5) -->
+		elif szName == "topCivs":
+			CvScreensInterface.topCivs.screen.hideScreen()
 		else:
 			getattr(CvScreensInterface, szName).getScreen().hideScreen()
 		closed.append(szName)
@@ -2130,6 +3290,74 @@ def _remindTrades(player, args):
 	for entry in market["weCouldGive"]:
 		if entry["techs"]:
 			result.append({"text": "%s could be offered %s" % (entry["name"], ", ".join(entry["techs"])), "player": entry["player"]})
+	return result
+
+
+def _remindRivalMoods(player, args):
+	# <!-- custom: The user's point at turn 71 of the islands replay (2026-11-15): check Pericles every turn, as a Cautious leader who refused a tech may warm up, and offers come and go as a human checking the trade screen each turn sees. Each met rival's attitude (and its Glance-tab value), the techs and resources it would trade us, and the resources we could offer it are kept in the session and compared with the previous call; a change comes back as a reminder, and the first call states each one.
+	# Our offers include last copies, marked lastCopy with what they give: the user's point that a last spare copy is worth selling for gold or a tech when no city would drop below its limit.
+	# Kept with string keys and lists, as the session state goes through JSON: the first version keyed by the player number and stored tuples, which came back as "8" and lists, so a change at turn 74 (Pericles now trading Polytheism) was never seen. (Claude code Opus 5.5) -->
+	seen = _state.setdefault("rivalMoods", {})
+	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	gives = {}
+	for entry in market["wanted"]:
+		for holder in entry["holders"]:
+			if holder["canTrade"] and holder["denial"] is None:
+				gives.setdefault(holder["player"], []).append(entry["tech"])
+	team = gc.getTeam(player.getTeam())
+	result = []
+	for iOther in range(gc.getMAX_CIV_PLAYERS()):
+		other = gc.getPlayer(iOther)
+		if iOther == player.getID() or not other.isAlive() or other.getTeam() == player.getTeam() or not team.isHasMet(other.getTeam()) or other.isHuman():
+			continue
+		szAttitude = _enumName(AttitudeTypes, other.AI_getAttitude(player.getID()))
+		iValue = _attitudeCount(iOther, player.getID())
+		techs = gives.get(iOther, [])
+		techs.sort()
+		theirItems = fromJson(_tradeItemsJson(other, player.getID()))
+		theirs = [item["what"] for item in theirItems if item["item"] == "TRADE_RESOURCES" and item.get("denial") is None]
+		# <!-- custom: Open borders too, the user's point at the second contact (Pacal, turn 68 of the islands replay, 2026-11-15): check right away whether a newly met rival would sign, as it was the first thing traded with Pericles. "signed", null when he would sign, or his DENIAL_ reason. (Claude code Opus 5.5) -->
+		szBorders = "signed"
+		if not team.isOpenBorders(other.getTeam()):
+			szBorders = "not on the table"
+			for item in theirItems:
+				if item["item"] == "TRADE_OPEN_BORDERS":
+					szBorders = item.get("denial") or "would sign"
+		theirs.sort()
+		ours = []
+		for item in fromJson(_tradeItemsJson(player, iOther)):
+			if item["item"] != "TRADE_RESOURCES":
+				continue
+			iBonus = gc.getInfoTypeForString(item["what"])
+			ours.append(item["what"])
+		ours.sort()
+		now = [szAttitude, iValue, techs, theirs, ours, szBorders]
+		szKey = str(iOther)
+		before = seen.get(szKey)
+		seen[szKey] = now
+		if before == now:
+			continue
+		offers = []
+		for szBonus in ours:
+			info = gc.getBonusInfo(gc.getInfoTypeForString(szBonus))
+			offers.append({"bonus": szBonus, "lastCopy": player.getNumAvailableBonuses(gc.getInfoTypeForString(szBonus)) <= 1, "happiness": info.getHappiness(), "health": info.getHealth()})
+		if before is None:
+			szText = "%s is %s (%+d); open borders: %s; would trade techs %s and resources %s; we could offer %s" % (other.getName(), szAttitude[9:].lower(), iValue, szBorders, ", ".join(techs) or "none", ", ".join(theirs) or "none", ", ".join(ours) or "nothing")
+		else:
+			parts = []
+			if before[0] != szAttitude or before[1] != iValue:
+				parts.append("%s %+d is now %s %+d" % (before[0][9:].lower(), before[1], szAttitude[9:].lower(), iValue))
+			for (szWhat, oldList, newList) in (("techs", before[2], techs), ("resources", before[3], theirs), ("our offers", before[4], ours)):
+				added = [x for x in newList if x not in oldList]
+				gone = [x for x in oldList if x not in newList]
+				if added:
+					parts.append("%s now: %s" % (szWhat, ", ".join(added)))
+				if gone:
+					parts.append("%s gone: %s" % (szWhat, ", ".join(gone)))
+			if len(before) < 6 or before[5] != szBorders:
+				parts.append("open borders: %s" % szBorders)
+			szText = "%s: %s" % (other.getName(), "; ".join(parts))
+		result.append({"text": szText, "player": iOther, "attitude": szAttitude, "attitudeValue": iValue, "openBorders": szBorders, "wouldTradeTechs": techs, "wouldTradeResources": theirs, "weCouldOffer": offers})
 	return result
 
 
@@ -2330,18 +3558,463 @@ def _remindIdleImprovements(player, args):
 	return result
 
 
-_REMINDER_CHECKS = (("huts", _remindHuts), ("idleGarrison", _remindIdleGarrison), ("exposed", _remindExposed), ("scoutBeforeFounding", _remindScoutBeforeFounding), ("research", _remindResearch), ("cities", _remindCities), ("wounded", _remindWounded), ("gold", _remindGold), ("trades", _remindTrades), ("screens", _remindScreens), ("losses", _remindLosses), ("unfinished", _remindUnfinished), ("exports", _remindExports), ("unimproved", _remindUnimproved), ("sleepingWorkers", _remindSleepingWorkers), ("idleImprovements", _remindIdleImprovements))
+def _coastLaneRows(player):
+	# <!-- custom: The rows of the coast lanes to the east and west neighbours on SAS_Large_Facing_Islands with "E-W Coast Bands": _apply_horizontal_coast_lanes lays them along each island row's centre row, plus or minus one, widest near the islands. Our island's centre row is taken from the revealed land of our landmass. At turn 71 of the islands replay (2026-11-15) the boats drifted north along the map's edge, where nothing lies, while the lanes to every rival of our row ran along y 24 to 26; the user pointed it out. Other maps give null. (Claude code Opus 5.5) -->
+	szScript = CyMap().getMapScriptName()
+	if szScript != "SAS_Large_Facing_Islands":
+		return None
+	options = _mapOptionsAll(szScript) or []
+	if not [o for o in options if o["value"].startswith("E-W Coast Bands")]:
+		return None
+	land = _revealedLandmass(player)
+	if not land:
+		return None
+	ys = [y for (x, y) in land.keys()]
+	iCenter = (min(ys) + max(ys)) / 2
+	return [iCenter - 1, iCenter, iCenter + 1]
+
+
+def _seaReach(unit, iCandidates):
+	# <!-- custom: For each direction from the ship (by the larger of its east-west and north-south offsets, the seam of a wrapping map counted), the nearest revealed water plots that border unrevealed ones, and whether the ship can reach them and in how many turns, by the pathfinder 'path' uses (fog respected: our own unit, default flags). iCandidates plots per direction are tried, nearest first. (Claude code Opus 5.5) -->
+	player = gc.getPlayer(unit.getOwner())
+	iTeam = player.getTeam()
+	kMap = gc.getMap()
+	iWidth = kMap.getGridWidth()
+	iHeight = kMap.getGridHeight()
+	bWrapX = kMap.isWrapX()
+	bWrapY = kMap.isWrapY()
+	frontier = {"north": [], "south": [], "east": [], "west": []}
+	lanes = _coastLaneRows(player)
+	infoUnit = gc.getUnitInfo(unit.getUnitType())
+	for i in range(kMap.numPlots()):
+		plot = kMap.plotByIndex(i)
+		if not plot.isWater() or not plot.isRevealed(iTeam, False):
+			continue
+		# <!-- custom: Only water the ship may enter: the first version tried the nearest edges east of a Work Boat, which were open ocean, and called a direction unreachable that a path of 5 turns reached. (Claude code Opus 5.5) -->
+		if infoUnit.getTerrainImpassable(plot.getTerrainType()):
+			continue
+		bEdge = False
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+			if adjacent is not None and not adjacent.isNone() and not adjacent.isRevealed(iTeam, False):
+				bEdge = True
+				break
+		if not bEdge:
+			continue
+		dx = plot.getX() - unit.getX()
+		dy = plot.getY() - unit.getY()
+		if bWrapX:
+			dx = (dx + iWidth / 2) % iWidth - iWidth / 2
+		if bWrapY:
+			dy = (dy + iHeight / 2) % iHeight - iHeight / 2
+		if abs(dx) >= abs(dy):
+			szWay = (dx >= 0 and "east") or "west"
+		else:
+			szWay = (dy > 0 and "north") or "south"
+		# <!-- custom: On a map with known coast lanes, unknown coast on a lane row comes first, nearest first within each group. (Claude code Opus 5.5) -->
+		frontier[szWay].append((lanes and plot.getY() not in lanes, max(abs(dx), abs(dy)), plot.getX(), plot.getY()))
+	result = {}
+	for (szWay, plots) in frontier.items():
+		plots.sort()
+		row = {"frontierPlots": len(plots), "reachable": None}
+		for (bOffLane, iDistance, x, y) in plots[:iCandidates]:
+			path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), x, y, 0))
+			if path and path.get("found"):
+				row["reachable"] = {"x": x, "y": y, "turns": path.get("turns")}
+				# <!-- custom: Near the edge of a map that does not wrap north-south: at turn 78 of the islands replay (2026-11-15) the boat went round Suleiman's island by the north, where the ice cap and the map's edge end the way, as on our own island; the user pointed out it should have gone south. Weighed as 5 turns: with 3 it tied the 4-turn way south and lost on the direction's name. (Claude code Opus 5.5) -->
+				if not bWrapY and (y >= iHeight - 4 or y <= 3):
+					row["reachable"]["nearMapEdge"] = True
+				# <!-- custom: Beyond the lane rows on the side of the nearer map edge: the edge test alone still sent the boat to (130,27), the first step of the way north round Suleiman's island, as row 27 is not yet near the edge. Our row's lanes (24 to 26) lie near the north edge, so leaving them northward heads for the ice. (Claude code Opus 5.5) -->
+				if lanes and not bWrapY:
+					bNorthEdge = (iHeight - 1 - lanes[1]) < lanes[1]
+					if (bNorthEdge and y > lanes[-1]) or (not bNorthEdge and y < lanes[0]):
+						row["reachable"]["towardMapEdge"] = True
+				if lanes:
+					row["reachable"]["onLane"] = not bOffLane
+				# <!-- custom: Whether that coast lies in a met rival's waters, by its revealed owner: at turn 68 of the islands replay (2026-11-15) the user called the Work Boat's tour of Greece's north shore needless once Pericles was known, and asked that scouting hunt unexplored coast first. (Claude code Opus 5.5) -->
+				iOwner = kMap.plot(x, y).getRevealedOwner(iTeam, False)
+				if iOwner >= 0 and gc.getPlayer(iOwner).getTeam() != iTeam and gc.getTeam(iTeam).isHasMet(gc.getPlayer(iOwner).getTeam()):
+					row["reachable"]["metRivalWaters"] = gc.getPlayer(iOwner).getName()
+				break
+		if plots and row["reachable"] is None:
+			# <!-- custom: "No known route", not "ocean": the pathfinder plans only through revealed plots, so at turn 75 of the islands replay the agent read a failed path west as ocean and claimed the west reachable only round the world, while SAS_Large_Facing_Islands links east-west neighbours by coast lanes (its "E-W Coast Bands" option; see mapOptionsAll in 'geography'). The user caught it. (Claude code Opus 5.5) -->
+			row["note"] = "no route through revealed plots reaches the %d nearest unknown coast plot(s) here; unrevealed water may still connect (see the map options in 'geography')" % min(len(plots), iCandidates)
+		result[szWay] = row
+	return result
+
+
+def _mapOptionsAll(szScript):
+	# <!-- custom: Every custom option of the map script with the value this game uses, defaults included: getNonDefaultCustomMapOptionDesc, as the Settings tab, lists only changed ones, so a SAS_Large_Facing_Islands game on its recommended "E-W Coast Bands" and "N-S Ocean Bands" listed none, and the agent took the east-west coast lanes for ocean (islands replay, 2026-11-15; the user's correction). Map scripts take their arguments as one list. (Claude code Opus 5.5) -->
+	try:
+		module = __import__(szScript)
+		result = []
+		for i in range(module.getNumCustomMapOptions()):
+			iValue = int(CyMap().getCustomMapOption(i))
+			result.append({"option": module.getCustomMapOptionName([i]), "value": module.getCustomMapOptionDescAt([i, iValue])})
+		return result
+	except Exception:
+		return None
+
+
+def _mapDescription(szScript):
+	# <!-- custom: The map script's own description of its layout, as its menu entry shows it: at turn 75 of the islands replay (2026-11-15) SAS_Large_Facing_Islands said "rivals on the east and west sides, and a rival facing north or south", which told where to scout. Some scripts return a text key, which is translated; a script that cannot be imported gives null. (Claude code Opus 5.5) -->
+	try:
+		szText = __import__(szScript).getDescription()
+	except Exception:
+		return None
+	if szText and szText.startswith("TXT_KEY"):
+		szText = CyTranslator().getText(szText, ())
+	return szText
+
+
+_HELP["seareach"] = "Where a ship can still explore: for each direction from it (north, south, east, west), how many seen water plots border the unknown there and the nearest one it can reach with its turns, or that no route through revealed plots reaches the nearest (unrevealed water may still connect; 'geography' gives the map script's options, such as coast lanes). For choosing a direction nobody has scouted rather than coasts already known: a reachable coast in a met rival's waters is marked (metRivalWaters), and recommend picks the nearest reachable unknown coast by turns: crossing a rival's waters toward the unknown is fine, touring its known shore is not. args: unit, candidates (plots tried per direction, default 4), player."
+
+
+def cmd_seareach(args):
+	# <!-- custom: At turn 75 of the islands replay (2026-11-15) both Work Boats explored automatically into the waters of Greece, already met, while the map script puts rivals east, west and facing north or south; the user pointed out that unknown directions teach more, and that a ship deep in a rival's borders depends on open borders. Working out which unknown coast each boat could reach took five 'path' calls: south was ocean, west 213 turns round the world, east past Greece 5 turns. (Claude code Opus 5.5) -->
+	unit = _unit(args)
+	if unit.getDomainType() != DomainTypes.DOMAIN_SEA:
+		raise ValueError("unit %d is not a ship" % unit.getID())
+	if _fogTeam(args) >= 0 and unit.getTeam() != _fogTeam(args):
+		raise ValueError("with fog on, 'seareach' takes the team's own ships")
+	directions = _seaReach(unit, int(args.get("candidates", 4)))
+	# <!-- custom: The direction to take: the nearest reachable unknown coast, by turns. A first version ranked a met rival's waters last, which sent a Work Boat at turn 71 of the islands replay 5 turns back west over known water while the only way east, toward the unmet, ran along Greek coast 2 turns away; the user called it the same mistake again. Touring a known rival's shore is what to avoid, not crossing its waters toward the unknown, so the mark stays as information only. (Claude code Opus 5.5) -->
+	# <!-- custom: Lanes weigh as 3 turns, not as an absolute first: at turn 77 of the islands replay (2026-11-15) the boat reached the end of the lane at Suleiman's island, and the strict lane-first rule sent it 10 turns back west along the known lane instead of 1 turn round his coast toward the next lane. (Claude code Opus 5.5) -->
+	options = [(row["reachable"]["turns"] + (row["reachable"].get("onLane", True) and 0 or 3) + (row["reachable"].get("nearMapEdge") and 5 or 0) + (row["reachable"].get("towardMapEdge") and 4 or 0), szWay) for (szWay, row) in directions.items() if row["reachable"]]
+	options.sort()
+	recommend = None
+	if options:
+		szWay = options[0][1]
+		recommend = {"direction": szWay, "x": directions[szWay]["reachable"]["x"], "y": directions[szWay]["reachable"]["y"], "turns": directions[szWay]["reachable"]["turns"]}
+	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "laneRows": _coastLaneRows(gc.getPlayer(unit.getOwner())), "directions": directions, "recommend": recommend}
+
+
+def _remindWaterScouting(player, args):
+	# <!-- custom: The user's idea after the SAS48 islands autoplay (2026-11-15), where the AI had met 2 of 47 rivals by turn 120 though Galleys were known and its seen coast ran on into unrevealed water: contact brings trades and faster research, so point out when no ship of ours explores while rivals are unmet and seen water, coast for any ship or ocean once we have an ocean-going one, borders unrevealed plots.
+	# Only what the team has seen, its own units and what its cities can build. (Claude code Opus 5.5) -->
+	iTeam = player.getTeam()
+	team = gc.getTeam(iTeam)
+	iUnmet = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if i != iTeam and gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian() and not team.isHasMet(i)])
+	if iUnmet == 0:
+		return []
+	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	bOceanShip = False
+	idle = []
+	(unit, it) = player.firstUnit(False)
+	while unit:
+		if unit.getDomainType() == DomainTypes.DOMAIN_SEA:
+			if unit.getGroup().getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE:
+				# <!-- custom: An exploring ship inside a met rival's borders is pointed out, as at turn 75 of the islands replay both Work Boats roamed the waters of Greece, already met, while other directions stayed unknown; see 'seareach'. Otherwise an explorer means nothing to remind. (Claude code Opus 5.5) -->
+				iOwner = unit.plot().getRevealedOwner(iTeam, False)
+				if iOwner >= 0 and gc.getPlayer(iOwner).getTeam() != iTeam:
+					return [{"text": "%s %d explores inside the borders of %s, already met, where coast is partly known; if open borders end or culture takes its plot, the game moves it to the nearest plot it may enter, or deletes it when there is none (CvPlot::verifyUnitValidPlot); 'seareach unit=%d' lists the unknown coast it can reach elsewhere" % (gc.getUnitInfo(unit.getUnitType()).getType(), unit.getID(), gc.getPlayer(iOwner).getName(), unit.getID()), "unit": unit.getID(), "x": unit.getX(), "y": unit.getY()}]
+				return []
+			# <!-- custom: A ship sailing on orders explores too: at turn 69 of the islands replay (2026-11-15) both Work Boats were on their way to unknown coast that 'seareach' chose, yet this said no ship explored, as it counted only automated exploring. (Claude code Opus 5.5) -->
+			if unit.getGroup().getLengthMissionQueue() > 0 and unit.getGroup().getMissionType(0) == MissionTypes.MISSION_MOVE_TO:
+				return []
+			if not gc.getUnitInfo(unit.getUnitType()).getTerrainImpassable(iOcean):
+				bOceanShip = True
+			if unit.canMove() and unit.getGroup().getLengthMissionQueue() == 0 and unit.getCargo() == 0:
+				idle.append(unit)
+		(unit, it) = player.nextUnit(it, False)
+	# <!-- custom: Per city, as a ship needs a coastal city: the first version tested the player alone and told an inland capital at turn 0 of the islands replay to build a Work Boat it could not. With the tech but no coastal city, it says to found one. (Claude code Opus 5.5) -->
+	trainable = []
+	known = []
+	civ = gc.getCivilizationInfo(player.getCivilizationType())
+	cities = _cities(player)
+	for iClass in range(gc.getNumUnitClassInfos()):
+		iUnit = civ.getCivilizationUnits(iClass)
+		if iUnit == -1 or gc.getUnitInfo(iUnit).getDomainType() != DomainTypes.DOMAIN_SEA or not player.canTrain(iUnit, False, False):
+			continue
+		known.append(iUnit)
+		for city in cities:
+			# <!-- custom: Only a city on a sea, not a lake, launches explorers (the user's point): a lake city can train boats that never leave its lake. (Claude code Opus 5.5) -->
+			if city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()) and city.canTrain(iUnit, False, False):
+				trainable.append((iUnit, city))
+				if not gc.getUnitInfo(iUnit).getTerrainImpassable(iOcean):
+					bOceanShip = True
+				break
+	if not idle and not known:
+		return []
+	kMap = gc.getMap()
+	iFrontier = 0
+	for i in range(kMap.numPlots()):
+		plot = kMap.plotByIndex(i)
+		if not plot.isWater() or not plot.isRevealed(iTeam, False) or (plot.getTerrainType() == iOcean and not bOceanShip):
+			continue
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
+			if adjacent is not None and not adjacent.isNone() and not adjacent.isRevealed(iTeam, False):
+				iFrontier += 1
+				break
+	if iFrontier == 0:
+		return []
+	# <!-- custom: Ranked by hammers per move, the user's suggestion at turn 60 of the islands replay (2026-11-15): a Work Boat (30 hammers, 2 moves) and a Galley (45, 3) both cost 15 per move there, the boat later becoming a fishing improvement. Strength is shown and breaks ties, as an explorer that is sunk scouts no more; a Work Boat has none. (Claude code Opus 5.5) -->
+	ranked = []
+	for (iUnit, city) in trainable:
+		info = gc.getUnitInfo(iUnit)
+		iCost = player.getUnitProductionNeeded(iUnit)
+		ranked.append({"unit": info.getType(), "city": city.getName(), "cost": iCost, "moves": info.getMoves(), "hammersPerMove": iCost / float(max(1, info.getMoves())), "strength": info.getCombat(), "turns": city.getUnitProductionTurnsLeft(iUnit, 0)})
+	ranked.sort(lambda a, b: cmp((a["hammersPerMove"], -a["strength"]), (b["hammersPerMove"], -b["strength"])))
+	row = {"unmetTeams": iUnmet, "frontierWaterPlots": iFrontier, "idleShips": [u.getID() for u in idle], "trainable": ranked}
+	if idle:
+		szHow = "send idle %s %d exploring (command COMMAND_AUTOMATE data1=AUTOMATE_EXPLORE)" % (gc.getUnitInfo(idle[0].getUnitType()).getType(), idle[0].getID())
+	elif ranked:
+		best = ranked[0]
+		szHow = "build %s in %s to explore (%d hammers per move, strength %d, %d turns)" % (best["unit"], best["city"], best["hammersPerMove"], best["strength"], best["turns"])
+	else:
+		szHow = "found a city on the sea coast (not a lake; it need not be the capital) to build %s" % gc.getUnitInfo(known[0]).getType()
+	row["text"] = "no ship explores while %d teams are unmet and %d seen water plots border the unknown: %s" % (iUnmet, iFrontier, szHow)
+	return [row]
+
+
+def _fogPostSight(plot):
+	# <!-- custom: A plain sight radius: 1, or 2 from hills or a peak, which raise a unit's see-from level; forests and hills between can still block a view, which this does not model. (Claude code Opus 5.5) -->
+	if plot.isHills() or plot.isPeak():
+		return 2
+	return 1
+
+
+def _revealedLandmass(player):
+	# <!-- custom: Our landmass as the team knows it: revealed land connected to our cities (diagonals connect, as units move), or to our land units before the first city. The game's area IDs come from the true map, so grouping revealed plots by them told whether two explored patches connect through fog (Codex's review, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	iTeam = player.getTeam()
+	starts = [(city.getX(), city.getY()) for city in _cities(player)]
+	if not starts:
+		starts = [(unit.getX(), unit.getY()) for unit in _units(player) if unit.getDomainType() == DomainTypes.DOMAIN_LAND and not unit.plot().isWater()]
+	seen = {}
+	todo = list(starts)
+	for xy in starts:
+		seen[xy] = True
+	while todo:
+		(x, y) = todo.pop()
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(x, y, DirectionTypes(iDirection))
+			if adjacent is None or adjacent.isNone() or adjacent.isWater() or not adjacent.isRevealed(iTeam, False):
+				continue
+			xy = (adjacent.getX(), adjacent.getY())
+			if not seen.has_key(xy):
+				seen[xy] = True
+				todo.append(xy)
+	return seen
+
+
+def _remindFogBusting(player, args):
+	# <!-- custom: The user's point at turn 8 of the islands replay (2026-11-15), alone on our island: a good time to learn fog busting. CvGame::randomBarbarianPlot spawns a Barbarian unit only on land that is unowned, passable, habitable, not visible to any civ and at least MIN_BARBARIAN_STARTING_DISTANCE from civ units, so land in our borders is safe and unowned land kept in sight is too.
+	# The user then asked for the posts that watch it all most efficiently, hills seeing further: a greedy cover of all unowned land of our landmasses, as seen, picking each time the plot whose sight covers the most of what is left, hills first on a tie, so the posts do not move as units walk; posts already held by a unit of ours are marked. (Claude code Opus 5.5) -->
+	iTeam = player.getTeam()
+	kMap = gc.getMap()
+	if not _cities(player):
+		return []
+	ourLand = _revealedLandmass(player)
+	target = {}
+	iExposed = 0
+	candidates = []
+	for (x, y) in ourLand.keys():
+		plot = kMap.plot(x, y)
+		if plot.isImpassable():
+			continue
+		candidates.append(plot)
+		if plot.getRevealedOwner(iTeam, False) == -1:
+			target[(plot.getX(), plot.getY())] = True
+			if not plot.isVisible(iTeam, False):
+				iExposed += 1
+	# <!-- custom: Posts that no longer watch anything: at turn 61 of the islands replay a Warrior still sat fortified at (96,25) after Utrecht, next to it, had taken in and lit that land; the user asked for a wake-up. A fortified or sleeping land unit of ours outside a city whose sight covers no unowned land is listed as free; the activity is the group's, as CyUnit has no getActivityType (the first run failed on it), and a fortified unit shows as ACTIVITY_SLEEP, the binding having no ACTIVITY_FORTIFY. (Claude code Opus 5.5) -->
+	free = []
+	(unit, it) = player.firstUnit(False)
+	while unit:
+		if unit.getDomainType() == DomainTypes.DOMAIN_LAND and not unit.plot().isCity() and unit.getGroup().getActivityType() == ActivityTypes.ACTIVITY_SLEEP:
+			plot = unit.plot()
+			iRange = _fogPostSight(plot)
+			# <!-- custom: Free when every unowned plot in its sight is also seen by something else (visibility count of 2 or more), not only when none is in sight: the first version kept the (96,25) Warrior, whose hill sight still touched unowned plots that Utrecht and Amsterdam saw anyway. (Claude code Opus 5.5) -->
+			bNeeded = False
+			for dx in range(-iRange, iRange + 1):
+				for dy in range(-iRange, iRange + 1):
+					xy = (plot.getX() + dx, plot.getY() + dy)
+					if target.has_key(xy) and kMap.plot(xy[0], xy[1]).getVisibilityCount(iTeam) < 2:
+						bNeeded = True
+			if not bNeeded:
+				free.append(unit)
+		(unit, it) = player.nextUnit(it, False)
+	result = []
+	# <!-- custom: Whether Barbarian land units can spawn on our landmass at all: AdvCiv spawns them in a settled land area only while its unowned land plus half its unowned shelf (passable, habitable shallow coast next to it, not lake or ice) is at least half the handicap's iUnownedTilesPerBarbarianUnit (advc.300, CvGame::createBarbarianUnits and CvMap::computeShelves).
+	# At turn 57 of the islands replay (2026-11-15) the user called the north post a mistake: on Noble (55 tiles per unit, so 27) the island had 24 unowned land plots, and scouting the rest of it came first. Counted from what the team has revealed, so it is an estimate. (Claude code Opus 5.5) -->
+	iCoast = gc.getInfoTypeForString("TERRAIN_COAST")
+	iThreshold = gc.getHandicapInfo(gc.getGame().getHandicapType()).getUnownedTilesPerBarbarianUnit() / 2
+	# <!-- custom: Counted over what the team knows, so a known count under the cutoff is not proof: the engine counts all the area's unowned land, and unrevealed land of the landmass may lift it over. The first wording said "cannot spawn" outright (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	iLand = len(target)
+	iUnknownEdge = 0
+	shelf = {}
+	for (x, y) in ourLand.keys():
+		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
+			adjacent = plotDirection(x, y, DirectionTypes(iDirection))
+			if adjacent is None or adjacent.isNone():
+				continue
+			if not adjacent.isRevealed(iTeam, False):
+				iUnknownEdge += 1
+				continue
+			if adjacent.getTerrainType() != iCoast or adjacent.isImpassable() or adjacent.isLake() or adjacent.getRevealedOwner(iTeam, False) != -1 or adjacent.getYield(YieldTypes.YIELD_FOOD) <= 0:
+				continue
+			shelf[(adjacent.getX(), adjacent.getY())] = True
+	iShelf = len(shelf)
+	iEstimate = iLand + iShelf / 2
+	row = {"unownedLand": iLand, "unownedShelf": iShelf, "estimate": iEstimate, "threshold": iThreshold, "unrevealedNextToOurLand": iUnknownEdge}
+	if iEstimate >= iThreshold:
+		row["landBarbariansCanSpawn"] = True
+		row["text"] = "Barbarian land units can still spawn on our landmass: its known unowned land (%d) plus half its known unowned shelf (%d) is %d, at least %d (advc.300); they stop once borders take it under that" % (iLand, iShelf, iEstimate, iThreshold)
+	elif iUnknownEdge:
+		row["landBarbariansCanSpawn"] = None
+		row["text"] = "Uncertain whether Barbarian land units can spawn on our landmass: what we know of its unowned land (%d) plus half its unowned shelf (%d) is %d, under %d (advc.300), but %d unrevealed plot(s) border it and may add to the count; scouting them settles it" % (iLand, iShelf, iEstimate, iThreshold, iUnknownEdge)
+	else:
+		row["landBarbariansCanSpawn"] = False
+		row["text"] = "Barbarian land units cannot spawn on our landmass now: all of it is revealed, and its unowned land (%d) plus half its unowned shelf (%d) is %d, under %d (advc.300); scout or work instead of fog busting here, unless a Barbarian city or ship comes" % (iLand, iShelf, iEstimate, iThreshold)
+	result.append(row)
+	if free:
+		# <!-- custom: The user asked (2026-11-15) that the reminder also say where freed posts could go, as fog busting ends once the land is lit: an unheld post if any remains, a city with no land defender, or fog elsewhere. (Claude code Opus 5.5) -->
+		undefended = []
+		for city in _cities(player):
+			plot = city.plot()
+			bDefended = False
+			for i in range(plot.getNumUnits()):
+				other = plot.getUnit(i)
+				if other.getOwner() == player.getID() and other.getDomainType() == DomainTypes.DOMAIN_LAND and other.canDefend(plot):
+					bDefended = True
+					break
+			if not bDefended:
+				undefended.append(city.getName())
+		szWhere = "fog elsewhere"
+		if iExposed > 0:
+			szWhere = "an unheld post below, or fog elsewhere"
+		if undefended:
+			szWhere = "a city with no land defender (%s), %s" % (", ".join(undefended), szWhere)
+		result.append({"freePosts": [{"unit": u.getID(), "type": gc.getUnitInfo(u.getUnitType()).getType(), "x": u.getX(), "y": u.getY()} for u in free], "undefendedCities": undefended, "text": "%s watch no unowned land that nothing else sees: wake them for %s" % (", ".join(["%s %d at %d,%d" % (gc.getUnitInfo(u.getUnitType()).getType(), u.getID(), u.getX(), u.getY()) for u in free]), szWhere)})
+	if iExposed == 0:
+		# <!-- custom: Said plainly, so posts are not kept for land that no longer needs them. (Claude code Opus 5.5) -->
+		if target:
+			result.append({"done": True, "text": "every unowned plot of our landmass is in sight now: fog busting needs no more posts here"})
+		return result
+	held = {}
+	(unit, it) = player.firstUnit(False)
+	while unit:
+		if unit.getDomainType() == DomainTypes.DOMAIN_LAND:
+			held[(unit.getX(), unit.getY())] = unit.getID()
+		(unit, it) = player.nextUnit(it, False)
+	# <!-- custom: Ties go to hills, then to the plot furthest from our cities: at turn 14 of the islands replay (98,29) and (99,28) both covered 14, and the user pointed out (98,29) lies further out, where land stays unowned longer as the capital's borders grow. (Claude code Opus 5.5) -->
+	cityPlots = [(c.getX(), c.getY()) for c in _cities(player)]
+	posts = []
+	left = target.copy()
+	while left and len(posts) < 8:
+		best = None
+		for plot in candidates:
+			iRange = _fogPostSight(plot)
+			covered = [(plot.getX() + dx, plot.getY() + dy) for dx in range(-iRange, iRange + 1) for dy in range(-iRange, iRange + 1) if left.has_key((plot.getX() + dx, plot.getY() + dy))]
+			key = (len(covered), iRange, min([max(abs(plot.getX() - cx), abs(plot.getY() - cy)) for (cx, cy) in cityPlots]))
+			if best is None or key > best[2]:
+				best = (plot, covered, key)
+		if best is None or not best[1]:
+			break
+		for xy in best[1]:
+			del left[xy]
+		post = {"x": best[0].getX(), "y": best[0].getY(), "hills": _fogPostSight(best[0]) == 2, "covers": len(best[1]), "heldBy": held.get((best[0].getX(), best[0].getY()))}
+		posts.append(post)
+	szPosts = ", ".join(["%d,%d%s" % (p["x"], p["y"], (p["hills"] and " (hills)") or "") for p in posts])
+	row = {"exposedNow": iExposed, "unownedLand": len(target), "posts": posts, "uncoveredByPosts": len(left)}
+	row["text"] = "%d unowned plots of our landmass are out of sight now, where Barbarians can spawn; %d post(s) would watch all %d unowned plots: %s" % (iExposed, len(posts), len(target) - len(left), szPosts)
+	return [row] + result
+
+
+def _remindSharedBonuses(player, args):
+	# <!-- custom: The user's idea at turn 65 of the islands replay (2026-11-15), after The Hague lived on a Sheep moved from Amsterdam: a food bonus two or more of our cities reach can be worked by whichever needs it most. Listed with the city working it and each city's food surplus; when a city with less food than the one working it could take it, the 'work' click that moves it is given. The choice stays the agent's: a city building a Settler turns food into production, so its surplus reads low. (Claude code Opus 5.5) -->
+	iTeam = player.getTeam()
+	cities = _cities(player)
+	if len(cities) < 2:
+		return []
+	byPlot = {}
+	for city in cities:
+		for i in range(gc.getNUM_CITY_PLOTS()):
+			plot = city.getCityIndexPlot(i)
+			if plot is None or plot.isNone() or plot.getOwner() != player.getID():
+				continue
+			iBonus = plot.getBonusType(iTeam)
+			if iBonus < 0 or gc.getBonusInfo(iBonus).getYieldChange(YieldTypes.YIELD_FOOD) <= 0:
+				continue
+			byPlot.setdefault((plot.getX(), plot.getY()), []).append(city)
+	result = []
+	for ((x, y), reach) in byPlot.items():
+		if len(reach) < 2:
+			continue
+		plot = gc.getMap().plot(x, y)
+		worker = None
+		for city in reach:
+			if city.isWorkingPlot(plot):
+				worker = city
+		surplus = [{"city": city.getName(), "id": city.getID(), "foodDifference": city.foodDifference(True)} for city in reach]
+		row = {"x": x, "y": y, "bonus": gc.getBonusInfo(plot.getBonusType(iTeam)).getType(), "workedBy": worker and worker.getName() or None, "cities": surplus}
+		szBonus = row["bonus"][6:].capitalize()
+		# <!-- custom: A city building a Settler or Worker turns its food into production, so its surplus reads 0: at turn 74 of the islands replay this told the agent to move the Rice from The Hague (+5) to Amsterdam, which was building a Worker. Such a city is not offered as the hungrier one (CyCity.isFoodProduction). (Claude code Opus 5.5) -->
+		hungrier = [city for city in reach if not city.isFoodProduction() and (worker is None or city.getID() != worker.getID()) and (worker is None or city.foodDifference(True) < worker.foodDifference(True))]
+		hungrier.sort(lambda a, b: cmp(a.foodDifference(True), b.foodDifference(True)))
+		szCities = ", ".join(["%s %+d food" % (c["city"], c["foodDifference"]) for c in surplus])
+		if worker is None:
+			row["text"] = "%s at %d,%d is worked by none of %s; 'work city=%d x=%d y=%d' gives it to %s" % (szBonus, x, y, szCities, hungrier[0].getID(), x, y, hungrier[0].getName())
+		elif hungrier:
+			row["text"] = "%s at %d,%d, worked by %s, is shared with %s: 'work city=%d x=%d y=%d' moves it to %s" % (szBonus, x, y, worker.getName(), szCities, hungrier[0].getID(), x, y, hungrier[0].getName())
+		else:
+			continue
+		result.append(row)
+	return result
+
+
+def _remindStaleMarks(player, args):
+	# <!-- custom: The user's idea at turn 71 of the islands replay (2026-11-15), after Rotterdam was founded on its own dot-map site: a city-site mark that has done its job should go, so the map shows only the plan still open. A dot or sign on a plot where one of our cities stands, or within 2 plots of one (the site taken or crowded out); 'mark x= y= clear=1' removes both. What a mark is for cannot be read from it, so other marks, such as a road path, are left to the agent. (Claude code Opus 5.5) -->
+	cityPlots = [(city.getX(), city.getY(), city.getName()) for city in _cities(player)]
+	marks = {}
+	for dot in _dotMapCities(player.getID()):
+		marks[(dot["x"], dot["y"])] = "dot"
+	engine = CyEngine()
+	for i in range(engine.getNumSigns()):
+		sign = engine.getSignByIndex(i)
+		if int(sign.getPlayerType()) in (-1, player.getID()):
+			xy = (sign.getPlot().getX(), sign.getPlot().getY())
+			marks[xy] = (marks.has_key(xy) and "dot and sign") or "sign"
+	result = []
+	for ((x, y), szKind) in marks.items():
+		near = [(plotDistance(x, y, cx, cy), name) for (cx, cy, name) in cityPlots if plotDistance(x, y, cx, cy) <= 2]
+		if not near:
+			continue
+		near.sort()
+		(iDistance, szCity) = near[0]
+		szWhy = (iDistance == 0 and "%s stands on it" % szCity) or ("%s is %d plot(s) away" % (szCity, iDistance))
+		result.append({"x": x, "y": y, "mark": szKind, "city": szCity, "distance": iDistance, "text": "the %s at %d,%d is done with: %s; 'mark x=%d y=%d clear=1' removes it" % (szKind, x, y, szWhy, x, y)})
+	return result
+
+
+_REMINDER_CHECKS = (("huts", _remindHuts), ("waterScouting", _remindWaterScouting), ("fogBusting", _remindFogBusting), ("idleGarrison", _remindIdleGarrison), ("exposed", _remindExposed), ("scoutBeforeFounding", _remindScoutBeforeFounding), ("research", _remindResearch), ("cities", _remindCities), ("wounded", _remindWounded), ("gold", _remindGold), ("trades", _remindTrades), ("screens", _remindScreens), ("losses", _remindLosses), ("unfinished", _remindUnfinished), ("exports", _remindExports), ("unimproved", _remindUnimproved), ("sleepingWorkers", _remindSleepingWorkers), ("idleImprovements", _remindIdleImprovements), ("sharedBonuses", _remindSharedBonuses), ("staleMarks", _remindStaleMarks), ("rivalMoods", _remindRivalMoods))
 
 
 def cmd_reminders(args):
 	player = gc.getPlayer(_playerId(args))
 	_requireOwnTeamUnderFog(args, player, "reminders")
+	# <!-- custom: mute and unmute, the user's idea (2026-11-15): an agent that has weighed a reminder can silence it, a whole check (mute=fogBusting) or one entry (mute=sharedBonuses@100,27, by the entry's plot), for the rest of the session; unmute=all lifts every one. The muted list comes back with each reply, so nothing is hidden unawares. (Claude code Opus 5.5) -->
+	muted = _state.setdefault("mutedReminders", {})
+	if args.get("mute"):
+		muted[str(args["mute"])] = True
+	if args.get("unmute"):
+		if str(args["unmute"]) == "all":
+			muted.clear()
+		elif muted.has_key(str(args["unmute"])):
+			del muted[str(args["unmute"])]
 	result = []
+	iMuted = 0
 	for (szCheck, check) in _REMINDER_CHECKS:
+		if muted.has_key(szCheck):
+			continue
 		for entry in check(player, args):
 			entry["check"] = szCheck
+			if entry.has_key("x") and entry.has_key("y") and muted.has_key("%s@%d,%d" % (szCheck, entry["x"], entry["y"])):
+				iMuted += 1
+				continue
 			result.append(entry)
-	return {"reminders": result}
+	return {"reminders": result, "muted": muted.keys(), "mutedEntriesLeftOut": iMuted}
 
 
 _HELP["resources"] ="Every resource the team knows of: plot, type, owner (-1 unclaimed), improvement, and each build that connects it with its tech and whether we have that tech; resources on our land first. Shows what a tech would open, e.g. Agriculture's Plantations. args: player."
@@ -2390,6 +4063,11 @@ def cmd_resources(args):
 		if iOwner == player.getID():
 			bFeeds = plot.isCity() or (plot.getImprovementType() >= 0 and gc.getImprovementInfo(plot.getImprovementType()).isImprovementBonusTrade(iBonus))
 			entry["connected"] = bool(bFeeds and plot.isPlotGroupConnectedBonus(player.getID(), iBonus))
+		# <!-- custom: What the resource gives the empire and whether we have it already: at turn 71 of the islands replay (2026-11-15) the user pointed out that a Whale, new to us and +1 happiness, beat a second Clam, whose health we already had from other food; that took a 'py' call. A second source of a resource adds only its plot's yields. (Claude code Opus 5.5) -->
+		info = gc.getBonusInfo(iBonus)
+		entry["happiness"] = info.getHappiness()
+		entry["health"] = info.getHealth()
+		entry["weHaveAvailable"] = player.getNumAvailableBonuses(iBonus)
 		result.append(entry)
 	result.sort(lambda a, b: cmp((a["owner"] != player.getID(), a["owner"] >= 0, a["bonus"]), (b["owner"] != player.getID(), b["owner"] >= 0, b["bonus"])))
 	return {"resources": result}
@@ -3090,6 +4768,69 @@ def _tradeTechs(giver, iReceiver):
 	return result
 
 
+_HELP["rivaltechs"] = "Met rivals' tech trees beside ours, as the tech screen shows which met civs know each tech. With one rival: the techs they know, the ones they could research next, what they have that we lack (to ask for), what we have that they lack (to offer), and races (one of their next techs that we research or queue). layout gives the tree by tech-screen column, each tech with who knows it ('us' and player IDs) and next:ID for a rival that could research it next; with several rivals (with=8,3 or with=all for every met one) the layout overlaps them all. args: with (player ID, list or all), player."
+
+
+def cmd_rivaltechs(args):
+	# <!-- custom: The user's idea at turn 65 of the islands replay (2026-11-15), just after first contact with Pericles: research a tech he lacks to trade for his, and lay the rivals' trees out beside ours, one or several overlapped, to reason about them. The tech screen shows which met civs know each tech, so these are a player's facts; what a rival researches now needs espionage ('research ahead=N' shows it then). (Claude code Opus 5.5) -->
+	player = _player(args)
+	ourTeam = gc.getTeam(player.getTeam())
+	if args.get("with") is None:
+		raise ValueError("this command needs with=<player ID>, a list or all; 'players' lists them")
+	if str(args["with"]) == "all":
+		rivals = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and i != player.getID() and gc.getPlayer(i).getTeam() != player.getTeam() and ourTeam.isHasMet(gc.getPlayer(i).getTeam())]
+	else:
+		rivals = []
+		for szId in str(args["with"]).replace("[", "").replace("]", "").split(","):
+			rival = gc.getPlayer(int(szId))
+			if rival is None or rival.isNone() or not rival.isAlive():
+				raise ValueError("no living player %s" % szId)
+			if not ourTeam.isHasMet(rival.getTeam()):
+				raise ValueError("%s is not met; their techs are not shown to us" % rival.getName())
+			rivals.append(rival)
+	if not rivals:
+		raise ValueError("no met rival")
+	# <!-- custom: CyPlayer has no queue list; isResearchingTech covers the current tech and the queue (a first version called a getResearchQueueTech that does not exist). (Claude code Opus 5.5) -->
+	queued = {}
+	for i in range(gc.getNumTechInfos()):
+		if player.isResearchingTech(i):
+			queued[i] = True
+	columns = {}
+	single = len(rivals) == 1
+	known, nextUp, weLack, theyLack, races = [], [], [], [], []
+	for i in range(gc.getNumTechInfos()):
+		info = gc.getTechInfo(i)
+		holders = []
+		if ourTeam.isHasTech(i):
+			holders.append("us")
+		nexts = []
+		for rival in rivals:
+			bThem = gc.getTeam(rival.getTeam()).isHasTech(i)
+			if bThem:
+				holders.append(str(rival.getID()))
+			elif rival.canResearch(i, False):
+				nexts.append("next:%d" % rival.getID())
+			if single:
+				if bThem:
+					known.append(info.getType())
+					if not ourTeam.isHasTech(i):
+						weLack.append({"tech": info.getType(), "xmlTradeable": bool(info.isTrade())})
+				elif rival.canResearch(i, False):
+					nextUp.append(info.getType())
+					if queued.has_key(i):
+						races.append(info.getType())
+				# <!-- custom: Each with the XML trade flag: SAS turns it off for Writing and The Wheel, so Writing, the one tech we had and Pericles lacked, was never on the trade screen. (Claude code Opus 5.5) -->
+				if ourTeam.isHasTech(i) and not bThem:
+					theyLack.append({"tech": info.getType(), "xmlTradeable": bool(info.isTrade())})
+		if holders or nexts:
+			columns.setdefault(info.getGridX(), []).append("%s[%s]" % (info.getType()[5:], ",".join(holders + nexts)))
+	layout = ["col %d: %s" % (iColumn, " ".join(columns[iColumn])) for iColumn in sorted(columns.keys())]
+	result = {"with": [{"player": rival.getID(), "name": rival.getName()} for rival in rivals], "layout": layout}
+	if single:
+		result.update({"knownCount": len(known), "next": nextUp, "theyHaveWeLack": weLack, "weHaveTheyLack": theyLack, "races": races})
+	return result
+
+
 _HELP["techs"] = "The tech market across the players met: each tech the player lacks that some of them have, with its research cost, whether the XML lets it be traded at all (bTrade; SAS turns that off for some techs), and per holder whether it can be traded now and the AI's answer (DENIAL_ type, or null when it would trade). Then the techs we can research that none of them has (nobodyHas, research these and trade them on; unseenPlayers counts met players whose techs the fog hides), and per player met, the techs the player could give them. A holder at war ('atWar') can still answer for a tech put in the same deal as a peace treaty, as the diplomacy screen allows. args: player."
 
 
@@ -3149,7 +4890,13 @@ def cmd_trade(args):
 	# <!-- custom: The AI announced "Pacal II will trade Agriculture, Mysticism" in the fog-on playthrough (2026-11-13), but the pilot could not see the diplomacy screen's table. These are the same per-item checks the screen makes (canTradeItem, getTradeDenial); proposing a deal is not covered. (Claude code Opus 5.5) -->
 	player = _player(args)
 	other = gc.getPlayer(_otherAiId(player, args["with"]))
-	return {"we": RawJson(_tradeItemsJson(player, other.getID())), "they": RawJson(_tradeItemsJson(other, player.getID())), "attitude": _enumName(AttitudeTypes, other.AI_getAttitude(player.getID()))}
+	# <!-- custom: Which kinds of trade each side's techs allow, and the techs that allow each, read from the XML (CvTechInfo's is*Trading flags) so a mod-mod or other rules are followed: the user asked at turn 73 of the islands replay (2026-11-15), recalling Writing and Currency from BtS. A kind counts when either team has it, as CvPlayer::canTradeItem asks for techs. (Claude code Opus 5.5) -->
+	ourTeam = gc.getTeam(player.getTeam())
+	theirTeam = gc.getTeam(other.getTeam())
+	rules = {}
+	for (szKind, szTeam, szTech) in (("tech", "isTechTrading", "isTechTrading"), ("gold", "isGoldTrading", "isGoldTrading"), ("maps", "isMapTrading", "isMapTrading"), ("openBorders", "isOpenBordersTrading", "isOpenBordersTrading"), ("defensivePact", "isDefensivePactTrading", "isDefensivePactTrading"), ("permanentAlliance", "isPermanentAllianceTrading", "isPermanentAllianceTrading"), ("vassalState", "isVassalStateTrading", "isVassalStateTrading")):
+		rules[szKind] = {"us": bool(getattr(ourTeam, szTeam)()), "them": bool(getattr(theirTeam, szTeam)()), "enabledBy": [gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if getattr(gc.getTechInfo(i), szTech)()]}
+	return {"we": RawJson(_tradeItemsJson(player, other.getID())), "they": RawJson(_tradeItemsJson(other, player.getID())), "attitude": _enumName(AttitudeTypes, other.AI_getAttitude(player.getID())), "tradeRules": rules}
 
 
 _HELP["propose"] = "Propose a deal to an AI, as the diplomacy screen's Propose button does: the AI accepts or refuses, and an accepted deal is handed to the game to carry out ('accepted' is the AI's answer; the deal itself can still be refused by the game, so read the result back). Not in network games. Items as on 'trade', e.g. give=[\"TRADE_TECHNOLOGIES:TECH_METAL_CASTING\"] take=[\"TRADE_TECHNOLOGIES:TECH_MYSTICISM\",\"TRADE_OPEN_BORDERS\"]; data is a type, a city name, a team or an amount. args: with (player ID), give (list), take (list), player."
@@ -3224,7 +4971,7 @@ def cmd_odds(args):
 		if iLimit < 100 and limited:
 			raise ValueError("no unit at %d,%d that %d could attack; possibly its combat limit: %d, and enemies there are already damaged that much, which a unit without a limit can still attack" % (plot.getX(), plot.getY(), unit.getID(), iLimit))
 		raise ValueError("no unit at %d,%d that %d could attack" % (plot.getX(), plot.getY(), unit.getID()))
-	result = {"defender": _unitBrief(defender), "defenderStrength": defender.currCombatStrFloat(plot, unit), "oddsPerMille": getCombatOdds(unit, defender)}
+	result = {"defender": _unitBrief(defender, iTeam), "defenderStrength": defender.currCombatStrFloat(plot, unit), "oddsPerMille": getCombatOdds(unit, defender)}
 	# <!-- custom: The attacker's own strength is currCombatStr(NULL, NULL) in C++, but CyUnit's wrapper dereferenced both pointers, so unit.currCombatStrFloat(None, None) raised "unidentifiable C++ exception" (2026-11-13); the wrapper now passes NULL through, and a DLL without that fix leaves the field out. (Claude code Opus 5.5) -->
 	try:
 		result["attackerStrength"] = unit.currCombatStrFloat(None, None)
@@ -3243,6 +4990,56 @@ def cmd_sites(args):
 	if text == "null":
 		raise ValueError("unit %d cannot found a city" % unit.getID())
 	return RawJson(text)
+
+
+_HELP["plansites"] = "Plan city sites ahead, as a player does before a Settler exists: each revealed plot of our landmasses where the player could found a city, rated by the AI's found value (CvPlayerAI::AI_foundValue), with whether it is coastal (sea, not lake), the revealed food bonuses and open coast in its radius, and how many of its plots our cities already reach. Best first; spread=N (default 3) keeps only sites at least N plots from each other and from our cities, as a plan. legal=1 also keeps sites the AI values at 0 (it gives 0 near our cities), ranked then by open coast and fewest shared plots, for planning a tight coastal fill: the AI's value is a reference, not the answer, as it follows general rules (on an isolated island, coast claimed by corner cities can outweigh the overlap it avoids). 'mark' puts a chosen one on the dot map. args: limit (default 8), spread, legal, player."
+
+
+def cmd_plansites(args):
+	# <!-- custom: At turn 57 of the islands replay (2026-11-15) the user asked for our city sites marked early, as a strong player plans them, but 'sites' reads the green circles of a selected Settler and refused without one. (Claude code Opus 5.5) -->
+	player = _player(args)
+	iTeam = player.getTeam()
+	kMap = gc.getMap()
+	iLimit = int(args.get("limit", 8))
+	iSpread = int(args.get("spread", 3))
+	# <!-- custom: legal=1 keeps sites the AI values at 0: AI_foundValue gives 0 to sites close to our cities, so with the user's plan for the island (claim coast by settling its corners, overlap accepted) only one site came back; sorted then by open coast and fewest shared plots. (Claude code Opus 5.5) -->
+	bLegal = bool(args.get("legal"))
+	cityPlots = [(city.getX(), city.getY()) for city in _cities(player)]
+	# <!-- custom: Our landmass by revealed connection, not the game's area IDs, which would tell whether explored patches connect through fog (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	rated = []
+	for (x, y) in _revealedLandmass(player).keys():
+		plot = kMap.plot(x, y)
+		if not player.canFound(x, y):
+			continue
+		iValue = player.AI_foundValue(plot.getX(), plot.getY(), -1, False)
+		if iValue <= 0 and not bLegal:
+			continue
+		food = []
+		iCoast = 0
+		iShared = 0
+		for j in range(gc.getNUM_CITY_PLOTS()):
+			other = plotCity(plot.getX(), plot.getY(), j)
+			if other is None or other.isNone() or not other.isRevealed(iTeam, False):
+				continue
+			iBonus = other.getBonusType(iTeam)
+			if iBonus >= 0 and gc.getBonusInfo(iBonus).getYieldChange(YieldTypes.YIELD_FOOD) > 0:
+				food.append(gc.getBonusInfo(iBonus).getType())
+			if other.isWater() and not other.isLake() and not other.isImpassable():
+				iCoast += 1
+			for (cx, cy) in cityPlots:
+				if max(abs(other.getX() - cx), abs(other.getY() - cy)) <= 2 and plotDistance(other.getX(), other.getY(), cx, cy) <= 2:
+					iShared += 1
+					break
+		rated.append({"x": plot.getX(), "y": plot.getY(), "value": iValue, "coastal": bool(plot.isCoastalLand()), "foodBonuses": food, "openCoast": iCoast, "sharedWithOurCities": iShared})
+	rated.sort(lambda a, b: cmp((b["value"], b["openCoast"], -b["sharedWithOurCities"]), (a["value"], a["openCoast"], -a["sharedWithOurCities"])))
+	plan = []
+	for site in rated:
+		if iSpread > 0 and [1 for (x, y) in cityPlots + [(s["x"], s["y"]) for s in plan] if plotDistance(site["x"], site["y"], x, y) < iSpread]:
+			continue
+		plan.append(site)
+		if len(plan) >= iLimit:
+			break
+	return {"spread": iSpread, "sites": plan}
 
 
 _HELP["builds"] = "What a unit could build on a plot, as the window's buttons offer once the unit stands there: each build with its turns for this unit once it stands there, the improvement or route it makes, and the improvement's yield change on that plot. With refused=1, also each build this unit type can make that the plot refuses, with the reason. args: unit, x, y (default the unit's plot), refused, player."
@@ -3434,18 +5231,59 @@ def cmd_workers(args):
 	return {"workers": workers, "cities": cities, "tradeLinks": trade}
 
 
-_HELP["move"] = "Move a unit to a plot (MISSION_MOVE_TO); continues over later turns. args: unit, x, y, player."
+_HELP["move"] = "Move a unit to a plot (MISSION_MOVE_TO). Only to a plot one step away unless whole=1, which orders the whole path, continuing over later turns: moves over several plots go a plot at a time with 'step', to react to what each reveals. args: unit, x, y, whole, player."
 
 
 def cmd_move(args):
 	unit = _unit(args)
 	plot = _plot(args)
 	# <!-- custom: Checked with Python's CyUnit.generatePath first. At turn 81 of the fog-on playthrough (2026-11-13), right after Open Borders with Ethiopia were signed, 'path' found a 7-turn route for a Warrior inside Ethiopia's borders while 'move' said it had no path; the same pathfinder as 'path', GroupPathFinder, now decides both, so they cannot disagree. (Claude code Opus 5.5) -->
-	if not fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0)).get("found"):
+	path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
+	if not path.get("found"):
 		raise ValueError("unit %d has no path to %d,%d" % (unit.getID(), plot.getX(), plot.getY()))
+	# <!-- custom: One plot unless whole=1, the user's rule (2026-11-15): any movement over several plots goes a plot at a time, reacting to what each step reveals, and a guard holds better than a habit; a Work Boat sent round Suleiman's island in one order went north into the ice. 'step' moves one plot toward a far target. (Claude code Opus 5.5) -->
+	if len(path.get("steps") or []) > 1 and not args.get("whole"):
+		raise ValueError("%d,%d is %d plots away: move one plot at a time ( 'step unit=%d x=%d y=%d' ), or pass whole=1 to order the whole path" % (plot.getX(), plot.getY(), len(path["steps"]), unit.getID(), plot.getX(), plot.getY()))
 	if _state.get("follow", True):
 		_lookAt(plot)
 	return cmd_mission({"unit": args["unit"], "player": args.get("player"), "mission": "MISSION_MOVE_TO", "data1": plot.getX(), "data2": plot.getY()})
+
+
+_HELP["step"] = "Move a unit one plot along its path toward x, y, and report what that step showed, so the next can react: where it stands, moves left, the steps of the path still to go, how many plots it newly revealed, and the foreign units now in sight within two plots. For any move over several plots in a turn (a scout, a mounted unit, roads), as each plot can reveal what changes the plan. args: unit, x, y, player."
+
+
+def cmd_step(args):
+	# <!-- custom: The user's rule (2026-11-15): any movement over several plots in a turn goes one plot at a time, not a long path in one order, to react, retreat or change course on what each step reveals; a Work Boat sent round Suleiman's island in one order went north into the ice before the next look. (Claude code Opus 5.5) -->
+	unit = _unit(args)
+	iTeam = unit.getTeam()
+	if _fogTeam(args) >= 0 and iTeam != _fogTeam(args):
+		raise ValueError("with fog on, 'step' takes the team's own units")
+	target = _plot(args)
+	path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), target.getX(), target.getY(), 0))
+	if not path or not path.get("found") or not path.get("steps"):
+		raise ValueError("unit %d has no path to %d,%d" % (unit.getID(), target.getX(), target.getY()))
+	first = path["steps"][0]
+	kMap = gc.getMap()
+	before = 0
+	for i in range(kMap.numPlots()):
+		if kMap.plotByIndex(i).isRevealed(iTeam, False):
+			before += 1
+	cmd_move({"unit": unit.getID(), "player": unit.getOwner(), "x": first["x"], "y": first["y"]})
+	after = 0
+	for i in range(kMap.numPlots()):
+		if kMap.plotByIndex(i).isRevealed(iTeam, False):
+			after += 1
+	foreign = []
+	for dy in range(-2, 3):
+		for dx in range(-2, 3):
+			plot = plotXY(unit.getX(), unit.getY(), dx, dy)
+			if plot is None or plot.isNone() or not plot.isVisible(iTeam, False):
+				continue
+			for i in range(plot.getNumUnits()):
+				other = plot.getUnit(i)
+				if other.getTeam() != iTeam and not other.isInvisible(iTeam, False):
+					foreign.append({"owner": other.getOwner(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "x": plot.getX(), "y": plot.getY(), "atWar": bool(gc.getTeam(iTeam).isAtWar(other.getTeam()))})
+	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "movesLeft": unit.movesLeft(), "stepsLeft": len(path["steps"]) - 1, "newlyRevealed": after - before, "foreignNear": foreign}
 
 
 _HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what the pilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, spy, targets, hurry, produce, dequeue, citizens, work, specialist, emphasize) looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
@@ -3634,6 +5472,9 @@ def cmd_domestic(args):
 		row["growthThreshold"] = city.growthThreshold()
 		row["warWearinessPercent"] = city.getWarWearinessModifier()
 		row["foundedTurn"] = city.getGameTurnFounded()
+		# <!-- custom: The religions column of the Domestic Advisor, the one column this overview lacked (checked against CvDomesticAdvisor.py, 2026-11-15); the holy cities with them. (Claude code Opus 5.5) -->
+		row["religions"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHasReligion(i)]
+		row["holyCityOf"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHolyCityByType(i)]
 		rows.append(row)
 	summary = {"cities": len(rows), "coastal": len([r for r in rows if r["coastal"]]), "unhealthy": [r["name"] for r in rows if r["healthMargin"] < 0], "atHealthCap": [r["name"] for r in rows if r["healthMargin"] == 0], "unhappy": [r["name"] for r in rows if r["happyMargin"] < 0], "atHappyCap": [r["name"] for r in rows if r["happyMargin"] == 0], "starving": [r["name"] for r in rows if r["food"] < 0]}
 	return {"greatPeopleThreshold": player.greatPeopleThreshold(False), "summary": summary, "cities": rows}
@@ -4170,6 +6011,12 @@ def _popupAbout(popup):
 	szType = popup["type"]
 	if szType == "BUTTONPOPUP_CHANGECIVIC":
 		popup["about"] = {"civicOption": _typeOrNone(gc.getCivicOptionInfo, popup["data1"]), "civic": _typeOrNone(gc.getCivicInfo, popup["data2"])}
+		# <!-- custom: Adopting Slavery from this popup at turn 8 of the islands replay (2026-11-15) cost two turns of anarchy, which the popup does not say; an earlier game had shown none, so the anarchy it would cost is read from the game, as for a state religion below. (Claude code Opus 5.5) -->
+		player = gc.getActivePlayer()
+		if player is not None and not player.isNone() and popup["data1"] >= 0 and popup["data2"] >= 0:
+			civics = [player.getCivics(i) for i in range(gc.getNumCivicOptionInfos())]
+			civics[popup["data1"]] = popup["data2"]
+			popup["about"]["anarchyTurns"] = player.getCivicAnarchyLength(civics)
 	elif szType == "BUTTONPOPUP_CHOOSETECH" and popup["data1"] > 0:
 		popup["about"] = {"freeTechs": popup["data1"], "use": "freetech"}
 	elif szType == "BUTTONPOPUP_DECLAREWARMOVE":
@@ -4177,6 +6024,10 @@ def _popupAbout(popup):
 		popup["about"] = {"team": popup["data1"], "leaders": [gc.getPlayer(i).getName() for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and gc.getPlayer(i).getTeam() == popup["data1"]]}
 	elif szType == "BUTTONPOPUP_CHANGERELIGION":
 		popup["about"] = {"religion": _typeOrNone(gc.getReligionInfo, popup["data1"])}
+		# <!-- custom: A state religion costs anarchy too (none for a Spiritual leader), as the user pointed out; corporations do not. (Claude code Opus 5.5) -->
+		player = gc.getActivePlayer()
+		if player is not None and not player.isNone():
+			popup["about"]["anarchyTurns"] = player.getReligionAnarchyLength()
 	elif szType == "BUTTONPOPUP_DIPLOVOTE":
 		# <!-- custom: The resolution the window shows, which the DLL puts in the text (getSASPilotPopups); 'todo' lists 'about', not the text. A TEAM_<id> button elects that team. (Claude code Opus 5.5) -->
 		popup["about"] = {"resolution": _plainText(popup["text"])}
@@ -4265,6 +6116,8 @@ def _cityPlots(city):
 def _citizens(city):
 	result = {"city": city.getName(), "population": city.getPopulation(), "angry": city.angryPopulation(0), "automated": city.isCitizensAutomated(), "foodDifference": city.foodDifference(True), "yieldRate": _yields(city.getYieldRate)}
 	result["plots"] = _cityPlots(city)
+	# <!-- custom: A citizen neither on a plot nor a specialist, as the city that lost the Sheep to 'work' had in the islands replay (2026-11-15) until its governor reassigned it; a click in that moment made it a specialist instead of working the plot clicked. (Claude code Opus 5.5) -->
+	result["unassigned"] = city.getPopulation() - city.getWorkingPopulation() - city.getSpecialistPopulation()
 	specialists = {}
 	for i in range(gc.getNumSpecialistInfos()):
 		iCount = city.getSpecialistCount(i)
@@ -4287,7 +6140,7 @@ def cmd_citizens(args):
 	return _citizens(city)
 
 
-_HELP["work"] = "Click a plot in a city's radius, as on the city screen: a worked plot is freed, a free one is worked (taking a citizen from elsewhere), the city's own plot switches the governor back on, and a plot of the player's that another city works is claimed for this city. args: city, x, y, player."
+_HELP["work"] = "Click a plot in a city's radius, as on the city screen: a worked plot is freed, a free one is worked (taking a citizen from elsewhere), the city's own plot switches the governor back on, and a plot of the player's that another city works is claimed for this city (claimOnly then says to click again in a new request to work it, as the game applies the click after the reply); that city's screen then comes as claimedFrom, as its freed citizen stays unassigned until its governor runs (click a plot for it, or wait for the turn). args: city, x, y, player."
 
 
 def cmd_work(args):
@@ -4298,8 +6151,20 @@ def cmd_work(args):
 		raise ValueError("%d,%d is outside %s's radius" % (plot.getX(), plot.getY(), city.getName()))
 	# <!-- custom: Every click is TASK_CHANGE_WORKING_PLOT, as on the city screen, whose handler CvCity::alterWorkingPlot switches the governor back on for the city's own plot and, for a plot the city cannot work but owns, claims it from the city working it.
 	# The first version sent TASK_CLEAR_WORKING_OVERRIDE for the city's own plot and refused plots the city could not work; Codex's review pointed out the difference. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: When the click claims a plot another city works, that city is shown too, as its freed citizen waits unassigned until its governor runs (islands replay, 2026-11-15).
+	# Only another city of the same player, and only when the claim took the plot from it: for a rival's city the game refuses the claim, and returning its screen anyway would show a rival's specialists and yields (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	other = None
+	if plot.isBeingWorked() and plot.getWorkingCity() and plot.getWorkingCity().getID() != city.getID() and plot.getWorkingCity().getOwner() == city.getOwner():
+		other = plot.getWorkingCity()
+	# <!-- custom: A click on a plot the city cannot work (another of our cities holds it) only claims it, and the citizen it moves may land in a specialist slot: at turn 74 of the islands replay (2026-11-15) The Hague claimed the Rice and worked neither it nor its Horses. A second click works it, but in a later request: doTask sends a game message applied after this request returns, so a second click sent here saw the old state and never fired. The reply says claimOnly so the agent clicks again. (Claude code Opus 5.5) -->
+	bClaim = not city.canWork(plot) and plot.getOwner() == city.getOwner() and iIndex != 0
 	city.doTask(TaskTypes.TASK_CHANGE_WORKING_PLOT, iIndex, -1, False)
-	return _citizens(city)
+	result = _citizens(city)
+	if bClaim:
+		result["claimOnly"] = "the click claimed %d,%d for %s; click again in a new request to work it" % (plot.getX(), plot.getY(), city.getName())
+	if other is not None and not other.isWorkingPlot(plot):
+		result["claimedFrom"] = _citizens(other)
+	return result
 
 
 _HELP["specialist"] = "Add or remove a city's specialists, as the plus and minus buttons do. args: city, type (SPECIALIST_ type), change (default 1; negative removes), player."

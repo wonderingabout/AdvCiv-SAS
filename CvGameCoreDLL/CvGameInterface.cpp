@@ -3185,19 +3185,53 @@ namespace
 	}
 
 	// <!-- custom: The brief unit of _unitBrief in SASPilotCommands.py, keys sorted as the Python writer sorts them; used inside plots and by getSASPilotUnitsJson. (Claude code Opus 5.5) -->
-	void appendSASPilotUnitJson(std::string& szOut, CvUnit const& kUnit)
+	// <!-- custom: eFogTeam added with the unit's state (activity, automation, head mission and its target plot, fortify turns, a ready promotion), which the user asked for after the islands replay (2026-11-15), where 'units' gave none of it and 'unit' had to be read one by one.
+	// The state is written for every unit in the full view (NO_TEAM) and for the viewing team's own units under fog, as the game shows rivals' states nowhere. (Claude code Opus 5.5) -->
+	void appendSASPilotUnitJson(std::string& szOut, CvUnit const& kUnit, TeamTypes eFogTeam)
 	{
+		CvSelectionGroup const* pGroup = kUnit.getGroup();
+		bool const bState = (pGroup != NULL && (eFogTeam == NO_TEAM || kUnit.getTeam() == eFogTeam));
+		if (bState)
+		{
+			szOut += "{\"activity\":";
+			appendSASPilotJsonType(szOut, getSASActivityType(pGroup->getActivityType()));
+			szOut += ",\"automate\":";
+			AutomateTypes const eAutomate = pGroup->getAutomateType();
+			appendSASPilotJsonType(szOut, eAutomate == NO_AUTOMATE ? NULL : GC.getAutomateTypes(eAutomate).GetCString());
+			szOut += ",\"damage\":";
+		}
+		else szOut += "{\"damage\":";
 		// <!-- custom: experience, level and a unit's own name (BUG Unit Naming's or a Great General's; left out when it has none) added after a look at the Military Advisor's individual-unit list, which shows them, while 'units' needed one 'unit' request per unit for them (2026-11-14). (Claude code Opus 5.5) -->
-		szOut += "{\"damage\":";
 		appendSASPilotJsonInt(szOut, kUnit.getDamage());
 		szOut += ",\"experience\":";
 		appendSASPilotJsonInt(szOut, kUnit.getExperience());
+		if (bState)
+		{
+			szOut += ",\"fortifyTurns\":";
+			appendSASPilotJsonInt(szOut, kUnit.getFortifyTurns());
+		}
 		szOut += ",\"group\":";
 		appendSASPilotJsonInt(szOut, kUnit.getGroupID());
 		szOut += ",\"id\":";
 		appendSASPilotJsonInt(szOut, kUnit.getID());
 		szOut += ",\"level\":";
 		appendSASPilotJsonInt(szOut, kUnit.getLevel());
+		if (bState)
+		{
+			CLLNode<MissionData> const* pNode = pGroup->headMissionQueueNode();
+			szOut += ",\"mission\":";
+			appendSASPilotJsonType(szOut, pNode == NULL ? NULL : GC.getInfo(pNode->m_data.eMissionType).getType());
+			// <!-- custom: The head mission target, not lastMissionPlot: that was the end of the queue, and for Move To Unit the live position of a rival out of sight (Codex's review, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			CvPlot const* pDest = getSASHeadMissionPlot(*pGroup, eFogTeam);
+			if (pDest != NULL)
+			{
+				szOut += ",\"missionPlot\":[";
+				appendSASPilotJsonInt(szOut, pDest->getX());
+				szOut += ',';
+				appendSASPilotJsonInt(szOut, pDest->getY());
+				szOut += ']';
+			}
+		}
 		szOut += ",\"movesLeft\":";
 		appendSASPilotJsonInt(szOut, kUnit.movesLeft());
 		if (!kUnit.getNameNoDesc().empty())
@@ -3207,6 +3241,8 @@ namespace
 		}
 		szOut += ",\"owner\":";
 		appendSASPilotJsonInt(szOut, kUnit.getOwner());
+		if (bState)
+			szOut += (kUnit.isPromotionReady() ? ",\"promotionReady\":true" : ",\"promotionReady\":false");
 		szOut += ",\"type\":";
 		appendSASPilotJsonType(szOut, GC.getInfo(kUnit.getUnitType()).getType());
 		szOut += ",\"x\":";
@@ -3275,7 +3311,7 @@ namespace
 			if (!bFirstUnit)
 				szOut += ',';
 			bFirstUnit = false;
-			appendSASPilotUnitJson(szOut, *pUnit);
+			appendSASPilotUnitJson(szOut, *pUnit, eFogTeam);
 		}
 		szOut += ']';
 		if (eActiveTeam != NO_TEAM)
@@ -3626,7 +3662,7 @@ std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam)
 			if (!bFirst)
 				szOut += ',';
 			bFirst = false;
-			appendSASPilotUnitJson(szOut, *pUnit);
+			appendSASPilotUnitJson(szOut, *pUnit, eFogTeam);
 		}
 	}
 	szOut += ']';

@@ -90,10 +90,12 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
   - [Source](#source)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
+    - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
+    - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
   - [XML and rules](#xml-and-rules)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
     - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
@@ -1015,6 +1017,13 @@ Verifies that no `// <!-- custom:` or `# <!-- custom:` comment in DLL sources, r
 - A scripted edit once inserted retirement notes two levels too deep in `RiseFall.cpp` and `GroupPathFinder.cpp`; the code still compiled, so only review noticed ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)).
 - Requiring both neighbours to be shallower allows ordinary end-of-block notes, and a comment directly under a block opener (`{`, `:`, `(`, `,`, `\`), including commented-out code, is skipped.
 
+#### `build/source/float_format_int_division.py`
+
+Fails when runtime Python, including `LLM_Helpers/saspilot`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
+
+- Vanilla Civ4's Victory screen showed the best rival's population and land shares this way, `2.00%` for 2.30% and 2.06% ([KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)).
+- A division by a value that is already a float passes only with one of those markers, so convert it at the division.
+
 #### `build/source/lint_suppressions.py`
 
 Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python that does not name its rule, such as `noqa: E402`, or gives no reason on the same line or the line above. AGENTS.md asks to fix the cause first and to explain any suppression that remains.
@@ -1145,6 +1154,13 @@ Or provide an explicit comparison base:
 ```bash
 python .github/workflows/build/source/source_change_provenance.py --base-ref <base-sha>
 ```
+
+#### `build/source/unicode_button_paths.py`
+
+Fails when runtime Python starts a button or icon path as `u""` (a variable named `sz...Button` or `sz...Icon`). The engine takes icons as `char const*`, so a unicode one raises a Boost `ArgumentError`.
+
+- Added on 2026-11-15 for [KI#118.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2): `CvVictoryScreen.py` set `szNameButton = u""` for a vote building built by an unmet team, and the whole Victory screen broke at turn 120 of a SAS48 island autoplay. It found 16 such defaults, all now `""`.
+- `SASTextScale`'s `setTable*Scaled` helpers also pass icons through `str()`, which covers every caller of the wrappers; the check keeps direct screen calls safe too. Names ending in `Icons` (plural), such as `AttitudeUtil`'s, hold icon characters for text and stay unicode.
 
 ### XML and rules
 

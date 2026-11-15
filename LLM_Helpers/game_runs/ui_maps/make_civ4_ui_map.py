@@ -436,6 +436,9 @@ for name, xy, note in (
 		("f8_graph_dropdowns", (180, 164), "Graph: two dropdowns at the top left, the measure (Score) and the time span (Entire timeline)"),
 		("f8_timeline_log", (1428, 94), "Timeline: LOG at the top right; the event list scrolls"),
 		("f8_score_table", (400, 140), "Score: one leader per row; a heading click re-sorts"),
+		("f8_wonders_world", (725, 180), "Top 5 Cities / Wonders: World Wonders mode, the first of three round buttons above the list (mapped 2026-11-15 at 1924x1120); wonders by unmet players show their date with owner Unknown"),
+		("f8_wonders_national", (755, 180), "Top 5 Cities / Wonders: National Wonders mode; another player's national wonders show only once met and the city seen"),
+		("f8_wonders_projects", (785, 180), "Top 5 Cities / Wonders: Projects mode; every project built, the team Unknown when not met, no date"),
 		("f9_space_view", (516, 503), "Victories: the space race's View button")):
 	S["advisors"]["controls"][name] = c(xy, None, note)
 S["game_main"]["controls"]["select_next_unit"] = c((1636, 983), None, "Select Next Unit <W>, left of the city arrows; selected the next unit to move")

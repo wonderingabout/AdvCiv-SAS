@@ -489,7 +489,8 @@ class CvVictoryScreen:
 					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
 					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
 					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
-					szSecGenButton = u""
+					# <!-- custom: A plain string for the same reason as the vote rows' icon: setTableText takes it as char const*, so u"" would raise the same ArgumentError. See KI#118.2. (Claude code Opus 5.5) -->
+					szSecGenButton = ""
 					if iSecGenPlayer >= 0:
 						szSecGenName = gc.getPlayer(iSecGenPlayer).getName()
 						szSecGenButton = self.getLeaderButton(iSecGenPlayer)
@@ -745,7 +746,8 @@ class CvVictoryScreen:
 			bKnown, szPlayerText = self.getPlayerStatusName(iMember)
 
 			# <!-- custom: add leader icon to player name (claude opus 4.5) -->
-			szPlayerButton = u""
+			# <!-- custom: A plain string for the same reason as the vote rows' icon: setTableText takes it as char const*, so u"" would raise the same ArgumentError. See KI#118.2. (Claude code Opus 5.5) -->
+			szPlayerButton = ""
 			if bKnown:
 				szPlayerText = gc.getPlayer(iMember).getName()
 				szPlayerButton = self.getLeaderButton(iMember)
@@ -885,7 +887,8 @@ class CvVictoryScreen:
 
 				# <!-- custom: add building icon to AP/UN header (claude opus 4.5) -->
 				szHeaderText = SASTextScale.sasFontTagTitle.bold + kVoteSource.getDescription().upper() + SASTextScale.SAS_FONT_TAG_CLOSE
-				szBuildingButton = u""
+				# <!-- custom: Button paths start as plain "", not u"": setTableText takes the icon as char const*, and an empty u"" left here when no leader or building applies raised a Boost ArgumentError that broke the whole screen. See KI#118.2. (Claude code Opus 5.5) -->
+				szBuildingButton = ""
 				for iBuilding in range(gc.getNumBuildingInfos()):
 					if gc.getBuildingInfo(iBuilding).getVoteSourceType() == i:
 						szBuildingButton = gc.getBuildingInfo(iBuilding).getButton()
@@ -1630,7 +1633,7 @@ class CvVictoryScreen:
 
 						iBestPlayer = self.getPlayerOnTeam(iBestScoreTeam)
 						szBestName = gc.getTeam(iBestScoreTeam).getName() + ":"
-						szBestButton = u""
+						szBestButton = ""
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
@@ -1658,7 +1661,7 @@ class CvVictoryScreen:
 						iBestPlayer = self.getPlayerOnTeam(iBestScoreTeam)
 
 						szBestName = gc.getTeam(iBestScoreTeam).getName() + ":"
-						szBestButton = u""
+						szBestButton = ""
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
@@ -1705,12 +1708,13 @@ class CvVictoryScreen:
 						# <!-- custom: add leader icon (claude opus 4.5) -->
 						iBestPlayer = self.getPlayerOnTeam(iBestPopTeam)
 						szBestName = gc.getTeam(iBestPopTeam).getName() + ":"
-						szBestButton = u""
+						szBestButton = ""
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Vanilla Civ4 divided integers here, so the best rival's share lost its decimals (Pacal II's 31 of 1346 showed 2.00% for 2.30% at turn 120 of a SAS48 islands save) while ours kept them; divide as float like ours. See KI#290.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100.0 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1730,12 +1734,13 @@ class CvVictoryScreen:
 						# <!-- custom: add leader icon (claude opus 4.5) -->
 						iBestPlayer = self.getPlayerOnTeam(iBestLandTeam)
 						szBestName = gc.getTeam(iBestLandTeam).getName() + ":"
-						szBestButton = u""
+						szBestButton = ""
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Float division, as for the population row above. See KI#290.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100.0 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1750,7 +1755,8 @@ class CvVictoryScreen:
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iBestReligion != -1):
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Vanilla Civ4 printed religionPercent, left over from the loop above with the last religion's share, not the best one's; no SAS victory sets iReligionPercent, so this row shows only in a mod-mod with a religious victory. See KI#115.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % bestReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
 
 				if (victory.getTotalCultureRatio() > 0):
@@ -1774,11 +1780,12 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-					if (iBestLandTeam != -1):
+					# <!-- custom: Vanilla Civ4 tested iBestLandTeam here, then read iBestCultureTeam: a met team owning land but no culture yet, as early in a game, would reach getPlayerOnTeam(-1) and gc.getTeam(-1). Test the team this row reads. See KI#115.2. (Claude code Opus 5.5) -->
+					if (iBestCultureTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
 						iBestPlayer = self.getPlayerOnTeam(iBestCultureTeam)
 						szBestName = gc.getTeam(iBestCultureTeam).getName() + ":"
-						szBestButton = u""
+						szBestButton = ""
 						if iBestPlayer >= 0:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
@@ -1812,7 +1819,7 @@ class CvVictoryScreen:
 							# <!-- custom: add leader icon (claude opus 4.5) -->
 							iBestPlayer = self.getPlayerOnTeam(iBestBuildingTeam)
 							szBestName = gc.getTeam(iBestBuildingTeam).getName() + ":"
-							szBestButton = u""
+							szBestButton = ""
 							if iBestPlayer >= 0:
 								szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 								szBestButton = self.getLeaderButton(iBestPlayer)
@@ -1954,7 +1961,7 @@ class CvVictoryScreen:
 								# <!-- custom: add leader icon (claude opus 4.5) -->
 								iBestPlayer = self.getPlayerOnTeam(iBestProjectTeam)
 								szBestName = gc.getTeam(iBestProjectTeam).getName() + ":"
-								szBestButton = u""
+								szBestButton = ""
 								if iBestPlayer >= 0:
 									szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 									szBestButton = self.getLeaderButton(iBestPlayer)
@@ -1989,12 +1996,13 @@ class CvVictoryScreen:
 						if (iUNTeam != -1):
 							if bUnknown:
 								szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
-								szNameButton = u""
+								# <!-- custom: The icon is a plain string, as setTableText takes the button path as char const*: u"" raised a Boost ArgumentError and broke the whole Victory screen once an unmet team had built the Apostolic Palace (SAS48 island autoplay, turn 120, 2026-11-15). See KI#118.2. (Claude code Opus 5.5) -->
+								szNameButton = ""
 							else:
 								# <!-- custom: add leader icon (claude opus 4.5) -->
 								iUNPlayer = self.getPlayerOnTeam(iUNTeam)
 								szName = gc.getTeam(iUNTeam).getName()
-								szNameButton = u""
+								szNameButton = ""
 								if iUNPlayer >= 0:
 									szName = gc.getPlayer(iUNPlayer).getName()
 									szNameButton = self.getLeaderButton(iUNPlayer)

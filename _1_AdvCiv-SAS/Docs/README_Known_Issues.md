@@ -196,6 +196,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
+[KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
 [KI#119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-119)\
 [KI#120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-120)\
 [KI#121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-121)\
@@ -438,6 +439,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298.2)\
 [KI#299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-299)\
 [KI#300 - (Fixed AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
+[KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2)\
 [KI#301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-301)\
 [KI#302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-302)\
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
@@ -3561,6 +3563,12 @@ The practical debugging rule is therefore narrower than "replace fastdep" or "al
 See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#dependency-scanner-access-violations) for the concise operational reminder.
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
+
+Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`) to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
+
+Running `bin\fastdep.exe -q -O x <file>` on each edited translation unit isolated `CvGameTextMgr.cpp` in seconds; the other edited files passed. Removing the apostrophes from all five lines passed, and so did keeping them on any one, two, three or four of the five; only all five together crashed. Several of these lines held an odd number of apostrophes, but their total was even, and dropping a line with two kept that total's parity yet passed, so a simple quote-parity rule does not explain it either.
+
+As in the first case, the trigger is a source layout that the old scanner reads, not the code. Rewording the five comments without possessives ("the build of a Worker") passed `fastdep` and the build. Testing `fastdep.exe` per file, as above, is the quick way to find such a trigger before reading any diff. (Claude code Opus 5.5)
 
 <a id="ki-38.6"></a>
 
@@ -11276,6 +11284,28 @@ Fix:
 
 Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.
 
+<a id="ki-115.2"></a>
+
+## KI#115.2 - (Fixed inherited vanilla Civ4 slips) Victory screen's Victories tab: a culture row testing the wrong team, a religion row printing the wrong share
+
+Screenshots/files for this issue: same as KI#290.2.
+
+Found on 2026-11-15 while SASPilot's new `victory` command was checked against the Victories tab at turn 120 of a SAS48 SAS Large Facing Islands autoplay (the same save as KI#118.2 and KI#300.2), which is the same screen family as KI#115. A third slip found with them, the best rival's shares cut to whole percent by integer division, is [KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2), with KI#290's integer division, at the user's suggestion.
+
+Observed issue:
+
+- Culture row: the `if` tests `iBestLandTeam` but the block reads `iBestCultureTeam`. A met team that owns land but has no culture yet, as can happen in the first turns, would send `-1` to `getPlayerOnTeam` and `gc.getTeam`. Not reproduced, found by reading.
+- Religion row: prints `religionPercent`, the last value of the loop over all religions, where the best religion's `bestReligionPercent` was meant. No SAS victory sets `iReligionPercent`, so the row only shows in a mod-mod with a religious victory.
+
+Provenance:
+
+- Both are in vanilla Civ4's `CvVictoryScreen.py` (the root `Assets` of the Complete install, lines 551 and 543); Warlords does not override the screen, and BtS (lines 579, 571) and AdvCiv 1.14 kept them unchanged.
+
+Fix:
+
+- `CvVictoryScreen.py`: `iBestCultureTeam` in the culture row's test, and `bestReligionPercent` in the religion row. Fixed by reading only; neither row misbehaved on this save.
+- Before filing, the KI bodies, the C++ File Audit Album and the archaeology record were searched; none had these slips.
+
 <a id="ki-116"></a>
 
 ## KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts
@@ -11367,6 +11397,36 @@ Preventive CI:
 So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
 
 Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was removed and the corresponding asset as of now now uses another art.
+
+<a id="ki-118.2"></a>
+
+## KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JNpEXJOBBjWvO_CC9qV8Q9PebTjblh8u?usp=sharing).
+
+- Found at turn 120 of a SAS48 SAS Large Facing Islands autoplay (2026-11-15), with 2 of 47 rivals met, while comparing what a player can know about rivals not met: F9 showed a Python exception from `CvVictoryScreen.showVictoryConditionScreen`, line 2001, through `SASTextScale.setTableTextLabel`: `setTableText` did not match its C++ signature, as the icon argument was a unicode string where the engine takes `char const*`.
+
+The exception dialog, verbatim as captured at 2026-11-15T07:51:25Z; the dialog dropped the template arguments of `std::basic_string<...>`, as Civ4's text box reads angle brackets as markup, so that part is quoted as the dialog showed it:
+
+```log
+2026-11-15T07:51:25.124Z Traceback (most recent call last):
+2026-11-15T07:51:25.124Z   File "CvScreensInterface", line 365, in showVictoryScreen
+2026-11-15T07:51:25.124Z   File "CvVictoryScreen", line 312, in interfaceScreen
+2026-11-15T07:51:25.124Z   File "CvVictoryScreen", line 2001, in showVictoryConditionScreen
+2026-11-15T07:51:25.124Z   File "SASTextScale", line 177, in setTableTextLabel
+2026-11-15T07:51:25.124Z   File "SASTextScale", line 159, in setTableTextScaled
+2026-11-15T07:51:25.124Z ArgumentError: Python argument types in
+2026-11-15T07:51:25.124Z CyGInterfaceScreen.setTableText(CyGInterfaceScreen, str, int, int, unicode, unicode, CvPythonExtensions.WidgetTypes, int, int, int)
+2026-11-15T07:51:25.124Z did not match C++ signature:
+2026-11-15T07:51:25.124Z     setTableText(class CyGInterfaceScreen {lvalue}, char const *, int, int, class std::basic_string,class std::allocator >, char const *, enum WidgetTypes, int, int, int)
+```
+
+The fifth argument is the icon: `unicode` where the engine takes `char const *`.
+
+- Cause: for the diplomatic victory's vote buildings, an unmet builder (`bUnknown`) set `szNameButton = u""`, as did a team with no living player; the Apostolic Palace in this game had been built by an unmet civ. SAS practical 5289 (`cc0c5d1e2`, "fix victory screen's button height") introduced those `u""` defaults when it moved the leader icon from the name text into the icon argument; the inherited code had passed `""`. Fifteen other defaults in the Victory screen and the Military Advisor followed the same pattern: the Secretary-General row, the Members tab, the vote-source header and eight best-player rows could raise the same error when no leader or building applies, while the Military Advisor draws an icon only when it has one.
+- Fixed: all 16 defaults are now `""`; `SASTextScale`'s `setTableTextScaled`, `setTableIntScaled` and `setTableDateScaled` pass the icon through `str()`, covering every caller of those wrappers; and [`unicode_button_paths.py`](/.github/workflows/README.md#buildsourceunicode_button_pathspy) fails when runtime Python starts a `sz...Button` or `sz...Icon` path as `u""`.
+
+Found by Claude Code Opus 5.5 while mapping public information through the pilot; the user watched the exception appear.
 
 <a id="ki-119"></a>
 
@@ -21903,6 +21963,28 @@ The default-player-count SAS24 Donut runtime test displayed the circular edge di
 
 This arithmetic bug is inherited from BTS/Ruff Team Battleground. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
 
+<a id="ki-290.2"></a>
+
+## KI#290.2 - (Fixed inherited vanilla Civ4 bug) Victory screen showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/10ktePiMqTvmAS4KYaccVga9pTUGJQXPF?usp=sharing).
+
+Found on 2026-11-15 while SASPilot's new `victory` command was checked against the Victories tab at turn 120 of a SAS48 SAS Large Facing Islands autoplay (the save of KI#118.2 and KI#300.2), with the two row slips of [KI#115.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-115.2). First filed there, then moved here at the user's suggestion, as the same mechanism as KI#290.
+
+Observed issue:
+
+- Domination rows: the best met rival's share showed `2.00%` for both Pacal II's population (31 of 1346, really 2.30%) and Pericles's land (67 of 3258, really 2.06%), while ours showed two real decimals.
+- `bestPop * 100 / totalPop` divides two integers, which Python 2 truncates as KI#290's angles were, then `%.2f` prints the whole percent with `.00`.
+
+Provenance:
+
+- In vanilla Civ4's `CvVictoryScreen.py` (the root `Assets` of the Complete install, lines 518 and 529); Warlords does not override the screen, and BtS (lines 546, 557) and AdvCiv 1.14 kept it unchanged.
+
+Fix:
+
+- `CvVictoryScreen.py`: `100.0` in both shares, as ours used. Reloading the same save, the tab showed Pacal II at 2.30% and Pericles at 2.06%, matching `victory`.
+- CI: [`float_format_int_division.py`](/.github/workflows/README.md#buildsourcefloat_format_int_divisionpy) flags a `%.Nf` format applied to arguments that divide with no float in them; at the time only these two lines had it. It does not cover KI#290's angle step, which no format shows.
+
 <a id="ki-291"></a>
 
 ## KI#291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts
@@ -22174,6 +22256,21 @@ The exact razed-before-reveal state remains source-verified because reproducing 
 This is an AdvCiv-SAS Timeline spoiler introduced with its hidden-event filtering.
 
 Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and partially fixed with the help of GPT-5.6-Sol; reopened as F679 during ChatGPT-5.6-Sol's C031-WIP552 `CyPlot.cpp` audit, then completed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-300.2"></a>
+
+## KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1aB4uoxG3gZUkY7CQ_2HpRG-l4-lZrDET?usp=sharing).
+
+- Found at turn 120 of a SAS48 SAS Large Facing Islands autoplay (2026-11-15), with 2 of 47 rivals met: the Religions tab dated seven religions and the Wonders tab 21 world wonders, but the Timeline showed only Christianity, founded by a met player, and the two wonders of met players. The user noticed that the Timeline was missing information.
+- Cause: KI#300's design keeps a religion founding visible to everyone, reworded to the faraway-land text when the holy city is not known, as the game's own notification does. But in `CvInfoScreen.buildTimelineCache` two later tests, the message's player and the plot's owner not met, hid it without the exemption the hidden-plot test has, so the faraway-land path only ever served a met founder whose holy city was unseen. Corporation foundings and world-wonder completions, which `CvGame::setHeadquarters` and CvCity's wonder message (advc.106) likewise announce to all players, were not recognized at all.
+- Fixed: `getReligionFoundingTimelineTexts` also recognizes corporation foundings and world-wonder completions (both article forms), each with its faraway-land text; a recognized public event is kept whoever founded or built it. A founding is reworded when its city is hidden, gone or its owner not met; a wonder, whose replay text names the builder, when the builder is not met. Tested on the turn-120 save: the Timeline lists "The Apostolic Palace has been built in a faraway land!", 19 other wonders the same way and "Islam has been founded in a faraway land!", while "Pacal II completes the Natya Shastra" keeps the met builder's name.
+- Seen meanwhile, not fixed: the Dai Miao reads "The The Dai Miao" in the faraway-land text, as its name already starts with "The" while the game chooses the article form for it, so the game's own message and replay text carry the same doubling.
+
+Found by Claude Code Opus 5.5 while mapping public information through the pilot, at the user's suggestion to check the Timeline.
+
+- Side note: the save kept in the Drive folder, `sas_pilot_sas48_islands_t120` (turn 120, 2 of 47 rivals met), was worth keeping beyond this issue: the same day it also exposed KI#118.2 and showed most of what a player can know about rivals not met (wonders, top cities, religions, vote sources, rival averages), which the SASPilot `world` command now reads; see the [SASPilot playtests](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#what-a-player-knows-about-rivals-not-met).
 
 <a id="ki-301"></a>
 
@@ -23177,6 +23274,8 @@ Fresh SAS32 save file 489 completed its autoplay smoke test after the DLL compil
 The exact notification and Timeline branches therefore remain source-verified rather than directly reproduced in this run.
 
 This is an inherited AdvCiv `advc.004u` information-visibility bug with an AdvCiv-SAS KI#204 persistence amplification. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol, thanks.
+
+- Checked again on 2026-11-15, as the user remembered general deaths missing from the Timeline even in debug mode: in a Huge Pangaea autoplay saved at turn 299 (SAS 6749), the replay held "The Great General Subutai (United States) has died in combat!" at turn 197, and the Info screen's Timeline listed it both without debug mode (624 entries, the United States met) and with everything revealed as debug mode does (688 entries). The Timeline still hides it when the general's owner is not met, as the text names the civilization. Which case the user had seen was not found; earlier games may predate this fix.
 
 <a id="ki-335"></a>
 

@@ -892,6 +892,24 @@ def app_window(exe):
 	return max(found)[1]
 
 
+def window_by_title(title):
+	# <!-- custom: The visible top-level window whose title ends with this, or None: SASPilotConsole windows belong to their console host rather than to the Python that titles them, so they are found by title, e.g. "SASPilotConsole - Civ4 client 12132" (2026-11-15).
+	# Ends with rather than equals: a console clicked into goes into selection mode, which pauses its output and prefixes the title with a localized word ("Sélection SASPilotConsole - ..." on the user's French Windows), so the exact title missed that console on the first try. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def callback(hwnd, _):
+		if USER32.IsWindowVisible(hwnd) and window_title(hwnd).endswith(title):
+			found.append(hwnd)
+		return True
+
+	USER32.EnumWindows(proc_type(callback), 0)
+	if not found:
+		return None
+	return found[0]
+
+
 def hwnd_frame(hwnd):
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))

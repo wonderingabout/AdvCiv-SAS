@@ -2114,6 +2114,54 @@ char const* getSASPlotType(PlotTypes ePlotType)
 	}
 }
 
+// <!-- custom: The first version used CvSelectionGroup::lastMissionPlot, the end of the whole queue. Codex found two faults: with Move To A then Route To B, the hover named the head mission with B; and for MISSION_MOVE_TO_UNIT it is the live position of the target unit, so the JSON of our own unit could reveal a rival that had left our sight.
+// So the head mission only: its plot for Move To and Route To, and for Move To Unit the target unit plot only while eViewTeam sees that unit. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+CvPlot const* getSASHeadMissionPlot(CvSelectionGroup const& kGroup, TeamTypes eViewTeam)
+{
+	CLLNode<MissionData> const* pNode = kGroup.headMissionQueueNode();
+	if (pNode == NULL)
+		return NULL;
+	MissionData const& kData = pNode->m_data;
+	switch (kData.eMissionType)
+	{
+	case MISSION_MOVE_TO:
+	case MISSION_ROUTE_TO:
+		return GC.getMap().plot(kData.iData1, kData.iData2);
+	case MISSION_MOVE_TO_UNIT:
+	{
+		if (kData.iData1 < 0 || kData.iData1 >= MAX_PLAYERS)
+			return NULL;
+		CvUnit const* pTarget = GET_PLAYER((PlayerTypes)kData.iData1).getUnit(kData.iData2);
+		if (pTarget == NULL || pTarget->plot() == NULL)
+			return NULL;
+		if (eViewTeam != NO_TEAM && pTarget->getTeam() != eViewTeam && (!pTarget->getPlot().isVisible(eViewTeam) || pTarget->isInvisible(eViewTeam, false)))
+			return NULL;
+		return pTarget->plot();
+	}
+	default:
+		return NULL;
+	}
+}
+
+char const* getSASActivityType(ActivityTypes eActivity)
+{
+	switch (eActivity)
+	{
+	case NO_ACTIVITY: return "NO_ACTIVITY";
+	case ACTIVITY_AWAKE: return "ACTIVITY_AWAKE";
+	case ACTIVITY_HOLD: return "ACTIVITY_HOLD";
+	case ACTIVITY_SLEEP: return "ACTIVITY_SLEEP";
+	case ACTIVITY_HEAL: return "ACTIVITY_HEAL";
+	case ACTIVITY_SENTRY: return "ACTIVITY_SENTRY";
+	case ACTIVITY_INTERCEPT: return "ACTIVITY_INTERCEPT";
+	case ACTIVITY_MISSION: return "ACTIVITY_MISSION";
+	case ACTIVITY_PATROL: return "ACTIVITY_PATROL";
+	case ACTIVITY_PLUNDER: return "ACTIVITY_PLUNDER";
+	case ACTIVITY_BOARDED: return "ACTIVITY_BOARDED";
+	default: return "UNKNOWN_ACTIVITY";
+	}
+}
+
 char const* getSASWarPlanType(WarPlanTypes eWarPlan)
 {
 	switch (eWarPlan)

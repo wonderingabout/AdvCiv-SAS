@@ -916,6 +916,9 @@
         "f8_graph_dropdowns": {"xy": [180, 164], "note": "Graph: two dropdowns at the top left, the measure (Score) and the time span (Entire timeline)"},
         "f8_timeline_log": {"xy": [1428, 94], "note": "Timeline: LOG at the top right; the event list scrolls"},
         "f8_score_table": {"xy": [400, 140], "note": "Score: one leader per row; a heading click re-sorts"},
+        "f8_wonders_world": {"xy": [725, 180], "note": "Top 5 Cities / Wonders: World Wonders mode, the first of three round buttons above the list (mapped 2026-11-15 at 1924x1120); wonders by unmet players show their date with owner Unknown"},
+        "f8_wonders_national": {"xy": [755, 180], "note": "Top 5 Cities / Wonders: National Wonders mode; another player's national wonders show only once met and the city seen"},
+        "f8_wonders_projects": {"xy": [785, 180], "note": "Top 5 Cities / Wonders: Projects mode; every project built, the team Unknown when not met, no date"},
         "f9_space_view": {"xy": [516, 503], "note": "Victories: the space race's View button"},
         "exit_tab": {"xy": [1446, 1091], "to": "game_main", "note": "EXIT, the last tab of every advisor"}
       }

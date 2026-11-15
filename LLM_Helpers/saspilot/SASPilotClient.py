@@ -356,6 +356,28 @@ def live_mailboxes():
 	return sorted(result)
 
 
+def layout_clients(monitor=1, wait=0.0):
+	# <!-- custom: The user's ask (2026-11-15): with two clients, each console beside its own Civ4, rather than the second client's console opened full height over the first. One band per running client, the oldest on top, as SASPilotConsole.arrange lays out a band; a console is found by the title it sets, waiting up to 'wait' seconds for one just opened. (Claude code Opus 5.5) -->
+	import desktop_windows
+	import SASPilotConsole
+	clients = [(SASPilotConsole.process_instance(pid), pid) for pid in live_mailboxes()]
+	clients = [pid for (instance, pid) in sorted(clients) if instance is not None]
+	deadline = time.monotonic() + wait
+	placed = []
+	for slot in range(len(clients)):
+		pid = clients[slot]
+		title = u"SASPilotConsole - Civ4 client %d" % pid
+		hwnd = desktop_windows.window_by_title(title)
+		while hwnd is None and time.monotonic() < deadline:
+			time.sleep(0.5)
+			hwnd = desktop_windows.window_by_title(title)
+		if hwnd is None:
+			continue
+		SASPilotConsole.arrange(pid, hwnd, slot, len(clients), monitor)
+		placed.append(pid)
+	return placed
+
+
 def remove_dead_mailboxes():
 	import desktop_windows
 	# <!-- custom: Dead processes' folders hold only our own request and reply files, so they are deleted directly. (Claude code Fable 5.2) -->
@@ -525,8 +547,12 @@ def resolve_save(name):
 	save = Path(name)
 	if not save.suffix:
 		save = save.with_suffix(".CivBeyondSwordSave")
-	if not save.is_absolute() and save.parent == Path(".") and not save.is_file():
-		save = Path(MAILBOX_ROOT).parent / "Saves" / "single" / save.name
+	if not save.is_absolute() and not save.is_file():
+		# <!-- custom: A relative path missing from the working folder is also tried under Saves, as Civ4 lists saves there: on 2026-11-15 "start --save single/WILLEM_VAN_T0119_..._STOP" failed, as only a bare name was looked up. (Claude code Opus 5.5) -->
+		if save.parent == Path("."):
+			save = Path(MAILBOX_ROOT).parent / "Saves" / "single" / save.name
+		else:
+			save = Path(MAILBOX_ROOT).parent / "Saves" / save
 	return save.resolve()
 
 
@@ -659,6 +685,9 @@ def start(args):
 	# <!-- custom: On by default since the user asked that the pilot start with its console (2026-11-14).
 	# --no-watch was removed the same day: Codex started a scouting trial with it, so the user, watching, saw one console for two clients and could not follow that one. Every client now has its console, as the user asked; SAS_PILOT_WATCH=0 stays for automated tests that must not open windows. (Claude code Opus 5.5) -->
 	state["watch"] = ensure_watcher(pid, args.watch_slots, args.watch_slot)
+	# <!-- custom: A second client's console opened full height in band 1 of 1 over the first one's (2026-11-15), so with --multiple and no --watch-slots every running client is laid out again, one band each. (Claude code Opus 5.5) -->
+	if args.multiple and args.watch_slots == 1 and state["watch"]:
+		state["layout"] = layout_clients(wait=15.0)
 	return state
 
 
@@ -955,7 +984,7 @@ def main():
 	parser.add_argument("--note", help="the reason for this command, written with it in the command log (Logs/SASPilot_<start>_<pid>.jsonl) that SASPilotConsole.py follows; note=... among the arguments does the same, except for 'py'")
 	parser.add_argument("--operator", help="who sends the commands, e.g. \"Claude Code Opus 5.5\", written on each command-log row; default SAS_PILOT_OPERATOR. 'operator joined' and 'operator left' mark the start and end of a turn at the controls")
 	parser.add_argument("--brief", action="store_true", help="endturn: print each turn's digest as short text lines (turn, messages, what waits) instead of JSON")
-	parser.add_argument("command", help="start (warns of recommended settings not set; check prints them), list, wait, close, operator joined|left|list (mark the --operator taking or leaving the controls in the command log; list them all with their times), review (this session's errors and its 'py' snippets grouped, most repeated first), health (the pilot's own state and its problems in one reply), leave (click through diplomacy screens that only inform; stops at one with a choice), price with= take=[...] give=[...] [accept=1] (an AI's counter-offer; nothing agreed unless accept=1), bench <command> [key=value...], or a bridge command ('help' lists them)")
+	parser.add_argument("command", help="start (warns of recommended settings not set; check prints them), list, layout (each running client and its SASPilotConsole in a band of its own, oldest on top), wait, close, operator joined|left|list (mark the --operator taking or leaving the controls in the command log; list them all with their times), review (this session's errors and its 'py' snippets grouped, most repeated first), health (the pilot's own state and its problems in one reply), leave (click through diplomacy screens that only inform; stops at one with a choice), price with= take=[...] give=[...] [accept=1] (an AI's counter-offer; nothing agreed unless accept=1), bench <command> [key=value...], or a bridge command ('help' lists them)")
 	parser.add_argument("arguments", nargs="*", help="key=value pairs; for 'py', the code itself, '-' for stdin or @file")
 	args = parser.parse_args()
 	# <!-- custom: note= on any command is the agent's reason for it: taken out here, so the game never sees it, and written with the command's log line for the watcher and later review. (Claude code Opus 5.5) -->
@@ -991,6 +1020,8 @@ def main():
 			return 0
 		elif args.command == "list":
 			result = live_mailboxes()
+		elif args.command == "layout":
+			result = {"placed": layout_clients()}
 		else:
 			pid = pick_pid(args.pid)
 			if args.command != "close":
