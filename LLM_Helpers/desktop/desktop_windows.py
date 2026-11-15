@@ -788,7 +788,7 @@ def move(pid, monitor, part, size=None, beside=None):
 		other_frame = wt.RECT()
 		ctypes.windll.dwmapi.DwmGetWindowAttribute(other, 9, ctypes.byref(other_frame), ctypes.sizeof(other_frame))
 		target = (min(max(other_frame.right, left), right), right)
-	elif part == "topleft":
+	elif part in ("topleft", "bottomleft"):
 		target = None
 	else:
 		target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
@@ -802,7 +802,11 @@ def move(pid, monitor, part, size=None, beside=None):
 		if size is None:
 			size = (frame.right - frame.left, frame.bottom - frame.top)
 		target = (left, left + size[0])
-		bottom = top + size[1]
+		# <!-- custom: bottomleft, the user's ask (2026-11-15), puts a second client started with --multiple under the first one's top-left place, so both stay in view. (Claude code Opus 5.5) -->
+		if part == "bottomleft":
+			top = bottom - size[1]
+		else:
+			bottom = top + size[1]
 	x = target[0] - border_left
 	y = top - border_top
 	width = target[1] - target[0] + border_left + border_right
@@ -1005,8 +1009,8 @@ def main():
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
-	place.add_argument("part", choices=("full", "left", "right", "topleft", "beside"), help="full, left or right half; topleft: the work area's top-left corner at the window's own size or --size; beside: the area right of --beside's window")
-	place.add_argument("--size", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="topleft: the visible frame's size instead of the current one")
+	place.add_argument("part", choices=("full", "left", "right", "topleft", "bottomleft", "beside"), help="full, left or right half; topleft or bottomleft: that corner of the work area at the window's own size or --size; beside: the area right of --beside's window")
+	place.add_argument("--size", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="topleft and bottomleft: the visible frame's size instead of the current one")
 	place.add_argument("--beside", type=int, help="beside: the process whose window to fill the area right of")
 	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".
 	# So these wait, by default, until the user has been idle for a few seconds; the same rule agent_message.py follows. (Claude Code Opus 5.5) -->
