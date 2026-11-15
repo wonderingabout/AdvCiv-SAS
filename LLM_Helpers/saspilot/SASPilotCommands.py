@@ -1628,7 +1628,7 @@ def _techPathVisit(player, team, iTech, path, seen, memo):
 	path.append(iTech)
 
 
-_HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it. args: tech (TECH_ type), append, effects, ahead, player."
+_HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it, the techs on the way, its OR alternatives (orChoice), what it unlocks or reveals, the met players seen to hold it and whether the XML lets it be traded. args: tech (TECH_ type), append, effects, ahead, player."
 
 
 def cmd_research(args):
@@ -1636,7 +1636,8 @@ def cmd_research(args):
 	# <!-- custom: The user's idea (2026-11-15): go by proximity and read techs in the tree's own layout rather than from memory. ahead=N lists every tech whose path holds at most N techs, sorted by F6 column then row, with its era. (Claude code Opus 5.5) -->
 	if args.get("ahead") is not None:
 		_requireOwnTeamUnderFog(args, player, "research progress")
-		return {"ahead": _techsAhead(player, int(args["ahead"]))}
+		iFogTeam = _fogTeam(args)
+		return {"ahead": _techsAhead(player, int(args["ahead"]), iFogTeam >= 0)}
 	if args.get("tech") is None:
 		# <!-- custom: The list first held only the names, so choosing a tech meant a 'py' call per tech for what the window's tech chooser shows at a glance, its turns (fog-on playthrough, 2026-11-13). Each entry now has its turns at the current rate, its cost and the progress already made. (Claude code Opus 5.5) -->
 		team = gc.getTeam(player.getTeam())
@@ -1661,10 +1662,15 @@ def cmd_research(args):
 	return {"research": _typeOrNone(gc.getTechInfo, player.getCurrentResearch()), "queue": _researchQueue(player)}
 
 
-def _techsAhead(player, iMaxSteps):
+def _techsAhead(player, iMaxSteps, bFog):
 	team = gc.getTeam(player.getTeam())
 	memo = {}
 	rows = []
+	effects = _techEffects(player.getCivilizationType())
+	# <!-- custom: The user's follow-up (2026-11-15): alternatives and rivals' techs help strategize. Holders are the met players whose techs we can see, under fog only those canSeeTech allows, as in 'techs'. (Claude code Opus 5.5) -->
+	others = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if i != player.getID() and gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isBarbarian() and not gc.getPlayer(i).isMinorCiv() and team.isHasMet(gc.getPlayer(i).getTeam())]
+	if bFog:
+		others = [other for other in others if player.canSeeTech(other.getID())]
 	for iTech in range(gc.getNumTechInfos()):
 		if team.isHasTech(iTech) or not player.canEverResearch(iTech):
 			continue
@@ -1674,7 +1680,13 @@ def _techsAhead(player, iMaxSteps):
 			continue
 		info = gc.getTechInfo(iTech)
 		rows.append({"tech": info.getType(), "era": _typeOrNone(gc.getEraInfo, info.getEra()), "grid": [info.getGridX(), info.getGridY()], "steps": len(path),
-			"pathRemaining": sum([team.getResearchCost(i) - team.getResearchProgress(i) for i in path]), "pathTurns": sum([player.getResearchTurnsLeft(i, True) for i in path])})
+			"pathRemaining": sum([team.getResearchCost(i) - team.getResearchProgress(i) for i in path]), "pathTurns": sum([player.getResearchTurnsLeft(i, True) for i in path]),
+			"path": [gc.getTechInfo(i).getType() for i in path[:-1]],
+			"unlocks": [effect["target"] for effect in effects[info.getType()] if effect["effect"] in ("prerequisite", "reveals")],
+			"holders": [other.getName() for other in others if gc.getTeam(other.getTeam()).isHasTech(iTech)], "xmlTradeable": bool(info.isTrade())})
+		options = [info.getPrereqOrTechs(i) for i in range(gc.getNUM_OR_TECH_PREREQS()) if info.getPrereqOrTechs(i) >= 0]
+		if len(options) > 1:
+			rows[-1]["orChoice"] = [gc.getTechInfo(i).getType() for i in options]
 	rows.sort(lambda a, b: cmp(a["grid"], b["grid"]))
 	return rows
 
