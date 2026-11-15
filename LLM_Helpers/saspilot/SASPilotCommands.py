@@ -1850,7 +1850,7 @@ def cmd_settle(args):
 	return {"groups": result}
 
 
-_HELP["map"] = "A text map of the known world, row by row from the north, as the window's map shows it: C our city, c another's city, ~ water, ^ peak, h hills, f forest or jungle, x another's land, . other land, space unknown; u marks a plot holding one of our units. Columns are x from 'x0', rows y from 'y1' down. With fog on, only what the team has revealed. args: x0, x1, y0, y1 (default the known area plus one plot), player."
+_HELP["map"] = "A text map of the known world, row by row from the north, as the window's map shows it: C our city, c another's city, ~ water, ^ peak, h hills, f forest or jungle, x another's land, . other land, space unknown; u marks a plot holding one of our units. With owners=1, land shows its owner instead (player IDs as 0-9, a-z, then A-Z without C; * Barbarians; legend in 'owners'; . unowned), to read border shapes. Columns are x from 'x0', rows y from 'y1' down. With fog on, only what the team has revealed, each owner as last seen. args: x0, x1, y0, y1 (default the known area plus one plot), owners, player."
 
 
 def cmd_map(args):
@@ -1876,6 +1876,8 @@ def cmd_map(args):
 	ours = {}
 	for unit in _units(player):
 		ours[(unit.getX(), unit.getY())] = True
+	# <!-- custom: owners=1, the user's idea at turn 200 of a Large autoplay (2026-11-15): reading a border's shape, who fronts whom and who is boxed in, needs the owner of each land plot, not one x for every rival. Land shows its owner's character from _ownerChar, cities C (ours) and c, water ~ and unowned land . as before. (Claude code Opus 5.5) -->
+	bOwners = bool(int(args.get("owners", 0)))
 	rows = []
 	for y in range(y1, y0 - 1, -1):
 		line = []
@@ -1897,6 +1899,10 @@ def cmd_map(args):
 					line.append("C")
 				else:
 					line.append("c")
+			elif bOwners and not plot.isWater() and iOwner >= 0:
+				line.append(_ownerChar(iOwner))
+			elif bOwners and not plot.isWater():
+				line.append(".")
 			elif ours.has_key((x, y)):
 				line.append("u")
 			elif plot.isWater():
@@ -1912,7 +1918,80 @@ def cmd_map(args):
 			else:
 				line.append(".")
 		rows.append("%3d %s" % (y, "".join(line)))
-	return {"x0": x0, "y1": y1, "known": len(known), "plots": kMap.numPlots(), "rows": rows}
+	result = {"x0": x0, "y1": y1, "known": len(known), "plots": kMap.numPlots(), "rows": rows}
+	if bOwners:
+		team = gc.getTeam(player.getTeam())
+		result["owners"] = dict([(_ownerChar(i), gc.getPlayer(i).getName()) for i in range(gc.getMAX_PLAYERS()) if gc.getPlayer(i).isEverAlive() and (iTeam < 0 or i == player.getID() or gc.getPlayer(i).isBarbarian() or team.isHasMet(gc.getPlayer(i).getTeam()))])
+	return result
+
+
+# <!-- custom: One character per player ID: digits, lowercase, then uppercase without C (our cities), so SAS's 48 players fit; base 36 alone failed on the Barbarian player's ID, past 35, on the first try (2026-11-15). Barbarians are *. (Claude code Opus 5.5) -->
+_OWNER_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def _ownerChar(iPlayer):
+	if gc.getPlayer(iPlayer).isBarbarian():
+		return "*"
+	return _OWNER_CHARS[iPlayer]
+
+
+_HELP["borders"] = "Land borders in numbers, to pick a front: per player met (and Barbarians) whose land we have seen, their land plots, our frontier with them (our land plots touching theirs) and theirs with us, the other players their land touches with how many plots (one boxed in by several is stretched), and their seen cities nearest ours with the distance in plots to our nearest city and whether the city is coastal. Sorted by our frontier, longest first. 'map owners=1' draws the same. With fog on, owners as the team last saw them. args: player."
+
+
+def cmd_borders(args):
+	# <!-- custom: The user's idea at turn 200 of a Large autoplay (2026-11-15): most rivals were weaker than us and liked us, so choosing a target came down to geography, and the agent should read border shapes as numbers rather than from the minimap's colors. (Claude code Opus 5.5) -->
+	player = gc.getPlayer(_playerId(args))
+	_requireOwnTeamUnderFog(args, player, "borders")
+	iTeam = _fogTeam(args)
+	team = gc.getTeam(player.getTeam())
+	kMap = gc.getMap()
+	owners = {}
+	for i in range(kMap.numPlots()):
+		plot = kMap.plotByIndex(i)
+		if plot.isWater() or (iTeam >= 0 and not plot.isRevealed(iTeam, False)):
+			continue
+		iOwner = plot.getOwner()
+		if iTeam >= 0:
+			iOwner = plot.getRevealedOwner(iTeam, False)
+		if iOwner >= 0:
+			owners[(plot.getX(), plot.getY())] = iOwner
+	land = {}
+	touching = {}
+	for (x, y), iOwner in owners.items():
+		land[iOwner] = land.get(iOwner, 0) + 1
+		seen = {}
+		for dx in (-1, 0, 1):
+			for dy in (-1, 0, 1):
+				adjacent = kMap.plot(x + dx, y + dy)
+				if adjacent.isNone():
+					continue
+				iOther = owners.get((adjacent.getX(), adjacent.getY()), -1)
+				if iOther >= 0 and iOther != iOwner:
+					seen[iOther] = True
+		for iOther in seen.keys():
+			touching.setdefault(iOwner, {})[iOther] = touching.setdefault(iOwner, {}).get(iOther, 0) + 1
+	ours = _cities(player)
+	rows = []
+	for iOther in land.keys():
+		if iOther == player.getID():
+			continue
+		other = gc.getPlayer(iOther)
+		if iTeam >= 0 and not other.isBarbarian() and not team.isHasMet(other.getTeam()):
+			continue
+		cities = []
+		for city in _cities(other):
+			if iTeam >= 0 and not city.isRevealed(iTeam, False):
+				continue
+			iDistance = -1
+			if ours:
+				iDistance = min([plotDistance(city.getX(), city.getY(), mine.getX(), mine.getY()) for mine in ours])
+			cities.append({"name": city.getName(), "x": city.getX(), "y": city.getY(), "distance": iDistance, "coastal": bool(city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()))})
+		cities.sort(lambda a, b: cmp(a["distance"], b["distance"]))
+		theirs = touching.get(iOther, {})
+		rows.append({"player": iOther, "name": other.getName(), "landPlots": land[iOther], "frontier": touching.get(player.getID(), {}).get(iOther, 0), "theirFrontier": theirs.get(player.getID(), 0),
+			"touches": dict([(gc.getPlayer(i).getName(), n) for (i, n) in theirs.items() if i != player.getID()]), "citiesSeen": len(cities), "nearestCities": cities[:3]})
+	rows.sort(lambda a, b: cmp(b["frontier"], a["frontier"]))
+	return {"landPlots": land.get(player.getID(), 0), "players": rows}
 
 
 _HELP["reminders"] = "What a player would want pointed out, beyond what 'todo' says must be decided before the turn ends: no research, an empty build queue, a starving or angry city, a wounded unit outside our borders, gold that runs out within ten turns at the current rate, and techs we could trade to a met player now. Each entry has its check, a text and the thing it is about. Only what the player's own screens show. args: player."
