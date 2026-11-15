@@ -19,7 +19,9 @@ import sys
 import time
 from pathlib import Path
 
-# <!-- custom: desktop_windows, beside this script, launches, screenshots and closes Civ4. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows launches, screenshots and closes Civ4. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows
 
 # <!-- custom: importlib loads housekeeping/archive_old_files.py from its file for the folder upkeep at the end of a run, without a sys.path entry. (Claude code Opus 5.5) -->
@@ -64,7 +66,7 @@ def save_mod_folder(save_path):
 	# <!-- custom: A BtS save begins with a 4-byte version, then a 4-byte length and the mod path, e.g. "Mods\AdvCiv-SAS\"; an empty path means no mod. (Claude Code Opus 5.5) -->
 	with open(save_path, "rb") as handle:
 		header = handle.read(8 + 260)
-	# <!-- custom: A file shorter than the header raised struct.error rather than this message; pilot.py shares this reader (Codex's review). """+C+""" -->
+	# <!-- custom: A file shorter than the header raised struct.error rather than this message; SASPilotClient.py shares this reader (Codex's review). """+C+""" -->
 	if len(header) < 8:
 		raise ValueError("%s does not look like a Civ4 save (%d bytes)" % (save_path, len(header)))
 	length = struct.unpack_from("<i", header, 4)[0]
@@ -75,7 +77,7 @@ def save_mod_folder(save_path):
 	return header[8:8 + length].decode("latin-1")
 
 
-# <!-- custom: extra_lines appends further sections, such as pilot.py's [SASPilot]; added as an optional last parameter so existing callers are unchanged. (Claude code Fable 5.2) -->
+# <!-- custom: extra_lines appends further sections, such as SASPilotClient.py's [SASPilot]; added as an optional last parameter so existing callers are unchanged. (Claude code Fable 5.2) -->
 def write_request_ini(base_ini, out_ini, turns, debug_mode, run_id, alias, game_settings, leaders=None, extra_lines=None):
 	# <!-- custom: Copy the user's CivilizationIV.ini so graphics and audio settings match, then load this mod in a window and append the autoplay request.
 	# game_settings overrides further existing keys by name, such as QuickStart and the [GAME] keys of a new game. (Claude Code Opus 5.5) -->

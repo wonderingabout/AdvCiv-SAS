@@ -31,19 +31,20 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy) and [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), with shared path and formatting helpers |
 | `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
+| `desktop/` | controlling the computer rather than the game, for any app: [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; `layouts/` holds the apps' click points and saved window layouts |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
-| `game_runs/` | running the game itself without a person at the keyboard, in the six groups below |
-| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; [`pilot.py`](#pilotpy-and-saspilotcommandspy) reads and drives a running game as JSON, without the UI, and `pilot_replay.py` replays its commands against a save to catch changed answers |
-| `game_runs/`: driving windows | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
+| `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`saspilot/`](#saspilot) |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
-| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet |
-| `game_runs/`: art and sound from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
+| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
+| `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
+| `saspilot/` | reading and driving a running game through SASPilot, the in-game bridge, as JSON rather than screenshots and clicks: [`SASPilotClient.py`](#saspilotclientpy-and-saspilotcommandspy) and the commands it sends, `SASPilotCommands.py`; SASPilotConsole for watching; the scouting and site helpers; `SASPilotReplay.py` with its `sequences/`, and in-game `checks/`. Moved out of `game_runs/` on 2026-11-15, as the user saw piloting as a job of its own, and each script renamed `SASPilot<Role>.py` to match the console window's name |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
 - A helper imports from its own folder, which Python puts on the import path when it runs a script.
@@ -127,6 +128,12 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
 - [`context/`](#context)
   - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
+- [`desktop/`](#desktop)
+  - [Driving desktop windows](#driving-desktop-windows)
+    - [`desktop_windows.py`](#desktop_windowspy)
+    - [`agent_message.py`](#agent_messagepy)
+    - [`contact_sheet.py`](#contact_sheetpy)
+    - [`sound_check.py`](#sound_checkpy)
 - [`diagnostics/`](#diagnostics)
   - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
     - [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy)
@@ -177,20 +184,15 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`game_runs/`](#game_runs)
   - [Unattended game runs](#unattended-game-runs)
     - [`run_autoplay.py`](#run_autoplaypy)
-    - [`desktop_windows.py`](#desktop_windowspy)
-    - [`agent_message.py`](#agent_messagepy)
     - [`civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy)
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
     - [`run_steps.py`](#run_stepspy)
     - [`capture_screens.py`](#capture_screenspy)
-    - [`contact_sheet.py`](#contact_sheetpy)
     - [`map_preview_dds.py`](#map_preview_ddspy)
     - [`simple_game_scripts.py`](#simple_game_scriptspy)
-    - [`pilot.py` and `SASPilotCommands.py`](#pilotpy-and-saspilotcommandspy)
     - [`start_game.py`](#start_gamepy)
     - [`map_sevopedia.py`](#map_sevopediapy)
-    - [`sound_check.py`](#sound_checkpy)
 - [`housekeeping/`](#housekeeping)
   - [Folder upkeep](#folder-upkeep)
     - [`archive_old_files.py`](#archive_old_filespy)
@@ -206,6 +208,9 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
         - [Full-refresh example](#full-refresh-example)
       - [Notes (light_source ZIP)](#notes-light_source-zip)
     - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
+- [`saspilot/`](#saspilot)
+  - [Piloting a running game](#piloting-a-running-game)
+    - [`SASPilotClient.py` and `SASPilotCommands.py`](#saspilotclientpy-and-saspilotcommandspy)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
 ## `art_viewing/`
@@ -907,6 +912,109 @@ python LLM_Helpers/code_history/history_lineage_tables.py --write
 - Ordinary player/GitHub Download ZIP archives and generated historical patches exclude it, while `make_light_source_zip.py` includes the current files for ChatGPT/code-agent archaeology.
 - Preserve upstream credits/readmes and treat hosting/authorship/licensing metadata as upstream provenance rather than AdvCiv-SAS ownership.
 
+## `desktop/`
+
+### Driving desktop windows
+
+- Why a folder of its own: these four began in `game_runs/` while mapping Civ4's screens, but they control the computer, not the game: `desktop_windows.py` drives the Codex and Claude apps as readily as Civ4, `contact_sheet.py` takes any screenshots and `sound_check.py` records whatever the speakers play. The user asked for them to be grouped on 2026-11-15.
+  - `capture_screens.py`, `check_points.py`, `run_steps.py` and the screen-map tools stay in `game_runs/`, as they launch Civ4 or click its named points.
+  - The `game_runs/` tools and the SASPilot client add this folder to their import path; `desktop_windows.py` still reads Civ4's named points from `game_runs/ui_maps/`.
+  - `app_layouts.json` and `window_positions.json` moved from `game_runs/ui_maps/` to `layouts/` here, as they describe the apps and the desktop rather than Civ4's screens.
+
+#### `desktop_windows.py`
+
+- `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
+  - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
+  - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+  - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
+  - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
+  - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
+- `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
+- `clipboard --out shot.png` saves an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself; it accepts `--crop` and `--scale` too and refuses when the clipboard holds no image.
+- A screenshot captures only the game window, at its current place and size. The default `--method window` (Windows' `PrintWindow`) works while the window is covered; `--method screen` brings it to the front and copies its screen area. Neither can capture a minimized window. It needs Pillow.
+- Coordinates are physical pixels from the window's top-left corner, as in its screenshots; the tool makes itself DPI-aware, since display scaling otherwise cropped them.
+- Mouse clicks reach the game. Keystrokes first did not, when key events carried no scan code.
+  - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box.
+    - Later that day Ctrl+Shift+X opened the in-game autoplay prompt, and a second Ctrl+Shift+X stopped a run; see [Inside a game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#inside-a-game).
+  - `key` now also takes the arrow, page, home and end keys, `--count` and `--hold`, which keeps the window in front long enough for a game to read the key; `type` types text as key presses, asking the active keyboard layout which key and Shift, Ctrl or Alt each character needs: on the user's French AZERTY layout a plain 2 key typed "é" in Civ4's autoplay turn box on 2026-11-11.
+    - The Sevopedia search box is the exception: our Python reads it from key codes, which it maps as a US keyboard would, so there the layout's Shift+2 showed "@" and its "-" showed "6". `type --us-keys` sends ASCII as US keys for that box; found while checking the commit live the same evening.
+  - `drag --pid PID X1 Y1 X2 Y2 [--button left|right|middle]` presses a button at one point, moves to the other in steps and releases, with click's checks on both ends; it turns, pans and zooms the Sevopedia's 3D views (2026-11-11).
+- `click`, `drag`, `key`, `type` and `paste` first wait until the user has been idle for 3 seconds (`--idle-seconds`, `0` skips it), since taking the focus while the user types sends their keystrokes to the target: on 2026-11-11 the user's typing put "ntwt" in Civ4's autoplay turn box.
+- The idle wait belongs to the command line only. A script calling `desktop_windows.click` and friends directly gets none, so call `wait_for_idle_user` before each step, not once per batch: on 2026-11-12 a batch that waited once at its start sent eight filter clicks while the user moved the mouse, and from the second click on they hit the main map instead of the city screen.
+- `click --with ctrl` (or `shift`, `alt`, repeatable) holds the key during the click, as Civ4's Ctrl-, Shift- and Alt-clicks on units and production need, and `click --double` double-clicks, which opens a city from its banner.
+- `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
+  - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
+  - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
+- `monitors` lists each monitor's work area, the screen minus the taskbar, numbered from the left. `move --pid PID --monitor N full|left|right` places a window on that whole area or one half of it, without raising it or taking focus.
+  - Added on 2026-11-11 to put the Claude and Codex apps side by side on one monitor; see [Side by side on one monitor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#side-by-side-on-one-monitor).
+
+```bash
+python LLM_Helpers/desktop/desktop_windows.py monitors
+python LLM_Helpers/desktop/desktop_windows.py move --pid 16256 --monitor 2 right
+python LLM_Helpers/desktop/desktop_windows.py list
+python LLM_Helpers/desktop/desktop_windows.py screenshot --pid 15692 --out shot.png
+python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `agent_message.py`
+
+- Sends a message from one agent to the Codex or Claude app in the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention): a header with the sender and the UTC time to the millisecond, the text, and a closing tag such as `[/Claude Code Opus 5.5 · Reply: user]`.
+- Before pasting it checks that the target's message box holds no text, and refuses if it does: someone may be typing there. It then pastes and presses Enter (or Ctrl+Enter with `--queue`) in one focus grab and gives focus back, using `desktop_windows.py`.
+  - Written on 2026-11-10 after two hand-made sends picked up the user's keystrokes, which landed in Codex while it was briefly in front.
+- The click point and text area come from named layouts in [`app_layouts.json`](/LLM_Helpers/desktop/layouts/app_layouts.json), beside the script: `4k-max` for a maximized window and `4k-half` for half of a 4K screen with the app's chat list and side panel collapsed. The helper picks the layout matching the window's width, or takes `--layout`.
+  - Each layout records its window width, when it was measured and under which conditions, including the app version.
+  - Each layout sits on one line, unlike program-written JSON such as the Runtime files, so the layouts line up like table rows and a re-measure edits one line.
+  - Keeping them as data means re-measuring edits no code. Each run reads the file at its start, so a fixed layout applies from the next send on, while code another agent is running, such as a background `--wait-reply`, is left alone.
+  - `--check-box` reports the layout picked and whether the message box is empty, without sending; run it after moving a window or updating an app.
+- **Re-measuring a layout:** app updates, a new screen or window size, or an opened panel can move the message box. When `--check-box` finds no layout, reads an empty box as not empty, or a send lands wrong:
+  1. Screenshot the bottom of the window, e.g. `desktop_windows.py screenshot --pid PID --crop 0 1850 WIDTH 2110 --scale 0.5`. The printed `window=` rectangle gives the outer width.
+  2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
+  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
+  4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
+- `--dry-run` prints the message without sending it.
+- `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
+- `--wait-reply` keeps running after the send until the target app ends the turn holding this message, then prints that turn's final answer, read from the new lines of its session log: `~/.codex/sessions` for Codex, `~/.claude/projects` for Claude Code. `--wait-timeout` gives up after 1,800 seconds by default.
+  - Run it in the background so the agent is told the moment the reply exists, instead of guessing a wait or needing Codex to paste back. On 2026-11-11 a shell loop on the same log signalled Codex's review the moment it ended; this option keeps that loop.
+  - It finds the turn by the message's header, unique to the millisecond, so another Codex thread, or with `--queue` the turn Codex was already working on, is not taken for the reply. A turn that ends without a final answer exits with an error.
+  - Its first live use, the same day, delivered Codex's review of it as soon as Codex finished. That review reproduced three gaps in the first version, all fixed: it took the first finished turn in any log, a start inside a half-written record raised a `JSONDecodeError`, and a turn without a final answer printed an empty reply.
+  - `--to claude` was added the same day, and Codex ran its first live test: it asked Claude Code a question, and the reply printed 9.5 seconds later while Codex's command ran in the background.
+    - Claude Code folds a message that arrives mid-turn into the running turn, so one answer can cover two messages. When another message reached it before the answer, the reply is printed with a note saying so.
+    - Codex's test also found that a log ending right after the answer kept waiting; the answer is now taken as soon as it is complete.
+
+```bash
+python LLM_Helpers/desktop/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "Claude app" --text "Please review the unstaged change."
+python LLM_Helpers/desktop/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "none needed" --file request.txt --wait-reply
+python LLM_Helpers/desktop/agent_message.py --to claude --sender "Codex GPT-6.1-Sol" --reply user --file answer.txt
+```
+
+- Added with help of Claude Code Opus 5.5.
+
+#### `contact_sheet.py`
+
+- Tiles the same regions of several screenshots into one labelled PNG, so a capture series is read in one image instead of one full-size file each. `--region L,T,R,B` repeats to keep several parts of each capture side by side, such as a panel and the icons at the top right; `--columns` and `--scale` set the layout.
+- Written on 2026-11-12 while mapping WorldBuilder, after the same crop-and-tile code had been retyped for each round of `capture_screens.py` captures.
+- `--black-to-white MAX` paints pixels whose channels are all at most MAX white. The world-picker globe draws its own black inside a black panel, so on 2026-11-12 its size could not be judged until the user suggested painting the black white.
+
+```bash
+python LLM_Helpers/desktop/contact_sheet.py --out sheet.png --region 0,30,760,560 --region 1500,30,1926,300 --columns 3 a.png b.png c.png
+```
+
+#### `sound_check.py`
+
+- Records the computer's sound output for a few seconds with ffmpeg, through the `virtual-audio-capturer` DirectShow device, and prints its loudness per step, then the mean and peak. An agent cannot listen, but this tells whether the game makes sound, how loud, and when it starts or stops.
+- `--front PID` brings a window to the front first: In the recorded test, Civ4 went quiet when the user clicked away. That takes the focus from the user, so use it when they are not typing.
+- `--wave-png` also draws a waveform; `--wav` keeps the recording.
+- Silence is a peak below -80 dB, about -91 dB in practice. The script then exits 1 and names the likely causes: the game not in front or muted in the Volume Mixer (`sndvol.exe`), both met on 2026-11-11, and a Windows glitch the user mentions, where an app shown unmuted stays silent until its slider is moved down and back up.
+- Tested on 2026-11-11 with Civ4's Sevopedia: -42 dB in front, silence with another window in front or with Civ4 muted. See [Hearing the game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#hearing-the-game).
+
+```bash
+python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png wave.png
+```
+
+- Added with help of Claude Code Opus 5.5.
+
 ## `diagnostics/`
 
 ### SASGameRecord comparison helpers
@@ -1051,7 +1159,7 @@ See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Pat
 [`json_format.py`](/LLM_Helpers/formatting/json_format.py) keeps integer arrays such as click points, saved window frames and crop rectangles together. The same module formats SASPilotConsole replies with a line-width limit. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
 
 ```powershell
-python LLM_Helpers/formatting/json_format.py LLM_Helpers/game_runs/ui_maps/app_layouts.json --section usage
+python LLM_Helpers/formatting/json_format.py LLM_Helpers/desktop/layouts/app_layouts.json --section usage
 ```
 
 This prints a preview. Add `--in-place` to save it. Regenerate `civ4_ui_map.json` and `civ4_sevopedia_map.json` with their own scripts so the generated maps keep their respective layouts.
@@ -1062,7 +1170,7 @@ This prints a preview. Add `--in-place` to save it. Regenerate `civ4_ui_map.json
 
 [`console_colors.py`](/LLM_Helpers/formatting/console_colors.py) holds the colors our helpers use when printing for a person, by role: errors red, banners yellow, results sky blue, notes bold orchid, code light green, everything else in the console's own color. `enable()` switches a Windows console to virtual-terminal processing and leaves output to a pipe or file plain; `paint(text, role)` colors a string; `to_html(text)` turns colored text into a page in the same colors, for documentation.
 
-- It began in `pilot_console.py` on 2026-11-14, where the user chose the roles and colors; the user then asked for it to be shared, so other helpers that print for a person read alike. Agents read the plain logs instead, whose fields match the roles (see the [SASPilot command log](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
+- It began in `SASPilotConsole.py` on 2026-11-14, where the user chose the roles and colors; the user then asked for it to be shared, so other helpers that print for a person read alike. Agents read the plain logs instead, whose fields match the roles (see the [SASPilot command log](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
 - A fresh Windows 10 console showed all five roles, the 256-color sky blue and light green included; a screenshot scaled to 0.6 washed the sky blue out to white, so check colors at full size.
 
 ### Source blank-line cleanup
@@ -1821,76 +1929,6 @@ python LLM_Helpers/game_runs/run_autoplay.py "C:/path/to/save.CivBeyondSwordSave
 python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-size WORLDSIZE_STANDARD --era ERA_ANCIENT --fixed-seeds --leaders "LEADER_ALEXANDER,-,LEADER_MANSA_MUSA" --turns 60
 ```
 
-#### `desktop_windows.py`
-
-- `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
-  - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
-  - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `ui_maps/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
-  - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
-  - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
-  - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
-- `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
-- `clipboard --out shot.png` saves an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself; it accepts `--crop` and `--scale` too and refuses when the clipboard holds no image.
-- A screenshot captures only the game window, at its current place and size. The default `--method window` (Windows' `PrintWindow`) works while the window is covered; `--method screen` brings it to the front and copies its screen area. Neither can capture a minimized window. It needs Pillow.
-- Coordinates are physical pixels from the window's top-left corner, as in its screenshots; the tool makes itself DPI-aware, since display scaling otherwise cropped them.
-- Mouse clicks reach the game. Keystrokes first did not, when key events carried no scan code.
-  - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box.
-    - Later that day Ctrl+Shift+X opened the in-game autoplay prompt, and a second Ctrl+Shift+X stopped a run; see [Inside a game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#inside-a-game).
-  - `key` now also takes the arrow, page, home and end keys, `--count` and `--hold`, which keeps the window in front long enough for a game to read the key; `type` types text as key presses, asking the active keyboard layout which key and Shift, Ctrl or Alt each character needs: on the user's French AZERTY layout a plain 2 key typed "é" in Civ4's autoplay turn box on 2026-11-11.
-    - The Sevopedia search box is the exception: our Python reads it from key codes, which it maps as a US keyboard would, so there the layout's Shift+2 showed "@" and its "-" showed "6". `type --us-keys` sends ASCII as US keys for that box; found while checking the commit live the same evening.
-  - `drag --pid PID X1 Y1 X2 Y2 [--button left|right|middle]` presses a button at one point, moves to the other in steps and releases, with click's checks on both ends; it turns, pans and zooms the Sevopedia's 3D views (2026-11-11).
-- `click`, `drag`, `key`, `type` and `paste` first wait until the user has been idle for 3 seconds (`--idle-seconds`, `0` skips it), since taking the focus while the user types sends their keystrokes to the target: on 2026-11-11 the user's typing put "ntwt" in Civ4's autoplay turn box.
-- The idle wait belongs to the command line only. A script calling `desktop_windows.click` and friends directly gets none, so call `wait_for_idle_user` before each step, not once per batch: on 2026-11-12 a batch that waited once at its start sent eight filter clicks while the user moved the mouse, and from the second click on they hit the main map instead of the city screen.
-- `click --with ctrl` (or `shift`, `alt`, repeatable) holds the key during the click, as Civ4's Ctrl-, Shift- and Alt-clicks on units and production need, and `click --double` double-clicks, which opens a city from its banner.
-- `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
-  - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
-  - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
-- `monitors` lists each monitor's work area, the screen minus the taskbar, numbered from the left. `move --pid PID --monitor N full|left|right` places a window on that whole area or one half of it, without raising it or taking focus.
-  - Added on 2026-11-11 to put the Claude and Codex apps side by side on one monitor; see [Side by side on one monitor](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#side-by-side-on-one-monitor).
-
-```bash
-python LLM_Helpers/game_runs/desktop_windows.py monitors
-python LLM_Helpers/game_runs/desktop_windows.py move --pid 16256 --monitor 2 right
-python LLM_Helpers/game_runs/desktop_windows.py list
-python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 15692 --out shot.png
-python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
-```
-
-- Added with help of Claude Code Opus 5.5.
-
-#### `agent_message.py`
-
-- Sends a message from one agent to the Codex or Claude app in the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention): a header with the sender and the UTC time to the millisecond, the text, and a closing tag such as `[/Claude Code Opus 5.5 · Reply: user]`.
-- Before pasting it checks that the target's message box holds no text, and refuses if it does: someone may be typing there. It then pastes and presses Enter (or Ctrl+Enter with `--queue`) in one focus grab and gives focus back, using `desktop_windows.py`.
-  - Written on 2026-11-10 after two hand-made sends picked up the user's keystrokes, which landed in Codex while it was briefly in front.
-- The click point and text area come from named layouts in [`app_layouts.json`](/LLM_Helpers/game_runs/ui_maps/app_layouts.json), beside the script: `4k-max` for a maximized window and `4k-half` for half of a 4K screen with the app's chat list and side panel collapsed. The helper picks the layout matching the window's width, or takes `--layout`.
-  - Each layout records its window width, when it was measured and under which conditions, including the app version.
-  - Each layout sits on one line, unlike program-written JSON such as the Runtime files, so the layouts line up like table rows and a re-measure edits one line.
-  - Keeping them as data means re-measuring edits no code. Each run reads the file at its start, so a fixed layout applies from the next send on, while code another agent is running, such as a background `--wait-reply`, is left alone.
-  - `--check-box` reports the layout picked and whether the message box is empty, without sending; run it after moving a window or updating an app.
-- **Re-measuring a layout:** app updates, a new screen or window size, or an opened panel can move the message box. When `--check-box` finds no layout, reads an empty box as not empty, or a send lands wrong:
-  1. Screenshot the bottom of the window, e.g. `desktop_windows.py screenshot --pid PID --crop 0 1850 WIDTH 2110 --scale 0.5`. The printed `window=` rectangle gives the outer width.
-  2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
-  3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
-  4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
-- `--dry-run` prints the message without sending it.
-- `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
-- `--wait-reply` keeps running after the send until the target app ends the turn holding this message, then prints that turn's final answer, read from the new lines of its session log: `~/.codex/sessions` for Codex, `~/.claude/projects` for Claude Code. `--wait-timeout` gives up after 1,800 seconds by default.
-  - Run it in the background so the agent is told the moment the reply exists, instead of guessing a wait or needing Codex to paste back. On 2026-11-11 a shell loop on the same log signalled Codex's review the moment it ended; this option keeps that loop.
-  - It finds the turn by the message's header, unique to the millisecond, so another Codex thread, or with `--queue` the turn Codex was already working on, is not taken for the reply. A turn that ends without a final answer exits with an error.
-  - Its first live use, the same day, delivered Codex's review of it as soon as Codex finished. That review reproduced three gaps in the first version, all fixed: it took the first finished turn in any log, a start inside a half-written record raised a `JSONDecodeError`, and a turn without a final answer printed an empty reply.
-  - `--to claude` was added the same day, and Codex ran its first live test: it asked Claude Code a question, and the reply printed 9.5 seconds later while Codex's command ran in the background.
-    - Claude Code folds a message that arrives mid-turn into the running turn, so one answer can cover two messages. When another message reached it before the answer, the reply is printed with a note saying so.
-    - Codex's test also found that a log ending right after the answer kept waiting; the answer is now taken as soon as it is complete.
-
-```bash
-python LLM_Helpers/game_runs/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "Claude app" --text "Please review the unstaged change."
-python LLM_Helpers/game_runs/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "none needed" --file request.txt --wait-reply
-python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.1-Sol" --reply user --file answer.txt
-```
-
-- Added with help of Claude Code Opus 5.5.
-
 #### `civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`
 
 - [`civ4_ui_map.json`](/LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json) maps Civ4's screens outside a game, explored on 2026-11-11 at 1920x1080 windowed: the main menu and every branch below it, 23 screens and 90 controls. Each control has its position, the screen it leads to and a note, so `desktop_windows.py click --point single_player.load_game` reaches a screen by name.
@@ -1975,16 +2013,6 @@ python LLM_Helpers/game_runs/capture_screens.py --out captures point:main_menu.s
 python LLM_Helpers/game_runs/capture_screens.py --out captures --size 3840x2060 --maximize 1 shot:menu_4k click:1922,1065 shot:single_player_4k
 ```
 
-#### `contact_sheet.py`
-
-- Tiles the same regions of several screenshots into one labelled PNG, so a capture series is read in one image instead of one full-size file each. `--region L,T,R,B` repeats to keep several parts of each capture side by side, such as a panel and the icons at the top right; `--columns` and `--scale` set the layout.
-- Written on 2026-11-12 while mapping WorldBuilder, after the same crop-and-tile code had been retyped for each round of `capture_screens.py` captures.
-- `--black-to-white MAX` paints pixels whose channels are all at most MAX white. The world-picker globe draws its own black inside a black panel, so on 2026-11-12 its size could not be judged until the user suggested painting the black white.
-
-```bash
-python LLM_Helpers/game_runs/contact_sheet.py --out sheet.png --region 0,30,760,560 --region 1500,30,1926,300 --columns 3 a.png b.png c.png
-```
-
 #### `map_preview_dds.py`
 
 - Makes the World Picker preview `Assets/Art/AdvCiv_SAS/Maps/<Script>/FLAT_<Script>.dds` that Simple Game shows for a map script, and adds the script's `WorldPickerInfo` entry when it has none. It replaces the earlier hand-made method in Paint.NET; the root README's [New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game) shows the first batch of variants.
@@ -2016,26 +2044,6 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
 - `map_preview_dds.py`, `ui_maps/make_civ4_ui_map.py` and the CI check [`map_previews.py`](/.github/workflows/README.md#buildassetsmap_previewspy) all use it, so they cannot disagree.
   - It sits here rather than in the CI check, where it began, because GitHub ZIP downloads leave out `.github/` but keep `LLM_Helpers/`: loading it from `.github/` made both helpers fail at startup from a ZIP, as Codex found on 2026-11-12. See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
 
-#### `pilot.py` and `SASPilotCommands.py`
-
-- `pilot.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
-- `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
-  - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/game_runs/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
-- The pilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `pilot.py start` writes.
-- Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md).
-- Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
-- `pilot_replay.py` replays a sequence from [`pilot_sequences/`](/LLM_Helpers/game_runs/pilot_sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#replaying-commands).
-  - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
-- `pilot.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`pilot_console.py`](/LLM_Helpers/game_runs/pilot_console.py) opens SASPilotConsole, showing orders by default and reads with `--all`. Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole).
-- [`pilot_scout.py`](/LLM_Helpers/game_runs/pilot_scout.py) is a read-only opening experiment for locked play clients. It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder. `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear. See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
-- [`pilot_explore.py`](/LLM_Helpers/game_runs/pilot_explore.py) moves several scouting units a turn at a time, each looping around its own center with `pilot_scout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units. Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
-- [`pilot_sites.py`](/LLM_Helpers/game_runs/pilot_sites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
-- [`pilot_checks/`](/LLM_Helpers/game_runs/pilot_checks/) holds snippets run inside the game with `pilot.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
-
-```bash
-python LLM_Helpers/game_runs/pilot_replay.py LLM_Helpers/game_runs/pilot_sequences/fogplay_t115_core.json
-```
-
 #### `start_game.py`
 
 - Starts a QuickStart game at turn 0 with `--map`, `--world-size` and any `--option GAMEOPTION_...`, through a per-run copy of `CivilizationIV.ini` with no autoplay request, and leaves it open for the other tools to drive with `--pid`. The user's INI and Custom Game choices are not changed.
@@ -2060,20 +2068,6 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
 
 ```bash
 python LLM_Helpers/game_runs/map_sevopedia.py --pid 21184 --overlays overlays
-```
-
-- Added with help of Claude Code Opus 5.5.
-
-#### `sound_check.py`
-
-- Records the computer's sound output for a few seconds with ffmpeg, through the `virtual-audio-capturer` DirectShow device, and prints its loudness per step, then the mean and peak. An agent cannot listen, but this tells whether the game makes sound, how loud, and when it starts or stops.
-- `--front PID` brings a window to the front first: In the recorded test, Civ4 went quiet when the user clicked away. That takes the focus from the user, so use it when they are not typing.
-- `--wave-png` also draws a waveform; `--wav` keeps the recording.
-- Silence is a peak below -80 dB, about -91 dB in practice. The script then exits 1 and names the likely causes: the game not in front or muted in the Volume Mixer (`sndvol.exe`), both met on 2026-11-11, and a Windows glitch the user mentions, where an app shown unmuted stays silent until its slider is moved down and back up.
-- Tested on 2026-11-11 with Civ4's Sevopedia: -42 dB in front, silence with another window in front or with Civ4 muted. See [Hearing the game](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#hearing-the-game).
-
-```bash
-python LLM_Helpers/game_runs/sound_check.py --seconds 6 --front 21184 --wave-png wave.png
 ```
 
 - Added with help of Claude Code Opus 5.5.
@@ -2463,6 +2457,39 @@ From the repository root:
 ```bash
 python LLM_Helpers/packaging/refresh_commit_diffs.py
 python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
+```
+
+## `saspilot/`
+
+### Piloting a running game
+
+- Why a folder of its own: the pilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
+  - Inside it the old `pilot_` prefix said nothing, so `pilot_checks/` and `pilot_sequences/` became `checks/` and `sequences/`.
+  - The folder is `saspilot/`, not `pilot/`: a bare "pilot" leaves a reader wondering what it is, while SASPilot names the feature, as SGR and BBAI logging do, and greps as one word (the user's point).
+  - `run_autoplay.py` stays in `game_runs/` and `desktop_windows.py` sits in [`desktop/`](#desktop), as other tools use them too; `SASPilotClient.py` and `SASPilotConsole.py` add those folders to their import path.
+- Why `SASPilot<Role>.py`: the console window was already called SASPilotConsole, and the user wanted script and window to share one name, so the other scripts followed.
+  - `SASPilotClient.py`, not `SASPilot.py`, for the old `pilot.py`: [`SASPilot.py`](/Assets/Python/SASPilot.py) is already the in-game bridge that answers it, and two files of one name would make every grep and link ambiguous. Client says what it is: the desktop side of that bridge. `Core` or `Main` were considered and said less.
+  - A CamelCase name had been avoided at first, lest it read as another in-game file like `SASPilotCommands.py`; the folder now tells them apart, as Civ4 loads only `SASPilotCommands.py` from it, and the desktop scripts start with a shebang and argparse.
+  - The helpers import the client as `import SASPilotClient as pilot`, so their code still reads `pilot.request(...)`.
+
+#### `SASPilotClient.py` and `SASPilotCommands.py`
+
+- `SASPilotClient.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
+- `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
+  - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/saspilot/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
+- The pilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
+- Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md).
+- Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
+- `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#replaying-commands).
+  - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
+- `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/LLM_Helpers/saspilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`. Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole).
+- [`SASPilotScout.py`](/LLM_Helpers/saspilot/SASPilotScout.py) is a read-only opening experiment for locked play clients. It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder. `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear. See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
+- [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units. Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#scouting-trial).
+- [`SASPilotSites.py`](/LLM_Helpers/saspilot/SASPilotSites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
+- [`checks/`](/LLM_Helpers/saspilot/checks/) holds snippets run inside the game with `SASPilotClient.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
+
+```bash
+python LLM_Helpers/saspilot/SASPilotReplay.py LLM_Helpers/saspilot/sequences/fogplay_t115_core.json
 ```
 
 ## General notes for future LLM helpers

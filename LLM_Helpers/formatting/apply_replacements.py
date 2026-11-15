@@ -5,7 +5,7 @@
 # External helper: apply exact text replacements to one file from a patch file, keeping the file's line endings and encoding.
 
 # <!-- custom: On 2026-11-13 two agents patching SASPilot's C++, Python and Markdown wrote this same script about ten times in their scratchpads: each replacement must match exactly once, and the file's CRLF or LF must survive.
-# Passing the texts through a shell failed repeatedly instead: heredocs mangled backslashes and regex escapes, an apostrophe ended a quoted block, and sed left mixed line endings in pilot.py.
+# Passing the texts through a shell failed repeatedly instead: heredocs mangled backslashes and regex escapes, an apostrophe ended a quoted block, and sed left mixed line endings in SASPilotClient.py.
 # A patch file written with the agent's file-writing tool has no shell quoting at all, so the texts arrive as written. (Claude code Fable 5.2) -->
 
 # <!-- custom: argparse exposes the CLI, pathlib reads and writes the files, sys sets the exit status. (Claude code Fable 5.2) -->

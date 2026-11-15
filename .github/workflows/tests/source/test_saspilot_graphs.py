@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[4]
-COMMANDS = ROOT / "LLM_Helpers/game_runs/SASPilotCommands.py"
+COMMANDS = ROOT / "LLM_Helpers/saspilot/SASPilotCommands.py"
 
 
 def infos(relative_path, element):

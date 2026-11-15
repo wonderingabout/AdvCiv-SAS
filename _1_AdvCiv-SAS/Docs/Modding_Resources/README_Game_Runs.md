@@ -96,7 +96,7 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 - `--new-game` sets the INI's `QuickStart = 1`, which starts a game straight from the INI's `[GAME]` settings, without menus.
 - `--map` (script name without `.py`), `--world-size`, `--speed`, `--handicap`, `--era`, `--climate` and `--sea-level` override the user's last settings. Other settings, such as the game options string, come from the user's INI.
   - That string, `GameOptions`, has one digit per option in `CIV4GameOptionInfos.xml` order. On 2026-11-13 the user's INI had only digit 23 set, `GAMEOPTION_NO_EVENTS`: the user tests with random events off, as they add variation between runs that says nothing about the AI. Unattended new games inherit it; keep it on for benchmarks and comparisons.
-  - `pilot.py ping` lists a running game's enabled options as `gameOptions`, to confirm what a run really used; [`start_game.py --option`](/LLM_Helpers/README.md#start_gamepy) turns others on.
+  - `SASPilotClient.py ping` lists a running game's enabled options as `gameOptions`, to confirm what a run really used; [`start_game.py --option`](/LLM_Helpers/README.md#start_gamepy) turns others on.
 - `--fixed-seeds` sets `SyncRandSeed` and `MapRandSeed` to `1`. Two such games on Standard Pangaea matched at every RNG and state checkpoint over 60 turns, so a repeatable benchmark needs no save.
 - `--leaders` names a leader for each civilization slot in order, with `-` keeping the random one. Each leader brings the first playable civilization that lists it; a requested leader already drawn for another slot is swapped with it.
   - Tested on 2026-11-10: `LEADER_ALEXANDER,-,LEADER_MANSA_MUSA,LEADER_GANDHI` gave Alexander, a random leader, Mansa Musa and Gandhi, and SGR recorded the three as chosen rather than random.
@@ -207,11 +207,11 @@ Each client's files carry its process ID, so they cannot collide:
 ## Screenshots and clicks
 
 ```bash
-python LLM_Helpers/game_runs/desktop_windows.py list
-python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 15692 --out shot.png
-python LLM_Helpers/game_runs/desktop_windows.py click --pid 15692 963 809
-python LLM_Helpers/game_runs/desktop_windows.py hover --pid 15692 963 809
-python LLM_Helpers/game_runs/desktop_windows.py close --pid 15692
+python LLM_Helpers/desktop/desktop_windows.py list
+python LLM_Helpers/desktop/desktop_windows.py screenshot --pid 15692 --out shot.png
+python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
+python LLM_Helpers/desktop/desktop_windows.py hover --pid 15692 963 809
+python LLM_Helpers/desktop/desktop_windows.py close --pid 15692
 ```
 
 Other apps' windows, such as Codex's or Claude's, work the same way; see [README_Desktop_Windows.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).

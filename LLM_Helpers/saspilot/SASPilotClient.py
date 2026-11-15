@@ -15,6 +15,10 @@ import time
 import uuid
 from pathlib import Path
 
+# <!-- custom: run_autoplay from game_runs and desktop_windows from desktop, imported where used: on 2026-11-15 the pilot's files moved to their own LLM_Helpers/saspilot folder, as the user saw piloting as a job of its own, and desktop_windows to LLM_Helpers/desktop. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "game_runs"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "desktop"))
+
 # <!-- custom: desktop_windows launches and closes Civ4; run_autoplay writes the per-run INI and reads save headers. (Claude code Fable 5.2) -->
 # <!-- custom: Both are imported only in the functions that need them: they took 18 of the 38 ms that importing this file cost, and every command starts a new Python (2026-11-13). (Claude code Opus 5.5) -->
 
@@ -26,7 +30,7 @@ ORJSON_MIN_BYTES = 200000
 POLL_SECONDS = 0.001
 
 
-# <!-- custom: Per-client command log Logs/SASPilot_<processStartUtc>_<pid>.jsonl, one line per request: the user had nothing to watch while an agent played (replies are deleted once read), and a game reviewed later lacked the orders and their reasons to set beside SASGameRecord (2026-11-14). pilot_console.py follows it. (Claude code Opus 5.5) -->
+# <!-- custom: Per-client command log Logs/SASPilot_<processStartUtc>_<pid>.jsonl, one line per request: the user had nothing to watch while an agent played (replies are deleted once read), and a game reviewed later lacked the orders and their reasons to set beside SASGameRecord (2026-11-14). SASPilotConsole.py follows it. (Claude code Opus 5.5) -->
 LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: Commands that never change the game; a command with one of ORDER_ARGS is an order even so, e.g. 'espionage weight=' or 'fog on='. Everything else, 'py' included, is logged as an order, since it may change the game. (Claude code Opus 5.5) -->
 READ_COMMANDS = frozenset(("help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
@@ -138,7 +142,7 @@ def _log_request(pid, command, args, reply, error, kind=None):
 			record["error"] = error
 		LOGS_DIR.mkdir(parents=True, exist_ok=True)
 		# <!-- custom: Each request is numbered within its game turn (n) and within the log (seq), so the watcher can show T285-00012 and a line can be cited exactly: the user saw many rows in the same second (2026-11-14). seq is the exact reference, as a turn's numbers repeat after reloading an earlier turn.
-		# Every pilot.py call is a new process, so the counters live in a small .seq file beside the log; a failed request takes the last turn.
+		# Every SASPilotClient.py call is a new process, so the counters live in a small .seq file beside the log; a failed request takes the last turn.
 		# Codex forced two calls to read the same counters and both wrote seq=9, so the .seq file is locked (msvcrt, one byte) from reading the counters to appending the line. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		import msvcrt
 		descriptor = os.open(str(path.with_suffix(".seq")), os.O_RDWR | os.O_CREAT | os.O_BINARY)
@@ -255,15 +259,15 @@ def list_operators(pid):
 
 
 def remind(args, failed):
-	# <!-- custom: Reminders the agent gets with each command's output, so the user need not point these out every time (the user, 2026-11-14): an error, and a 'py' order, whose snippet may belong in a command (AGENTS.md); 'pilot.py review' gathers them. Printed on stderr, which the agent's tool shows beside the reply. (Claude code Opus 5.5) -->
+	# <!-- custom: Reminders the agent gets with each command's output, so the user need not point these out every time (the user, 2026-11-14): an error, and a 'py' order, whose snippet may belong in a command (AGENTS.md); 'SASPilotClient.py review' gathers them. Printed on stderr, which the agent's tool shows beside the reply. (Claude code Opus 5.5) -->
 	if args.command == "py":
-		print("pilot: reminder: a 'py' order; if a later game would ask this again, make it a command in SASPilotCommands.py rather than writing the code again (AGENTS.md). 'pilot.py review' lists this session's snippets.", file=sys.stderr)
+		print("pilot: reminder: a 'py' order; if a later game would ask this again, make it a command in SASPilotCommands.py rather than writing the code again (AGENTS.md). 'SASPilotClient.py review' lists this session's snippets.", file=sys.stderr)
 	elif failed:
-		print("pilot: reminder: 'pilot.py review' lists this session's errors and 'py' snippets.", file=sys.stderr)
+		print("pilot: reminder: 'SASPilotClient.py review' lists this session's errors and 'py' snippets.", file=sys.stderr)
 
 
 def review(pid):
-	# <!-- custom: 'pilot.py review': for this operator's session, its errors and its 'py' snippets grouped by code, most repeated first, from the client's log. A snippet written more than once is the clearest case for a command; errors show what to fix in the pilot or in how it is used. (Claude code Opus 5.5) -->
+	# <!-- custom: 'SASPilotClient.py review': for this operator's session, its errors and its 'py' snippets grouped by code, most repeated first, from the client's log. A snippet written more than once is the clearest case for a command; errors show what to fix in the pilot or in how it is used. (Claude code Opus 5.5) -->
 	path = log_path(pid)
 	if path is None or not path.exists():
 		raise PilotError("no command log for client %d" % pid)
@@ -295,7 +299,7 @@ def review(pid):
 
 
 def health(pid, timeout):
-	# <!-- custom: 'pilot.py health', the user's idea (2026-11-14): the pilot's own state in one reply, gathered from 'ping' (the bridge's tick errors), the settings check, 'review' (this session's errors and 'py' snippets), 'operator list', the session's role and fog, and whether a watcher console follows this client. "problems" lists what needs a look, empty when all is well. (Claude code Opus 5.5) -->
+	# <!-- custom: 'SASPilotClient.py health', the user's idea (2026-11-14): the pilot's own state in one reply, gathered from 'ping' (the bridge's tick errors), the settings check, 'review' (this session's errors and 'py' snippets), 'operator list', the session's role and fog, and whether a watcher console follows this client. "problems" lists what needs a look, empty when all is well. (Claude code Opus 5.5) -->
 	ping = request(pid, "ping", {}, timeout)
 	if not ping.get("ok"):
 		raise PilotError("ping failed: %s" % ping.get("error"))
@@ -308,7 +312,7 @@ def health(pid, timeout):
 	watchers = []
 	try:
 		import subprocess
-		output = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | Where-Object { $_.CommandLine -match 'pilot_console' } | ForEach-Object { $_.CommandLine }"], capture_output=True, text=True, timeout=30).stdout
+		output = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | Where-Object { $_.CommandLine -match 'SASPilotConsole' } | ForEach-Object { $_.CommandLine }"], capture_output=True, text=True, timeout=30).stdout
 		watchers = [line for line in output.splitlines() if "--pid %d" % pid in line]
 	except Exception:
 		watchers = None
@@ -318,17 +322,17 @@ def health(pid, timeout):
 	if unset:
 		problems.append("settings not at their recommended values: %s" % ", ".join(unset))
 	if mine["errors"]:
-		problems.append("%d errors this session ('pilot.py review')" % mine["errors"])
+		problems.append("%d errors this session ('SASPilotClient.py review')" % mine["errors"])
 	repeated = [entry for entry in mine["snippets"] if entry["count"] > 1]
 	if repeated:
 		problems.append("%d 'py' snippets written more than once: candidates for commands" % len(repeated))
 	if watchers == []:
-		problems.append("SASPilotConsole is missing for this client ('pilot_console.py --window --pid %d')" % pid)
+		problems.append("SASPilotConsole is missing for this client ('SASPilotConsole.py --window --pid %d')" % pid)
 	return {"pid": pid, "gameTurn": state.get("gameTurn"), "pilotRevision": state.get("pilotRevision"), "tickErrorCount": state.get("tickErrorCount"), "role": role.get("result", {}).get("role"), "fog": fog.get("result", {}).get("fog"), "settingsNotSet": unset, "sessionErrors": mine["errors"], "sessionSnippets": mine["pySnippets"], "repeatedSnippets": len(repeated), "operators": operators["count"], "operatorsPresent": operators["present"], "watchers": watchers is not None and len(watchers) or None, "problems": problems}
 
 
 def log_game_marker(pid, event, save, state):
-	# <!-- custom: One Civ4 process often plays dozens of games in a session (each replay and each 'menu path=' loads one), so its command log mixes them; SASGameRecord and BBAI split per load because the DLL knows each load. A row of kind "game" at each 'start' and load, with the save (or the new game's map) and its turn, marks where each game begins: grep '"kind": "game"' to split the log, and pilot_console.py prints it as a banner (the user, 2026-11-14).
+	# <!-- custom: One Civ4 process often plays dozens of games in a session (each replay and each 'menu path=' loads one), so its command log mixes them; SASGameRecord and BBAI split per load because the DLL knows each load. A row of kind "game" at each 'start' and load, with the save (or the new game's map) and its turn, marks where each game begins: grep '"kind": "game"' to split the log, and SASPilotConsole.py prints it as a banner (the user, 2026-11-14).
 	# A file per game was not chosen: a session of short replays would leave dozens of small files. (Claude code Opus 5.5) -->
 	args = {"event": event, "save": save, "map": state.get("mapScript"), "gameTurn": state.get("gameTurn"), "loads": state.get("loads"), "role": state.get("role") or "all"}
 	# <!-- custom: The recommended-settings check went only to the terminal that ran 'start' (stderr), so a person watching the console never saw it; the user asked whether it had been forgotten (2026-11-14). Its result goes on the game row too: how many were checked and the names not at their recommended value, which the watcher's banner shows. (Claude code Opus 5.5) -->
@@ -376,7 +380,7 @@ def pick_pid(pid):
 	if len(pids) == 1:
 		return pids[0]
 	if not pids:
-		raise PilotError("no piloted Civ4 is running; start one with: pilot.py start")
+		raise PilotError("no piloted Civ4 is running; start one with: SASPilotClient.py start")
 	raise PilotError("several piloted clients run (%s); pass --pid" % ", ".join(str(p) for p in pids))
 
 
@@ -516,7 +520,7 @@ def load_game(pid, path, timeout=600.0):
 
 
 def resolve_save(name):
-	# <!-- custom: pilot_replay.py already took a bare name from Saves/single, while start --save took only a path, so on 2026-11-13 "start --save sas_pilot_fogplay_t148" failed; both now share this lookup. The extension may be left out too. (Claude code Opus 5.5) -->
+	# <!-- custom: SASPilotReplay.py already took a bare name from Saves/single, while start --save took only a path, so on 2026-11-13 "start --save sas_pilot_fogplay_t148" failed; both now share this lookup. The extension may be left out too. (Claude code Opus 5.5) -->
 	# <!-- custom: The extension is added before anything is looked up, and only a bare name falls back to Saves/single: the first draft checked the path without its extension, so "samples/local" went to Saves/single although samples/local.CivBeyondSwordSave existed (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	save = Path(name)
 	if not save.suffix:
@@ -651,7 +655,7 @@ def start(args):
 		state["role"] = args.role
 		state["fog"] = True
 	log_game_marker(pid, args.save and "load" or "new", args.save and str(resolve_save(args.save)) or None, state)
-	# <!-- custom: --watch opens the command console laid out beside the new Civ4 at once, rather than a second command after it (the user, 2026-11-14); see pilot_console.py --window. (Claude code Opus 5.5) -->
+	# <!-- custom: --watch opens the command console laid out beside the new Civ4 at once, rather than a second command after it (the user, 2026-11-14); see SASPilotConsole.py --window. (Claude code Opus 5.5) -->
 	# <!-- custom: On by default since the user asked that the pilot start with its console (2026-11-14).
 	# --no-watch was removed the same day: Codex started a scouting trial with it, so the user, watching, saw one console for two clients and could not follow that one. Every client now has its console, as the user asked; SAS_PILOT_WATCH=0 stays for automated tests that must not open windows. (Claude code Opus 5.5) -->
 	state["watch"] = ensure_watcher(pid, args.watch_slots, args.watch_slot)
@@ -661,7 +665,7 @@ def start(args):
 def open_watcher(pid, slots=1, slot=1):
 	import subprocess
 	# <!-- custom: The launcher's status line went to stdout ahead of the reply's JSON on the first test, which would break an agent parsing the reply; said on stderr instead. (Claude code Opus 5.5) -->
-	process = subprocess.Popen([sys.executable, str(Path(__file__).resolve().parent / "pilot_console.py"), "--window", "--pid", str(pid), "--slots", str(slots), "--slot", str(slot)], stdout=subprocess.DEVNULL)
+	process = subprocess.Popen([sys.executable, str(Path(__file__).resolve().parent / "SASPilotConsole.py"), "--window", "--pid", str(pid), "--slots", str(slots), "--slot", str(slot)], stdout=subprocess.DEVNULL)
 	print("pilot: opened SASPilotConsole for client %d (launcher process %d); SAS_PILOT_WATCH=0 turns this off" % (pid, process.pid), file=sys.stderr)
 	return True
 
@@ -693,8 +697,8 @@ def ensure_watcher(pid, slots=None, slot=None):
 				if state.get("opening") and time.time() - state["opening"] < 30:
 					return False
 				if state.get("pid"):
-					import pilot_console
-					if pilot_console.process_instance(state["pid"]) == state.get("instance"):
+					import SASPilotConsole
+					if SASPilotConsole.process_instance(state["pid"]) == state.get("instance"):
 						return False
 				# <!-- custom: In the band the closed console had, so two clients' consoles keep their places; 'start' gives its own. (Claude code Opus 5.5) -->
 				slots = slots or state.get("slots") or 1
@@ -927,7 +931,7 @@ def print_digest(digest, brief, compact=True):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="Read and drive a running Civ4 (AdvCiv-SAS) through SASPilot. Examples: pilot.py start --map Pangaea; pilot.py help; pilot.py units; pilot.py move unit=3 x=10 y=12; pilot.py py \"game.getGameTurn()\"; pilot.py endturn; pilot.py close")
+	parser = argparse.ArgumentParser(description="Read and drive a running Civ4 (AdvCiv-SAS) through SASPilot. Examples: SASPilotClient.py start --map Pangaea; SASPilotClient.py help; SASPilotClient.py units; SASPilotClient.py move unit=3 x=10 y=12; SASPilotClient.py py \"game.getGameTurn()\"; SASPilotClient.py endturn; SASPilotClient.py close")
 	parser.add_argument("--pid", type=int, help="the Civ4 process to talk to; optional while exactly one piloted client runs")
 	parser.add_argument("--timeout", type=float, default=None, help="seconds to wait for the reply (default 60; 600 for start and wait)")
 	parser.add_argument("--compact", action="store_true", help="print JSON on one line")
@@ -940,7 +944,7 @@ def main():
 	parser.add_argument("--fog", action="store_true", help="start: switch fog on once the game runs, so replies show only what the player knows, as for a playthrough; a new client starts with fog off")
 	parser.add_argument("--role", choices=("play", "assist", "all"), help="start: the session's role, locked until Civ4 closes; play allows only what a player sees and does, facts only (fog on; py, the WorldBuilder, fog=0, other teams' player= and 'advise' refused); assist adds advice; default all")
 	# <!-- custom: --no-watch was removed on 2026-11-14 so every client has its console (see start()); an old command line with it now fails loudly rather than hiding the console. (Claude code Opus 5.5) -->
-	parser.add_argument("--watch", action="store_true", help="start: SASPilotConsole always opens (pilot_console.py --window) beside the new Civ4, Civ4 at its own size top-left and the console filling the rest, and any later command reopens it if it was closed; kept so older command lines still run. SAS_PILOT_WATCH=0 is only for automated tests that must not open windows")
+	parser.add_argument("--watch", action="store_true", help="start: SASPilotConsole always opens (SASPilotConsole.py --window) beside the new Civ4, Civ4 at its own size top-left and the console filling the rest, and any later command reopens it if it was closed; kept so older command lines still run. SAS_PILOT_WATCH=0 is only for automated tests that must not open windows")
 	parser.add_argument("--watch-slots", type=int, default=1, help="start --watch: bands to split the monitor into, one per client (2 for two clients)")
 	parser.add_argument("--watch-slot", type=int, default=1, help="start --watch: this client's band, from the top")
 	parser.add_argument("--multiple", action="store_true", help="start: allow other Civ4 clients and pass Civ4's 'multiple' argument")
@@ -948,7 +952,7 @@ def main():
 	parser.add_argument("--count", type=int, default=20, help="bench: how many requests to send")
 	parser.add_argument("--no-wait", action="store_true", help="endturn: return at once instead of waiting for the active player's next turn; menu path=: return without waiting for the load")
 	parser.add_argument("--turns", type=int, default=1, help="endturn: end up to this many turns, stopping early at a turn where something waits for orders (as 'todo' lists it); prints each turn's digest as one line")
-	parser.add_argument("--note", help="the reason for this command, written with it in the command log (Logs/SASPilot_<start>_<pid>.jsonl) that pilot_console.py follows; note=... among the arguments does the same, except for 'py'")
+	parser.add_argument("--note", help="the reason for this command, written with it in the command log (Logs/SASPilot_<start>_<pid>.jsonl) that SASPilotConsole.py follows; note=... among the arguments does the same, except for 'py'")
 	parser.add_argument("--operator", help="who sends the commands, e.g. \"Claude Code Opus 5.5\", written on each command-log row; default SAS_PILOT_OPERATOR. 'operator joined' and 'operator left' mark the start and end of a turn at the controls")
 	parser.add_argument("--brief", action="store_true", help="endturn: print each turn's digest as short text lines (turn, messages, what waits) instead of JSON")
 	parser.add_argument("command", help="start (warns of recommended settings not set; check prints them), list, wait, close, operator joined|left|list (mark the --operator taking or leaving the controls in the command log; list them all with their times), review (this session's errors and its 'py' snippets grouped, most repeated first), health (the pilot's own state and its problems in one reply), leave (click through diplomacy screens that only inform; stops at one with a choice), price with= take=[...] give=[...] [accept=1] (an AI's counter-offer; nothing agreed unless accept=1), bench <command> [key=value...], or a bridge command ('help' lists them)")
@@ -1022,7 +1026,7 @@ def main():
 				result = ask_price(pid, price_args, args.timeout or 60.0)
 			elif args.command == "bench":
 				if not args.arguments:
-					raise PilotError("bench needs a command, e.g. pilot.py bench ping")
+					raise PilotError("bench needs a command, e.g. SASPilotClient.py bench ping")
 				bench_args = {}
 				for item in args.arguments[1:]:
 					key, value = item.split("=", 1)

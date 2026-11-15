@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Shared console colors for our helpers, by role rather than by color, so every tool that prints for a person reads alike: first written in pilot_console.py, then moved here at the user's request so other helpers reuse them (2026-11-14).
+# <!-- custom: Shared console colors for our helpers, by role rather than by color, so every tool that prints for a person reads alike: first written in SASPilotConsole.py, then moved here at the user's request so other helpers reuse them (2026-11-14).
 # The roles and colors are the ones the user chose for SASPilotConsole: errors red, banners yellow, results sky blue, notes bold orchid, code light green; plain text keeps the console's own color. (Claude code Opus 5.5) -->
 
 # <!-- custom: html escapes text for to_html, re finds the color codes, sys checks whether output is a console. (Claude code Opus 5.5) -->

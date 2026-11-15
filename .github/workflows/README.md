@@ -226,7 +226,7 @@ npx markdownlint-cli2@0.23.2
 
 ## Python 2.4 compile workflow
 
-[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and the in-game `LLM_Helpers/game_runs/SASPilotCommands.py` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and the in-game `LLM_Helpers/saspilot/SASPilotCommands.py` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
 
 This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4.
 

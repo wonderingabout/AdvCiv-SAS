@@ -37698,7 +37698,7 @@ Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#
 
 ## KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked
 
-On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `pilot.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
+On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `SASPilotClient.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
 
 It started as Codex's suggested check that held popups survive a save and reload ([Popups in the Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#popups)), so the pilot's new popup code was suspected first. Each step below removed one suspect:
 
@@ -37722,7 +37722,7 @@ So the crash comes from leaving this game, not from loading it, and from none of
   - `dds esp L800` found older return addresses on the stack, among them `CvPlayer::nextUnit` and `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`: the EXE had been walking a player's units through the DLL just before.
   - A possible reading, not shown: the EXE frees a unit's or plot's graphics while tearing the game down and then calls one it already freed; the large unit count may matter, as small games reloaded without trouble the same day.
 - The saves are `huge_t305_civic.CivBeyondSwordSave` and `held_roundtrip.CivBeyondSwordSave`, made by the pilot on 2026-11-13 from a Pangaea Huge game with fixed seeds autoplayed to turn 300.
-- Workaround for agents: in a big late game, load a save with `pilot.py close` and `pilot.py start --save` rather than `pilot.py menu path=`; a fresh Civ4 loaded both saves without trouble.
+- Workaround for agents: in a big late game, load a save with `SASPilotClient.py close` and `SASPilotClient.py start --save` rather than `SASPilotClient.py menu path=`; a fresh Civ4 loaded both saves without trouble.
 - Steps to take it further: try the same reload in base AdvCiv, leave the game through the main menu as a player would, and compare a Huge game at turn 100 and 200 to see whether size or unit count sets it off.
 
 Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-6.1-Sol) suggested the save-and-reload check; wonderingabout saw the first crash and asked for it to be captured and debugged.
@@ -37780,14 +37780,14 @@ Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) 
 
 ## KI#1088 - (Avoided in the SAS pilot) Loading a save while a diplomacy screen was open, which only the pilot could do, sometimes crashed Civ4 while it tore down the game
 
-- Seen on 2026-11-13 while testing the pilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `pilot.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
+- Seen on 2026-11-13 while testing the pilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `SASPilotClient.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
   - **First crash:** in the DLL, during teardown: `CvPlayer::reset`, `CvPlayer::uninit`, then `FFreeListTrashArray<CvPlotGroup>::removeAll` read the first entry of a player's plot-group list and found the object pointer `0xFFFFFFFF`, faulting at address `ffffffff`. That client had loaded once before while a diplomacy screen was open.
   - **Second crash:** in the EXE, reading `ff800003`, a float-like value where a pointer should be. On the stack were `getDiplomacyScreen` and, as in [KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084), `CvPlayer::nextUnit` with `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`. It came on the fourth load made while a diplomacy screen was open; the pilot's new refusal had been saved but not yet reloaded by the game.
 - What separated the loads, in two clients on the same save:
   - **Screen closed first:** 8 of 8 loads worked, five of them right after a trade made through the screen.
   - **Screen open:** the screen stayed open over the reloaded game with the old partner and offers each time, and 1 of 4 loads crashed.
 - A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only the pilot's `menu path=` could load past it.
-- Avoided in [`SASPilotCommands.py`](/LLM_Helpers/game_runs/SASPilotCommands.py): `menu` now refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
+- Avoided in [`SASPilotCommands.py`](/LLM_Helpers/saspilot/SASPilotCommands.py): `menu` now refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
 - Dumps, each with the DLL and PDB of the Debug-opt build that crashed, outside the repository:
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups`: the first crash, a normal dump (22 MB), so the heap and the plot-group list cannot be read.
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
@@ -37846,8 +37846,8 @@ Found by Claude Code Opus 5.5 during a visual pass over the advisors that the us
 ## KI#1093 - (Fixed in SAS) Inside Civ4, Python's time.time() moves in 128-second steps, so the pilot's queued contact never expired and blocked every later contact
 
 - Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
-- Found at turn 291 of the pilot's modern baseline (2026-11-14): two `pilot.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
-- Fixed in [SASPilotCommands.py](/LLM_Helpers/game_runs/SASPilotCommands.py) with `time.clock()`, which counts from the process start, small enough to stay precise; the pilot's timings already used it. No other in-game Python in the mod calls `time.time()`; any later interval measured inside the game should use `time.clock()` too.
+- Found at turn 291 of the pilot's modern baseline (2026-11-14): two `SASPilotClient.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
+- Fixed in [SASPilotCommands.py](/LLM_Helpers/saspilot/SASPilotCommands.py) with `time.clock()`, which counts from the process start, small enough to stay precise; the pilot's timings already used it. No other in-game Python in the mod calls `time.time()`; any later interval measured inside the game should use `time.clock()` too.
 
 Found by Claude Code Opus 5.5 while asking Kublai Khan for peace through the pilot.
 

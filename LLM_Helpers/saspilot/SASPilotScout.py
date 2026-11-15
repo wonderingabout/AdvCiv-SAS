@@ -8,7 +8,7 @@ import json
 import math
 import sys
 
-from pilot import PilotError, pick_pid, request
+from SASPilotClient import PilotError, pick_pid, request
 
 
 def neighborhood(center, radius, grid):
@@ -148,7 +148,7 @@ def compare(pid, unit, radius, limit, around=None, band=(3, 5), counterclockwise
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pid", type=int, help="Civ4 client PID")
-    parser.add_argument("--unit", type=int, required=True, help="land scout or Warrior ID from 'pilot.py units'")
+    parser.add_argument("--unit", type=int, required=True, help="land scout or Warrior ID from 'SASPilotClient.py units'")
     parser.add_argument("--radius", type=int, default=5, choices=range(1, 9))
     parser.add_argument("--limit", type=int, default=3, choices=range(1, 11))
     parser.add_argument("--around", help="X,Y of a city to loop around clockwise, such as the capital in the opening")
@@ -161,7 +161,7 @@ def main():
         band = tuple(int(value) for value in args.band.split(","))
         print(json.dumps(compare(pick_pid(args.pid), args.unit, args.radius, args.limit, around, band, args.ccw, args.min_health), indent=2))
     except (OSError, PilotError) as error:
-        print(f"pilot_scout: {error}", file=sys.stderr)
+        print(f"SASPilotScout: {error}", file=sys.stderr)
         return 1
     return 0
 

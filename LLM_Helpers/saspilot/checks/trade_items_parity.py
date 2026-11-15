@@ -1,7 +1,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Run inside the game with 'pilot.py py @pilot_checks/trade_items_parity.py': compares the C++ trade table (getSASPilotTradeItemsJson) with the Python loop it replaced on 2026-11-13, for every pair of living players, and lists any entry only one side has. An empty "differences" is the expected result; written for the port's first test and kept to recheck after either side changes. (Claude code Opus 5.5) -->
+# <!-- custom: Run inside the game with 'SASPilotClient.py py @checks/trade_items_parity.py': compares the C++ trade table (getSASPilotTradeItemsJson) with the Python loop it replaced on 2026-11-13, for every pair of living players, and lists any entry only one side has. An empty "differences" is the expected result; written for the port's first test and kept to recheck after either side changes. (Claude code Opus 5.5) -->
 # <!-- custom: CvPythonExtensions for TradeData and the enums; 'pilot' is the command module the py namespace provides, as a module or, when loaded by exec, its globals dict. (Claude code Opus 5.5) -->
 from CvPythonExtensions import *
 

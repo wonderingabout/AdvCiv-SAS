@@ -1,7 +1,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Move several scouting units a turn at a time, each looping around its own center with pilot_scout's choices, then end the turn, stopping on anything an agent should look at.
+# <!-- custom: Move several scouting units a turn at a time, each looping around its own center with SASPilotScout's choices, then end the turn, stopping on anything an agent should look at.
 # Grown from a scratch driver over the playthroughs of 2026-11-14 (a Pangaea start played three times, then a Continents game), where each rule below came from a mistake the user pointed out; kept in the repo so the next agent starts from it rather than rewriting it. (Claude code Opus 5.5) -->
 
 import argparse
@@ -10,14 +10,14 @@ import os
 import sys
 import time
 
-# <!-- custom: pilot for the requests, logged with each move's reason as any pilot.py command is; pilot_scout for the choices. (Claude code Opus 5.5) -->
-import pilot
-from pilot import PilotError, pick_pid, request
-import pilot_scout
+# <!-- custom: SASPilotClient, as pilot, for the requests, logged with each move's reason as any SASPilotClient.py command is; SASPilotScout for the choices. (Claude code Opus 5.5) -->
+import SASPilotClient as pilot
+from SASPilotClient import PilotError, pick_pid, request
+import SASPilotScout
 
 
 def ask(pid, command, args=None, note=None):
-    # <!-- custom: The reason goes into the command log beside the order, as pilot.py's --note does, so the SASPilotConsole shows why each step was taken. (Claude code Opus 5.5) -->
+    # <!-- custom: The reason goes into the command log beside the order, as SASPilotClient.py's --note does, so the SASPilotConsole shows why each step was taken. (Claude code Opus 5.5) -->
     if note:
         pilot._log_context["note"] = note
     reply = request(pid, command, args or {})
@@ -62,7 +62,7 @@ def step(pid, spec, depth=0):
                     stop = [s for s in path["steps"] if s["turn"] == first][-1]
                     return move(pid, spec, stop["x"], stop["y"], "goody hut at %d,%d, %d turns" % (tile["x"], tile["y"], path["turns"]), depth)
     try:
-        found = pilot_scout.compare(pid, unit, 8, 3, center, band, "ccw" in flags)
+        found = SASPilotScout.compare(pid, unit, 8, 3, center, band, "ccw" in flags)
     except PilotError as error:
         return "unit %d: %s" % (unit, error)
     if not found["choices"]:
@@ -154,13 +154,13 @@ def main():
                 if reason:
                     print(json.dumps({"stop": reason}))
                     return 0
-            # <!-- custom: Codex's review (round 38, P1): the immediate 'endturn' reply holds only the turn ended and what it skipped, so the new turn's messages and reminders never reached the stop check. Check 'todo' before ending, then wait for the new turn and read the 'turn' digest, as pilot.py endturn does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+            # <!-- custom: Codex's review (round 38, P1): the immediate 'endturn' reply holds only the turn ended and what it skipped, so the new turn's messages and reminders never reached the stop check. Check 'todo' before ending, then wait for the new turn and read the 'turn' digest, as SASPilotClient.py endturn does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
             before = ask(pid, "todo")
             waiting = digest({"todo": before}, ids, known)
             if waiting:
                 print(json.dumps({"beforeEndTurn": waiting}))
                 return 0
-            end = ask(pid, "endturn", {}, "pilot_explore: scouts moved, turn ended")
+            end = ask(pid, "endturn", {}, "SASPilotExplore: scouts moved, turn ended")
             pilot.wait_for_turn(pid, 600.0, after_turn=end["gameTurn"])
             turn = ask(pid, "turn")
             flags = digest(turn, ids, known)
@@ -168,7 +168,7 @@ def main():
             if flags:
                 return 0
     except (OSError, PilotError) as error:
-        print("pilot_explore: %s" % error, file=sys.stderr)
+        print("SASPilotExplore: %s" % error, file=sys.stderr)
         return 1
     return 0
 

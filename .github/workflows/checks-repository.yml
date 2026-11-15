@@ -45,11 +45,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/ui_map_sync.py
 
-      # <!-- custom: Check both UI map files whose writers use the shared formatter. app_layouts.json and civ4_points.json have hand-aligned sections. (GPT-6.1-Sol) -->
+      # <!-- custom: Check both map files whose writers use the shared formatter: the window layouts, in LLM_Helpers/desktop/layouts since 2026-11-15, and the Sevopedia map. app_layouts.json and civ4_points.json have hand-aligned sections. (GPT-6.1-Sol + Claude code Opus 5.5) -->
       - name: Window layout and Sevopedia JSON formatting
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
-          python LLM_Helpers/formatting/json_format.py --indent 1 --check LLM_Helpers/game_runs/ui_maps/window_positions.json
+          python LLM_Helpers/formatting/json_format.py --indent 1 --check LLM_Helpers/desktop/layouts/window_positions.json
           python LLM_Helpers/formatting/json_format.py --indent 1 --check LLM_Helpers/game_runs/ui_maps/civ4_sevopedia_map.json
 
       - name: Makefile calls Windows tools by their System32 path

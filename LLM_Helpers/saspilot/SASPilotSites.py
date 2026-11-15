@@ -8,9 +8,9 @@ import argparse
 import json
 import sys
 
-# <!-- custom: pilot for the grid request, logged as any pilot.py command is. (Claude code Opus 5.5) -->
-import pilot
-from pilot import PilotError, pick_pid, request
+# <!-- custom: SASPilotClient, as pilot, for the grid request, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
+import SASPilotClient as pilot
+from SASPilotClient import PilotError, pick_pid, request
 
 FOOD = {"BONUS_CLAM", "BONUS_FISH", "BONUS_CRAB", "BONUS_BANANA", "BONUS_PIG", "BONUS_COW", "BONUS_SHEEP", "BONUS_WHEAT", "BONUS_RICE", "BONUS_CORN", "BONUS_DEER", "BONUS_CAMEL"}
 
@@ -96,7 +96,7 @@ def main():
     try:
         print(json.dumps(compare(pick_pid(args.pid), cities, args.near, args.far, args.limit), indent=1))
     except (OSError, PilotError) as error:
-        print("pilot_sites: %s" % error, file=sys.stderr)
+        print("SASPilotSites: %s" % error, file=sys.stderr)
         return 1
     return 0
 

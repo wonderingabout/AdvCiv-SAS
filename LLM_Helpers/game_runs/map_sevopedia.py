@@ -20,7 +20,9 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage, signal
 
-# <!-- custom: desktop_windows, beside this script, clicks, hovers and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows clicks, hovers and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows
 
 HERE = Path(__file__).resolve().parent

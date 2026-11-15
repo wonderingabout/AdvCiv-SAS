@@ -21,7 +21,7 @@ import CvScreensInterface
 gc = CyGlobalContext()
 
 # <!-- custom: Bump when a command's name, arguments or reply changes, so a client can tell which bridge it talks to. (Claude code Fable 5.2) -->
-PILOT_REVISION = 5
+PILOT_REVISION = 1
 
 _state = None
 
@@ -162,7 +162,7 @@ def poll(state, szReloadError):
 		path = os.path.join(mailbox, name)
 		# <!-- custom: gameMs is the game-side time from reading the request through encoding the reply, so the client can tell it apart from the wait for the next tick; time.clock is the high-resolution timer on Windows in Python 2.4. (Claude code Opus 5.5) -->
 		fStart = time.clock()
-		# <!-- custom: Claimed by renaming req_ to run_ before it runs, and run_ removed only once the reply is written. The first version read and deleted the request first, so a client that timed out could not tell a command never started, which is safe to retry, from one already running, which a retry would repeat (ChatGPT's review, 2026-11-14). pilot.py's timeout now withdraws only a request still named req_. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+		# <!-- custom: Claimed by renaming req_ to run_ before it runs, and run_ removed only once the reply is written. The first version read and deleted the request first, so a client that timed out could not tell a command never started, which is safe to retry, from one already running, which a retry would repeat (ChatGPT's review, 2026-11-14). SASPilotClient.py's timeout now withdraws only a request still named req_. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
 		running = os.path.join(mailbox, "run_" + name[4:])
 		try:
 			os.rename(path, running)
@@ -217,7 +217,7 @@ def _allowedArgs(name):
 
 
 def _applyLaunchRole():
-	# <!-- custom: The role 'pilot.py start --role' wrote in the per-run INI ([SASPilot] Role), applied and locked once, before the first request is served, so no command can run under another role first (Codex's review, round 33). Read here rather than in the SASPilot.py loader, which cannot be changed while Civ4 runs; the loader's own INI reader is reused. A role the bridge does not know is refused loudly on every request rather than ignored. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The role 'SASPilotClient.py start --role' wrote in the per-run INI ([SASPilot] Role), applied and locked once, before the first request is served, so no command can run under another role first (Codex's review, round 33). Read here rather than in the SASPilot.py loader, which cannot be changed while Civ4 runs; the loader's own INI reader is reused. A role the bridge does not know is refused loudly on every request rather than ignored. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if _state.get("launchRoleRead"):
 		return
 	import SASPilot
@@ -237,7 +237,7 @@ def _serve(text):
 	try:
 		request = fromJson(text)
 		reply["id"] = request.get("id")
-		# <!-- custom: Codex's review simulated a stale req_ that SASPilot._start could not delete from a recycled PID's folder, and the new game ran it. A launched session refuses any request not carrying its own session ID, which pilot.py reads from hello.json; without a session (SAS_PILOT_ON with no per-run INI) every request is served, as before. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		# <!-- custom: Codex's review simulated a stale req_ that SASPilot._start could not delete from a recycled PID's folder, and the new game ran it. A launched session refuses any request not carrying its own session ID, which SASPilotClient.py reads from hello.json; without a session (SAS_PILOT_ON with no per-run INI) every request is served, as before. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		if _state.get("session") and request.get("session") != _state.get("session"):
 			raise ValueError("request %s is for session %s, not this game's %s; it was not run" % (request.get("id"), request.get("session"), _state.get("session")))
 		name = request["cmd"]
@@ -1118,7 +1118,7 @@ def _checkRole(name, args):
 			raise ValueError("player %d is another team, which the play role does not allow" % iPlayer)
 
 
-_HELP["role"] = "The session's role: play allows what a player sees and does, facts only (fog stays on; 'py', the WorldBuilder, fog=0, other teams' player= and 'advise' are refused); assist is play plus advice ('advise', and the city AI's builds in 'workers'); all allows everything, the default. With lock=1 the role holds until Civ4 closes, as 'pilot.py start --role' sets it. Without set, the role and each command's role: play (facts), advice, omniscient, create or meta. args: set, lock."
+_HELP["role"] = "The session's role: play allows what a player sees and does, facts only (fog stays on; 'py', the WorldBuilder, fog=0, other teams' player= and 'advise' are refused); assist is play plus advice ('advise', and the city AI's builds in 'workers'); all allows everything, the default. With lock=1 the role holds until Civ4 closes, as 'SASPilotClient.py start --role' sets it. Without set, the role and each command's role: play (facts), advice, omniscient, create or meta. args: set, lock."
 
 
 def cmd_role(args):
@@ -2784,7 +2784,7 @@ def cmd_diplo(args):
 	result["theyOffer"] = _diploOffer(diplo.getTheirTradeOffer)
 	result["weOffer"] = _diploOffer(diplo.getPlayerTradeOffer)
 	result["atWar"] = bool(diplo.atWar())
-	# <!-- custom: Which conversation this is, counted as each begins (see CvDiplomacy.SASPilotScreen), so a client sequence such as pilot.py's 'price' can stop when another leader's screen takes over (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: Which conversation this is, counted as each begins (see CvDiplomacy.SASPilotScreen), so a client sequence such as SASPilotClient.py's 'price' can stop when another leader's screen takes over (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	result["conversation"] = state.get("conversation", 0)
 	return result
 
@@ -3715,7 +3715,7 @@ def cmd_endturn(args):
 	return {"gameTurn": gc.getGame().getGameTurn(), "skipped": skipped}
 
 
-_HELP["turn"] = "What a person sees at the start of a turn: turn and year, what waits for orders (as 'todo') and the messages since the previous turn (as 'messages'). 'pilot.py endturn' prints it for the new turn. args: player."
+_HELP["turn"] = "What a person sees at the start of a turn: turn and year, what waits for orders (as 'todo') and the messages since the previous turn (as 'messages'). 'SASPilotClient.py endturn' prints it for the new turn. args: player."
 
 
 def cmd_turn(args):
@@ -3853,7 +3853,7 @@ def _unusedSibling(path, szTag):
 		i = i + 1
 
 
-_HELP["save"] ="Save the game; through pilot.py a bare name goes to Saves/single with the .CivBeyondSwordSave extension, else a full path. An existing file is refused unless overwrite=true. args: path, overwrite."
+_HELP["save"] ="Save the game; through SASPilotClient.py a bare name goes to Saves/single with the .CivBeyondSwordSave extension, else a full path. An existing file is refused unless overwrite=true. args: path, overwrite."
 
 
 def cmd_save(args):
@@ -4309,7 +4309,7 @@ def cmd_pedia(args):
 	return result
 
 
-_HELP["batch"] = "Run several commands in one request, in order, stopping at the first failure. args: commands (list of {cmd, args}). From the CLI: pilot.py batch 'commands=[{\"cmd\":\"units\"},{\"cmd\":\"cities\"}]'."
+_HELP["batch"] = "Run several commands in one request, in order, stopping at the first failure. args: commands (list of {cmd, args}). From the CLI: SASPilotClient.py batch 'commands=[{\"cmd\":\"units\"},{\"cmd\":\"cities\"}]'."
 
 
 def cmd_batch(args):

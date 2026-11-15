@@ -16,6 +16,9 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageStat
 
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows as d
 import run_autoplay
 # <!-- custom: simple_game_scripts, beside this helper, says which scripts Simple Game lists; the CI check and the UI map generator share it, so the three cannot disagree.

@@ -31,7 +31,7 @@ REPLIES = ("none needed", "Claude app", "Codex app", "user")
 # They live in app_layouts.json beside this script, with when and how each was measured, since app updates move them and re-measuring should not mean editing code.
 # Each run reads the file once at start, so a fixed layout applies from the next send on without touching code another agent may be running at that moment, such as a background --wait-reply; a wrong number cannot break the script's logic either.
 # Each text area starts just right of where the blinking text cursor sits: a click that left the cursor there made an empty Codex box read as "16 dark pixels". (Claude Code Opus 5.5) -->
-LAYOUTS_FILE = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
+LAYOUTS_FILE = Path(__file__).resolve().parent / "layouts" / "app_layouts.json"
 APPS = json.loads(LAYOUTS_FILE.read_text(encoding="utf-8"))["apps"]
 LAYOUT_NAMES = sorted({name for app in APPS.values() for name in app["layouts"]})
 

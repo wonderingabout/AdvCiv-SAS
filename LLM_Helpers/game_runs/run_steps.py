@@ -16,6 +16,9 @@ from pathlib import Path
 # <!-- custom: Pillow opens the individual captures and draws the labelled sheet. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 from PIL import Image, ImageDraw
 
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows as d
 
 

@@ -15,7 +15,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-# <!-- custom: desktop_windows, beside this script, waits for the user to be idle, clicks named points and screenshots the window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows waits for the user to be idle, clicks named points and screenshots the window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows
 
 IDLE_POINT = (1500, 1100)

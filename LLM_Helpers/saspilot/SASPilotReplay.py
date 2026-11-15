@@ -13,7 +13,7 @@ import sys
 import time
 from pathlib import Path
 
-import pilot
+import SASPilotClient as pilot
 
 # <!-- custom: Keys whose values change from run to run without the command having changed: timings and the reply's size. (Claude code Opus 5.5) -->
 # <!-- custom: "conversation", 'diplo''s count of conversations since Civ4 started, depends on what the client did before the sequence loaded its save: 21 and 22 in a reused client against no field in the baselines (2026-11-13). (Claude code Opus 5.5) -->
@@ -22,7 +22,7 @@ LOGS_DIR = Path(pilot.MAILBOX_ROOT).parent / "Logs"
 
 
 def load_sequence(path):
-	# <!-- custom: Called scenarios until 2026-11-13; Civ4 already uses "scenario" for its scenario maps and "replay" for Hall of Fame replays, so these became command sequences, in pilot_sequences/ (the user and Codex's naming discussion). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: Called scenarios until 2026-11-13; Civ4 already uses "scenario" for its scenario maps and "replay" for Hall of Fame replays, so these became command sequences, in sequences/ (the user and Codex's naming discussion). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: A sequence is JSON: {"save": file name in Saves/single or a full path, "steps": [{"cmd": ..., "args": {...}, "ignore": [keys]}]}. A step's "ignore" lists result keys left out of the comparison for that step only.
 	# "sleep" waits that many seconds before the step, for what the game does on later frames, such as the screen 'contact' opens; "from" fills arguments from earlier results of this run, such as {"screen": "steps[8].result.screen"} for 'reply'.
 	# "afterTurn" waits until the game is past that turn and waits for orders, as the client's 'endturn' does, e.g. "steps[21].result.gameTurn" after an 'endturn'. (Claude code Opus 5.5) -->
@@ -118,7 +118,7 @@ def run_steps(pid, sequence, timeout):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="Replay pilot commands against a save and compare the replies with the accepted baseline. Example: pilot_replay.py pilot_sequences/fogplay_t115_core.json")
+	parser = argparse.ArgumentParser(description="Replay pilot commands against a save and compare the replies with the accepted baseline. Example: SASPilotReplay.py sequences/fogplay_t115_core.json")
 	parser.add_argument("sequence", help="the sequence JSON file")
 	parser.add_argument("--baseline", help="baseline file (default Logs/SASPilotReplay_<sequence>.json)")
 	parser.add_argument("--accept", action="store_true", help="write this run as the new baseline instead of comparing")

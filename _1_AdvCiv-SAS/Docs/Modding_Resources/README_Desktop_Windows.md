@@ -40,10 +40,10 @@ Expect to update it: these apps change their interfaces often, and every finding
 Everything here uses [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy). It works on any app's window, chosen by process ID:
 
 ```bash
-python LLM_Helpers/game_runs/desktop_windows.py list
-python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 8572 --out shot.png
-python LLM_Helpers/game_runs/desktop_windows.py click --pid 8572 --layout codex-usage-max --point indicator
-python LLM_Helpers/game_runs/desktop_windows.py hover --pid 8572 --layout codex-usage-max --point five-hour
+python LLM_Helpers/desktop/desktop_windows.py list
+python LLM_Helpers/desktop/desktop_windows.py screenshot --pid 8572 --out shot.png
+python LLM_Helpers/desktop/desktop_windows.py click --pid 8572 --layout codex-usage-max --point indicator
+python LLM_Helpers/desktop/desktop_windows.py hover --pid 8572 --layout codex-usage-max --point five-hour
 ```
 
 - `list` names only Civ4 clients. For other apps, find the process ID with PowerShell, for example `Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object Id, ProcessName, MainWindowTitle`. On 2026-11-10 the Codex app ran as `ChatGPT` and Claude Code's app as `claude`.
@@ -116,7 +116,7 @@ Its message box has three states, told apart by the round button at its bottom r
 
   ```powershell
   $codexWindow = Get-Process ChatGPT | Where-Object { $_.MainWindowHandle -ne 0 }
-  python LLM_Helpers/game_runs/desktop_windows.py scroll --pid $codexWindow.Id --layout codex-usage-half --point chat-scroll --clicks -40
+  python LLM_Helpers/desktop/desktop_windows.py scroll --pid $codexWindow.Id --layout codex-usage-half --point chat-scroll --clicks -40
   ```
 
 - **Model, effort and permissions:** under the message box, "GPT-6.1 Sol Medium" with a down arrow, left of the microphone, picks the model and effort; "Full access" at the bottom left is the permission mode.
@@ -291,13 +291,13 @@ Later on 2026-11-13, `get_usage_limits` showed **4% weekly left**, **79% five-ho
 
 For agent-to-agent checks, use structured usage data when available. Codex's read-only `get_usage_limits` was verified on 2026-11-13 and returns percentage used. Claude Code can use `get_usage` when available. If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time. Use a named screenshot crop when checking what the app actually shows. The screenshot command prints the PNG path for the agent to open.
 
-The user keeps both left chat lists collapsed to free up chat width and can reopen them when switching chats. Claude's right context rail stays open because it takes little space in this layout. The [desktop layout map](/LLM_Helpers/game_runs/ui_maps/app_layouts.json) stores window-relative points and crops, one named entry per line, so agents can find a control by name and review a remap in one diff line. Use the layout whose window size and panel arrangement match your capture. A raw point copied from the older Claude session would miss the ring with the session rail open.
+The user keeps both left chat lists collapsed to free up chat width and can reopen them when switching chats. Claude's right context rail stays open because it takes little space in this layout. The [desktop layout map](/LLM_Helpers/desktop/layouts/app_layouts.json) stores window-relative points and crops, one named entry per line, so agents can find a control by name and review a remap in one diff line. Use the layout whose window size and panel arrangement match your capture. A raw point copied from the older Claude session would miss the ring with the session rail open.
 
 Start with a named crop. The command below was checked on the current Claude layout. For the current Codex half-window, use the ChatGPT window PID and `--layout codex-usage-half` with the same crop name.
 
 ```powershell
 $claudeWindow = Get-Process Claude | Where-Object { $_.MainWindowHandle -ne 0 }
-python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid $claudeWindow.Id --layout claude-usage-half-rail --crop-name indicator --out "$env:TEMP/claude-usage-ring.png"
+python LLM_Helpers/desktop/desktop_windows.py screenshot --pid $claudeWindow.Id --layout claude-usage-half-rail --crop-name indicator --out "$env:TEMP/claude-usage-ring.png"
 ```
 
 For Claude, hover the ring for the five-hour tooltip. Click the ring for percentages and resets, then **See all** for **Settings > Usage**. Expand **This week** there if present to see any Fable allowance. For Codex, click the wheel first, then hover the five-hour or weekly row for its reset time. **Manage usage** opens **Settings > Usage & billing**.
@@ -492,8 +492,8 @@ On 2026-11-11 the user's computer had two 4K monitors, each with a 3840x2100 wor
 The user suggested putting both apps on one monitor, half each. [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) gained `monitors` and `move` for it, and these two commands placed the Claude app on the left half of monitor 2 and Codex on its right half, leaving monitor 1 to the user:
 
 ```bash
-python LLM_Helpers/game_runs/desktop_windows.py move --pid 16256 --monitor 2 right
-python LLM_Helpers/game_runs/desktop_windows.py move --pid 20824 --monitor 2 left
+python LLM_Helpers/desktop/desktop_windows.py move --pid 16256 --monitor 2 right
+python LLM_Helpers/desktop/desktop_windows.py move --pid 20824 --monitor 2 left
 ```
 
 Both apps kept their full chats at 1,920 px wide, with the empty margins mostly gone. Each one's sidebar and side panel take a larger share of the narrower window.
@@ -501,8 +501,8 @@ Both apps kept their full chats at 1,920 px wide, with the empty margins mostly 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_app_half_4k.PNG" alt="llm_claude_app_half_4k.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_app_half_4k.PNG" alt="llm_codex_app_half_4k.PNG" width="250">
 
-- Halving the screen stretched Civ4 to 1920x2100 when the user watched the pilot on 2026-11-14 (a "monster chicken", in the user's words), so `move` gained `topleft`, which keeps the window's size (or `--size W H`) in the work area's top-left corner, and `beside --beside <pid>`, which fills the area to the right of another window. `pilot_console.py --window` lays out Civ4 and its console with them; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole). Measured on the user's 3840x2160 monitor only.
-- `positions save <name>` records where the Claude app (`claude.exe`), the Codex app (`ChatGPT.exe`) and Civ4 stand, by program name as their process IDs change, into [`window_positions.json`](/LLM_Helpers/game_runs/ui_maps/window_positions.json); `positions restore <name>` puts them back and warns if the monitors differ. The user asked for it on 2026-11-14 so a moved window or a changed layout needs neither the user nor manual measuring. `pilot-watch-4k` holds the layout of that day: Civ4 at 1920x1110 top-left of monitor 1 (beside its `pilot_console.py` console), Claude on the left half of monitor 2, Codex on its right half.
+- Halving the screen stretched Civ4 to 1920x2100 when the user watched the pilot on 2026-11-14 (a "monster chicken", in the user's words), so `move` gained `topleft`, which keeps the window's size (or `--size W H`) in the work area's top-left corner, and `beside --beside <pid>`, which fills the area to the right of another window. `SASPilotConsole.py --window` lays out Civ4 and its console with them; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole). Measured on the user's 3840x2160 monitor only.
+- `positions save <name>` records where the Claude app (`claude.exe`), the Codex app (`ChatGPT.exe`) and Civ4 stand, by program name as their process IDs change, into [`window_positions.json`](/LLM_Helpers/desktop/layouts/window_positions.json); `positions restore <name>` puts them back and warns if the monitors differ. The user asked for it on 2026-11-14 so a moved window or a changed layout needs neither the user nor manual measuring. `pilot-watch-4k` holds the layout of that day: Civ4 at 1920x1110 top-left of monitor 1 (beside its `SASPilotConsole.py` console), Claude on the left half of monitor 2, Codex on its right half.
 - `move` places the visible frame exactly on the half, as Win+Left and Win+Right do. The Claude app's window carries an invisible border, so its outer rectangle came out at 3830 to 5770; Codex has none and came out at 5760 to 7680.
 - `agent_message.py`'s click points had been measured on maximized windows, so the first send in this layout needed `--box 900 1932 --text-area 370 1905 1500 1960` by hand. Later that day both half-width boxes were measured and added as a `4k-half` layout, which the helper picks from the window's width; `--check-box` confirmed it on both windows.
   - The layouts live in `app_layouts.json` beside the script, with each one's measurement date and conditions, so an app update that moves a box means re-measuring and editing that file, not the code; see [re-measuring a layout](/LLM_Helpers/README.md#agent_messagepy).
@@ -543,9 +543,9 @@ Each app on its own, with each chat filling nearly its whole half:
   - `desktop_windows.py` now does this in two steps, so the text can be checked before it goes out:
 
 ```bash
-python LLM_Helpers/game_runs/desktop_windows.py paste --pid 8572 2250 1929 --file message.txt
-python LLM_Helpers/game_runs/desktop_windows.py screenshot --pid 8572 --out check.png
-python LLM_Helpers/game_runs/desktop_windows.py key --pid 8572 enter
+python LLM_Helpers/desktop/desktop_windows.py paste --pid 8572 2250 1929 --file message.txt
+python LLM_Helpers/desktop/desktop_windows.py screenshot --pid 8572 --out check.png
+python LLM_Helpers/desktop/desktop_windows.py key --pid 8572 enter
 ```
 
 - `paste` clicks the box (with `click`'s checks), pastes, and restores the clipboard's text. It does not clear the box, so look at the box in a screenshot first: a draft the user left there would go out with the message.

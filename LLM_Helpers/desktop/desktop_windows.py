@@ -692,7 +692,7 @@ def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 def usage_geometry(pid, name, layout_name, kind):
 	# <!-- custom: Desktop usage positions move with panels even at the same size, so choose a measured layout explicitly.
 	# Check the target title and exact outer size before using a saved point or crop. (GPT-6.1-Sol) -->
-	path = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
+	path = Path(__file__).resolve().parent / "layouts" / "app_layouts.json"
 	layouts = json.loads(path.read_text(encoding="utf-8"))["usage"]["layouts"]
 	layout = layouts.get(layout_name)
 	if layout is None:
@@ -724,7 +724,7 @@ def named_point(pid, name):
 	size = (right - left, bottom - top)
 	if "." in name:
 		# <!-- custom: SCREEN.CONTROL names come from civ4_ui_map.json, the map of Civ4's screens outside a game, such as single_player.load_game. (Claude Code Opus 5.5) -->
-		ui = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_ui_map.json").read_text(encoding="utf-8"))
+		ui = json.loads((Path(__file__).resolve().parents[1] / "game_runs" / "ui_maps" / "civ4_ui_map.json").read_text(encoding="utf-8"))
 		if abs(size[0] - ui["window"][0]) > 20 or abs(size[1] - ui["window"][1]) > 20:
 			sys.exit("civ4_ui_map.json was measured on a %dx%d window, not %dx%d" % (ui["window"][0], ui["window"][1], size[0], size[1]))
 		screen_name, control = name.split(".", 1)
@@ -732,7 +732,7 @@ def named_point(pid, name):
 		if screen is None or control not in screen["controls"]:
 			sys.exit("no control %r in civ4_ui_map.json" % name)
 		return tuple(screen["controls"][control]["xy"])
-	data = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_points.json").read_text(encoding="utf-8"))
+	data = json.loads((Path(__file__).resolve().parents[1] / "game_runs" / "ui_maps" / "civ4_points.json").read_text(encoding="utf-8"))
 	for layout_name, layout in data["layouts"].items():
 		if abs(size[0] - layout["window"][0]) <= 20 and abs(size[1] - layout["window"][1]) <= 20:
 			if name not in layout["points"]:
@@ -777,7 +777,7 @@ def move(pid, monitor, part, size=None, beside=None):
 		raise ValueError("monitor %d not found; this computer has %d" % (monitor, len(areas)))
 	left, top, right, bottom = areas[monitor - 1]
 	middle = (left + right) // 2
-	# <!-- custom: topleft and beside came from watching the pilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the pilot_console console filling the rest.
+	# <!-- custom: topleft and beside came from watching the pilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the SASPilotConsole console filling the rest.
 	# topleft keeps the window's size (or --size, the visible frame's width and height); beside fills the work area right of another process's window. (Claude Code Opus 5.5) -->
 	if part == "beside":
 		if beside is None:
@@ -824,7 +824,7 @@ def visible_frame(pid):
 
 
 def place_frame(pid, left, top, right, bottom):
-	# <!-- custom: Put the window's visible frame exactly on a rectangle, the invisible border added around it as in 'move'; for layouts 'move' has no name for, such as pilot_console.py's bands of one Civ4 and its console per client (2026-11-14). (Claude Code Opus 5.5) -->
+	# <!-- custom: Put the window's visible frame exactly on a rectangle, the invisible border added around it as in 'move'; for layouts 'move' has no name for, such as SASPilotConsole.py's bands of one Civ4 and its console per client (2026-11-14). (Claude Code Opus 5.5) -->
 	make_dpi_aware()
 	hwnd = find_window(pid)
 	if hwnd is None:
@@ -833,7 +833,7 @@ def place_frame(pid, left, top, right, bottom):
 
 
 def place_window(hwnd, left, top, right, bottom):
-	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so pilot_console.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so SASPilotConsole.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	make_dpi_aware()
 	USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
@@ -848,7 +848,7 @@ def place_window(hwnd, left, top, right, bottom):
 # <!-- custom: Named window layouts, so the agents' and the game's windows can be put back without the user: the user asked to remember the Claude and Codex app positions too, in case they are moved or a layout is changed (2026-11-14).
 # Windows are found by their program's file name, as process IDs change with each launch; the Codex desktop app runs as ChatGPT.exe. Frames are the visible frames in physical pixels, measured on the user's two 3840x2160 monitors. (Claude Code Opus 5.5) -->
 # <!-- custom: Use the shared formatter so each saved window frame and monitor rectangle stays on one line. (GPT-6.1-Sol) -->
-POSITIONS_FILE = Path(__file__).resolve().parent / "ui_maps" / "window_positions.json"
+POSITIONS_FILE = Path(__file__).resolve().parent / "layouts" / "window_positions.json"
 POSITION_APPS = {"claude": "claude.exe", "codex": "ChatGPT.exe", "civ4": "Civ4BeyondSword.exe"}
 
 
@@ -997,7 +997,7 @@ def main():
 	dump.add_argument("--pid", type=int, required=True)
 	dump.add_argument("--kind", choices=("full", "normal"), default="full")
 	dump.add_argument("--timeout", type=float, default=300.0)
-	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in ui_maps/window_positions.json")
+	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in layouts/window_positions.json")
 	keep.add_argument("action", choices=("save", "restore", "list"))
 	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
 	keep.add_argument("--apps", nargs="+", choices=sorted(POSITION_APPS), default=sorted(POSITION_APPS), help="save: which windows (default all three)")

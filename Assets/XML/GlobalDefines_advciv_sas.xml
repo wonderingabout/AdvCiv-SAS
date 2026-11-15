@@ -2741,7 +2741,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: 1 lets an external agent read and drive this game from the command line: SASPilot.py then serves JSON requests from the folder SASPilot/<process ID> beside CivilizationIV.ini, including arbitrary Python run inside the game.
-	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how LLM_Helpers/game_runs/pilot.py starts its games.
+	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how LLM_Helpers/saspilot/SASPilotClient.py starts its games.
 	Read once, on the first game update. (Claude code Fable 5.2) -->
 	<Define>
 		<DefineName>SAS_PILOT_ON</DefineName>

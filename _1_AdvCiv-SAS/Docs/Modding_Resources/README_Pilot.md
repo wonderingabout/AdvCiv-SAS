@@ -19,6 +19,7 @@ The video demos cover two stages of the playtest.
 [Commands](#commands)\
 &emsp;[Graph queries](#graph-queries)\
 &emsp;[Plot grid and trade network](#plot-grid-and-trade-network)\
+&emsp;&emsp;[Scouting trial](#scouting-trial)\
 &emsp;&emsp;[Roles](#roles)\
 &emsp;[SASPilotConsole](#saspilotconsole)\
 &emsp;[Running Python in the game](#running-python-in-the-game)\
@@ -44,42 +45,42 @@ The video demos cover two stages of the playtest.
 
 ## Quick start
 
-Run these from `LLM_Helpers/game_runs/`. `start` launches Civ4 with the pilot on and returns once the first turn waits for orders; every other command talks to that client.
+Run these from `LLM_Helpers/saspilot/`. `start` launches Civ4 with the pilot on and returns once the first turn waits for orders; every other command talks to that client.
 
 ```bash
-python pilot.py start --map Pangaea --world-size WORLDSIZE_SMALL --fixed-seeds
+python SASPilotClient.py start --map Pangaea --world-size WORLDSIZE_SMALL --fixed-seeds
 ```
 
 ```bash
-python pilot.py todo
+python SASPilotClient.py todo
 ```
 
 ```bash
-python pilot.py mission unit=8192 mission=MISSION_FOUND
+python SASPilotClient.py mission unit=8192 mission=MISSION_FOUND
 ```
 
 ```bash
-python pilot.py produce city=Carthage item=UNIT_WARRIOR
+python SASPilotClient.py produce city=Carthage item=UNIT_WARRIOR
 ```
 
 ```bash
-python pilot.py research tech=TECH_MINING
+python SASPilotClient.py research tech=TECH_MINING
 ```
 
 ```bash
-python pilot.py move unit=16385 x=40 y=28
+python SASPilotClient.py move unit=16385 x=40 y=28
 ```
 
 ```bash
-python pilot.py endturn
+python SASPilotClient.py endturn
 ```
 
 ```bash
-python pilot.py close
+python SASPilotClient.py close
 ```
 
-- `pilot.py help` lists every command with its arguments, straight from the running game.
-- `start` first lists the recommended settings for agent runs with their values, `ok` or `WARN`, warning of any not set, such as the Dawn of Man screen or a tech splash, which make the window wait on a Continue button, SASGameRecord off, or in `CivilizationIV.ini` logging, crash dumps, windowed mode or shown Python errors off; `pilot.py check` prints the same list alone. The values are the development ones from [`toggle_dev_diagnostics.py`](/LLM_Helpers/diagnostics/toggle_dev_diagnostics.py), read from the working tree, which may differ from the committed values players get (the user's suggestion, 2026-11-14).
+- `SASPilotClient.py help` lists every command with its arguments, straight from the running game.
+- `start` first lists the recommended settings for agent runs with their values, `ok` or `WARN`, warning of any not set, such as the Dawn of Man screen or a tech splash, which make the window wait on a Continue button, SASGameRecord off, or in `CivilizationIV.ini` logging, crash dumps, windowed mode or shown Python errors off; `SASPilotClient.py check` prints the same list alone. The values are the development ones from [`toggle_dev_diagnostics.py`](/LLM_Helpers/diagnostics/toggle_dev_diagnostics.py), read from the working tree, which may differ from the committed values players get (the user's suggestion, 2026-11-14).
 - Arguments are `key=value`; a value is read as JSON when it parses (`x=12`, `append=true`, `args=[3]`) and as a string otherwise (`item=UNIT_WARRIOR`).
 - `--compact` prints one line of JSON; `--pid` picks a client when several are piloted; `--timeout` changes the 60 s wait for a reply.
 - `--timing` prints a request's `roundTripMs` and `gameMs` on stderr, and `bench <command> [key=value...] --count N` sends the same request N times and summarizes both; see [What was measured](#what-was-measured).
@@ -89,29 +90,29 @@ python pilot.py close
 `start` lays out SASPilotConsole beside the game as soon as it is ready, and any later command reopens it if it was closed; every client has one (`SAS_PILOT_WATCH=0` only for automated tests that must not open windows). When the user watches you play, keep the camera on your orders too (see [SASPilotConsole](#saspilotconsole)):
 
 ```bash
-python pilot.py start --save <save> --fog
+python SASPilotClient.py start --save <save> --fog
 ```
 
 ```bash
-python pilot.py look follow=1
+python SASPilotClient.py look follow=1
 ```
 
-- Give the reason for each order with `note="..."`, which the console shows as `why:`. For two clients, start them with `--watch-slots 2 --watch-slot 1` and `--watch-slot 2`; for a client already running, `pilot_console.py --window --pid <pid>` does the same.
+- Give the reason for each order with `note="..."`, which the console shows as `why:`. For two clients, start them with `--watch-slots 2 --watch-slot 1` and `--watch-slot 2`; for a client already running, `SASPilotConsole.py --window --pid <pid>` does the same.
 - Close the console window when done; the log stays in `Logs/` for review.
 
 ## How it works
 
 - [`SASPilot.py`](/Assets/Python/SASPilot.py), in the game, is a small loader hooked to the `gameUpdate` event beside the autoplay request in `AIAutoPlay.py`, and to screen updates in `CvScreensInterface.update`, which come every frame (see [Speed](#speed)).
 - Each client has a mailbox folder, `SASPilot/<process ID>` beside `CivilizationIV.ini` in `Documents/My Games/beyond the sword`, so several clients can be piloted at once; see [KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081) for why our files are named by process.
-- [`pilot.py`](/LLM_Helpers/game_runs/pilot.py) writes a request as `req_<id>.json`, whole and then renamed into place. On its next frame the game claims it by renaming it `run_<id>.json`, runs it and writes `rep_<id>.json` the same way: `{"id", "ok", "result" or "error" and "traceback", "gameTurn", "gameMs", "tick"}`, where `tick` names the event that served it.
+- [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py) writes a request as `req_<id>.json`, whole and then renamed into place. On its next frame the game claims it by renaming it `run_<id>.json`, runs it and writes `rep_<id>.json` the same way: `{"id", "ok", "result" or "error" and "traceback", "gameTurn", "gameMs", "tick"}`, where `tick` names the event that served it.
   - On a timeout the client deletes its `req_` if it is still there, so the command never runs; a `run_` means the game took it, so the error says to check the game's state before retrying.
-- The commands themselves are in [`SASPilotCommands.py`](/LLM_Helpers/game_runs/SASPilotCommands.py), which the loader reads from disk; it is Python 2.4, run inside Civ4.
+- The commands themselves are in [`SASPilotCommands.py`](/LLM_Helpers/saspilot/SASPilotCommands.py), which the loader reads from disk; it is Python 2.4, run inside Civ4.
 - Commands see everything, without fog of war, and orders are applied directly to the game objects, as a human's are in single player. Network games are untested.
 - Python 2.4 has no `json` module, so the command file carries its own small writer and reader.
 
 ### Switching it on
 
-- It is off for players. `pilot.py start` switches it on for its own process by adding an `[SASPilot]` section with `On = 1` to the per-run INI it passes with `ini=`, as the autoplay runner does with `[SASAutoplay]`.
+- It is off for players. `SASPilotClient.py start` switches it on for its own process by adding an `[SASPilot]` section with `On = 1` to the per-run INI it passes with `ini=`, as the autoplay runner does with `[SASAutoplay]`.
 - `SAS_PILOT_ON` in `GlobalDefines_advciv_sas.xml` switches it on for every launch, for example to pilot a game the user started by hand. Keep it at `0` in commits.
 - When off, the cost is one comparison per game update and per frame.
 - When on, anyone who can write to the mailbox folder can run Python inside the game, which is the point of the tool; it is a local folder of the user's own account.
@@ -121,11 +122,11 @@ python pilot.py look follow=1
 - Save an edit to `SASPilotCommands.py` and the running game picks it up within a fraction of a second (it compares the file's size and time every 20 updates, about 30 times a second in game). `ping` then shows `reloadError` if the new file failed to load; the previous version keeps serving.
   - The failure is also written to stderr, which the game shows as a Python error in its window. On 2026-11-13 an edit saved a help string with double quotes inside it, the user watching saw the error, and the corrected file loaded 4 seconds later; so an error that appears while an agent edits this file is usually such a transient save, and `PythonErr.log` names the line.
   - Checking the edit first with Python 2.4 (`C:\Python24\python.exe`, as in [Syntax checks](/AGENTS.md#syntax-checks-and-linting)) before relying on the reload catches such a slip, but the Edit tool saves at once, so the game may load the broken version first.
-- This is why the command file lives in `LLM_Helpers/game_runs/` and not in `Assets/Python/`; see [What did not work](#what-did-not-work-and-why).
+- This is why the command file lives in `LLM_Helpers/saspilot/` and not in `Assets/Python/`; see [What did not work](#what-did-not-work-and-why).
 - `SASPilot.py` itself is in `Assets/Python/`, so changing it needs Civ4 closed first, like any mod Python.
 - `ping` reports the loaded `PILOT_REVISION`. Keep one revision for the candidate during a draft PR and record its command changes in [SASPilot revisions](/_1_AdvCiv-SAS/Docs/revisions/SASPilot.md).
 - A script writing the command file can fail with `OSError: [Errno 22] Invalid argument` while the game has the file open for its reload check; it happened twice on 2026-11-14, and a retry a moment later succeeded. The Edit tool retries on its own.
-  - Later the same day the same error came three times when writing `pilot.py`, which the game never reads, so the game's reload check is not the only cause; some other process held the file a moment. The cause was not found; a retry loop of a few one-second tries always got through.
+  - Later the same day the same error came three times when writing `SASPilotClient.py`, which the game never reads, so the game's reload check is not the only cause; some other process held the file a moment. The cause was not found; a retry loop of a few one-second tries always got through.
 
 ### Why Python, and where the DLL comes in
 
@@ -170,8 +171,8 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `trade` | the diplomacy screen's table with another player: what each side could give, the AI's refusal reason per item (`DENIAL_` type), and its attitude |
 | `propose` | propose a deal to an AI, as the Propose button does: `give=[...] take=[...]` with items as `trade` lists them; an accepted deal is made |
 | `techs` | the tech market across the players met: each tech we lack that a rival holds, with its cost, whether SAS's XML lets it be traded at all (`bTrade`, off for 32 techs such as Bronze Working, Engineering and Chivalry), and per holder whether it can go in a deal, the AI's refusal and whether it will talk; then what we could give each, with the gold each could pay at once (`maxGoldTrade`, the tab's coin column); and `nobodyHas`, the techs we can research that none of them holds, with `unseenPlayers` counting met players whose techs the fog hides. Under fog, as the Foreign Advisor's tech tab shows it. The user pointed out at turn 139 of the turn-0 game that the agent kept researching techs every neighbour had, which trade buys far cheaper, while a tech nobody has trades to several leaders; at that turn Navigation was the only one |
-| `pilot.py price` | an AI's price, as "What do you want for this?" gives it: `price with=2 take=["TRADE_TECHNOLOGIES:TECH_MACHINERY"]` puts the items on the table, reads the counter-offer and leaves with nothing agreed; `accept=1` takes it (reported as `acceptSent`: read the result back). It stops if another leader's screen or a new conversation takes over. A client-side sequence of `contact`, `diplo` and `reply`. It leaves by Reject or Never mind before Exit and checks a second later that the screen stayed closed: Exit straight from a trade table after a refusal reported it closed, but the table came back and blocked the next call (2026-11-14) |
-| `pilot.py leave` | click through diplomacy screens that only inform (thanks, a cancelled deal, a war declaration) with their exit reply, as a person does, and stop at the first screen with a choice (a deal, peace, a demand), returned for the agent to answer. On turn 289 (2026-11-14) Kublai's declaration, a thanks and two cancelled deals queued up one after another, each needing a `diplo` and a `reply` |
+| `SASPilotClient.py price` | an AI's price, as "What do you want for this?" gives it: `price with=2 take=["TRADE_TECHNOLOGIES:TECH_MACHINERY"]` puts the items on the table, reads the counter-offer and leaves with nothing agreed; `accept=1` takes it (reported as `acceptSent`: read the result back). It stops if another leader's screen or a new conversation takes over. A client-side sequence of `contact`, `diplo` and `reply`. It leaves by Reject or Never mind before Exit and checks a second later that the screen stayed closed: Exit straight from a trade table after a refusal reported it closed, but the table came back and blocked the next call (2026-11-14) |
+| `SASPilotClient.py leave` | click through diplomacy screens that only inform (thanks, a cancelled deal, a war declaration) with their exit reply, as a person does, and stop at the first screen with a choice (a deal, peace, a demand), returned for the agent to answer. On turn 289 (2026-11-14) Kublai's declaration, a thanks and two cancelled deals queued up one after another, each needing a `diplo` and a `reply` |
 | `look` | turn the window's camera to a plot, a unit or a city; following is on by default since the user, watching the Orleans attack (turn 129 of the turn-0 game, 2026-11-14), asked for it without anyone switching it on (`follow=0` stops it): it makes each `move` and attack look at its destination first, and each order on one of our units or cities (`mission`, `command`, `produce`, `hurry`, `spy`...) look at it, so a person watching sees the action; only our own units and cities, so fog hides nothing more than in the window |
 | `command` | a unit command, such as `COMMAND_PROMOTION data1=PROMOTION_COMBAT1`, `COMMAND_AUTOMATE data1=AUTOMATE_EXPLORE` or `COMMAND_DELETE confirm=1`. Deleting needs `confirm=1` or `true`, as the window asks: at turn 90 of the turn-0 game the agent sent `COMMAND_DELETE` to two new Workers meaning to clear their queues, and lost one (a new mission without `append=1` clears a queue) |
 | `produce`, `hurry` | set or append a city's production; hurry it, or without `hurry=` list the ways with their gold and population costs (gold needs Universal Suffrage, population Slavery) |
@@ -179,8 +180,8 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `tech` | one tech's effects and requirements, with the selected team's cost, progress and missing immediate prerequisites |
 | `graph` | the tech tree, promotion prerequisites, unit upgrade paths, current diplomatic relations or completed-turn Info graphs as JSON. See [Graph queries](#graph-queries) |
 | `endturn` | end the turn, reporting what was left (`skipped`); the client then waits for the next turn and prints its `turn` digest, unless `--no-wait`; `--turns N` keeps ending turns until something waits |
-| `autoplay` | AI Auto Play for a number of turns; follow with `pilot.py wait` |
-| `save` | save; through `pilot.py` a bare name goes to `Saves/single`; an existing file needs `overwrite=true` |
+| `autoplay` | AI Auto Play for a number of turns; follow with `SASPilotClient.py wait` |
+| `save` | save; through `SASPilotClient.py` a bare name goes to `Saves/single`; an existing file needs `overwrite=true` |
 | `menu` | leave the game: with `path=`, load that save in the same process and wait until it is ready (`--no-wait` returns at once); without, go to the main menu. In a big late game, close and `start --save` instead: leaving a Huge turn-305 game crashed Civ4 ([KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)) |
 | `control` | any `ControlTypes` entry, as its hotkey would: `CONTROL_DOMESTIC_SCREEN`, `CONTROL_WORLD_BUILDER`, `CONTROL_QUICK_SAVE`...; a number works too, and the role check resolves it first, as `control=57` (the WorldBuilder) passed the play role when it compared names (Codex's review, round 32) |
 | `screen` | call a `CvScreensInterface` function, such as `name=pediaJumpToUnit args=[29]`, to show an advisor or Sevopedia page in the window; under `play` and `assist`, only `show*` and `pedia*` functions, without the WorldBuilder's and the debug screen, as `name=WorldBuilderRevealAllCB` would reveal the map; the Foreign Advisor also takes its tab number (`name=showForeignAdvisorScreen args=[5]` opens Glance), a click a player makes |
@@ -209,7 +210,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `reminders` | what the game does not announce but a player would want pointed out, as small checks: no research, an empty build queue, a starving or angry city, a wounded unit outside our borders, gold running out within ten turns, techs a met player could be offered, and screens or popups left open in the window, which the user noticed before the pilot did (2026-11-14). Each turn's digest carries them, and `endturn --brief` prints them as `remind:` when they change. Added when the user noted that a missed choice can cost a turn the game never mentions; Seafaring, 2 turns of research no neighbour had, then bought Construction and Metal Casting (2026-11-14). A `losses` check lists our units destroyed or captured since the previous turn: two Workers killed by a barbarian Archer went unnoticed when the agent cut each digest to its last lines. An `unfinished` check lists builds a city has hammers in but is not making, as a city keeps them after switching (the user's advice: a Worker one turn from done is worth finishing). An `unimproved` check lists resources inside our borders that supply nothing though we have the tech for a build that would connect them, such as the Clam at 22,31 of the turn-0 game, outside every city's radius but in our borders, which the user pointed out a cheap Work Boat connects for health (turn 156); it also catches an improvement pillaged by barbarians or rivals, and names a worker of ours already headed there (`unitOnTheWay`, where its group's mission queue ends), as at turn 160 the agent queued a second Work Boat for the Clam while the first was one plot away. A `sleepingWorkers` check lists Workers asleep, as a sleeping unit is not idle and appears nowhere else: three slept near York from turn 155 to 160 while the user saw York under-improved. An `exports` check lists resources we give away in a deal while none is left for ourselves, as the Iron was from turn 118 to 128 of the turn-0 game, with nothing in the game saying so. Added in the scouting trial and the Continents game (2026-11-14), each after a slip the user caught: `idleImprovements` (an improved plot no city works while the city works an unimproved one: the Clam's boats sat unworked six turns with the governor off), `scoutBeforeFounding` (no city yet and units with moves left besides the Settler), `exposed` (a unit within two plots of a visible animal or barbarian: a Scout died beside a Bear), `huts` (every goody hut seen, with our nearest unit), `idleGarrison` (military units waiting in a city, with the nearest foreign unit and how much of the map is revealed; usually they should explore early, not always); `unimproved` also names a unit for it already in a city's queue (`inProduction`) |
 | `role` | the session's role, the user's idea (2026-11-14): `play` allows what a player sees and does, keeps fog on and refuses `py`, the WorldBuilder, `fog=0` and orders or reads with another team's `player=`, in `batch` and `profile` too; `assist` adds advice to `play`; `all`, the default, allows everything. `lock=1` holds the role until Civ4 closes, and `start --role` locks it. See [Roles](#roles) below |
 | `advise` | advice, a heuristic of ours that may be wrong, naming its rule in each reply: `about=scout` ranks `scout`'s steps; `about=threats` weighs each animal and barbarian within 4 plots of a unit and says which to `avoid`. See [Roles](#roles) below |
-| `pilot.py health` | the pilot's own state in one reply, the user's idea (2026-11-14): the bridge's tick errors, settings not at their recommended values, this session's errors and `py` snippets, operators present, role and fog, and whether SASPilotConsole follows the client; `problems` lists what needs a look and is empty when all is well |
+| `SASPilotClient.py health` | the pilot's own state in one reply, the user's idea (2026-11-14): the bridge's tick errors, settings not at their recommended values, this session's errors and `py` snippets, operators present, role and fog, and whether SASPilotConsole follows the client; `problems` lists what needs a look and is empty when all is well |
 | `scout` | each plot a scout could step to now, with how many unknown plots it would reveal, its defense bonus and the animals and barbarians seen within two plots, in a fixed order; the choice stays the agent's, as automated exploring lost a Warrior that fought on at 15 HP. Its ranking moved to `advise about=scout` with the facts-versus-advice split |
 | `greatpeople` | Great People planning: the threshold, per city its points, points per turn, rate modifier, turns left and the mix of types with each one's chance (`chancePctX100`), as the city screen's bar shows; and the techs whose first discoverer gets a free Great Person that nobody has yet |
 | `workers` | planning Workers by hand instead of automating them: without `city=`, each Worker with its mission, per city the worked plots left unimproved and the city AI's three most valued builds, and per leader we can trade with whether their capital is on our trade network (a missing road link means no foreign trade routes); with `city=`, each plot's terrain, feature, bonus, river, improvement, route and yields, the city AI's best build and value (`getSASPilotCityBuildsJson`, as Python had no getter), and every improvement a Worker could build with its yield change and turns. The AI's choice is a reference to compare with, as the user wanted the pilot to decide as a player (2026-11-14); as advice no screen shows, it is left out unless the session's role allows advice |
@@ -219,20 +220,20 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 - A reply that names another player gives its ID with the leader's name and civilization XML type, such as `contact`'s `{"contacted": {"player": 2, "name": "Kublai Khan", "civ": "CIVILIZATION_MONGOL"}}`; only the ID is unique, as with duplicate leaders or civilizations allowed two players can share both (2026-11-14). Unit and city rows keep a bare `owner` number, as naming it in every row would swell large replies; `players` maps the numbers.
 - An order's reply shows the state at the moment the order was given. A mission is carried out on the following game updates: right after `MISSION_FOUND` the reply still showed the Settler, and the city existed a moment later. Read again before relying on the result.
 - A `MISSION_MOVE_TO` longer than the unit's moves continues when the turn ends, as it does for a human's unit.
-- `start`, `list`, `wait` and `close` are handled by `pilot.py` itself and are not in `help`.
+- `start`, `list`, `wait` and `close` are handled by `SASPilotClient.py` itself and are not in `help`.
 
 ### Graph queries
 
 Fetch the full rules graph once when planning across several turns, then use a type filter for an individual lookup. The Pilot builds the three rules graphs from the running game's loaded definitions and caches them for the lifetime of the command module. Tech effects and upgrades use the selected player's civilization, so unique units and buildings appear in place of their generic counterparts.
 
 ```powershell
-python pilot.py graph kind=tech
-python pilot.py tech type=TECH_AGRICULTURE
-python pilot.py graph kind=promotions type=PROMOTION_COMBAT1
-python pilot.py graph kind=upgrades type=UNIT_WARRIOR
-python pilot.py graph kind=relations fog=1
-python pilot.py graph kind=history metric=power start=100 end=150 fog=1
-python pilot.py plots x=26 y=27 radius=2 fog=1
+python SASPilotClient.py graph kind=tech
+python SASPilotClient.py tech type=TECH_AGRICULTURE
+python SASPilotClient.py graph kind=promotions type=PROMOTION_COMBAT1
+python SASPilotClient.py graph kind=upgrades type=UNIT_WARRIOR
+python SASPilotClient.py graph kind=relations fog=1
+python SASPilotClient.py graph kind=history metric=power start=100 end=150 fog=1
+python SASPilotClient.py plots x=26 y=27 radius=2 fog=1
 ```
 
 - The tech graph has the F6 grid coordinates, separate required-all and required-any prerequisite groups, and named effects. Agriculture, for example, can enable a worker build and separately satisfy the technology requirement for connecting a resource. The `tech` command adds current research progress and can expose other missing tech prerequisites for a unit or building. Training or construction can still depend on the city, resources, and other conditions.
@@ -246,10 +247,10 @@ python pilot.py plots x=26 y=27 radius=2 fog=1
 Use `grid` for spatial analysis. It gives the requested bounds, map size, wrapping flags, sparse plot rows keyed by coordinates, and trade links between neighboring plots. Request an inclusive `box=[west,south,east,north]`, center on `x=` and `y=`, `city=` or `unit=` with `radius=`, or omit the area to get the full map. Radius clips at the map boundary. Pass `network=0` when the calculation needs only tile data.
 
 ```powershell
-python pilot.py grid 'box=[19,21,30,32]' fog=1 network=0 > grid.json
+python SASPilotClient.py grid 'box=[19,21,30,32]' fog=1 network=0 > grid.json
 ```
 
-Run this from `LLM_Helpers/game_runs`. An agent can load the JSON into desktop Python, index the tiles by `(x, y)`, compute features for every candidate in the rectangle, and print only the matching plots or aggregate results. For repeated neighborhood scans, use separate numeric arrays for each yield and Boolean masks for land, hills and visibility. Track missing tiles in the mask so an unknown yield stays distinct from a known zero.
+Run this from `LLM_Helpers/saspilot`. An agent can load the JSON into desktop Python, index the tiles by `(x, y)`, compute features for every candidate in the rectangle, and print only the matching plots or aggregate results. For repeated neighborhood scans, use separate numeric arrays for each yield and Boolean masks for land, hills and visibility. Track missing tiles in the mask so an unknown yield stays distinct from a known zero.
 
 - With `fog=1`, unexplored plots have no rows. Explored plots outside current sight retain remembered ownership, route and improvement data. Fields without a last-seen accessor, including current yields and network membership, appear only where the team sees now.
 - For network analysis, use `tradeLinks` as edges between coordinate pairs. Each edge comes from the engine's connectivity rules, which can join rivers and water as well as routes. The crop and fog can exclude parts of a path. For capital connectivity, use the engine's `capitalNetwork` result for eligible plots rather than inferring it from a cropped graph.
@@ -257,10 +258,10 @@ Run this from `LLM_Helpers/game_runs`. An agent can load the JSON into desktop P
 
 #### Scouting trial
 
-On a client started with `--role play`, get a land unit ID from `pilot.py units`, then compare destinations before issuing any moves.
+On a client started with `--role play`, get a land unit ID from `SASPilotClient.py units`, then compare destinations before issuing any moves.
 
 ```powershell
-python pilot_scout.py --pid 33096 --unit 16385 --radius 5 --limit 3
+python SASPilotScout.py --pid 33096 --unit 16385 --radius 5 --limit 3
 ```
 
 Use the PID and unit ID from your own client. The helper keeps the full reveal mask in desktop Python, checks candidate routes in one batch, and prints a few JSON rows. It prefers destinations without a visible foreign unit within two tiles, then uses unexplored tiles per travel turn and discounts coverage already represented by an earlier choice. Foreign contacts can be peaceful, and zero sightings gives no information about units in fog. The radius around each destination is a proxy for line of sight, with a larger square for hills. Compare actual new visibility after a move and refresh the shortlist before committing to a second destination.
@@ -299,12 +300,12 @@ Claude Code Opus 5.5 then played that start three times on 2026-11-14 with the u
   - New reminders from it: `huts` lists every goody hut the team has seen with our nearest unit (two huts then gave Pottery and research); `idleGarrison` lists military units waiting in a city with the nearest foreign unit and how much of the map is revealed, as the user pointed out that the Archer should explore while nothing threatened; the call stays the agent's.
   - A found order given to a Settler with no moves left stayed queued without founding at the start of the next turn; issuing it again founded the city.
   - Handoff at turn 19 (`sas_pilot_continents_mongols_t019`, peace with Bismarck and Isabella of Spain, whose Madrid is about 11 plots west-south-west):
-    - City 2 planned at 55,23 (Marble, Dye, Pig, Peat, fresh water; it keeps the grass hill at 54,22 as a worked plot), then a city toward the Gold at 52,21 before Madrid takes it. `pilot_sites.py` ranks 55,23 first; the south and east were still being scouted before the Settler commits, the user's point.
+    - City 2 planned at 55,23 (Marble, Dye, Pig, Peat, fresh water; it keeps the grass hill at 54,22 as a worked plot), then a city toward the Gold at 52,21 before Madrid takes it. `SASPilotSites.py` ranks 55,23 first; the south and east were still being scouted before the Settler commits, the user's point.
     - Karakorum builds a Worker (the Rice farm, Agriculture in), then the Settler; research Masonry, Mining, Animal Husbandry.
-    - Scouting with `pilot_explore.py`: the Archer east (`ccw`), the Warrior toward the unseen pocket at 51,26, the Scout back to the closer west, as the user found the south overcommitted. A Panther was near the Scout at 54,16.
-  - Codex's review of the day's pilot changes (round 38): fixed the same night, the P1 (`pilot_explore` read the new turn's events from the immediate `endturn` reply, which holds only the turn ended; it now checks `todo` first, waits for the turn and reads `turn`), hostiles by barbarian identity and war rather than slot number, and `mark` colours limited to `COLOR_` types. Still open:
-    - P2: the hut branch of `pilot_explore` skips the health check and sends a multi-step hut route in one order, so a threat revealed on the way cannot stop it.
-    - P3: `pilot_sites.py` counts fresh water from any river edge of a neighbour, including a diagonal's far edge, and counts a lake as coast; the engine's own fresh-water and coastal answers would be exact where the team can know them.
+    - Scouting with `SASPilotExplore.py`: the Archer east (`ccw`), the Warrior toward the unseen pocket at 51,26, the Scout back to the closer west, as the user found the south overcommitted. A Panther was near the Scout at 54,16.
+  - Codex's review of the day's pilot changes (round 38): fixed the same night, the P1 (`SASPilotExplore.py` read the new turn's events from the immediate `endturn` reply, which holds only the turn ended; it now checks `todo` first, waits for the turn and reads `turn`), hostiles by barbarian identity and war rather than slot number, and `mark` colours limited to `COLOR_` types. Still open:
+    - P2: the hut branch of `SASPilotExplore.py` skips the health check and sends a multi-step hut route in one order, so a threat revealed on the way cannot stop it.
+    - P3: `SASPilotSites.py` counts fresh water from any river edge of a neighbour, including a diagonal's far edge, and counts a lake as coast; the engine's own fresh-water and coastal answers would be exact where the team can know them.
     - The C++ `area` fix in `appendSASPilotPlotJson` needs a DLL build; the Python blanking in `_plotsJson` can go once it is installed.
 - The pilot changes from the trial: `grid` gives `fogEdge` (land or water of unrevealed plots beside revealed ones, which the coastline art shows), feature and resource on fogged plots as the window draws them, and `defense`; `plot` no longer gives the true-map `area` under fog, which told that a bay and a far sea connected through unseen plots; `research tech=` without `append` now restarts the queue at a tech already in it; the `unimproved` reminder says when a unit for it is in a city's queue; new reminders `exposed`, `scoutBeforeFounding` and `idleImprovements`.
 
@@ -320,7 +321,7 @@ Claude Code Opus 5.5 then played that start three times on 2026-11-14 with the u
 - The session's role decides what runs:
   - `play` gets facts only, which shows what an agent works out by itself; `assist` adds advice, so the log shows which advice an agent asked for; `all`, the default, allows everything.
   - Under `play` and `assist`, fog stays on, and `player=` naming another team is refused.
-  - `pilot.py start --role play` sets it from the first command, and the game banner records it.
+  - `SASPilotClient.py start --role play` sets it from the first command, and the game banner records it.
   - `role set=<role> lock=1` holds the role until Civ4 closes. `start --role` writes it into the per-run INI, which the bridge applies, locked, before its first request: set by a request after the game was ready, a second client could act first (Codex's review, round 33), and `role set=all` could lift it (round 32).
   - A refusal names the roles that would allow the command.
 
@@ -328,18 +329,18 @@ Claude Code Opus 5.5 then played that start three times on 2026-11-14 with the u
 
 SASPilotConsole shows the command log for a running Civ4 client. This full console capture from the England playthrough shows orders, results, numbered `why` notes, and a refused mission. It predates the SASPilotConsole title bar.
 
-<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_saspilot_console.PNG" alt="llm_saspilot_console.PNG" width="750">
+<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_sasSASPilotConsole.PNG" alt="llm_sasSASPilotConsole.PNG" width="750">
 
-Every request `pilot.py` sends is appended to `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, named per client like the other per-process logs ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)): its time, turn, command, arguments, `kind` (`read` or `order`), and its result, cut at 1,500 characters, or its error.
+Every request `SASPilotClient.py` sends is appended to `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, named per client like the other per-process logs ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)): its time, turn, command, arguments, `kind` (`read` or `order`), and its result, cut at 1,500 characters, or its error.
 
 ```bash
-python LLM_Helpers/game_runs/pilot_console.py
+python LLM_Helpers/saspilot/SASPilotConsole.py
 ```
 
-- `pilot_console.py` follows the newest log, like `tail -f`, and prints each order with its turn and result; `--all` adds the reads, `--from-start` the earlier lines, `--pid` picks a client; results and arguments show whole, `--width 160` cuts them (the log keeps at most 1,500 characters of a result).
+- `SASPilotConsole.py` follows the newest log, like `tail -f`, and prints each order with its turn and result; `--all` adds the reads, `--from-start` the earlier lines, `--pid` picks a client; results and arguments show whole, `--width 160` cuts them (the log keeps at most 1,500 characters of a result).
 - The log is for agents first, one JSON object per line to grep or parse, so it stays compact; a result cut at 1,500 characters keeps its size, and the same command gives it again. The console is the human view: one line per command, or `--pretty` for indented results cut at `--max-lines` (default 40), as a nested reply such as `workers city=Hippo` was hard to read on one line (2026-11-14).
 - A `=== <date> (UTC) ===` line marks each new day. Each line starts with the UTC time to the millisecond and `T<turn>-<n>`, the request's number within that turn (`T285-00012`, five digits so a long turn cannot outgrow it; `seq` in the log counts across turns): several commands often land in one second, and the user wanted lines that can be cited exactly (2026-11-14).
-- `pilot_console.py --window --pid <civ4 pid>` opens SASPilotConsole in its own window and lays the desktop out: Civ4 at its own size in the top-left corner, the console filling the rest of the screen to its right. `--slots 2 --slot 1` and `--slot 2` split the monitor into one band per client for two clients run with `multiple`.
+- `SASPilotConsole.py --window --pid <civ4 pid>` opens SASPilotConsole in its own window and lays the desktop out: Civ4 at its own size in the top-left corner, the console filling the rest of the screen to its right. `--slots 2 --slot 1` and `--slot 2` split the monitor into one band per client for two clients run with `multiple`.
   - Set up at the user's 3840x2160 monitor with a 1920x1110 Civ4 window; halving the screen with `desktop_windows.py move` had stretched Civ4 to 1920x2100 instead. Other resolutions were not tried. `desktop_windows.py move topleft` and `move beside --beside <pid>` do the same by hand.
 - `note=<why>` on any command, or `--note`, writes the agent's reason beside it, shown as `why:`; it is taken out before the request, so the game never sees it.
 - Why: the user had nothing to watch while an agent played, as replies are deleted once read, and a game reviewed later lacked the orders and their reasons to set beside SASGameRecord (2026-11-14).
@@ -354,8 +355,8 @@ python LLM_Helpers/game_runs/pilot_console.py
   - The session ID is a random identifier of a chat on this computer, not a secret; the account ID and email that Claude Code's shell also exposes are not logged.
 - Operators join and leave in rows of kind `operator`.
   - An operator's first row in a log is preceded by one, numbered in order of arrival, which the watcher shows as `=== operator 2 joined: <name> ===`.
-  - `pilot.py operator joined` and `pilot.py operator left` write the opening and closing rows with the same number, and report whether the row was written; an agent that simply stops leaves no closing row.
-  - `pilot.py operator list` gives every operator of the client's log in order of arrival, with its session, join and leave times (`left` null while present), command count and last command, its errors with the time of the last, and how many operators there are and how many are present.
+  - `SASPilotClient.py operator joined` and `SASPilotClient.py operator left` write the opening and closing rows with the same number, and report whether the row was written; an agent that simply stops leaves no closing row.
+  - `SASPilotClient.py operator list` gives every operator of the client's log in order of arrival, with its session, join and leave times (`left` null while present), command count and last command, its errors with the time of the last, and how many operators there are and how many are present.
 - The watcher's console view:
   - A header: its full UTC start time, its own command line, the log, the client, the filter, the recommended-settings check and the columns.
   - Colors in a console (`--no-color` for plain text): errors red, banners yellow, results sky blue, notes bold orchid, `py` code light green. Banners carry their time.
@@ -367,21 +368,21 @@ python LLM_Helpers/game_runs/pilot_console.py
   - The game banner shows the recommended-settings check that `start` runs, which until then went only to the terminal that ran `start`.
 - A watcher started with `--pid` ends once that Civ4 process has closed, compared by its start time, as Windows reuses process IDs: on 2026-11-14 two watcher consoles were open, one still following a client closed half an hour before, as nothing told it, so each relaunch with `--watch` added a console.
 - Test an operator change with `SAS_PILOT_LOG=0` or on a client of its own: the turn-0 game's log numbers its two real agents 4 and 6, as the previous session's tests of the feature registered `test-sec`, `explicit` and `rejoin-t` as operators 2, 3 and 5 (operator 1's row went with a `.seq` reset that a later fix stopped), and the user asked why there was an operator 6 (2026-11-14).
-- The console opens with `start` and reopens on any later command if it has closed: later the same day it had ended with the agent's session while Civ4 ran on, and the user could not find it. The console writes its PID, start time and band to `<log>.watch`; `pilot.py` checks it before each command, one file read and one process check, and opens a new console in the same band if that process is gone. `SAS_PILOT_WATCH=0` turns this off, for automated tests that must not open windows.
+- The console opens with `start` and reopens on any later command if it has closed: later the same day it had ended with the agent's session while Civ4 ran on, and the user could not find it. The console writes its PID, start time and band to `<log>.watch`; `SASPilotClient.py` checks it before each command, one file read and one process check, and opens a new console in the same band if that process is gone. `SAS_PILOT_WATCH=0` turns this off, for automated tests that must not open windows.
   - `start --no-watch` was removed the same day: Codex started a scouting trial with it, and the user, watching, saw one console for two running clients and could not follow the trial. Every client now has its console, as the user asked; a `.watch` file still saying `declined` opens one on the next command.
   - The check and the launch run under a lock on `<log>.watchlock`, one caller at a time: Codex reproduced two simultaneous commands that both found no console and both opened one (round 33), then, with an exclusive claim file instead, two that both took over a stale claim (round 34). With the lock, four commands sent at once opened one console.
-- `pilot.py review` lists, for the operator's session, its errors and its `py` snippets grouped by code, most repeated first; after every `py` order and every error, `pilot.py` prints a one-line reminder on stderr, so the agent sees it with the reply without the user pointing it out (the user's idea, 2026-11-14). Operator rows and banners also carry how many operators the log has had. The first review of the turn-0 game showed 10 snippets, 9 distinct: the most repeated was the resource list, by then the `resources` command, and three were Pasture checks that `builds refused=1` now answers.
+- `SASPilotClient.py review` lists, for the operator's session, its errors and its `py` snippets grouped by code, most repeated first; after every `py` order and every error, `SASPilotClient.py` prints a one-line reminder on stderr, so the agent sees it with the reply without the user pointing it out (the user's idea, 2026-11-14). Operator rows and banners also carry how many operators the log has had. The first review of the turn-0 game showed 10 snippets, 9 distinct: the most repeated was the resource list, by then the `resources` command, and three were Pasture checks that `builds refused=1` now answers.
 
 ### Running Python in the game
 
 `py` is the general tool: whatever the fixed commands lack, the game's whole Python API is there.
 
 ```bash
-python pilot.py py "game.getGameTurn()"
+python SASPilotClient.py py "game.getGameTurn()"
 ```
 
 ```bash
-python pilot.py py "print player.getName(); result = [c.getName() for c in pilot._cities(player)]"
+python SASPilotClient.py py "print player.getName(); result = [c.getName() for c in pilot._cities(player)]"
 ```
 
 - One expression returns its value; otherwise set `result`. What the code prints is shown first.
@@ -407,14 +408,14 @@ pilot.wait_for_turn(pid, 600, after_turn=0)
 
 ### Replaying commands
 
-[`pilot_replay.py`](/LLM_Helpers/game_runs/pilot_replay.py) runs a sequence, a list of commands against a save, and compares each reply with the run last accepted. A changed answer after a DLL rebuild or an edit of the command file then shows as a list of differences, instead of turning up in the middle of a playthrough.
+[`SASPilotReplay.py`](/LLM_Helpers/saspilot/SASPilotReplay.py) runs a sequence, a list of commands against a save, and compares each reply with the run last accepted. A changed answer after a DLL rebuild or an edit of the command file then shows as a list of differences, instead of turning up in the middle of a playthrough.
 
 ```bash
-python pilot_replay.py pilot_sequences/fogplay_t105_freetech.json
+python SASPilotReplay.py sequences/fogplay_t105_freetech.json
 ```
 
 - They were called scenarios until 2026-11-13. Civ4 already uses "scenario" for its scenario maps and "replay" for Hall of Fame replays, so the user and Codex chose "command sequence", which says what the files hold; the runner kept its name.
-- A sequence is JSON in [`pilot_sequences/`](/LLM_Helpers/game_runs/pilot_sequences/): `save` (a file in `Saves/single`, or a full path) and `steps`, each with `cmd`, `args`, and optionally `ignore` (result keys left out for that step) and `expectError`.
+- A sequence is JSON in [`sequences/`](/LLM_Helpers/saspilot/sequences/): `save` (a file in `Saves/single`, or a full path) and `steps`, each with `cmd`, `args`, and optionally `ignore` (result keys left out for that step) and `expectError`.
 - The first clean run is written as the baseline, `Logs/SASPilotReplay_<sequence>.json`; later runs list each differing path, such as `steps[3].result.queue[0].turns: 5 -> 4`, and exit 1. `--accept` makes the run the new baseline once a change is meant.
 - It starts its own client from the save and closes it after (`--keep` leaves it open), or loads the save in a running one with `--pid`.
 - Timings and reply sizes are left out; a failed step is kept by its error line, not its traceback, whose line numbers move with every edit.
@@ -439,7 +440,7 @@ All on 2026-11-13, Small Pangaea, turn 0 to 22, Debug-opt DLL, one client.
 
 ### Speed
 
-Measured by Claude Code Opus 5.5 later on 2026-11-13 with `pilot.py bench`, same map and seeds (`--fixed-seeds`), plots at radius 10 (441 plots, 113 KB of JSON). `roundTripMs` runs from writing the request to reading the reply, so it also holds the client's polling and the file handling; `gameMs` runs from the game reading the request through encoding the reply, and ends before the reply file is written.
+Measured by Claude Code Opus 5.5 later on 2026-11-13 with `SASPilotClient.py bench`, same map and seeds (`--fixed-seeds`), plots at radius 10 (441 plots, 113 KB of JSON). `roundTripMs` runs from writing the request to reading the reply, so it also holds the client's polling and the file handling; `gameMs` runs from the game reading the request through encoding the reply, and ends before the reply file is written.
 
 | Setup | Ping round trip | Ping in game | 441 plots round trip | 441 plots in game |
 | --- | --- | --- | --- | --- |
@@ -491,7 +492,7 @@ A C++ prototype (Claude Code Opus 5.5, 2026-11-13) answered this with numbers. I
 
 #### Which other commands to move
 
-Later the same day, the user asked why every command was not moved to C++, as the plots had been. The answer is measured per command, not assumed, as the plots' was. `pilot.py --count 10 bench <command>` on a Small map at turn 176 with fog on (medians):
+Later the same day, the user asked why every command was not moved to C++, as the plots had been. The answer is measured per command, not assumed, as the plots' was. `SASPilotClient.py --count 10 bench <command>` on a Small map at turn 176 with fog on (medians):
 
 | Command | Round trip | Game time (`gameMs`) | Above a bare request |
 | --- | --- | --- | --- |
@@ -503,10 +504,10 @@ Later the same day, the user asked why every command was not moved to C++, as th
 | `trade with=2` | 9.0 ms | 3.49 ms | 3.3 ms |
 
 - `trade` checks every tradeable item in both directions, so its loop moved to C++ (`getSASPilotTradeItemsJson` in [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp)), and `techs` reads that table instead of checking each tech itself. One writer, as for the plots.
-  - Measured after, same save: `trade` 3.49 → 2.15 ms of game time, less than the plots' 25 times, as most of what remains is the game's own `getTradeDenial` AI work, which C++ calls just the same. [`pilot_checks/trade_items_parity.py`](/LLM_Helpers/game_runs/pilot_checks/trade_items_parity.py) found the same entries as the Python loop for all 20 pairs of players; only the order changed, to the game's enum order, which the turn-115 baseline accepted after a sorted comparison.
+  - Measured after, same save: `trade` 3.49 → 2.15 ms of game time, less than the plots' 25 times, as most of what remains is the game's own `getTradeDenial` AI work, which C++ calls just the same. [`checks/trade_items_parity.py`](/LLM_Helpers/saspilot/checks/trade_items_parity.py) found the same entries as the Python loop for all 20 pairs of players; only the order changed, to the game's enum order, which the turn-115 baseline accepted after a sorted comparison.
   - `techs` first got slower, 0.77 → 3.3 ms, as it read the whole table eight times for its tech rows, which Codex predicted from the code; a kind filter on the C++ table brought it to 0.57 ms. A port is checked by timing it afterwards, not only before.
 - The others add nothing measurable to a bare request, whose time is the wait for the game's next frame, so they stay in Python, which reloads while Civ4 runs and reports its errors instead of crashing the game. AGENTS.md's rule applies: prefer the faster version for a measured gain, the simpler one when there is none.
-- Some cannot move: the diplomacy screen's text and replies exist only in `CvDiplomacy.py`, which the EXE calls; `look` uses the EXE's camera, not the DLL's; `pilot.py price` waits across frames for a screen, which no single game-side call can.
+- Some cannot move: the diplomacy screen's text and replies exist only in `CvDiplomacy.py`, which the EXE calls; `look` uses the EXE's camera, not the DLL's; `SASPilotClient.py price` waits across frames for a screen, which no single game-side call can.
 - `units` and `cities` grow with the map, so a Huge late game is worth timing again before deciding they stay.
 
 #### The same question for the Timeline tab, January 2026
@@ -529,11 +530,11 @@ A Huge Pangaea autoplayed to turn 300 (876 units, 82 cities, 6,016 plots) showed
 - All 876 units, as one `batch` of `units` per player, took 8 ms: 2 ms reading the game and 6 ms writing JSON. So `units` moved to C++ like the plots, and `units player=all` gives every living player's units in one request.
   - In C++ (`getSASPilotUnitsJson`, sharing the unit writer of the plots), all 876 units took 0.58 ms in the game and 4.5 ms round trip (median of 10), and the output was identical to Python's, in the same order.
 - The whole map's plots took 6.8 ms in the game but 21.6 ms round trip. The game wrote the 1.6 MB reply in 0.5 ms; the rest was the client: `json.loads` took 9 ms, and printing it indented with `json.dumps` took 58 ms.
-  - With `orjson` (installed 2026-11-13, `python -m pip install orjson`) the same parse took 7 ms and the indented print 2.2 ms, with identical data. Importing `orjson` costs about 27 ms, so `pilot.py` uses it only for replies of at least `ORJSON_MIN_BYTES` (200 KB); it indents by 2 rather than 1. Without `orjson`, such replies use the `json` module, as Codex's review asked.
+  - With `orjson` (installed 2026-11-13, `python -m pip install orjson`) the same parse took 7 ms and the indented print 2.2 ms, with identical data. Importing `orjson` costs about 27 ms, so `SASPilotClient.py` uses it only for replies of at least `ORJSON_MIN_BYTES` (200 KB); it indents by 2 rather than 1. Without `orjson`, such replies use the `json` module, as Codex's review asked.
   - Codex also found that skipping the process check with one mailbox made a crashed Civ4 wait out the whole timeout; the client now checks once a reply is a second late, which costs nothing when it is quick.
-- Each `pilot.py` command is a new Python, and that start cost more than the request: a whole `pilot.py ping` took 56 ms for a 2 ms request. Python itself starts in 15 ms; importing `pilot.py` took 38 ms, 18 ms of it `desktop_windows` and `run_autoplay`, which only `start`, `close` and a few checks need. They are now imported where they are used, and with one mailbox the client no longer checks its process before sending.
+- Each `SASPilotClient.py` command is a new Python, and that start cost more than the request: a whole `SASPilotClient.py ping` took 56 ms for a 2 ms request. Python itself starts in 15 ms; importing `SASPilotClient.py` took 38 ms, 18 ms of it `desktop_windows` and `run_autoplay`, which only `start`, `close` and a few checks need. They are now imported where they are used, and with one mailbox the client no longer checks its process before sending.
 
-| Whole `pilot.py` command | Before | After |
+| Whole `SASPilotClient.py` command | Before | After |
 | --- | --- | --- |
 | `ping` | 56 ms | 43 ms |
 | whole Huge map's plots, indented | 139 ms | 74 ms |
@@ -545,15 +546,15 @@ A Huge Pangaea autoplayed to turn 300 (876 units, 82 cities, 6,016 plots) showed
 
 The timers are Windows' high-resolution performance counter in all three places, not a Civ4 clock:
 
-- The client, `pilot.py`, uses Python 3's `time.perf_counter()` for `roundTripMs`, from writing the request to reading the reply.
+- The client, `SASPilotClient.py`, uses Python 3's `time.perf_counter()` for `roundTripMs`, from writing the request to reading the reply.
 - The game's Python uses `time.clock()`, which in Python 2.4 on Windows reads the same counter, for `gameMs` and the `profile` command. The values came out in fractions of a millisecond and agreed with the round trips, unlike `time.time()`, whose coarse steps the loader's comments warn about.
 - The C++ prototype called `QueryPerformanceCounter` directly.
 
 To repeat or extend a measurement:
 
-1. `pilot.py start --map Pangaea --world-size WORLDSIZE_SMALL --fixed-seeds`, so every run has the same map and units.
-2. `pilot.py bench ping --count 30` and `pilot.py bench plots x=27 y=19 radius=10 --count 10` give medians for the round trip and the game's share, and `servedOn` tells which event served them.
-3. If the game's share is large, `pilot.py profile cmd=<command> 'args={...}'` splits it into reading the game and writing JSON.
+1. `SASPilotClient.py start --map Pangaea --world-size WORLDSIZE_SMALL --fixed-seeds`, so every run has the same map and units.
+2. `SASPilotClient.py bench ping --count 30` and `SASPilotClient.py bench plots x=27 y=19 radius=10 --count 10` give medians for the round trip and the game's share, and `servedOn` tells which event served them.
+3. If the game's share is large, `SASPilotClient.py profile cmd=<command> 'args={...}'` splits it into reading the game and writing JSON.
 4. To compare a C++ version of a command, call it from `py` with `time.clock()` around it, as the plot writer was compared; the C++ mailbox comparison needs the backed-up prototype diff.
 5. To see how often an event fires, compare the `ticks` in two `ping` replies taken a known time apart.
 
@@ -602,7 +603,7 @@ While the pilot drives, the DLL does not launch the game's popups into the windo
 The pilot began as a debugging tool with full information. On 2026-11-13 the user asked for play as a person would: control units, choose a path, manage the fog, enter the city screen and change specialists. Fable added these the same day, tested on a Small Pangaea map.
 
 - `fog on=1` limits `plots`, `plot`, `units`, `unit`, `cities` and `city` to what the active player's team knows; `fog on=0` (the default) returns everything, and `fog=0` or `fog=1` on one request overrides the switch.
-  - The switch lives in the game's process, so every new client starts with fog off; `pilot.py start --fog` switches it on at launch. A relaunch of the fog-on playthrough at turn 156 forgot it, and three turns went by with full sight before a reply showed `"fog": false` (2026-11-13).
+  - The switch lives in the game's process, so every new client starts with fog off; `SASPilotClient.py start --fog` switches it on at launch. A relaunch of the fog-on playthrough at turn 156 forgot it, and three turns went by with full sight before a reply showed `"fog": false` (2026-11-13).
   - A plot the team has not revealed is left out of `plots`, so the reply holds only the known map. A revealed plot out of sight gives the owner, improvement and route the team last saw and no units; a plot in sight leaves out invisible units; a bonus shows once its tech reveals it. Yields and the feature are the current ones even out of sight.
   - At turn 0, a radius-6 read gave 37 plots with fog against 169 without, and `units player=all` gave 2 units against 14. At turn 83 the whole map was 257 plots of 2,052, read in 0.6 ms in the game against 3.6 ms without fog.
   - It is written in C++ with the plots (`appendSASPilotPlotJson`), so it costs nothing in Python. `players`, `py` and `info` are not limited, so fog is a way to play fair, not a guarantee.
@@ -639,7 +640,7 @@ On 2026-11-13 Claude Code Opus 5.5 played a Small Pangaea game from turn 0 to 11
 | 0 | the scout's Explore button had no equivalent: `COMMAND_AUTOMATE data1=AUTOMATE_EXPLORE` was refused as an unknown XML type, and `unit` did not list automations | `AUTOMATE_` names are taken, and `unit` lists `automations` |
 | 0 | `unit` gave `activity` and `automate` as numbers (6, 3) | `ACTIVITY_MISSION`, `AUTOMATE_EXPLORE` |
 | 1-8 | the exploring scout was listed as idle every turn, while the window does not ask for an automated unit's orders | `todo` leaves automated groups out |
-| 1-8 | each turn took `endturn`, `todo` and `messages` | `turn` gives all three, and `pilot.py endturn` prints it for the new turn; `--turns N` ends turns until something waits |
+| 1-8 | each turn took `endturn`, `todo` and `messages` | `turn` gives all three, and `SASPilotClient.py endturn` prints it for the new turn; `--turns N` ends turns until something waits |
 | 5-8 | three turns ended with no research set, and nothing said so | `endturn` reports what `todo` listed as `skipped` |
 | 5-8 | `messages` returned AdvCiv's "----- Older messages:" line each turn (`MESSAGE_TYPE_EOT`, advc.106b) and types as numbers | left out; types by name |
 | 15 | `research tech=TECH_BRONZE_WORKING` was refused, as Metal Casting was missing; a shift-click in the tech tree queues the prerequisites | any tech the player can ever research is taken, prerequisites first; `append=1` adds to the queue |
@@ -706,7 +707,7 @@ On 2026-11-13 Claude Code Opus 5.5 played a Small Pangaea game from turn 0 to 11
   - Dropping a queued notice now counts it as launched when it was among the popups `killAll` relaunched, as taking held popups does, so the next popup keeps its sound.
   - `SASPilot.onLoad` started the mailbox itself, outside the error guard of the other hooks. It now only reads the switch and turns holding on, and keeps an error as `tickError`; the mailbox still starts on the first game update.
   - `reply` also checks that the screen is still with the partner `diplo` showed.
-  - `pilot_replay.py` failed to notice a step marked `expectError` that succeeded, and counted `true` equal to `1`; both are differences now.
+  - `SASPilotReplay.py` failed to notice a step marked `expectError` that succeeded, and counted `true` equal to `1`; both are differences now.
 - Turns 116 to 118, continuing the game: a Work Boat sent from Hippo to a crab with `move`, with fishing boats queued behind it, woke at the crab with an empty queue and nothing built.
   - A turn-by-turn trace showed the build at the head of the queue at turn 117, then gone two seconds into the turn, with no foreign unit within five plots, so not K-Mod's danger check.
   - The cause was the pilot's own orders. `mission` passed the unit's plot as the mission AI plot, which `pushMission` records while the group can move, while the window's orders pass none (`CvNetPushMission`). The `move` from (39,32) set it; the build, appended after the boat had arrived with no moves left, did not. At turn 117 the KI#176 guard in `continueMission`, meant for stale AI Worker targets, saw the boat away from (39,32) and cancelled the build.
@@ -743,9 +744,9 @@ On 2026-11-13 Claude Code Opus 5.5 played a Small Pangaea game from turn 0 to 11
 
 ### Loading a save
 
-`start --save` and `menu path=` load a save, but first `pilot.py` checks which mod the save was made with and refuses a save from another mod.
+`start --save` and `menu path=` load a save, but first `SASPilotClient.py` checks which mod the save was made with and refuses a save from another mod.
 
-- `menu path=` waits until the loaded game waits for orders. The first runs of `pilot_replay.py` (2026-11-13) loaded the turn-105 save with `menu` and then `wait`, and found no free tech owed and no popups: the game being left still answered `ping` as in game with its turn active, so the wait returned before the load had begun and the first steps read the old game. `SASPilot.py` now counts finished loads on the `OnLoad` event, `ping` reports `loads`, and `load_game` waits for the count to rise; tested from turn 105 to the turn-97 save, back in 1.4 s.
+- `menu path=` waits until the loaded game waits for orders. The first runs of `SASPilotReplay.py` (2026-11-13) loaded the turn-105 save with `menu` and then `wait`, and found no free tech owed and no popups: the game being left still answered `ping` as in game with its turn active, so the wait returned before the load had begun and the first steps read the old game. `SASPilot.py` now counts finished loads on the `OnLoad` event, `ping` reports `loads`, and `load_game` waits for the count to rise; tested from turn 105 to the turn-97 save, back in 1.4 s.
 
 - Every mod names its saves `PC BC-<year>` by default, and they all share `Saves/single`. On 2026-11-13 the largest recent save there, `PC BC-149491`, looked like an AdvCiv-SAS one but had been made with Caveman2Cosmos.
 - Civ4 then stopped on its own dialog asking to restart into that mod. The pilot cannot answer it, and the game no longer replied to requests, so the client had to be closed.
@@ -800,11 +801,11 @@ If Claude resumes automatically after its usage limit resets, continue the Pilot
   - Gondar's own Trireme came out at turn 161, but the Aztec fleet's Trireme defended at 32%, so it stayed in port. Five Catapults fired for collateral at a nine-unit Aztec stack next to Gondar: the odds rose from 4.9% to 46.9% as it weakened, and our Maceman then won at 96.4%. Gondar still fell at turn 163, with the Trireme in port.
   - Zara made peace again at turn 165; Kublai, Pacal and Moctezuma are still at war with us. Saved as `sas_pilot_fogplay_t165`: Carthage, Hippo, Hadrumetum and Kerkouane remain.
 - Learned in this stretch:
-  - Fog is the game-side session's switch and starts off in every new client, so the relaunch at turn 156 gave full sight for three turns until a reply showed `"fog": false`. `pilot.py start --fog` now switches it on at launch; use it for the playthrough.
-  - `pilot.py --turns N --brief endturn` already ends turns until something waits, printing one line per message; this session first rebuilt it with shell loops before reading `--help`.
+  - Fog is the game-side session's switch and starts off in every new client, so the relaunch at turn 156 gave full sight for three turns until a reply showed `"fog": false`. `SASPilotClient.py start --fog` now switches it on at launch; use it for the playthrough.
+  - `SASPilotClient.py --turns N --brief endturn` already ends turns until something waits, printing one line per message; this session first rebuilt it with shell loops before reading `--help`.
   - `MISSION_FORTIFY` shows as `ACTIVITY_SLEEP`: stock BtS starts it that way, the fortify bonus grows each turn the unit stays, and K-Mod then refuses a second Fortify on a sleeping unit. Not a pilot bug.
   - Codex's round 18: under fog, `odds` now refuses a `player=` naming another team's unit, as the game picks the defender with the attacker's own sight. Both round-17 fixes checked out. His idea for the CLI's mid-turn wait, a `diplomacyOpen` flag on `ping`, waits until a stall reproduces.
-- From the user's notes, turns 165 to 176: `look` for the camera (the user, watching, could not follow the action), `techs` for the tech market and `pilot.py price` for an AI's counter-offer, with `accept=1` to take it. Codex's round 19 made `techs` and `look` follow the Foreign Advisor's fog rules.
+- From the user's notes, turns 165 to 176: `look` for the camera (the user, watching, could not follow the action), `techs` for the tech market and `SASPilotClient.py price` for an AI's counter-offer, with `accept=1` to take it. Codex's round 19 made `techs` and `look` follow the Foreign Advisor's fog rules.
   - Trading by the market: Water Wheel for 130 gold and Machinery for 180, about 8 and 11 turns of research; Machinery became tradeable the turn after we had its prerequisite. Chivalry, which SAS's XML forbids trading, is researched instead: research what cannot be bought, buy what can.
   - An Apostolic Palace vote to stop the war against Kublai brought peace with him and Pacal at turn 168; Moctezuma made peace at turn 176 after taking Hadrumetum, so all four are at peace. Kublai's "willing to cede Utica" refused 211 gold, and 211 gold with Spices and Ivory.
   - The civics screen showed `anarchyTurns: 0`, so switching to Slavery was free, and 2 population rushed a Longbowman into the empty Hadrumetum; it lost to a War Elephant (9.6 against 7.4).
@@ -814,7 +815,7 @@ If Claude resumes automatically after its usage limit resets, continue the Pilot
 - Then, without playing:
   - `answer` takes the advisor's build tip (`BUTTONPOPUP_PYTHON` with `cityWarningOnClickedCallback`): the DLL's `getSASPilotPopupButtons` lists ACCEPT_RECOMMENDATION only while the city can still build the item, and REFUSE_RECOMMENDATION, and its answer path calls the Python handler, as Codex suggested over a direct call from the pilot.
   - `desktop_windows.py dump --pid` presses Full Dump by its label and waits for the file; not yet met a real crash prompt.
-  - The user asked why not move every command to C++. Timing them (see [Which other commands to move](#which-other-commands-to-move)) moved `trade`'s loop to C++ and had `techs` read it; [`pilot_checks/trade_items_parity.py`](/LLM_Helpers/game_runs/pilot_checks/trade_items_parity.py) compares the two for every pair of players.
+  - The user asked why not move every command to C++. Timing them (see [Which other commands to move](#which-other-commands-to-move)) moved `trade`'s loop to C++ and had `techs` read it; [`checks/trade_items_parity.py`](/LLM_Helpers/saspilot/checks/trade_items_parity.py) compares the two for every pair of players.
 - Second fog-on run, saved as `sas_pilot_fresh_t134` with an AI offer open. The run verified selling tech for gold through `price`, founding Hippo through the Pilot and spreading Islam in Carthage. `unit` now lists religion and corporation spread missions with their required type. Religion spread was exercised live. A two-sided tech swap also exercised the new Complete Deal reply.
 - ChatGPT (web) reviewed the unfinished commit `f92958390` on 2026-11-14 from a light-source ZIP; its four concrete Pilot findings were fixed the same day and tested live:
   - `tickError` was kept only while empty and never cleared, so a recovered failure showed in `ping` for good and a different later one was never logged. A tick that runs through now clears it; `tickErrorCount` and `lastTickError` keep the history, and each distinct error is logged once (five forced failures gave one row).
@@ -863,13 +864,13 @@ A Large Pangaea autoplayed to turn 265, then played through the pilot with fog o
   - Handoff for the next session (2026-11-14, Claude Code Opus 5.5 near its 5-hour limit):
     - Read Codex's round-30 reply (KI#1094 code, named replies, `--pretty`) if not yet addressed; it was requested at the end of this session.
     - First, the user's operator idea (2026-11-14): an `operator` field on every log row from `--operator "Claude Code Opus 5.5"` or `SAS_PILOT_OPERATOR`, and a greppable row when a new operator first writes to a log ("Operator 1 joined: ..."), kept in the locked `.seq` file, so Codex and other agents sharing a client are told apart; a "left" row needs an explicit command.
-      - Done the same day by the next session: the `operator` field, the numbered `joined` rows and `pilot.py operator left`, tested with two operators on one client; see [SASPilotConsole](#saspilotconsole).
-    - Start a new game from turn 0 with `pilot.py start --fog --watch` to learn Workers (`workers`) and settling by hand, as the user asked.
+      - Done the same day by the next session: the `operator` field, the numbered `joined` rows and `SASPilotClient.py operator left`, tested with two operators on one client; see [SASPilotConsole](#saspilotconsole).
+    - Start a new game from turn 0 with `SASPilotClient.py start --fog --watch` to learn Workers (`workers`) and settling by hand, as the user asked.
     - Final pass only when the user approves: `toggle_dev_diagnostics.py off`, `ci_report.py`, markdownlint, a Release DLL (the native changes since the last commit add DLL getters and the KI#1094 fix), then a follow-up commit.
 
 ### Turn-0 game, 2026-11-14
 
-A new game played from turn 0 to learn Workers and settling by hand: England, Pangaea, Standard size, fog on, with the user watching through `pilot_console.py` and advising. Saves: `sas_pilot_turn0_t52_york`, `sas_pilot_turn0_t68_third_settler`; at the end of the session the game was at turn 68 in client 17864, on the `play` role.
+A new game played from turn 0 to learn Workers and settling by hand: England, Pangaea, Standard size, fog on, with the user watching through `SASPilotConsole.py` and advising. Saves: `sas_pilot_turn0_t52_york`, `sas_pilot_turn0_t68_third_settler`; at the end of the session the game was at turn 68 in client 17864, on the `play` role.
 
 - What the play taught, in the user's words where they gave them:
   - Scout early instead of guarding the capital: animals cannot enter owned plots (`CvUnit.cpp:2687`), and scouting finds huts, contacts and city sites and fog-busts barbarian spawns. Automated exploring lost a Warrior that fought on at 15 HP, so scout by hand with `scout` and heal first; avoid animals unless the odds are great.
@@ -957,7 +958,7 @@ A new game played from turn 0 to learn Workers and settling by hand: England, Pa
     - Next, the user's question (turn 161): was each civic worth it in gold? Anarchy charges no expenses, so `finance` reads 0 until it ends. Compare the first `finance` after anarchy with the baseline before the switch (turn 157: unit cost 30, city maintenance 18, civic upkeep 19, total 67, -4 a turn at 40% research), and if worthwhile reload `sas_pilot_turn0_t161` to try each civic alone against all three.
     - The user noted the Lumbermill (keeps the forest and adds hammers) as an alternative to chopping every forest.
   - Pilot follow-up the user asked for: attackability, a fact command giving per rival the path turns from our army or nearest city to each of its seen cities, with terrain, rivers and the defenders seen, so a war target's reach is known before declaring (Louis's cities turned out unseen and too far only after the war began).
-  - End of this game (2026-11-14): the user judged it had taught what it could, beyond the basics, so it stopped at turn 161, saved as `sas_pilot_turn0_t161_final`, and its client was closed. The next test is a fresh fog-on opening, Codex's `sas_pilot_scout_trial_t000` (Byzantium, Pangaea, Noble), played with `tech` before research choices and `pilot_scout.py` before scouting moves, to compare turns 50 and 100 with this game.
+  - End of this game (2026-11-14): the user judged it had taught what it could, beyond the basics, so it stopped at turn 161, saved as `sas_pilot_turn0_t161_final`, and its client was closed. The next test is a fresh fog-on opening, Codex's `sas_pilot_scout_trial_t000` (Byzantium, Pangaea, Noble), played with `tech` before research choices and `SASPilotScout.py` before scouting moves, to compare turns 50 and 100 with this game.
   - Next (superseded at turn 157 by the peace): march the stack north when Louis's cities are found; heal first; keep York, London and Nottingham producing Axemen and Catapults; no peace with Louis while he is this weak, though his techs (Currency, Drama, Literature, Philosophy) could buy peace later.
 
 Possible extensions, in the order they seemed useful on 2026-11-13:
@@ -976,5 +977,5 @@ Possible extensions, in the order they seemed useful on 2026-11-13:
   - `multiple` already runs several clients on one computer with logs named by process (KI#1081), and SASGameRecord would record the game, which makes it an AI benchmark too.
   - The first problem is network sync: in a network game every order must travel as a network message, as the window's clicks do, while commands such as `mission` (`pushMission`), `dequeue` (`popOrder`) and the espionage weight change the game directly from Python, which would put the clients out of sync. They would need to go through `CyMessageControl` and its siblings.
   - Hotseat, with the agents taking turns on one process, avoids sync and needs only a pilot that follows whose turn it is; network games add turn timers that a slow agent would run into.
-  - The agents could set the game up themselves too: `start_game.py` and `pilot.py start` already start single-player games through a per-run INI, and the LAN host and join screens are in the UI map from the two-client walkthrough, so `desktop_windows.py` could click through them on each client before each pilot takes over. The pilot cannot serve those screens, as Python has no hook at the main menu.
+  - The agents could set the game up themselves too: `start_game.py` and `SASPilotClient.py start` already start single-player games through a per-run INI, and the LAN host and join screens are in the UI map from the two-client walkthrough, so `desktop_windows.py` could click through them on each client before each pilot takes over. The pilot cannot serve those screens, as Python has no hook at the main menu.
   - Roleplay between the seats, a further idea of the user's (2026-11-14): agents commenting on or needling each other, through the game's chat if the pilot can send it (not checked), or through the `note=` reasons of each client's command log; and real diplomacy, as in a network game players trade with each other through the same diplomacy screen the pilot drives against the AI.

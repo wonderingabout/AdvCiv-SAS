@@ -13,10 +13,12 @@ import sys
 import time
 from pathlib import Path
 
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows as d
 
 INI = Path.home() / "Documents" / "My Games" / "beyond the sword" / "CivilizationIV.ini"
-TOOL = str(Path(__file__).with_name("desktop_windows.py"))
+TOOL = str(Path(__file__).resolve().parents[1] / "desktop" / "desktop_windows.py")
 
 
 def parse_args() -> argparse.Namespace:

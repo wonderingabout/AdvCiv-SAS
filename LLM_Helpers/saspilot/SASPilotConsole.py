@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Follows a SASPilot command log (Logs/SASPilot_<processStartUtc>_<pid>.jsonl, written by pilot.py) like tail -f, one readable line per command, so a person can watch an agent play in a terminal tab, as a game console shows commands scroll by (the user's idea, 2026-11-14).
+# <!-- custom: Follows a SASPilot command log (Logs/SASPilot_<processStartUtc>_<pid>.jsonl, written by SASPilotClient.py) like tail -f, one readable line per command, so a person can watch an agent play in a terminal tab, as a game console shows commands scroll by (the user's idea, 2026-11-14).
 # By default only orders are shown, with their turn and the agent's note=; --all adds the reads, which are most of the commands. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse reads the options, json the log lines, subprocess and sys open the --window console, time the polling, Path the log folder. (Claude code Opus 5.5) -->
@@ -18,6 +18,8 @@ from pathlib import Path
 
 # <!-- custom: format_json from the formatting helpers lays out --pretty results as the UI map files are. (Claude code Opus 5.5) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# <!-- custom: desktop_windows for --window, from LLM_Helpers/desktop since 2026-11-15. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 format_json = import_module("formatting.json_format").format_json
 # <!-- custom: console_colors, from the same folder, holds the shared palette and to_html for --html. (Claude code Opus 5.5) -->
 console_colors = import_module("formatting.console_colors")
@@ -104,7 +106,7 @@ def emit(text):
 
 
 def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
-	# <!-- custom: The row pilot.py writes when a game starts or is loaded, shown as a banner so each game's commands are set apart; see pilot.log_game_marker. (Claude code Opus 5.5) -->
+	# <!-- custom: The row SASPilotClient.py writes when a game starts or is loaded, shown as a banner so each game's commands are set apart; see pilot.log_game_marker. (Claude code Opus 5.5) -->
 	# <!-- custom: Banners begin with the row's time like other lines: an operator can join long before its first order or leave long after its last, which the banner alone did not show (the user, 2026-11-14). (Claude code Opus 5.5) -->
 	when = "%-12s " % record.get("utc", "")[11:23].rstrip("Z")
 	if record.get("kind") == "game":
@@ -118,7 +120,7 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 			settings = "settings: %d recommended, %s" % (args["settingsChecked"], unset and "%d not set: %s" % (len(unset), ", ".join(unset)) or "all set")
 			banner += "\n    " + (unset and paint(settings, "error") or settings)
 		return paint(banner, "banner")
-	# <!-- custom: The row pilot.py writes when an operator first sends a command to this client, or says it leaves; see pilot._log_request. (Claude code Opus 5.5) -->
+	# <!-- custom: The row SASPilotClient.py writes when an operator first sends a command to this client, or says it leaves; see pilot._log_request. (Claude code Opus 5.5) -->
 	if record.get("kind") == "operator":
 		args = record.get("args") or {}
 		# <!-- custom: The session's first 8 characters tell two sessions of one agent apart, as a Claude Code session ID begins its log's file name. (Claude code Opus 5.5) -->
@@ -131,8 +133,8 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 		args["total"] = "%s, %d present" % (args.get("total") or len(present), len([key for key in present if present[key]]))
 		return paint(when + "=== operator %s %s: %s%s%s ===" % (args.get("number") or "?", args.get("event"), args.get("operator"), session and " (session %s)" % session[:8] or "", args.get("total") and ", operators: %s" % args["total"] or ""), "banner")
 	turn = record.get("turn")
-	# <!-- custom: The UTC time of day to the millisecond, as pilot.py writes it; older lines written to the second show without one. (Claude code Opus 5.5) -->
-	# <!-- custom: T<turn>-<n>, the request's number within its turn, which pilot.py writes; lines from before the numbering show T<turn> alone. (Claude code Opus 5.5) -->
+	# <!-- custom: The UTC time of day to the millisecond, as SASPilotClient.py writes it; older lines written to the second show without one. (Claude code Opus 5.5) -->
+	# <!-- custom: T<turn>-<n>, the request's number within its turn, which SASPilotClient.py writes; lines from before the numbering show T<turn> alone. (Claude code Opus 5.5) -->
 	# <!-- custom: The turn zero-padded to four digits, T0068, so lines sort and grep by turn ("T0068-" matches turn 68 only, not 680), the user's idea (2026-11-14); four as a Marathon game passes 1,000 turns. (Claude code Opus 5.5) -->
 	number = "T%s" % ("?" if turn is None else "%04d" % turn)
 	if record.get("n") is not None:
@@ -227,7 +229,7 @@ def open_window(args):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="SASPilotConsole follows a SASPilot command log to print each order with its turn and note. Examples: pilot_console.py; pilot_console.py --all; pilot_console.py --pid 23768 --from-start; pilot_console.py --window --pid 23768 (own console, laid out beside Civ4)")
+	parser = argparse.ArgumentParser(description="SASPilotConsole follows a SASPilot command log to print each order with its turn and note. Examples: SASPilotConsole.py; SASPilotConsole.py --all; SASPilotConsole.py --pid 23768 --from-start; SASPilotConsole.py --window --pid 23768 (own console, laid out beside Civ4)")
 	parser.add_argument("log", nargs="?", help="a SASPilot_*.jsonl log; default the newest in the Civ4 Logs folder, or the newest of --pid")
 	parser.add_argument("--pid", type=int, help="follow this client's newest log")
 	parser.add_argument("--all", action="store_true", help="show reads too, not only orders")
@@ -294,7 +296,8 @@ def main():
 	# <!-- custom: A header saying what this console is: it opened with only "following <log>" and a date line, which the user found unclear (2026-11-14). The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
 	started = time.time()
 	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the Pilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
-	# The script, first pilot_watch.py, became pilot_console.py the same day: lowercase like the other desktop helpers (pilot.py, pilot_scout.py), since a CamelCase SASPilotConsole.py beside SASPilotCommands.py would read as another in-game file, and SASPilotCommands.py is the one Civ4 hot-reloads. (Claude code Opus 5.5) -->
+	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like the pilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
+	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads. They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
 	if os.name == "nt":
 		import ctypes
 		ctypes.windll.kernel32.SetConsoleTitleW(u"SASPilotConsole - Civ4 client %s" % (args.pid or "newest"))
@@ -305,9 +308,9 @@ def main():
 		print("client:  Civ4 process %d, started %s UTC (from the log's name)" % (args.pid, path.stem.split("_")[1] if path.stem.count("_") >= 2 else "?"), file=sys.stderr)
 	# <!-- custom: "filter:" was "shows:", which the user read as the arguments (2026-11-14); it is which lines are printed. (Claude code Opus 5.5) -->
 	print("filter:  %s" % ("every command" if args.all else "orders, errors, and game and operator banners; --all adds reads"), file=sys.stderr)
-	# <!-- custom: The recommended-settings check, here as well as on the game banner: a game started before the banner carried it never showed it, and the user looked for it at the console's start (2026-11-14). pilot.py is imported only for this. (Claude code Opus 5.5) -->
+	# <!-- custom: The recommended-settings check, here as well as on the game banner: a game started before the banner carried it never showed it, and the user looked for it at the console's start (2026-11-14). SASPilotClient.py is imported only for this. (Claude code Opus 5.5) -->
 	try:
-		import pilot
+		import SASPilotClient as pilot
 		rows = pilot.settings_check()
 		unset = ["%s=%s (recommended %s)" % (row["name"], row["current"], row["recommended"]) for row in rows if not row["ok"]]
 		settings = "settings: %d recommended, %s" % (len(rows), unset and "%d not set: %s" % (len(unset), ", ".join(unset)) or "all set")
@@ -355,7 +358,7 @@ def main():
 				time.sleep(0.25)
 				continue
 			idle_polls = 0
-			# <!-- custom: A line read while pilot.py is still appending it has no newline yet; keep it until the rest arrives. (Claude code Opus 5.5) -->
+			# <!-- custom: A line read while SASPilotClient.py is still appending it has no newline yet; keep it until the rest arrives. (Claude code Opus 5.5) -->
 			pending += chunk
 			if not pending.endswith("\n"):
 				continue

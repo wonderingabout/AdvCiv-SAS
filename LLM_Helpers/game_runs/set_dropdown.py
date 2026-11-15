@@ -16,7 +16,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-# <!-- custom: desktop_windows, beside this script, waits for the user, clicks, scrolls and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows waits for the user, clicks, scrolls and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows
 
 UI_MAP = Path(__file__).resolve().parent / "ui_maps" / "civ4_ui_map.json"

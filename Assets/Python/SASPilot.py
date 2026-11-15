@@ -2,9 +2,9 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: SASPilot lets an external agent read and drive the running game from the command line instead of through the UI: requests arrive as JSON files in a per-process mailbox folder, run inside the game's Python, and are answered as JSON files.
-# This module is only the stable loader: it decides once whether the pilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/game_runs/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
+# This module is only the stable loader: it decides once whether the pilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/saspilot/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
 # Off unless SAS_PILOT_ON is 1 or the ini= launch file has an [SASPilot] section with On = 1, so ordinary players pay one comparison per game update and per frame.
-# See LLM_Helpers/game_runs/pilot.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md. (Claude code Fable 5.2) -->
+# See LLM_Helpers/saspilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md. (Claude code Fable 5.2) -->
 
 # <!-- custom: imp loads the command module from its file, os handles the mailbox folder and PID, sys and traceback report a failed reload; BugPath finds the mod and user folders; SASAutoplayRequest shares its ini= reader. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
@@ -62,7 +62,7 @@ def _resolveEnabled():
 			state["session"] = None
 		return True
 	section = _pilotSection()
-	# <!-- custom: The launch's session ID, which pilot.py start writes beside On = 1 and finds again in hello.json; requests must carry it, see SASPilotCommands._serve. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The launch's session ID, which SASPilotClient.py start writes beside On = 1 and finds again in hello.json; requests must carry it, see SASPilotCommands._serve. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	state["session"] = section.get("session")
 	return int(section.get("on", "0")) > 0
 
@@ -117,13 +117,13 @@ def _loadCommands(bCompareContent=False):
 def _start():
 	global _commandsPath
 	# <!-- custom: The command file first sat in Assets/Python: saving an edit there made the running Civ4 reinitialize its Python, after which PythonErr.log filled with "Can't find module CvScreensInterface" and the mailbox went unanswered (2026-11-13).
-	# Moving it to Assets/SASPilot did the same, so the EXE watches all of Assets; LLM_Helpers/game_runs, beside its client pilot.py, is outside it. (Claude code Fable 5.2) -->
-	_commandsPath = os.path.join(BugPath.getModDir(), "LLM_Helpers", "game_runs", _COMMANDS_NAME + ".py")
+	# Moving it to Assets/SASPilot did the same, so the EXE watches all of Assets; LLM_Helpers/saspilot, beside its client SASPilotClient.py, is outside it (LLM_Helpers/game_runs until 2026-11-15). (Claude code Fable 5.2) -->
+	_commandsPath = os.path.join(BugPath.getModDir(), "LLM_Helpers", "saspilot", _COMMANDS_NAME + ".py")
 	# <!-- custom: One folder per process, named by PID like our logs, so several clients can each be piloted. See KI#1081. (Claude code Fable 5.2) -->
 	mailbox = os.path.join(BugPath.getRootDir(), "SASPilot", str(os.getpid()))
 	if not os.path.isdir(mailbox):
 		os.makedirs(mailbox)
-	# <!-- custom: The folder is named by PID, which Windows recycles, so it can hold a dead process's hello, requests and replies; Codex's review found an old req_ would then run in the new game. No request can be for this process yet, as clients wait for its hello, so they are cleared, and hello.json carries the launch's session ID for pilot.py start to match. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The folder is named by PID, which Windows recycles, so it can hold a dead process's hello, requests and replies; Codex's review found an old req_ would then run in the new game. No request can be for this process yet, as clients wait for its hello, so they are cleared, and hello.json carries the launch's session ID for SASPilotClient.py start to match. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	for name in os.listdir(mailbox):
 		if name.endswith(".json") and name.split("_", 1)[0] in ("hello.json", "req", "run", "rep", "tmp"):
 			try:
