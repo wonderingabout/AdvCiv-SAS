@@ -7,8 +7,8 @@
       "codex-usage-half": {
         "window": [1920, 2100],
         "title": "ChatGPT",
-        "measured": "2026-11-11 and 2026-11-13",
-        "conditions": "Right half of a 4K work area with chat list collapsed. Wheel, popup row hovers and Manage usage checked on 2026-11-13. Account-menu route from 2026-11-11. Chat crops measured with a full-width chat and single-line composer. The latest-message control can move as the draft grows.",
+        "measured": "2026-11-11, 2026-11-13 and 2026-11-15",
+        "conditions": "Right half of a 4K work area with chat list collapsed. Wheel, popup row hovers and Manage usage checked on 2026-11-13. Account-menu route from 2026-11-11. Chat crops measured with a full-width chat and single-line composer. The latest-message control can move as the draft grows. Reset controls from 2026-11-15 (Codex 26.1111.2228.0): open Manage usage, then scroll the settings page to its bottom (scroll -20 at settings-scroll); use-reset is the first available reset's button and moves down a row for each further reset; reset-history fits the History tab's seven rows of 2026-11-15 after the same scroll.",
         "points": {
           "indicator": [46, 1973],
           "account": [44, 2052],
@@ -18,7 +18,12 @@
           "five-hour": [300, 1780],
           "weekly": [300, 1835],
           "manage": [184, 1970],
-          "chat-scroll": [1000, 1450]
+          "chat-scroll": [1000, 1450],
+          "settings-scroll": [1300, 1400],
+          "resets-available": [826, 1510],
+          "resets-history": [956, 1510],
+          "use-reset": [1768, 1608],
+          "allow-resets-switch": [1802, 1204]
         },
         "crops": {
           "indicator": [18, 1940, 74, 2005],
@@ -27,7 +32,9 @@
           "five-hour-tooltip": [570, 1750, 754, 1803],
           "weekly-tooltip": [570, 1806, 768, 1858],
           "chat-latest-status": [965, 1770, 1045, 1865],
-          "composer-action": [1595, 1988, 1658, 2064]
+          "composer-action": [1595, 1988, 1658, 2064],
+          "resets": [722, 1120, 1862, 1664],
+          "reset-history": [722, 710, 1862, 1680]
         }
       },
       "codex-usage-max": {

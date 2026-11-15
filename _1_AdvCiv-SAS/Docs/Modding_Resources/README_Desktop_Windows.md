@@ -270,6 +270,11 @@ The same day, on the user's ChatGPT Plus plan. Codex counts what is left where t
 - **Getting there:** the account button at the bottom of Codex's left icon strip opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
 - The limits are shared across Codex and OpenAI's other work tools; the page says ChatGPT chat conversations are not counted.
 - **Usage limit resets:** **Available** lists unspent resets and their expiry dates. A **Full reset (Weekly + 5 hr)** restores both windows. **Use reset** redeems one, and **History** shows past resets.
+  - Mapped on 2026-11-15 at the user's request, so an agent can reach a reset when Codex runs out of weekly usage: wheel > **Manage usage**, then scroll the page to its bottom, where the section sits below the assistant switch and above Credits (earlier versions had Credits first). In `codex-usage-half`, `settings-scroll` is where to scroll, `resets-available` and `resets-history` the two tabs, `use-reset` the first reset's button, and the `resets` crop shows the switch and the list.
+  - `use-reset` was checked by hovering, not clicked. Redeeming a reset spends one for good, so it waits for the user's go each time; when only the 5-hour window is out, waiting is usually better, as below.
+  - `allow-resets-switch` is the **Allow your assistant to use resets** switch above the list, off on 2026-11-15. Turning it on changes a setting, so it is the user's to choose; even on, the app lets an assistant use a reset only on an explicit request and at 10% or less left.
+  - **History** (`resets-history`) lists the past 30 days, newest first, as "Reset received" and "Reset used" rows with dates; "Past 30 days" beside the tabs is a label, not a range picker. On 2026-11-15 it showed resets received on Oct 31, Nov 1 and Nov 12 and used on Oct 22, Oct 31, Nov 10 and Nov 14; the one available, received on Nov 12 at 10:10 PM, expires on Dec 12 at 10:10 PM, so a reset appears to last 30 days. The `reset-history` crop shows it after the same scroll.
+  - The page's **Analytics** tab, beside Overview, charts usage per day and lists **Top chats** with each thread's share of the 5-hour and weekly limits, which tells which thread spends the most.
 - **Allow your assistant to use resets:** the screenshot shows the switch off. The UI says an assistant can use a reset with the switch on, an explicit request in the conversation, and 10% or less remaining in the current limit. Resets are never used automatically.
 - **Credits:** a balance (0), "Add more" and an automatic-reload switch. These cost money, so they are the user's alone.
 - Settings is left with the Back arrow at the top left.
@@ -283,9 +288,10 @@ On 2026-11-13, the user still saw the out-of-usage banner after the displayed re
 When one agent is close to its limit, the other may have room to take over. On 2026-11-11 Claude Code was at 96% used while Codex still had over half of both limits left, so Codex could take on more of the work until Claude's window refilled.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_limits.PNG" alt="llm_codex_settings_usage_limits.PNG" width="250">
-The settings capture below shows the permission switch and one available full reset at the time of capture.
+The settings capture below, retaken on 2026-11-15, shows the permission switch, off, and one available full reset.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_resets.PNG" alt="llm_codex_settings_usage_resets.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_settings_usage_reset_history.PNG" alt="llm_codex_settings_usage_reset_history.PNG" width="250">
 
 Later on 2026-11-13, `get_usage_limits` showed **4% weekly left**, **79% five-hour left**, and **two available full resets**. This is an example of why to check both windows when the wheel turns red. The existing wheel capture shows the appearance near a limit. Open its popup or use the read-only counters to identify which limit is low.
 
@@ -311,7 +317,7 @@ Use `hover` or `click` with the same `--layout` and `--point NAME`. Check a fres
 | `claude-usage-half-rail` | `indicator`, `see-all`, `this-week`, `close-settings` | `indicator`, `tooltip`, `popup`, `settings` |
 | `claude-usage-half` | `indicator`, `see-all`, `close-settings` | `indicator`, `popup`, `settings` |
 | `claude-usage-max` | `indicator` | `indicator`, `popup` |
-| `codex-usage-half` | `indicator`, `five-hour`, `weekly`, `manage`, `back`. The account-menu route uses `account`, `settings`, and `usage-billing`. | `indicator`, `popup`, `five-hour-tooltip`, `weekly-tooltip`, `settings` |
+| `codex-usage-half` | `indicator`, `five-hour`, `weekly`, `manage`, `back`. The account-menu route uses `account`, `settings`, and `usage-billing`; the reset section, after scrolling at `settings-scroll`, uses `allow-resets-switch`, `resets-available`, `resets-history` and `use-reset`. | `indicator`, `popup`, `five-hour-tooltip`, `weekly-tooltip`, `settings`, `resets`, `reset-history` |
 | `codex-usage-max` | `indicator`, `five-hour`, `weekly`, `manage` | `indicator`, `popup` |
 
 The rail-open Claude route was verified on 2026-11-13, including hover, the three-row popup, **See all**, and expanding **This week**. Check the popup before clicking **See all**, since its position can move when the number of meters changes. The warning ribbon appears near a limit and is separate from the ring. The Codex half-window route was checked on the same day from the wheel through both reset tooltips and **Manage usage**. **Back** returned to the chat. If the UI moves, take a fresh window capture and update only the matching layout in `app_layouts.json`. See the [indicator and popup screenshots](#reference-screenshots), [Claude Usage page](#claude-usage-limit-resets-and-settings), and [Codex Usage & billing page](#codex-usage-and-limit-resets) for what to look for.
