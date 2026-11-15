@@ -1359,10 +1359,11 @@ def _techEffects(iCiv):
 	if key in _GRAPH_CACHE:
 		return _GRAPH_CACHE[key]
 	effects = dict([(node["type"], []) for node in _techNodes()])
+	# <!-- custom: Was "prerequisite" like the units and buildings a tech unlocks, so reading what a tech brings meant sorting TECH_ targets from the rest by hand (Continents game, 2026-11-14); techs it leads to now say leadsTo. (Claude code Opus 5.5) -->
 	for node in _techNodes():
 		for relation in ("all", "any"):
 			for tech in node["requires"][relation]:
-				effects[tech].append({"effect": "prerequisite", "target": node["type"], "group": relation})
+				effects[tech].append({"effect": "leadsTo", "target": node["type"], "group": relation})
 	for kind in ("Build", "Civic", "Project", "Process", "Religion", "Corporation", "Promotion", "SpecialBuilding", "EspionageMission"):
 		for i in range(getattr(gc, "getNum" + kind + "Infos")()):
 			info = getattr(gc, "get" + kind + "Info")(i)
@@ -1553,7 +1554,7 @@ def cmd_graph(args):
 	return result
 
 
-_HELP["tech"] = "Show one technology: rule effects and prerequisites, plus live research cost, progress, availability and which immediate prerequisites are missing. args: type (TECH_ type), player."
+_HELP["tech"] = "Show one technology: rule effects and prerequisites, plus live research cost, progress, availability and which immediate prerequisites are missing. path lists every tech still to research for it, prerequisites first, in the order 'research tech=...' queues them, each with its remaining beakers and turns at the current rate; pathRemaining and pathTurns add them up. Effects say leadsTo for techs it is a prerequisite of, and prerequisite for the units, buildings and other things it unlocks. args: type (TECH_ type), player."
 
 
 def cmd_tech(args):
@@ -1579,7 +1580,52 @@ def cmd_tech(args):
 	node["canResearch"] = bool(player.canResearch(iTech, False))
 	node["cost"] = team.getResearchCost(iTech)
 	node["progress"] = team.getResearchProgress(iTech)
+	# <!-- custom: missingAll and missingAny named only the immediate prerequisites, so at turn 19 of the Continents game (2026-11-14) a tech plan toward a goal meant one 'tech' call per step and adding the costs by hand. The path lists every tech still to research, prerequisites first, with what each costs and takes at the current rate. (Claude code Opus 5.5) -->
+	path = []
+	if not node["known"]:
+		_techPathVisit(player, team, iTech, path, {}, {})
+	node["path"] = [{"tech": gc.getTechInfo(i).getType(), "remaining": team.getResearchCost(i) - team.getResearchProgress(i), "turns": player.getResearchTurnsLeft(i, True)} for i in path]
+	node["pathRemaining"] = sum([entry["remaining"] for entry in node["path"]])
+	node["pathTurns"] = sum([entry["turns"] for entry in node["path"]])
 	return node
+
+
+def _techPathLength(team, iTech, memo):
+	# <!-- custom: CvPlayer::findPathLength in Python, its total research cost to a tech, used only to pick among OR prerequisites as pushResearch does. It counts a prerequisite shared by two branches twice (its k146 note), as the engine does, so the choice matches; unlike the engine it does not count queued techs as known, since 'research' clears the queue before pushing. (Claude code Opus 5.5) -->
+	if team.isHasTech(iTech):
+		return 0
+	if iTech not in memo:
+		info = gc.getTechInfo(iTech)
+		iLength = team.getResearchCost(iTech)
+		for i in range(gc.getNUM_AND_TECH_PREREQS()):
+			if info.getPrereqAndTechs(i) >= 0:
+				iLength += _techPathLength(team, info.getPrereqAndTechs(i), memo)
+		lengths = [_techPathLength(team, info.getPrereqOrTechs(i), memo) for i in range(gc.getNUM_OR_TECH_PREREQS()) if info.getPrereqOrTechs(i) >= 0]
+		if lengths:
+			iLength += min(lengths)
+		memo[iTech] = iLength
+	return memo[iTech]
+
+
+def _techPathVisit(player, team, iTech, path, seen, memo):
+	# <!-- custom: The order 'research tech=...' would queue, mirroring CvPlayer::pushResearch: every AND prerequisite first, then the cheapest path among the OR prerequisites unless one is known (the first wins a tie), then the tech itself. A tech reached by two branches is listed once. (Claude code Opus 5.5) -->
+	if team.isHasTech(iTech) or iTech in seen:
+		return
+	info = gc.getTechInfo(iTech)
+	for i in range(gc.getNUM_AND_TECH_PREREQS()):
+		if info.getPrereqAndTechs(i) >= 0:
+			_techPathVisit(player, team, info.getPrereqAndTechs(i), path, seen, memo)
+	options = [info.getPrereqOrTechs(i) for i in range(gc.getNUM_OR_TECH_PREREQS()) if info.getPrereqOrTechs(i) >= 0]
+	if options and not [i for i in options if team.isHasTech(i)]:
+		iBest = -1
+		for i in options:
+			if player.canEverResearch(i) and (iBest < 0 or _techPathLength(team, i, memo) < _techPathLength(team, iBest, memo)):
+				iBest = i
+		if iBest < 0:
+			raise ValueError("player %d can never research any OR prerequisite of %s" % (player.getID(), info.getType()))
+		_techPathVisit(player, team, iBest, path, seen, memo)
+	seen[iTech] = True
+	path.append(iTech)
 
 
 _HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. args: tech (TECH_ type), append, effects, player."
