@@ -1628,7 +1628,7 @@ def _techPathVisit(player, team, iTech, path, seen, memo):
 	path.append(iTech)
 
 
-_HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it, the techs on the way, its OR alternatives (orChoice), what it unlocks or reveals, the met players seen to hold it and whether the XML lets it be traded. args: tech (TECH_ type), append, effects, ahead, player."
+_HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it, the techs on the way, its OR alternatives (orChoice), what it unlocks or reveals, the met players seen to hold it and whether the XML lets it be traded; rivals lists each met player's current research with its percent, or unknown when espionage does not show it. args: tech (TECH_ type), append, effects, ahead, player."
 
 
 def cmd_research(args):
@@ -1637,7 +1637,7 @@ def cmd_research(args):
 	if args.get("ahead") is not None:
 		_requireOwnTeamUnderFog(args, player, "research progress")
 		iFogTeam = _fogTeam(args)
-		return {"ahead": _techsAhead(player, int(args["ahead"]), iFogTeam >= 0)}
+		return _techsAhead(player, int(args["ahead"]), iFogTeam >= 0)
 	if args.get("tech") is None:
 		# <!-- custom: The list first held only the names, so choosing a tech meant a 'py' call per tech for what the window's tech chooser shows at a glance, its turns (fog-on playthrough, 2026-11-13). Each entry now has its turns at the current rate, its cost and the progress already made. (Claude code Opus 5.5) -->
 		team = gc.getTeam(player.getTeam())
@@ -1688,7 +1688,21 @@ def _techsAhead(player, iMaxSteps, bFog):
 		if len(options) > 1:
 			rows[-1]["orChoice"] = [gc.getTechInfo(i).getType() for i in options]
 	rows.sort(lambda a, b: cmp(a["grid"], b["grid"]))
-	return rows
+	# <!-- custom: The user asked whether a rival is researching a tech, with its percent, or whether that is unknown (2026-11-15). The game shows a rival's research only through espionage (K-Mod's canSeeResearch, as the Espionage Advisor does), so under fog the rest say unknown. (Claude code Opus 5.5) -->
+	rivals = []
+	for other in [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if i != player.getID() and gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isBarbarian() and not gc.getPlayer(i).isMinorCiv() and team.isHasMet(gc.getPlayer(i).getTeam())]:
+		entry = {"player": other.getID(), "name": other.getName(), "research": "unknown"}
+		iResearch = other.getCurrentResearch()
+		if not bFog or player.canSeeResearch(other.getID()):
+			entry["research"] = _typeOrNone(gc.getTechInfo, iResearch)
+			if iResearch >= 0:
+				otherTeam = gc.getTeam(other.getTeam())
+				entry["percent"] = otherTeam.getResearchProgress(iResearch) * 100 / max(1, otherTeam.getResearchCost(iResearch))
+				for row in rows:
+					if row["tech"] == entry["research"]:
+						row.setdefault("researchedBy", []).append(other.getName())
+		rivals.append(entry)
+	return {"ahead": rows, "rivals": rivals}
 
 
 def _researchQueue(player):
