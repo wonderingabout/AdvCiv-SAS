@@ -1624,7 +1624,8 @@ void CyGame::doControl(int iControl)
 }
 
 // <!-- custom: One popup per line for SASPilot, tab-separated: HELD, DISPLAYED or QUEUED, type name, type number, data1, data2, data3, flags, option1, option2, Python button count, Python module, on-clicked callback, text.
-// A delimited string keeps the binding to one call; tabs and line breaks inside the text become spaces. Held popups come first. (Claude code Fable 5.2 + Opus 5.5) -->
+// A delimited string keeps the binding to one call; tabs and line breaks inside the text become spaces.
+// Held popups come first. (Claude code Fable 5.2 + Opus 5.5) -->
 // <!-- custom: The second field is the held popup's ID, -1 for displayed and queued ones, which 'answer' takes. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 static void appendSASPilotPopupRow(CvWString& szOut, CvPopupInfo const& kInfo, wchar const* szState, int iId)
 {
@@ -1760,7 +1761,8 @@ bool CyGame::chooseSASPilotFreeTech(int iTech, int iHeldId)
 	return ::chooseSASPilotFreeTech(iTech, iHeldId);
 }
 
-// <!-- custom: The active player's isChoosingFreeTech, which Python has no getter for. After 'freetech' took a chooser on display, the chooser stayed in the window offering every tech, as the DLL cannot close a displayed popup, so 'todo' kept listing a free tech as owed (2026-11-13); the count the game itself checks says whether one is. (Claude code Opus 5.5) -->
+// <!-- custom: The active player's isChoosingFreeTech, which Python has no getter for.
+// After 'freetech' took a chooser on display, the chooser stayed in the window offering every tech, as the DLL cannot close a displayed popup, so 'todo' kept listing a free tech as owed (2026-11-13); the count the game itself checks says whether one is. (Claude code Opus 5.5) -->
 bool CyGame::isSASPilotChoosingFreeTech()
 {
 	PlayerTypes const eActive = m_kGame.getActivePlayer();

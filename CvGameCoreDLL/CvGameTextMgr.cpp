@@ -1379,7 +1379,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 	or units that are barely alive at 0 strength. */
 // <!-- custom: The window showed the state of a unit only as small marks in the plot list and through the buttons of the selected unit, so finding which units were fortified, asleep or on a move meant selecting each; in the islands replay (2026-11-15) the 'units' list of the pilot lacked it too, and the user asked for the state as text for players and pilot alike.
 // In the terms of Civ4: automation (AutomateTypes), then the activity of the group, or the mission it is carrying out when it has none to show; commands such as Promote or Upgrade are one-off actions, not states.
-// The build of a Worker already shows with its turns before this, so MISSION_BUILD is skipped. Fortify and sleep share ACTIVITY_SLEEP; CvUnit::canSleep refuses fortifiable units, so a sleeping fortifiable unit is fortified.
+// The build of a Worker already shows with its turns before this, so MISSION_BUILD is skipped.
+// Fortify and sleep share ACTIVITY_SLEEP; CvUnit::canSleep refuses fortifiable units, so a sleeping fortifiable unit is fortified.
 // These comments avoid possessive apostrophes: with five such lines here, fastdep crashed before cl.exe ran. See KI#38.5. (Claude code Opus 5.5) -->
 void CvGameTextMgr::setSASUnitStateHelp(CvWStringBuffer& szString, CvUnit const& kUnit)
 {

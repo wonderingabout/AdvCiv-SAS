@@ -10,7 +10,8 @@ import html
 import re
 import sys
 
-# <!-- custom: 256-color codes (38;5;n) for sky blue and light green: a fresh Windows 10 console showed all five roles once virtual-terminal processing was on (2026-11-14). HTML gives each role's color for to_html. (Claude code Opus 5.5) -->
+# <!-- custom: 256-color codes (38;5;n) for sky blue and light green: a fresh Windows 10 console showed all five roles once virtual-terminal processing was on (2026-11-14).
+# HTML gives each role's color for to_html. (Claude code Opus 5.5) -->
 ROLES = {
 	"error": ("\x1b[91m", "#ff5555"),
 	"banner": ("\x1b[93m", "#ffff55"),
@@ -28,7 +29,9 @@ _state = {"on": False}
 
 
 def enable(stream=None):
-	# <!-- custom: A Windows console shows ANSI codes as text until virtual-terminal processing (ENABLE_VIRTUAL_TERMINAL_PROCESSING, 4) is set on its output handle. Off when that fails or the output is not a console, such as a pipe or a file, so piped output stays plain. Returns whether colors are on. (Claude code Opus 5.5) -->
+	# <!-- custom: A Windows console shows ANSI codes as text until virtual-terminal processing (ENABLE_VIRTUAL_TERMINAL_PROCESSING, 4) is set on its output handle.
+	# Off when that fails or the output is not a console, such as a pipe or a file, so piped output stays plain.
+	# Returns whether colors are on. (Claude code Opus 5.5) -->
 	stream = stream or sys.stdout
 	_state["on"] = False
 	if not stream.isatty():
@@ -62,7 +65,8 @@ def paint(text, role):
 
 
 def to_html(text, title="console"):
-	# <!-- custom: Colored console text as a standalone HTML page in the same colors, for documentation: a page shows what the console showed, where a screenshot cannot be searched or copied. Only the codes in ROLES are known; any other code is dropped. (Claude code Opus 5.5) -->
+	# <!-- custom: Colored console text as a standalone HTML page in the same colors, for documentation: a page shows what the console showed, where a screenshot cannot be searched or copied.
+	# Only the codes in ROLES are known; any other code is dropped. (Claude code Opus 5.5) -->
 	colors = {}
 	for (code, color) in ROLES.values():
 		colors[code] = color

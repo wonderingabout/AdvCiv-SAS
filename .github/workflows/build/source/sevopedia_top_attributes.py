@@ -4,7 +4,8 @@
 #
 # Build check: every self.top.X a Sevopedia page reads is defined on the SevoPediaMain instance.
 
-# <!-- custom: Each Sevopedia page reaches the main screen through self.top. On 2026-10-20 the Sevopedia colors moved from SevoPediaMain attributes into SASVisuals.Color, but SevoPediaIndex.py kept reading self.top.COLOR_HIGHLIGHT_TEXT.
+# <!-- custom: Each Sevopedia page reaches the main screen through self.top.
+# On 2026-10-20 the Sevopedia colors moved from SevoPediaMain attributes into SASVisuals.Color, but SevoPediaIndex.py kept reading self.top.COLOR_HIGHLIGHT_TEXT.
 # Python only fails when that line runs, here on Down in the Index after a search, so no compile check or load caught it until a SASPilot UI demo did on 2026-11-13. See KI#1086.
 # Names count as defined when SevoPediaMain.py assigns self.X, defines def X or a class attribute X, or a page assigns self.top.X; an audit then found no read of a BtS CvPediaScreen member, so that base class, which CI cannot see, needs no exception list. (Claude code Opus 5.5) -->
 import argparse
@@ -26,7 +27,8 @@ def code_tokens(text: str) -> list[tokenize.TokenInfo]:
 
 
 def attribute_uses(tokens: list[tokenize.TokenInfo], chain: tuple[str, ...]) -> list[tuple[int, str, bool]]:
-	# <!-- custom: (line, X, assigned) for each chain + "." + X, e.g. self.top.X; "assigned" when a plain "=" follows, not "==". (Claude code Opus 5.5) -->
+	# <!-- custom: (line, X, assigned) for each chain + "."
+	# + X, e.g. self.top.X; "assigned" when a plain "=" follows, not "==". (Claude code Opus 5.5) -->
 	found = []
 	size = 2 * len(chain)
 	for i in range(len(tokens) - size):

@@ -85,7 +85,8 @@ def _loadCommands(bCompareContent=False):
 	stamp = _fileStamp(_commandsPath)
 	data = None
 	if stamp == _commandsStamp:
-		# <!-- custom: ChatGPT's review (2026-11-14): an edit of the same size within the same second keeps (size, mtime), so it could be missed for good. The content's MD5 is compared every SASPilot._DIGEST_EVERY_CHECKS checks rather than every check, as reading 110 KB a few times a second would cost every player-visible frame more than the rare miss it catches. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+		# <!-- custom: ChatGPT's review (2026-11-14): an edit of the same size within the same second keeps (size, mtime), so it could be missed for good.
+		# The content's MD5 is compared every SASPilot._DIGEST_EVERY_CHECKS checks rather than every check, as reading 110 KB a few times a second would cost every player-visible frame more than the rare miss it catches. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
 		if not bCompareContent:
 			return
 		data = _readCommandsFile()
@@ -123,7 +124,8 @@ def _start():
 	mailbox = os.path.join(BugPath.getRootDir(), "SASPilot", str(os.getpid()))
 	if not os.path.isdir(mailbox):
 		os.makedirs(mailbox)
-	# <!-- custom: The folder is named by PID, which Windows recycles, so it can hold a dead process's hello, requests and replies; Codex's review found an old req_ would then run in the new game. No request can be for this process yet, as clients wait for its hello, so they are cleared, and hello.json carries the launch's session ID for SASPilotClient.py start to match. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The folder is named by PID, which Windows recycles, so it can hold a dead process's hello, requests and replies; Codex's review found an old req_ would then run in the new game.
+	# No request can be for this process yet, as clients wait for its hello, so they are cleared, and hello.json carries the launch's session ID for SASPilotClient.py start to match. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	for name in os.listdir(mailbox):
 		if name.endswith(".json") and name.split("_", 1)[0] in ("hello.json", "req", "run", "rep", "tmp"):
 			try:
@@ -170,7 +172,8 @@ def _safeTick(szEvent):
 	except:
 		_keepTickError(szEvent)
 		return
-	# <!-- custom: ChatGPT's review (2026-11-14): tickError was kept only while it was None and never cleared, so after a recovery 'ping' showed the old error for good and a later, different error was never logged. A tick that runs through now clears it; tickErrorCount and lastTickError keep the history. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+	# <!-- custom: ChatGPT's review (2026-11-14): tickError was kept only while it was None and never cleared, so after a recovery 'ping' showed the old error for good and a later, different error was never logged.
+	# A tick that runs through now clears it; tickErrorCount and lastTickError keep the history. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
 	if state.get("tickError") is not None:
 		state["tickError"] = None
 
@@ -193,7 +196,8 @@ def onLoad(argsList):
 	# <!-- custom: Counts finished loads, which 'ping' reports, so the client can wait for the game it asked to load: after 'menu path=' the old game still answered ping as in game with its turn active, so waiting for an active turn returned before the load had begun, and commands ran on the old game (2026-11-13).
 	# Counted whether or not the pilot is on, as the switch may not be resolved yet when a launch loads a save; one addition per load. (Claude code Opus 5.5) -->
 	state["loads"] = state["loads"] + 1
-	# <!-- custom: Holding popups began with the first request, after the load had already launched the save's popups: starting from the turn-105 save, the Oracle's free-tech chooser came up in the window instead of being held, and once the pilot chose through it, it stayed there, as the DLL cannot close a popup on display (2026-11-13). So hold from the load on.
+	# <!-- custom: Holding popups began with the first request, after the load had already launched the save's popups: starting from the turn-105 save, the Oracle's free-tech chooser came up in the window instead of being held, and once the pilot chose through it, it stayed there, as the DLL cannot close a popup on display (2026-11-13).
+	# So hold from the load on.
 	# The XML defines are loaded by now, so the switch can be read here. (Claude code Opus 5.5) -->
 	# <!-- custom: Read here without setting _bEnabled or starting the mailbox, which stay with the first game update and _safeTick's guard: the first version started them here, where a bad pilot INI or a missing command file would have raised into the load handler with _bEnabled already set (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	try:

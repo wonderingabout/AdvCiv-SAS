@@ -82,7 +82,8 @@ def name_keys(repo_root: Path) -> set[str]:
 # <!-- custom: The lists began with "#" provenance lines, which Rainbow CSV's CSVLint in VS Code reported as rows with the wrong column count.
 # They are now plain TSV with one header row, so table tools read them cleanly; the provenance lives in this script and the workflows README. (Claude code Opus 5.5) -->
 NAMES_HEADER = "tag\tsource\tname"
-# <!-- custom: "game" is the first BtS, Warlords or vanilla layer defining the tag, or "-". "source" names base AdvCiv first, but SAS loads its own text files, not base AdvCiv's originals, so a tag listed as "advciv" may be defined nowhere the game reads.
+# <!-- custom: "game" is the first BtS, Warlords or vanilla layer defining the tag, or "-".
+# "source" names base AdvCiv first, but SAS loads its own text files, not base AdvCiv's originals, so a tag listed as "advciv" may be defined nowhere the game reads.
 # Codex's review of KI#1085's check found that it counted such tags as defined; checks asking what the game can show use game_defined_tags instead. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 MANIFEST_HEADER = "tag\tsource\tsha256\tgame"
 

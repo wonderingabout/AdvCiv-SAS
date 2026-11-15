@@ -597,7 +597,8 @@ def find_button(pid, label):
 
 
 def minidump_pid(path):
-	# <!-- custom: The process ID a minidump records in its MiscInfo stream (type 15; ProcessId at offset 8 when Flags1 has bit 1), or None. 'dump' checks it, as every Civ4 writes the same file name (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The process ID a minidump records in its MiscInfo stream (type 15; ProcessId at offset 8 when Flags1 has bit 1), or None.
+	# 'dump' checks it, as every Civ4 writes the same file name (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	with open(path, "rb") as stream:
 		header = stream.read(32)
 		if header[:4] != b"MDMP":
@@ -615,13 +616,17 @@ def minidump_pid(path):
 
 
 def save_dump(pid, kind="full", timeout=300.0):
-	# <!-- custom: At KI#1088's crash prompt (2026-11-13) a full dump took three tries: clicking by window coordinates, then two wait loops that started PowerShell on each pass and showed nothing for minutes. This presses the button by its label with BM_CLICK, which needs no focus or coordinates, then waits for the file to be finished, about a dozen seconds for 1.38 GB.
-	# BM_CLICK can fail on an inactive dialog (Microsoft's documentation, as Codex noted); the timeout then reports no dump rather than a stale one. Not yet tried on a real prompt.
+	# <!-- custom: At KI#1088's crash prompt (2026-11-13) a full dump took three tries: clicking by window coordinates, then two wait loops that started PowerShell on each pass and showed nothing for minutes.
+	# This presses the button by its label with BM_CLICK, which needs no focus or coordinates, then waits for the file to be finished, about a dozen seconds for 1.38 GB.
+	# BM_CLICK can fail on an inactive dialog (Microsoft's documentation, as Codex noted); the timeout then reports no dump rather than a stale one.
+	# Not yet tried on a real prompt.
 	# A full dump is the user's rule (README_DLL_Compilation.md): a normal one lacks the heap. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	button = find_button(pid, DUMP_BUTTONS[kind])
 	if button is None:
 		raise SystemExit("no %r button in process %d's windows; is the crash prompt up?" % (DUMP_BUTTONS[kind], pid))
-	# <!-- custom: Codex's review: the first version accepted a file from just before the press and took two equal sizes for the end, which a pause in writing also gives. Now the file must differ from its state before the press, and it is done once it can be opened without sharing writes, which fails while the writer still holds it. The name is shared by every Civ4, so a second client's crash would replace it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: Codex's review: the first version accepted a file from just before the press and took two equal sizes for the end, which a pause in writing also gives.
+	# Now the file must differ from its state before the press, and it is done once it can be opened without sharing writes, which fails while the writer still holds it.
+	# The name is shared by every Civ4, so a second client's crash would replace it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	before = None
 	if DUMP_FILE.exists():
 		stat = DUMP_FILE.stat()
@@ -852,7 +857,8 @@ def place_window(hwnd, left, top, right, bottom):
 
 
 # <!-- custom: Named window layouts, so the agents' and the game's windows can be put back without the user: the user asked to remember the Claude and Codex app positions too, in case they are moved or a layout is changed (2026-11-14).
-# Windows are found by their program's file name, as process IDs change with each launch; the Codex desktop app runs as ChatGPT.exe. Frames are the visible frames in physical pixels, measured on the user's two 3840x2160 monitors. (Claude Code Opus 5.5) -->
+# Windows are found by their program's file name, as process IDs change with each launch; the Codex desktop app runs as ChatGPT.exe.
+# Frames are the visible frames in physical pixels, measured on the user's two 3840x2160 monitors. (Claude Code Opus 5.5) -->
 # <!-- custom: Use the shared formatter so each saved window frame and monitor rectangle stays on one line. (GPT-6.1-Sol) -->
 POSITIONS_FILE = Path(__file__).resolve().parent / "layouts" / "window_positions.json"
 POSITION_APPS = {"claude": "claude.exe", "codex": "ChatGPT.exe", "civ4": "Civ4BeyondSword.exe"}

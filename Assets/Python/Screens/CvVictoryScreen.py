@@ -1780,7 +1780,8 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-					# <!-- custom: Vanilla Civ4 tested iBestLandTeam here, then read iBestCultureTeam: a met team owning land but no culture yet, as early in a game, would reach getPlayerOnTeam(-1) and gc.getTeam(-1). Test the team this row reads. See KI#115.2. (Claude code Opus 5.5) -->
+					# <!-- custom: Vanilla Civ4 tested iBestLandTeam here, then read iBestCultureTeam: a met team owning land but no culture yet, as early in a game, would reach getPlayerOnTeam(-1) and gc.getTeam(-1).
+					# Test the team this row reads. See KI#115.2. (Claude code Opus 5.5) -->
 					if (iBestCultureTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
 						iBestPlayer = self.getPlayerOnTeam(iBestCultureTeam)

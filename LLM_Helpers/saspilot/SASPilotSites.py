@@ -73,8 +73,7 @@ def compare(pid, cities, near, far, limit):
             elif bonus:
                 other.append(bonus[6:])
         coastal = any((tiles.get((point[0] + dx, point[1] + dy)) or {}).get("water") for dx in (-1, 0, 1) for dy in (-1, 0, 1))
-        # <!-- custom: The parts of the score, each from the user's review:
-        # food resources count most, then other resources; fresh water; the coast, which grows a city further with a Harbor than flat plains can, whatever its water hides; a hill city tile, for defence and a hammer for good; grassland plots for the land's own food, as a site of plains with three resources had ranked first (Thessalonica, Pangaea run 3); overlap with our cities costs.
+        # <!-- custom: The parts of the score, each from the user's review: food resources count most, then other resources; fresh water; the coast, which grows a city further with a Harbor than flat plains can, whatever its water hides; a hill city tile, for defence and a hammer for good; grassland plots for the land's own food, as a site of plains with three resources had ranked first (Thessalonica, Pangaea run 3); overlap with our cities costs.
         # Unknown plots are counted but not taken off: taking them off made a fully seen site beat 10,19 and 11,17, whose radius still had fog, when fog around a promising site calls for a scout before the Settler commits. (Claude code Opus 5.5) -->
         score = 3 * len(food) + len(other) + 2 * fresh(point) + 2 * coastal + tile["hill"] + 0.3 * grass - 0.5 * overlap
         rows.append({"x": point[0], "y": point[1], "score": round(score, 1), "food": food, "other": other, "fresh": fresh(point), "coastal": coastal, "hill": tile["hill"], "terrain": tile["terrain"], "feature": tile.get("feature"), "grass": grass, "water": water, "overlap": overlap, "unknown": unknown, "fromOurCity": dist,

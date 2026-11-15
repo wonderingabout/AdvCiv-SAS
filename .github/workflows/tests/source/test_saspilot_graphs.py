@@ -1,7 +1,8 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Exercise the Pilot command module with small Civ4 API substitutes. The live DLL supplies these getters in game, but Linux CI can still verify the JSON relationships and the player-specific projections. (GPT-6.1-Sol) -->
+# <!-- custom: Exercise the Pilot command module with small Civ4 API substitutes.
+# The live DLL supplies these getters in game, but Linux CI can still verify the JSON relationships and the player-specific projections. (GPT-6.1-Sol) -->
 from pathlib import Path
 import runpy
 import sys

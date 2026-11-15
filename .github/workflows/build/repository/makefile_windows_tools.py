@@ -4,7 +4,8 @@
 #
 # Build check: the DLL Makefiles call Windows tools that Git Bash also ships under the same name by their System32 path.
 
-# <!-- custom: The Makefile's build provenance counts objects with DIR /S /B ... | FIND /C /V "", and a bare FIND is whichever find.exe comes first on PATH.
+# <!-- custom: The Makefile's build provenance counts objects with DIR /S /B ...
+# | FIND /C /V "", and a bare FIND is whichever find.exe comes first on PATH.
 # A build started from Git Bash, or from cmd.exe launched by it, inherits a PATH with C:\Program Files\Git\usr\bin first, and Unix find then crawled all of C: while nmake waited: on 2026-11-11 (README_DLL_Compilation.md) and again on 2026-11-13 through build_dll.py.
 # The guide's "not from Git Bash" rule did not stop the second, so the Makefile names %SystemRoot%\System32\find.exe and this check keeps it so.
 # SHARED_NAMES are the .exe names found both in Git's usr\bin and in System32 on 2026-11-13. See KI#38.7. (Claude code Opus 5.5) -->
@@ -16,7 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 MAKEFILES = ("CvGameCoreDLL/Project/Makefile", "CvGameCoreDLL/Project/Makefile.project", "CvGameCoreDLL/Project/Makefile.user")
 SHARED_NAMES = ("expand", "find", "sort", "tar", "timeout", "whoami")
-# <!-- custom: Only where cmd runs a command: a recipe line's start, after @, or after |, &, ( or a quote. The first version matched any word, so "@ECHO sort complete" failed (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+# <!-- custom: Only where cmd runs a command: a recipe line's start, after @, or after |, &, ( or a quote.
+# The first version matched any word, so "@ECHO sort complete" failed (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 TOOL = re.compile(r"(?:^[\t ]*@?|[|&('][\t ]*)(%s)(?:\.exe)?(?![\w.\\/-])" % "|".join(SHARED_NAMES), re.I)
 SYSTEM32 = re.compile(r"System32\\$", re.I)
 

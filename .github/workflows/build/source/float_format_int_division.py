@@ -4,7 +4,8 @@
 #
 # Build check: runtime Python must not format an integer division with %.Nf.
 # <!-- custom: Python 2.4 divides two integers to an integer, so "%.2f" % (a * 100 / b) always prints .00: vanilla Civ4's Victory screen showed the best rival's population and land shares as 2.00% for 2.30% and 2.06% at turn 120 of a SAS48 islands autoplay (2026-11-15), while ours, computed with 100.0, kept its decimals.
-# A line is flagged when a %.Nf format is applied to arguments that divide with no float in them (no literal such as 100.0, no float()); a division by a value already float passes only with one of those, so convert it there. KI#290 itself, the same mechanism in a map script's angles, shows in no format, so this check does not cover it. See KI#290.2. (Claude code Opus 5.5) -->
+# A line is flagged when a %.Nf format is applied to arguments that divide with no float in them (no literal such as 100.0, no float()); a division by a value already float passes only with one of those, so convert it there.
+# KI#290 itself, the same mechanism in a map script's angles, shows in no format, so this check does not cover it. See KI#290.2. (Claude code Opus 5.5) -->
 
 from pathlib import Path
 import argparse

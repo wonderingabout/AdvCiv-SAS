@@ -21178,8 +21178,8 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
 		launch them through CvDLLButtonPopup::launchButtonPopup. */
 }
 
-// <!-- custom: Drops this player's unanswered popups for SASPilot: the held ones of a type (NO_BUTTONPOPUP: any) and data1 (-1: any), and the queued ones through advc.004x's killAll or, for all types, the DLL's own queue and the EXE's.
-// A popup already on display stays; see launchButtonPopup for what was tried. Dropping a choice does not make it.
+// <!-- custom: Drops this player's unanswered popups for SASPilot: the held ones of a type (NO_BUTTONPOPUP: any) and data1 (-1: any), and the queued ones through advc.004x's killAll or, for all types, the DLL's own queue and the EXE's. A popup already on display stays; see launchButtonPopup for what was tried.
+// Dropping a choice does not make it.
 // Same limits as killAll: the active human player, not in network games. (Claude code Fable 5.2) -->
 // <!-- custom: With AdvCiv's Minimize Pop-Ups, the EXE leaves popups in this queue until every unit has moved, so at turn 304 of a Huge game with 150 units a civics popup sat there for turns, out of reach of 'answer' (2026-11-13).
 // The pilot drives without moving every unit, so it takes the popups it holds out of the queue itself, before listing or answering them; others, such as Python screens, stay for the EXE. (Claude code Opus 5.5) -->
@@ -21214,7 +21214,8 @@ void CvPlayer::takeSASPilotQueuedPopups()
 	}
 }
 
-// <!-- custom: Drops one popup that only informs, for SASPilot's notices: the held one with iHeldId, or with -1 the first queued one of exactly this type, data1, data3 and text. Codex's review found that dropping notices through closeSASPilotPopups also ran killAll, which recalls and relaunches the popups on display, and that a negative data1 there means any; this touches nothing else. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+// <!-- custom: Drops one popup that only informs, for SASPilot's notices: the held one with iHeldId, or with -1 the first queued one of exactly this type, data1, data3 and text.
+// Codex's review found that dropping notices through closeSASPilotPopups also ran killAll, which recalls and relaunches the popups on display, and that a negative data1 there means any; this touches nothing else. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 bool CvPlayer::dropSASPilotPopup(int iHeldId, ButtonPopupTypes ePopupType, int iData1, int iData3, CvWString const& szText)
 {
 	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())

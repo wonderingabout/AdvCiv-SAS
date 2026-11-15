@@ -77,7 +77,8 @@ def iter_python_files(repo_root):
 			for file_name in file_names:
 				if file_name.endswith(".py"):
 					paths.append(os.path.join(dir_path, file_name))
-	# <!-- custom: Civ4 loads this command module directly from outside Assets to avoid the EXE reload path. It still runs under Python 2.4. (GPT-6.1-Sol) -->
+	# <!-- custom: Civ4 loads this command module directly from outside Assets to avoid the EXE reload path.
+	# It still runs under Python 2.4. (GPT-6.1-Sol) -->
 	pilot_commands = os.path.join(repo_root, "LLM_Helpers/saspilot/SASPilotCommands.py")
 	if os.path.isfile(pilot_commands):
 		paths.append(pilot_commands)

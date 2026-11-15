@@ -907,7 +907,8 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_PLOT_HELP_COORDINATES_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: show our units' state as text in their hover help, in the plot hover and the plot list alike: automation, then fortified (with its turns), asleep, healing, sentry or the mission underway (such as moving to 63,46), then a ready promotion. Without it the state shows only as small marks or through the selected unit's buttons.
+	<!-- custom: show our units' state as text in their hover help, in the plot hover and the plot list alike: automation, then fortified (with its turns), asleep, healing, sentry or the mission underway (such as moving to 63,46), then a ready promotion.
+	Without it the state shows only as small marks or through the selected unit's buttons.
 	1=enabled, 0=disabled. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_PLOT_HELP_UNIT_STATE_ON</DefineName>
@@ -2618,7 +2619,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>201</iDefineIntVal>
+		<iDefineIntVal>202</iDefineIntVal>
 	</Define>
 
 
@@ -2760,29 +2761,35 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_UI_DAWN_OF_MAN_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: 1 shows the tech splash when a tech is acquired, as in base AdvCiv; 0 skips it. The event log still says "You have discovered ...".
+	<!-- custom: 1 shows the tech splash when a tech is acquired, as in base AdvCiv; 0 skips it.
+	The event log still says "You have discovered ...".
 	At turn 148 of a pilot playthrough (2026-11-13), a tech bought from an AI put its splash on display at once and the window waited on its Continue button; agents and unattended runs only click through these screens.
 	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_TECH_SPLASH_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: 1 plays the movie shown when a player enters a new era, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<!-- custom: 1 plays the movie shown when a player enters a new era, as in base AdvCiv; 0 skips it.
+	Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_ERA_MOVIE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: 1 plays a wonder's movie when the player completes it, as in base AdvCiv; 0 skips it. Each kind of movie has its own switch, so a player can keep some. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<!-- custom: 1 plays a wonder's movie when the player completes it, as in base AdvCiv; 0 skips it.
+	Each kind of movie has its own switch, so a player can keep some.
+	Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_WONDER_MOVIE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: 1 plays the movie shown when the player founds a religion, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<!-- custom: 1 plays the movie shown when the player founds a religion, as in base AdvCiv; 0 skips it.
+	Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_RELIGION_MOVIE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: 1 plays a project's movie when the player completes it, as in base AdvCiv; 0 skips it. Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+	<!-- custom: 1 plays a project's movie when the player completes it, as in base AdvCiv; 0 skips it.
+	Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_PROJECT_MOVIE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

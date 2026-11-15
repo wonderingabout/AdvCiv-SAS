@@ -66,7 +66,8 @@ def save_mod_folder(save_path):
 	# <!-- custom: A BtS save begins with a 4-byte version, then a 4-byte length and the mod path, e.g. "Mods\AdvCiv-SAS\"; an empty path means no mod. (Claude Code Opus 5.5) -->
 	with open(save_path, "rb") as handle:
 		header = handle.read(8 + 260)
-	# <!-- custom: A file shorter than the header raised struct.error rather than this message; SASPilotClient.py shares this reader (Codex's review). """+C+""" -->
+	# <!-- custom: A file shorter than the header raised struct.error rather than this message; SASPilotClient.py shares this reader (Codex's review).
+	# """+C+""" -->
 	if len(header) < 8:
 		raise ValueError("%s does not look like a Civ4 save (%d bytes)" % (save_path, len(header)))
 	length = struct.unpack_from("<i", header, 4)[0]

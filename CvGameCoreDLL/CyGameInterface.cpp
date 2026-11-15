@@ -398,7 +398,8 @@ void CyGamePythonInterface()
 		.def("chooseSASPilotFreeTech", &CyGame::chooseSASPilotFreeTech, "bool (int iTech, int iHeldId) - choose a free tech as the tech chooser does, through the held chooser with that ID")
 		.def("isSASPilotChoosingFreeTech", &CyGame::isSASPilotChoosingFreeTech, "bool () - whether the active player still owes a free tech choice")
 		.def("proposeSASPilotDeal", &CyGame::proposeSASPilotDeal, "string (int iPlayer, int iOther, string szWeGive, string szTheyGive) - propose a deal to an AI as 'kind:data,...' lists; JSON with whether it was accepted and made")
-		// <!-- custom: Python cannot put items on the EXE's trade table; the pilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?" and the counter-offer included, can answer it. (Claude code Opus 5.5) -->
+		// <!-- custom: Python cannot put items on the EXE's trade table; the pilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?"
+		// and the counter-offer included, can answer it. (Claude code Opus 5.5) -->
 		.def("tableSASPilotDeal", &CyGame::tableSASPilotDeal, "bool (int iPlayer, int iOther, string szWeGive, string szTheyGive) - open the diplomacy screen with an AI on its trade table with these 'kind:data,...' items on it")
 		// advc.095:
 		.def("setCityBarWidth", &CyGame::setCityBarWidth, "void (bool)")

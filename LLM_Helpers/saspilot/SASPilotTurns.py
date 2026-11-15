@@ -4,11 +4,8 @@
 # <!-- custom: End turns until something needs the agent, handling only routine steps, as the islands replay (2026-11-15) kept rewriting the same shell loop: end the turn, read 'todo', steer idle exploring boats, print the reminders worth reading.
 # A loop that stopped only on idle cities, units, popups and research ended the turn six times against Pericles' first-contact screen, so it stops on 'todo's blocking flag, which counts the diplomacy screen.
 # Order within a turn, the user's rule (2026-11-15): move the scouts before trading, as a rival met this turn changes what a tech is worth (one more buyer, or a monopoly lost); trade after the moves unless an AI asks first.
-# Routine steps only: an idle boat (one with no orders that is not working a plot) takes 'seareach's recommended unknown coast, as the user asked that scouting hunt unexplored coast first; a first-contact greeting is answered with peace only with --peace-on-contact. Every other stop is left to the agent, with the reason printed. (Claude code Opus 5.5) -->
-#
-# Examples:
-#   python LLM_Helpers/saspilot/SASPilotTurns.py --turns 10 --peace-on-contact --explorers 49155,73733
-#   python LLM_Helpers/saspilot/SASPilotTurns.py --turns 5 --checks cities,rivalMoods,sharedBonuses
+# Routine steps only: an idle boat (one with no orders that is not working a plot) takes 'seareach's recommended unknown coast, as the user asked that scouting hunt unexplored coast first; a first-contact greeting is answered with peace only with --peace-on-contact.
+# Every other stop is left to the agent, with the reason printed. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse reads options, sys reports errors; SASPilotClient sends the requests, logged as its own are. (Claude code Opus 5.5) -->
 import argparse
@@ -27,8 +24,75 @@ def pilot(command, **args):
 	return reply["result"]
 
 
+# <!-- custom: reject_stale_offer, scout_step_by_step and answer_contact went missing when steer_boats was removed: the cut ran from steer_boats to refuse_recommendations, so main() called three undefined names until Ruff's F821 caught it. (Claude code Opus 5.5) -->
+def reject_stale_offer(todo):
+	# <!-- custom: An AI offer in which everything we would get is something we already have: at turns 74 and 76 of the islands replay (2026-11-15) Pericles and Suleiman offered the very techs we had just bought from them with 'propose' that turn.
+	# Such an offer gives nothing, so it is rejected; any other offer is left to the agent.
+	# Returns whether it rejected. (Claude code Opus 5.5) -->
+	diplomacy = todo.get("diplomacy")
+	if not diplomacy or diplomacy.get("aiComment") != "AI_DIPLOCOMMENT_OFFER_DEAL":
+		return False
+	screen = pilot("diplo")
+	theirs = screen.get("theyOffer") or []
+	if not theirs or [item for item in theirs if item["item"] != "TRADE_TECHNOLOGIES"]:
+		return False
+	ours = pilot("py", code="[t for t in %r if gc.getTeam(gc.getPlayer(gc.getGame().getActivePlayer()).getTeam()).isHasTech(gc.getInfoTypeForString(t))]" % [item["what"] for item in theirs])["result"]
+	if len(ours) != len(theirs):
+		return False
+	for reply in screen["replies"]:
+		if reply["comment"] == "USER_DIPLOCOMMENT_REJECT_OFFER":
+			after = pilot("reply", n=reply["n"], screen=screen["screen"])
+			print("  rejected %s's offer of %s, which we already have" % (diplomacy["whoName"], ", ".join(ours)))
+			for closing in after.get("replies", []):
+				if closing["comment"] == "USER_DIPLOCOMMENT_EXIT":
+					pilot("reply", n=closing["n"], screen=after["screen"])
+			return True
+	return False
+
+
+def scout_step_by_step(explorers):
+	# <!-- custom: One plot at a time, the user's rule (2026-11-15): as on land, each step reveals coast that may change the way, so a target set once (the first version moved each idle explorer to 'seareach's recommendation and let it sail) went round Suleiman's island by the north, into the ice, before the next look.
+	# Each explorer, every turn: ask 'seareach', take one 'step' toward its recommendation, ask again, until its moves are spent. (Claude code Opus 5.5) -->
+	for iUnit in explorers:
+		for i in range(6):
+			unit = pilot("unit", unit=iUnit)
+			# <!-- custom: Not while a move is still under way: the second step of a turn was refused ("cannot start MISSION_MOVE_TO now ... whose current mission is MISSION_MOVE_TO") and ended the run. (Claude code Opus 5.5) -->
+			if unit["movesLeft"] <= 0 or unit.get("missions"):
+				break
+			reach = pilot("seareach", unit=iUnit)
+			recommend = reach.get("recommend")
+			if not recommend:
+				print("  boat %d: no reachable unknown coast; left for the agent" % iUnit)
+				break
+			try:
+				step = pilot("step", unit=iUnit, x=recommend["x"], y=recommend["y"])
+			except PilotError as error:
+				print("  boat %d: step refused (%s); left for the next turn" % (iUnit, error))
+				break
+			print("  boat %d -> %d,%d, toward %d,%d (%s), %d newly revealed%s" % (iUnit, step["x"], step["y"], recommend["x"], recommend["y"], recommend["direction"], step["newlyRevealed"], step["foreignNear"] and ", foreign units near" or ""))
+
+
+def answer_contact(todo):
+	# <!-- custom: A first-contact greeting answered with peace, the choice the replay made both times; any other diplomacy screen is left to the agent.
+	# Returns whether it answered. (Claude code Opus 5.5) -->
+	diplomacy = todo.get("diplomacy")
+	if not diplomacy or diplomacy.get("aiComment") != "AI_DIPLOCOMMENT_FIRST_CONTACT":
+		return False
+	screen = pilot("diplo")
+	for reply in screen["replies"]:
+		if reply["comment"] == "USER_DIPLOCOMMENT_PEACE":
+			after = pilot("reply", n=reply["n"], screen=screen["screen"])
+			print("  first contact with %s: peace" % diplomacy["whoName"])
+			for closing in after.get("replies", []):
+				if closing["comment"] == "USER_DIPLOCOMMENT_EXIT":
+					pilot("reply", n=closing["n"], screen=after["screen"])
+			return True
+	return False
+
+
 def refuse_recommendations(todo):
-	# <!-- custom: The advisor's production recommendation (BUTTONPOPUP_PYTHON with ACCEPT_RECOMMENDATION and REFUSE_RECOMMENDATION) would replace the city's queue; the replay refused it at turn 71 both runs, a Library for Amsterdam. Refused only with --refuse-recommendations; returns whether every held popup was one. (Claude code Opus 5.5) -->
+	# <!-- custom: The advisor's production recommendation (BUTTONPOPUP_PYTHON with ACCEPT_RECOMMENDATION and REFUSE_RECOMMENDATION) would replace the city's queue; the replay refused it at turn 71 both runs, a Library for Amsterdam.
+	# Refused only with --refuse-recommendations; returns whether every held popup was one. (Claude code Opus 5.5) -->
 	bAll = True
 	for popup in todo.get("heldPopups") or []:
 		if "REFUSE_RECOMMENDATION" in popup["buttons"]:
@@ -40,7 +104,8 @@ def refuse_recommendations(todo):
 
 
 def report(checks, seen):
-	# <!-- custom: Only what is new since the previous turn: the first run printed every unimproved resource and the turn's messages again each turn, burying the one new line. seen holds what was printed. (Claude code Opus 5.5) -->
+	# <!-- custom: Only what is new since the previous turn: the first run printed every unimproved resource and the turn's messages again each turn, burying the one new line.
+	# seen holds what was printed. (Claude code Opus 5.5) -->
 	for entry in pilot("reminders")["reminders"]:
 		if entry["check"] in checks:
 			szLine = "[%s] %s" % (entry["check"], entry["text"][:220])
@@ -55,7 +120,8 @@ def report(checks, seen):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="End turns until something needs the agent, handling only routine steps.")
+	# <!-- custom: The examples live in --help rather than the header comment, where the comment reflow joined the two command lines into one sentence. (Claude code Opus 5.5) -->
+	parser = argparse.ArgumentParser(description="End turns until something needs the agent, handling only routine steps.", formatter_class=argparse.RawDescriptionHelpFormatter, epilog="examples:\n  python LLM_Helpers/saspilot/SASPilotTurns.py --turns 10 --peace-on-contact --explorers 49155,73733\n  python LLM_Helpers/saspilot/SASPilotTurns.py --turns 5 --checks cities,rivalMoods,sharedBonuses")
 	parser.add_argument("--turns", type=int, default=5, help="turns to end at most")
 	parser.add_argument("--peace-on-contact", action="store_true", help="answer a first-contact greeting with peace")
 	parser.add_argument("--refuse-recommendations", action="store_true", help="refuse the advisor's production recommendation popups, which would replace a city's queue")

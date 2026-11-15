@@ -3,7 +3,8 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: Replays a list of pilot commands against a save and compares the replies with the last accepted run, so a DLL rebuild or a SASPilotCommands.py edit that changes a command's answer shows up as a diff instead of in the middle of a playthrough.
-# By 2026-11-13 the command file had grown to 1,800 lines and the Debug-opt DLL had been rebuilt about ten times in one day, each round checked only by hand. See "Replaying commands" in README_SASPilot.md. (Claude code Opus 5.5) -->
+# By 2026-11-13 the command file had grown to 1,800 lines and the Debug-opt DLL had been rebuilt about ten times in one day, each round checked only by hand.
+# See "Replaying commands" in README_SASPilot.md. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse reads the options, json the sequence and baselines, sys the exit code, Path the files; pilot is the client whose start, request and close this reuses. (Claude code Opus 5.5) -->
 import argparse
@@ -23,7 +24,8 @@ LOGS_DIR = Path(pilot.MAILBOX_ROOT).parent / "Logs"
 
 def load_sequence(path):
 	# <!-- custom: Called scenarios until 2026-11-13; Civ4 already uses "scenario" for its scenario maps and "replay" for Hall of Fame replays, so these became command sequences, in sequences/ (the user and Codex's naming discussion). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	# <!-- custom: A sequence is JSON: {"save": file name in Saves/single or a full path, "steps": [{"cmd": ..., "args": {...}, "ignore": [keys]}]}. A step's "ignore" lists result keys left out of the comparison for that step only.
+	# <!-- custom: A sequence is JSON: {"save": file name in Saves/single or a full path, "steps": [{"cmd": ..., "args": {...}, "ignore": [keys]}]}.
+	# A step's "ignore" lists result keys left out of the comparison for that step only.
 	# "sleep" waits that many seconds before the step, for what the game does on later frames, such as the screen 'contact' opens; "from" fills arguments from earlier results of this run, such as {"screen": "steps[8].result.screen"} for 'reply'.
 	# "afterTurn" waits until the game is past that turn and waits for orders, as the client's 'endturn' does, e.g. "steps[21].result.gameTurn" after an 'endturn'. (Claude code Opus 5.5) -->
 	sequence = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -39,7 +41,8 @@ def save_path(sequence):
 def strip(value, ignore):
 	if isinstance(value, dict):
 		result = dict((key, strip(item, ignore)) for (key, item) in value.items() if key not in VOLATILE_KEYS and key not in ignore)
-		# <!-- custom: A held popup's ID is never reused within a process, so replaying on the same client gave 3, then 5, for the same chooser (2026-11-13). Compare only that it is held; unit and city IDs, which a save fixes, are still compared. (Claude code Opus 5.5) -->
+		# <!-- custom: A held popup's ID is never reused within a process, so replaying on the same client gave 3, then 5, for the same chooser (2026-11-13).
+		# Compare only that it is held; unit and city IDs, which a save fixes, are still compared. (Claude code Opus 5.5) -->
 		if str(result.get("type", "")).startswith("BUTTONPOPUP_") and isinstance(result.get("id"), int) and result["id"] >= 0:
 			result["id"] = "held"
 		return result

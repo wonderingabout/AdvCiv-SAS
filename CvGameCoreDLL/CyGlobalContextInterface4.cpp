@@ -27,7 +27,8 @@ void CyGlobalContextPythonInterface4(python::class_<CyGlobalContext>& x)
 
 		.def("getNumControlInfos", &CyGlobalContext::getNumControlInfos, "() - Total Control Infos XML\\Units\\CIV4ControlInfos.xml")
 		.def("getControlInfo", &CyGlobalContext::getControlInfo, python::return_value_policy<python::reference_existing_object>(), "(ControlID) - CvInfo for ControlID")
-		// <!-- custom: Python had the CvInterfaceModeInfo class but no getter. The pilot's 'targets' command needs each mode's getMissionType, e.g. INTERFACEMODE_AIRSTRIKE gives MISSION_MOVE_TO, so it reads it here rather than copying CIV4InterfaceModeInfos.xml into Python. (Claude code Opus 5.5) -->
+		// <!-- custom: Python had the CvInterfaceModeInfo class but no getter.
+		// The pilot's 'targets' command needs each mode's getMissionType, e.g. INTERFACEMODE_AIRSTRIKE gives MISSION_MOVE_TO, so it reads it here rather than copying CIV4InterfaceModeInfos.xml into Python. (Claude code Opus 5.5) -->
 		.def("getInterfaceModeInfo", &CyGlobalContext::getInterfaceModeInfo, python::return_value_policy<python::reference_existing_object>(), "(InterfaceModeID) - CvInfo for InterfaceModeID")
 
 		.def("getNumPromotionInfos", &CyGlobalContext::getNumPromotionInfos, "() - Total Promotion Infos XML\\Units\\CIV4PromotionInfos.xml")

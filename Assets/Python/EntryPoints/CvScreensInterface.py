@@ -252,7 +252,8 @@ def showVictoryMovie(argsList):
 	victoryMovie.interfaceScreen(argsList[0])
 
 # <!-- custom: Switches for screens that only inform, as SAS_UI_DAWN_OF_MAN_ON is for Dawn of Man: an agent or an unattended run must click through each one, and what they say also reaches the event log ("You have discovered Navigation!").
-# Checked here, where the EXE shows them, so a splash the DLL launches (advc: CvTeam::setHasTech) is covered as well as the one CvEventManager.py queues. Read once, lazily, after GlobalDefines are loaded. (Claude code Opus 5.5) -->
+# Checked here, where the EXE shows them, so a splash the DLL launches (advc: CvTeam::setHasTech) is covered as well as the one CvEventManager.py queues.
+# Read once, lazily, after GlobalDefines are loaded. (Claude code Opus 5.5) -->
 _sasInfoScreenSwitches = {}
 
 

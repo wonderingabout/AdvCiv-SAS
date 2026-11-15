@@ -45,7 +45,8 @@ def codex_message_text(item, omit_agents=False):
 
 
 def open_codex_log(source):
-    # <!-- custom: Codex compresses older logs to rollout-*.jsonl.zst; the January 2026 History tab sessions were only readable that way (2026-11-13). zstandard is a pip package, imported only for such a file. (Claude Code Opus 5.5) -->
+    # <!-- custom: Codex compresses older logs to rollout-*.jsonl.zst; the January 2026 History tab sessions were only readable that way (2026-11-13).
+    # zstandard is a pip package, imported only for such a file. (Claude Code Opus 5.5) -->
     if source.suffix == ".zst":
         import io
         import zstandard
@@ -237,7 +238,8 @@ def codex_markdown(source, steps=False):
 
 
 def chatgpt_turn_timestamp(turn, kind):
-    # <!-- custom: The desktop connector supplies Unix seconds for the turn, but no timestamp on each message. Use its start or completion only when the corresponding speaker has one message in that turn. (GPT-6.1-Sol) -->
+    # <!-- custom: The desktop connector supplies Unix seconds for the turn, but no timestamp on each message.
+    # Use its start or completion only when the corresponding speaker has one message in that turn. (GPT-6.1-Sol) -->
     if sum(item["type"] == kind for item in turn["items"]) != 1:
         return None
     stamp = turn.get("startedAt" if kind == "userMessage" else "completedAt")

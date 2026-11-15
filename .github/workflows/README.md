@@ -91,6 +91,8 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Source](#source)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
+    - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
@@ -378,6 +380,12 @@ A new revision can say `pending` in its introducing commit because that commit c
 The lifetime rule applies from this checker's introduction; current histories are audited in full. Local draft checks use the staged candidate, excluding unrelated unstaged build outputs and diagnostic overrides.
 
 Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
+
+The practical number in a revision heading (`### Revision N - SAS practical M`) is not checked. On 2026-11-15 all 200 finalized SGR and 18 Runtime entries matched `git rev-list --count` of their commit, so a finalized entry could be checked, but a pending one cannot: its number depends on how its branch lands.
+
+- A squashed PR lands as one commit, a rebased or merged one keeps its commits, and a squash can sit on main's tip or replace an earlier preview of itself.
+- Example: SASPilot's SGR202 was first written as 6765, a count along its branch, then 6751 for a squash on top of main's preview commit (6750), and finally 6750 again, as the squash replaced that preview.
+- Only the integrator knows which applies, so the number is set when the PR lands, as the rewrite rule above says.
 
 #### `build/diagnostics/runtime_revision_history.py`
 
@@ -1012,7 +1020,7 @@ Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets
 
 #### `build/source/custom_comment_indentation.py`
 
-Verifies that no `// <!-- custom:` or `# <!-- custom:` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
+Verifies that no `// <!-- custom: ... -->` or `# <!-- custom: ... -->` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
 
 - A scripted edit once inserted retirement notes two levels too deep in `RiseFall.cpp` and `GroupPathFinder.cpp`; the code still compiled, so only review noticed ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)).
 - Requiring both neighbours to be shallower allows ordinary end-of-block notes, and a comment directly under a block opener (`{`, `:`, `(`, `,`, `\`), including commented-out code, is skipped.

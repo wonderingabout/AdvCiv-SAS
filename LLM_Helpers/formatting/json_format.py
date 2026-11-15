@@ -21,7 +21,8 @@ def unique_object(pairs):
 
 
 def _inline_json(value, indent, inline_width, level, sort_keys):
-	# <!-- custom: An array or object whose compact form fits inline_width (counting its indentation) stays on one line; larger ones open one member per line. Added for SASPilotConsole.py --pretty, where a 'workers' reply's plot rows each fit on a line (2026-11-14). (Claude code Opus 5.5) -->
+	# <!-- custom: An array or object whose compact form fits inline_width (counting its indentation) stays on one line; larger ones open one member per line.
+	# Added for SASPilotConsole.py --pretty, where a 'workers' reply's plot rows each fit on a line (2026-11-14). (Claude code Opus 5.5) -->
 	compact = json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=sort_keys, separators=(", ", ": "))
 	if not isinstance(value, (dict, list)) or len(compact) + level * indent <= inline_width or not value:
 		return compact
@@ -53,8 +54,7 @@ def format_document(text, section, indent):
 	if not isinstance(document, dict) or section not in document:
 		raise ValueError(f"no top-level member named {section!r}")
 
-	# <!-- custom: Walk JSON token boundaries so a key repeated inside a nested object
-	# or a string cannot be mistaken for the selected top-level member. (GPT-6.1-Sol) -->
+	# <!-- custom: Walk JSON token boundaries so a key repeated inside a nested object or a string cannot be mistaken for the selected top-level member. (GPT-6.1-Sol) -->
 	whitespace = re.compile(r"[ \t\r\n]*")
 	position = whitespace.match(text).end() + 1
 	while True:

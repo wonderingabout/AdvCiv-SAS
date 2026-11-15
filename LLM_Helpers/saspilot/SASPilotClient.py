@@ -24,16 +24,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "desktop"))
 
 # <!-- custom: The same folder as run_autoplay.USER_DIR, computed here so a plain request does not import run_autoplay. (Claude code Opus 5.5) -->
 MAILBOX_ROOT = Path(os.environ["USERPROFILE"]) / "Documents" / "My Games" / "beyond the sword" / "SASPilot"
-# <!-- custom: Replies at least this large are parsed and printed with orjson instead of the json module. On a Huge map's 1.6 MB plot reply the json module took 9 ms to parse and 58 ms to print indented, against 7 and 2 ms (2026-11-13); orjson costs about 27 ms to import, so small replies keep the json module. (Claude code Opus 5.5) -->
+# <!-- custom: Replies at least this large are parsed and printed with orjson instead of the json module.
+# On a Huge map's 1.6 MB plot reply the json module took 9 ms to parse and 58 ms to print indented, against 7 and 2 ms (2026-11-13); orjson costs about 27 ms to import, so small replies keep the json module. (Claude code Opus 5.5) -->
 ORJSON_MIN_BYTES = 200000
-# <!-- custom: How often the client looks for the reply. It was 0.02 s, which became most of the wait once the game served requests every frame; 0.001 s measured below 3 ms per ping (2026-11-13). (Claude code Opus 5.5) -->
+# <!-- custom: How often the client looks for the reply.
+# It was 0.02 s, which became most of the wait once the game served requests every frame; 0.001 s measured below 3 ms per ping (2026-11-13). (Claude code Opus 5.5) -->
 POLL_SECONDS = 0.001
 
 
-# <!-- custom: Per-client command log Logs/SASPilot_<processStartUtc>_<pid>.jsonl, one line per request: the user had nothing to watch while an agent played (replies are deleted once read), and a game reviewed later lacked the orders and their reasons to set beside SASGameRecord (2026-11-14). SASPilotConsole.py follows it. (Claude code Opus 5.5) -->
+# <!-- custom: Per-client command log Logs/SASPilot_<processStartUtc>_<pid>.jsonl, one line per request: the user had nothing to watch while an agent played (replies are deleted once read), and a game reviewed later lacked the orders and their reasons to set beside SASGameRecord (2026-11-14).
+# SASPilotConsole.py follows it. (Claude code Opus 5.5) -->
 LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: Commands that never change the game; a command with one of ORDER_ARGS is an order even so, e.g. 'espionage weight=' or 'fog on='. Everything else, 'py' included, is logged as an order, since it may change the game. (Claude code Opus 5.5) -->
-READ_COMMANDS = frozenset(("help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
+READ_COMMANDS = frozenset(("help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
 # <!-- custom: Codex's review found 'popups held=' (it switches holding) and 'profile' (it can run any command repeatedly) logged as reads, and the query forms of 'research', 'hurry' and 'freetech' as orders. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",)}
 # <!-- custom: A logged result longer than this is cut, so a 1.6 MB plot reply does not flood the log; its size is still recorded. (Claude code Opus 5.5) -->
@@ -96,11 +99,13 @@ def _log_request(pid, command, args, reply, error, kind=None):
 		# <!-- custom: To the millisecond, as agent messages are timestamped: several commands land in one second, as when a city's queue gets two items (the user's request, 2026-11-14). (Claude code Opus 5.5) -->
 		now = time.time()
 		record = {"utc": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(now)) + ".%03dZ" % (int(now * 1000) % 1000), "cmd": command, "kind": kind or command_kind(command, args), "args": args or {}}
-		# <!-- custom: Who sent the command, as several agents may pilot one client, such as Claude Code beside Codex instances (the user's idea, 2026-11-14): --operator or SAS_PILOT_OPERATOR, e.g. "Claude Code Opus 5.5". Rows without one are left without the field rather than given a guess. (Claude code Opus 5.5) -->
+		# <!-- custom: Who sent the command, as several agents may pilot one client, such as Claude Code beside Codex instances (the user's idea, 2026-11-14): --operator or SAS_PILOT_OPERATOR, e.g. "Claude Code Opus 5.5".
+		# Rows without one are left without the field rather than given a guess. (Claude code Opus 5.5) -->
 		operator = _log_context["operator"]
 		if operator:
 			record["operator"] = operator
-		# <!-- custom: The name alone would merge two sessions of the same agent and model, such as two Claude Code Opus 5.5 chats, which are different operators (the user, 2026-11-14). So the agent's session ID goes with it, and name plus session is the operator's identity below; Claude Code's ID is also its session log's file name, which ties a row to its chat. (Claude code Opus 5.5) -->
+		# <!-- custom: The name alone would merge two sessions of the same agent and model, such as two Claude Code Opus 5.5 chats, which are different operators (the user, 2026-11-14).
+		# So the agent's session ID goes with it, and name plus session is the operator's identity below; Claude Code's ID is also its session log's file name, which ties a row to its chat. (Claude code Opus 5.5) -->
 		session = _log_context["session"]
 		if session:
 			record["operatorSession"] = session
@@ -168,7 +173,8 @@ def _log_request(pid, command, args, reply, error, kind=None):
 					counters["turn"] = record["turn"]
 					counters["n"] = 0
 				lines = []
-				# <!-- custom: The first row from an operator not yet in this log is preceded by a row of kind "operator", "Operator 2 joined: <name>", numbered in order of arrival; operators are remembered in the .seq file, under the same lock, so two agents starting at once still get distinct numbers. grep '"kind": "operator"' lists who piloted the client. (Claude code Opus 5.5) -->
+				# <!-- custom: The first row from an operator not yet in this log is preceded by a row of kind "operator", "Operator 2 joined: <name>", numbered in order of arrival; operators are remembered in the .seq file, under the same lock, so two agents starting at once still get distinct numbers.
+				# grep '"kind": "operator"' lists who piloted the client. (Claude code Opus 5.5) -->
 				operators = counters.setdefault("operators", [])
 				# <!-- custom: The session alone when there is one: the name can vary within a session (a call without SAS_PILOT_OPERATOR is named by the agent's kind), the session cannot. (Claude code Opus 5.5) -->
 				identity = session or operator
@@ -210,7 +216,8 @@ def _log_request(pid, command, args, reply, error, kind=None):
 
 
 def list_operators(pid):
-	# <!-- custom: 'operator list': every operator of this client's log, in order of arrival, with its join and leave times, so who piloted and when is one command away rather than a grep (the user, 2026-11-14). left is null until 'operator left' is written; an agent that just stops shows its last command instead.
+	# <!-- custom: 'operator list': every operator of this client's log, in order of arrival, with its join and leave times, so who piloted and when is one command away rather than a grep (the user, 2026-11-14).
+	# left is null until 'operator left' is written; an agent that just stops shows its last command instead.
 	# Read from the log, the record of what happened; the .seq file holds only the identities, for numbering. (Claude code Opus 5.5) -->
 	path = log_path(pid)
 	if path is None or not path.exists():
@@ -259,7 +266,8 @@ def list_operators(pid):
 
 
 def remind(args, failed):
-	# <!-- custom: Reminders the agent gets with each command's output, so the user need not point these out every time (the user, 2026-11-14): an error, and a 'py' order, whose snippet may belong in a command (AGENTS.md); 'SASPilotClient.py review' gathers them. Printed on stderr, which the agent's tool shows beside the reply. (Claude code Opus 5.5) -->
+	# <!-- custom: Reminders the agent gets with each command's output, so the user need not point these out every time (the user, 2026-11-14): an error, and a 'py' order, whose snippet may belong in a command (AGENTS.md); 'SASPilotClient.py review' gathers them.
+	# Printed on stderr, which the agent's tool shows beside the reply. (Claude code Opus 5.5) -->
 	if args.command == "py":
 		print("pilot: reminder: a 'py' order; if a later game would ask this again, make it a command in SASPilotCommands.py rather than writing the code again (AGENTS.md). 'SASPilotClient.py review' lists this session's snippets.", file=sys.stderr)
 	elif failed:
@@ -267,7 +275,8 @@ def remind(args, failed):
 
 
 def review(pid):
-	# <!-- custom: 'SASPilotClient.py review': for this operator's session, its errors and its 'py' snippets grouped by code, most repeated first, from the client's log. A snippet written more than once is the clearest case for a command; errors show what to fix in the pilot or in how it is used. (Claude code Opus 5.5) -->
+	# <!-- custom: 'SASPilotClient.py review': for this operator's session, its errors and its 'py' snippets grouped by code, most repeated first, from the client's log.
+	# A snippet written more than once is the clearest case for a command; errors show what to fix in the pilot or in how it is used. (Claude code Opus 5.5) -->
 	path = log_path(pid)
 	if path is None or not path.exists():
 		raise PilotError("no command log for client %d" % pid)
@@ -299,7 +308,8 @@ def review(pid):
 
 
 def health(pid, timeout):
-	# <!-- custom: 'SASPilotClient.py health', the user's idea (2026-11-14): the pilot's own state in one reply, gathered from 'ping' (the bridge's tick errors), the settings check, 'review' (this session's errors and 'py' snippets), 'operator list', the session's role and fog, and whether a watcher console follows this client. "problems" lists what needs a look, empty when all is well. (Claude code Opus 5.5) -->
+	# <!-- custom: 'SASPilotClient.py health', the user's idea (2026-11-14): the pilot's own state in one reply, gathered from 'ping' (the bridge's tick errors), the settings check, 'review' (this session's errors and 'py' snippets), 'operator list', the session's role and fog, and whether a watcher console follows this client.
+	# "problems" lists what needs a look, empty when all is well. (Claude code Opus 5.5) -->
 	ping = request(pid, "ping", {}, timeout)
 	if not ping.get("ok"):
 		raise PilotError("ping failed: %s" % ping.get("error"))
@@ -335,7 +345,8 @@ def log_game_marker(pid, event, save, state):
 	# <!-- custom: One Civ4 process often plays dozens of games in a session (each replay and each 'menu path=' loads one), so its command log mixes them; SASGameRecord and BBAI split per load because the DLL knows each load. A row of kind "game" at each 'start' and load, with the save (or the new game's map) and its turn, marks where each game begins: grep '"kind": "game"' to split the log, and SASPilotConsole.py prints it as a banner (the user, 2026-11-14).
 	# A file per game was not chosen: a session of short replays would leave dozens of small files. (Claude code Opus 5.5) -->
 	args = {"event": event, "save": save, "map": state.get("mapScript"), "gameTurn": state.get("gameTurn"), "loads": state.get("loads"), "role": state.get("role") or "all"}
-	# <!-- custom: The recommended-settings check went only to the terminal that ran 'start' (stderr), so a person watching the console never saw it; the user asked whether it had been forgotten (2026-11-14). Its result goes on the game row too: how many were checked and the names not at their recommended value, which the watcher's banner shows. (Claude code Opus 5.5) -->
+	# <!-- custom: The recommended-settings check went only to the terminal that ran 'start' (stderr), so a person watching the console never saw it; the user asked whether it had been forgotten (2026-11-14).
+	# Its result goes on the game row too: how many were checked and the names not at their recommended value, which the watcher's banner shows. (Claude code Opus 5.5) -->
 	try:
 		rows = settings_check()
 		args["settingsChecked"] = len(rows)
@@ -357,7 +368,8 @@ def live_mailboxes():
 
 
 def layout_clients(monitor=1, wait=0.0):
-	# <!-- custom: The user's ask (2026-11-15): with two clients, each console beside its own Civ4, rather than the second client's console opened full height over the first. One band per running client, the oldest on top, as SASPilotConsole.arrange lays out a band; a console is found by the title it sets, waiting up to 'wait' seconds for one just opened. (Claude code Opus 5.5) -->
+	# <!-- custom: The user's ask (2026-11-15): with two clients, each console beside its own Civ4, rather than the second client's console opened full height over the first.
+	# One band per running client, the oldest on top, as SASPilotConsole.arrange lays out a band; a console is found by the title it sets, waiting up to 'wait' seconds for one just opened. (Claude code Opus 5.5) -->
 	import desktop_windows
 	import SASPilotConsole
 	clients = [(SASPilotConsole.process_instance(pid), pid) for pid in live_mailboxes()]
@@ -436,7 +448,8 @@ def request(pid, command, args=None, timeout=60.0):
 
 
 def _request(pid, command, args=None, timeout=60.0):
-	# <!-- custom: Returns the reply dict: ok, result or error and traceback, gameTurn. The game serves requests on its updates, every frame in game, so a reply can wait behind a long AI turn or a load. (Claude code Fable 5.2 + Opus 5.5) -->
+	# <!-- custom: Returns the reply dict: ok, result or error and traceback, gameTurn.
+	# The game serves requests on its updates, every frame in game, so a reply can wait behind a long AI turn or a load. (Claude code Fable 5.2 + Opus 5.5) -->
 	mailbox = MAILBOX_ROOT / str(pid)
 	if not mailbox.is_dir():
 		raise PilotError("no mailbox %s; is the pilot on for that client?" % mailbox)
@@ -463,7 +476,8 @@ def _request(pid, command, args=None, timeout=60.0):
 					raise PilotError("the reply to request %s, %s, could not be read within %g s" % (request_id, reply_path.name, timeout))
 				time.sleep(POLL_SECONDS)
 				continue
-			# <!-- custom: Replies are renamed into place whole, so one that does not parse is a bridge bug, not a write in progress: retrying it hid an invalid reply behind a timeout. The file is kept for inspection. (Claude code Fable 5.2) -->
+			# <!-- custom: Replies are renamed into place whole, so one that does not parse is a bridge bug, not a write in progress: retrying it hid an invalid reply behind a timeout.
+			# The file is kept for inspection. (Claude code Fable 5.2) -->
 			try:
 				reply = load_reply(raw)
 			except ValueError as error:
@@ -483,12 +497,14 @@ def _request(pid, command, args=None, timeout=60.0):
 				raise PilotError("Civ4 %d has exited" % pid)
 		if time.monotonic() > deadline:
 			# <!-- custom: Withdraw the unanswered request so it does not run later, out of context. (Claude code Fable 5.2) -->
-			# <!-- custom: Only a request the game has not claimed can be withdrawn: it renames req_ to run_ before running it (SASPilotCommands.poll). The error now says which case it was, as a retry after a command already started would repeat it (ChatGPT's review, 2026-11-14). (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+			# <!-- custom: Only a request the game has not claimed can be withdrawn: it renames req_ to run_ before running it (SASPilotCommands.poll).
+			# The error now says which case it was, as a retry after a command already started would repeat it (ChatGPT's review, 2026-11-14). (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
 			try:
 				(mailbox / request_name).unlink()
 				started_note = "it was withdrawn before the game took it, so retrying is safe"
 			except FileNotFoundError:
-				# <!-- custom: A run_ only says the game claimed it; a failed read or reply write can leave it behind, so the outcome is unknown either way (Codex's review). One last look catches a reply that landed at the deadline; the request ID lets the caller find a later one. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+				# <!-- custom: A run_ only says the game claimed it; a failed read or reply write can leave it behind, so the outcome is unknown either way (Codex's review).
+				# One last look catches a reply that landed at the deadline; the request ID lets the caller find a later one. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 				if reply_path.exists():
 					continue
 				started_note = "the game claimed request %s, outcome unknown, so check the game's state before retrying; a late reply would be %s" % (request_id, reply_path.name)
@@ -530,7 +546,8 @@ def wait_for_turn(pid, timeout, after_turn=None, after_loads=None):
 
 
 def load_game(pid, path, timeout=600.0):
-	# <!-- custom: Loads a save in a running client and returns once that game waits for orders. Waiting for an active turn alone returned at once on the game being left, which still answered as in game, so the first commands after a load ran on the old game (2026-11-13); SASPilot counts finished loads, and this waits for the count to rise. (Claude code Opus 5.5) -->
+	# <!-- custom: Loads a save in a running client and returns once that game waits for orders.
+	# Waiting for an active turn alone returned at once on the game being left, which still answered as in game, so the first commands after a load ran on the old game (2026-11-13); SASPilot counts finished loads, and this waits for the count to rise. (Claude code Opus 5.5) -->
 	check_save_mod(Path(path))
 	before = call(pid, "ping").get("loads")
 	if before is None:
@@ -542,7 +559,8 @@ def load_game(pid, path, timeout=600.0):
 
 
 def resolve_save(name):
-	# <!-- custom: SASPilotReplay.py already took a bare name from Saves/single, while start --save took only a path, so on 2026-11-13 "start --save sas_pilot_fogplay_t148" failed; both now share this lookup. The extension may be left out too. (Claude code Opus 5.5) -->
+	# <!-- custom: SASPilotReplay.py already took a bare name from Saves/single, while start --save took only a path, so on 2026-11-13 "start --save sas_pilot_fogplay_t148" failed; both now share this lookup.
+	# The extension may be left out too. (Claude code Opus 5.5) -->
 	# <!-- custom: The extension is added before anything is looked up, and only a bare name falls back to Saves/single: the first draft checked the path without its extension, so "samples/local" went to Saves/single although samples/local.CivBeyondSwordSave existed (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	save = Path(name)
 	if not save.suffix:
@@ -558,7 +576,8 @@ def resolve_save(name):
 
 def check_save_mod(path):
 	# <!-- custom: Every mod names its saves "PC BC-<year>" by default, so on 2026-11-13 a Caveman2Cosmos save in the shared Saves folder was taken for an AdvCiv-SAS one, and Civ4 stopped on a dialog asking to restart into that mod, which the pilot cannot answer.
-	# So the pilot refuses a save made for another mod before Civ4 sees it. See "Loading a save" in README_SASPilot.md. (Claude code Opus 5.5) -->
+	# So the pilot refuses a save made for another mod before Civ4 sees it.
+	# See "Loading a save" in README_SASPilot.md. (Claude code Opus 5.5) -->
 	# <!-- custom: The header is read by run_autoplay.save_mod_folder, which autoplay already used for the same check, rather than a second copy (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	import run_autoplay
 	if not Path(path).is_file():
@@ -578,7 +597,9 @@ PILOT_RECOMMENDED = {"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1}
 
 def settings_check():
 	# <!-- custom: The user suggested a greeting that lists the recommended settings for agent runs with their values, warning of those not set (2026-11-14): with the Dawn of Man screen or a tech splash on, a game waits on a Continue button the pilot does not press, and with SASGameRecord off a game leaves no record to review.
-	# The development values come from toggle_dev_diagnostics.py, so the two cannot drift apart. They are read from the working tree, which may differ from the committed values players get. Returns one row per setting: file, name, current, recommended, ok. (Claude code Opus 5.5) -->
+	# The development values come from toggle_dev_diagnostics.py, so the two cannot drift apart.
+	# They are read from the working tree, which may differ from the committed values players get.
+	# Returns one row per setting: file, name, current, recommended, ok. (Claude code Opus 5.5) -->
 	sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "diagnostics"))
 	import toggle_dev_diagnostics
 	text = toggle_dev_diagnostics.DEFINES_PATH.read_bytes().decode("utf-8")
@@ -589,7 +610,8 @@ def settings_check():
 		matches = toggle_dev_diagnostics.define_pattern(name).findall(text)
 		current = len(matches) == 1 and matches[0][1] or None
 		rows.append({"file": "GlobalDefines_advciv_sas.xml", "name": name, "current": current, "recommended": str(value), "ok": current == str(value)})
-	# <!-- custom: CivilizationIV.ini settings too (the user, 2026-11-14): LoggingEnabled for PythonErr.log and the other Civ4 logs, GenerateCrashDumps for a dump to debug a crash with, FullScreen 0 so screenshots and window layouts work, HidePythonExceptions 0 so a Python error shows. Keys are matched without regard to case, as the file writes them in lower case. (Claude code Opus 5.5) -->
+	# <!-- custom: CivilizationIV.ini settings too (the user, 2026-11-14): LoggingEnabled for PythonErr.log and the other Civ4 logs, GenerateCrashDumps for a dump to debug a crash with, FullScreen 0 so screenshots and window layouts work, HidePythonExceptions 0 so a Python error shows.
+	# Keys are matched without regard to case, as the file writes them in lower case. (Claude code Opus 5.5) -->
 	ini_path = MAILBOX_ROOT.parent / "CivilizationIV.ini"
 	ini = {}
 	if ini_path.is_file():
@@ -666,7 +688,8 @@ def start(args):
 		time.sleep(0.5)
 	state = wait_for_turn(pid, max(5.0, deadline - time.monotonic()))
 	state["iniFile"] = str(ini_path)
-	# <!-- custom: Fog is the game-side session's switch and starts off, so relaunching the fog-on playthrough at turn 156 silently gave full sight until a reply showed "fog": false three turns later (2026-11-13). --fog switches it on before the first command. (Claude code Opus 5.5) -->
+	# <!-- custom: Fog is the game-side session's switch and starts off, so relaunching the fog-on playthrough at turn 156 silently gave full sight until a reply showed "fog": false three turns later (2026-11-13).
+	# --fog switches it on before the first command. (Claude code Opus 5.5) -->
 	if args.fog:
 		reply = request(pid, "fog", {"on": 1}, 60.0)
 		if not reply.get("ok"):
@@ -700,14 +723,18 @@ def open_watcher(pid, slots=1, slot=1):
 
 
 def ensure_watcher(pid, slots=None, slot=None):
-	# <!-- custom: Open the client's console, or reopen it when it has closed: on 2026-11-14 the console ended with the agent's session while Civ4 ran on, and the user could not find it. The console writes its PID and creation time to <log>.watch; a missing file, a process that ended or a reused PID means it is gone. One file read and one OpenProcess per command, far below a request's time. Only for a client with a log, as a console waits on one. (Claude code Opus 5.5) -->
+	# <!-- custom: Open the client's console, or reopen it when it has closed: on 2026-11-14 the console ended with the agent's session while Civ4 ran on, and the user could not find it.
+	# The console writes its PID and creation time to <log>.watch; a missing file, a process that ended or a reused PID means it is gone.
+	# One file read and one OpenProcess per command, far below a request's time.
+	# Only for a client with a log, as a console waits on one. (Claude code Opus 5.5) -->
 	if os.environ.get("SAS_PILOT_WATCH") == "0":
 		return False
 	try:
 		path = log_path(pid)
 		if path is None or not path.exists():
 			return False
-		# <!-- custom: The check and the launch run under a lock on <log>.watchlock, so one caller at a time decides: Codex reproduced two callers that both found no console and both opened one (round 33), then, with an exclusive claim file, two that both took over a stale claim (round 34). A caller that finds the lock held leaves the console to the one holding it; the lock goes with the process, so a call that dies frees it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		# <!-- custom: The check and the launch run under a lock on <log>.watchlock, so one caller at a time decides: Codex reproduced two callers that both found no console and both opened one (round 33), then, with an exclusive claim file, two that both took over a stale claim (round 34).
+		# A caller that finds the lock held leaves the console to the one holding it; the lock goes with the process, so a call that dies frees it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		import msvcrt
 		descriptor = os.open(str(path.with_suffix(".watchlock")), os.O_RDWR | os.O_CREAT | os.O_BINARY)
 		try:
@@ -751,7 +778,8 @@ def _bridge(pid, command, command_args, timeout):
 
 
 def _reply_with(pid, screen, comments, timeout, bound=None):
-	# <!-- custom: bound is (partner, conversation): Codex's review mocked another leader's trade screen opening before the one 'price' asked for, and 'price' accepted that leader's counter-offer, then declined in his conversation. A screen of anyone else, or of a later conversation, is now refused before any reply. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: bound is (partner, conversation): Codex's review mocked another leader's trade screen opening before the one 'price' asked for, and 'price' accepted that leader's counter-offer, then declined in his conversation.
+	# A screen of anyone else, or of a later conversation, is now refused before any reply. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if bound is not None and (screen.get("who"), screen.get("conversation")) != bound:
 		raise PilotError("the screen is now with player %s, conversation %s, not %s; see 'diplo'" % (screen.get("who"), screen.get("conversation"), bound))
 	for comment in comments:
@@ -761,17 +789,21 @@ def _reply_with(pid, screen, comments, timeout, bound=None):
 	return None
 
 
-# <!-- custom: Replies that only end a conversation; a screen offering anything else (a deal, peace, a demand) is left for the agent. On turn 289 (2026-11-14) Kublai's war declaration, Joao's thanks and two cancelled deals queued up one after another, and each needed a 'diplo' and a 'reply'. (Claude code Opus 5.5) -->
+# <!-- custom: Replies that only end a conversation; a screen offering anything else (a deal, peace, a demand) is left for the agent.
+# On turn 289 (2026-11-14) Kublai's war declaration, Joao's thanks and two cancelled deals queued up one after another, and each needed a 'diplo' and a 'reply'. (Claude code Opus 5.5) -->
 LEAVE_REPLIES = ("USER_DIPLOCOMMENT_EXIT", "USER_DIPLOCOMMENT_NO_RENEGOTIATE")
-# <!-- custom: The AI lines that only inform. Codex's review mocked a wartime greeting offering both Suggest peace and Exit, and the first version sent Exit, as it went by the replies alone; now only these lines are closed, whatever else the screen offers. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-# <!-- custom: AI_DIPLOCOMMENT_PEACE is the "Wonderful." that follows choosing peace at a first contact; at turn 8 of the turn-0 game (2026-11-14) it stopped 'leave', though it offers only "something else" and Exit. (Claude code Opus 5.5) -->
+# <!-- custom: The AI lines that only inform.
+# Codex's review mocked a wartime greeting offering both Suggest peace and Exit, and the first version sent Exit, as it went by the replies alone; now only these lines are closed, whatever else the screen offers. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+# <!-- custom: AI_DIPLOCOMMENT_PEACE is the "Wonderful."
+# that follows choosing peace at a first contact; at turn 8 of the turn-0 game (2026-11-14) it stopped 'leave', though it offers only "something else" and Exit. (Claude code Opus 5.5) -->
 # <!-- custom: AI_DIPLOCOMMENT_STOP_DENIED is the AI's answer to our refusal of its demand to stop trading (Sitting Bull at turn 115 of the turn-0 game, 2026-11-14); it only informs, and stopped 'leave'. (Claude code Opus 5.5) -->
 LEAVE_AI_COMMENTS = ("AI_DIPLOCOMMENT_THANKS", "AI_DIPLOCOMMENT_GLAD", "AI_DIPLOCOMMENT_CANCEL_DEAL", "AI_DIPLOCOMMENT_DECLARE_WAR", "AI_DIPLOCOMMENT_SOMETHING_ELSE", "AI_DIPLOCOMMENT_NO_PEACE", "AI_DIPLOCOMMENT_PEACE", "AI_DIPLOCOMMENT_STOP_DENIED")
 LEAVE_ONLY_REPLY_COMMENTS = ("AI_DIPLOCOMMENT_DECLARE_WAR",)
 
 
 def leave_screens(pid, timeout, rounds=12):
-	# <!-- custom: Close diplomacy screens that only inform, as a person clicks through them: the exit reply, or the only reply of a war declaration. Stops at a screen with a choice and returns it, with the screens closed before it. (Claude code Opus 5.5) -->
+	# <!-- custom: Close diplomacy screens that only inform, as a person clicks through them: the exit reply, or the only reply of a war declaration.
+	# Stops at a screen with a choice and returns it, with the screens closed before it. (Claude code Opus 5.5) -->
 	closed = []
 	for _ in range(rounds):
 		screen = call(pid, "diplo", {}, timeout)
@@ -827,8 +859,12 @@ def ask_price(pid, price_args, timeout):
 	if screen.get("aiComment") != "AI_DIPLOCOMMENT_TRADING":
 		raise PilotError("a %s screen opened, not the trade table; see 'diplo'" % screen.get("aiComment"))
 	bound = (screen.get("who"), screen.get("conversation"))
-	# <!-- custom: Selling, with only our own items on the table, the screen asks "What will you give me for this?" (FISH_FOR_DEAL) instead of "What do you want for this?" (OFFER): offering Monarchy to Moctezuma at turn 120 of the second fog-on game came back unpriced (2026-11-13). (Claude code Opus 5.5) -->
-	# <!-- custom: With items on both sides, the screen offers "Can you complete this deal?" (COMPLETE_DEAL) and Propose instead: Navigation against Meditation and Drama with Kublai at turn 133 came back unpriced. COMPLETE_DEAL is the counter-offer the window gives for such a table. (Claude code Opus 5.5) -->
+	# <!-- custom: Selling, with only our own items on the table, the screen asks "What will you give me for this?"
+	# (FISH_FOR_DEAL) instead of "What do you want for this?"
+	# (OFFER): offering Monarchy to Moctezuma at turn 120 of the second fog-on game came back unpriced (2026-11-13). (Claude code Opus 5.5) -->
+	# <!-- custom: With items on both sides, the screen offers "Can you complete this deal?"
+	# (COMPLETE_DEAL) and Propose instead: Navigation against Meditation and Drama with Kublai at turn 133 came back unpriced.
+	# COMPLETE_DEAL is the counter-offer the window gives for such a table. (Claude code Opus 5.5) -->
 	asked = _reply_with(pid, screen, ["USER_DIPLOCOMMENT_OFFER", "USER_DIPLOCOMMENT_FISH_FOR_DEAL", "USER_DIPLOCOMMENT_COMPLETE_DEAL"], timeout, bound)
 	if asked is None:
 		result = {"priced": False, "aiComment": screen.get("aiComment"), "replies": [choice["comment"] for choice in screen.get("replies", [])]}
@@ -840,10 +876,12 @@ def ask_price(pid, price_args, timeout):
 			result["acceptSent"] = accepted is not None
 			if accepted is not None:
 				result["aiAnswer"] = accepted.get("aiComment")
-	# <!-- custom: Leave without agreeing: decline a counter-offer, then exit; a few rounds, as each reply can bring a new AI line. Whether the screen closed is reported, rather than returning with it still open after the last round (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: Leave without agreeing: decline a counter-offer, then exit; a few rounds, as each reply can bring a new AI line.
+	# Whether the screen closed is reported, rather than returning with it still open after the last round (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	result["screenClosed"] = False
 	# <!-- custom: A stop while leaving is reported in the result, not raised: Codex's review mocked a new conversation opening after the acceptance, and the raised error discarded acceptSent, so a caller could retry a purchase already sent. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	# <!-- custom: Never mind before Exit, and closed only if still closed a second later: at turn 114 of the turn-0 game (2026-11-14) Exit straight from Louis's trade table after his refusal reported the screen closed, yet the table was open again moments later, which blocked the next 'price' ("a diplomacy screen is already open"). Never mind returned to his main screen (AI_DIPLOCOMMENT_WELL), and Exit from there stayed closed. (Claude code Opus 5.5) -->
+	# <!-- custom: Never mind before Exit, and closed only if still closed a second later: at turn 114 of the turn-0 game (2026-11-14) Exit straight from Louis's trade table after his refusal reported the screen closed, yet the table was open again moments later, which blocked the next 'price' ("a diplomacy screen is already open").
+	# Never mind returned to his main screen (AI_DIPLOCOMMENT_WELL), and Exit from there stayed closed. (Claude code Opus 5.5) -->
 	try:
 		for _ in range(6):
 			screen = _bridge(pid, "diplo", {}, timeout)
@@ -998,9 +1036,11 @@ def main():
 	if args.note:
 		_log_context["note"] = args.note
 	_log_context["operator"] = args.operator or os.environ.get("SAS_PILOT_OPERATOR") or None
-	# <!-- custom: SAS_PILOT_OPERATOR_SESSION for any agent; Claude Code sets CLAUDE_CODE_SESSION_ID in its shell (seen 2026-11-14). Codex sets CODEX_THREAD_ID (and CODEX_SESSION_ID), its rollout ID, as it reported the same day. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: SAS_PILOT_OPERATOR_SESSION for any agent; Claude Code sets CLAUDE_CODE_SESSION_ID in its shell (seen 2026-11-14).
+	# Codex sets CODEX_THREAD_ID (and CODEX_SESSION_ID), its rollout ID, as it reported the same day. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	_log_context["session"] = os.environ.get("SAS_PILOT_OPERATOR_SESSION") or os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or None
-	# <!-- custom: An agent's shell gives its session but not its model, and an agent can forget SAS_PILOT_OPERATOR for one call: two of this session's 'py' commands were logged without an operator (2026-11-14). So the agent's kind names the operator when none is given; the session, the same either way, keeps those rows with the named ones. (Claude code Opus 5.5) -->
+	# <!-- custom: An agent's shell gives its session but not its model, and an agent can forget SAS_PILOT_OPERATOR for one call: two of this session's 'py' commands were logged without an operator (2026-11-14).
+	# So the agent's kind names the operator when none is given; the session, the same either way, keeps those rows with the named ones. (Claude code Opus 5.5) -->
 	if not _log_context["operator"]:
 		if os.environ.get("CLAUDE_CODE_SESSION_ID"):
 			_log_context["operator"] = "Claude Code"

@@ -154,7 +154,8 @@ def main():
                 if reason:
                     print(json.dumps({"stop": reason}))
                     return 0
-            # <!-- custom: Codex's review (round 38, P1): the immediate 'endturn' reply holds only the turn ended and what it skipped, so the new turn's messages and reminders never reached the stop check. Check 'todo' before ending, then wait for the new turn and read the 'turn' digest, as SASPilotClient.py endturn does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+            # <!-- custom: Codex's review (round 38, P1): the immediate 'endturn' reply holds only the turn ended and what it skipped, so the new turn's messages and reminders never reached the stop check.
+            # Check 'todo' before ending, then wait for the new turn and read the 'turn' digest, as SASPilotClient.py endturn does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
             before = ask(pid, "todo")
             waiting = digest({"todo": before}, ids, known)
             if waiting:

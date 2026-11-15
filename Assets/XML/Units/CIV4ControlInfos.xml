@@ -10,7 +10,9 @@
 <Civ4ControlInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<!--Changes must be reflected in CvEnums.h-->
 	<!-- custom: BtS pointed 16 controls at TXT_KEY_ACTION_*_HELP keys that no text defines, while its own texts for them are named TXT_KEY_ACTION_CONTROL_*_HELP; Next Unit and Previous Unit even used the undefined TXT_KEY_ACTION_PREVIOUS_PLOT_UNIT_HELP as their name, so the game returned the raw key.
-	These controls now use the stock texts, matched by meaning: Next and Previous Unit cycle the units on the selected plot (CvGame::doControl), hence NEXT_UNIT with CONTROL_NEXT_PLOT_UNIT_HELP. Last Unit, Ping, Sign and the toggles keep their keys, as no stock text describes them. Suggested by Codex's review of KI#1085's check. See KI#1085. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	These controls now use the stock texts, matched by meaning: Next and Previous Unit cycle the units on the selected plot (CvGame::doControl), hence NEXT_UNIT with CONTROL_NEXT_PLOT_UNIT_HELP.
+	Last Unit, Ping, Sign and the toggles keep their keys, as no stock text describes them.
+	Suggested by Codex's review of KI#1085's check. See KI#1085. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	<ControlInfos>
 		<ControlInfo>
 			<Type>CONTROL_CENTERONSELECTION</Type>

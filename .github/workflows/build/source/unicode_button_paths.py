@@ -11,6 +11,7 @@ import argparse
 import re
 import sys
 
+# <!-- custom: xml_defines from the workflows' lib/ gives the repository root, as the other build checks find it. (Claude code Opus 5.5) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
 from xml_defines import get_default_repo_root

@@ -2114,7 +2114,8 @@ char const* getSASPlotType(PlotTypes ePlotType)
 	}
 }
 
-// <!-- custom: The first version used CvSelectionGroup::lastMissionPlot, the end of the whole queue. Codex found two faults: with Move To A then Route To B, the hover named the head mission with B; and for MISSION_MOVE_TO_UNIT it is the live position of the target unit, so the JSON of our own unit could reveal a rival that had left our sight.
+// <!-- custom: The first version used CvSelectionGroup::lastMissionPlot, the end of the whole queue.
+// Codex found two faults: with Move To A then Route To B, the hover named the head mission with B; and for MISSION_MOVE_TO_UNIT it is the live position of the target unit, so the JSON of our own unit could reveal a rival that had left our sight.
 // So the head mission only: its plot for Move To and Route To, and for Move To Unit the target unit plot only while eViewTeam sees that unit. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 CvPlot const* getSASHeadMissionPlot(CvSelectionGroup const& kGroup, TeamTypes eViewTeam)
 {

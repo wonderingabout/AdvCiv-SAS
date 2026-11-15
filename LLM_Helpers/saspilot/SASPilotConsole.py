@@ -29,7 +29,8 @@ LOGS_DIR = Path.home() / "Documents" / "My Games" / "beyond the sword" / "Logs"
 
 
 def newest_log(pid):
-	# <!-- custom: With a running client, its own log, named by its start time as pilot.log_path names it: the newest file of a PID could belong to an earlier process that had the same PID (Codex's review). None until that log exists. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: With a running client, its own log, named by its start time as pilot.log_path names it: the newest file of a PID could belong to an earlier process that had the same PID (Codex's review).
+	# None until that log exists. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if pid:
 		ticks = process_instance(pid)
 		if ticks is not None:
@@ -42,7 +43,8 @@ def newest_log(pid):
 
 
 def process_instance(pid):
-	# <!-- custom: The running process's creation time (FILETIME ticks), or None when it has ended or cannot be opened: the PID alone could be reused by a new process, which would keep the watcher on a dead client's log (Codex's review), so the watcher compares this value with the one it saw at start. STILL_ACTIVE is 259. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The running process's creation time (FILETIME ticks), or None when it has ended or cannot be opened: the PID alone could be reused by a new process, which would keep the watcher on a dead client's log (Codex's review), so the watcher compares this value with the one it saw at start.
+	# STILL_ACTIVE is 259. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	import ctypes
 	from ctypes import wintypes
 	kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -63,14 +65,16 @@ def process_instance(pid):
 
 
 def short(value, limit):
-	# <!-- custom: limit 0 keeps the whole text: the user found results and arguments cut with "..." in the console and wanted them whole by default, cutting only for those who prefer it (2026-11-14). The log itself keeps at most pilot.LOG_RESULT_CHARS of a result. (Claude code Opus 5.5) -->
+	# <!-- custom: limit 0 keeps the whole text: the user found results and arguments cut with "..." in the console and wanted them whole by default, cutting only for those who prefer it (2026-11-14).
+	# The log itself keeps at most pilot.LOG_RESULT_CHARS of a result. (Claude code Opus 5.5) -->
 	text = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 	if limit <= 0 or len(text) <= limit:
 		return text
 	return text[:limit - 3] + "..."
 
 
-# <!-- custom: Colors for the human view, so an error stands out among hundreds of lines: errors red and game and operator banners yellow, then, by the user's choice the same day, results sky blue, the agent's notes bright white, then bold orchid when the user asked for them to stand out, and 'py' code light green (2026-11-14). Off unless main enables them for a console; the log itself stays plain JSON.
+# <!-- custom: Colors for the human view, so an error stands out among hundreds of lines: errors red and game and operator banners yellow, then, by the user's choice the same day, results sky blue, the agent's notes bright white, then bold orchid when the user asked for them to stand out, and 'py' code light green (2026-11-14).
+# Off unless main enables them for a console; the log itself stays plain JSON.
 # The palette lives in formatting/console_colors.py, shared with other helpers at the user's request. (Claude code Opus 5.5) -->
 _style = {}
 
@@ -87,8 +91,10 @@ def _operator_number(record):
 
 
 def _count(record, kind):
-	# <!-- custom: "#00013 (op6)": one number per kind that rises down the screen, then the operator. The first per-operator form, "6.3" for operator 6's third note, restarted at 1 for each operator, so the numbers did not rise down the screen, which the user read as backward (2026-11-14); each line already names its operator in the op column.
-	# Zero-padded to five digits, as the request numbers are, so the numbers sort and grep exactly ("why #00013" does not also match #000130), the user's idea. The operator rows read before the watcher's start (see main) give the numbers of operators that joined earlier. (Claude code Opus 5.5) -->
+	# <!-- custom: "#00013 (op6)": one number per kind that rises down the screen, then the operator.
+	# The first per-operator form, "6.3" for operator 6's third note, restarted at 1 for each operator, so the numbers did not rise down the screen, which the user read as backward (2026-11-14); each line already names its operator in the op column.
+	# Zero-padded to five digits, as the request numbers are, so the numbers sort and grep exactly ("why #00013" does not also match #000130), the user's idea.
+	# The operator rows read before the watcher's start (see main) give the numbers of operators that joined earlier. (Claude code Opus 5.5) -->
 	_style[kind] = _style.get(kind, 0) + 1
 	return "#%05d (op%s)" % (_style[kind], _operator_number(record))
 
@@ -139,7 +145,9 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 	number = "T%s" % ("?" if turn is None else "%04d" % turn)
 	if record.get("n") is not None:
 		number += "-%05d" % record["n"]
-	# <!-- custom: Each line names its operator by number, op1, op2, as the user asked whether every command should say who sent it (2026-11-14); the log row holds the name and session, the banner when it joined says which is which. op? for a row from no known operator. (Claude code Opus 5.5) -->
+	# <!-- custom: Each line names its operator by number, op1, op2, as the user asked whether every command should say who sent it (2026-11-14); the log row holds the name and session, the banner when it joined says which is which.
+	# op?
+	# for a row from no known operator. (Claude code Opus 5.5) -->
 	operator = "op%s" % _operator_number(record)
 	head = "%-12s %s %-4s %-5s %s" % (record.get("utc", "")[11:23].rstrip("Z"), number, operator, record.get("kind", ""), record.get("cmd", ""))
 	args = record.get("args") or {}
@@ -156,7 +164,8 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 				else:
 					parts.append("code=" + paint(value.splitlines()[0], "code") + " (+%d lines; shown without --short-code)" % (len(value.splitlines()) - 1))
 			elif key == "code" and record.get("cmd") == "py":
-				# <!-- custom: A long one-line snippet filled the console too, so without --code it is cut at 100 characters, like a multi-line one at its first line. Each 'py' call sends its whole code; a snippet that keeps coming back becomes a command instead, as 'map' and 'scout' did. (Claude code Opus 5.5) -->
+				# <!-- custom: A long one-line snippet filled the console too, so without --code it is cut at 100 characters, like a multi-line one at its first line.
+				# Each 'py' call sends its whole code; a snippet that keeps coming back becomes a command instead, as 'map' and 'scout' did. (Claude code Opus 5.5) -->
 				limit = width and 40
 				if not _style.get("code"):
 					limit = 100
@@ -179,7 +188,8 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 		# <!-- custom: --pretty prints a result as indented JSON, cut at max_lines: a nested result such as 'workers city=Hippo' read as one long line (the user, 2026-11-14). A result the log cut at 1,500 characters is a string and prints as it is.
 		# The log itself stays one JSON object per line, as agents are its main readers and grep or parse it line by line; the console is the human view, one line per command unless --pretty. (Claude code Opus 5.5) -->
 		result = record["result"]
-		# <!-- custom: A text map ('map', 'routes') prints as the picture it is, one map row per line: in one JSON line its rows ran together, unreadable (2026-11-14). The other fields stay on the first line. (Claude code Opus 5.5) -->
+		# <!-- custom: A text map ('map', 'routes') prints as the picture it is, one map row per line: in one JSON line its rows ran together, unreadable (2026-11-14).
+		# The other fields stay on the first line. (Claude code Opus 5.5) -->
 		if isinstance(result, dict) and isinstance(result.get("rows"), list) and all(isinstance(row, str) for row in result["rows"]):
 			rest = dict((key, value) for (key, value) in result.items() if key != "rows")
 			lines.append(paint("    -> " + short(rest, width), "result"))
@@ -197,7 +207,8 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 
 
 def console_window():
-	# <!-- custom: This console's own window: a classic console window belongs to its console host, not to this Python, so a lookup by os.getpid() is not reliable (Codex's review). None when there is no visible one, as under a pseudoconsole, and then nothing is moved. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: This console's own window: a classic console window belongs to its console host, not to this Python, so a lookup by os.getpid() is not reliable (Codex's review).
+	# None when there is no visible one, as under a pseudoconsole, and then nothing is moved. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	import ctypes
 	hwnd = ctypes.windll.kernel32.GetConsoleWindow()
 	if not hwnd or not ctypes.windll.user32.IsWindowVisible(hwnd):
@@ -207,7 +218,8 @@ def console_window():
 
 def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 	# <!-- custom: One horizontal band per piloted client, top to bottom: its Civ4 at its own size in the band's top-left corner (shrunk only to fit the band), its watcher console filling the rest of the band to the right.
-	# First set up on 2026-11-14 at the user's 3840x2160 monitor (work area 3840x2100, taskbar excluded) with a 1920x1110 Civ4 window: halving the screen had stretched Civ4 to 1920x2100, which the user called a "monster chicken", and they wanted Civ4 untouched and the console stretched. Two bands are meant for two clients side by side (`multiple`); other resolutions were not tried. (Claude code Opus 5.5) -->
+	# First set up on 2026-11-14 at the user's 3840x2160 monitor (work area 3840x2100, taskbar excluded) with a 1920x1110 Civ4 window: halving the screen had stretched Civ4 to 1920x2100, which the user called a "monster chicken", and they wanted Civ4 untouched and the console stretched.
+	# Two bands are meant for two clients side by side (`multiple`); other resolutions were not tried. (Claude code Opus 5.5) -->
 	import desktop_windows
 	areas = desktop_windows.monitors()
 	left, top, right, bottom = areas[monitor - 1]
@@ -221,7 +233,8 @@ def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 
 
 def open_window(args):
-	# <!-- custom: A console of its own, so the watcher is on the desktop rather than inside an app's terminal panel, which the user had to open to see it (2026-11-14). The child arranges itself once its console exists, as only then does it have a window. (Claude code Opus 5.5) -->
+	# <!-- custom: A console of its own, so the watcher is on the desktop rather than inside an app's terminal panel, which the user had to open to see it (2026-11-14).
+	# The child arranges itself once its console exists, as only then does it have a window. (Claude code Opus 5.5) -->
 	child = [sys.executable, str(Path(__file__).resolve())] + [item for item in sys.argv[1:] if item != "--window"] + ["--arrange-self"]
 	process = subprocess.Popen(child, creationflags=subprocess.CREATE_NEW_CONSOLE)
 	print("SASPilotConsole opened, process %d" % process.pid)
@@ -293,11 +306,13 @@ def main():
 			path.with_suffix(".watch").write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
 		except OSError as error:
 			print("could not write %s: %s" % (path.with_suffix(".watch"), error), file=sys.stderr)
-	# <!-- custom: A header saying what this console is: it opened with only "following <log>" and a date line, which the user found unclear (2026-11-14). The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
+	# <!-- custom: A header saying what this console is: it opened with only "following <log>" and a date line, which the user found unclear (2026-11-14).
+	# The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
 	started = time.time()
 	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the SASPilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
 	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like the pilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
-	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads. They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
+	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads.
+	# They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
 	if os.name == "nt":
 		import ctypes
 		ctypes.windll.kernel32.SetConsoleTitleW(u"SASPilotConsole - Civ4 client %s" % (args.pid or "newest"))
@@ -308,7 +323,8 @@ def main():
 		print("client:  Civ4 process %d, started %s UTC (from the log's name)" % (args.pid, path.stem.split("_")[1] if path.stem.count("_") >= 2 else "?"), file=sys.stderr)
 	# <!-- custom: "filter:" was "shows:", which the user read as the arguments (2026-11-14); it is which lines are printed. (Claude code Opus 5.5) -->
 	print("filter:  %s" % ("every command" if args.all else "orders, errors, and game and operator banners; --all adds reads"), file=sys.stderr)
-	# <!-- custom: The recommended-settings check, here as well as on the game banner: a game started before the banner carried it never showed it, and the user looked for it at the console's start (2026-11-14). SASPilotClient.py is imported only for this. (Claude code Opus 5.5) -->
+	# <!-- custom: The recommended-settings check, here as well as on the game banner: a game started before the banner carried it never showed it, and the user looked for it at the console's start (2026-11-14).
+	# SASPilotClient.py is imported only for this. (Claude code Opus 5.5) -->
 	try:
 		import SASPilotClient as pilot
 		rows = pilot.settings_check()
@@ -347,7 +363,8 @@ def main():
 					return 0
 				if args.once:
 					return 0
-				# <!-- custom: A watcher outlived its Civ4: on 2026-11-14 two watcher consoles were open, one still following client 31664 half an hour after it had closed, as nothing told the watcher; each relaunch with --watch then added a console. With --pid, check every 5 s of quiet that the client still runs, and end with it. (Claude code Opus 5.5) -->
+				# <!-- custom: A watcher outlived its Civ4: on 2026-11-14 two watcher consoles were open, one still following client 31664 half an hour after it had closed, as nothing told the watcher; each relaunch with --watch then added a console.
+				# With --pid, check every 5 s of quiet that the client still runs, and end with it. (Claude code Opus 5.5) -->
 				idle_polls += 1
 				if args.pid and idle_polls % 20 == 0 and (instance is None or process_instance(args.pid) != instance):
 					print("Civ4 process %d has ended; the watcher stops" % args.pid, flush=True)

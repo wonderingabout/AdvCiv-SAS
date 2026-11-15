@@ -14,7 +14,8 @@ import git_context
 ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Only text formats are scanned; binaries such as .lnk, .ani and .chm legitimately contain control bytes.
 # Tab, line feed and carriage return are allowed; every other C0 control byte and DEL is rejected. (Claude Code Sonnet 5.5) -->
-# <!-- custom: Form feed was allowed too, as an old page break, though no text file held one. On 2026-11-13 a shell turned "\find.exe" into a form feed and "ind.exe" in the Makefile and the workflows README, and "\f" did the same elsewhere, four times in one session; this check passed each time, and Read does not show the character.
+# <!-- custom: Form feed was allowed too, as an old page break, though no text file held one.
+# On 2026-11-13 a shell turned "\find.exe" into a form feed and "ind.exe" in the Makefile and the workflows README, and "\f" did the same elsewhere, four times in one session; this check passed each time, and Read does not show the character.
 # No text file holds one now, so form feed is rejected like the rest; .tsv joined the formats for the text manifests. See KI#38.7. (Claude code Opus 5.5) -->
 TEXT_SUFFIXES = {
     ".md", ".txt", ".py", ".xml", ".yml", ".yaml", ".json", ".jsonc", ".jsonl", ".cpp", ".c", ".h", ".inl", ".ps1", ".bat", ".cmd", ".sh",

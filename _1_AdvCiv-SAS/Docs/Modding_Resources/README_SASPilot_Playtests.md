@@ -9,6 +9,8 @@ What agents learned by playing through the pilot: games played as a person would
 [Scouting trial](#scouting-trial)\
 [Choosing a war target](#choosing-a-war-target)\
 [What a player knows about rivals not met](#what-a-player-knows-about-rivals-not-met)\
+[Map composition and contact](#map-composition-and-contact)\
+[Islands replay from turn 0](#islands-replay-from-turn-0)\
 [Where to take it](#where-to-take-it)\
 &emsp;[Modern baseline, 2026-11-14](#modern-baseline-2026-11-14)\
 &emsp;[Turn-0 game, 2026-11-14](#turn-0-game-2026-11-14)
@@ -216,28 +218,39 @@ On 2026-11-15 the user and the agent read a Large Pangaea autoplay at turn 200 (
 
 - Most rivals were weaker than us and liked us, so finding a target looked easy; the user's point was that weakness and nearness are only the start.
   - A war costs attitude: the target's friends resent it, some leaders resent expansion anyway, and attacking someone's friend angers them. A target its own neighbours dislike gains us goodwill instead.
-  - A strong rival far away rarely attacks, but is not harmless, so `targets` flags as `threat` any rival at least as strong as us who is Annoyed or Furious with us, has us as worst enemy or fights us, however far.
+  - A strong rival far away rarely attacks, but is not harmless, so `wartargets` flags as `threat` any rival at least as strong as us who is Annoyed or Furious with us, has us as worst enemy or fights us, however far.
 - The turn-200 reading:
   - `borders`: Grace O'Malley held our longest frontier (27 plots), then our vassal Saladin (17), Tokugawa (11) and Darius (5). Tokugawa's land touched only Darius's, and Darius's only Tokugawa, Saladin and us: a pocket no friend could reach.
-  - `targets`: a war on Darius would anger only Gandhi and please three leaders whose worst enemy he was; a war on Grace would anger five, one of them Friendly with her. We were already at war with Tokugawa, so taking his cities needed no new declaration. No rival was a threat: the one as strong as us, Grace, was Cautious.
+  - `wartargets`: a war on Darius would anger only Gandhi and please three leaders whose worst enemy he was; a war on Grace would anger five, one of them Friendly with her. We were already at war with Tokugawa, so taking his cities needed no new declaration. No rival was a threat: the one as strong as us, Grace, was Cautious.
   - `rivalcities` then changed the picture: Osaka, 5 plots away, held 14 defenders (four Samurai, three Catapults, two Trebuchets) and Susa 12, matching their high power per city (148 and 155 against our 87). The pocket was the diplomatic choice but not the cheap one; Grace's Galway, 4 plots away, was out of sight.
 - What a player can see differs by source, which the commands follow; the next section maps it.
 
 ## What a player knows about rivals not met
 
-The same day, a SAS48 SAS Large Facing Islands autoplay was stopped at turn 120 (400 BC, fog on), where ocean kept 45 of 47 rivals out of contact, to find what a player can still know about them. A SAS48 Pangaea at turn 134 had been no use for this: all 35 rivals were already met. The save is `sas_pilot_sas48_islands_t120` in Saves/single; a later DLL change can break it, so the findings are written here rather than relied on.
+The same day, a SAS48 SAS Large Facing Islands autoplay was stopped at turn 120 (400 BC, fog on), where ocean kept 45 of 47 rivals out of contact, to find what a player can still know about them.
+
+A SAS48 Pangaea at turn 134 had been no use for this: all 35 rivals were already met.
+
+The save is `sas_pilot_sas48_islands_t120` in Saves/single; a later DLL change can break it, so the findings are written here rather than relied on.
 
 - Public, met or not, now read by `world` (and `demographics` for the averages):
   - Wonders tab: all 21 world wonders with their year, 20 of them owned by "Unknown".
   - Top 5 Cities: four of the five "UNKNOWN", yet with size (10 or 11), founding date and wonders, e.g. one held the Jewish Shrine, Oracle, Parthenon and Temple of Artemis.
     - The name does not tell an unmet rival's civilization: an unseen city shows "UNKNOWN" whoever owns it, and AdvCiv (advc.001d) even dropped BtS's naming of a met player's unseen city with its civilization's adjective.
-    - Its wonders tell more, read with the Wonders list: the Natya Shastra, which the list gives to Maya, made the third an unseen city of Pacal II; the Jewish and Pagan Shrines made the first and fifth the holy cities of Judaism and Paganism; three founded at 50000 BC, the start, were capitals, so three different civilizations. `world` returns these as `ownerFromWonders`, `holyCityOf` and `foundedAtStart`; read each turn, the list tracks those cities' growth too.
+    - Its wonders tell more, read with the Wonders list: the Natya Shastra, which the list gives to Maya, made the third an unseen city of Pacal II; the Jewish and Pagan Shrines made the first and fifth the holy cities of Judaism and Paganism; three founded at 50000 BC, the start, were capitals, so three different civilizations.
+      - `world` returns these as `ownerFromWonders`, `holyCityOf` and `foundedAtStart`; read each turn, the list tracks those cities' growth too.
   - Projects mode: every project built, its team "Unknown" when not met; none at turn 120.
   - Victory screen, Settings tab (`settings`), the largest public source, as the user pointed out: what game is being played and who plays it, known from turn 0.
     - The game: difficulty, map script, world size with the real grid (432 x 32), climate, sea level, the AI's map reading (navalHeavy=1 here), 48 players, starting era, speed, options (No Random Events, Aggressive AI) and disabled victories, and the mod build the save was made with.
-    - Rivals not met, when the setup is known (advc.190c): the Other Players panel names those whose pick was not random. Here 12 of the 45: Hannibal of Carthage, Ewuare of Benin, Charlemagne of Holy Rome twice and a second Pacal II of Maya with their traits; China twice, the Ottomans twice, Greece, Russia and the Mongols by civilization only (leader random). A random setup can repeat a leader or civilization, or, under Lead Any Civ, pair any leader with any civilization. 33 fully random were only counted.
+    - Rivals not met, when the setup is known (advc.190c): the Other Players panel names those whose pick was not random. Here 12 of the 45: Hannibal of Carthage, Ewuare of Benin, Charlemagne of Holy Rome twice and a second Pacal II of Maya with their traits; China twice, the Ottomans twice, Greece, Russia and the Mongols by civilization only (leader random).
+      - A random setup can repeat a leader or civilization, or, under Lead Any Civ, pair any leader with any civilization.
+      - 33 fully random were only counted.
     - What the named half implies: a civilization brings its unique unit and building (Carthage's Numidian Cavalry and Punic Agora), a leader his traits. A random leader is drawn among the civilization's own leaders, and a random civilization among those listing the leader (`CvInitCore`), unless Lead Any Civ is on, so `possibleLeaders` narrows "Mongols" to Genghis or Kublai Khan.
-    - Each leader's AI personality, from the Sevopedia leader panel (an early SAS addition, ranked from its predumped cache): war odds, attitude, wonders, units, razing, victory weights and favorite civic, each ranked 0-100 among all leaders. Here the two met, Pericles and Pacal, rank low for war (43 and 29) and high for wonders (80): calm neighbours and wonder rivals. Hannibal and both Charlemagnes rank 86 for total war, and the Mongols 86 or 100, with Genghis 100 for razing. Set beside the map and distances, this tells which rivals to prepare for before contact. All 4290 cached values matched the live XML.
+    - Each leader's AI personality, from the Sevopedia leader panel (an early SAS addition, ranked from its predumped cache): war odds, attitude, wonders, units, razing, victory weights and favorite civic, each ranked 0-100 among all leaders.
+      - Here the two met, Pericles and Pacal, rank low for war (43 and 29) and high for wonders (80): calm neighbours and wonder rivals.
+      - Hannibal and both Charlemagnes rank 86 for total war, and the Mongols 86 or 100, with Genghis 100 for razing.
+      - Set beside the map and distances, this tells which rivals to prepare for before contact.
+      - All 4290 cached values matched the live XML.
   - Victory screen: "Rivals left: 47" under Conquest; the Apostolic Palace "Built by An Unknown Civilization" for Hinduism with 84 total votes, which grow with that religion's spread; the United Nations "Not yet built".
   - Religions tab: every founded religion's date and world influence (Paganism 16000 BC to Islam 820 BC, 1% to 4% each); holy city and leader only for Christianity, whose Corinth, under Pericles, we had seen.
   - Demographics: best and worst rank only the two rivals met, but the rival average counts all of them: our GNP was 141, the two met 130 and 131, the average 105, so the unseen rivals were poorer.
@@ -245,7 +258,9 @@ The same day, a SAS48 SAS Large Facing Islands autoplay was stopped at turn 120 
 - Known only from espionage: a rival's current research (`canSeeResearch`) and power (`canSeeDemographics`). At turn 200 of the Large autoplay, three of nine rivals' research and seven of nine power ratios were visible; at turn 134 of the SAS48 Pangaea, no research and four power ratios of 35.
 - Opening the Victory screen in this save raised a Python exception, fixed as [KI#118.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2).
 - The Timeline left out the public events of players not met, which the game announces to everyone; it now lists them in their faraway-land form, as [KI#300.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2) records.
-  - `timeline` reads the tab through its own filter (`CvInfoScreen.getTimelineRecords`). On this save it listed 51 entries, matching the tab line for line: 28 public announcements with no player named, and from the two players met, Pericles entering the Medieval era at turn 114 and first to Monotheism, Currency and Sacred Architecture, Ptolemy born, Knossos founded. That is contact intelligence the Score tab does not give: the era and the techs a rival reached first.
+  - `timeline` reads the tab through its own filter (`CvInfoScreen.getTimelineRecords`).
+    - On this save it listed 51 entries, matching the tab line for line: 28 public announcements with no player named, and from the two players met, Pericles entering the Medieval era at turn 114 and first to Monotheism, Currency and Sacred Architecture, Ptolemy born, Knossos founded.
+    - That is contact intelligence the Score tab does not give: the era and the techs a rival reached first.
 
 ## Map composition and contact
 
@@ -260,7 +275,8 @@ On the same turn-120 islands save, the user asked for the map's composition as t
   - The AI's navalHeavy reading makes it scrap land units first, pay more to upgrade them, and favour coastal sites and naval targets.
 - `victory` adds the world totals the Victories tab implies: our 2.53% of population was 34 of 1,346, so the 47 rivals averaged about 28, and Pacal II, at 31, was typical; we were above average.
 - `geography` returns the script's World Picker preview (DDS, with PNG renders where `map_preview_dds.py` made them), which every player sees at setup: a sample of the script, not this game's map, but its shape.
-- The contrast, at turn 300 of a Huge Pangaea (fog on, 45% of the map seen): 14 land neighbours on our landmass, all 14 rivals met, so up to 28% faster research per tech; land-heavy for the AI; 58 unowned plots, but between rivals' borders, so gaps rather than room. That run also fixed three slips of the first version: a median taking the upper middle value, "room to settle before rivals arrive" on a shared landmass, and 30% claimed for everyone met where our own team in the count makes it 28%.
+- The contrast, at turn 300 of a Huge Pangaea (fog on, 45% of the map seen): 14 land neighbours on our landmass, all 14 rivals met, so up to 28% faster research per tech; land-heavy for the AI; 58 unowned plots, but between rivals' borders, so gaps rather than room.
+  - That run also fixed three slips of the first version: a median taking the upper middle value, "room to settle before rivals arrive" on a shared landmass, and 30% claimed for everyone met where our own team in the count makes it 28%.
 - Commands' cost in game: `geography` 8 ms on the islands map (437 plots seen), 21 ms on the Pangaea (2,715 seen); `victory` 2 ms; `settings` 7 ms.
 - Sea crossing: `geography`'s `seaCrossing` showed the AI's coast at turn 120 reaching both met neighbours' islands with Galleys known, while SAS has no Caravel, so the first ship that may enter ocean was the Privateer, 7 techs (about 60 turns) away. Along the row of islands boats could go at once; across the channel only much later.
 
@@ -272,7 +288,9 @@ The user then had the pilot replay the same start (`WILLEM_VAN_T0000_SAS48_SAS_L
 - A Warrior was queued first from habit. On an island alone, one Warrior to explore is enough; the second pushed the Settler back, and the Settler pushed the Swift Worker back, so at turn 38 the capital had no improved tile while its Cow, Sheep and Rice waited. The order for a solo island start is Swift Worker, coastal Settler, boat.
 - Research first aimed at Writing, for open borders, before any contact; open borders matter only once a boat has met someone. `resources` (skipped, though written for this) showed Cow and Sheep for Animal Husbandry, Rice for Agriculture, Gems and Stone for Mining, and around the west site Rice, two Clams and a Whale, so research became Agriculture, Animal Husbandry, Mining.
 - Adopting Slavery from Masonry's popup cost two turns of anarchy; `popups` now shows the anarchy a civic or state religion change would cost before it is answered.
-- Fog busting: a Barbarian unit spawns only on unowned land no civ sees, at least `MIN_BARBARIAN_STARTING_DISTANCE` from civ units (`CvGame::randomBarbarianPlot`), so `reminders` gained a fog-busting check with the posts covering the island's unowned land, hills first and furthest from our cities on a tie. Two hill posts covered 27 of 45 unowned plots. It was the least urgent of these, as borders soon took much of the land: Amsterdam's expansion at turn 32 did much of the scouting too.
+- Fog busting: a Barbarian unit spawns only on unowned land no civ sees, at least `MIN_BARBARIAN_STARTING_DISTANCE` from civ units (`CvGame::randomBarbarianPlot`), so `reminders` gained a fog-busting check with the posts covering the island's unowned land, hills first and furthest from our cities on a tie.
+  - Two hill posts covered 27 of 45 unowned plots.
+  - It was the least urgent of these, as borders soon took much of the land: Amsterdam's expansion at turn 32 did much of the scouting too.
 - Utrecht was founded at (94,25) at turn 38, coastal on hills, which `sites` ranked first (5,692 against 3,906 for (99,29)). `reminders`' new water-scouting check then said to build a Work Boat there, after first saying, wrongly, to build one in the inland capital; it now checks each city and skips lake cities.
 - Turns 39 to 61: Utrecht's Work Boat came out at turn 56 (it grew to size 3, so not the 30 turns first shown) and went exploring; a whip of 1 population finished the next Settler, and The Hague was founded at (99,29) at turn 59, the AI's site some seven turns earlier than the AI. Writing came at turn 58; research then went to Metal Casting and Bronze Working. No contact yet at turn 61.
   - A Worker's queued Rice farm at (100,27) was skipped, though `canBuild` allowed it, and the pastures on Cow and Sheep supplied nothing for want of a road: `reminders`' unimproved check showed both, so give Workers roads with their improvements.
@@ -287,8 +305,12 @@ The user then had the pilot replay the same start (`WILLEM_VAN_T0000_SAS48_SAS_L
   - Saved as `sas_pilot_islands_replay_t061b`.
 - The user then marked (102,28) as a better third site: flat grassland for cottages, open coast at 2 commerce instead of ice, the Horses, and less overlap with Amsterdam. On an isolated island, commerce sets the pace of research, so coast and cottages count for more than hammers. We reloaded the turn-56 autosave, before the Settler left.
   - The Settler finished at turn 57 without the whip (96 of 100 hammers), and The Hague was founded at (102,28) that turn, two turns earlier than at (99,29).
-  - The north Warrior was first sent to the new city, which the user called redundant, as the Settler had scouted the way; it went back to its post. `reminders`' fog-busting check now says whether Barbarian land units can still spawn on our landmass at all (unowned land plus half the unowned shelf against half the handicap's `iUnownedTilesPerBarbarianUnit`, advc.300): 24 plus half of 31 gave 39 against 27 on Noble, so they still can. It also names cities with no defender for freed posts, and says when every unowned plot is in sight.
-  - The user asked for city sites planned and marked early. `sites` needs a Settler, so `plansites` rates every legal site with the AI's found value; it gave only (99,21), as the AI values sites near our cities at 0. With `legal=1`, the coastal corners (96,22) with two Clams, (103,25) and (95,28) came up, and `mark` put all four on the dot map with signs, after a fix for a colour check that had failed every call.
+  - The north Warrior was first sent to the new city, which the user called redundant, as the Settler had scouted the way; it went back to its post.
+    - `reminders`' fog-busting check now says whether Barbarian land units can still spawn on our landmass at all (unowned land plus half the unowned shelf against half the handicap's `iUnownedTilesPerBarbarianUnit`, advc.300): 24 plus half of 31 gave 39 against 27 on Noble, so they still can.
+    - It also names cities with no defender for freed posts, and says when every unowned plot is in sight.
+  - The user asked for city sites planned and marked early.
+    - `sites` needs a Settler, so `plansites` rates every legal site with the AI's found value; it gave only (99,21), as the AI values sites near our cities at 0.
+    - With `legal=1`, the coastal corners (96,22) with two Clams, (103,25) and (95,28) came up, and `mark` put all four on the dot map with signs, after a fix for a colour check that had failed every call.
   - The Rice farm skipped in the first run needed The Wheel, as SAS requires it to work on Marsh; research went to The Wheel, which also brings the roads the pastures need. The Worker went to pasture The Hague's Horses instead.
   - Saved as `sas_pilot_islands_replay_t060_sites` (turn 59, for the AI site-value note) and `sas_pilot_islands_replay_t060` (turn 60, Warriors fortified, Worker on its way to the Horses).
 - Turns 60 to 71 (2026-11-15):
@@ -305,14 +327,20 @@ The user then had the pilot replay the same start (`WILLEM_VAN_T0000_SAS48_SAS_L
   - The farmed Rice went to The Hague (+3 to +5 food). The first `work` click only claimed it from Amsterdam and left The Hague's citizen in a specialist slot; `work` now clicks again when a click only claims.
   - `trade` now gives the trade rules from the XML: in SAS, Writing allows tech trading and open borders, Currency gold.
   - Research: Calendar, which nobody met has and which unlocks Hinduism, then Metal Casting. Saved as `sas_pilot_islands_replay_t075`.
-- The user then pointed out that both Work Boats explored automatically around Greece, already met, while the map puts rivals east, west and facing north or south. Path tests read a failed route west as ocean and the west as reachable only round the world; the user corrected it: SAS_Large_Facing_Islands links east-west neighbours by coast lanes (its default "E-W Coast Bands"), and the pathfinder plans only through revealed plots. `geography` had listed no map options, as it showed only non-default ones; it now gives every option with its value (`mapOptionsAll`) and the script's description.
+- The user then pointed out that both Work Boats explored automatically around Greece, already met, while the map puts rivals east, west and facing north or south.
+  - Path tests read a failed route west as ocean and the west as reachable only round the world; the user corrected it: SAS_Large_Facing_Islands links east-west neighbours by coast lanes (its default "E-W Coast Bands"), and the pathfinder plans only through revealed plots.
+  - `geography` had listed no map options, as it showed only non-default ones; it now gives every option with its value (`mapOptionsAll`) and the script's description.
   - In the game's code, a unit on a plot it may no longer enter (open borders ended, culture took the plot) is moved to the nearest plot it may enter, or deleted when there is none (`CvPlot::verifyUnitValidPlot`); the water-scouting reminder now says so for a ship exploring inside a rival's borders.
   - `seareach unit=` gives, per direction, the unknown coast the ship can reach and its turns, skipping water it may not enter, marking a met rival's waters, and recommending the nearest other direction.
-  - We reloaded the turn-68 autosave (AutoSave_BC-2120; `todo` now gives the year beside the turn) and sent the boats to unknown coast directly, east past Greece and west. The same turn the east boat met Pacal II of the Maya, the second contact at turn 68. He refused open borders (DENIAL_NO_GAIN) and Construction (tech monopoly), and gave Metal Casting for Fishing. `rivalMoods`' first report on a rival now includes open borders.
+  - We reloaded the turn-68 autosave (AutoSave_BC-2120; `todo` now gives the year beside the turn) and sent the boats to unknown coast directly, east past Greece and west.
+    - The same turn the east boat met Pacal II of the Maya, the second contact at turn 68.
+    - He refused open borders (DENIAL_NO_GAIN) and Construction (tech monopoly), and gave Metal Casting for Fishing.
+    - `rivalMoods`' first report on a rival now includes open borders.
   - Saved as `sas_pilot_islands_replay_t068b`.
   - The user's takeaways: with 48 players in two rows and east-west coast lanes, 24 civs (our row) can be met by Work Boats and Galleys alone, so the AI's 2 contacts by turn 120 were a large misplay; and the central, inland capital cost us most, as no boat could come before Utrecht, the first sea-coast city.
 - Second replay from turn 68 (`t068b`), turns 68 to 82 (2026-11-15):
-  - The coast-lane rule of SAS_Large_Facing_Islands (lanes along each island row's centre row, plus or minus one) put our row's lanes on y 24 to 26; `geography` now gives them (`coastLaneRows`) and `seareach` prefers them, avoids leaving them toward the near map edge, and weighs a non-wrapping edge as 5 turns. Each rule came from a mistake the user caught: the boats went north along the edge, and round Suleiman's island by the north into the ice.
+  - The coast-lane rule of SAS_Large_Facing_Islands (lanes along each island row's centre row, plus or minus one) put our row's lanes on y 24 to 26; `geography` now gives them (`coastLaneRows`) and `seareach` prefers them, avoids leaving them toward the near map edge, and weighs a non-wrapping edge as 5 turns.
+    - Each rule came from a mistake the user caught: the boats went north along the edge, and round Suleiman's island by the north into the ice.
   - The west boat stood at Pacal's island at turn 68: the Maya are our western neighbour, met through it, and his closed borders end the way west. The east boat crossed two Greek plots to the lane beyond Greece and met Suleiman of the Ottomans at turn 75; his borders, closed too, then covered the coast past his island, so the east route waits for open borders or an ocean ship.
   - Trades: Mysticism from Pacal for Seafaring (his offer), Calendar for Sailing, Construction from Pericles for Literature (only Mysticism in the first run, as we lacked Mysticism then), Polytheism from Suleiman for Literature. By turn 82 we had bought six techs and researched Literature and Bronze Working; research goes to Code of Laws then Currency, which no one can sell us.
   - The Settler went north-west for the Fur this time (Rotterdam at (95,28), turn 72), as the user argued that a happiness resource helps every city at once while water plots wait for boats; the Rice went to The Hague, and Cottages to the grassland and Amsterdam's hill, as gold sets the pace on an isolated island.

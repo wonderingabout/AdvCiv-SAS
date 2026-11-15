@@ -978,8 +978,10 @@ std::string getSASPilotPopupButtons(CvPopupInfo const& kInfo)
 	}
 	case BUTTONPOPUP_DISBANDCITY:
 		return (kActive.getCity(kInfo.getData1()) == NULL ? "" : "0=KEEP,1=DISBAND");
-	// <!-- custom: The advisor's tip to build something in a city (CvAdvisorUtils.py), such as Hippo's Colosseum at turn 174 of the fog-on playthrough (2026-11-13), could only be dropped by the pilot. Its handler is cityWarningOnClickedCallback in the default screens module, which OnOkClicked reaches for BUTTONPOPUP_PYTHON; only that exact callback is listed, so no other Python popup can be answered blind.
-	// The button IDs are SASPopupChoices.CITY_RECOMMENDATION's: 0 accept, 1 refuse; 2, examine, opens the city screen and makes no choice. Accept is offered only while the city can still build the item, as a tip held a few turns can go stale (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	// <!-- custom: The advisor's tip to build something in a city (CvAdvisorUtils.py), such as Hippo's Colosseum at turn 174 of the fog-on playthrough (2026-11-13), could only be dropped by the pilot.
+	// Its handler is cityWarningOnClickedCallback in the default screens module, which OnOkClicked reaches for BUTTONPOPUP_PYTHON; only that exact callback is listed, so no other Python popup can be answered blind.
+	// The button IDs are SASPopupChoices.CITY_RECOMMENDATION's: 0 accept, 1 refuse; 2, examine, opens the city screen and makes no choice.
+	// Accept is offered only while the city can still build the item, as a tip held a few turns can go stale (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	case BUTTONPOPUP_PYTHON:
 	{
 		if (kInfo.getOnClickedPythonCallback() != "cityWarningOnClickedCallback" || !kInfo.getPythonModule().empty())
@@ -1007,7 +1009,8 @@ std::string getSASPilotPopupButtons(CvPopupInfo const& kInfo)
 			aeNewCivics.set((CivicOptionTypes)kInfo.getData1(), eCivic);
 			if (kActive.canRevolution(aeNewCivics))
 			{
-				// <!-- custom: As launchChangeCivicsPopup: advc.004o shows the adopt button only when no other new civic could be adopted too. The first version listed it whenever the revolution was possible; Codex's review asked for the launcher's exact rule, and the pilot's 'civics' command adopts several civics at once in the other case. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+				// <!-- custom: As launchChangeCivicsPopup: advc.004o shows the adopt button only when no other new civic could be adopted too.
+				// The first version listed it whenever the revolution was possible; Codex's review asked for the launcher's exact rule, and the pilot's 'civics' command adopts several civics at once in the other case. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 				bool bStartButton = true;
 				FOR_EACH_ENUM(Civic)
 				{
@@ -1126,7 +1129,9 @@ bool isSASPilotPopupButtonOffered(CvPopupInfo const& kInfo, int iButton)
 	return false;
 }
 
-// <!-- custom: launchEventPopup checks an event before showing it and cleans up when it cannot be shown: it rechecks the trigger (advc.001) and deletes the triggered data when the trigger no longer holds or no choice is available. A held popup never reaches the launcher, so the pilot's hold does the same first (Codex's review). Not tried on a real event. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+// <!-- custom: launchEventPopup checks an event before showing it and cleans up when it cannot be shown: it rechecks the trigger (advc.001) and deletes the triggered data when the trigger no longer holds or no choice is available.
+// A held popup never reaches the launcher, so the pilot's hold does the same first (Codex's review).
+// Not tried on a real event. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 static bool isSASPilotEventPopupLaunchable(CvPopupInfo const& kInfo)
 {
 	PlayerTypes const eActive = GC.getGame().getActivePlayer();

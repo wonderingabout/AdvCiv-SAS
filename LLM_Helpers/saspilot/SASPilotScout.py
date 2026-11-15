@@ -67,10 +67,12 @@ def compare(pid, unit, radius, limit, around=None, band=(3, 5), counterclockwise
         point = tile["x"], tile["y"]
         if point not in search or point == origin or tile["water"] or tile["peak"]:
             continue
-        # <!-- custom: --around keeps a loop around a city, the user's advice for the opening (2026-11-14): circle the capital first to find city sites, huts and the nearest rivals before heading far. Candidates outside the distance band from the center are left out. (Claude code Opus 5.5) -->
+        # <!-- custom: --around keeps a loop around a city, the user's advice for the opening (2026-11-14): circle the capital first to find city sites, huts and the nearest rivals before heading far.
+        # Candidates outside the distance band from the center are left out. (Claude code Opus 5.5) -->
         if around is not None and not band[0] <= max(abs(point[0] - around[0]), abs(point[1] - around[1])) <= band[1]:
             continue
-        # <!-- custom: Match scout's one/two-plot square as a coverage proxy. Actual sight depends on terrain occlusion and the unit's visibility. (GPT-6.1-Sol, Claude Code Opus 5.5) -->
+        # <!-- custom: Match scout's one/two-plot square as a coverage proxy.
+        # Actual sight depends on terrain occlusion and the unit's visibility. (GPT-6.1-Sol, Claude Code Opus 5.5) -->
         reveal = set(neighborhood(point, 2 if tile["hill"] else 1, grid)) - known
         if reveal:
             candidates.append((point, reveal, tile))
@@ -86,7 +88,8 @@ def compare(pid, unit, radius, limit, around=None, band=(3, 5), counterclockwise
     for (point, reveal, tile), path in zip(candidates, paths):
         if not path["found"] or not all((step["x"], step["y"]) in known for step in path["steps"]):
             continue
-        # <!-- custom: Count what every step of the route reveals, not only the destination: the user's advice (2026-11-14) to favour diagonals and high plots, as a diagonal step uncovers five new plots where a straight one uncovers three, and a hill sees two plots out. Counting the route ranks those paths higher without a rule of its own. (Claude code Opus 5.5) -->
+        # <!-- custom: Count what every step of the route reveals, not only the destination: the user's advice (2026-11-14) to favour diagonals and high plots, as a diagonal step uncovers five new plots where a straight one uncovers three, and a hill sees two plots out.
+        # Counting the route ranks those paths higher without a rule of its own. (Claude code Opus 5.5) -->
         for step in path["steps"]:
             reveal = reveal | (set(neighborhood((step["x"], step["y"]), 2 if (step["x"], step["y"]) in hills else 1, grid)) - known)
         nearby = set(neighborhood(point, 2, grid))
@@ -94,7 +97,9 @@ def compare(pid, unit, radius, limit, around=None, band=(3, 5), counterclockwise
             for (x, y, _, owner), kind in sorted(visible_foreign.items()) if (x, y) in nearby]
         if path["turns"] < 1:
             continue
-        # <!-- custom: Where to stop this turn on the way: the best-defended plot among this turn's steps, the farthest on a tie. The user's advice (2026-11-14): a scout ends its turn on a hill or forest, to defend rather than attack, after a multi-turn order walked the Warrior next to a Lion at turn 13 of the scouting trial; it won at 95% yet was left at 10 health. Moving only to this stop re-checks the danger each turn. (Claude code Opus 5.5) -->
+        # <!-- custom: Where to stop this turn on the way: the best-defended plot among this turn's steps, the farthest on a tie.
+        # The user's advice (2026-11-14): a scout ends its turn on a hill or forest, to defend rather than attack, after a multi-turn order walked the Warrior next to a Lion at turn 13 of the scouting trial; it won at 95% yet was left at 10 health.
+        # Moving only to this stop re-checks the danger each turn. (Claude code Opus 5.5) -->
         # <!-- custom: The unit's own plot is never this turn's stop: the path's steps can include it, and with the best defence it was chosen, so the Scout stood still at 17,22 (scouting trial run 3, turn 22). (Claude code Opus 5.5) -->
         moves = [step for step in path["steps"] if (step["x"], step["y"]) != origin]
         if not moves:

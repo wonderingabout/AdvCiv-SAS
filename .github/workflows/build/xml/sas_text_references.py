@@ -151,7 +151,8 @@ def collect_missing_diplomacy_text(repo_root: Path) -> list[str]:
 
 # <!-- custom: The opposite direction: every TXT_KEY that active mod XML, Config, Python, map scripts or C++ uses must be defined by mod GameText or by the BtS, Warlords or vanilla text, whatever the defining file's prefix; base AdvCiv's original files do not count, as SAS loads its own copies instead.
 # An undefined key is shown as the key itself: SAS split BtS's melee unit combat into polearm and shock, and the first Swordsman's congratulation popup read TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK, seen through SASPilot on 2026-11-13; translating such keys in game returned them unchanged.
-# A token ending in "_" is a prefix completed at run time, as BUG's option keys are. The EXE also reads a tag CHANGED_<key> as a definition of <key>: Warlords defines the Trireme's pedia text only as CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA, and the Sevopedia shows it.
+# A token ending in "_" is a prefix completed at run time, as BUG's option keys are.
+# The EXE also reads a tag CHANGED_<key> as a definition of <key>: Warlords defines the Trireme's pedia text only as CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA, and the Sevopedia shows it.
 # Keys that base AdvCiv 1.14 already used without defining (Firaxis XML pointing at strategy, help and pedia texts it never wrote, BUG and BULL leftovers) are listed in UNDEFINED_INHERITED with the first file using each; a key there that becomes defined or unused fails, so the list stays a record of real gaps. See KI#1085. (Claude code Opus 5.5) -->
 UNDEFINED_INHERITED = Path(__file__).with_name("xml_text_undefined_inherited.tsv")
 UNDEFINED_INHERITED_HEADER = "tag	first_reference"

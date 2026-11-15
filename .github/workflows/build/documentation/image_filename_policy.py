@@ -17,8 +17,8 @@ LEGACY_IMAGES = "_0_Legacy/Images/"
 SAS_IMAGES = "_1_AdvCiv-SAS/Images/"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tga", ".dds", ".ico"}
 
-# <!-- custom: The two Images trees hold maintained screenshots and templates. Civ4 art
-# and resources use their runtime layout, and the FPK example preserves its extracted path. (GPT-6.1-Sol) -->
+# <!-- custom: The two Images trees hold maintained screenshots and templates.
+# Civ4 art and resources use their runtime layout, and the FPK example preserves its extracted path. (GPT-6.1-Sol) -->
 IMAGE_DIRECTORIES = (LEGACY_IMAGES, SAS_IMAGES, "Assets/Art/", "Assets/Res/")
 IMAGE_FILE_EXCEPTIONS = {
     "_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds",
