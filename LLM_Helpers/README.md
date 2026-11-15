@@ -973,6 +973,12 @@ python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
   2. Find the placeholder text in the empty box ("Work with Codex", "Enter to send…"). `box` is a point on that line; `text` runs from about 20 px right of where the text starts, past the blinking cursor, to just left of the buttons, about 25 px above and below the line. Scale crop coordinates back up and add the crop's offset.
   3. Update or add the layout in `app_layouts.json`: `width`, `box`, `text`, `measured` (the date) and `conditions` (screen, panels, app version). No code change is needed.
   4. Check it: `--check-box` should report the layout and an empty box. To check that text is noticed too, paste a word with `desktop_windows.py paste` without sending, run `--check-box` again, then clear the box with `key ctrl+a` and `key backspace`.
+- `--start` opens the target app when it has no window, then sends; with no message it only opens it. Added on 2026-11-15, when the user closed Codex and asked that agents be able to reopen it rather than ask.
+  - Store apps have no stable `.exe` path, as `WindowsApps` holds a folder per version, so it opens them through `explorer.exe` and `shell:AppsFolder` with each app's AppUserModelID, kept as `launch` in `app_layouts.json` (from PowerShell `Get-StartApps`; Codex lists as ChatGPT, package `OpenAI.Codex`).
+  - It waits for the window, then `--start-settle` seconds (default 8) before the message box takes text; `--positions NAME` then restores a saved desktop layout.
+- `--thread` opens a Codex thread before sending, by its sidebar title (or a unique part of it), its session ID, or `latest`. A freshly started Codex shows a new chat, so without it a message would open a new conversation.
+  - It opens `codex://threads/<id>`, a link the Codex app registers, found in its bundle; titles come from `~/.codex/session_index.jsonl`, where the last row for an ID is its current name.
+  - By title rather than newest: the user pointed out that the wanted thread need not be the last one written to, as a side question in another chat moves that one up. An ambiguous title lists its matches and sends nothing.
 - `--dry-run` prints the message without sending it.
 - `--check FILE` checks a received message instead: it reports text before the header, after the closing tag, or a tag that does not match, and exits 1 if there is any. On 2026-11-10 Codex spotted five such strays by eye; this lets any agent do it.
 - `--wait-reply` keeps running after the send until the target app ends the turn holding this message, then prints that turn's final answer, read from the new lines of its session log: `~/.codex/sessions` for Codex, `~/.claude/projects` for Claude Code. `--wait-timeout` gives up after 1,800 seconds by default.
@@ -984,6 +990,7 @@ python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
     - Codex's test also found that a log ending right after the answer kept waiting; the answer is now taken as soon as it is complete.
 
 ```bash
+python LLM_Helpers/desktop/agent_message.py --to codex --start --thread "Review audit and flushing changes"
 python LLM_Helpers/desktop/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "Claude app" --text "Please review the unstaged change."
 python LLM_Helpers/desktop/agent_message.py --to codex --sender "Claude Code Opus 5.5" --reply "none needed" --file request.txt --wait-reply
 python LLM_Helpers/desktop/agent_message.py --to claude --sender "Codex GPT-6.1-Sol" --reply user --file answer.txt

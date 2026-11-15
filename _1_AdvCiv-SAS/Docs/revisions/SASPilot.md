@@ -28,6 +28,6 @@
 ### Revision 1 - SAS practical 6750
 
 - **Date:** 2026-11-15
-- **Git commit:** pending
+- **Git commit:** `5e8ce0d1b3ff6f1c6bb6f8eb9f1da9a7e86a9d21`
 - **Change:** The first revision, covering the pilot from its first commit on `main` through the `saspilot` draft PR, which are meant to be squashed into one commit; the entry stays broad until that work settles.
   - The interface covers fog-aware state queries and orders, popup and diplomacy handling, replayable command sequences, plot grids and rules graphs for agent-side analysis, and session-aware mailbox replies. See the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md) for the commands.

@@ -102,9 +102,11 @@
       }
     }
   },
+  "launchAbout": "launch is the app's Windows AppUserModelID, which agent_message.py --start opens through explorer.exe with shell:AppsFolder and this ID when no window is open. It is the Store package family name plus the app ID, so it stays the same across app updates; read with PowerShell Get-StartApps on 2026-11-15, when Codex showed as ChatGPT (OpenAI.Codex package).",
   "apps": {
     "codex": {
       "process": "ChatGPT",
+      "launch": "OpenAI.Codex_2p2nqsd0c76g0!App",
       "layouts": {
         "4k-max": {"width": 3840, "box": [2250, 1929], "text": [1650, 1905, 2900, 1955], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
         "4k-half": {"width": 1920, "box": [900, 1932], "text": [370, 1905, 1500, 1960], "measured": "2026-11-11", "conditions": "right half of a 3840x2100 work area, chat list collapsed, Codex 26.1106.6628.0"}
@@ -112,6 +114,7 @@
     },
     "claude": {
       "process": "claude",
+      "launch": "Claude_pzs8sxrjxfjjc!Claude",
       "layouts": {
         "4k-max": {"width": 3862, "box": [2100, 2007], "text": [1650, 1975, 2550, 2035], "measured": "2026-11-10", "conditions": "maximized on a 3840x2100 work area"},
         "4k-half": {"width": 1940, "box": [900, 1998], "text": [430, 1978, 1440, 2018], "measured": "2026-11-11", "conditions": "left half of a 3840x2100 work area, chat list and session rail collapsed, Claude 5.1231.2.0"}
