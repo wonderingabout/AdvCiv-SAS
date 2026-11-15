@@ -4,7 +4,7 @@
 
 # <!-- custom: Command-line client of SASPilot, the in-game bridge in Assets/Python/SASPilot.py: reads and drives a running Civ4 through JSON requests instead of screenshots and clicks.
 # A request is a file req_<id>.json in the game's mailbox folder SASPilot/<pid>, written whole and renamed into place; the game answers with rep_<id>.json on its next frame.
-# See _1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md for the commands and what was tried. (Claude code Fable 5.2 + Opus 5.5) -->
+# See _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md for the commands and what was tried. (Claude code Fable 5.2 + Opus 5.5) -->
 
 # <!-- custom: argparse reads the options, json the requests and replies, os and time the mailbox files and waits, sys the exit codes, uuid the request IDs, Path the folders. (Claude code Fable 5.2) -->
 import argparse
@@ -532,7 +532,7 @@ def resolve_save(name):
 
 def check_save_mod(path):
 	# <!-- custom: Every mod names its saves "PC BC-<year>" by default, so on 2026-11-13 a Caveman2Cosmos save in the shared Saves folder was taken for an AdvCiv-SAS one, and Civ4 stopped on a dialog asking to restart into that mod, which the pilot cannot answer.
-	# So the pilot refuses a save made for another mod before Civ4 sees it. See "Loading a save" in README_Pilot.md. (Claude code Opus 5.5) -->
+	# So the pilot refuses a save made for another mod before Civ4 sees it. See "Loading a save" in README_SASPilot.md. (Claude code Opus 5.5) -->
 	# <!-- custom: The header is read by run_autoplay.save_mod_folder, which autoplay already used for the same check, rather than a second copy (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	import run_autoplay
 	if not Path(path).is_file():

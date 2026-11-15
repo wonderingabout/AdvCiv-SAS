@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: Replays a list of pilot commands against a save and compares the replies with the last accepted run, so a DLL rebuild or a SASPilotCommands.py edit that changes a command's answer shows up as a diff instead of in the middle of a playthrough.
-# By 2026-11-13 the command file had grown to 1,800 lines and the Debug-opt DLL had been rebuilt about ten times in one day, each round checked only by hand. See "Replaying commands" in README_Pilot.md. (Claude code Opus 5.5) -->
+# By 2026-11-13 the command file had grown to 1,800 lines and the Debug-opt DLL had been rebuilt about ten times in one day, each round checked only by hand. See "Replaying commands" in README_SASPilot.md. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse reads the options, json the sequence and baselines, sys the exit code, Path the files; pilot is the client whose start, request and close this reuses. (Claude code Opus 5.5) -->
 import argparse

@@ -574,7 +574,7 @@ def _cityOptions(city):
 
 def _plotFull(plot):
 	# <!-- custom: Written in C++ by CyGame.getSASPilotPlotsJson, which took 0.32 ms for 441 plots against 8 ms for the Python writer it replaced (2026-11-13); the user preferred the long-term speed.
-	# There is one writer only, so a new plot field goes in appendSASPilotPlotJson in CvGameInterface.cpp and needs a DLL build; see "Would the DLL be faster?" in README_Pilot.md. (Claude code Opus 5.5) -->
+	# There is one writer only, so a new plot field goes in appendSASPilotPlotJson in CvGameInterface.cpp and needs a DLL build; see "Would the DLL be faster?" in README_SASPilot.md. (Claude code Opus 5.5) -->
 	return RawJson(_plotsJson(plot.getX(), plot.getY(), 0)[1:-1])
 
 

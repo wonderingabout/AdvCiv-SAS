@@ -14986,7 +14986,7 @@ Later finding (2026-11-13): the guard acts on any group whose mission AI plot is
 
 SASPilot passed the unit's plot to `CySelectionGroup.pushMission`. At the next turn, the guard cancelled the Work Boat's queued fishing boats because it was away from the plot where the move had been issued.
 
-SASPilot now passes none, as the window does, and the wrapper takes Python's `None` (see [KI#176.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176.2)). For the playthrough, see "A fog-on playthrough" in the [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#a-fog-on-playthrough). Found by Claude Code Opus 5.5.
+SASPilot now passes none, as the window does, and the wrapper takes Python's `None` (see [KI#176.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176.2)). For the playthrough, see "A fog-on playthrough" in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#a-fog-on-playthrough). Found by Claude Code Opus 5.5.
 
 <a id="ki-176.2"></a>
 
@@ -37700,7 +37700,7 @@ Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#
 
 On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `SASPilotClient.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
 
-It started as Codex's suggested check that held popups survive a save and reload ([Popups in the Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#popups)), so the pilot's new popup code was suspected first. Each step below removed one suspect:
+It started as Codex's suggested check that held popups survive a save and reload ([Popups in the SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#popups)), so the pilot's new popup code was suspected first. Each step below removed one suspect:
 
 | What ran in one Civ4 | Result |
 | --- | --- |

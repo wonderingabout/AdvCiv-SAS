@@ -1314,7 +1314,7 @@ The complete report from the 2026-11-11 one-turn save-load test, `SASAutoplay_20
 
 ### SASPilot command log
 
-`Logs/SASPilot_<processStartUtc>_<pid>.jsonl` holds every request an agent sent to one piloted Civ4 client through [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py), one JSON object per line: the time to the millisecond, the command and its arguments, `kind` (`read`, `order` or `game`), the agent's reason (`note`), the game turn, the result or error, and two counters, `n` within the turn and `seq` within the log. See [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#saspilotconsole) for the commands.
+`Logs/SASPilot_<processStartUtc>_<pid>.jsonl` holds every request an agent sent to one piloted Civ4 client through [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py), one JSON object per line: the time to the millisecond, the command and its arguments, `kind` (`read`, `order` or `game`), the agent's reason (`note`), the game turn, the result or error, and two counters, `n` within the turn and `seq` within the log. See [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole) for the commands.
 
 - Why it exists: the pilot's request and reply files are deleted once read, so before 2026-11-14 the user had nothing to watch while an agent played, and a game reviewed later had no record of the orders and the reasons for them to set beside SASGameRecord, which records what then happened.
 - Why the client writes it, not the game: the game pays nothing, and the client spends about 0.2 ms a line against about 7 ms for the request itself (measured 2026-11-14). `SAS_PILOT_LOG=0` in the environment switches it off.

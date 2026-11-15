@@ -546,7 +546,7 @@ Note: a hybrid DLL compute + Python caching version was tried in the [history-ta
 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
 
-Both were visual impressions, not measured. The [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md#the-same-question-for-the-timeline-tab-january-2026) compares them with the measured Python-or-DLL test of the agent pilot and the later finding that the tab's time went into the EXE building its table.
+Both were visual impressions, not measured. The [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md#the-same-question-for-the-timeline-tab-january-2026) compares them with the measured Python-or-DLL test of the agent pilot and the later finding that the tab's time went into the EXE building its table.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(7).JPG" alt="1.518_info_screen (7).JPG" width="250"></img>

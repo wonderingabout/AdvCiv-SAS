@@ -3131,7 +3131,7 @@ void CvGame::onCityScreenChange()
 }
 
 // <!-- custom: SASPilot writes plots as JSON here, for CyGame.getSASPilotPlotsJson: 0.32 ms for 441 plots against 8 ms in Python (2026-11-13).
-// A mailbox served from the DLL was tried too and dropped: the EXE called the DLL only about four times a second, so requests waited about 200 ms, against 2 ms for the pilot's Python, served every frame. See "Would the DLL be faster?" in README_Pilot.md. (Claude code Opus 5.5) -->
+// A mailbox served from the DLL was tried too and dropped: the EXE called the DLL only about four times a second, so requests waited about 200 ms, against 2 ms for the pilot's Python, served every frame. See "Would the DLL be faster?" in README_SASPilot.md. (Claude code Opus 5.5) -->
 namespace
 {
 	void appendSASPilotJsonType(std::string& szOut, char const* szType)

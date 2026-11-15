@@ -4,7 +4,7 @@
 # <!-- custom: SASPilot lets an external agent read and drive the running game from the command line instead of through the UI: requests arrive as JSON files in a per-process mailbox folder, run inside the game's Python, and are answered as JSON files.
 # This module is only the stable loader: it decides once whether the pilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/saspilot/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
 # Off unless SAS_PILOT_ON is 1 or the ini= launch file has an [SASPilot] section with On = 1, so ordinary players pay one comparison per game update and per frame.
-# See LLM_Helpers/saspilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md. (Claude code Fable 5.2) -->
+# See LLM_Helpers/saspilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md. (Claude code Fable 5.2) -->
 
 # <!-- custom: imp loads the command module from its file, os handles the mailbox folder and PID, sys and traceback report a failed reload; BugPath finds the mod and user folders; SASAutoplayRequest shares its ini= reader. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
@@ -213,7 +213,7 @@ def onUpdate(argsList):
 
 def onScreenUpdate():
 	# <!-- custom: Called from CvScreensInterface.update, which the EXE calls for the open Python screens, the main interface included, without the USE_ON_UPDATE_CALLBACK switch.
-	# Serving only on game updates made every request wait about 250 ms; see "Speed" in README_Pilot.md.
+	# Serving only on game updates made every request wait about 250 ms; see "Speed" in README_SASPilot.md.
 	# The switch is left to game updates to resolve, so players pay one comparison here; errors are kept by _safeTick. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if _bEnabled is not True:
 		return

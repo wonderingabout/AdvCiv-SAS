@@ -29,7 +29,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Launch Civ4 into a save made with this mod, or start a new game with a chosen map, size, speed, difficulty, era and leaders.
 - Run AI Auto Play for a requested number of turns, optionally in Debug Mode so a watching user sees the whole map.
 - Tell how the run ended: completed, ended early, never started, stalled, crashed or timed out.
-- Read and drive a running game as JSON, without the window: the pilot, added on 2026-11-13, has its own [Pilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Pilot.md).
+- Read and drive a running game as JSON, without the window: the pilot, added on 2026-11-13, has its own [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.

@@ -1169,7 +1169,7 @@ inline CvRandom& mapRand() { return CVGAME_INSTANCE_FOR_RNG.getMapRand(); }
 	(MapRandNum(iNumLots) == 0)
 // </advc.007c>
 
-// <!-- custom: SASPilot's plots as JSON, written in C++ as it was about 25 times faster than the Python writer; see "Would the DLL be faster?" in README_Pilot.md. (Claude code Opus 5.5) -->
+// <!-- custom: SASPilot's plots as JSON, written in C++ as it was about 25 times faster than the Python writer; see "Would the DLL be faster?" in README_SASPilot.md. (Claude code Opus 5.5) -->
 // <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so the pilot can play with what a player sees. (Claude code Fable 5.2) -->
 std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
 std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);

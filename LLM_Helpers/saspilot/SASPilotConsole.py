@@ -295,7 +295,7 @@ def main():
 			print("could not write %s: %s" % (path.with_suffix(".watch"), error), file=sys.stderr)
 	# <!-- custom: A header saying what this console is: it opened with only "following <log>" and a date line, which the user found unclear (2026-11-14). The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
 	started = time.time()
-	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the Pilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
+	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the SASPilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
 	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like the pilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
 	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads. They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
 	if os.name == "nt":
