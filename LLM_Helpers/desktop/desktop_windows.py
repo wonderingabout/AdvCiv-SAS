@@ -462,6 +462,8 @@ NAMED_VKS = {"enter": 0x0D, "esc": 0x1B, "backspace": 0x08, "tab": 0x09, "space"
 NAMED_VKS.update({"num%d" % n: 0x60 + n for n in range(10)})
 # <!-- custom: Civ4's unit cycling uses comma, period, backslash and slash; these are the US-layout VK_OEM codes, which another keyboard layout can place elsewhere. (Claude Code Opus 5.5) -->
 NAMED_VKS.update({"comma": 0xBC, "period": 0xBE, "backslash": 0xDC, "slash": 0xBF})
+# <!-- custom: 'key escape' failed with "unknown key 'escape'" while closing Civ4's Victory screen (2026-11-15), as only the short name esc was known; the usual long names are aliases now, and the error lists the names it knows. (Claude code Opus 5.5) -->
+NAMED_VKS.update({"escape": 0x1B, "return": 0x0D, "del": 0x2E, "ins": 0x2D, "pageup": 0x21, "pagedown": 0x22})
 MODIFIER_VKS = {"ctrl": VK_CONTROL, "shift": 0x10, "alt": 0x12}
 # <!-- custom: Each printable ASCII character as the US-keyboard key and Shift state that types it, for type --us-keys; see type_text. (Claude Code Opus 5.5) -->
 US_KEYS = {" ": (0x20, False)}
@@ -487,7 +489,7 @@ def parse_key(name):
 	elif last.startswith("f") and last[1:].isdigit() and 1 <= int(last[1:]) <= 12:
 		vk = 0x6F + int(last[1:])
 	else:
-		raise ValueError("unknown key %r" % name)
+		raise ValueError("unknown key %r; use a letter or digit, f1 to f12, one of %s, optionally after ctrl+, shift+ or alt+" % (name, ", ".join(sorted(NAMED_VKS))))
 	return vk, modifiers
 
 

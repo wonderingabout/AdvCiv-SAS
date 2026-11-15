@@ -2487,7 +2487,7 @@ def cmd_canceldeal(args):
 	return {"deal": iDeal, "popup": "BUTTONPOPUP_DEAL_CANCELED", "next": "'popups' lists it; 'answer' button 0 cancels the deal, 1 keeps it"}
 
 
-_HELP["scores"] = "The Info screen's Score tab, per player met and ourselves: score and its change since last turn, techs known, land share, power and power per city where the demographics are visible (as the scoreboard's ratio), cities seen, state religion and holy city, vassal status, will to talk, and current research and progress where espionage lets it be seen. args: player."
+_HELP["scores"] = "The Info screen's Score tab, per player met and ourselves: score and its change since last turn, techs known, land share, power and power per city where the demographics are visible (as the scoreboard's ratio), cities seen, state religion and holy city, vassal status, will to talk, and current research and progress where espionage lets it be seen (research null: seen, researching nothing). Also its other columns: traits, land in hundredths of a percent, masters and vassals by player ID, and per rival the power ratio (per mille, theirs against ours), attitude and its value, worst enemy, war, peace treaty, trade network, open borders, defensive pact, golden age, anarchy and our espionage weight. sort=<field> puts the highest first, sort=-<field> the lowest, as clicking a column header does; default score. args: sort, player."
 
 
 def cmd_scores(args):
@@ -2523,16 +2523,49 @@ def cmd_scores(args):
 			row["religion"] = gc.getReligionInfo(iReligion).getType()
 			row["holyCity"] = bool(other.hasHolyCity(iReligion))
 		row["vassal"] = bool(otherTeam.isAVassal())
+		# <!-- custom: The rest of the Score tab's columns, the user's ask at turn 200 of a Large autoplay (2026-11-15), where the tab and this reply were compared column by column: traits, land to the hundredth of a percent, V/M, and for rivals the power ratio, attitude and its number, war or forced peace, trade network, open borders, defensive pact, worst enemy, golden age or anarchy and our espionage weight, each under the test drawScoreTab applies. (Claude code Opus 5.5) -->
+		leader = gc.getLeaderHeadInfo(other.getLeaderType())
+		row["traits"] = [gc.getTraitInfo(i).getType() for i in range(gc.getNumTraitInfos()) if leader.hasTrait(i)][:2]
+		if iLand > 0:
+			row["landPerTenThousand"] = 10000 * other.getTotalLand() / iLand
+		met = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and (i == player.getID() or team.isHasMet(gc.getPlayer(i).getTeam()))]
+		row["masters"] = [p.getID() for p in met if p.getTeam() != other.getTeam() and otherTeam.isVassal(p.getTeam())]
+		row["vassals"] = [p.getID() for p in met if p.getTeam() != other.getTeam() and gc.getTeam(p.getTeam()).isVassal(other.getTeam())]
 		if not bUs:
 			row["willTalk"] = bool(other.AI_isWillingToTalk(player.getID()) and player.AI_isWillingToTalk(iOther))
+			if "power" in row and row["power"] > 0:
+				# <!-- custom: Their power against ours, as the tab shows it with BUG's default 'them versus you' (0.752 for Gandhi); per mille to stay an integer. (Claude code Opus 5.5) -->
+				row["powerRatioPerMille"] = 1000 * row["power"] / max(1, player.getPower())
+			if not other.isHuman():
+				row["attitude"] = _enumName(AttitudeTypes, other.AI_getAttitude(player.getID()))
+				row["attitudeValue"] = _attitudeCount(iOther, player.getID())
+				row["worstEnemy"] = bool(not otherTeam.isHuman() and other.getWorstEnemyName() and other.getWorstEnemyName() == team.getName())
+			row["atWar"] = bool(otherTeam.isAtWar(player.getTeam()))
+			row["peaceTreaty"] = bool(team.isForcePeace(other.getTeam()))
+			row["tradeNetwork"] = bool(other.canTradeNetworkWith(player.getID()))
+			row["openBorders"] = bool(otherTeam.isOpenBorders(player.getTeam()))
+			row["defensivePact"] = bool(otherTeam.isDefensivePact(player.getTeam()))
+			row["goldenAge"] = bool(other.isGoldenAge())
+			row["anarchy"] = bool(other.isAnarchy())
+			row["espionageWeight"] = player.getEspionageSpendingWeightAgainstTeam(other.getTeam())
 		if player.canSeeResearch(iOther) or bUs:
 			iTech = other.getCurrentResearch()
+			# <!-- custom: A visible rival researching nothing was left out, so at turn 200 of a Large autoplay (2026-11-15) Kublai looked hidden while the scoreboard showed him at 0% (advc.085) and the Score tab a blank percent. Now research is null with no percent, as the tab shows it. (Claude code Opus 5.5) -->
+			row["research"] = _typeOrNone(gc.getTechInfo, iTech)
 			if iTech >= 0:
-				row["research"] = gc.getTechInfo(iTech).getType()
 				row["researchPercent"] = 100 * otherTeam.getResearchProgress(iTech) / max(1, otherTeam.getResearchCost(iTech))
 		rows.append(row)
-	rows.sort(lambda a, b: cmp(b["score"], a["score"]))
-	return {"players": rows}
+	# <!-- custom: Sorting as the tab's column headers do, the user's follow-up: sort=<field> puts the highest first, sort=-<field> the lowest; players without that field (hidden power, say) come last either way. (Claude code Opus 5.5) -->
+	szSort = args.get("sort", "score")
+	bAscending = szSort.startswith("-")
+	szField = szSort.lstrip("-")
+	shown = [row for row in rows if row.get(szField) is not None]
+	if rows and not shown:
+		raise ValueError("no player has a %s field to sort by" % szField)
+	shown.sort(lambda a, b: cmp(a[szField], b[szField]))
+	if not bAscending:
+		shown.reverse()
+	return {"players": shown + [row for row in rows if row.get(szField) is None], "sortedBy": szSort}
 
 
 _HELP["demographics"] = "The Info screen's Demographics tab: for soldiers (military power), land, population, economy (commerce), industry (production) and agriculture (food), our value, our rank among us and our rivals (1 is best), and the rivals' best, average and worst. Rivals are every living non-Barbarian player of another team, met or not, as the tab counts them; their economy, industry and agriculture are last turn's, as the tab shows them (advc.077). args: player."
