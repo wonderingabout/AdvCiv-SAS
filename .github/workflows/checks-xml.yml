@@ -104,6 +104,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_sas_text_inherited.py
 
+      - name: Unit Naming covers every unit combat type
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/xml/unit_naming_combat_types.py
+
       - name: XML display order
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/xml/xml_display_order.py

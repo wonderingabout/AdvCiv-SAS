@@ -1261,7 +1261,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
 [KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
 [KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
-[KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)
+[KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
+[KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)
 
 <a id="ki-1"></a>
 
@@ -37847,3 +37848,18 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
   - It reads the files with Python's tokenizer, after Codex's review showed that a first draft, which cut comments by hand, could take a string for code.
 
 Found by Claude code Opus 5.5 on 2026-11-13, through the pilot's desktop demo.
+
+<a id="ki-1087"></a>
+
+## KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception
+
+- Found on 2026-11-13 while answering Codex's review of [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085), which noted that the text-key check cannot see keys built at run time. Looking for families keyed by unit combat types led to BUG's Unit Naming.
+  - For each unit it names, `UnitNameEventManager.py` asks for the option `Combat_<type>`, and BUG raises `ConfigError` for an option it does not know. Unit Naming is off by default, so only players who turn it on in the BUG menu meet it.
+  - SAS split `UNITCOMBAT_MELEE` into `UNITCOMBAT_MELEE_POLEARM` and `UNITCOMBAT_MELEE_SHOCK`, and gave its archer and mounted splits their options, but [`Unit Naming.xml`](/Assets/Config/Unit%20Naming.xml) and [`BugUnitNameOptionsTab.py`](/Assets/Python/BUG/Tabs/BugUnitNameOptionsTab.py) kept only `Combat_MELEE`.
+  - Reproduced through SASPilot by calling the handler's own lookup: a crossbow unit returned its naming pattern, while both melee types raised `Option UnitNaming__Combat_MELEE_SHOCK not found in mod UnitNaming` (and `_POLEARM`).
+- Fixed by replacing `Combat_MELEE` with `Combat_MELEE_POLEARM` and `Combat_MELEE_SHOCK` in the config and its options tab, with texts in [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml). Confirmed in game after a restart: both types return the default pattern, and the BUG menu's Unit Names tab shows the two new rows with their text.
+  - A player who had set a pattern for the old option keeps it in `Unit Naming.ini` as `CombatMELEE`, but nothing reads it now; it has to be entered again for each of the two new options.
+  - A search of the mod's Python, XML and C++ for the old `UNITCOMBAT_MELEE` then found only comments, so with KI#1085's feat texts the split is now covered everywhere it was referenced.
+- Guarded by [`unit_naming_combat_types.py`](/.github/workflows/README.md#buildxmlunit_naming_combat_typespy), which fails when the config or the tab lacks an option for a type in `CIV4UnitCombatInfos.xml`, lists one for a type that no longer exists, or an option lacks its `_TEXT` or `_HOVER` text. Run against the old config and tab, it reports all six problems.
+
+Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) review.

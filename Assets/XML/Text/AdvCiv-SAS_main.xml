@@ -556,6 +556,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_HOVER</Tag>
 		<English>Enter the user defined naming convention for combat units 'MOUNTED RANGED'.</English>
 	</TEXT>
+	<!-- custom: SAS's split of UNITCOMBAT_MELEE into MELEE_POLEARM and MELEE_SHOCK replaced BUG's Combat_MELEE naming option with these two. See KI#1087. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_POLEARM_TEXT</Tag>
+		<English>Naming Convention: Combat[MELEE POLEARM]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_POLEARM_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MELEE POLEARM'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_SHOCK_TEXT</Tag>
+		<English>Naming Convention: Combat[MELEE SHOCK]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MELEE_SHOCK_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MELEE SHOCK'.</English>
+	</TEXT>
 
 
 	<!-- custom: rename "Play Now" to "Simple Game" (matches code name, and is as the C2C mod does for example too) -->

@@ -132,6 +132,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/xml/tech_prereqs.py`](#buildxmltech_prereqspy)
     - [`build/xml/true_starts_coverage.py`](#buildxmltrue_starts_coveragepy)
     - [`build/xml/turn_define_gamespeed.py`](#buildxmlturn_define_gamespeedpy)
+    - [`build/xml/unit_naming_combat_types.py`](#buildxmlunit_naming_combat_typespy)
     - [`build/xml/wonder_cost_columns.py`](#buildxmlwonder_cost_columnspy)
     - [`build/xml/wonder_culture_gpp_columns.py`](#buildxmlwonder_culture_gpp_columnspy)
     - [`build/xml/xml_child_duplicates.py`](#buildxmlxml_child_duplicatespy)
@@ -1503,6 +1504,13 @@ The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names
 This naming rule was added after auditing turn gates while implementing non-combat food-production allocation: the new production gate correctly needed `TrainPercent` scaling, nearby UWAI contact limits correctly represented unscaled movement/path turns, and the victory-denial countdown windows were found to need `VictoryDelayPercent` scaling.
 
 The checker intentionally validates naming/declared intent rather than trying to infer the correct scaling formula from C++: code review still decides whether a Normal-speed value should use `TrainPercent`, `ConstructPercent`, `VictoryDelayPercent`, or another game-speed field. The explicit names make that audit grep-friendly and prevent ambiguous raw turn gates from being added silently.
+
+#### `build/xml/unit_naming_combat_types.py`
+
+Fails when BUG's [`Unit Naming.xml`](/Assets/Config/Unit%20Naming.xml) or its options tab lacks a `Combat_<type>` option for a unit combat type in `CIV4UnitCombatInfos.xml`, lists one for a type that no longer exists, or an option lacks its `_TEXT` or `_HOVER` text. BUG raises `ConfigError` for an unknown option, so a missing one breaks Unit Naming for every unit of that type.
+
+- Added on 2026-11-13 for [KI#1087](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087): SAS's split of `UNITCOMBAT_MELEE` into polearm and shock left only `Combat_MELEE`, so with Unit Naming on every Spearman or Swordsman raised a Python exception.
+- The option texts are built from the option ID, so `sas_text_references.py` counts them as a dynamic family and cannot check them; this check does.
 
 #### `build/xml/wonder_cost_columns.py`
 
