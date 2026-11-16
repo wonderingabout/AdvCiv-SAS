@@ -2795,7 +2795,8 @@ Assuming the calculation is correct and reliable, the higher the drive, the more
   - (Requires AdvCiv-SAS 6749+) Map script option steps are titled **"SELECT: ELEPHANT"** or **"SELECT: WORLD WRAP"**, instead of BtS's "SELECT A ELEPHANT" or "SELECT A REGIONS": the shared `TXT_KEY_MAIN_MENU_SELECT_A` prefix now ends with a colon, in [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml).
   - (Requires AdvCiv-SAS 6749+) The map step's **rotating globe**, with the map preview on it, grows with the box too, nearly filling its black panel at any resolution instead of staying at BtS's 450 x 320: `globe size = box size * PCT / 100 + ADD` for each side, tunable with the `SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_*` defines; Realism Invictus scales it by a fixed factor per font setting.
     - Great_Plains, whose picture fills the globe's whole area, was used to check that nothing overflows on any setup step at 1080p, 1440p and 4K.
-  - Change in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [README.md (Simple Game rework)](/README.md#simple-game-rework), [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082) and the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
+  - Change in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm).
+    - See [README.md (Simple Game rework)](/README.md#simple-game-rework), [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082), [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2) and the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
 - Beautified the Main Menu's **Simple Game screens**: removed the **margins** and reduced the **radio buttons' vertical spacing** so **more information** is displayed and the **need for scrolling** is reduced.
   - Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm).
   - See [README.md (Simple Game rework)](/README.md#simple-game-rework).
@@ -3258,7 +3259,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - A fresh map also generated successfully with the complete BTS-style shared-generator setting combination; this smoke-tests the alternate branches without claiming exact BTS map parity or balance because SAS content and mapscript behavior remain independent.
   - See the documented map-generation block in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - **Fixed AdvCiv's OneArea-resource fallback:**
-  - AdvCiv's capped first distribution pass could leave fewer food and luxury resources such as Banana, Wheat, Dye and Spices than their calculated targets because its uncapped second pass could not revisit landmasses already tried.
+  - Maps can get more of the food and luxury resources they were meant to have, such as Banana, Wheat, Dye and Spices. AdvCiv's fallback could leave them short when the first pass capped placement on suitable landmasses.
   - The second pass now reconsiders those landmasses when needed.
   - This does not change XML frequencies or calculated targets: mapscripts where the first pass already succeeds are directly unchanged, while mapscripts that previously undershot can gain the missing copies up to their existing targets; exact locations and later resource placement can consequently differ.
   - See [KI#202](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202).

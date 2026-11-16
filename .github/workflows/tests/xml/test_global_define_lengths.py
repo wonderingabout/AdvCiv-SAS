@@ -7,10 +7,12 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / ".github/workflows/build/xml"))
+# <!-- custom: The path is written inline and ROOT set after the imports: Ruff allows sys.path calls before an import but not an assignment, so ROOT first made the import an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "xml"))
 # <!-- custom: Import global_define_lengths so boundary fixtures exercise the same counting and file discovery used by CI. (GPT-6.1-Sol) -->
 import global_define_lengths as lengths
+
+ROOT = Path(__file__).resolve().parents[4]
 
 
 class GlobalDefineLengthTests(unittest.TestCase):

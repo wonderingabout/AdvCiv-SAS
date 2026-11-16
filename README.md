@@ -406,7 +406,7 @@ AdvCiv-SAS took on that work and enhanced it:
 
 Ported and enhanced with the help of Claude Code Opus 5.5, with a review by Codex (GPT-6.1-Sol), thanks; the earlier header and margin work in commit d194577b3 was done with the help of GPT-5.2-Codex.
 
-Change in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082) and the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
+Change in [SelfMod.cpp](/CvGameCoreDLL/SelfMod.cpp) and [Civ4Theme_Common.thm](/Resource/Civ4Theme_Common.thm). See [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082), [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2) and the [EXE Patches Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#patches-in-advciv-sas).
 
 #### Tighter rows, and the header back
 

@@ -1,6 +1,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
-# <!-- custom: Launches Civ4 into a mod, optionally at another resolution or in fullscreen, runs named-point or x,y clicks and saves screenshots where asked, then closes its own client; its settings go into a per-run INI, never the user's. Grew out of the 2026-11-12 setup-screen tests (KI#1082), whose one-off scripts each redid the same launch, INI and cleanup steps. (Claude code Opus 5.5) -->
+# <!-- custom: Launches Civ4 into a mod, optionally at another resolution or in fullscreen, runs named-point or x,y clicks and saves screenshots where asked, then closes its own client; its settings go into a per-run INI, never the user's.
+# Grew out of the 2026-11-12 setup-screen tests (KI#1082), whose one-off scripts each redid the same launch, INI and cleanup steps. (Claude code Opus 5.5) -->
 from __future__ import annotations
 
 # <!-- custom: argparse for options, os for the run's PID, re to edit the INI copy, subprocess to call desktop_windows.py, sys for the exit code. (Claude code Opus 5.5) -->

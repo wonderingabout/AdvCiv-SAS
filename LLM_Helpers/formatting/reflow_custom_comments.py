@@ -162,7 +162,8 @@ def sentence_boundaries(text: str):
                 i += 1
                 continue
             # Single-letter initials / dotted acronyms, e.g. "U.S.".
-            token_match = re.search(r"(?:\b[A-Za-z]\.){1,}[A-Za-z]?$", text[:i + 1])
+            # <!-- custom: A letter after an apostrophe is a possessive, not an initial: a sentence ending in RI's was joined to the next one, as \b matched between the apostrophe and the s; found in SelfMod.cpp's KI#1082.2 comment. (Claude code Opus 5.5) -->
+            token_match = re.search(r"(?:(?<!['\u2019])\b[A-Za-z]\.){1,}[A-Za-z]?$", text[:i + 1])
             if token_match:
                 i += 1
                 continue

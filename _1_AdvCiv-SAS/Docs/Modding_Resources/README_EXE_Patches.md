@@ -18,6 +18,7 @@ Written by Claude Code Opus 5.5 on 2026-11-12.
 &emsp;[`dump_exe_image.py`](#dump_exe_imagepy)\
 &emsp;[`describe_exe_sites.py`](#describe_exe_sitespy)\
 [Patches in AdvCiv-SAS](#patches-in-advciv-sas)\
+&emsp;[Scenario setup steps opened with /FXSLOAD (KI#1082.2)](#scenario-setup-steps-opened-with-fxsload-ki10822)\
 [Realism Invictus patch map](#realism-invictus-patch-map)\
 &emsp;[UI scaling patches](#ui-scaling-patches)\
 &emsp;[Graphics and animation fixes](#graphics-and-animation-fixes)\
@@ -125,15 +126,48 @@ All live in [`SelfMod.cpp`](/CvGameCoreDLL/SelfMod.cpp) and switch off together 
   - Before writing, it checks that the site lies in the EXE's committed code (`VirtualQuery`) and holds the expected 20 bytes; otherwise the patch skips itself, as on an unknown EXE.
   - A result larger than the window is cut to its width and to its height minus `SAS_EXE_P_DYNAM_MAIN_MENU_HEIGHT_FREE_MIN` (80 px, a little under twice the bar's 44 px), so the main menu's bottom bar and GO BACK stay visible.
   - Tested on Steam on 2026-11-12 in 1920 x 1080, 2560 x 1380 and 3806 x 2100 windows and in 1920 x 1080 fullscreen; GOG's address is RI's and untested by us.
+  - A scenario opened with `/FXSLOAD` once kept the stock size on its Civilization step; see [Scenario setup steps opened with /FXSLOAD](#scenario-setup-steps-opened-with-fxsload-ki10822).
 - World-picker globe size (2026-11-12, `SAS_EXE_P_DYNAM_MAIN_MENU_GLOBE_*`), ported from RI's `WorldPickerSizePatch`; see [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
   - The hook is RI's: the globe's size is a call argument of the shared function at `0x004D2FE0` (Steam; GOG `0x004D2B90`), not an immediate, so its first 7 bytes, `PUSH -1` and `PUSH offset` of the SEH handler, become a `JMP` to a 64-byte cave from `VirtualAlloc`. The cave overwrites the width and height arguments at `[ESP+8]` and `[ESP+0Ch]`, replays the two pushes and jumps back to entry + 7.
   - Only the cave's content differs: RI multiplies the arguments by one fixed factor per font setting, while ours writes sizes that `sasSetupScreenGetSize` computes from the box each time it runs: `box size * PCT / 100 + ADD` per side; 0 leaves the argument alone, which also covers the time before the box is first sized.
   - Hooked only when the box patch was applied. Tested on Steam on 2026-11-12 at 1920 x 1080, 2560 x 1380 and 4K, on every setup step that shows the globe.
   - The globe's area is a rounded rectangle with its own starfield, centred in the step's black panel; Great_Plains' flat picture fills it entirely, so it is the check for overflow. A globe taller than a panel is clipped at the panel's frame, not drawn over it. Sizing and measurements are in [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082).
 
+### Scenario setup steps opened with /FXSLOAD (KI#1082.2)
+
+The full record of [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2), kept here as it describes the EXE's internals. Addresses are Steam's.
+
+- The user noticed it on 2026-11-16 in two screenshots, `Civ4ScreenShot0036.JPG` (Civilization, small) and `Civ4ScreenShot0037.JPG` (Your Details, tall but narrow), while the SASSaveTransplanter was clicking through a scenario's setup steps; it starts Civ4 with `/FXSLOAD="<file>.CivBeyondSwordWBSave"`. Screenshots are in the KI's Drive folder.
+- Reproduced the same day by loading `transplant.CivBeyondSwordWBSave` from the 4986 transplant with `/FXSLOAD` in a 1920 x 1080 window, once with `SAS_EXE_P_DYNAM_MAIN_MENU_ON` at 1 and once at 0. The patch-off column is a control run, which is why Your Details is small there too; with the patch on, only Civilization was ever small.
+
+  | Step | Patch off | Patch on |
+  | --- | --- | --- |
+  | Civilization | 840 x 560 | 840 x 560, pixel for pixel the same |
+  | Your Details | 468 x 560 | 904 x 984 |
+  | Game Snapshot | not measured | the full patched box, with the enlarged globe |
+
+- How the screens size their box: the 32 setup-screen classes hold the size function, `0x0059B7B0`, at the same virtual slot, `+0x2C4`, and each builder calls it before centring its box on the screen's resolution, read from the object at `[0x00C2A334]` (`+0x118`, `+0x11C`).
+- Your Details being narrow is BtS's own shape, not part of this issue: its builder, `0x005B97D0`, calls the function on itself, keeps the height and multiplies the width by 0.56, a double at `0x00AD1160`. So 0.56 x 850 in stock BtS and 0.56 x 1632 with the patch, about the 468 and 904 seen once the frame is counted.
+- A first static reading went wrong. The Civilization step's builder, `0x005B2BC0`, the only code using `TXT_KEY_MAIN_MENU_SELECT_A_CIV`, calls the slot at `0x005B2D8F`; as its result did not change with the patch, the reading concluded that the call reached another object, and so that RI had the same gap. Both conclusions were wrong.
+- Two launches narrowed it down: the same Africa scenario opened from the menus (Play a Scenario, then OK) showed a full-size Civilization step, and opened with `/FXSLOAD` a small one. So the launch route mattered, not the scenario.
+- A temporary probe in a Debug-opt build then logged each call of `sasSetupScreenGetSize` with its return address and the process's windows.
+  - The Civilization step called it, returning to `0x005B2D95`, while the game window, class `GFC_StdWindowClass`, was already 1920 x 1080 but not yet visible; the function accepted only visible windows, found none and kept the stock size.
+  - By Your Details the window showed and 1632 x 994 came back.
+  - So the slip was ours, not RI's: RI writes fixed sizes into the function's immediates, which never depend on the window, while our port measures the window each time a setup screen opens. That measuring is what made the box tunable and resolution-independent (KI#1082), and this was a side effect of it found later. A scenario opened from the main menu builds its steps after the window shows.
+    - The same pattern as [KI#284.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.2): making map generation tunable assumed `self.gc`, which ordinary generators set but inherited map scripts replacing `__init__` did not. Each tunability change relied on state that the usual path has and an alternate path lacks, here a visible window under `/FXSLOAD`.
+- Fix: the game window also counts by its class while hidden, which needs no EXE address and so should hold for GOG too. Tested the same day with a Debug-opt build: the `/FXSLOAD` transplant's Civilization step fills the 1632 x 994 box, Your Details and Game Snapshot are unchanged, a menu-launched scenario still grows, and the SASSaveTransplanter's OK-button reference still matches on each step.
+- Only `/FXSLOAD` launches were affected. Play a Scenario was checked before and after the fix; Custom Scenario opens the same list and steps and was not run separately; Simple Game and Custom Game open from the visible window.
+- Base AdvCiv 1.14, which has no such patch, shows all three steps at BtS's size: Civilization 840 x 560, Your Details 468 x 560.
+
+Found by wonderingabout; traced and fixed with the help of Claude code Opus 5.5.
+
 ## Realism Invictus patch map
 
-Checked on 2026-11-12 against RI r5655 and our Steam EXE. The site list is `Downloads/AdvCiv-SAS_LLM/exe_analysis/ri_v2_sites.tsv`, and the Ghidra description of every site is `ri_v2_sites_described.txt` beside it.
+Checked on 2026-11-12 against RI r5655 and our Steam EXE.
+
+RI r5656 (2026-11-15, "Memory patches follow a more unified architecture now") moved its patches onto shared helpers, `smcLog` for its `SelfMod.log` lines and `smcWriteValue` for the writes; read on 2026-11-16, its setup-screen and globe patches behave as in r5655, so this map and our ports still hold.
+
+The site list is `Downloads/AdvCiv-SAS_LLM/exe_analysis/ri_v2_sites.tsv`, and the Ghidra description of every site is `ri_v2_sites_described.txt` beside it.
 
 Every Steam address below held the instruction RI's comments describe, so our EXE is the build RI's V2 patches were written for. RI's own reasons come from its comments in `GameCore/CvGameCoreDLL/SelfMod.cpp` and its SVN messages; its full history from r5000 is in `Downloads/AdvCiv-SAS_LLM/svn_history/ri/`.
 
@@ -214,3 +248,10 @@ What tripped us up on 2026-11-12 while preparing this guide; none of it is new t
 - Ghidra stopped with `The data file must be inside the data dir` when an agent started it from the Claude desktop app, a packaged Windows app that redirects writes under `AppData`. Running outside the agent's sandbox did not help; moving Ghidra's settings to `C:\Tools\ghidra_user` did, through `-Dapplication.settingsdir` and `-Dapplication.cachedir` lines in `launch.properties`.
 - Ghidra 12.2 needs Java 25, while an older Java 21 came first on PATH, so the helpers set `JAVA_HOME` themselves.
 - `analyzeHeadless.bat` cannot take a path containing `(x86)` or `Sid Meier's`, which our repository path has, so `describe_exe_sites.py` copies its Ghidra script to a temporary folder first.
+- A workaround while tracing [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2) (2026-11-16): a temporary probe in our own DLL code.
+  - Static reading of the EXE had not found why the Civilization step stayed small, and Claude Code Opus 5.5 could not get a debugger to work with the Steam game. With the fix and other pending tasks in focus, we tried the probe rather than dig into the debugger setup, and it was enough to find the cause. Whether a debugger would serve better was not examined.
+  - The probe made `sasSetupScreenGetSize` append each call's `_ReturnAddress()` and the process's windows (`GetTopWindow`, class, visibility, client size) to a file in `%TEMP%`, built as Debug-opt.
+  - One launch showed that the step did call the function, while the game window was still hidden, which led to the fix.
+  - VC2003 wants `extern "C" void* _ReturnAddress(void);` and `#pragma intrinsic(_ReturnAddress)` at file scope; inside a function it fails with C2598 and C2156.
+  - Mark such code clearly (`SAS_TEMP_PROBE`) and remove it before handing over.
+  - Static reading can mislead with virtual calls: the probe showed that a call the first reading had ruled out did reach our function, only at a time when its answer differed.

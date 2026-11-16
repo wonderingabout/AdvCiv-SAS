@@ -33,7 +33,7 @@ def ensure_base(repo: Path, base_ref: str | None, event_name: str | None) -> str
         candidate = "HEAD^"
         return candidate if has_commit(repo, candidate) else None
     if has_commit(repo, base_ref):
-        return base_ref
+        return push_base_in_history(repo, base_ref) if event_name == "push" else base_ref
     if event_name == "push":
         fetched = run_git(repo, "fetch", "--no-tags", "origin", base_ref, check=False)
         if fetched.returncode == 0 and has_commit(repo, base_ref):
@@ -45,6 +45,20 @@ def ensure_base(repo: Path, base_ref: str | None, event_name: str | None) -> str
         )
         return None
     raise RuntimeError("change-range base %s is unavailable; fetch the base commit first" % base_ref)
+
+
+# <!-- custom: A push's "before" is the old remote tip, which a force push may have replaced: on 2026-11-16 main was reset under the SASPilot squash, and source_change_provenance.py judged the new commit against that squash, reporting every SASPilot import and binding as removed.
+# Judge the push against the newest commit both histories share instead, which for an ordinary push is "before" itself. (Claude code Opus 5.5) -->
+def push_base_in_history(repo: Path, before: str) -> str | None:
+    if run_git(repo, "merge-base", "--is-ancestor", before, "HEAD", check=False).returncode == 0:
+        return before
+    merge_base = run_git(repo, "merge-base", before, "HEAD", check=False)
+    if merge_base.returncode:
+        print("NOTICE: rewritten push from %s shares no history with HEAD; change-range checks cannot check this push range." % before, file=sys.stderr)
+        return None
+    shared = merge_base.stdout.decode("ascii").strip()
+    print("NOTICE: push rewrote history from %s; checking changes since their shared commit %s." % (before, shared), file=sys.stderr)
+    return shared
 
 
 def git_text(repo: Path, ref: str, path: str) -> str | None:

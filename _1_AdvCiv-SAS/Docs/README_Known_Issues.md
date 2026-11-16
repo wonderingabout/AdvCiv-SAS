@@ -1253,6 +1253,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)\
 [KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)\
 [KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
+[KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
 [KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)
 
 <a id="ki-1"></a>
@@ -19329,6 +19330,8 @@ On a KI#202 second-pass revisit, the live area counter already includes that res
 
 Fixed with the help of GPT-5.6-Sol thanks.
 
+2026-11-16 follow-up: The audit for the map-generation switches uncovered this inherited placement bug. Adding the switches introduced a separate regression when Boreal read the new settings. See [KI#284.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.2) and [Map Generation (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#map-generation-common).
+
 <a id="ki-203"></a>
 
 ## KI#203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended
@@ -21691,13 +21694,17 @@ Boreal replaces both constructors without setting `self.gc`, so a Tiny runtime t
 
 Other inherited generator subclasses share the same compatibility contract.
 
-The fix obtains the global context locally for these two once-per-generation define reads.
+The fix calls `CyGlobalContext().getDefineINT(...)` directly in both methods instead of reading the defines through `self.gc`.
 
 This preserves the tunable behavior for ordinary generators and keeps inherited subclasses independent of base-constructor state.
 
 Boreal subsequently generated successfully on Tiny and Small with Toroidal wrapping, confirming both terrain and feature generation paths.
 
 This is an AdvCiv-SAS regression introduced by the map-generation XML-tunability change. Found through KI#284 runtime validation with the help of wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
+
+2026-11-16 follow-up: [Map Generation (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#map-generation-common) and the map-generation XML block describe the switches. While the switch implementation introduced the Boreal failure, its preceding audit uncovered the inherited resource placement bug recorded in [KI#202](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202).
+
+The same pattern later appeared in [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2). The new map-generation switches relied on `self.gc`, which inherited scripts such as Boreal leave unset. The new setup-screen sizing relied on a visible game window, which a `/FXSLOAD` launch had yet to show when it built the Civilization step.
 
 <a id="ki-284.3"></a>
 
@@ -37635,6 +37642,18 @@ Found by wonderingabout, who had hidden the title to fit more maps; patch ported
 - A full round of Great_Plains (map, world size, game snapshot) and of Pangaea (map, world size, Shoreline, game snapshot) at 1920 x 1080, 2560 x 1380 and 4K showed every content inside its frame, the game snapshot's panel being the tightest. All 38 Simple Game scripts were checked on the map step at 1920 x 1080, with nothing cropped.
 - A globe taller than a step's panel, as on some option steps in a first test, is clipped at the panel's frame and does not spill over it.
 - Painting near-black pixels white (`contact_sheet.py --black-to-white`, the user's idea) shows the area's outline against the panel.
+
+<a id="ki-1082.2"></a>
+
+## KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1J4iXJgATrg8tUoHgfY_TacZs0I6ZReX9?usp=sharing).
+
+Details: read the corresponding disclaimers first, notably as of now [this one](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) and [this one](/LICENSE.md#the-games-executable), then [this section](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#scenario-setup-steps-opened-with-fxsload-ki10822).
+
+The window search now uses `IsWindowVisible(hWnd) || sasIsGameWindow(hWnd)`, so the game window can supply its dimensions while still hidden.
+
+Found by wonderingabout; traced and fixed with the help of Claude code Opus 5.5.
 
 <a id="ki-1083"></a>
 
