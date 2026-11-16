@@ -439,6 +439,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298.2)\
 [KI#299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-299)\
 [KI#300 - (Fixed AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
+[KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2)\
 [KI#301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-301)\
 [KI#302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-302)\
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
@@ -22217,6 +22218,28 @@ The exact razed-before-reveal state remains source-verified because reproducing 
 This is an AdvCiv-SAS Timeline spoiler introduced with its hidden-event filtering.
 
 Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and partially fixed with the help of GPT-5.6-Sol; reopened as F679 during ChatGPT-5.6-Sol's C031-WIP552 `CyPlot.cpp` audit, then completed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-300.2"></a>
+
+## KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1aB4uoxG3gZUkY7CQ_2HpRG-l4-lZrDET?usp=sharing).
+
+- Found at turn 120 of a SAS48 SAS Large Facing Islands autoplay (2026-11-15), with 2 of 47 rivals met: the Religions tab dated seven religions and the Wonders tab 21 world wonders, but the Timeline showed only Christianity, founded by a met player, and the two wonders of met players. The user noticed that the Timeline was missing information.
+- Cause: KI#300's design keeps a religion founding visible to everyone, reworded to the faraway-land text when the holy city is not known, as the game's own notification does.
+  - But in `CvInfoScreen.buildTimelineCache` two later tests, the message's player and the plot's owner not met, hid it without the exemption the hidden-plot test has, so the faraway-land path only ever served a met founder whose holy city was unseen.
+  - Corporation foundings and world-wonder completions, which `CvGame::setHeadquarters` and CvCity's wonder message (advc.106) likewise announce to all players, were not recognized at all.
+- Fixed: `getReligionFoundingTimelineTexts` also recognizes corporation foundings and world-wonder completions (both article forms), each with its faraway-land text; a recognized public event is kept whoever founded or built it.
+  - A founding is reworded when its city is hidden, gone or its owner not met; a wonder, whose replay text names the builder, when the builder is not met.
+  - Tested on the turn-120 save: the Timeline lists "The Apostolic Palace has been built in a faraway land!", 19 other wonders the same way and "Islam has been founded in a faraway land!", while "Pacal II completes the Natya Shastra" keeps the met builder's name.
+- The faraway-land wording is the game's own, from the texts it sends players who do not know the place:
+  - religion and corporation foundings say "a faraway land" through AdvCiv's overrides of vanilla's "a distant land", as does AdvCiv's "The" wonder text, while the plain wonder text keeps vanilla's "a far away land";
+  - so read them in the mod, not in vanilla's files: reading vanilla first, the agent at first took "distant land" for the game's wording and the quotes above for mistakes.
+- Seen meanwhile, not fixed: the Dai Miao reads "The The Dai Miao" in the faraway-land text, as its name already starts with "The" while the game chooses the article form for it, so the game's own message and replay text carry the same doubling.
+
+Found by Claude Code Opus 5.5 while mapping public information through the pilot, at the user's suggestion to check the Timeline.
+
+- Side note: the save kept in the Drive folder, `sas_pilot_sas48_islands_t120` (turn 120, 2 of 47 rivals met), was worth keeping beyond this issue: the same day it also exposed KI#118.2 and showed most of what a player can know about rivals not met (wonders, top cities, religions, vote sources, rival averages), which the SASPilot `world` command now reads.
 
 <a id="ki-301"></a>
 

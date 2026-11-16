@@ -865,15 +865,36 @@ class CvInfoScreen:
 			iSentinel = szKnown.find(szCitySentinel)
 			if iSentinel == -1:
 				continue
-			aFoundingTexts.append((szKnown[:iSentinel], szKnown[iSentinel + len(szCitySentinel):], localText.getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", (szReligion,))))
+			aFoundingTexts.append((szKnown[:iSentinel], szKnown[iSentinel + len(szCitySentinel):], localText.getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", (szReligion,)), False))
+		# <!-- custom: Corporation foundings and world-wonder completions are announced to every player as well, in a faraway-land form for those who do not know the place or the builder (CvGame::setHeadquarters, CvCity's wonder message, advc.106), so they are matched the same way.
+		# A wonder's replay text names its builder instead of a city ("Pericles completes the Parthenon"), so its sentinel stands for the player and its last field, bNamesBuilder, is True. See KI#300.2. (Claude code Opus 5.5) -->
+		for iCorporation in range(gc.getNumCorporationInfos()):
+			szCorporation = gc.getCorporationInfo(iCorporation).getDescription()
+			szKnown = localText.getText("TXT_KEY_MISC_CORPORATION_FOUNDED", (szCorporation, szCitySentinel))
+			iSentinel = szKnown.find(szCitySentinel)
+			if iSentinel != -1:
+				aFoundingTexts.append((szKnown[:iSentinel], szKnown[iSentinel + len(szCitySentinel):], localText.getText("TXT_KEY_MISC_CORPORATION_FOUNDED_UNKNOWN", (szCorporation,)), False))
+		szPlayerSentinel = u"__SAS_TIMELINE_BUILDER__"
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			kBuilding = gc.getBuildingInfo(iBuilding)
+			if gc.getBuildingClassInfo(kBuilding.getBuildingClassType()).getMaxGlobalInstances() == -1:
+				continue
+			szWonder = kBuilding.getDescription()
+			for szKnownKey, szUnknownKey in (("TXT_KEY_MISC_COMPLETES_WONDER", "TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN"), ("TXT_KEY_MISC_COMPLETES_WONDER_THE", "TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN_THE")):
+				szKnown = localText.getText(szKnownKey, (szPlayerSentinel, szWonder))
+				iSentinel = szKnown.find(szPlayerSentinel)
+				if iSentinel != -1:
+					aFoundingTexts.append((szKnown[:iSentinel], szKnown[iSentinel + len(szPlayerSentinel):], localText.getText(szUnknownKey, (szWonder,)), True))
 		return aFoundingTexts
 
 	def getHiddenReligionFoundedText(self, szReplayText, aFoundingTexts):
 		# <!-- custom: Match the localized founding template through its sentinel-derived parts rather than an English substring or the current city object's current name. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		for szPrefix, szSuffix, szUnknown in aFoundingTexts:
+		# <!-- custom: Returns the faraway-land text and bNamesBuilder, or (None, None).
+		# bNamesBuilder was first a "city" or "player" string, but a misspelt string would have compared false without any error, while a misspelt variable name fails; two kinds fit a boolean. See KI#300.2. (Claude code Opus 5.5) -->
+		for szPrefix, szSuffix, szUnknown, bNamesBuilder in aFoundingTexts:
 			if szReplayText.startswith(szPrefix) and szReplayText.endswith(szSuffix):
-				return szUnknown
-		return None
+				return szUnknown, bNamesBuilder
+		return None, None
 
 	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
 	def buildTimelineCache(self, bForceRebuild = False):
@@ -941,8 +962,10 @@ class CvInfoScreen:
 			eMessageType = replayInfo.getReplayMessageType(iMessage)
 			bAllowHiddenPlotMessage = False
 			szHiddenReligionText = None
+			bNamesBuilder = False
 			szText = None
 			szTextNoColor = None
+			bMetPlayer = True
 
 			bPlotHidden = False
 			pPlot = None
@@ -967,7 +990,7 @@ class CvInfoScreen:
 				szText = replayInfo.getReplayMessageText(iMessage)
 				if szText:
 					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
-					szHiddenReligionText = self.getHiddenReligionFoundedText(szTextNoColor, aReligionFoundingTexts)
+					szHiddenReligionText, bNamesBuilder = self.getHiddenReligionFoundedText(szTextNoColor, aReligionFoundingTexts)
 					if szHiddenReligionText is not None:
 						bAllowHiddenPlotMessage = True
 
@@ -979,12 +1002,15 @@ class CvInfoScreen:
 					bHide = True
 				if not bAllowHiddenPlotMessage and bPlotHidden:
 					bHide = True
+				# <!-- custom: A public event (a religion or corporation founded, a world wonder built) is announced to every player, so the Timeline keeps it even from a player not met, reworded below; these two tests hid it, so at turn 120 of a SAS48 island autoplay (2026-11-15), with 2 of 47 rivals met, six religions and 20 wonders the Religions and Wonders tabs listed were missing from the Timeline. See KI#300.2. (Claude code Opus 5.5) -->
 				if iPlayer != -1:
 					pLoopPlayer = gc.getPlayer(iPlayer)
 					if pLoopPlayer.isEverAlive():
 						if not self.pActiveTeam.isHasMet(pLoopPlayer.getTeam()):
-							bHide = True
-				if not bHide and iX > -1 and iY > -1:
+							bMetPlayer = False
+							if not bAllowHiddenPlotMessage:
+								bHide = True
+				if not bHide and not bAllowHiddenPlotMessage and iX > -1 and iY > -1:
 					iOwner = pPlot.getOwner()
 					if iOwner != -1:
 						pOwner = gc.getPlayer(iOwner)
@@ -1016,7 +1042,7 @@ class CvInfoScreen:
 			if not self.bRevealAll and pPlot is not None:
 				pCity = pPlot.getPlotCity()
 			bCityMissing = pCity is None or pCity.isNone()
-			if not self.bRevealAll and szHiddenReligionText is not None and (bPlotHidden or bCityMissing):
+			if not self.bRevealAll and szHiddenReligionText is not None and (bPlotHidden or bCityMissing or not bMetPlayer) and (not bNamesBuilder or not bMetPlayer):
 				# <!-- custom: A hidden religion founding remains globally visible, but its replay text must not reveal a historical holy-city name merely because the city was razed before the observer learned it; use the localized unknown-location line identified above. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				szText = szHiddenReligionText
 			elif not self.bRevealAll and not bCityMissing:
