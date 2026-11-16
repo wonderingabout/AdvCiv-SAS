@@ -32,6 +32,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/workflow_keep_going.py
 
+      - name: Every check script is run by a workflow
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/workflow_script_coverage.py
+
       - name: Temporary files
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/temp_files.py

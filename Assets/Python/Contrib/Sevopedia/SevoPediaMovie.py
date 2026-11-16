@@ -21,6 +21,12 @@ ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 UserProfile = CyUserProfile()
 
+# <!-- custom: The movie kinds were the strings "movie", "nif" and "dds", compared where the movie is drawn; named here, a misspelt kind is a NameError. (Claude code Opus 5.5) -->
+MOVIE_KIND_BIK = 0
+MOVIE_KIND_NIF = 1
+MOVIE_KIND_DDS = 2
+
+
 class SevoPediaMovie:
 
 	def __init__(self, main):
@@ -136,7 +142,7 @@ class SevoPediaMovie:
 
 		screen = self.mediaPlayer.openScreen()
 		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, "", False)
-		bUseFullScreenMovie = (szMovieKind == "movie")
+		bUseFullScreenMovie = (szMovieKind == MOVIE_KIND_BIK)
 		# <!-- custom: BIK movies render full-screen, so hide the TV panel and use compact prev/next labels to keep navigation readable. (GPT-5.2-Codex) -->
 		if not bUseFullScreenMovie:
 			_, _, _, _, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
@@ -146,12 +152,15 @@ class SevoPediaMovie:
 		self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
 		self.mediaPlayer.startTimer()
 
-		if szMovieKind == "nif":
+		# <!-- custom: The last branch was a bare else, so any other kind was played as a BIK without an error; name all three kinds and fail on any other. (Claude code Opus 5.5) -->
+		if szMovieKind == MOVIE_KIND_NIF:
 			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		elif szMovieKind == "dds":
+		elif szMovieKind == MOVIE_KIND_DDS:
 			screen.addDDSGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		else:
+		elif szMovieKind == MOVIE_KIND_BIK:
 			screen.playMovie(szMovieFile, -1, -1, -1, -1, 0)
+		else:
+			raise ValueError("unknown movie kind %s for %s" % (szMovieKind, szMovieFile))
 
 		# <!-- custom: Play audio using Play2DSound/Destroy2DSound approach.
 		# This works fine for both starting audio on open and stopping it on exit.
@@ -381,7 +390,7 @@ class SevoPediaMovie:
 			szMovie = SASVisuals.MovieArt.getPath(szArtDef)
 			if not szMovie:
 				return None
-			return (szMovie, "movie", None)
+			return (szMovie, MOVIE_KIND_BIK, None)
 
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_WONDER:
 			szMovie = gc.getBuildingInfo(iMovieId).getMovie()
@@ -392,9 +401,9 @@ class SevoPediaMovie:
 					szMovie = SASVisuals.MovieArt.getPath(szMovie)
 			if not szMovie:
 				return None
-			szMovieKind = "movie"
+			szMovieKind = MOVIE_KIND_BIK
 			if szMovie.find(".dds") > -1:
-				szMovieKind = "dds"
+				szMovieKind = MOVIE_KIND_DDS
 			return (szMovie, szMovieKind, None)
 
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT:
@@ -404,15 +413,15 @@ class SevoPediaMovie:
 			szMovie = SASVisuals.MovieArt.getPath(szArtDef)
 			if not szMovie:
 				return None
-			return (szMovie, "movie", None)
+			return (szMovie, MOVIE_KIND_BIK, None)
 
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_RELIGION:
 			szMovieFile = gc.getReligionInfo(iMovieId).getMovieFile()
 			if not szMovieFile:
 				return None
-			szMovieKind = "movie"
+			szMovieKind = MOVIE_KIND_BIK
 			if szMovieFile.find(".nif") > -1:
-				szMovieKind = "nif"
+				szMovieKind = MOVIE_KIND_NIF
 			szSoundScript = ""
 			try:
 				szSoundScript = gc.getReligionInfo(iMovieId).getMovieSound()
@@ -426,15 +435,15 @@ class SevoPediaMovie:
 			szMovieFile = gc.getEraInfo(iMovieId).getButton()
 			if not szMovieFile:
 				return None
-			return (szMovieFile, "dds", "AS2D_NEW_ERA")
+			return (szMovieFile, MOVIE_KIND_DDS, "AS2D_NEW_ERA")
 
 		if iMovieType == SAS_MAGIC_PEDIA_MOVIE_TYPE_CORPORATION:
 			szMovieFile = gc.getCorporationInfo(iMovieId).getMovieFile()
 			if (not szMovieFile) or (szMovieFile == "NONE"):
 				return None
-			szMovieKind = "movie"
+			szMovieKind = MOVIE_KIND_BIK
 			if szMovieFile.find(".nif") > -1:
-				szMovieKind = "nif"
+				szMovieKind = MOVIE_KIND_NIF
 			szSoundScript = ""
 			try:
 				szSoundScript = gc.getCorporationInfo(iMovieId).getMovieSound()

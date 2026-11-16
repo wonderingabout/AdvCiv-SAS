@@ -113,6 +113,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 202 - SAS practical 6756
+
+- **Date:** 2026-11-16
+- **Git commit:** pending
+- **Change:** No change to the record: `SASGameRecordSettings.py` gained two `sas-ci-string-compare-exemption` notes for its comparisons with BUG's option types, which `string_label_compares.py` requires.
+
 ### Revision 201 - SAS practical 6749
 
 - **Date:** 2026-11-12

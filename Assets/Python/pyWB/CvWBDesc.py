@@ -1642,7 +1642,9 @@ class CvWBDesc:
 		for pDesc in self.signDesc:
 			pDesc.apply()
 
+		# <!-- custom: sas-ci-string-compare-exemption: the WorldBuilder file stores its flags as the text "true" or "false". (Claude code Opus 5.5) -->
 		CvUtil.pyPrintRecord("WB_MAP_APPLY_STAGE", "stage=RANDOMIZE_RESOURCES enabled=%d" % (self.mapDesc.bRandomizeResources != "false"))
+		# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 		if (self.mapDesc.bRandomizeResources != "false"):
 			for iPlotLoop in range(CyMap().numPlots()):
 				pPlot = CyMap().plotByIndex(iPlotLoop)
@@ -1664,6 +1666,7 @@ class CvWBDesc:
 			if pWBPlayer.bNeverAlive:
 				continue # </advc.056>
 			# Random Start Location
+			# <!-- custom: sas-ci-string-compare-exemption: the WorldBuilder file's "true" or "false", as for the resources above. (Claude code Opus 5.5) -->
 			if (pPlayer.getLeaderType() != -1 and pWBPlayer.bRandomStartLocation != "false"):
 				#pPlayer.setStartingPlot(pPlayer.findStartingPlot(True), True)
 				# advc.027: Let the DLL find a starting plot later; but make sure that the DLL won't simply assign one of the plots marked with "StartingPlot".
@@ -1757,6 +1760,7 @@ class CvWBDesc:
 						pPlayer.setCurrentEra(iStartingEra)
 
 					# Random Start Location
+					# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 					if (pWBPlayer.bRandomStartLocation != "false"):
 						pPlayer.setStartingPlot(pPlayer.findStartingPlot(true), True)
 						CvUtil.pyPrintRecord("WB_STARTING_PLOT_ASSIGNED", "playerId=%d x=%d y=%d" % (pPlayer.getID(), pPlayer.getStartingPlot().getX(), pPlayer.getStartingPlot().getY()))

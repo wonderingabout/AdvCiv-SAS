@@ -208,7 +208,7 @@ class SevoPediaWorldSizeChart:
 			("unhappy",  (u"%s" % (SASVisuals.Font.UNHAPPY_CHAR))),
 		)
 		for name, glyph in _glyph_defs:
-			glyph_by_name[name] = glyph
+			glyph_by_name[name] = (glyph, 0)
 
 		icon_token_by_key = {}
 		for field_name, _display_label, _getter_name, icon_token in row_specs:
@@ -224,25 +224,7 @@ class SevoPediaWorldSizeChart:
 			# Always return a stable invisible tie-breaker, even if no icon is found.
 			if not icon_key:
 				return (chart_sort_key(0, iRowIndex), "")
-			token = icon_token_by_key.get(icon_key, "")
-			if not token:
-				return (chart_sort_key(0, iRowIndex), "")
-			if token.startswith("btn:"):
-				name = token[4:]
-				btn = btn_by_name.get(name)
-				if btn is None:
-					return (chart_sort_key(0, iRowIndex), "")
-				path, iGroup = btn[0], btn[1]
-				if not path:
-					return (chart_sort_key(0, iRowIndex), "")
-				return (chart_sort_key(iGroup, iRowIndex), path)
-			if token.startswith("glyph:"):
-				name = token[6:]
-				glyph = glyph_by_name.get(name, u"")
-				if not glyph:
-					return (chart_sort_key(0, iRowIndex), "")
-				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
-			return (chart_sort_key(0, iRowIndex), "")
+			return chart_icon_cell(icon_token_by_key.get(icon_key, ""), iRowIndex, btn_by_name, glyph_by_name)
 
 		world_types = []
 		world_labels = []

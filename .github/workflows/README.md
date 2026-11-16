@@ -81,6 +81,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
     - [`build/repository/workflow_keep_going.py`](#buildrepositoryworkflow_keep_goingpy)
+    - [`build/repository/workflow_script_coverage.py`](#buildrepositoryworkflow_script_coveragepy)
   - [Runtime](#runtime)
     - [`build/runtime/aip.py`](#buildruntimeaippy)
     - [`build/runtime/aip_predump_values.py`](#buildruntimeaip_predump_valuespy)
@@ -97,6 +98,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
+    - [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy)
     - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
   - [XML and rules](#xml-and-rules)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
@@ -980,6 +982,13 @@ Verifies that every check step of `checks-*.yml` keeps running after an earlier 
 
 Whether a script itself collects all its findings is left to review: an audit of 95 scripts on 2026-11-09 flagged 25 by how they exit, of which about 6 really stopped early, so a check on it would mostly raise false alarms.
 
+#### `build/repository/workflow_script_coverage.py`
+
+Fails when a check script under `.github/workflows/build/` is not named by any workflow, so a new check cannot sit in the folder, pass locally and never run on GitHub. Shared helpers in `lib/` and modules whose names start with `_` are imported rather than run, so they are left out.
+
+- Added on 2026-11-17, when `string_label_compares.py` had been written and run by hand but no workflow ran it; nothing failed, as `workflow_keep_going.py` only checks the steps that exist.
+- Its documentation counterpart is in [`folder_indexes.py`](#builddocumentationfolder_indexespy), which now also fails when a check script has no section in this README.
+
 ### Runtime
 
 #### `build/runtime/aip.py`
@@ -1184,6 +1193,17 @@ Or provide an explicit comparison base:
 ```bash
 python .github/workflows/build/source/source_change_provenance.py --base-ref <base-sha>
 ```
+
+#### `build/source/string_label_compares.py`
+
+Fails when runtime Python (`Assets/Python`, `PrivateMaps`) compares a value with a short lowercase string literal, such as `kind == "btn"`, unless a `sas-ci-string-compare-exemption: <reason>` note sits on that line or the line above, inside a credited custom comment.
+
+A note above an `if` also covers the `elif` branches of its chain.
+
+- A label of our own compared as a string fails without any error when it is misspelt, so it is better as a boolean, a widget, a named constant or a lookup that raises on an unknown value. A string read from outside, such as BUG's option types or a WorldBuilder file's `"false"`, is fine with its reason.
+- Added on 2026-11-17: the first draft of [KI#300.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2) told its Timeline events apart with `"city"` and `"player"`.
+  - The same review found the Sevopedia charts showing no icon for a misspelt token, the movie player playing any unknown kind as a BIK and the Customizable Domestic Advisor silently stopping a row on an unknown column type; each now fails loudly or compares no string.
+- Three inherited files SAS does not extend are skipped whole: BUG's `BugOptions.py` and `UnitNameEventManager.py`, and the Planet Generator map script.
 
 #### `build/source/unicode_button_paths.py`
 

@@ -288,22 +288,20 @@ class SevoPediaBuild:
 				textH = 20
 			screen.addMultilineText(textName, SASTextScale.labelText(text), panelX + textMarginX, textTop, panelW - (textMarginX * 2), textH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
+			# <!-- custom: Each button carries its jump widget rather than a "tech" or "feature" label that a later test turned into the widget, so no label is compared and none can be misspelt. (Claude code Opus 5.5) -->
 			buttons = []
 			if featureTech > -1:
-				buttons.append(("tech", featureTech, gc.getTechInfo(featureTech).getButton()))
-			buttons.append(("feature", iFeature, featureInfo.getButton()))
+				buttons.append((WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, featureTech, gc.getTechInfo(featureTech).getButton()))
+			buttons.append((WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, featureInfo.getButton()))
 
 			if len(buttons) > 0:
 				buttonSpacing = 4
 				buttonRowW = (len(buttons) * buttonRowH) + ((len(buttons) - 1) * buttonSpacing)
 				buttonXStart = (panelW - buttonRowW) / 2
 
-				for iButtonIndex, (buttonType, buttonId, buttonArt) in enumerate(buttons):
+				for iButtonIndex, (eWidget, buttonId, buttonArt) in enumerate(buttons):
 					x = buttonXStart + (iButtonIndex * (buttonRowH + buttonSpacing))
-					if buttonType == "tech":
-						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, buttonId, 1)
-					else:
-						screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, buttonId, 1)
+					screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonArt, x, buttonTopRel, buttonRowH, buttonRowH, eWidget, buttonId, 1)
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
