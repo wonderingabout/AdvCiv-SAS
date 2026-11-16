@@ -1262,7 +1262,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
 [KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
 [KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
-[KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)
+[KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
+[KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)
 
 <a id="ki-1"></a>
 
@@ -37863,3 +37864,22 @@ Found by Claude code Opus 5.5 on 2026-11-13, through the pilot's desktop demo.
 - Guarded by [`unit_naming_combat_types.py`](/.github/workflows/README.md#buildxmlunit_naming_combat_typespy), which fails when the config or the tab lacks an option for a type in `CIV4UnitCombatInfos.xml`, lists one for a type that no longer exists, or an option lacks its `_TEXT` or `_HOVER` text. Run against the old config and tab, it reports all six problems.
 
 Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) review.
+
+<a id="ki-1088"></a>
+
+## KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game
+
+- Seen on 2026-11-13 while testing the pilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `SASPilotClient.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
+  - **First crash:** in the DLL, during teardown: `CvPlayer::reset`, `CvPlayer::uninit`, then `FFreeListTrashArray<CvPlotGroup>::removeAll` read the first entry of a player's plot-group list and found the object pointer `0xFFFFFFFF`, faulting at address `ffffffff`. That client had loaded once before while a diplomacy screen was open.
+  - **Second crash:** in the EXE, reading `ff800003`, a float-like value where a pointer should be. On the stack were `getDiplomacyScreen` and, as in [KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084), `CvPlayer::nextUnit` with `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`.
+    - It came on the fourth load made while a diplomacy screen was open; the pilot's new refusal had been saved but not yet reloaded by the game.
+- What separated the loads, in two clients on the same save:
+  - **Screen closed first:** 8 of 8 loads worked, five of them right after a trade made through the screen.
+  - **Screen open:** the screen stayed open over the reloaded game with the old partner and offers each time, and 1 of 4 loads crashed.
+- A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only the pilot's `menu path=` could load past it.
+- The SASPilot work, on its own branch as of 2026-11-17, avoids it: its `SASPilotCommands.py` `menu` refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
+- Dumps, each with the DLL and PDB of the Debug-opt build that crashed, outside the repository:
+  - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups`: the first crash, a normal dump (22 MB), so the heap and the plot-group list cannot be read.
+  - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
+
+Found by Claude code Opus 5.5 on 2026-11-13, while testing the pilot's trade table; wonderingabout saw both crashes and asked for full dumps.
