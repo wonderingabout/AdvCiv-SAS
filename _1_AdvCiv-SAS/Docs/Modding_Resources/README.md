@@ -721,6 +721,8 @@ I don't know too much about these but i thought i'd compile (no pun) this info q
 
 To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
 
+See also, since 2026-11-13: always choose Full Dump at the prompt, as a normal dump lacks the heap, with the steps in the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md); with several Civ4 clients, every one writes the same dump file, see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
+
 ## Another example of how to use VS Code global search (also shows how to browse the Civ4 BUG docs copy included in the mod)
 
 I call it "global search" but i don't know how it is exactly called, it's the feature that allows you in VS Code to search in your entire opened folder (all files) rather than just the current file (not ctrl+f, but instead the "zoom object looking icon" on left panel as of now in vs code)

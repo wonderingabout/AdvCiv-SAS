@@ -237,7 +237,7 @@ These are supported by current source or inherited documentation. Absence does n
 | `<DLL filename>.build.json` | Yes | Build status, configuration, inputs, warning/error counts and binary identity; includes the installed DLL's companion report. |
 | BUG Autolog / StatusDump directory | No current file found in the checked default paths | Autolog and StatusDump normally use their configurable/default Autolog directory rather than requiring `Logs`. |
 | `ThemeParseLog.txt` | Not inventoried in this snapshot | Historical BtS engine/theme parser diagnostic reported in the Beyond the Sword installation directory rather than the user `Logs` folder. It records `.thm` parsing/resource errors; some warnings can be benign. |
-| Crash dump files | Not inventoried here | Binary crash evidence, not a text log. `GenerateCrashDumps=1` is currently configured; actual dump location/presence needs separate inspection. |
+| Crash dump files | `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp` | Binary crash evidence, not a text log, written by the EXE's crash prompt; `GenerateCrashDumps=1` is currently configured. Every Civ4 uses that one name, so agents keep a dump with `desktop_windows.py dump --pid`, which checks the process ID recorded inside and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Reading one is in the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md). |
 
 ## Historical engine outputs not present in this snapshot
 

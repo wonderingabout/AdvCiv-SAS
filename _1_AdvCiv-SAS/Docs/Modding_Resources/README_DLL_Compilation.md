@@ -185,6 +185,16 @@ The useful debugger commands are compact:
 - `dt TypeName address` inspects a typed object, `dd address` displays raw memory and `u FunctionName` disassembles a function when the ordinary stack is insufficient.
 - `.reload /f CvGameCoreDLL.dll` forces symbol reloading after correcting the symbol path.
 
+At Civ4's "Program Execution Problem" prompt, always choose **Full Dump** (the user's rule, 2026-11-13). A normal dump holds the stack and registers but not the heap, so the objects a crash points at cannot be read.
+
+- On 2026-11-13 an agent chose Normal Dump for a crash in `FFreeListTrashArray<CvPlotGroup>::removeAll` ([KI#1088](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)): the 22 MB dump gave the stack and the bad pointer, but not the plot-group list or the player it belonged to.
+- The prompt's buttons in its 524 x 455 window: Normal Dump at about (90, 416), Full Dump at (258, 416), No Dump at (430, 416). `desktop_windows.py screenshot --pid` captures the prompt itself while it is up, and `click --pid` aims inside it.
+- A full dump of a Small game took about a dozen seconds and 1.38 GB, written to `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`; the process stays alive a little after. Check the file size once or twice rather than waiting in a long loop: a loop that started PowerShell on each pass and piped through `tail` showed nothing for minutes on 2026-11-13.
+- [`desktop_windows.py dump --pid <pid>`](/LLM_Helpers/README.md#desktop_windowspy) does both steps: it presses Full Dump by its label, with no coordinates or focus, and returns once the file differs from before the press and its writer has let go of it (it opens without shared writing).
+  - Added after KI#1088's dump took three tries; it was not tried on a real crash prompt.
+  - Every Civ4 writes the same file name, so it checks the process ID the dump records (its MiscInfo stream; read correctly from both KI#1088 dumps) and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` while still holding the original, so another client's crash cannot replace it in between ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)).
+- Keep each valuable dump with its matching DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/<date>_<what>/`, outside the repository, and write that path in its KI so a grep finds it.
+
 `Civ4BeyondSword.exe.dmp` is replaced by a later crash, so preserve a valuable dump before reproducing another one. The dump, installed DLL and PDB must all belong to the same build; source-line information from a different build is not reliable.
 
 ## Dependency-scanner access violations

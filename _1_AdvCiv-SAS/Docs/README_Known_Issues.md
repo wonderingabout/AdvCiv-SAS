@@ -1263,7 +1263,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
 [KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
 [KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
-[KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)
+[KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
+[KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)
 
 <a id="ki-1"></a>
 
@@ -37883,3 +37884,18 @@ Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) 
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
 
 Found by Claude code Opus 5.5 on 2026-11-13, while testing the pilot's trade table; wonderingabout saw both crashes and asked for full dumps.
+
+<a id="ki-1089"></a>
+
+## KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed
+
+- At a crash, the EXE's "Program Execution Problem" prompt writes `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`, the same name for every process. Agents now run parallel clients (`multiple`, KI#1081), so the file at that path can come from another client, or be replaced by a second crash before it is kept.
+  - The name carries no process ID, unlike SAS's own per-process files, which KI#1081 named by process: `SASRuntimeStatus_<start>_<pid>.json`, the SASGameRecord and BBAI logs and the autoplay reports. The prompt and the dump writer are the EXE's, so the name itself cannot be changed from the mod.
+  - The minidump does record the process ID inside it, but reading it takes a tool, while a name shows it at a glance and pairs the dump with its client's logs.
+- Worked around in [`desktop_windows.py dump --pid`](/LLM_Helpers/README.md#desktop_windowspy), which presses Full Dump by its label and waits for the file:
+  - It reads the process ID the minidump records in its MiscInfo stream and refuses a dump from another process. Read from both KI#1088 dumps, it gave 15292 and 22356, their two crashed clients.
+  - It copies the dump to `Civ4BeyondSword_<pid>_<time>.dmp`, named by process like SAS's own files, while holding the original open without shared writing, so no other client can replace it in between, and reports the copy.
+  - It was not tried on a real crash prompt; Codex's review noted that the click, `BM_CLICK`, can fail on an inactive dialog, which the tool would report as no dump within its timeout.
+- See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) for reading a dump and the full-dump rule.
+
+Found by Claude code Opus 5.5 with Codex (GPT-6.1-Sol) on 2026-11-13, while writing the dump tool after KI#1088's dump took three tries; wonderingabout suggested recording it as a KI.

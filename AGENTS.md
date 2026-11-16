@@ -216,6 +216,11 @@ Use these specialized records for inherited regressions, suspicious behavior cha
       - Abstract: "printed the best rival's population and land shares as whole percents through Python 2 integer division".
       - Concrete (the user's suggestion): "showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents".
       - Why: the observed wrong value beside the right one shows the bug at once and is easier to remember and recognize on screen; the mechanism can follow after a colon. Put such a pair in a title when the issue has one.
+    - Example 4: Crash dumps (KI#1089, 2026-11-16):
+      - Vague (Claude Code Opus 5.5's title): "Work around every Civ4 writing its crash dump to the same file, so with two clients a dump cannot be told apart and a second crash replaces the first".
+      - Clearer (the user's suggestion): "Add the process ID to Civ4 crash dump file names, to work around every instance overwriting the previous crash dump, whose name alone did not show which of several instances crashed".
+      - Why: the vague title gives the reason before the action, so a reader could not tell at first what the commit did; its "so with two clients…" chain was also hard to follow.
+      - In the user's analogy, a commit titled "I was hungry" gives a rationale out of context. The title says "Buy 2 apples at noon", and the body "I was hungry and the canteen was closed, so as a workaround I went to the grocery store to buy apples".
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.

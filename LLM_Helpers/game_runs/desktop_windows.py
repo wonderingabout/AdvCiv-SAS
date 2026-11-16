@@ -12,6 +12,10 @@ import argparse
 import ctypes
 import ctypes.wintypes as wt
 # <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
+# <!-- custom: os finds the crash dump's folder, shutil copies it and struct reads the process ID it records, for 'dump'. See KI#1089. (Claude code Opus 5.5) -->
+import os
+import shutil
+import struct
 import subprocess
 import sys
 import time
@@ -588,6 +592,104 @@ def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
 	return int(output[1])
 
 
+DUMP_FILE = Path(os.environ.get("LOCALAPPDATA", "")) / "Temp" / "Civ4BeyondSword.exe.dmp"
+DUMP_BUTTONS = {"full": "Full Dump", "normal": "Normal Dump"}
+
+
+def find_button(pid, label):
+	# <!-- custom: The button of that label in any top-level window of pid, such as the crash prompt's "Full Dump", or None. (Claude code Opus 5.5) -->
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	# <!-- custom: WM_GETTEXT with a timeout, as Microsoft recommends for another process's controls, and the class checked, so a hung dialog or a same-named label cannot be taken for the button (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	def child(hwnd, _lparam):
+		class_name = ctypes.create_unicode_buffer(64)
+		USER32.GetClassNameW(hwnd, class_name, 64)
+		if class_name.value.lower() != "button":
+			return True
+		buffer = ctypes.create_unicode_buffer(128)
+		result = ctypes.c_size_t()
+		if USER32.SendMessageTimeoutW(hwnd, 0x000D, 128, buffer, 0x0002, 1000, ctypes.byref(result)) and buffer.value.replace("&", "") == label:
+			found.append(hwnd)
+		return True
+
+	def top(hwnd, _lparam):
+		owner = wt.DWORD()
+		USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+		if owner.value == pid:
+			USER32.EnumChildWindows(hwnd, proc_type(child), 0)
+		return True
+
+	USER32.EnumWindows(proc_type(top), 0)
+	return found[0] if found else None
+
+
+def minidump_pid(path):
+	# <!-- custom: The process ID a minidump records in its MiscInfo stream (type 15; ProcessId at offset 8 when Flags1 has bit 1), or None.
+	# 'dump' checks it, as every Civ4 writes the same file name (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	with open(path, "rb") as stream:
+		header = stream.read(32)
+		if header[:4] != b"MDMP":
+			return None
+		count, directory = struct.unpack_from("<II", header, 8)
+		stream.seek(directory)
+		entries = stream.read(12 * count)
+		for i in range(count):
+			kind, size, rva = struct.unpack_from("<III", entries, 12 * i)
+			if kind == 15 and size >= 12:
+				stream.seek(rva)
+				flags, process_id = struct.unpack_from("<II", stream.read(12), 4)
+				return process_id if flags & 1 else None
+	return None
+
+
+def save_dump(pid, kind="full", timeout=300.0):
+	# <!-- custom: At KI#1088's crash prompt (2026-11-13) a full dump took three tries: clicking by window coordinates, then two wait loops that started PowerShell on each pass and showed nothing for minutes.
+	# This presses the button by its label with BM_CLICK, which needs no focus or coordinates, then waits for the file to be finished, about a dozen seconds for 1.38 GB.
+	# BM_CLICK can fail on an inactive dialog (Microsoft's documentation, as Codex noted); the timeout then reports no dump rather than a stale one.
+	# Not yet tried on a real prompt.
+	# A full dump is the user's rule (README_DLL_Compilation.md): a normal one lacks the heap. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	button = find_button(pid, DUMP_BUTTONS[kind])
+	if button is None:
+		raise SystemExit("no %r button in process %d's windows; is the crash prompt up?" % (DUMP_BUTTONS[kind], pid))
+	# <!-- custom: Codex's review: the first version accepted a file from just before the press and took two equal sizes for the end, which a pause in writing also gives.
+	# Now the file must differ from its state before the press, and it is done once it can be opened without sharing writes, which fails while the writer still holds it.
+	# The name is shared by every Civ4, so a second client's crash would replace it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	before = None
+	if DUMP_FILE.exists():
+		stat = DUMP_FILE.stat()
+		before = (stat.st_mtime, stat.st_size)
+	if not USER32.PostMessageW(button, 0x00F5, 0, 0):
+		raise SystemExit("could not send the click to %r: Windows error %d" % (DUMP_BUTTONS[kind], ctypes.GetLastError()))
+	deadline = time.monotonic() + timeout
+	while time.monotonic() < deadline:
+		time.sleep(2.0)
+		if not DUMP_FILE.exists():
+			continue
+		stat = DUMP_FILE.stat()
+		if (stat.st_mtime, stat.st_size) == before or stat.st_size == 0:
+			continue
+		kernel32 = ctypes.windll.kernel32
+		# <!-- custom: A handle is pointer-sized, so the restype is set, as for the clipboard calls above. (Claude code Opus 5.5) -->
+		kernel32.CreateFileW.restype = ctypes.c_void_p
+		kernel32.CreateFileW.argtypes = [wt.LPCWSTR, wt.DWORD, wt.DWORD, ctypes.c_void_p, wt.DWORD, wt.DWORD, ctypes.c_void_p]
+		kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+		handle = kernel32.CreateFileW(str(DUMP_FILE), 0x80000000, 0x00000001, None, 3, 0, None)
+		if handle is None or handle == ctypes.c_void_p(-1).value:
+			continue
+		# <!-- custom: While this handle denies writing, no other Civ4 can replace the file, so its process ID is checked and it is copied under a name of its own before the handle is let go; the first version closed the handle and then read the size, which could have been a replacement's (Codex's review). See KI#1089. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		try:
+			dump_pid = minidump_pid(DUMP_FILE)
+			if dump_pid != pid:
+				raise SystemExit("the dump at %s is from process %s, not %d" % (DUMP_FILE, dump_pid, pid))
+			kept = DUMP_FILE.with_name("Civ4BeyondSword_%d_%s.dmp" % (pid, time.strftime("%Y%m%dT%H%M%S")))
+			shutil.copyfile(DUMP_FILE, kept)
+		finally:
+			kernel32.CloseHandle(handle)
+		return kept, kept.stat().st_size
+	raise SystemExit("no finished dump at %s within %g s" % (DUMP_FILE, timeout))
+
+
 def named_point(pid, name):
 	# <!-- custom: Civ4 click points were first read off screenshots and passed as numbers, then forgotten or re-measured.
 	# On 2026-11-11 the user suggested keeping them as data like the agent apps' app_layouts.json, so they live in civ4_points.json, keyed by the window's outer size.
@@ -726,6 +828,10 @@ def main():
 	typing.add_argument("--pid", type=int, required=True)
 	typing.add_argument("text")
 	typing.add_argument("--us-keys", action="store_true", help="send ASCII as US-keyboard keys whatever the layout, for Civ4's Sevopedia search box, which reads key codes; Civ4's own text boxes, such as the autoplay turn box, need the default")
+	dump = sub.add_parser("dump", help="at Civ4's crash prompt, press Full Dump (or --kind normal) by its label and wait until the .dmp file is written")
+	dump.add_argument("--pid", type=int, required=True)
+	dump.add_argument("--kind", choices=("full", "normal"), default="full")
+	dump.add_argument("--timeout", type=float, default=300.0)
 	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
 	close.add_argument("--pid", type=int, required=True)
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
@@ -779,6 +885,9 @@ def main():
 	elif args.command == "type":
 		type_text(args.pid, args.text, us_keys=args.us_keys)
 		print("typed %d characters" % len(args.text))
+	elif args.command == "dump":
+		(path, size) = save_dump(args.pid, args.kind, args.timeout)
+		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
 	elif args.command == "close":
 		if not request_close(args.pid):
 			sys.exit("no window for process %d" % args.pid)
