@@ -424,6 +424,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#288 - (Fixed AdvCiv-SAS bug) Team Battleground passed scalar geometry to the grid calibrator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-288)\
 [KI#289 - (Fixed inherited BTS/Ruff bug) Team Battleground Start Separated collapsed to Start Anywhere](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-289)\
 [KI#290 - (Fixed inherited BTS/Ruff bug) Team Battleground circular starts used truncated Python 2 angles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290)\
+[KI#290.2 - (Fixed inherited vanilla Civ4 bug) Victory screen showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)\
 [KI#291 - (Fixed AdvCiv-SAS bug) Team Battleground small circles could duplicate high-player starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-291)\
 [KI#292 - (Fixed inherited Firaxis bug) Hub, Ring and Wheel nine-player regions overlapped their buffer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-292)\
 [KI#293 - (Fixed AdvCiv-SAS bug) Oasis compact grids could send fixed river lanes outside valid bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-293)\
@@ -21896,6 +21897,28 @@ RNG call count and range remain unchanged; only the unintended truncation is rem
 The default-player-count SAS24 Donut runtime test displayed the circular edge distribution without an observed issue at a glance.
 
 This arithmetic bug is inherited from BTS/Ruff Team Battleground. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+<a id="ki-290.2"></a>
+
+## KI#290.2 - (Fixed inherited vanilla Civ4 bug) Victory screen showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/10ktePiMqTvmAS4KYaccVga9pTUGJQXPF?usp=sharing).
+
+Found on 2026-11-15 while SASPilot's new `victory` command was checked against the Victories tab at turn 120 of a SAS48 SAS Large Facing Islands autoplay (the save of KI#118.2 and KI#300.2), with the two row slips of KI#115.2. First filed there, then moved here at the user's suggestion, as the same mechanism as KI#290.
+
+Observed issue:
+
+- Domination rows: the best met rival's share showed `2.00%` for both Pacal II's population (31 of 1346, really 2.30%) and Pericles's land (67 of 3258, really 2.06%), while ours showed two real decimals.
+- `bestPop * 100 / totalPop` divides two integers, which Python 2 truncates as KI#290's angles were, then `%.2f` prints the whole percent with `.00`.
+
+Provenance:
+
+- In vanilla Civ4's `CvVictoryScreen.py` (the root `Assets` of the Complete install, lines 518 and 529); Warlords does not override the screen, and BtS (lines 546, 557) and AdvCiv 1.14 kept it unchanged.
+
+Fix:
+
+- `CvVictoryScreen.py`: `100.0` in both shares, as ours used. Reloading the same save, the tab showed Pacal II at 2.30% and Pericles at 2.06%, matching `victory`.
+- CI: [`float_format_int_division.py`](/.github/workflows/README.md#buildsourcefloat_format_int_divisionpy) flags a `%.Nf` format applied to arguments that divide with no float in them; at the time only these two lines had it. It does not cover KI#290's angle step, which no format shows.
 
 <a id="ki-291"></a>
 

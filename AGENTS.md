@@ -212,6 +212,10 @@ Use these specialized records for inherited regressions, suspicious behavior cha
       - Why: the old heading is unintelligible and difficult for a user to understand at a glance: what failed, and why does it matter?
         - The accepted title names both practical repairs: fix AdvCiv's inherited replay bounds, which were unsuitable for mod-mod calendars, and restore missing SAS Hall-of-Fame entries rejected by those bounds. It identifies the inherited reader problem and the affected SAS feature separately, and their separate provenances.
         - "Exposed by assertions" would have been useful discovery context ideally too; the actual title maybe forgot it or did so for concision or such perhaps.
+    - Example 3: Victory screen shares (KI#290.2, 2026-11-15):
+      - Abstract: "printed the best rival's population and land shares as whole percents through Python 2 integer division".
+      - Concrete (the user's suggestion): "showed the best rival's population share as 2.00% instead of 2.30%: Python 2 integer division cut it to whole percents".
+      - Why: the observed wrong value beside the right one shows the bug at once and is easier to remember and recognize on screen; the mechanism can follow after a colon. Put such a pair in a title when the issue has one.
 - [`historical_source_archaeology.txt`](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) records the completed commit-oriented lineage sweep; use the workflow above for new questions rather than treating that one record as the definition of archaeology.
 - For AdvCiv-SAS release-history/provenance questions, use [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) for manually archived published CivFanatics/ModDB release text and [`Docs/git_logs/`](/_1_AdvCiv-SAS/Docs/git_logs/) for the detailed tracked commit history.
   - The published changelog copies are historical source material, not a replacement for current source/Git when exact implementation state matters.

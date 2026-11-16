@@ -91,6 +91,9 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Source](#source)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
+    - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
+    - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
@@ -1046,10 +1049,17 @@ Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) w
 
 #### `build/source/custom_comment_indentation.py`
 
-Verifies that no `// <!-- custom:` or `# <!-- custom:` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
+Verifies that no `// <!-- custom: ... -->` or `# <!-- custom: ... -->` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
 
 - A scripted edit once inserted retirement notes two levels too deep in `RiseFall.cpp` and `GroupPathFinder.cpp`; the code still compiled, so only review noticed ([KI#136](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-136)).
 - Requiring both neighbours to be shallower allows ordinary end-of-block notes, and a comment directly under a block opener (`{`, `:`, `(`, `,`, `\`), including commented-out code, is skipped.
+
+#### `build/source/float_format_int_division.py`
+
+Fails when runtime Python, including `LLM_Helpers/saspilot`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
+
+- Vanilla Civ4's Victory screen showed the best rival's population and land shares this way, `2.00%` for 2.30% and 2.06% ([KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)).
+- A division by a value that is already a float passes only with one of those markers, so convert it at the division.
 
 #### `build/source/lint_suppressions.py`
 

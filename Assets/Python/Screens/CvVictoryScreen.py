@@ -1713,7 +1713,8 @@ class CvVictoryScreen:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Vanilla Civ4 divided integers here, so the best rival's share lost its decimals (Pacal II's 31 of 1346 showed 2.00% for 2.30% at turn 120 of a SAS48 islands save) while ours kept them; divide as float like ours. See KI#290.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100.0 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1738,7 +1739,8 @@ class CvVictoryScreen:
 							szBestName = gc.getPlayer(iBestPlayer).getName() + ":"
 							szBestButton = self.getLeaderButton(iBestPlayer)
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Float division, as for the population row above. See KI#290.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100.0 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
