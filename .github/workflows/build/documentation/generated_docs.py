@@ -14,13 +14,18 @@ import sys
 import tempfile
 from typing import Callable
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Resolve repository/shared-helper paths from this subject subfolder after the workflow-tool reorganization.
 # The helpers moved into LLM_Helpers folders named by job as well, so add the two folders these imports come from. (GPT-6.1-Sol + Claude code Opus 5.5) -->
-sys.path.insert(0, str(ROOT / "LLM_Helpers" / "balance"))
-sys.path.insert(0, str(ROOT / "LLM_Helpers" / "code_history"))
+# <!-- custom: The paths are written inline and ROOT is set after the imports: Ruff allows sys.path calls before an import but not an assignment, so ROOT first made each import an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "balance"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "code_history"))
 import compare_handicap_infos as handicap
 import convert_advciv_manual_to_txt as manual
+# <!-- custom: git_context's push_base_in_history is the same force-push rule the other change-range checks use through ensure_base. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
+from git_context import push_base_in_history
+
+ROOT = Path(__file__).resolve().parents[4]
 
 BASELINE = Path("_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_baseline.xml")
 REPORT = Path("_1_AdvCiv-SAS/Docs/examples/handicap/handicap_infos_compared.md")
@@ -80,6 +85,12 @@ def changed_conversion_errors(repo, base_ref, conversions=TEXT_CONVERSIONS, even
         if fetched.returncode != 0 or not has_commit(repo, base_ref):
             print(f"NOTICE: push-before commit {base_ref} is unavailable even after fetching origin; paired source/text change-range validation cannot run (rewritten push history). Current generated-content validation still runs.", file=sys.stderr)
             print(f"  Git fetch result: {fetched.stderr.strip()}", file=sys.stderr)
+            return []
+    # <!-- custom: An existing push-before can still be a tip the force push replaced; compare from the commit both histories share.
+    # See git_context.push_base_in_history. (Claude code Opus 5.5) -->
+    if event_name == "push":
+        base_ref = push_base_in_history(repo, base_ref)
+        if base_ref is None:
             return []
     comparison = subprocess.run(["git", "diff", "--name-only", base_ref, "HEAD"], cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if comparison.returncode != 0:

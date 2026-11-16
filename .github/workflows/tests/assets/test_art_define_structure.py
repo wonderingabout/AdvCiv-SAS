@@ -5,8 +5,8 @@ import sys
 import unittest
 import xml.etree.ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / ".github/workflows/build/assets"))
+# <!-- custom: The path is written inline: Ruff allows sys.path calls before an import but not an assignment, so a ROOT variable used only here made the import an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "assets"))
 import art_define_structure as art
 
 class ArtStructureTests(unittest.TestCase):

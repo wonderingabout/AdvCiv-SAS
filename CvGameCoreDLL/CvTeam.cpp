@@ -672,7 +672,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			kOther.setCounterespionageModAgainstTeam(getID(), kOther.getCounterespionageModAgainstTeam(eTeam));
 		}
 		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize * kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
-		// <!-- custom: HasMetCounter is exact bilateral history, but AdvCiv max-merged the survivor's direction and weighted the outsider's. Assign the same weighted Permanent-Alliance result to both directions like the neighboring exact AtWarCounter. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: HasMetCounter is exact bilateral history, but AdvCiv max-merged the survivor's direction and weighted the outsider's.
+		// Assign the same weighted Permanent-Alliance result to both directions like the neighboring exact AtWarCounter. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		int const iMergedHasMetCounter = (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers();
 		kOther.AI_setHasMetCounter(getID(), iMergedHasMetCounter);
 		AI().AI_setHasMetCounter(kOther.getID(), iMergedHasMetCounter);

@@ -11,10 +11,13 @@ import sys
 import tempfile
 
 # <!-- custom: Helpers now sit in LLM_Helpers folders named by job, so find the repo root from the LLM_Helpers folder instead of a fixed parent depth. (Claude code Opus 5.5) -->
-ROOT = next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent
 # <!-- custom: Reuse CI's source scope and literal/text protections so the cleanup and prevention rule agree; do not maintain a second parser in this manual helper. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/source"))
+sys.path.insert(0, str(next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent / ".github/workflows/build/source"))
 import source_change_provenance as checker
+
+# <!-- custom: The search sits inside sys.path.insert and ROOT comes after the import: Ruff allows sys.path calls before an import but not an assignment, so ROOT first made the import an E402.
+# The checker's ROOT is the same repository. (Claude code Opus 5.5) -->
+ROOT = checker.ROOT
 
 
 def main():

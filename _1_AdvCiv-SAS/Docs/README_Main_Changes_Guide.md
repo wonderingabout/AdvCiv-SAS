@@ -3258,7 +3258,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - A fresh map also generated successfully with the complete BTS-style shared-generator setting combination; this smoke-tests the alternate branches without claiming exact BTS map parity or balance because SAS content and mapscript behavior remain independent.
   - See the documented map-generation block in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - **Fixed AdvCiv's OneArea-resource fallback:**
-  - AdvCiv's capped first distribution pass could leave fewer food and luxury resources such as Banana, Wheat, Dye and Spices than their calculated targets because its uncapped second pass could not revisit landmasses already tried.
+  - Maps can get more of the food and luxury resources they were meant to have, such as Banana, Wheat, Dye and Spices. AdvCiv's fallback could leave them short when the first pass capped placement on suitable landmasses.
   - The second pass now reconsiders those landmasses when needed.
   - This does not change XML frequencies or calculated targets: mapscripts where the first pass already succeeds are directly unchanged, while mapscripts that previously undershot can gain the missing copies up to their existing targets; exact locations and later resource placement can consequently differ.
   - See [KI#202](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-202).

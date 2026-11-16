@@ -8,9 +8,9 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Restore blocking checks in the automated subject folders; regression fixtures import those same helpers. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/documentation"))
+# <!-- custom: The path is written inline: Ruff allows sys.path calls before an import but not an assignment, so a ROOT variable used only here made the import an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "documentation"))
 import markdown_prose_changes as checker
 
 LONG = "First sentence explains the source documentation contract in substantial detail " + "carefully " * 30 + ". Another independent sentence describes the next part in enough detail to justify its own paragraph and make the intended responsibility clear."

@@ -5,10 +5,12 @@ import sys
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Restore blocking checks in the automated subject folders; regression fixtures import those same helpers. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/xml"))
+# <!-- custom: The path is written inline and ROOT set after the imports: Ruff allows sys.path calls before an import but not an assignment, so ROOT first made the import an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "xml"))
 import asset_primary_tech as tech
+
+ROOT = Path(__file__).resolve().parents[4]
 
 class XmlFixture(unittest.TestCase):
     def setUp(self):
