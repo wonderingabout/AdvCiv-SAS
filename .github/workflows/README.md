@@ -97,6 +97,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
+    - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
     - [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy)
     - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
@@ -1135,6 +1136,13 @@ Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, t
 Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly.
 
 Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+
+#### `build/source/sevopedia_top_attributes.py`
+
+Fails when a Sevopedia page reads `self.top.X` and `SevoPediaMain.py` neither assigns `self.X`, defines `def X` or a class attribute `X`, nor does any page assign `self.top.X`. Python finds such a mistake only when the line runs, so it can hide behind one key press.
+
+- Added on 2026-11-13 for [KI#1086](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086): the move of the Sevopedia colors into `SASVisuals.Color` left `SevoPediaIndex.py` reading `self.top.COLOR_HIGHLIGHT_TEXT`, which raised a Python exception on Down after a search.
+- Files are read with Python's tokenizer, so a comment such as "Was self.top.COLOR_HIGHLIGHT_TEXT" or a string holding the same text does not count; a first draft cut comments by hand, which Codex's review showed a string or an escaped quote could fool. No page reads a member of BtS's `CvPediaScreen` base class, which CI does not have; a page that starts to would need it listed.
 
 #### `build/source/source_change_provenance.py`
 

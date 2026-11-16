@@ -324,7 +324,8 @@ class SevoPediaIndex:
 			screen.setTableText(self.tableName, prev[1], prev[0], prev[2], prev[3], prev[4], prev[5], prev[6], CvUtil.FONT_LEFT_JUSTIFY)
 		screen.selectRow(self.tableName, new[0], True)
 		# Re-render the new cell wrapped in COLOR_HIGHLIGHT_TEXT to mark which of the row's cells is "current".
-		sHighlighted = localText.changeTextColor(new[2], self.top.COLOR_HIGHLIGHT_TEXT)
+		# <!-- custom: Was self.top.COLOR_HIGHLIGHT_TEXT, which the move of Sevopedia colors into SASVisuals.Color (2026-10-20) removed from SevoPediaMain without updating this reader, so Down on the Index page after a search raised "SevoPediaMain instance has no attribute 'COLOR_HIGHLIGHT_TEXT'", seen through SASPilot on 2026-11-13. See KI#1086. (Claude code Opus 5.5) -->
+		sHighlighted = localText.changeTextColor(new[2], SASVisuals.Color.HIGHLIGHT_TEXT)
 		screen.setTableText(self.tableName, new[1], new[0], sHighlighted, new[3], new[4], new[5], new[6], CvUtil.FONT_LEFT_JUSTIFY)
 		self.SAS_indexCursorPos = iNewPos
 		return True

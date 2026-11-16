@@ -1260,7 +1260,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
 [KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
 [KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
-[KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)
+[KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
+[KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)
 
 <a id="ki-1"></a>
 
@@ -37832,3 +37833,17 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
     - In game Next Unit reads "Next Unit" with "Cycle unit selection to the next unit on the tile."
     - Seventeen keys left the list, 51 remain; where a player would see these texts was not traced.
   - Codex also noted that keys assembled at run time are invisible to the check. Looking for families keyed by unit combat found KI#1087, BUG's Unit Naming options, which has its own check.
+
+<a id="ki-1086"></a>
+
+## KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception
+
+- Seen on 2026-11-13 during a SASPilot UI demo: after typing "galley" in the Sevopedia search box, Down on the Index page raised `SevoPediaMain instance has no attribute 'COLOR_HIGHLIGHT_TEXT'`. A player pressing Down there gets the same.
+  - On 2026-10-20 SAS moved the Sevopedia's colors from `SevoPediaMain` attributes into `SASVisuals.Color`, but [`SevoPediaIndex.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py) kept reading `self.top.COLOR_HIGHLIGHT_TEXT` in its keyboard cursor.
+  - Python looks attributes up only when the line runs, so neither the Python 2.4 compile check nor loading the Sevopedia could catch it; only that key press did.
+- Fixed by reading `SASVisuals.Color.HIGHLIGHT_TEXT`, as the rest of the Sevopedia does. Confirmed in game on 2026-11-13: after searching "galley" and "gal", Down moved the highlight across the matches and `PythonErr.log` stayed empty.
+- Guarded by [`sevopedia_top_attributes.py`](/.github/workflows/README.md#buildsourcesevopedia_top_attributespy), which fails on any `self.top.X` a Sevopedia page reads that `SevoPediaMain.py` does not define and no page assigns.
+  - Run against the old `SevoPediaIndex.py`, it reports this line; an audit of the 74 names the pages read found no other.
+  - It reads the files with Python's tokenizer, after Codex's review showed that a first draft, which cut comments by hand, could take a string for code.
+
+Found by Claude code Opus 5.5 on 2026-11-13, through the pilot's desktop demo.
