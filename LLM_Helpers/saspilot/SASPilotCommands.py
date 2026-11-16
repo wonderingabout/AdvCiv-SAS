@@ -133,6 +133,31 @@ def _unescapeStrings(value):
 	return value
 
 
+def _asciiOrUnicode(value):
+	if isinstance(value, unicode):
+		try:
+			return value.encode("ascii")
+		except UnicodeError:
+			return value
+	if isinstance(value, list):
+		return [_asciiOrUnicode(item) for item in value]
+	if isinstance(value, dict):
+		result = {}
+		for key in value.keys():
+			result[str(key)] = _asciiOrUnicode(value[key])
+		return result
+	return value
+
+
+_JSON_STRING = re.compile(r'"(?:[^"\\]|\\.)*"')
+
+
+def requestFromJson(text):
+	# <!-- custom: For the client's requests, which carry Windows paths. fromJson decodes \uXXXX after eval, when a path's own backslash before a "u" looks the same: "save" to ...\save_transplants\...\update_T0.CivBeyondSwordSave failed with "truncated \UXXXXXXXX escape" on 2026-11-16, in the SASSaveTransplanter's first "update" run, while ...\preserve_T0 had worked.
+	# Here every JSON string is read as a Python unicode literal, which knows both escapes, and comes back as a plain str when it is ASCII, as before. fromJson stays for the DLL's replies, which hold no backslash paths and are much longer. See KI#1096. (Claude code Fable 5.2) -->
+	return _asciiOrUnicode(eval(_JSON_STRING.sub(lambda match: "u" + match.group(0), text), {"__builtins__": {}, "true": True, "false": False, "null": None}))
+
+
 def fromJson(text):
 	# <!-- custom: JSON written by the client (ASCII, from json.dumps) is also a Python literal once true, false and null are names, so eval with no builtins reads it; a \uXXXX escape stays literal in a Python 2 str and is decoded afterwards. (Claude code Fable 5.2) -->
 	return _unescapeStrings(eval(text, {"__builtins__": {}, "true": True, "false": False, "null": None}))
@@ -248,7 +273,7 @@ def _applyLaunchRole():
 def _serve(text):
 	reply = {"ok": False}
 	try:
-		request = fromJson(text)
+		request = requestFromJson(text)
 		reply["id"] = request.get("id")
 		# <!-- custom: Codex's review simulated a stale req_ that SASPilot._start could not delete from a recycled PID's folder, and the new game ran it.
 		# A launched session refuses any request not carrying its own session ID, which SASPilotClient.py reads from hello.json; without a session (SAS_PILOT_ON with no per-run INI) every request is served, as before. (Claude code Opus 5.5 + GPT-6.1-Sol) -->

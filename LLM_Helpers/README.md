@@ -45,6 +45,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 | `saspilot/` | reading and driving a running game through SASPilot, the in-game bridge, as JSON rather than screenshots and clicks: [`SASPilotClient.py`](#saspilotclientpy-and-saspilotcommandspy) and the commands it sends, `SASPilotCommands.py`; SASPilotConsole for watching; the scouting and site helpers; `SASPilotReplay.py` with its `sequences/`, and in-game `checks/`. Moved out of `game_runs/` on 2026-11-15, as the user saw piloting as a job of its own, and each script renamed `SASPilot<Role>.py` to match the console window's name |
+| `save_transplant/` | recreating the turn-0 world of a save the current build can no longer load: [`sas_save_transplanter.py`](#save_transplant) has the old build export the world as a WorldBuilder file, maps renamed types and lets the current build write it as a new save. Added on 2026-11-16 by Claude Code Fable 5.2; see the [Save transplanter guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Save_Transplanter.md) |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
 - A helper imports from its own folder, which Python puts on the import path when it runs a script.
@@ -211,6 +212,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`saspilot/`](#saspilot)
   - [Piloting a running game](#piloting-a-running-game)
     - [`SASPilotClient.py` and `SASPilotCommands.py`](#saspilotclientpy-and-saspilotcommandspy)
+- [`save_transplant/`](#save_transplant)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
 ## `art_viewing/`
@@ -2506,6 +2508,14 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 ```bash
 python LLM_Helpers/saspilot/SASPilotReplay.py LLM_Helpers/saspilot/sequences/fogplay_t115_core.json
 ```
+
+## `save_transplant/`
+
+The [Save transplanter guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Save_Transplanter.md) explains the steps, the choices, what carries over and what was measured; its "Where it stands" section is the handoff for the next agent.
+
+- [`sas_save_transplanter.py`](/LLM_Helpers/save_transplant/sas_save_transplanter.py) runs the whole transplant with one command, including `install-mod-copy` for running an old build beside the current one.
+- [`SASSaveTransplantExport.py`](/LLM_Helpers/save_transplant/SASSaveTransplantExport.py) runs inside the old build's Civ4 to write the world and its facts; [`transplant_t0_world.py`](/LLM_Helpers/save_transplant/transplant_t0_world.py) maps that world onto the current rules.
+- [`type_renames.json`](/LLM_Helpers/save_transplant/type_renames.json) and [`type_map_sas_to_advciv_1.14.json`](/LLM_Helpers/save_transplant/type_map_sas_to_advciv_1.14.json) hold the renamed and mapped XML types; [`pilot_dump_player_unit_state.py`](/LLM_Helpers/save_transplant/pilot_dump_player_unit_state.py) is a SASPilot snippet that lists each player's state and units, to compare a transplant with its source.
 
 ## General notes for future LLM helpers
 

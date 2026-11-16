@@ -1271,7 +1271,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1091 - (Fixed inherited Civ IV Python bindings) Combat strength and firepower rejected absent plot and attacker arguments](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
 [KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
 [KI#1093 - (Fixed in SAS) Inside Civ4, Python's time.time() moves in 128-second steps, so the pilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
-[KI#1094 - (Fixed in SAS) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)
+[KI#1094 - (Fixed in SAS) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
+[KI#1095 - (Fixed inherited AdvCiv) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
+[KI#1096 - (Fixed in the SAS pilot) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)
 
 <a id="ki-1"></a>
 
@@ -37997,3 +37999,24 @@ Found by Claude Code Opus 5.5 while asking for peace through the pilot.
 
 - Fixed the same day, after the user agreed that the screen's answer should match the decision. A shared test, `isSASVictoryDenialPeaceBundleBlocked` in [CvGameCoreUtils.cpp](/CvGameCoreDLL/CvGameCoreUtils.cpp) (teams at war, a peace treaty in the deal, no surrender, either side a victory-denial threat), is now asked in `CvPlayerAI::AI_counterPropose`, both before it adds a treaty and when one is already on the table (Codex noted that a treaty supplied by the human skips the adding branch), and in `CvPlayerAI::AI_considerOffer`, so a treaty offered by a human or by the pilot's `propose` is refused too. `CvDeal`'s guard stays as the final safety net; surrender still ends a war.
 - Tested on the turn-292 save with a Debug-opt build: "Suggest peace" to Kublai now answers `AI_DIPLOCOMMENT_NO_PEACE` ("No! Mongolian laws demand that you be further punished for your insolence!") and `propose` returns `accepted: false`, while Isabella, not a victory threat, still offered peace, and accepting it ended that war.
+
+<a id="ki-1095"></a>
+
+## KI#1095 - (Fixed inherited AdvCiv) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped
+
+- AdvCiv's advc.056 (pre-SAS practical 1832, 2019-11-29) lets [CvWBDesc.py](/Assets/Python/pyWB/CvWBDesc.py) read a WorldBuilder file written with fewer player slots than the running build, padding the rest with empty players.
+  - It set `deadPlayer.neverAlive = True` on each, while `CvPlayerDesc` defines `bNeverAlive` and `getAssignedStartingPlots` skips a slot only when `pWBPlayer.bNeverAlive` is set; nothing reads `neverAlive`.
+- A 4986 world has 18 player slots and the current build 48, so 30 slots were padded when the save transplanter loaded one. No effect was observed: a padded slot has no leader and no starting plot, so the starting-plot pass did nothing for it anyway. The flag matters if that pass, or another reader, ever does more for such slots.
+- Fixed by setting `bNeverAlive`. Found and fixed by ChatGPT-5.6-Sol while tracing the save transplanter's path through advc.056, in the candidate it handed over ("I also found a tiny inherited bug directly on that path"); Claude code Fable 5.2 brought it into the repository on 2026-11-16; see the [Save Transplanter Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Save_Transplanter.md).
+
+<a id="ki-1096"></a>
+
+## KI#1096 - (Fixed in the SAS pilot) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape
+
+- `SASPilotCommands.fromJson` read the client's JSON as a Python 2 literal and decoded `\uXXXX` escapes afterwards. A Windows path whose backslash comes before a "u" looks the same, so `...\save_transplants\sas4986_249_variants\update_T0` broke the request, while the `preserve_T0` save in the same folder had worked minutes before.
+- Found on 2026-11-16 in the save transplanter's first `--map-variants both` run. Requests are now read by `requestFromJson` in [SASPilotCommands.py](/LLM_Helpers/saspilot/SASPilotCommands.py), which reads every JSON string as a Python unicode literal (both escapes known) and returns plain ASCII strings as before; checked under Python 2.4 with `\update` and a literal `\u`. The DLL's replies still go through `fromJson`, as they carry no backslash paths.
+- Exactly which strings it hit: `_unescapeStrings` decoded a string only when it held a lowercase `\u`, and then decoded the whole string with `unicode_escape`.
+  - The error came from the path's `C:\Users`, read as a `\U` escape once `\update` had triggered the decoding; without a `\u`, the same `C:\Users` path passed untouched, as in every earlier `save`.
+  - A triggered string would also have turned `\t` or `\n` in a folder name into a tab or a line break.
+
+Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).

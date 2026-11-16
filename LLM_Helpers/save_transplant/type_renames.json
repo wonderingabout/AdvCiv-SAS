@@ -1,0 +1,22 @@
+{
+ "about": "XML type names that AdvCiv-SAS retired while the asset kept working under another name; transplant_t0_world.py --mapping applies them to an old world. Evidence for each: _1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md. Add a rename only once that document or the commit_diffs corpus confirms it; a removed asset is not a rename and needs a decision.",
+ "types": {
+  "BONUS_CATTLE": "BONUS_COW",
+  "BONUS_ELEPHANTS": "BONUS_IVORY",
+  "BONUS_GEMSTONES": "BONUS_GEMS",
+  "BONUS_GRAPES": "BONUS_WINE",
+  "BONUS_MAIZE": "BONUS_CORN",
+  "BONUS_MOLLUSCS": "BONUS_CLAM",
+  "CIVILIZATION_SCANDINAVIA": "CIVILIZATION_VIKING",
+  "LEADER_MAO_ZEDONG": "LEADER_CHINESE_LEADER",
+  "LEADER_MOCTEZUMA": "LEADER_MONTEZUMA",
+  "RELIGION_DAOISM": "RELIGION_TAOISM",
+  "TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE": "TXT_KEY_CIV_VIKING_ADJECTIVE",
+  "TXT_KEY_CIV_SCANDINAVIA_DESC": "TXT_KEY_CIV_VIKING_DESC",
+  "TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC": "TXT_KEY_CIV_VIKING_SHORT_DESC",
+  "TXT_KEY_LEADER_MAO_ZEDONG": "TXT_KEY_LEADER_CHINESE_LEADER",
+  "TXT_KEY_LEADER_MOCTEZUMA": "TXT_KEY_LEADER_MONTEZUMA",
+  "UNIT_DAOIST_MISSIONARY": "UNIT_TAOIST_MISSIONARY",
+  "UNIT_SCANDINAVIA_VIKING": "UNIT_VIKING_VIKING"
+ }
+}

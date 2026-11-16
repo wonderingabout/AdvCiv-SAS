@@ -1881,7 +1881,8 @@ class CvWBDesc:
 			# (Not sure if it's necessary to assign a team)
 			deadPlayer.team = len(self.playersDesc)
 			deadPlayer.isPlayableCiv = 0
-			deadPlayer.neverAlive = True
+			# <!-- custom: Was deadPlayer.neverAlive, a name nothing reads: the flag advc.056 checks when applying players is bNeverAlive, so the slots padded after a file with fewer players (18 in a 4986 world, 48 now) were not skipped. Found and fixed by ChatGPT-5.6-Sol while tracing the T0 world transplanter's path. See KI#1095. (ChatGPT-5.6-Sol + Claude code Fable 5.2) -->
+			deadPlayer.bNeverAlive = True
 			self.playersDesc.append(deadPlayer)
 		# </advc.056>
 		CvUtil.pyPrintRecord("WB_READ_SECTION", "section=MAP")

@@ -1,0 +1,12 @@
+{
+ "about": "For transplanting a current AdvCiv-SAS turn-0 world into base AdvCiv 1.14 (sas_save_transplanter.py transplant --destination <AdvCiv copy> --mapping this file). 'types' maps an AdvCiv-SAS type back to the AdvCiv type it was renamed from: CIVIC_PAGANISM became CIVIC_PREHISTORIC_RELIGION at practical 4748 (bf00d2970) and PROMOTION_FLANKING1 became PROMOTION_RETREAT1 at practical 4865 (d4e9766e5), both found in the commit_diffs corpus. 'drop' lists AdvCiv-SAS types AdvCiv has nothing for, whose plot feature, bonus, improvement or route, unit promotion or team tech lines are left out and counted in the report. Built from the type check of one Standard Pangaea world on 2026-11-16, so a world using other AdvCiv-SAS-only types (a civilization, a leader, a unit) stops at the type check with their names, to be added here once decided.",
+ "types": {
+  "CIVIC_PREHISTORIC_RELIGION": "CIVIC_PAGANISM",
+  "PROMOTION_RETREAT1": "PROMOTION_FLANKING1"
+ },
+ "drop": [
+  "BONUS_CAMEL",
+  "BONUS_PEAT",
+  "FEATURE_MARSH"
+ ]
+}
