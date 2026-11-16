@@ -621,6 +621,10 @@ It also verifies the continuous Known Issues ledger and its standardized `KI#num
 
 This catches both undiscoverable body entries such as the previously omitted KI#202 and wholly absent provisional/disposition entries such as KI#501.
 
+Read its whole output, or at least its last line, which gives the verdict: `FAIL Markdown links: N error(s) above`, or the two OK lines.
+
+- Example (2026-11-16): an agent ran it through `tail -1` with KI#1095 alone on main. The last line was then only "Checked N local link reference(s)", so it read a pass and told the user a gap in the KI numbers was fine, while the errors above it listed KI#1084 to KI#1094 as missing; the final FAIL line was added after.
+
 When `_LLM_REPO_FILE_MANIFEST.txt` is present in a light-source ZIP, tracked files and directories intentionally omitted from the bundle are still recognized as existing repository paths; Markdown fragments are checked whenever the target Markdown file itself is bundled. This prevents both moved/renamed repository targets and renamed Markdown headings from silently leaving stale local links.
 
 #### `build/documentation/markdown_prose_changes.py`

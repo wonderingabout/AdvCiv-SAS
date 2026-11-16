@@ -526,6 +526,9 @@ def main() -> int:
             f"\nChecked {checked} local link reference(s), including {checked_fragments} Markdown "
             f"fragment(s), in {markdown_files} Markdown file(s)."
         )
+        # <!-- custom: The verdict comes last, as other checks print it, because a run read through its last line saw only "Checked N local link reference(s)" above.
+        # On 2026-11-16 an agent ran this through tail -1 with KI#1095 alone on main, read that line as a pass and told the user the KI ledger gap was fine, though the errors above it said KI#1084 to KI#1094 were missing. (Claude code Opus 5.5) -->
+        print(f"FAIL Markdown links: {len(errors)} error(s) above")
         return 1
 
     print(

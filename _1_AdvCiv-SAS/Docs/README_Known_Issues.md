@@ -1258,7 +1258,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)\
 [KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
 [KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
-[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)
+[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
+[KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)
 
 <a id="ki-1"></a>
 
@@ -37771,3 +37772,36 @@ On every setup screen of Simple Game, a map script's own options, such as Pangae
 - The full step titles lost it too, for consistency: "SELECT A MAP" became "MAP", and likewise CIVILIZATION, CLIMATE, SEA LEVEL, HANDICAP and SCENARIO. See the [Main Changes Guide (Renaming)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming).
 
 Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)); fixed with the help of Claude code Opus 5.5, thanks.
+
+<a id="ki-1084"></a>
+
+## KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked
+
+On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `SASPilotClient.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
+
+It started as Codex's suggested check that held popups survive a save and reload (the SASPilot Guide's Popups section), so the pilot's new popup code was suspected first. Each step below removed one suspect:
+
+| What ran in one Civ4 | Result |
+| --- | --- |
+| Small new game, then load the Huge turn-305 save | worked |
+| Huge turn-305 save, then load a small save | crashed after 2 s |
+| Huge turn-305 save, list popups, save, reload | crashed after 6 s, three of three |
+| Same, without listing popups, so nothing taken from the queue or held | crashed |
+| Same, with the pilot's popup holding switched off | crashed |
+| Same, with no save before the reload | crashed |
+| Same, with the committed DLL from Git instead of the day's Debug-opt build | crashed |
+| Same, with the pilot switched off in the request that started the load | crashed |
+| Same, with SGR, Runtime and the other development diagnostics at shipped defaults | crashed |
+| Huge turn-305 save, list popups, reload (first try) | worked once; the same steps then crashed twice |
+
+So the crash comes from leaving this game, not from loading it, and from none of the pilot's code, the day's DLL changes or the development diagnostics; the one success was luck. Whether a player leaving such a game through the menus also crashes was not tried, nor base AdvCiv.
+
+- The full dump, `Civ4BeyondSword.exe.dmp`, is kept with its matching Debug-opt DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_huge_t305_leaving_game` (1.5 GB, outside the repository). It was read as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
+  - `.ecxr; kb` stopped in the EXE: `call dword ptr [eax+4]` with `eax=bf800000`, a virtual call through an object whose first word was the float -1.0 rather than a table pointer, as in memory already freed or reused. The EXE has no unwind information, so the stack ended after six EXE frames.
+  - `dds esp L800` found older return addresses on the stack, among them `CvPlayer::nextUnit` and `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`: the EXE had been walking a player's units through the DLL just before.
+  - A possible reading, not shown: the EXE frees a unit's or plot's graphics while tearing the game down and then calls one it already freed; the large unit count may matter, as small games reloaded without trouble the same day.
+- The saves are `huge_t305_civic.CivBeyondSwordSave` and `held_roundtrip.CivBeyondSwordSave`, made by the pilot on 2026-11-13 from a Pangaea Huge game with fixed seeds autoplayed to turn 300.
+- Workaround for agents: in a big late game, load a save with `SASPilotClient.py close` and `SASPilotClient.py start --save` rather than `SASPilotClient.py menu path=`; a fresh Civ4 loaded both saves without trouble.
+- Steps to take it further: try the same reload in base AdvCiv, leave the game through the main menu as a player would, and compare a Huge game at turn 100 and 200 to see whether size or unit count sets it off.
+
+Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-6.1-Sol) suggested the save-and-reload check; wonderingabout saw the first crash and asked for it to be captured and debugged.
