@@ -155,14 +155,16 @@ def normalizeBodyText(szText):
 def normalizeLabelText(szText):
 	return applyFontTag(stripFontTags(szText), sasFontTagLabel)
 
+# <!-- custom: The icon goes through str() in the three setTable*Scaled helpers: the engine takes it as char const*, so a unicode icon, even an empty u"", raised a Boost ArgumentError and broke the whole Victory screen (SAS48 island autoplay, 2026-11-15).
+# Button paths are ASCII, so str() keeps them; a non-ASCII one would still fail loudly. See KI#118.2. (Claude code Opus 5.5) -->
 def setTableTextScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
-	screen.setTableText(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
+	screen.setTableText(szTable, iCol, iRow, applyFontTag(szText, szTag), str(szIcon), eWidgetType, iData1, iData2, eJustify)
 
 def setTableIntScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
-	screen.setTableInt(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
+	screen.setTableInt(szTable, iCol, iRow, applyFontTag(szText, szTag), str(szIcon), eWidgetType, iData1, iData2, eJustify)
 
 def setTableDateScaled(screen, szTable, iCol, iRow, szText, szIcon, eWidgetType, iData1, iData2, eJustify, szTag):
-	screen.setTableDate(szTable, iCol, iRow, applyFontTag(szText, szTag), szIcon, eWidgetType, iData1, iData2, eJustify)
+	screen.setTableDate(szTable, iCol, iRow, applyFontTag(szText, szTag), str(szIcon), eWidgetType, iData1, iData2, eJustify)
 
 def setTableColumnHeaderScaled(screen, szTable, iCol, szText, iWidth, szTag):
 	screen.setTableColumnHeader(szTable, iCol, applyFontTag(szText, szTag), iWidth)

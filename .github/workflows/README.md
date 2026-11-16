@@ -94,6 +94,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
+    - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
   - [XML and rules](#xml-and-rules)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
     - [`build/xml/asset_primary_tech.py`](#buildxmlasset_primary_techpy)
@@ -1173,6 +1174,13 @@ Or provide an explicit comparison base:
 ```bash
 python .github/workflows/build/source/source_change_provenance.py --base-ref <base-sha>
 ```
+
+#### `build/source/unicode_button_paths.py`
+
+Fails when runtime Python starts a button or icon path as `u""` (a variable named `sz...Button` or `sz...Icon`). The engine takes icons as `char const*`, so a unicode one raises a Boost `ArgumentError`.
+
+- Added on 2026-11-15 for [KI#118.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2): `CvVictoryScreen.py` set `szNameButton = u""` for a vote building built by an unmet team, and the whole Victory screen broke at turn 120 of a SAS48 island autoplay. It found 16 such defaults, all now `""`.
+- `SASTextScale`'s `setTable*Scaled` helpers also pass icons through `str()`, which covers every caller of the wrappers; the check keeps direct screen calls safe too. Names ending in `Icons` (plural), such as `AttitudeUtil`'s, hold icon characters for text and stay unicode.
 
 ### XML and rules
 

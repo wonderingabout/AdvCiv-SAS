@@ -1291,13 +1291,14 @@ class CvMilitaryAdvisor:
 			iMinHealth = 100
 
 		szStrongestName = u""
-		szStrongestButton = u""
+		# <!-- custom: Button paths start as plain "", not u"": guarded here by 'if szIconPath', but the engine's icon arguments take char const*, and an empty u"" reaching one broke the Victory screen. See KI#118.2. (Claude code Opus 5.5) -->
+		szStrongestButton = ""
 		if iStrongestUnitType >= 0:
 			pStrongestInfo = gc.getUnitInfo(iStrongestUnitType)
 			szStrongestName = pStrongestInfo.getDescription()
 			szStrongestButton = pStrongestInfo.getButton()
 		szHighestCostName = u""
-		szHighestCostButton = u""
+		szHighestCostButton = ""
 		if iHighestCostUnitType >= 0:
 			pHighestCostInfo = gc.getUnitInfo(iHighestCostUnitType)
 			szHighestCostName = pHighestCostInfo.getDescription()
@@ -1727,12 +1728,12 @@ class CvMilitaryAdvisor:
 		iBadLuckLosses = 0
 		iLuckiestOdds = 101
 		szLuckiestWinText = u""
-		szLuckiestWinOurIcon = u""
-		szLuckiestWinTheirIcon = u""
+		szLuckiestWinOurIcon = ""
+		szLuckiestWinTheirIcon = ""
 		iUnluckiestOdds = -1
 		szUnluckiestLossText = u""
-		szUnluckiestLossOurIcon = u""
-		szUnluckiestLossTheirIcon = u""
+		szUnluckiestLossOurIcon = ""
+		szUnluckiestLossTheirIcon = ""
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
 		for entry in aEntries:
 			tCols = self.getBattlePerspectiveColumns(entry)
@@ -1935,12 +1936,12 @@ class CvMilitaryAdvisor:
 
 		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, covert-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
 		szStrongest = u""
-		szStrongestIcon = u""
+		szStrongestIcon = ""
 		if dStats["strongest_str"] >= 0:
 			szStrongest = u"%s %d%s" % (dStats["strongest_name"], dStats["strongest_str"], SASVisuals.Font.STRENGTH_CHAR)
 			szStrongestIcon = dStats["strongest_button"]
 		szHighestCost = u""
-		szHighestCostIcon = u""
+		szHighestCostIcon = ""
 		if dStats["highest_cost"] >= 0:
 			szHighestCost = u"%s %d%s" % (dStats["highest_cost_name"], dStats["highest_cost"], SASVisuals.Yield.char(YieldTypes.YIELD_PRODUCTION))
 			szHighestCostIcon = dStats["highest_cost_button"]

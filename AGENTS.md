@@ -856,6 +856,11 @@ Clear, accurate explanations help users and developers understand the code and i
   - This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely.
   - Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text.
   - In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear, so they can be considered illegal for our needs too.
+- The engine sometimes expects unusual formats, so when a plausible-looking value fails or renders oddly, check what the receiving interface actually takes rather than only the value. Here in Python, and possibly in other languages too:
+  - For example, `setTableText` takes its icon as `char const*`, so a `szNameButton = u""` default that reached the call unchanged raised a Boost `ArgumentError` and broke the whole Victory screen; `szNameButton = ""` works ([KI#118.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)).
+    - CI now enforces it: `unicode_button_paths.py` fails on a `u""` button or icon path.
+  - Similarly, inline `<img=...>` parsing is stricter than the icon slots: in the Military Advisor, the Hajjan's `Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds` rendered magenta, while the same button showed fine in the Sevopedia. Renaming it to `medium_cavalry_arabia.dds` fixed it ([KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)).
+    - CI enforces it too: `art_button_paths.py` rejects whitespace in `.dds` paths under `Assets/Art`, but skips `nif` folders, since renaming a texture there would break the models that reference it.
 - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
 - When adding guidance, include at least one simple code example so other agents can copy the pattern.
 

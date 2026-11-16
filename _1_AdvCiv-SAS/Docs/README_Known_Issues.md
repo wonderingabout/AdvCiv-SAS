@@ -195,6 +195,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
+[KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
 [KI#119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-119)\
 [KI#120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-120)\
 [KI#121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-121)\
@@ -11340,6 +11341,38 @@ Preventive CI:
 So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
 
 Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was removed and the corresponding asset as of now now uses another art.
+
+<a id="ki-118.2"></a>
+
+## KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JNpEXJOBBjWvO_CC9qV8Q9PebTjblh8u?usp=sharing).
+
+- Found at turn 120 of a SAS48 SAS Large Facing Islands autoplay (2026-11-15), with 2 of 47 rivals met, while comparing what a player can know about rivals not met: F9 showed a Python exception from `CvVictoryScreen.showVictoryConditionScreen`, line 2001, through `SASTextScale.setTableTextLabel`: `setTableText` did not match its C++ signature, as the icon argument was a unicode string where the engine takes `char const*`.
+
+The exception dialog, verbatim as captured at 2026-11-15T07:51:25Z; the dialog dropped the template arguments of `std::basic_string<...>`, as Civ4's text box reads angle brackets as markup, so that part is quoted as the dialog showed it:
+
+```log
+2026-11-15T07:51:25.124Z Traceback (most recent call last):
+2026-11-15T07:51:25.124Z   File "CvScreensInterface", line 365, in showVictoryScreen
+2026-11-15T07:51:25.124Z   File "CvVictoryScreen", line 312, in interfaceScreen
+2026-11-15T07:51:25.124Z   File "CvVictoryScreen", line 2001, in showVictoryConditionScreen
+2026-11-15T07:51:25.124Z   File "SASTextScale", line 177, in setTableTextLabel
+2026-11-15T07:51:25.124Z   File "SASTextScale", line 159, in setTableTextScaled
+2026-11-15T07:51:25.124Z ArgumentError: Python argument types in
+2026-11-15T07:51:25.124Z CyGInterfaceScreen.setTableText(CyGInterfaceScreen, str, int, int, unicode, unicode, CvPythonExtensions.WidgetTypes, int, int, int)
+2026-11-15T07:51:25.124Z did not match C++ signature:
+2026-11-15T07:51:25.124Z     setTableText(class CyGInterfaceScreen {lvalue}, char const *, int, int, class std::basic_string,class std::allocator >, char const *, enum WidgetTypes, int, int, int)
+```
+
+The fifth argument is the icon: `unicode` where the engine takes `char const *`.
+
+- Cause: for the diplomatic victory's vote buildings, an unmet builder (`bUnknown`) set `szNameButton = u""`, as did a team with no living player; the Apostolic Palace in this game had been built by an unmet civ.
+  - SAS practical 5289 (`cc0c5d1e2`, "fix victory screen's button height") introduced those `u""` defaults when it moved the leader icon from the name text into the icon argument; the inherited code had passed `""`.
+  - Fifteen other defaults in the Victory screen and the Military Advisor followed the same pattern: the Secretary-General row, the Members tab, the vote-source header and eight best-player rows could raise the same error when no leader or building applies, while the Military Advisor draws an icon only when it has one.
+- Fixed: all 16 defaults are now `""`; `SASTextScale`'s `setTableTextScaled`, `setTableIntScaled` and `setTableDateScaled` pass the icon through `str()`, covering every caller of those wrappers; and [`unicode_button_paths.py`](/.github/workflows/README.md#buildsourceunicode_button_pathspy) fails when runtime Python starts a `sz...Button` or `sz...Icon` path as `u""`.
+
+Found by Claude Code Opus 5.5 while mapping public information through the pilot; the user watched the exception appear.
 
 <a id="ki-119"></a>
 
