@@ -69,6 +69,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/python/python24_compile.py`](#buildpythonpython24_compilepy)
   - [Repository](#repository)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
+    - [`build/repository/commit_trailers.py`](#buildrepositorycommit_trailerspy)
     - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
     - [`build/repository/dll_define_changes.py`](#buildrepositorydll_define_changespy)
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
@@ -550,6 +551,11 @@ Manual dispatch has no change-range base and still verifies all current converte
 
 The helper also accepts `--event-name` for GitHub-style range recovery. After an amended/force-pushed commit, the push event's previous SHA can be absent even from a full-history checkout.
 
+When the previous SHA does exist but the force push replaced it, every change-range check compares from the newest commit both histories share instead, through `push_base_in_history` in [`lib/git_context.py`](/.github/workflows/lib/git_context.py).
+
+- On 2026-11-16, `main` was reset under the SASPilot squash and the next push was judged against that squash, so `source_change_provenance.py` reported every SASPilot import and binding as removed.
+- `test_force_push_is_judged_from_the_shared_commit` in `test_generated_docs.py` guards the rule.
+
 For pushes only, the checker first tries fetching that exact commit from `origin`. If it is no longer served, a visible notice reports that paired source/text change-range validation cannot run; all current text-conversion and handicap-report content checks still run and can fail normally.
 
 Missing PR or ordinary local bases fail with a clear diagnostic instead of a Git traceback. Available bases always retain the complete-range check.
@@ -791,6 +797,41 @@ This check complements Ruff: Ruff gives modern static diagnostics, while this wo
 #### `build/repository/assets_dlls.py`
 
 Recursively verifies that `Assets` contains only the one shipped game-core DLL, `Assets/CvGameCoreDLL.dll`. This catches accidentally committed backup, test, Debug-opt, or other DLL variants anywhere under `Assets`.
+
+#### `build/repository/commit_trailers.py`
+
+Rejects a `Co-authored-by:` trailer for anyone not listed in its `ALLOWED_CO_AUTHORS`, as of now only Dependabot, which authored its own action bumps and may share a squashed PR. Agents already credit themselves in the code comments they write, so a trailer on every commit only adds noise.
+
+- On 2026-11-16 Claude Code added one by default to two commits despite the user's rule, and both had to be amended.
+- It lists allowed co-authors rather than agents to reject, since a list of agents would miss the next one that adds a trailer by default, while the maintainers are few. Names are matched before the `<`, so no email address is kept in the check; add a new maintainer or bot there.
+- A credit written inline in the body, where it says something, stays allowed, such as `e8659a5e4`'s note on GPT-Codex-5.2; only a line starting with the trailer is checked.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+
+For example, the KI#1082.2 commit first ended with this trailer:
+
+```text
+- The shipped Release DLL is not updated: only command-line scenario launches show the issue.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+```
+
+The check reported it as:
+
+```log
+FAIL commit 6687872bba1a has a Co-authored-by trailer for Claude Opus 5.5, who is not in ALLOWED_CO_AUTHORS; credit agents in their code comments, or inline in the message where it matters; title was: Fix SAS's main menu setup screens EXE patch leaving a /FXSLOAD scenario's Civilization step in BtS's small box (KI#1082.2)
+```
+
+The amended message just drops the trailer. Agents are already credited plenty in the comments they write, such as `(Claude code Opus 5.5)`, so a message names one only now and then, inline where it helps or is intended, for example "found while Claude Code Opus 5.5 replayed the push range".
+
+Dependabot's trailer passes:
+
+```text
+Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+```
+
+```bash
+python .github/workflows/build/repository/commit_trailers.py
+```
 
 #### `build/repository/dll_commit_message.py`
 

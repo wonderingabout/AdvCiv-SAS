@@ -3,7 +3,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: Agents' image readers open PNG/JPG, not the .dds and .tga art Civ4 uses, so this helper uses Pillow to put art side by side in one labelled PNG.
-# On 2026-11-08 a contact sheet of Caveman2Cosmos's peat art chose Peat Works' button, after it had shipped with Quarry's. See README_Art_Tools.md. (Claude code Opus 5.5) -->
+# On 2026-11-08 a contact sheet of Caveman2Cosmos's peat art chose Peat Works' button, after it had shipped with Quarry's; see README_Art_Tools.md. (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse parses the items and options; io wraps archived bytes for Pillow; os/pathlib resolve paths case-insensitively; fpk_tool reads Civ4's packed .FPK art; PIL (Pillow) reads .dds/.tga and draws the sheet. (Claude code Opus 5.5) -->
 import argparse

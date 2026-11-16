@@ -460,6 +460,8 @@ private:
 // Before writing, we compare the whole 20-byte body quoted above, RI's 17-byte signature and its RET 4, rather than RI's signature and value check.
 // Both addresses are RI's; we confirmed Steam's on 2026-11-12, as README_EXE_Patches.md describes, while GOG's is untested by us.
 // See README_EXE_Patches.md. See KI#1082. (Claude code Opus 5.5) -->
+// <!-- custom: Note: "Setup screen" in names such as SetupScreenSizeMod, sasSetupScreenGetSize and g_iSetupScreen* is RI's term, kept so the code compares easily with RI's.
+// It means the pre-game setup screens opened from the main menu (Simple Game, scenarios, BTS Content, Load a Mod, multiplayer staging), not the main menu's own items nor any in-game screen; the XML defines call them SAS_EXE_P_DYNAM_MAIN_MENU_*. See KI#1082.2. (Claude code Opus 5.5) -->
 // <!-- custom: size = window size * percent / 100 + add. The percent scales with the resolution; the add, in pixels and possibly negative, covers what does not, such as the main menu's bottom bar of about 44 px.
 // A percent of 0 makes the add a fixed manual size, so one formula gives scaling, a fixed size or both, with no mode switch; we find this fairly elegant, like CSS's calc(100% - 86px).
 // On 2026-11-12 100% - 120 px, the first default, left a visible gap above that bar; 100% - 88 px reached it in 1920 x 1080 and 2560 x 1380 windows, but a thin dark line still showed above it, and -84 covered half the bar's gold stripe. Pixel rows showed -86 and -87 render alike, since the centring rounds the odd pixel away: the box's own black 1 px border sits on the stripe's top row, and -88 shows the stripe in full under a 1 px dark edge. The -86 default was chosen by eye, in 1920 x 1080 and 2560 x 1380 windows alike, since the bar keeps its pixel height at every resolution. See KI#1082. (Claude code Opus 5.5) -->
@@ -481,12 +483,22 @@ int g_iSetupScreenGlobeWidth = 0;
 int g_iSetupScreenGlobeHeight = 0;
 
 // <!-- custom: Picks this process's largest visible top-level window: the game window, not the startup splash or a message box. (Claude code Opus 5.5) -->
+// <!-- custom: The game window, of class GFC_StdWindowClass, counts while still hidden too.
+// Launched with /FXSLOAD on a WorldBuilder file, as the save transplanter does, Civ4 builds the scenario's Civilization step before showing its window: a temporary probe on 2026-11-16 found that window hidden but already 1920 x 1080, so no window qualified and the step kept BtS's 850 x 569, while Your Details, built once the window showed, grew.
+// A side effect of measuring the window, which made the box tunable and resolution-independent (KI#1082), unlike RI's fixed sizes.
+// Matching the class rather than an EXE address keeps this working on any EXE build. See KI#1082.2. (Claude code Opus 5.5) -->
+bool sasIsGameWindow(HWND hWnd)
+{
+	char szClass[32];
+	return GetClassNameA(hWnd, szClass, ARRAYSIZE(szClass)) > 0 && strcmp(szClass, "GFC_StdWindowClass") == 0;
+}
+
 BOOL CALLBACK sasFindLargestOwnWindow(HWND hWnd, LPARAM lParam)
 {
 	DWORD uiProcessId = 0;
 	GetWindowThreadProcessId(hWnd, &uiProcessId);
 	RECT rect;
-	if (uiProcessId == GetCurrentProcessId() && IsWindowVisible(hWnd) && GetClientRect(hWnd, &rect))
+	if (uiProcessId == GetCurrentProcessId() && (IsWindowVisible(hWnd) || sasIsGameWindow(hWnd)) && GetClientRect(hWnd, &rect))
 	{
 		std::pair<HWND,int>& best = *reinterpret_cast<std::pair<HWND,int>*>(lParam);
 		int const iArea = (rect.right - rect.left) * (rect.bottom - rect.top);
@@ -498,6 +510,8 @@ BOOL CALLBACK sasFindLargestOwnWindow(HWND hWnd, LPARAM lParam)
 
 // <!-- custom: Replaces the EXE's size function, so it keeps that function's contract: one stack argument, the caller's SIZE (width then height), popped by the callee as its RET 4 did, and the same pointer returned in EAX, as MSVC returns a struct through a hidden pointer.
 // If no window is found, the stock 850 x 569 is returned; FAssert reports that in assert builds, since a setup screen only opens once the game window exists. (Claude code Opus 5.5) -->
+// <!-- custom: Screens reach this through virtual slot +0x2C4.
+// Your Details' builder takes 0.56 of the width returned, which is BtS's own shape for it. See KI#1082.2. (Claude code Opus 5.5) -->
 int* __stdcall sasSetupScreenGetSize(int* piSize)
 {
 	int iWidth = 850;

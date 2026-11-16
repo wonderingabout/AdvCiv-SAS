@@ -11,13 +11,15 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[4]
 # <!-- custom: Restore blocking checks in the automated subject folders; regression fixtures import those same helpers. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/documentation"))
+# <!-- custom: Paths inline and ROOT after the imports, as in generated_docs.py: an assignment before an import made it an E402. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "documentation"))
 # <!-- custom: This fixture also uses the XML namespace helper; the XML and documentation tools now have separate subject folders. (GPT-6.1-Sol) -->
-sys.path.insert(0, str(ROOT / ".github/workflows/build/xml"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "build" / "xml"))
 import asset_primary_tech as tech
 import generated_docs as docs
+
+ROOT = Path(__file__).resolve().parents[4]
 
 
 def git(repo, *args):
@@ -133,17 +135,42 @@ class GeneratedDocsTests(unittest.TestCase):
         pdf.write_bytes(b'old PDF fixture')
         git(self.repo, 'add', '.')
         git(self.repo, 'commit', '-qm', 'initial fixture')
+        # <!-- custom: Modelled as a force push: "before" is a replaced tip that only origin still serves, and the pushed head, built on their shared commit, changes the PDF.
+        # The earlier fixture made "before" a child of the runner's head, which no push produces; the merge-base rule rightly found nothing new there. (Claude code Opus 5.5) -->
         with tempfile.TemporaryDirectory() as temporary:
             clone = Path(temporary) / 'runner'
             subprocess.run(['git', 'clone', '-q', str(self.repo), str(clone)], check=True)
-            pdf.write_bytes(b'changed PDF fixture')
+            (self.repo / 'replaced.txt').write_text('replaced by the force push', encoding='utf-8')
             git(self.repo, 'add', '.')
-            git(self.repo, 'commit', '-qm', 'commit absent from runner checkout')
+            git(self.repo, 'commit', '-qm', 'tip replaced by the force push')
             before = git(self.repo, 'rev-parse', 'HEAD')
+            git(clone, 'config', 'user.email', 'fixture@example.invalid')
+            git(clone, 'config', 'user.name', 'Fixture')
+            (clone / docs.MANUAL / 'manual.pdf').write_bytes(b'changed PDF fixture')
+            git(clone, 'add', '.')
+            git(clone, 'commit', '-qm', 'force-pushed head')
             self.assertFalse(docs.has_commit(clone, before))
             errors = docs.changed_conversion_errors(clone, before, event_name='push')
             self.assertTrue(docs.has_commit(clone, before))
             self.assertTrue(any('manual.pdf changed without' in error for error in errors))
+
+    # <!-- custom: The replaced tip's own edits are not part of the push: judged against that tip, the force-pushed head would look as if it reverted them, as the SASPilot squash did on 2026-11-16. (Claude code Opus 5.5) -->
+    def test_force_push_is_judged_from_the_shared_commit(self):
+        fixture_git(self.repo)
+        pdf = self.repo / docs.MANUAL / 'manual.pdf'
+        pdf.write_bytes(b'old PDF fixture')
+        git(self.repo, 'add', '.')
+        git(self.repo, 'commit', '-qm', 'shared commit')
+        shared = git(self.repo, 'rev-parse', 'HEAD')
+        pdf.write_bytes(b'PDF changed only on the replaced tip')
+        git(self.repo, 'commit', '-qam', 'tip replaced by the force push')
+        before = git(self.repo, 'rev-parse', 'HEAD')
+        git(self.repo, 'reset', '-q', '--hard', shared)
+        (self.repo / 'unrelated.txt').write_text('force-pushed head', encoding='utf-8')
+        git(self.repo, 'add', '.')
+        git(self.repo, 'commit', '-qm', 'force-pushed head')
+        with redirect_stderr(io.StringIO()):
+            self.assertEqual(docs.changed_conversion_errors(self.repo, before, event_name='push'), [])
 
     def test_root_push_without_previous_tree_needs_no_range(self):
         self.assertEqual(docs.changed_conversion_errors(self.repo, '0' * 40, event_name='push'), [])
