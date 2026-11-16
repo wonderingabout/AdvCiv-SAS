@@ -192,6 +192,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#113 - (Worked around) WIDGET_PYTHON missing hover text in UI contexts (e.g. Builds in Tech Chooser and Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-113)\
 [KI#114 - (Fixed) Base AdvCiv bug of Tech Advisor on save-load initially shown current tech missing turns-left timer until another tech is clicked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-114)\
 [KI#115 - (Fixed) Likely Base AdvCiv issue: Victory screen vote requirement text spacing in Resolutions tab](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-115)\
+[KI#115.2 - (Fixed inherited vanilla Civ4 slips) Victory screen's Victories tab: a culture row testing the wrong team, a religion row printing the wrong share](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-115.2)\
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
@@ -11250,6 +11251,31 @@ Fix:
 - Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
 
 Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.
+
+<a id="ki-115.2"></a>
+
+## KI#115.2 - (Fixed inherited vanilla Civ4 slips) Victory screen's Victories tab: a culture row testing the wrong team, a religion row printing the wrong share
+
+Screenshots/files for this issue: same as KI#290.2.
+
+Found on 2026-11-15 while SASPilot's new `victory` command was checked against the Victories tab at turn 120 of a SAS48 SAS Large Facing Islands autoplay (the same save as KI#118.2 and KI#300.2), which is the same screen family as KI#115.
+
+A third slip found with them, the best rival's shares cut to whole percent by integer division, is [KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2), with KI#290's integer division, at the user's suggestion.
+
+Observed issue:
+
+- Culture row: the `if` tests `iBestLandTeam` but the block reads `iBestCultureTeam`. A met team that owns land but has no culture yet, as can happen in the first turns, would send `-1` to `getPlayerOnTeam` and `gc.getTeam`. Not reproduced, found by reading.
+- Religion row: prints `religionPercent`, the last value of the loop over all religions, where the best religion's `bestReligionPercent` was meant. No SAS victory sets `iReligionPercent`, so the row only shows in a mod-mod with a religious victory.
+
+Provenance:
+
+- Both are in vanilla Civ4's `CvVictoryScreen.py` (the root `Assets` of the Complete install, lines 551 and 543); Warlords does not override the screen, and BtS (lines 579, 571) and AdvCiv 1.14 kept them unchanged.
+  - The culture row's `if (iBestLandTeam != -1):` is the land row's test word for word (vanilla line 527), unchanged where the culture row reads `iBestCultureTeam`.
+
+Fix:
+
+- `CvVictoryScreen.py`: `iBestCultureTeam` in the culture row's test, and `bestReligionPercent` in the religion row. Fixed by reading only; neither row misbehaved on this save.
+- Before filing, the KI bodies, the C++ File Audit Album and the archaeology record were searched; none had these slips.
 
 <a id="ki-116"></a>
 

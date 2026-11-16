@@ -1755,7 +1755,8 @@ class CvVictoryScreen:
 						SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, u"No Holy City", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					if (iBestReligion != -1):
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, gc.getReligionInfo(iBestReligion).getDescription() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % religionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						# <!-- custom: Vanilla Civ4 printed religionPercent, left over from the loop above with the last religion's share, not the best one's; no SAS victory sets iReligionPercent, so this row shows only in a mod-mod with a religious victory. See KI#115.2. (Claude code Opus 5.5) -->
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, (u"%d%%" % bestReligionPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					bEntriesFound = True
 
 				if (victory.getTotalCultureRatio() > 0):
@@ -1779,7 +1780,9 @@ class CvVictoryScreen:
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-					if (iBestLandTeam != -1):
+					# <!-- custom: Vanilla Civ4 tested iBestLandTeam here, then read iBestCultureTeam: a met team owning land but no culture yet, as early in a game, would reach getPlayerOnTeam(-1) and gc.getTeam(-1).
+					# Test the team this row reads. See KI#115.2. (Claude code Opus 5.5) -->
+					if (iBestCultureTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
 						iBestPlayer = self.getPlayerOnTeam(iBestCultureTeam)
 						szBestName = gc.getTeam(iBestCultureTeam).getName() + ":"
