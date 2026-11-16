@@ -18,8 +18,11 @@ ROOT = Path(__file__).resolve().parents[4]
 def main() -> int:
 	parser = argparse.ArgumentParser(description="Check that civ4_ui_map.json matches what make_civ4_ui_map.py generates.")
 	parser.add_argument("--repo-root", type=Path, default=ROOT)
+	# <!-- custom: Lets test_ui_map_sync.py check a CRLF or edited copy against the generator without touching the committed JSON. (Claude code Opus 5.5) -->
+	parser.add_argument("--map-json", type=Path, help="JSON to compare instead of the committed civ4_ui_map.json")
 	args = parser.parse_args()
 	folder = args.repo_root / "LLM_Helpers" / "game_runs" / "ui_maps"
+	map_json = args.map_json or folder / "civ4_ui_map.json"
 	with tempfile.TemporaryDirectory() as tmp:
 		generated = Path(tmp) / "civ4_ui_map.json"
 		result = subprocess.run([sys.executable, str(folder / "make_civ4_ui_map.py"), str(generated)], capture_output=True, text=True)
@@ -27,7 +30,9 @@ def main() -> int:
 			print("FAIL UI map sync")
 			print("  - make_civ4_ui_map.py failed: %s" % (result.stderr.strip() or result.stdout.strip()))
 			return 1
-		if generated.read_bytes() != (folder / "civ4_ui_map.json").read_bytes():
+		# <!-- custom: Text mode reads CRLF as "\n": the bytes differed on a Windows clone with core.autocrlf, whose checkout writes CRLF while the generator writes LF, so the check failed on an unchanged JSON (2026-11-16); GitHub's LF checkout passed.
+		# generated_docs.py compares text the same way. (Claude code Opus 5.5) -->
+		if generated.read_text(encoding="utf-8") != map_json.read_text(encoding="utf-8"):
 			print("FAIL UI map sync")
 			print("  - civ4_ui_map.json differs from what make_civ4_ui_map.py generates: edit the generator, never the JSON, and rerun it; a map script added, removed or hidden from Simple Game also changes it")
 			return 1
