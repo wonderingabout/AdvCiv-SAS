@@ -89,6 +89,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
   - [Source](#source)
+    - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
@@ -954,8 +955,9 @@ This helps catch stale fast-compile intermediates and forgetting to replace the 
 
 #### `build/repository/ui_map_sync.py`
 
-Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_map.py` into a temporary file and fails unless it matches the committed JSON byte for byte.
+Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_map.py` into a temporary file and fails unless it matches the committed JSON, compared as text so line endings do not count.
 
+- Until 2026-11-16 it compared bytes, so on a Windows clone with `core.autocrlf`, whose checkout writes CRLF while the generator writes LF, it failed on an unchanged JSON while GitHub's LF checkout passed. [`test_ui_map_sync.py`](/.github/workflows/tests/repository/test_ui_map_sync.py) checks that CRLF and LF copies pass and an edited copy fails, through `--map-json`.
 - The JSON is generated: edit the generator, never the JSON. On 2026-11-12 an agent had edited the JSON directly, so rerunning the generator would have dropped the WorldBuilder mapping, as Codex's review found.
 - The generator derives the Simple Game map list from the map scripts, through the same classifier as [`map_previews.py`](#buildassetsmap_previewspy), so a script added, removed or hidden from Simple Game also fails this check until the JSON is regenerated, with each row's point placed 24 px below the last.
 - The generator itself fails when more scripts are shown than the 38 rows that fit at 1920 x 1080 without a scrollbar, since the list's points would then need re-measuring.
@@ -1033,6 +1035,13 @@ Verifies every playable `PrivateMaps/*.py` script is listed exactly once across 
 Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
 
 ### Source
+
+#### `build/source/checkout_byte_compares.py`
+
+Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) without a `# bytes-compare: <reason>` note on that line or the line above.
+
+- On 2026-11-16 [`ui_map_sync.py`](#buildrepositoryui_map_syncpy) compared the checked-out UI map with its generator's output as bytes. A Windows clone with `core.autocrlf` checks text out with CRLF while the generator writes LF, so it failed locally on an unchanged file while GitHub's LF checkout passed, and GitHub could never catch it.
+- Text comparisons (`read_text`) ignore line endings, so they are the default; a byte comparison that is needed, such as for a binary file, states why in its note.
 
 #### `build/source/custom_comment_indentation.py`
 
