@@ -1446,6 +1446,12 @@ It also keeps SAS pedia names consistent: a SAS text used as an XML `<Civilopedi
 
 Verifies every `TXT_KEY` defined across all SAS-owned GameText files (`Assets/XML/Text/AdvCiv-SAS*.xml`) is referenced by active mod XML, BUG configuration, Python, map-script Python, or C++.
 
+The other direction too: every `TXT_KEY` used by active mod XML, Config, Python, map scripts or C++ must be defined by mod GameText or the inherited text, reading a `CHANGED_` tag as its key.
+
+Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key.
+
+Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
+
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 
 Other explicit exceptions cover confirmed inherited base references, empirically confirmed EXE runtime references with no static reference, and BUG option-key families constructed dynamically at runtime. Every passing run prints the exact keys in each exception group so accepted uncertainty stays visible in CI.

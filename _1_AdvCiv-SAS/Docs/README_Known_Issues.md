@@ -1259,7 +1259,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
 [KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
 [KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
-[KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)
+[KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
+[KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)
 
 <a id="ki-1"></a>
 
@@ -37805,3 +37806,29 @@ So the crash comes from leaving this game, not from loading it, and from none of
 - Steps to take it further: try the same reload in base AdvCiv, leave the game through the main menu as a player would, and compare a Huge game at turn 100 and 200 to see whether size or unit count sets it off.
 
 Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-6.1-Sol) suggested the save-and-reload check; wonderingabout saw the first crash and asked for it to be captured and debugged.
+
+<a id="ki-1085"></a>
+
+## KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK
+
+- Seen through SASPilot on 2026-11-13, at turn 139 of a fog-on game: the "first Swordsman" notice read `TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK`. A player sees the same popup.
+  - SAS split BtS's `UNITCOMBAT_MELEE` into `UNITCOMBAT_MELEE_POLEARM` and `UNITCOMBAT_MELEE_SHOCK`, and `CvAdvisorUtils.py` asks for a feat text per type, but only the archer and mounted feats got text.
+  - In game, translating a key that no loaded text defines returns the key itself, which is what the popup showed.
+- Fixed in [`AdvCiv-SAS_main.xml`](/Assets/XML/Text/AdvCiv-SAS_main.xml) with both texts, adapted from BtS's `TXT_KEY_FEAT_UNITCOMBAT_MELEE`, confirmed in game.
+- Guarded by [`sas_text_references.py`](/.github/workflows/README.md#buildxmlsas_text_referencespy), which now also fails on any `TXT_KEY` that active mod XML, Config, Python, map scripts or C++ uses but no mod or inherited text defines.
+  - The audit behind it found 72 such keys. Two were SAS's own, `TXT_KEY_YES` and `TXT_KEY_NO` in [`SevoPediaEraChart.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py), read but never shown, as the Era Chart writes "+" and blank; the lookups were removed.
+  - A first count also took the Trireme's pedia text for missing: Warlords defines it only as `CHANGED_TXT_KEY_UNIT_TRIREME_PEDIA`, and the EXE reads a `CHANGED_` tag as the key after the prefix, as the Sevopedia showed. The check follows that rule.
+  - The other 68 were already used without text by base AdvCiv 1.14, mostly Firaxis XML naming strategy, help and pedia texts it never wrote (control, specialist, era, victory and world-size infos) and BUG or BULL leftovers.
+    - They are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv), and a listed key that becomes defined or unused fails, so the list shrinks as gaps are fixed.
+    - Which of them a player can see was not checked.
+
+Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
+
+- Later on 2026-11-13, Codex's (GPT-6.1-Sol) review of the check led to four changes:
+  - **Loaded text only.** The inherited-text hash list names base AdvCiv first, and SAS does not load base AdvCiv's original files but its own copies, so 2,302 tags defined only there counted as defined. The list gained a `game` column, the first BtS, Warlords or vanilla layer defining each tag, and the check counts only those. No key in use depended on it yet; a SAS copy deleted later would have.
+  - **Identifiers are not keys.** `self.TXT_KEY_DICT` in `CvForeignAdvisor.py` is an attribute, so a token after a letter, digit, `_` or `.` no longer counts, and its row left the list.
+  - **One rule for both directions.** The diplomacy check now uses the same definitions, `CHANGED_` tags included. The `CHANGED_` rule rests on the Trireme's pedia text, read in game.
+  - **Stock texts for 16 controls.** BtS pointed them at `TXT_KEY_ACTION_*_HELP` keys no text defines, while its texts are named `TXT_KEY_ACTION_CONTROL_*_HELP`. Next Unit and Previous Unit even used a help key as their name. [`CIV4ControlInfos.xml`](/Assets/XML/Units/CIV4ControlInfos.xml) now uses the stock texts, matched by meaning.
+    - In game Next Unit reads "Next Unit" with "Cycle unit selection to the next unit on the tile."
+    - Seventeen keys left the list, 51 remain; where a player would see these texts was not traced.
+  - Codex also noted that keys assembled at run time are invisible to the check. Looking for families keyed by unit combat found KI#1087, BUG's Unit Naming options, which has its own check.

@@ -21,7 +21,7 @@ class SasTextInheritedTests(unittest.TestCase):
             text.parent.mkdir(parents=True)
             text.write_bytes(("<Civ4GameText><TEXT>\r\n<Tag>TXT_KEY_TEST</Tag>\r\n<English>" + english + "</English>\r\n</TEXT></Civ4GameText>").encode("utf-8"))
             manifest = root / "hashes.tsv"
-            manifest.write_text(inherited.MANIFEST_HEADER + "\nTXT_KEY_TEST\tvanilla\t" + inherited.english_hash("Sailing - Quote") + "\n", encoding="utf-8")
+            manifest.write_text(inherited.MANIFEST_HEADER + "\nTXT_KEY_TEST\tvanilla\t" + inherited.english_hash("Sailing - Quote") + "\tvanilla\n", encoding="utf-8")
             original = inherited.MANIFEST
             inherited.MANIFEST = manifest
             try:

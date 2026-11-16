@@ -67,6 +67,8 @@ TXT_KEY_CIV_SPAIN_DESC	vanilla	Spanish Empire
 TXT_KEY_CIV_SPAIN_SHORT_DESC	vanilla	Spain
 TXT_KEY_CIV_SUMERIA_DESC	bts	Sumerian Empire
 TXT_KEY_CIV_SUMERIA_SHORT_DESC	advciv	Sumer
+TXT_KEY_CIV_VIKING_DESC	warlords	Viking Empire
+TXT_KEY_CIV_VIKING_SHORT_DESC	warlords	Vikings
 TXT_KEY_CIV_ZULU_DESC	warlords	Zulu Empire
 TXT_KEY_CIV_ZULU_SHORT_DESC	warlords	Zululand
 TXT_KEY_LEADER_ALEXANDER	advciv	Alexander
