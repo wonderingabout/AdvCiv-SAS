@@ -317,6 +317,8 @@ Make sure to ask before deleting or moving files/folders inside it: its mod repo
 - `svn_history/ri/`: Realism Invictus's SVN history as greppable diffs, art and Civilopedia text left out; see [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy). Git repositories export the same way with [`git_history_to_diffs.py`](/LLM_Helpers/README.md#git_history_to_diffspy). Both sit here rather than in `LLM_Helpers/context/` because these mods are not in our ancestry.
 - `exe_analysis/`: the decrypted, read-only copy of the Steam `Civ4BeyondSword.exe` and its Ghidra project, for EXE memory patches; see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#reading-the-exe-with-ghidra).
 - `llm_chat_exports/`: the shared chat transcript folder from [chat_export_paths.py](/LLM_Helpers/chat_exports/chat_export_paths.py), with the private `chatgpt-share-urls.md` list.
+- `git_bash_history/bash_history.txt`: every command the user runs in Git Bash (Git for Windows' MINGW64 bash, in a `mintty` window titled `MINGW64:…`), written as it runs, each after a `#` line with its Unix time; see [The user's Git Bash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-git-bash).
+  - Agents' own apps show only the commands the agents run, so read it to see the user's amends, pushes and force-pushes before assuming what reached GitHub.
 - Agents may keep their own lasting material here in a subfolder named for its purpose, such as notes, extracted references or comparison files, rather than in the repo or a scratchpad that is cleared. Delete it through the Recycle Bin, as under [File management](#file-management).
 
 ### Information Fetching locally (Dbg.log, Err.log, etc.)

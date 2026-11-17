@@ -10982,6 +10982,11 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> cons
 	}
 	// <!-- custom: End - direct Tribute/Demand acceptance for pure vassal/surrender offers to match counter-propose outcome. (GPT-5.3-Codex) -->
 
+	// <!-- custom: A peace treaty the victory-denial rule keeps from taking effect would be accepted here and then dropped by CvDeal, so a human's offer, or SASPilot's 'propose', read as accepted while the war went on.
+	// Refuse it, as CvDeal would. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	if (isSASVictoryDenialPeaceBundleBlocked(getTeam(), TEAMID(ePlayer), kWeGive, kTheyGive))
+		return false;
+
 	if (iChange > -1)
 	{
 		FOR_EACH_TRADE_ITEM(kWeGive)
@@ -11452,10 +11457,18 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, CLinkList<TradeData> con
 				bEndWar = true;
 			}
 		}
+		// <!-- custom: An end-war item already on the table can be a peace treaty that the victory-denial rule keeps from taking effect, including one the human put there; refuse rather than counter-propose it. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		if (bEndWar && isSASVictoryDenialPeaceBundleBlocked(getTeam(), TEAMID(ePlayer), kWeGive, kTheyGive))
+			return false;
 		// last chance: try a peace treaty.
 		if (!bEndWar)
 		{
 			TradeData item(TRADE_PEACE_TREATY);
+			// <!-- custom: The AI offered this treaty to a human's "Suggest peace" while either side was a victory-denial threat; CvDeal then dropped it after the screen said "We're glad you accepted our offer."
+			// (Kublai Khan, 2026-11-14).
+			// Returning false here gives the screen's no-peace answer instead, as the AI's own peace paths already refuse. See KI#1094. (Claude code Opus 5.5) -->
+			if (isSASUWAIVictoryDenialPeaceThreat(getTeam()) || isSASUWAIVictoryDenialPeaceThreat(TEAMID(ePlayer)))
+				return false;
 			if (canTradeItem(ePlayer, item, true) &&
 				kPlayer.canTradeItem(getID(), item, true))
 			{

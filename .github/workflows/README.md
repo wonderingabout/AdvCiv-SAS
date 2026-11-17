@@ -56,6 +56,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
+    - [`build/documentation/retired_names.py`](#builddocumentationretired_namespy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
   - [EXE patches](#exe-patches)
     - [`build/exe_patches/exe_internals_placement.py`](#buildexe_patchesexe_internals_placementpy)
@@ -672,6 +673,22 @@ A folder-wide Deprecated/examples exemption also hid missing menus in maintained
 
 The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
 
+#### `build/documentation/retired_names.py`
+
+Fails on a retired tool or feature name, such as SASSaveTransplanter's former plain-English name or SASPilot's early nickname, in any text file of the repository outside the history records.
+
+- We rename old references retroactively, so agents meet only current names. The names come from the table in [`retired_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/retired_names.md), the single list, as the retired define and XML asset checks read theirs.
+- Added on 2026-11-17: main's history had been rewritten that morning to give SASSaveTransplanter its name, yet the same day an agent wrote the old name twice in new text, in the dev-log check's comment and its README section, and only the user's review caught it.
+- It reads tracked files and new untracked ones, so a local run also catches a file not yet added: its own first draft was missed that way.
+  - [`retired_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/retired_names.md) and the check's test, which must spell the old names, are exempt.
+- Each name has a **Checked** switch, `yes` or `no`, so one can be turned off while a branch that still uses it, such as SASPilot's own docs, catches up and can merge main without failing.
+- Matching ignores case and takes whole words only, so a harbour's "pilots" do not match SASPilot's retired nickname. The list says why the nickname is listed as a whole phrase and not as the bare word.
+- The dev logs, the `commit_diffs` corpus, archived changelogs, the `Deprecated` folder, the source-analysis records and the recorders' revision histories keep the wording of their time: they quote old commit titles and describe the renames themselves.
+
+```bash
+python .github/workflows/build/documentation/retired_names.py
+```
+
 #### `build/documentation/sas_source_guide.py`
 
 Keeps SAS-branded mod source and shipped runtime companions discoverable in both the [root README](/README.md) and [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), rather than describing features without naming their implementation files.
@@ -841,7 +858,7 @@ python .github/workflows/build/repository/commit_trailers.py
 
 #### `build/repository/dev_logs.py`
 
-Keeps the dev logs' hand edits and anonymized authors: `_0_Legacy/Docs/dev_logs/` and `_1_AdvCiv-SAS/Docs/dev_logs/` hold one log per mod, newest first.
+Keeps the dev logs' hand edits, anonymized authors and commits in the branch's history: `_0_Legacy/Docs/dev_logs/` and `_1_AdvCiv-SAS/Docs/dev_logs/` hold one log per mod, newest first.
 
 - The logs are hand-edited copies of `git log`. On 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's 3,094 and 3 of K-Mod's 1,249 differed from Git's own messages, with typo, churn and wording fixes such as "LLM/AI helpers" becoming "AI/LLM helpers".
   - A naive regeneration with `git log` would erase them all, so a commit that changes a dev log must keep its earlier content as the exact tail of the new one: new entries go on top.
@@ -849,6 +866,10 @@ Keeps the dev logs' hand edits and anonymized authors: `_0_Legacy/Docs/dev_logs/
   - Deleting a log fails. A moved log is followed to its earlier path, even when the move and a large prepend together fall below Git's rename similarity, by pairing logs with the same key after `anonymized_email_`, such as `003_AdvCiv-SAS.txt`.
 - Every `Author:` line must be `<hidden>`, as the `anonymized_email` file names promise.
   - Addresses inside message bodies stay as their commits wrote them, such as agents' and bots' `Co-authored-by: GPT-Codex-5.2 <codex@openai.com>` or Dependabot's `Signed-off-by`. They are not personal, and replacing them by hand would be brittle, as more come with new commits.
+- Every logged commit must still be in the checked branch's history, so a history rewrite cannot leave the log citing SHAs that no longer exist there.
+  - On 2026-11-17 main was rewritten twice, to give SASSaveTransplanter its name in older commits and to reword KI#1091's message. Both times the SAS log ended just before the rewritten commits, but a rewrite reaching further back would have left it stale without any failure.
+  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and say `Edit dev log` in the commit message.
+  - The CI checkout fetches the full history (`fetch-depth: 0`), so a missing commit means it left the history, not that the clone was shallow.
 - Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
 - Added on 2026-11-17, while the SAS dev log was brought up to date from practical 6402 to 6763; the check first confirmed that the committed log survived as the exact tail of the new one.
 

@@ -196,7 +196,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#116 - (Worked around) Foreign Diplomacy Advisor Glance tab clips trailing status icons at upscaled label fonts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-116)\
 [KI#117 - (Fixed) Score Tab attitude icon chars disappearing at upscaled label fonts (`SAS_UI_FONT_LABEL` 3/4)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-117)\
 [KI#118 - (Worked around) Military Advisor inline `<img>` icons can render magenta for button paths with spaces/parentheses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118)\
-[KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
+[KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-118.2)\
 [KI#119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-119)\
 [KI#120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-120)\
 [KI#121 - (Fixed) Base AdvCiv bug: `CvVoteSourceInfo` parses `ReligionCommerces` into the wrong array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-121)\
@@ -439,7 +439,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-298.2)\
 [KI#299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-299)\
 [KI#300 - (Fixed AdvCiv-SAS bug after incomplete repair) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300)\
-[KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2)\
+[KI#300.2 - (Fixed AdvCiv-SAS bug) Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2)\
 [KI#301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-301)\
 [KI#302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-302)\
 [KI#303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-303)\
@@ -1257,20 +1257,21 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1080 - (Observed and reproduced; cause not traced) Turning on Debug Mode seems to change the AI's decisions, so two autoplays of the same save diverged by T84](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)\
 [KI#1081 - (Worked around in the SAS run tools) Civ4 clients started with `multiple` share PythonErr.log, PythonDbg.log and autosaves, so one client's errors and saves show up as another's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)\
 [KI#1082 - (Fixed with an EXE patch ported from Realism Invictus) BtS's EXE opened Simple Game in a fixed 850 x 569 box, so SAS had hidden its title to fit more maps](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)\
-[KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
-[KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
-[KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
-[KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
-[KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
-[KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
+[KI#1082.2 - (Fixed AdvCiv-SAS bug) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)\
+[KI#1083 - (Fixed inherited BtS bug) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1083)\
+[KI#1084 - (Open, not caused by SASPilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084)\
+[KI#1085 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085)\
+[KI#1086 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
+[KI#1087 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
 [KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
 [KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)\
 [KI#1090 - (Fixed inherited vanilla Civ4 Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
 [KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)\
 [KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
-[KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
-[KI#1093 - (Fixed in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)
+[KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
+[KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
+[KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)
 
 <a id="ki-1"></a>
 
@@ -11384,7 +11385,7 @@ Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was remov
 
 <a id="ki-118.2"></a>
 
-## KI#118.2 - (Fixed in SAS) SAS regression, same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations
+## KI#118.2 - (Fixed AdvCiv-SAS regression) Same family as KI#118's icon paths: the Victory screen raised a Python exception and drew only part of its table once an unmet team had built the Apostolic Palace or United Nations
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1JNpEXJOBBjWvO_CC9qV8Q9PebTjblh8u?usp=sharing).
 
@@ -11412,7 +11413,7 @@ The fifth argument is the icon: `unicode` where the engine takes `char const *`.
   - Fifteen other defaults in the Victory screen and the Military Advisor followed the same pattern: the Secretary-General row, the Members tab, the vote-source header and eight best-player rows could raise the same error when no leader or building applies, while the Military Advisor draws an icon only when it has one.
 - Fixed: all 16 defaults are now `""`; `SASTextScale`'s `setTableTextScaled`, `setTableIntScaled` and `setTableDateScaled` pass the icon through `str()`, covering every caller of those wrappers; and [`unicode_button_paths.py`](/.github/workflows/README.md#buildsourceunicode_button_pathspy) fails when runtime Python starts a `sz...Button` or `sz...Icon` path as `u""`.
 
-Found by Claude Code Opus 5.5 while mapping public information through the pilot; the user watched the exception appear.
+Found by Claude Code Opus 5.5 while mapping public information through SASPilot; the user watched the exception appear.
 
 <a id="ki-119"></a>
 
@@ -22241,7 +22242,7 @@ Found and investigated through the systematic archaeology with the help of ChatG
 
 <a id="ki-300.2"></a>
 
-## KI#300.2 - (Fixed in SAS) SAS Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them
+## KI#300.2 - (Fixed AdvCiv-SAS bug) Timeline gap: public events from players not met were hidden, though the game announces them to everyone and the Religions and Wonders tabs list them
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1aB4uoxG3gZUkY7CQ_2HpRG-l4-lZrDET?usp=sharing).
 
@@ -22257,7 +22258,7 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
   - so read them in the mod, not in vanilla's files: reading vanilla first, the agent at first took "distant land" for the game's wording and the quotes above for mistakes.
 - Seen meanwhile, not fixed: the Dai Miao reads "The The Dai Miao" in the faraway-land text, as its name already starts with "The" while the game chooses the article form for it, so the game's own message and replay text carry the same doubling.
 
-Found by Claude Code Opus 5.5 while mapping public information through the pilot, at the user's suggestion to check the Timeline.
+Found by Claude Code Opus 5.5 while mapping public information through SASPilot, at the user's suggestion to check the Timeline.
 
 - Side note: the save kept in the Drive folder, `sas_pilot_sas48_islands_t120` (turn 120, 2 of 47 rivals met), was worth keeping beyond this issue: the same day it also exposed KI#118.2 and showed most of what a player can know about rivals not met (wonders, top cities, religions, vote sources, rival averages), which the SASPilot `world` command now reads.
 
@@ -37770,7 +37771,7 @@ Found by wonderingabout, who had hidden the title to fit more maps; patch ported
 
 <a id="ki-1082.2"></a>
 
-## KI#1082.2 - (Fixed in SAS) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984
+## KI#1082.2 - (Fixed AdvCiv-SAS bug) SAS's port of RI's setup-size patch measured the game window before Civ4 showed it, so a scenario launched with /FXSLOAD kept BtS's 840 x 560 on its Civilization step while Your Details grew to 904 x 984
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1J4iXJgATrg8tUoHgfY_TacZs0I6ZReX9?usp=sharing).
 
@@ -37782,7 +37783,7 @@ Found by wonderingabout; traced and fixed with the help of Claude code Opus 5.5.
 
 <a id="ki-1083"></a>
 
-## KI#1083 - (Fixed in SAS text) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix
+## KI#1083 - (Fixed inherited BtS bug) BtS's setup screens titled map script options "SELECT A ELEPHANT" or "SELECT A REGIONS", from a generic "Select a" prefix
 
 On every setup screen of Simple Game, a map script's own options, such as Pangaea's Shoreline or BTG_Cross's Regions, are titled by the EXE as `TXT_KEY_MAIN_MENU_SELECT_A`, "Select a ", followed by the option's name. That read well for "SELECT A MAP" but gave "SELECT A ELEPHANT", "SELECT A REGIONS" or "SELECT A OIL AND ALUMINIUM".
 
@@ -37794,11 +37795,11 @@ Found by wonderingabout while reviewing the setup screens' new globe patch ([KI#
 
 <a id="ki-1084"></a>
 
-## KI#1084 - (Open, not caused by the pilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked
+## KI#1084 - (Open, not caused by SASPilot) Leaving a Huge turn-305 game for another save crashed Civ4 inside the EXE, every time, while loading that save first worked
 
-On 2026-11-13, a test of the agent pilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `SASPilotClient.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
+On 2026-11-13, a test of SASPilot loaded a Huge Pangaea save at turn 305 (876 units, 82 cities), then loaded another save in the same Civ4 with `SASPilotClient.py menu path=`. Civ4 crashed 2 to 6 seconds into the load, with its "Program Execution Problem" dialog or, once, an exit with code `-1073741819` (`0xC0000005`) and no dialog.
 
-It started as Codex's suggested check that held popups survive a save and reload (the SASPilot Guide's Popups section), so the pilot's new popup code was suspected first. Each step below removed one suspect:
+It started as Codex's suggested check that held popups survive a save and reload (the SASPilot Guide's Popups section), so SASPilot's new popup code was suspected first. Each step below removed one suspect:
 
 | What ran in one Civ4 | Result |
 | --- | --- |
@@ -37806,20 +37807,20 @@ It started as Codex's suggested check that held popups survive a save and reload
 | Huge turn-305 save, then load a small save | crashed after 2 s |
 | Huge turn-305 save, list popups, save, reload | crashed after 6 s, three of three |
 | Same, without listing popups, so nothing taken from the queue or held | crashed |
-| Same, with the pilot's popup holding switched off | crashed |
+| Same, with SASPilot's popup holding switched off | crashed |
 | Same, with no save before the reload | crashed |
 | Same, with the committed DLL from Git instead of the day's Debug-opt build | crashed |
-| Same, with the pilot switched off in the request that started the load | crashed |
+| Same, with SASPilot switched off in the request that started the load | crashed |
 | Same, with SGR, Runtime and the other development diagnostics at shipped defaults | crashed |
 | Huge turn-305 save, list popups, reload (first try) | worked once; the same steps then crashed twice |
 
-So the crash comes from leaving this game, not from loading it, and from none of the pilot's code, the day's DLL changes or the development diagnostics; the one success was luck. Whether a player leaving such a game through the menus also crashes was not tried, nor base AdvCiv.
+So the crash comes from leaving this game, not from loading it, and from none of SASPilot's code, the day's DLL changes or the development diagnostics; the one success was luck. Whether a player leaving such a game through the menus also crashes was not tried, nor base AdvCiv.
 
 - The full dump, `Civ4BeyondSword.exe.dmp`, is kept with its matching Debug-opt DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_huge_t305_leaving_game` (1.5 GB, outside the repository). It was read as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
   - `.ecxr; kb` stopped in the EXE: `call dword ptr [eax+4]` with `eax=bf800000`, a virtual call through an object whose first word was the float -1.0 rather than a table pointer, as in memory already freed or reused. The EXE has no unwind information, so the stack ended after six EXE frames.
   - `dds esp L800` found older return addresses on the stack, among them `CvPlayer::nextUnit` and `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`: the EXE had been walking a player's units through the DLL just before.
   - A possible reading, not shown: the EXE frees a unit's or plot's graphics while tearing the game down and then calls one it already freed; the large unit count may matter, as small games reloaded without trouble the same day.
-- The saves are `huge_t305_civic.CivBeyondSwordSave` and `held_roundtrip.CivBeyondSwordSave`, made by the pilot on 2026-11-13 from a Pangaea Huge game with fixed seeds autoplayed to turn 300.
+- The saves are `huge_t305_civic.CivBeyondSwordSave` and `held_roundtrip.CivBeyondSwordSave`, made by SASPilot on 2026-11-13 from a Pangaea Huge game with fixed seeds autoplayed to turn 300.
 - Workaround for agents: in a big late game, load a save with `SASPilotClient.py close` and `SASPilotClient.py start --save` rather than `SASPilotClient.py menu path=`; a fresh Civ4 loaded both saves without trouble.
 - Steps to take it further: try the same reload in base AdvCiv, leave the game through the main menu as a player would, and compare a Huge game at turn 100 and 200 to see whether size or unit count sets it off.
 
@@ -37827,7 +37828,7 @@ Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-
 
 <a id="ki-1085"></a>
 
-## KI#1085 - (Fixed in SAS text, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK
+## KI#1085 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left two feat popups without text, so the first Swordsman's congratulation showed TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK
 
 - Seen through SASPilot on 2026-11-13, at turn 139 of a fog-on game: the "first Swordsman" notice read `TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK`. A player sees the same popup.
   - SAS split BtS's `UNITCOMBAT_MELEE` into `UNITCOMBAT_MELEE_POLEARM` and `UNITCOMBAT_MELEE_SHOCK`, and `CvAdvisorUtils.py` asks for a feat text per type, but only the archer and mounted feats got text.
@@ -37840,7 +37841,7 @@ Found and narrowed down by Claude code Opus 5.5 on 2026-11-13, after Codex (GPT-
     - They are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv), and a listed key that becomes defined or unused fails, so the list shrinks as gaps are fixed.
     - Which of them a player can see was not checked.
 
-Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
+Found by Claude code Opus 5.5 on 2026-11-13, while playing through SASPilot.
 
 - Later on 2026-11-13, Codex's (GPT-6.1-Sol) review of the check led to four changes:
   - **Loaded text only.** The inherited-text hash list names base AdvCiv first, and SAS does not load base AdvCiv's original files but its own copies, so 2,302 tags defined only there counted as defined. The list gained a `game` column, the first BtS, Warlords or vanilla layer defining each tag, and the check counts only those. No key in use depended on it yet; a SAS copy deleted later would have.
@@ -37853,7 +37854,7 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
 
 <a id="ki-1086"></a>
 
-## KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception
+## KI#1086 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception
 
 - Seen on 2026-11-13 during a SASPilot UI demo: after typing "galley" in the Sevopedia search box, Down on the Index page raised `SevoPediaMain instance has no attribute 'COLOR_HIGHLIGHT_TEXT'`. A player pressing Down there gets the same.
   - On 2026-10-20 SAS moved the Sevopedia's colors from `SevoPediaMain` attributes into `SASVisuals.Color`, but [`SevoPediaIndex.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py) kept reading `self.top.COLOR_HIGHLIGHT_TEXT` in its keyboard cursor.
@@ -37863,11 +37864,11 @@ Found by Claude code Opus 5.5 on 2026-11-13, while playing through the pilot.
   - Run against the old `SevoPediaIndex.py`, it reports this line; an audit of the 74 names the pages read found no other.
   - It reads the files with Python's tokenizer, after Codex's review showed that a first draft, which cut comments by hand, could take a string for code.
 
-Found by Claude code Opus 5.5 on 2026-11-13, through the pilot's desktop demo.
+Found by Claude code Opus 5.5 on 2026-11-13, through SASPilot's desktop demo.
 
 <a id="ki-1087"></a>
 
-## KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception
+## KI#1087 - (Fixed AdvCiv-SAS bug, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception
 
 - Found on 2026-11-13 while answering Codex's review of [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085), which noted that the text-key check cannot see keys built at run time. Looking for families keyed by unit combat types led to BUG's Unit Naming.
   - For each unit it names, `UnitNameEventManager.py` asks for the option `Combat_<type>`, and BUG raises `ConfigError` for an option it does not know. Unit Naming is off by default, so only players who turn it on in the BUG menu meet it.
@@ -37884,20 +37885,20 @@ Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) 
 
 ## KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game
 
-- Seen on 2026-11-13 while testing the pilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `SASPilotClient.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
+- Seen on 2026-11-13 while testing SASPilot's trade table on a Small Pangaea save at turn 148 (`sas_pilot_fogplay_t148`), loading the same save again with `SASPilotClient.py menu path=`. Civ4 showed its "Program Execution Problem" prompt twice.
   - **First crash:** in the DLL, during teardown: `CvPlayer::reset`, `CvPlayer::uninit`, then `FFreeListTrashArray<CvPlotGroup>::removeAll` read the first entry of a player's plot-group list and found the object pointer `0xFFFFFFFF`, faulting at address `ffffffff`. That client had loaded once before while a diplomacy screen was open.
   - **Second crash:** in the EXE, reading `ff800003`, a float-like value where a pointer should be. On the stack were `getDiplomacyScreen` and, as in [KI#1084](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1084), `CvPlayer::nextUnit` with `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`.
-    - It came on the fourth load made while a diplomacy screen was open; the pilot's new refusal had been saved but not yet reloaded by the game.
+    - It came on the fourth load made while a diplomacy screen was open; SASPilot's new refusal had been saved but not yet reloaded by the game.
 - What separated the loads, in two clients on the same save:
   - **Screen closed first:** 8 of 8 loads worked, five of them right after a trade made through the screen.
   - **Screen open:** the screen stayed open over the reloaded game with the old partner and offers each time, and 1 of 4 loads crashed.
-- A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only the pilot's `menu path=` could load past it.
+- A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only SASPilot's `menu path=` could load past it.
 - The SASPilot work, on its own branch as of 2026-11-16, avoids it: its `SASPilotCommands.py` `menu` refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
 - Dumps, each with the DLL and PDB of the Debug-opt build that crashed, outside the repository:
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups`: the first crash, a normal dump (22 MB), so the heap and the plot-group list cannot be read.
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
 
-Found by Claude code Opus 5.5 on 2026-11-13, while testing the pilot's trade table; wonderingabout saw both crashes and asked for full dumps.
+Found by Claude code Opus 5.5 on 2026-11-13, while testing SASPilot's trade table; wonderingabout saw both crashes and asked for full dumps.
 
 <a id="ki-1089"></a>
 
@@ -37977,7 +37978,7 @@ Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091'
 
 <a id="ki-1092"></a>
 
-## KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out
+## KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out
 
 - The Summary tab's upgradeable units (count and Min/Avg/Max/Total cost), added by SAS, tested each unit's XML upgrade classes only. The game's `CvUnit::upgradeAvailable` follows the chain: an Archer, whose XML upgrade is the Longbowman, may upgrade straight to Musketman once Longbowmen are past.
 - Found through the SASPilot work, on its own branch, at turn 265 of its modern-era baseline (Large Pangaea, 2026-11-14), comparing its new `military` command with the screen: the Summary showed 24 units for 2,574 gold, while `canUpgrade` allowed an Archer, a War Elephant, an Axeman and a Galley as well.
@@ -37989,7 +37990,7 @@ Found by Claude Code Opus 5.5 during a visual pass over the advisors that the us
 
 <a id="ki-1093"></a>
 
-## KI#1093 - (Fixed in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
+## KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
 
 - Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
 - Found through the SASPilot work, on its own branch, at turn 291 of its modern-era baseline (2026-11-14): two `SASPilotClient.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
@@ -37999,3 +38000,19 @@ Found by Claude Code Opus 5.5 during a visual pass over the advisors that the us
   - Other floats lose precision the same way, so SASPilot keeps integers where exactness matters, such as a rival's power ratio in per mille (1489 for 1.489, which came back as 1.4889999628067017 as a float).
 
 Found by Claude Code Opus 5.5 while asking Kublai Khan for peace through SASPilot.
+
+<a id="ki-1094"></a>
+
+## KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on
+
+- Found through the SASPilot work, on its own branch, at turns 291 and 292 of its modern-era baseline (Large Pangaea, 2026-11-14), after Kublai Khan, who had just completed the Internet, declared war and took three cities.
+  - On the diplomacy screen, "Suggest peace" made Kublai offer a plain peace treaty (`AI_DIPLOCOMMENT_TRY_THIS_DEAL`); accepting it answered "We're glad you accepted our offer.", yet `isAtWar` stayed true, twice, and a later SASPilot `propose` of the same treaty was refused.
+- Cause: `CvDeal::addTradeItems` returns before making peace when `isSASUWAIVictoryDenialPeaceDealBlocked` holds, meaning either team is a configured victory threat (`isSASUWAIVictoryDenialPeaceThreat`: a victory countdown within `SAS_UWAI_VICT_DENY_REFUSE_MAX_T_NORM_GS`, or stage-4 victory, or a stage-3 Space threat). Its comment calls it the final safety guard for human and unusual trade paths.
+  - The AI's own peace paths check the same test first (`CvPlayerAI` peace negotiation and UWAI), but the AI's counter-proposal to a human's request does not, so it offers a treaty the deal then drops, and the screen reports success.
+  - Which of the three criteria Kublai met was not checked.
+- A possible fix would be a trade denial for `TRADE_PEACE_TREATY` under the same test, so the AI neither offers nor accepts it and the screen shows why, as other refusals do; this changes how the victory-denial feature presents itself to players, so it waits for the user's decision.
+
+Found by Claude Code Opus 5.5 while asking for peace through SASPilot.
+
+- Fixed the same day, after the user agreed that the screen's answer should match the decision. A shared test, `isSASVictoryDenialPeaceBundleBlocked` in [CvGameCoreUtils.cpp](/CvGameCoreDLL/CvGameCoreUtils.cpp) (teams at war, a peace treaty in the deal, no surrender, either side a victory-denial threat), is now asked in `CvPlayerAI::AI_counterPropose`, both before it adds a treaty and when one is already on the table (Codex noted that a treaty supplied by the human skips the adding branch), and in `CvPlayerAI::AI_considerOffer`, so a treaty offered by a human or by SASPilot's `propose` is refused too. `CvDeal`'s guard stays as the final safety net; surrender still ends a war.
+- Tested on the turn-292 save with a Debug-opt build: "Suggest peace" to Kublai now answers `AI_DIPLOCOMMENT_NO_PEACE` ("No! Mongolian laws demand that you be further punished for your insolence!") and `propose` returns `accepted: false`, while Isabella, not a victory threat, still offered peace, and accepting it ended that war.

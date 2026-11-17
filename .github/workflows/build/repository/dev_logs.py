@@ -6,6 +6,9 @@
 # A naive regeneration with git log would silently erase them, so a changed log must keep its earlier content as its exact tail, new entries going on top, unless the commit message says "Edit dev log".
 # The files are named anonymized_email: every Author line must be <hidden>.
 # Addresses in message bodies, such as agents' and bots' Co-authored-by and Signed-off-by trailers, stay as their commits wrote them. (Claude code Opus 5.5) -->
+#
+# <!-- custom: Every logged commit must also still be in the checked branch's history: a history rewrite gives new SHAs, and the log would keep citing commits that no longer exist there.
+# On 2026-11-17 main was rewritten twice the same day, once to give SASSaveTransplanter its name in older commits and once to reword KI#1091's message; the SAS log then ended just before the rewritten commits, but a rewrite reaching further back would have left it stale unseen. (Claude code Opus 5.5) -->
 
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ from dll_commit_message import ROOT, commit_id, commits_in_range, event_commits,
 # <!-- custom: The key after anonymized_email_, such as 003_AdvCiv-SAS.txt, names a log across folders and the git_logs to dev_logs rename. (Claude code Opus 5.5) -->
 DEV_LOG = re.compile(r"(^|/)Docs/(?:dev|git)_logs/(?:dev|git)_log_anonymized_email_([^/]+\.txt)$")
 EDIT_MARKER = "Edit dev log"
+LOGGED_COMMIT = re.compile(r"^commit ([0-9a-f]{40})\s*$", re.M)
 
 
 def tree_errors(repo: Path) -> list[str]:
@@ -34,6 +38,17 @@ def tree_errors(repo: Path) -> list[str]:
         for number, line in enumerate((repo / path).read_text(encoding="utf-8").splitlines(), 1):
             if line.startswith("Author:") and not line.endswith(" <hidden>"):
                 errors.append(f"{path}:{number}: author is not anonymized: {line.strip()[:120]}")
+    return errors
+
+
+def history_errors(repo: Path, head: str) -> list[str]:
+    # <!-- custom: One rev-list of the whole branch, as the logs hold thousands of commits; the CI checkout fetches full history (fetch-depth 0), so a missing commit means it left the history, not a shallow clone. (Claude code Opus 5.5) -->
+    history = set(git(repo, "rev-list", head).decode("utf-8").split())
+    errors = []
+    for path in sorted(repo.glob("*/Docs/dev_logs/dev_log_anonymized_email_*.txt")):
+        missing = [sha for sha in LOGGED_COMMIT.findall(path.read_text(encoding="utf-8")) if sha not in history]
+        if missing:
+            errors.append(f"{path.relative_to(repo).as_posix()}: {len(missing)} logged commit(s) not in {head}'s history, first {missing[0][:12]}; after a history rewrite, replace the old SHAs with the new ones from the rewrite's map, keeping the entries' hand edits, and say \"{EDIT_MARKER}\" in the message")
     return errors
 
 
@@ -83,7 +98,7 @@ def commit_errors(repo: Path, commit: str) -> list[str]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Keep the dev logs' authors anonymized and their hand-edited entries intact.")
+    parser = argparse.ArgumentParser(description="Keep the dev logs' authors anonymized, their hand-edited entries intact and their commits in the branch's history.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--base-ref", help="explicit range base; omitted for a local single-commit check")
     parser.add_argument("--head-ref", default="HEAD")
@@ -100,7 +115,7 @@ def main():
             raise RuntimeError("push/PR checks require --event-path or --base-ref; refusing to check only the last commit")
         else:
             commits = [commit_id(args.repo_root, args.head_ref)]
-        errors = tree_errors(args.repo_root) + [error for commit in commits for error in commit_errors(args.repo_root, commit)]
+        errors = tree_errors(args.repo_root) + history_errors(args.repo_root, args.head_ref) + [error for commit in commits for error in commit_errors(args.repo_root, commit)]
     except (RuntimeError, OSError, ValueError, KeyError, TypeError) as exc:
         print(f"FAIL dev logs setup: {exc}")
         return 1

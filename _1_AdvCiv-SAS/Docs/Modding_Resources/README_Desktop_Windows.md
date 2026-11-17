@@ -14,6 +14,8 @@ Expect to update it: these apps change their interfaces often, and every finding
 &emsp;[Updating, quitting and starting Codex](#updating-quitting-and-starting-codex)\
 [VS Code](#vs-code)\
 [The user's Chrome](#the-users-chrome)\
+[The user's Git Bash](#the-users-git-bash)\
+&emsp;[Timestamps and window size](#timestamps-and-window-size)\
 [Claude Code (the Claude desktop app)](#claude-code-the-claude-desktop-app)\
 &emsp;[Claude menus, panels and startup](#claude-menus-panels-and-startup)\
 &emsp;[Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings)\
@@ -173,9 +175,51 @@ When the user asks an agent to look at a page open in their own Chrome, `desktop
   - Why crop them: the other tabs' titles, the address and the bookmarks show what else the user browses, which the task does not need and the user may not want in a chat, a log or a screenshot shared later; they also cost tokens for nothing.
   - `--scale 0.5` is optional: a 4K window at a high display scale draws page text about twice as large as reading needs, so half the size kept the commits page readable at a quarter of the pixels, and so of the tokens. Keep `1.0` for small text or fine detail, such as a tooltip or a dense table.
 - Example (2026-11-17): after a force-push, the user asked an agent to check whether GitHub's commits page still showed CI's red cross. The Claude in Chrome extension was not connected, but a screenshot of the user's open tab showed the checks at once.
-- This only looks: the reasons under [Browsers for agents](#browsers-for-agents) still keep agents from clicking or typing in the user's browser.
+- This only looks: the reasons under [Browsers for agents](#browsers-for-agents) still keep agents from clicking or typing in the user's browser, unless the user asks for a specific action.
+  - Example (2026-11-17): the user opened a ChatGPT chat and let the agent click its "Worked for" line to expand it and scroll through the chat, which it did with `desktop_windows.py click` and `scroll`.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_chrome_page_github_commits.PNG" alt="llm_chrome_page_github_commits.PNG" width="250">
+
+## The user's Git Bash
+
+The user runs Git commands, such as pushes, in Git Bash: Git for Windows' bash shell in its MINGW64 environment, shown in a `mintty` terminal window whose title starts with `MINGW64:` and the current folder.
+
+The window belongs to the `mintty` process: `Get-Process mintty | Where-Object MainWindowHandle -ne 0` finds it, and `desktop_windows.py screenshot --pid <PID>` reads what the user ran and Git's answers.
+
+- This is handy because the user's own commands appear nowhere else an agent can look: Claude Code and Codex see only the commands they run themselves, while the user's amends, pushes and force-pushes happen in this window. An agent can otherwise only infer them from changed SHAs or a branch's reflog.
+- A minimized window gives only its title bar, at about (-32000, -32000), where Windows parks minimized windows; ask the user to restore it.
+- Example (2026-11-17): after rewording a pushed commit's message, Claude Code Opus 5.5 told the user that a force push was needed, assuming GitHub still had the old commits.
+  - The user had already force-pushed from this window, which the agent could not see, and asked why it was needed. Only then did the agent check GitHub with `git ls-remote origin refs/heads/main`, which showed the reworded commits already there.
+  - The window also cleared an earlier puzzle: it showed `+ 44c774063...58e821b28 main -> main (forced update)`, so a commit had come back under another SHA because the user had amended it, adding a later guide edit, and force-pushed.
+  - The gap was the agent's: it stated GitHub's state from memory instead of asking GitHub, and it did not think of reading the user's window until the user suggested it. Check the remote before telling the user to push, and read this window when the user's own Git steps matter.
+
+### Timestamps and window size
+
+Set up on 2026-11-17 in the user's home folder, after reading the window showed two gaps: its pushes carried no time, so the agent could not tell which of several it was, and the window always reopened small.
+
+- **Timestamps:** `~/.bashrc`, which did not exist before, holds one line:
+
+  ```bash
+  PS1='\[\033[90m\]\D{%Y-%m-%d %H:%M:%S}\[\033[0m\] '"$PS1"
+  ```
+
+  - It puts the date and time in grey before Git Bash's own prompt, which starts with a line break, so the time sits on its own line above `PC@…`. The time is when the prompt appeared, so it marks when the previous command, such as a push, finished.
+  - On the next start, Git for Windows warned once, in red, that it found `~/.bashrc` but no `~/.bash_profile`, and created a `~/.bash_profile` that loads it. That message does not come back.
+- **Window size:** before, each window opened at mintty's stock 80 × 24 characters, about 930 × 540 pixels on this screen. `~/.minttyrc`, also new, sets `Columns=160` and `Rows=48`, about 1,810 × 1,020 pixels.
+  - The title bar's **Options… → Window → Current size** saves a resized window as the default, into the same file.
+- **Command record:** the same `~/.bashrc` sends bash's history to `Downloads/AdvCiv-SAS_LLM/git_bash_history/bash_history.txt`, outside the repo, so agents can read the user's commands as text, including ones that have scrolled off or ran in a window since closed.
+  - Bash used to save only the last 500 commands, in `~/.bash_history`, and only when a window closed. Now each command is written as it runs (`PROMPT_COMMAND="history -a…"`), with a `#` line holding its Unix time before it (`HISTTIMEFORMAT`), and up to 100,000 are kept; the old 500 seeded the file.
+  - It records commands, not their output; the window itself still shows Git's answers.
+  - In Python, `datetime.datetime.fromtimestamp(int(line[1:]))` turns a `#1794919573` line into the local time.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_gitbash_timestamped_prompt_160x48.PNG" alt="llm_gitbash_timestamped_prompt_160x48.PNG" width="250">
+
+- **What failed first:** the agent gave the `.bashrc` line as an `echo ... >> ~/.bashrc` command in a code block. It ran in PowerShell rather than Git Bash, probably through the app's Run button, whose terminal is PowerShell.
+  - PowerShell's `>>` wrote the file in UTF-16, starting with a byte-order mark, and its quoting dropped the `"$PS1"` part, so bash read a garbled first line and stopped: `bash: ��PS1=… \: No such file or directory`, shown under the one-time warning.
+  - The agent then rewrote the file in UTF-8 from its own Git Bash shell and tested it in a login shell before the user reopened the window.
+  - So write Git Bash files from Git Bash, and say "in Git Bash" beside a command meant for it.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_gitbash_bashrc_written_by_powershell.PNG" alt="llm_gitbash_bashrc_written_by_powershell.PNG" width="250">
 
 ## Claude Code (the Claude desktop app)
 

@@ -57,5 +57,14 @@ class DevLogTests(unittest.TestCase):
         self.assertEqual(len(checker.tree_errors(self.repo)), 1)
 
 
+    def test_logged_commits_must_be_in_the_history(self):
+        # <!-- custom: The fixture's own first commit is in its history; 1111... stands for a commit a rewrite replaced. (Claude code Opus 5.5) -->
+        real = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.repo, text=True).strip()
+        self.commit(LOG, NEW.replace("2" * 40, real), "Log a real commit")
+        self.assertEqual(checker.history_errors(self.repo, "HEAD"), [])
+        self.commit(LOG, NEW.replace("2" * 40, real) + OLD, "Log a rewritten commit")
+        self.assertEqual(len(checker.history_errors(self.repo, "HEAD")), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
