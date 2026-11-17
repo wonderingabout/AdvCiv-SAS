@@ -1069,13 +1069,14 @@ class CvMilitaryAdvisor:
 		iNumUnitClasses = gc.getNumUnitClassInfos()
 		dUpgradeTargets = {}
 
-		def getUpgradeTargets(iUnitType):
+		# <!-- custom: Each unit's direct upgrade classes only were tested, so an Archer, whose XML upgrade is the Longbowman, was not counted although the game lets it upgrade straight to Musketman once Longbowmen are past: at turn 265 of the SASPilot work's modern-era baseline (2026-11-14) the Summary showed 24 upgradeable units while the game allowed 4 more (an Archer, a War Elephant, an Axeman and a Galley).
+		# CvUnit::upgradeAvailable follows the chain as canUpgrade does, so it decides here too; pUnit is any unit of that type, as the answer depends only on the type and the owner's civilization, which keeps the per-type cache valid. See KI#1092. (Claude code Opus 5.5) -->
+		def getUpgradeTargets(iUnitType, pUnit):
 			if iUnitType in dUpgradeTargets:
 				return dUpgradeTargets[iUnitType]
-			pUnitInfo = gc.getUnitInfo(iUnitType)
 			aTargets = []
 			for iClass in range(iNumUnitClasses):
-				if pUnitInfo.getUpgradeUnitClass(iClass):
+				if pUnit.upgradeAvailable(iUnitType, iClass, 0):
 					iToUnit = pCivInfo.getCivilizationUnits(iClass)
 					if iToUnit >= 0 and pPlayer.canTrain(iToUnit, False, False):
 						aTargets.append(iToUnit)
@@ -1245,7 +1246,7 @@ class CvMilitaryAdvisor:
 					else:
 						iInNeutral += 1
 
-			aTargets = getUpgradeTargets(iUnitType)
+			aTargets = getUpgradeTargets(iUnitType, pUnit)
 			if aTargets:
 				iUpgradeable += 1
 				iCheapest = -1

@@ -1268,7 +1268,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1090 - (Fixed inherited vanilla Civ4 Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
 [KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)\
 [KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
-[KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)
+[KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
+[KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)
 
 <a id="ki-1"></a>
 
@@ -37972,3 +37973,15 @@ Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.
 - Fixed by passing `None` on as null in all ten. Guarded by [`python_wrapper_null_args.py`](/.github/workflows/README.md#buildsourcepython_wrapper_null_argspy): run against the files before these fixes, it finds all 18 arguments of KI#1091 and KI#1091.2.
 
 Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091's pattern while bringing it over from the SASPilot work, after wonderingabout agreed to fix the pattern rather than the one case.
+
+<a id="ki-1092"></a>
+
+## KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out
+
+- The Summary tab's upgradeable units (count and Min/Avg/Max/Total cost), added by SAS, tested each unit's XML upgrade classes only. The game's `CvUnit::upgradeAvailable` follows the chain: an Archer, whose XML upgrade is the Longbowman, may upgrade straight to Musketman once Longbowmen are past.
+- Found through the SASPilot work, on its own branch, at turn 265 of its modern-era baseline (Large Pangaea, 2026-11-14), comparing its new `military` command with the screen: the Summary showed 24 units for 2,574 gold, while `canUpgrade` allowed an Archer, a War Elephant, an Axeman and a Galley as well.
+  - Running the screen's own rule in the game gave the same 24, so the difference was the rule, not the data.
+  - The screen also counts units that cannot upgrade where they stand, such as two Galleons at sea; that is by design, as it shows what could be upgraded, while SASPilot's `military` lists what can be now.
+- Fixed in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py): the targets come from `upgradeAvailable`, still cached per unit type, as the answer depends only on the type and the owner's civilization.
+
+Found by Claude Code Opus 5.5 during a visual pass over the advisors that the user suggested, to see what SASPilot was missing.
