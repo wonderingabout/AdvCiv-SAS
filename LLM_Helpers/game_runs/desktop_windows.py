@@ -224,6 +224,7 @@ def click(pid, x, y, modifiers=(), double=False):
 	# <!-- custom: Codex's 2026-11-10 review found that click pressed the mouse even when the window had not come to the front or the point lay outside it, so the click could land in whatever window was there, such as the user's.
 	# Check the bounds, the foreground window and the window under the point before pressing; a Civ4 popup is a separate window of the same process, so the last check compares processes, not handles. (Claude Code Opus 5.5) -->
 	hwnd, screen_x, screen_y = window_point(pid, x, y)
+	previous = USER32.GetForegroundWindow()
 	foreground = bring_to_front(hwnd, pid)
 	if window_pid(foreground) != pid:
 		raise RuntimeError("process %d's window did not come to the front; the foreground window belongs to process %d" % (pid, window_pid(foreground)))
@@ -232,6 +233,14 @@ def click(pid, x, y, modifiers=(), double=False):
 		raise RuntimeError("screen point %d,%d is covered by a window of process %d" % (screen_x, screen_y, window_pid(under) if under else 0))
 	USER32.SetCursorPos(screen_x, screen_y)
 	time.sleep(0.05)
+	# <!-- custom: The idle wait and the checks above all come before the cursor moves, so a user moving the mouse or switching windows in the last instant would send the press somewhere else; check both once more just before pressing.
+	# The user asked for this on 2026-11-17, while working in other windows during an agent's clicks. (Claude code Opus 5.5) -->
+	cursor = wt.POINT()
+	USER32.GetCursorPos(ctypes.byref(cursor))
+	if (cursor.x, cursor.y) != (screen_x, screen_y):
+		raise RuntimeError("the mouse moved to %d,%d before the click at %d,%d; nothing was pressed" % (cursor.x, cursor.y, screen_x, screen_y))
+	if window_pid(USER32.GetForegroundWindow()) != pid:
+		raise RuntimeError("another window came to the front before the click; nothing was pressed")
 	# <!-- custom: Civ4 gives Ctrl-, Shift- and Alt-clicks their own meanings, such as selecting all units of a type or queueing production, so modifiers are held around the click. (Claude Code Opus 5.5) -->
 	# <!-- custom: Presses sit inside the try and only what was pressed is released, so a Ctrl+C mid-click leaves no key or button held, as Codex's 2026-11-11 review reproduced. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	pressed, button_down = [], False
@@ -253,6 +262,10 @@ def click(pid, x, y, modifiers=(), double=False):
 			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
+	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
+	# Hold a moment so the game reads the click on its own frames, as key does, then give the focus back. (Claude code Opus 5.5) -->
+	time.sleep(0.3)
+	give_focus_back(previous, pid)
 	return screen_x, screen_y
 
 

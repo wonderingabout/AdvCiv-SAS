@@ -1271,7 +1271,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
 [KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
 [KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
-[KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)
+[KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
+[KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)
 
 <a id="ki-1"></a>
 
@@ -38016,3 +38017,16 @@ Found by Claude Code Opus 5.5 while asking for peace through SASPilot.
 
 - Fixed the same day, after the user agreed that the screen's answer should match the decision. A shared test, `isSASVictoryDenialPeaceBundleBlocked` in [CvGameCoreUtils.cpp](/CvGameCoreDLL/CvGameCoreUtils.cpp) (teams at war, a peace treaty in the deal, no surrender, either side a victory-denial threat), is now asked in `CvPlayerAI::AI_counterPropose`, both before it adds a treaty and when one is already on the table (Codex noted that a treaty supplied by the human skips the adding branch), and in `CvPlayerAI::AI_considerOffer`, so a treaty offered by a human or by SASPilot's `propose` is refused too. `CvDeal`'s guard stays as the final safety net; surrender still ends a war.
 - Tested on the turn-292 save with a Debug-opt build: "Suggest peace" to Kublai now answers `AI_DIPLOCOMMENT_NO_PEACE` ("No! Mongolian laws demand that you be further punished for your insolence!") and `propose` returns `accepted: false`, while Isabella, not a victory threat, still offered peace, and accepting it ended that war.
+
+<a id="ki-1095"></a>
+
+## KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped
+
+- AdvCiv's advc.056 (pre-SAS practical 1832, 2019-11-29) lets [CvWBDesc.py](/Assets/Python/pyWB/CvWBDesc.py) read a WorldBuilder file written with fewer player slots than the running build, padding the rest with empty players.
+  - It set `deadPlayer.neverAlive = True` on each, while `CvPlayerDesc` defines `bNeverAlive` and `getAssignedStartingPlots` skips a slot only when `pWBPlayer.bNeverAlive` is set; nothing reads `neverAlive`.
+- A 4986 world has 18 player slots and the current build 48, so 30 slots were padded when SASSaveTransplanter, on its own branch, loaded one. No effect was observed: a padded slot has no leader and no starting plot, so the starting-plot pass did nothing for it anyway. The flag matters if that pass, or another reader, ever does more for such slots.
+- Fixed by setting `bNeverAlive`.
+  - Tested on 2026-11-17 by loading an 18-slot WorldBuilder save from SASSaveTransplanter's runs (`sas4986_249/transplant.CivBeyondSwordWBSave`) in the 48-slot build with `/FXSLOAD`: through its Civilization, Your Details and Game Snapshot steps, it started at turn 0 with `WB_READ_END`, `WB_MAP_APPLY_END` and `WB_INITIAL_ITEMS_APPLY_END` all `SUCCEEDED` and no Python error.
+  - That shows the padding path still loads; the flag itself has no visible effect, as above.
+  - It was not compared with the unfixed code: a run without the fix would look the same, since the padded slots have no leader or starting plot. Telling the two apart would take a temporary log line counting the skipped slots, expected 0 without the fix and 30 with it, which was not run.
+- Found and fixed by ChatGPT-5.6-Sol while tracing SASSaveTransplanter's path through advc.056, in the candidate it handed over ("I also found a tiny inherited bug directly on that path"); Claude code Fable 5.2 brought it into the SASSaveTransplanter work, on its own branch, on 2026-11-16, and the fix stands on its own.
