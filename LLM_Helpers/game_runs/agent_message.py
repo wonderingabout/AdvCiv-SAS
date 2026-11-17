@@ -166,7 +166,8 @@ def claude_step(record, state):
 TURN_STEPS = {"codex": codex_step, "claude": claude_step}
 
 
-def reply_since(app, before, marker):
+def reply_since(app, before, marker, seen=None):
+	# <!-- custom: seen, when given, gets "arrived" set once our message shows in the log, so wait_reply can stop early when a send never landed. (Claude code Opus 5.5) -->
 	# <!-- custom: Read only what each log gained since the send.
 	# Returns None until the turn holding our message ends, then (True, answer, later_message), with answer None if that turn gave no final answer and later_message set if another human message came first (Claude Code only).
 	# The first version returned at the first "task_complete" in any watched log.
@@ -189,19 +190,27 @@ def reply_since(app, before, marker):
 			result = TURN_STEPS[app](json.loads(line), state)
 			if result is not None:
 				return result + (state.get("later_message", False),)
+		if seen is not None and state["found"]:
+			seen["arrived"] = True
 		# <!-- custom: Codex's live test also found that a log ending right after Claude Code's final text kept waiting for one more record; a complete end_turn answer is enough. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 		if state.get("ending") and state["answer"]:
 			return (True, state["answer"], state.get("later_message", False))
 	return None
 
 
-def wait_reply(app, before, marker, timeout):
+def wait_reply(app, before, marker, timeout, arrival_timeout=120):
 	# <!-- custom: On 2026-11-11 Claude Code waited for a Codex review with a shell loop on the newest log, so neither agent nor user had to check Codex's window or guess how long to wait; this keeps that loop, and works the other way for Codex waiting on Claude Code. (Claude Code Opus 5.5) -->
-	deadline = time.time() + timeout
+	# <!-- custom: The reply wait used to watch only for the turn's end, so a message that never reached the app looked like a slow reply: on 2026-11-17 a paste went to the user's window instead of Codex and the wait ran its full 30 minutes.
+	# So the message itself must appear in the app's log within arrival_timeout, 2 minutes by default, as an app logs a message it receives at once; otherwise the wait stops and says the send did not arrive. (Claude code Opus 5.5) -->
+	start = time.time()
+	deadline = start + timeout
+	seen = {"arrived": False}
 	while time.time() < deadline:
-		result = reply_since(app, before, marker)
+		result = reply_since(app, before, marker, seen)
 		if result is not None:
 			return result
+		if not seen["arrived"] and time.time() - start > arrival_timeout:
+			return "NOT_ARRIVED"
 		time.sleep(2)
 	return None
 
@@ -225,6 +234,7 @@ def main():
 	parser.add_argument("--dry-run", action="store_true", help="print the message without sending it")
 	parser.add_argument("--wait-reply", action="store_true", help="after sending, wait until the target app ends the turn holding this message and print its final answer, read from that app's session log")
 	parser.add_argument("--wait-timeout", type=int, default=1800, help="give up waiting for the reply after this many seconds")
+	parser.add_argument("--arrival-timeout", type=int, default=120, help="stop waiting if the message has not appeared in the target app's log after this many seconds, as when the send did not land")
 	args = parser.parse_args()
 	# <!-- custom: The header's middle dot printed as a replacement character in a cp1252 console. (Claude Code Opus 5.5) -->
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -274,7 +284,9 @@ def main():
 	if args.wait_reply:
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding this message..." % name, flush=True)
-		result = wait_reply(args.to, before, message[:message.index(" UTC]") + 5], args.wait_timeout)
+		result = wait_reply(args.to, before, message[:message.index(" UTC]") + 5], args.wait_timeout, args.arrival_timeout)
+		if result == "NOT_ARRIVED":
+			sys.exit("the message did not reach %s: it was not in its log after %d seconds, so check its window and where the paste went" % (name, args.arrival_timeout))
 		if result is None:
 			sys.exit("no reply from %s within %d seconds" % (name, args.wait_timeout))
 		# <!-- custom: Codex's review found that a turn ending without a final answer exited successfully with an empty reply; say so and fail instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->

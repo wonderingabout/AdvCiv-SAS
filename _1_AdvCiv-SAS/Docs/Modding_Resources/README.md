@@ -528,6 +528,7 @@ Installed, as checked on 2026-11-08:
 | Python 2.4.4 (`C:\Python24\python.exe`) | Compile checks with Civ4's Python version; see [Python 2.4 compatibility](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) |
 | Pillow 13.0 (`py -m pip install pillow`, for both `py` and `python`) | Opening `.tga` and `.dds` files, so an agent can look at buttons and fonts as images; installed on 2026-11-08; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) |
 | PyFFI 2.2.3, setuptools and numpy (`py -m pip install pyffi setuptools numpy`) | Reading and drawing `.nif` models for [`nif_preview.py`](/LLM_Helpers/README.md#nif_previewpy); PyFFI and setuptools installed on 2026-11-08, numpy already present |
+| pyte 0.8.2 (`python -m pip install pyte`) | A terminal emulator in pure Python: [`git_bash_history.py --output`](/LLM_Helpers/README.md#git_bash_historypy) replays the user's Git Bash window logs through it to get the text the window showed; installed on 2026-11-17. Useful for any recorded terminal output, not for Civ4 itself |
 | Node.js (`npx`) | `npx markdownlint-cli2@0.23.2`, the same Markdown lint CI runs |
 | Ruff (`py -m ruff`) | Python lint reports; see [Ruff](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report) |
 | Git, ripgrep (`rg`) | History and search |
@@ -613,7 +614,7 @@ py -m ruff check PrivateMaps/ --output-format=grouped > ruff_privatemaps_all_gro
 
 Example of how i used it:
 
-```powershell
+```console
 Windows PowerShell
 Copyright (C) Microsoft Corporation. Tous droits réservés.
 
@@ -669,7 +670,7 @@ For example, to solve E101, an easy and clean way we used is to collapse those l
 
 Example:
 
-```powershell
+```console
 Windows PowerShell
 Copyright (C) Microsoft Corporation. Tous droits réservés.
 

@@ -219,7 +219,9 @@ def bring_to_front(hwnd, pid, allow_click=True):
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y, modifiers=(), double=False):
+def click(pid, x, y, modifiers=(), double=False, give_back=False):
+	# <!-- custom: give_back returns the focus to the user's window after the click.
+	# Only the command line sets it: paste calls click first, and giving the focus back there made Ctrl+V land in the user's window on 2026-11-17. (Claude code Opus 5.5) -->
 	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: Codex's 2026-11-10 review found that click pressed the mouse even when the window had not come to the front or the point lay outside it, so the click could land in whatever window was there, such as the user's.
 	# Check the bounds, the foreground window and the window under the point before pressing; a Civ4 popup is a separate window of the same process, so the last check compares processes, not handles. (Claude Code Opus 5.5) -->
@@ -263,9 +265,12 @@ def click(pid, x, y, modifiers=(), double=False):
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
 	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
-	# Hold a moment so the game reads the click on its own frames, as key does, then give the focus back. (Claude code Opus 5.5) -->
-	time.sleep(0.3)
-	give_focus_back(previous, pid)
+	# Only the click command does it, through give_back: paste calls click to focus a message box before pressing Ctrl+V, and when click gave the focus back first, three pastes meant for Codex went to the user's window instead, the same day.
+	# Scripts chaining clicks, such as set_dropdown.py opening a dropdown and then picking an option, keep the focus between them too. (Claude code Opus 5.5) -->
+	if give_back:
+		# <!-- custom: Hold a moment so the game reads the click on its own frames, as key does, before giving the focus back. (Claude code Opus 5.5) -->
+		time.sleep(0.3)
+		give_focus_back(previous, pid)
 	return screen_x, screen_y
 
 
@@ -897,7 +902,7 @@ def main():
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
 		if args.command == "click":
-			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double))
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
 		else:
 			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
 	elif args.command == "drag":

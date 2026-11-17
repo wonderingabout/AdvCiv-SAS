@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 203 - SAS practical 6772
 
 - **Date:** 2026-11-17
-- **Git commit:** pending
+- **Git commit:** `1d6a223865cbe2c13e008f9fd6c30f1dc7823f02`
 - **Change:** No change to the record: the revision check now ignores line-ending-only changes (`git diff --ignore-cr-at-eol`). The line-ending conversion restaged three GlobalDefines files whose `GAME_RECORD` lines then counted as changed, so GitHub failed that commit for lacking this bump. See KI#1097.
 
 ### Revision 202 - SAS practical 6756

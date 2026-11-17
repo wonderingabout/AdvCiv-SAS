@@ -1795,7 +1795,7 @@ git.exe -C "...\Mods\AdvCiv-SAS" status --short --untracked-files=no
 
 So the answers map almost directly to:
 
-```bash
+```text
 show ... %H       -> 5234f5012d74...
 show ... %cI      -> 2026-08-31T13:54:54+02:00
 abbrev-ref        -> main

@@ -36,7 +36,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the six groups below |
 | `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open |
-| `game_runs/`: driving windows | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
+| `game_runs/`: driving windows | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`git_bash_history.py`](#git_bash_historypy) prints the commands the user ran in Git Bash |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
 | `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet |
@@ -172,6 +172,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`run_autoplay.py`](#run_autoplaypy)
     - [`desktop_windows.py`](#desktop_windowspy)
     - [`agent_message.py`](#agent_messagepy)
+    - [`git_bash_history.py`](#git_bash_historypy)
     - [`civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy)
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
@@ -1185,7 +1186,7 @@ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 
 In the tested broad PrivateMaps pass, this produced a high-impact Ruff cleanup: for example, `Wheel.py` dropped from roughly 400 Ruff findings to 15, while the staged diff was still mostly mechanical whitespace-only matrix indentation replacement.
 
-```bash
+```text
 LLM_Helpers/formatting/fix_matrix_indent.py     |  290 ++++++++
 PrivateMaps/Archipelago.py           |  186 +++---
 PrivateMaps/BTG_Lagoon.py            |  220 +++----
@@ -1784,7 +1785,8 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 - `click`, `drag`, `key`, `type` and `paste` first wait until the user has been idle for 3 seconds (`--idle-seconds`, `0` skips it), since taking the focus while the user types sends their keystrokes to the target: on 2026-11-11 the user's typing put "ntwt" in Civ4's autoplay turn box.
 - The idle wait belongs to the command line only. A script calling `desktop_windows.click` and friends directly gets none, so call `wait_for_idle_user` before each step, not once per batch: on 2026-11-12 a batch that waited once at its start sent eight filter clicks while the user moved the mouse, and from the second click on they hit the main map instead of the city screen.
 - `click --with ctrl` (or `shift`, `alt`, repeatable) holds the key during the click, as Civ4's Ctrl-, Shift- and Alt-clicks on units and production need, and `click --double` double-clicks, which opens a city from its banner.
-- Since 2026-11-17, `click` checks once more, just before pressing, that the cursor is still on its point and the target still in front, and refuses otherwise; afterwards it gives the focus back to the window that was in front, as `key`, `type` and `paste` already did. The user, working in VS Code during an agent's clicks, had found Civ4 left in front.
+- Since 2026-11-17, `click` checks once more, just before pressing, that the cursor is still on its point and the target still in front, and refuses otherwise. The `click` command then gives the focus back to the window that was in front, as `key`, `type` and `paste` already did: the user, working in VS Code during an agent's clicks, had found Civ4 left in front.
+  - Code calling `desktop_windows.click` keeps the focus, unless it passes `give_back=True`: `paste` clicks a message box before pressing Ctrl+V, and when every click gave the focus back, three pastes meant for Codex went to the user's window instead, the same day. Scripts chaining clicks, such as `set_dropdown.py`, also need the focus to stay.
 - `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
   - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
   - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
@@ -1833,6 +1835,58 @@ python LLM_Helpers/game_runs/agent_message.py --to claude --sender "Codex GPT-6.
 ```
 
 - Added with help of Claude Code Opus 5.5.
+
+#### `git_bash_history.py`
+
+Prints what the user did in Git Bash (Git for Windows' MINGW64 bash, in a `mintty` window) since a given time.
+
+- By default it prints the commands, from the record `~/.bashrc` writes to `Downloads/AdvCiv-SAS_LLM/git_bash_history/bash_history.txt`; with `--output`, the windows' full text, from the logs `~/.minttyrc` writes beside it.
+- With `--vscode`, it prints the Git actions the user took in VS Code's Source Control panel instead, such as staging, amending or pushing, from the Git log VS Code keeps; see [Git in VS Code and other tools](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#git-in-vs-code-and-other-tools), which also names the checks that work whatever tool the user used.
+- See [The user's Git Bash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-git-bash) for the setup.
+
+- Agents' own apps show only the commands they run themselves, so this is how they see the user's amends, pushes and force-pushes before assuming what reached GitHub. On 2026-11-17 an agent told the user to force-push what the user had already pushed.
+- Both keep everything, so the view is chosen when reading, with `--since`: `today` (the default), `boot` (since Windows started), a number of hours or minutes such as `2h` or `30m`, or a time such as `2026-11-17T13:00`.
+  - The record's first 500 commands, seeded from the old `~/.bash_history`, have no times, so every view skips them.
+  - A window opened before the setup writes to neither, and saves its commands the old way when it closes, so an empty result can mean that rather than no commands.
+- The record's time is when a command was entered; it holds only commands that ran, so a line cancelled with Ctrl+C is not in it. Sample, from a test window on 2026-11-17 (`--since 2026-11-17T19:04`); the last line, the count, goes to standard error:
+
+```text
+2026-11-17 19:04:53  git log --oneline -1XX
+2026-11-17 19:05:08  echo before clear
+2026-11-17 19:05:12  clear
+2026-11-17 19:05:27  git diff --stat -- Assets/XML/GlobalDefines_advciv_sas.xml
+2026-11-17 19:05:52  git log --oneline -1
+2026-11-17 19:06:11  exit
+6 command(s) since 2026-11-17 19:04:00, of 9 timed in the record
+```
+
+- `--output` prints the windows' full text instead, Git's answers included, from the per-window logs `~/.minttyrc` writes (`window_<time it opened>.log` in the same folder). Each block starts at the time line before a prompt, so its time is when the prompt appeared.
+  - It needs [pyte](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers), a terminal emulator in pure Python: a log is the raw stream sent to the window, not the text it shows.
+    - The first version only stripped the stream's control codes; a prompt then merged with the command typed after it, and long `git log` lines lost text in the middle, as readline redraws an edited line and Git rewrites its progress lines with cursor moves.
+    - Replaying the stream on pyte's screen, as wide as the window (`--columns`, 160 by default, as in `~/.minttyrc`), gives what the window showed: an edited command in its final form, Ctrl+C as `^C`, progress lines in their last state.
+  - `clear` wipes the screen, so the reader keeps the rows it wiped, or a push followed by `clear` would vanish.
+  - Sample, from the same test window, shortened to its last blocks and with the folder path shortened to `…/AdvCiv-SAS`:
+
+```console
+2026-11-17 19:04:53
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ echo this line is cancelled^C
+2026-11-17 19:05:08
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ clear
+2026-11-17 19:05:12
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ git diff --stat -- Assets/XML/GlobalDefines_advciv_sas.xml
+warning: in the working copy of 'Assets/XML/GlobalDefines_advciv_sas.xml', CRLF will be replaced by LF the next time Git touches it
+ Assets/XML/GlobalDefines_advciv_sas.xml | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+```
+
+```bash
+python LLM_Helpers/game_runs/git_bash_history.py --since boot
+python LLM_Helpers/game_runs/git_bash_history.py --output --since 2h
+python LLM_Helpers/game_runs/git_bash_history.py --vscode --since today
+```
 
 #### `civ4_ui_map.json`, `capture_dropdowns.py` and `set_dropdown.py`
 
