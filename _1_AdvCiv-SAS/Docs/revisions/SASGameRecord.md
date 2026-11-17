@@ -113,6 +113,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 203 - SAS practical 6772
+
+- **Date:** 2026-11-17
+- **Git commit:** pending
+- **Change:** No change to the record: the revision check now ignores line-ending-only changes (`git diff --ignore-cr-at-eol`). The line-ending conversion restaged three GlobalDefines files whose `GAME_RECORD` lines then counted as changed, so GitHub failed that commit for lacking this bump. See KI#1097.
+
 ### Revision 202 - SAS practical 6756
 
 - **Date:** 2026-11-16

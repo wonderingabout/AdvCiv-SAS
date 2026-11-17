@@ -152,8 +152,10 @@ def first_parent(repo, commit):
 
 
 # <!-- custom: Moving the LLM_Helpers helpers into folders by job renamed SGR helpers without changing what they do; a rename whose content is identical (R100) is no implementation change, so skip it and keep the new path of a rename that also edits the file. (Claude code Opus 5.5) -->
+# <!-- custom: The line-ending conversion commit restaged three GlobalDefines files whose only change was CRLF to LF, and this check demanded SGR203 for it, since their GAME_RECORD lines showed as changed.
+# --ignore-cr-at-eol drops such files from the list, which the Runtime check shares too. See KI#1097. (Claude code Opus 5.5) -->
 def changed_paths(repo, parent, commit):
-    output = subprocess.check_output(["git", "diff", "--name-status", "--find-renames", parent] + ([commit] if commit else []) + ["--"], cwd=repo).decode("utf-8", "replace")
+    output = subprocess.check_output(["git", "diff", "--name-status", "--find-renames", "--ignore-cr-at-eol", parent] + ([commit] if commit else []) + ["--"], cwd=repo).decode("utf-8", "replace")
     paths = []
     for line in output.splitlines():
         fields = line.split("\t")
@@ -183,7 +185,7 @@ def diff_mentions_recorder(repo, parent, commit, path):
             return re.sub(pattern, lambda m: " " if m.group().startswith(("//", "/*")) else m.group(), text, flags=re.S).splitlines()
         return any(MARKER.search(line[1:]) for line in difflib.unified_diff(code_lines(parent), code_lines(commit), n=0)
                    if line.startswith(("+", "-")) and not line.startswith(("+++", "---")))
-    result = subprocess.run(["git", "diff", "--unified=0", parent] + ([commit] if commit else []) + ["--", path], cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    result = subprocess.run(["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent] + ([commit] if commit else []) + ["--", path], cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if result.returncode != 0:
         return False
     for line in result.stdout.splitlines():

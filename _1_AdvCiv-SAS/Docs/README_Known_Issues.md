@@ -3476,6 +3476,8 @@ This was an accidental file-encoding/configuration failure rather than a DLL or 
 
 Fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+- Update (2026-11-17): the BOM matters both ways. Visual Studio's `AdvCiv.sln` and `AdvCiv.vcxproj` must keep theirs, whose removal once stopped the desktop shortcut from opening the project; [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097) kept it when converting the `.sln`'s line endings.
+
 <a id="ki-38.5"></a>
 
 ## KI#38.5 - (Fixed/Diagnosed DLL build-tooling defect) fastdep access-violated on a redundant include with a trailing custom comment
@@ -38173,3 +38175,38 @@ Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
   - Tools that rewrite a whole file, such as `sed -i` in Git Bash or PowerShell's `Set-Content`, can switch its endings; LLM_Helpers' editing helpers keep each file's style.
 
 Noticed by wonderingabout, who also recalled the 2026-04-12 workaround that traced it back; the check by Claude code Opus 5.5.
+
+- Update (2026-11-17, the commit after): each kind of text file now has one line-ending style, stored and checked out alike, so the endings no longer depend on each clone's settings.
+  - `.gitattributes` gained `* text=auto eol=lf`: Git stores and checks out text as LF whatever a clone's `core.autocrlf`, and leaves binary files alone.
+  - Five kinds stay CRLF everywhere, marked `-text` so Git never converts them:
+    - `.thm` theme files: the Civ4 EXE parses them itself, all 25 had always been CRLF, and whether it reads LF themes was never tried.
+    - `.bat` and `.cmd`: Windows' command interpreter can misread LF-only batch files, for example when jumping to labels.
+    - `.sln` and `.vcxproj`: Visual Studio's project files, which build the DLL and are traditionally CRLF; `AdvCiv.sln` had been stored LF and became CRLF, like its kind.
+      - It keeps its UTF-8 BOM, whose removal once stopped the desktop shortcut from opening the project (AGENTS.md). The BOM is three bytes at the start of a file and line endings are bytes at each line's end, so converting one never touches the other; the working copy VSLauncher opens had been CRLF all along.
+      - The BOM matters both ways: [KI#38.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.4) is the opposite case, where a pasted BOM stopped Civ4's XML parser loading `GlobalDefines_advciv_sas.xml`.
+  - The agent first kept those kinds stored as LF but checked out as CRLF (`text eol=crlf`), Git's usual setup for Windows files. The user found that mix inconsistent: a kind CRLF on disk but LF in the repository. So each kind now has one style everywhere, either explicitly CRLF or the LF rule.
+  - 72 files stored as CRLF were converted to LF once (45 XML, 19 Python and 8 others), with no text change; the commit says "Convert line endings", so `line_ending_churn.py` accepts it.
+    - A `.git-blame-ignore-revs` naming the conversion was prepared, as Codex (GPT-6.1-Sol) suggested, so `git blame` would look past it and credit each line of the 72 files to whoever wrote it.
+      - Tested before committing, blame then credited every other line of the commit to unrelated older commits, even lines it added: `* text=auto eol=lf` went to `8c043c71e`, which never wrote it, and the revision-check fix (SGR203) to the commits around it.
+      - Neither AdvCiv nor K-Mod uses such a file, so it was dropped: blame shows the conversion as it is, and GitHub's "View blame prior to this change" steps past it in one click.
+      - After deciding, the user wondered how much blame history there was to keep anyway, since SAS is recent and nothing reaches back to the 2006 game. Measured on the 73 converted files: before the conversion, their 48,965 lines were credited to 640 commits.
+        - 17,887 lines (37%) stopped at AdvCiv's 2017 import ("Initial commit (cont.)" by f1rpo); the BtS and Warlords originals never were in Git, whose history starts with K-Mod's SVN in 2010.
+        - Most of the rest pointed to real authors: AdvCiv's releases and BtS copies from 2017 to 2022, then SAS commits. Earlier whole-file switches barely showed, such as 371 lines from SAS's 2026-04-25 commit, which changed 2 lines for real.
+        - So the conversion does hide some useful history from plain blame. The trade-off stands: one click past it on GitHub, or a grep of `commit_diffs/`, costs less than a file that credits the conversion's other lines to the wrong commits.
+      - Before that test, the agent had moved the revision-check fix (SGR203) into a commit before the conversion, so the file could name a conversion holding nothing else. The user found it read oddly, since nothing before the conversion needed the fix, so it went back into the conversion, which carries the fix it needed.
+      - An AGENTS.md rule drawn from this, to fix a problem in the commit that causes it rather than ahead of it, was drafted and then left out: it could read as "do not plan", while planning was not the mistake; acting on a planned step before it existed was.
+    - Before committing, a clean checkout of that state in a separate folder was tested: VC2003 built the DLL with no warning, and Civ4 generated a map and played 3 turns with no Python error. A copy under another folder name needed its settings file and theme paths renamed, as SASSaveTransplanter's guide on its branch says, or it stopped on an "Invalid path to UI theme" dialog.
+  - `line_endings.py` now checks both directions: it rejects a CRLF kind stored with LF or mixed endings, and any other text stored with CRLF or mixed endings; a file with no line break passes either way. It reads Git's own report (`git ls-files --eol`), which GitHub's checkout shares, rather than the working files.
+  - The user preferred converting before merging main into the SASPilot and SASSaveTransplanter branches; those merges use `git merge -X renormalize main`, so the converted files do not conflict on every line.
+
+Note: warnings like these, which the user kept seeing on staging, came from the same mix. With `core.autocrlf=true` and no rule, Git warned that a file a tool had written with LF would be checked out as CRLF again:
+
+```text
+warning: in the working copy of '.github/workflows/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF will be replaced by CRLF the next time Git touches it
+```
+
+- Since `.gitattributes` says `eol=lf`, those can no longer appear. The reverse one did instead, `CRLF will be replaced by LF`, for the working copies still CRLF from before: 1,345 files in the user's folder.
+- The 1,339 without local edits were rewritten as LF from the repository, so the warning now shows only for a file holding local edits made before the conversion, and goes once that file is committed, as staging stores it as LF.
+  - `git checkout -- <file>` alone left them CRLF, since Git skips a file it sees as unchanged; each was deleted and then checked out again.

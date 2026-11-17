@@ -759,6 +759,10 @@ python .github/workflows/build/hygiene/line_ending_churn.py
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/formatting/fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py).
 
+Since 2026-11-17 it also fails a text file stored with the wrong endings, LF or mixed for the CRLF kinds and CRLF or mixed for all other text.
+
+`.gitattributes` keeps theme, batch and Visual Studio files CRLF (`-text`) and all other text LF, one style per kind, stored and checked out alike. The check reads Git's own report, `git ls-files --eol`, so a Windows checkout's CRLF working files do not make it fail locally only.
+
 A file switched whole between LF and CRLF has no mixed endings and passes here; [`line_ending_churn.py`](#buildhygieneline_ending_churnpy) catches it per commit. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 
 Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/commit_diffs` corpora are excluded to avoid noise or rewriting downloaded originals.

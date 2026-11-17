@@ -1,6 +1,18 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
+# <!-- custom: Text is stored and checked out as LF whatever each clone's core.autocrlf, so a tool can no longer store a file in CRLF and switch every line, as on 2026-11-16; binary files are left alone. See KI#1097. (Claude code Opus 5.5) -->
+* text=auto eol=lf
+# <!-- custom: Forced CRLF: these kinds are CRLF everywhere, stored and checked out. -text makes Git keep their bytes unconverted, and line_endings.py fails if one is ever stored with LF or mixed endings; Git has no single attribute meaning "CRLF everywhere", as eol=crlf stores LF.
+# Why each: theme files are parsed by the Civ4 EXE, whose reading of LF themes was never tried, and Windows' batch files and Visual Studio's project files want CRLF.
+# One style per kind, with no kind stored in one style and checked out in the other.
+# These files are text all the same: -text only switches off Git's line-ending conversion, while diffs and merges still treat them as text, unlike "binary". (Claude code Opus 5.5) -->
+*.thm -text
+*.bat -text
+*.cmd -text
+*.sln -text
+*.vcxproj -text
+
 # <!-- custom: unclutter the player zip; keep only for cloning or such thanks to chatgpt 5.1's help -->
 # Example: keep in repo, exclude from Download ZIP / archives
 
