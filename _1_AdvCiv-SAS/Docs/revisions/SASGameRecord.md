@@ -113,12 +113,18 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 205 - SAS practical 6793 (SASPilot branch)
+
+- **Date:** 2026-11-17
+- **Git commit:** pending
+- **Change:** No change to the record: the revision check judges a merge against the parent with the higher revision, for its number and for whether it changes the recorder, as merging main into this branch had both sides at 202; and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+
 ### Revision 204 - SAS practical 6750 (SASPilot branch)
 
-- **Date:** 2026-11-15
-- **Git commit:** `f005c06cce13db7a64971009789ca770b6acd3c5`
+- **Date:** 2026-11-17
+- **Git commit:** `b57f87e3382783e7d19020606d64edd11fdb0851`
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged.
-  - Numbered 202 on the SASPilot branch; renumbered 204 when main was merged into it on 2026-11-17, as main had used 202 and 203 meanwhile.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch; main had used 202 and 203 meanwhile, so merging main into it on 2026-11-17 made it 204, in that merge commit.
 
 ### Revision 203 - SAS practical 6772
 

@@ -1,6 +1,6 @@
 # AdvCiv-SAS SASPilot Performance
 
-How fast the pilot answers, why, and what moving parts of it to C++ gained: the measurements behind the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md)'s design. Split from the guide on 2026-11-15, as the guide is technical and these records are analytical (the user's call).
+How fast SASPilot answers, why, and what moving parts of it to C++ gained: the measurements behind the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md)'s design. Split from the guide on 2026-11-15, as the guide is technical and these records are analytical (the user's call).
 
 ## Menu
 
@@ -36,7 +36,7 @@ Measured by Claude Code Opus 5.5 later on 2026-11-13 with `SASPilotClient.py ben
 - Medians of 30 pings or 10 plot reads. Nearly all of the first 250 ms was waiting for the game to look, not serving.
 - Of the 30 ms for 441 plots, reading the game took 3 ms and writing the JSON 28 ms: the writer escaped every character in Python. Plain ASCII strings, nearly all XML types and names, are now copied whole, which cut it to about 4 ms with byte-identical output.
 - The client checked for the reply every 20 ms, which became most of a 21 ms ping once the game answered every frame; it now checks every 1 ms.
-- `CvScreensInterface.update`, which the EXE calls for the open Python screens, fired about 650 times a second in game, once a frame, with `USE_ON_UPDATE_CALLBACK` at 0. The pilot now serves from it, so players keep the callback off; for them it costs one Python check a frame on top of a call the EXE already makes.
+- `CvScreensInterface.update`, which the EXE calls for the open Python screens, fired about 650 times a second in game, once a frame, with `USE_ON_UPDATE_CALLBACK` at 0. SASPilot now serves from it, so players keep the callback off; for them it costs one Python check a frame on top of a call the EXE already makes.
 - One mailbox listing took 19 microseconds, so checking every frame costs about 1% of one core while piloted.
 - Turning `USE_ON_UPDATE_CALLBACK` on from Python with `gc.setDefineINT` did nothing: the EXE reads it at launch only.
 - So ask for much in one request, with `plots`, `batch` or `py`, when the data is large; small requests are now cheap too.
@@ -49,7 +49,7 @@ Each step came from what the previous measurement showed, not from a plan made u
 2. The first numbers settled where the time went: a ping spent 0.27 ms in the game out of 251 ms. Neither Python nor C++ could fix that; only being served more often could.
 3. Switching on `USE_ON_UPDATE_CALLBACK` cut a ping to 21 ms, which matched the client's own 20 ms sleep between checks; at 1 ms it fell to 1.9 ms.
 4. The plot read stayed at 31 ms in the game. Timing its two halves (now the `profile` command) showed 3 ms reading and 28 ms writing JSON, which led to the ASCII fast path.
-5. The callback is a setting for every player, and `gc.setDefineINT` could not switch it on for the pilot alone, so the open screens' `update` call was tried instead: it fires every frame with no setting.
+5. The callback is a setting for every player, and `gc.setDefineINT` could not switch it on for SASPilot alone, so the open screens' `update` call was tried instead: it fires every frame with no setting.
 
 ### Would the DLL be faster?
 
@@ -64,7 +64,7 @@ A C++ prototype (Claude Code Opus 5.5, 2026-11-13) answered this with numbers. I
 | C++ mailbox in the DLL | 200 ms (median) | 200 ms (median) | 0.46 ms |
 | C++ plots called from Python's every-frame check (current) | 1.9 ms | 3.2 ms | 0.51 ms |
 
-- C++ was about 25 times faster at the work itself: 0.32 ms against 8.1 ms (3.3 ms reading, 4.9 ms writing), timed around the call alone. In the pilot's own `gameMs`, which also counts reading the request and its JSON, it was 0.51 ms.
+- C++ was about 25 times faster at the work itself: 0.32 ms against 8.1 ms (3.3 ms reading, 4.9 ms writing), timed around the call alone. In SASPilot's own `gameMs`, which also counts reading the request and its JSON, it was 0.51 ms.
 - The last row was first estimated at about 2.5 ms; measured after the change, it was 3.2 ms (median of 10).
 - But in 10 seconds of that run, at turn 0 waiting for orders, only `CvGame::update` and `updateTestEndTurn` ran, 40 times each; `updateColoredPlots`, `updateBlockadedPlots` and `updateSelectionList` did not run at all with nothing selected. The DLL has no call every frame, so a bridge in the DLL alone waits for those, about 200 ms.
 - So the fastest shape is Python's every-frame check calling C++ for large reads. At 441 plots the gain is about 8 ms per request; it grows with size, by about 18 microseconds per plot in Python against 0.7 in C++, so a full Huge map read would be where it pays.
@@ -102,8 +102,8 @@ The Info Screen's Timeline tab, then called the History tab, went through the sa
   - The user's reasons, as recalled on 2026-11-13: Python keeps the tab easy for modmods to carry over and change, and the C++ version seemed slower, not faster. A clearly faster C++ version could have been judged differently. The user kept the pure Python version for simplicity and saved the C++ one on the side branch `history-tab-dll-implementation`, commit `a256d0638` ("loading times are not fast enough to justify not going full python rather for simplicity").
 - That branch was deleted from GitHub on 2026-10-13 with other old branches. On 2026-11-13 GitHub's activity log gave its last commit, `git fetch origin <sha>` brought it back, and it was restored as a local branch.
 - In May 2026 the tab's real cost turned out to be elsewhere: caching the data and even the prepared rows "did not significantly help", while keeping the table widget the EXE had built made reopening almost instant (practical commit 5859; the comment is in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) for the Battles tab, which shared the fix).
-- The pilot's test showed C++ faster only at the part it replaces, with most of the time elsewhere, in waiting for the game to look. The Timeline may have been the same, with its time in the EXE building table rows, but that is a reading of two separate findings: the January impressions and the May table fix. Neither measured what the January C++ changed.
-- The difference is that the pilot's time was measured, part by part, before choosing; the Timeline's was judged by eye, which could suggest that C++ did not help much but not show why.
+- SASPilot's test showed C++ faster only at the part it replaces, with most of the time elsewhere, in waiting for the game to look. The Timeline may have been the same, with its time in the EXE building table rows, but that is a reading of two separate findings: the January impressions and the May table fix. Neither measured what the January C++ changed.
+- The difference is that SASPilot's time was measured, part by part, before choosing; the Timeline's was judged by eye, which could suggest that C++ did not help much but not show why.
 
 ### At scale, and the client's own cost
 

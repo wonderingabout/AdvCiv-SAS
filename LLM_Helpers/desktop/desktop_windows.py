@@ -820,7 +820,7 @@ def move(pid, monitor, part, size=None, beside=None):
 		raise ValueError("monitor %d not found; this computer has %d" % (monitor, len(areas)))
 	left, top, right, bottom = areas[monitor - 1]
 	middle = (left + right) // 2
-	# <!-- custom: topleft and beside came from watching the pilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the SASPilotConsole console filling the rest.
+	# <!-- custom: topleft and beside came from watching SASPilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the SASPilotConsole console filling the rest.
 	# topleft keeps the window's size (or --size, the visible frame's width and height); beside fills the work area right of another process's window. (Claude Code Opus 5.5) -->
 	if part == "beside":
 		if beside is None:

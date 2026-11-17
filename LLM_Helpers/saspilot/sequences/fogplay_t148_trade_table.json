@@ -1,5 +1,5 @@
 {
- "about": "Turn 148 of the 2026-11-13 fog-on playthrough, before Navigation was bought. Opens Pacal's trade table with his Navigation on it and asks 'What do you want for this?'. The pilot's first version left the screen's columns of tradeable items empty, and with nothing of ours to ask for Pacal gave Navigation away; with the columns filled he asks 65 gold, as through the window from the same save. Then checks that a read token from before the counter-offer is refused, leaves, and checks that no gold or tech changed hands.",
+ "about": "Turn 148 of the 2026-11-13 fog-on playthrough, before Navigation was bought. Opens Pacal's trade table with his Navigation on it and asks 'What do you want for this?'. SASPilot's first version left the screen's columns of tradeable items empty, and with nothing of ours to ask for Pacal gave Navigation away; with the columns filled he asks 65 gold, as through the window from the same save. Then checks that a read token from before the counter-offer is refused, leaves, and checks that no gold or tech changed hands.",
  "save": "sas_pilot_fogplay_t148.CivBeyondSwordSave",
  "steps": [
   {"cmd": "contact", "args": {"with": 1, "take": ["TRADE_TECHNOLOGIES:TECH_NAVIGATION"]}},

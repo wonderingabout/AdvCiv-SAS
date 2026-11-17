@@ -1171,14 +1171,14 @@ inline CvRandom& mapRand() { return CVGAME_INSTANCE_FOR_RNG.getMapRand(); }
 
 // <!-- custom: SASPilot's plots as JSON, written in C++ as it was about 25 times faster than the Python writer; see "Would the DLL be faster?"
 // in README_SASPilot.md. (Claude code Opus 5.5) -->
-// <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so the pilot can play with what a player sees. (Claude code Fable 5.2) -->
+// <!-- custom: iFogTeam added to both (-1: full view), and the path and message readers, so SASPilot can play with what a player sees. (Claude code Fable 5.2) -->
 std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam);
 std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
 // <!-- custom: The diplomacy table's items for 'trade' and 'techs', in C++ as the Python loop was the slowest list command measured (3.5 ms). (Claude code Opus 5.5) -->
 std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly);
-// <!-- custom: A spy's espionage missions and targets with their costs, for the pilot's 'spy'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+// <!-- custom: A spy's espionage missions and targets with their costs, for SASPilot's 'spy'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 std::string getSASPilotEspionageJson(int iPlayer, int iUnit);
-// <!-- custom: The city AI's best build per plot of a city, for the pilot's 'workers'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+// <!-- custom: The city AI's best build per plot of a city, for SASPilot's 'workers'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 std::string getSASPilotCityBuildsJson(int iPlayer, int iCity);
 std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);

@@ -15621,8 +15621,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
 			currentPopups.clear();
 			clearPopups();
 		} // </advc.001>
-		// <!-- custom: The pilot's held popups are this player's unanswered choices, but they live outside the queue, so a save lost them; Codex's review found that listing moved queued ones there too.
-		// They are written with the queue, so a load puts them back in it and the pilot holds them again. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		// <!-- custom: SASPilot's held popups are this player's unanswered choices, but they live outside the queue, so a save lost them; Codex's review found that listing moved queued ones there too.
+		// They are written with the queue, so a load puts them back in it and SASPilot holds them again. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		int iSASPilotHeld = 0;
 		if (isActive() && isHuman() && !GC.getGame().isNetworkMultiPlayer())
 			iSASPilotHeld = getNumSASPilotHeldPopups();
@@ -21178,17 +21178,18 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
 		launch them through CvDLLButtonPopup::launchButtonPopup. */
 }
 
-// <!-- custom: Drops this player's unanswered popups for SASPilot: the held ones of a type (NO_BUTTONPOPUP: any) and data1 (-1: any), and the queued ones through advc.004x's killAll or, for all types, the DLL's own queue and the EXE's. A popup already on display stays; see launchButtonPopup for what was tried.
+// <!-- custom: Drops this player's unanswered popups for SASPilot: the held ones of a type (NO_BUTTONPOPUP: any) and data1 (-1: any), and the queued ones through advc.004x's killAll or, for all types, the DLL's own queue and the EXE's.
+// A popup already on display stays; see launchButtonPopup for what was tried.
 // Dropping a choice does not make it.
 // Same limits as killAll: the active human player, not in network games. (Claude code Fable 5.2) -->
 // <!-- custom: With AdvCiv's Minimize Pop-Ups, the EXE leaves popups in this queue until every unit has moved, so at turn 304 of a Huge game with 150 units a civics popup sat there for turns, out of reach of 'answer' (2026-11-13).
-// The pilot drives without moving every unit, so it takes the popups it holds out of the queue itself, before listing or answering them; others, such as Python screens, stay for the EXE. (Claude code Opus 5.5) -->
+// SASPilot drives without moving every unit, so it takes the popups it holds out of the queue itself, before listing or answering them; others, such as Python screens, stay for the EXE. (Claude code Opus 5.5) -->
 void CvPlayer::takeSASPilotQueuedPopups()
 {
 	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
 		return;
 	// <!-- custom: killAll puts relaunched popups at the front and counts them to keep their sound quiet; one taken here never launches, so it is counted as launched, or a later popup would lose its sound (Codex's review).
-	// Only a popup taken from that counted front run lowers the count: counting every taken popup let a popup the pilot leaves at the front, such as a Python screen, replay its sound (Codex's next review). (Claude code Opus 5.5 + Fable 5.2 + GPT-6.1-Sol) -->
+	// Only a popup taken from that counted front run lowers the count: counting every taken popup let a popup SASPilot leaves at the front, such as a Python screen, replay its sound (Codex's next review). (Claude code Opus 5.5 + Fable 5.2 + GPT-6.1-Sol) -->
 	int iRelaunchingLeft = m_iButtonPopupsRelaunching;
 	int iPos = 0;
 	CvPopupQueue::iterator it = m_listPopups.begin();

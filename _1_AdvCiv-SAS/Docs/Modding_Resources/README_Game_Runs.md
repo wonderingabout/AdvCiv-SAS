@@ -29,7 +29,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Launch Civ4 into a save made with this mod, or start a new game with a chosen map, size, speed, difficulty, era and leaders.
 - Run AI Auto Play for a requested number of turns, optionally in Debug Mode so a watching user sees the whole map.
 - Tell how the run ended: completed, ended early, never started, stalled, crashed or timed out.
-- Read and drive a running game as JSON, without the window: the pilot, added on 2026-11-13, has its own [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
+- Read and drive a running game as JSON, without the window: SASPilot, added on 2026-11-13, has its own [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.
@@ -236,7 +236,7 @@ Tested on 2026-11-10 during an autoplay:
 - A click moves the real mouse pointer and brings the window to the front, so it does interrupt a user working at the PC.
 - One click on the Dawn of Man popup's Continue button reached the game. Its position, `963,809` in a 1926x1120 window, was read off a screenshot, so it holds only for that window size and layout; a different resolution, text scale or UI change moves it. Take a screenshot and read the position again before each click, and prefer a request that needs no click, as autoplay itself does.
 - `hover` moves the pointer to a point without clicking or focusing the window, so a tooltip appears without disturbing a user typing elsewhere. It refuses a point outside the window.
-  - It needs Civ4 in front, though: on 2026-11-14 hovering a resource icon on the Foreign Advisor's Bonuses tab showed no tooltip while the agent's console had the focus, and the user's own hover, with Civ4 in front, showed it (`Civ4ScreenShot0027.JPG`, `0028.JPG`). Click an empty spot of the window first, or read the data through the pilot, as `bonustrade` does for that tab.
+  - It needs Civ4 in front, though: on 2026-11-14 hovering a resource icon on the Foreign Advisor's Bonuses tab showed no tooltip while the agent's console had the focus, and the user's own hover, with Civ4 in front, showed it (`Civ4ScreenShot0027.JPG`, `0028.JPG`). Click an empty spot of the window first, or read the data through SASPilot, as `bonustrade` does for that tab.
 - Keystrokes did not: simulated Ctrl+Shift+X and Enter never reached the game, so the tool offers none, and the autoplay request avoids the keyboard. Anyone typing at the PC also cannot disturb a run.
   - Since 2026-11-11 key events carry the scan code a real key press has, and Civ4 accepted them: in the Sevopedia, Down moved to the next entry, Left and Right acted as BACK and NEXT, and `type` filled the search box. Later testing also opened the Ctrl+Shift+X chooser and started and stopped autoplay.
 - Civ4's own screenshot key, which the Runtime screenshot observer records, was not tried from the tools.
@@ -374,7 +374,7 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - No option or Python call hides the minimap's white camera frame: `setShowInterface(INTERFACE_MINIMAP_ONLY)` hides the rest of the interface, `CONTROL_BARE_MAP` hides units and symbols.
     - Planned instead: capture the minimap three times with the camera in different places (click the minimap) and keep each pixel's median, which drops the frame even over snow; merge as PNG, compress only the final `.dds`.
   - Ctrl+W opens WorldBuilder from a game. Its tool icons sit in two rows of six at the top right, about y 63 and 98, x 1718 to 1893, 35 px apart, beside the Units, Buildings and Technologies panel at the top left.
-    - Through the pilot, `control control=CONTROL_WORLD_BUILDER` first shows an "Are you sure?" panel at the top right, whose "Enter WorldBuilder" sat at (1700, 180) in the 1080p window on 2026-11-13; the pilot lets this confirmation through, as it comes from a person's choice. The same control again leaves WorldBuilder without asking, and the fog comes back. WorldBuilder shows the whole map, rivals' cities included.
+    - Through SASPilot, `control control=CONTROL_WORLD_BUILDER` first shows an "Are you sure?" panel at the top right, whose "Enter WorldBuilder" sat at (1700, 180) in the 1080p window on 2026-11-13; SASPilot lets this confirmation through, as it comes from a person's choice. The same control again leaves WorldBuilder without asking, and the fog comes back. WorldBuilder shows the whole map, rivals' cities included.
     - Their tooltips, recorded as the `worldbuilder` screen in `civ4_ui_map.json`: Enter erase mode, Change All Plots, Save, Load, Exit World Builder on the top row after Enter landmark mode, and Edit Unit, Edit City, Player, Map, Reveal Tile and Diplomacy modes below. What each mode opens is recorded there too.
     - Tooltips appeared only with Civ4 in front and a few seconds' dwell: `hover_tooltips.py --front --wait 4` showed all twelve, while hovers from `capture_screens.py`, which does not bring the window forward, showed none (2026-11-12).
     - Change All Plots opens a modal panel: until its Cancel is clicked, other icons, hovers and tooltips do nothing.
@@ -424,8 +424,8 @@ The same map holds the in-game screens, explored on 2026-11-11 on a turn-200 Pan
   - In that row a click selected about 8 units, most likely the group the unit was in, Ctrl+click all 11 of its type, Shift+click added more, and Alt+click nearly the whole tile. `desktop_windows.py click --with ctrl` holds the key during the click.
 - End Turn, the green circle at (1688, 955), ended turn 200; a research chooser and a production chooser followed, each a click.
 - Two screens met on 2026-11-13 at turn 148, in the 1920 x 1080 windowed client:
-  - "Save Error", raised by saving over an existing file: OK at (922, 634) overwrites, Cancel beside it at about (996, 634). The pilot's `save` now refuses an existing file unless `overwrite=true`, so it no longer raises this prompt.
-  - A tech splash shown at once when a tech is traded: Continue at (968, 868). The pilot's `todo` lists such a screen under `infoScreens`, and `turn` closes it as a notice.
+  - "Save Error", raised by saving over an existing file: OK at (922, 634) overwrites, Cancel beside it at about (996, 634). SASPilot's `save` now refuses an existing file unless `overwrite=true`, so it no longer raises this prompt.
+  - A tech splash shown at once when a tech is traded: Continue at (968, 868). SASPilot's `todo` lists such a screen under `infoScreens`, and `turn` closes it as a notice.
 - The two arrows left of the minimap select the previous or next city without opening it: the map centres on it and the bottom panel shows its production choices. Esc goes back to the unit.
   - They sit right beside End Turn, about 15 px away on either side, so aim carefully: a few pixels off ends the turn, as the user warned. Shift+Enter is the deliberate way to end a turn.
   - The panel at the bottom left reads "Unit Stack (N)" with the selected units by type, and in the unit row only the selected units have a yellow outline: both show at a glance whether a whole army is selected, as the user pointed out when only 3 of 14 were.

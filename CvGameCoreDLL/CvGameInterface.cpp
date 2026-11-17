@@ -24,7 +24,7 @@
 #include "CvInfo_Civics.h" // <!-- custom: getSASPilotTradeItemsJson names a tradeable civic by its CvCivicInfo type; the /Zs check failed with C2027 without it, as nothing here defined the class. (Claude code Opus 5.5) -->
 #include "CvTalkingHeadMessage.h" // <!-- custom: getSASPilotMessagesJson reads each message's text, turn and plot; CvPlayer.h only forward-declares the class, and the first build failed with C2027. (Claude code Fable 5.2) -->
 #include <fstream> // advc.003d
-#include <errno.h> // <!-- custom: errno and ERANGE for readSASPilotInt's overflow check (Codex's review of the pilot's trade lists). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+#include <errno.h> // <!-- custom: errno and ERANGE for readSASPilotInt's overflow check (Codex's review of SASPilot's trade lists). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 #include <limits.h> // <!-- custom: INT_MIN and INT_MAX for the same check. (Claude code Opus 5.5) -->
 
 /*  advc: This file was added by patch 3.17, moving some UI functionality
@@ -3131,7 +3131,7 @@ void CvGame::onCityScreenChange()
 }
 
 // <!-- custom: SASPilot writes plots as JSON here, for CyGame.getSASPilotPlotsJson: 0.32 ms for 441 plots against 8 ms in Python (2026-11-13).
-// A mailbox served from the DLL was tried too and dropped: the EXE called the DLL only about four times a second, so requests waited about 200 ms, against 2 ms for the pilot's Python, served every frame.
+// A mailbox served from the DLL was tried too and dropped: the EXE called the DLL only about four times a second, so requests waited about 200 ms, against 2 ms for SASPilot's Python, served every frame.
 // See "Would the DLL be faster?"
 // in README_SASPilot.md. (Claude code Opus 5.5) -->
 namespace
@@ -3255,7 +3255,7 @@ namespace
 	}
 
 	// <!-- custom: Mirrors _plotFull in SASPilotCommands.py field for field, keys in the sorted order the Python writer uses. (Claude code Opus 5.5) -->
-	// <!-- custom: eFogTeam added so the pilot can also see the map as a player of that team does, to play as a person would rather than with full information (the user's request, 2026-11-13); NO_TEAM keeps the full view.
+	// <!-- custom: eFogTeam added so SASPilot can also see the map as a player of that team does, to play as a person would rather than with full information (the user's request, 2026-11-13); NO_TEAM keeps the full view.
 	// With fog, a plot the team has not revealed is left out by the caller, so a big map costs only what is known; a revealed plot out of sight gives what the team last saw (owner, improvement, route) and no units; a plot in sight hides invisible units; a bonus shows only once its tech reveals it.
 	// Yields and the feature are the plot's current ones even out of sight. (Claude code Fable 5.2) -->
 	void appendSASPilotPlotJson(std::string& szOut, CvPlot const& kPlot, TeamTypes eActiveTeam, TeamTypes eFogTeam)
@@ -3348,7 +3348,7 @@ bool isSASPilotRadiusValid(int iRadius)
 // <!-- custom: iFogTeam added: -1 gives every plot in full, a team gives what that team knows; see appendSASPilotPlotJson. (Claude code Fable 5.2) -->
 std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam)
 {
-	// <!-- custom: "null" for the pilot to report; an assertion here would stop assertion builds on a mistyped argument (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	// <!-- custom: "null" for SASPilot to report; an assertion here would stop assertion builds on a mistyped argument (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if (!isSASPilotRadiusValid(iRadius) || iFogTeam < -1 || iFogTeam >= MAX_TEAMS)
 		return "null";
 	TeamTypes const eFogTeam = (TeamTypes)iFogTeam;
@@ -3376,7 +3376,7 @@ std::string getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam)
 }
 
 
-// <!-- custom: What iGiver could put on the diplomacy table for iReceiver, for the pilot's 'trade' and 'techs': per item kind, each entry canTradeItem allows, with the AI's getTradeDenial.
+// <!-- custom: What iGiver could put on the diplomacy table for iReceiver, for SASPilot's 'trade' and 'techs': per item kind, each entry canTradeItem allows, with the AI's getTradeDenial.
 // Written in C++ as the Python loop took 3.5 ms of game time per 'trade' at turn 176 against 0.23 ms for a bare request, the only list command measured well above it (2026-11-13); the user prefers the faster version even for a small measured gain.
 // Same entries as the Python writer it replaces, in enum order rather than alphabetical; "what" is the XML type, the city name or the team ID; gold kinds give the most the giver could give. (Claude code Opus 5.5) -->
 // <!-- custom: iKind added: one TradeableItems kind, or -1 for all.
@@ -3506,7 +3506,7 @@ namespace
 	}
 }
 
-// <!-- custom: The espionage missions a spy could run where it stands, for the pilot's 'spy': what the window's two popups offer, the mission list (launchDoEspionagePopup) and, for a two-phase mission, its targets (launchDoEspionageTargetPopup), each with the cost the window shows.
+// <!-- custom: The espionage missions a spy could run where it stands, for SASPilot's 'spy': what the window's two popups offer, the mission list (launchDoEspionagePopup) and, for a two-phase mission, its targets (launchDoEspionageTargetPopup), each with the cost the window shows.
 // Written in C++ as the cost depends on the spy (getEspionageUnit and getEspionageMissionCost with that unit), which the Python bindings do not pass.
 // Missions with no target data give data -1; the mission is then run with 'mission' as the window's click does, MISSION_ESPIONAGE with the mission and data (2026-11-14). (Claude code Opus 5.5) -->
 std::string getSASPilotEspionageJson(int iPlayer, int iUnit)
@@ -3602,8 +3602,8 @@ std::string getSASPilotEspionageJson(int iPlayer, int iUnit)
 }
 
 
-// <!-- custom: Each plot of a city's radius with the build the city AI would have a Worker make there and that build's value, for the pilot's 'workers' command.
-// Until then the pilot could only automate Workers: the user wanted it to choose builds itself and compare them with the AI's choice (2026-11-14).
+// <!-- custom: Each plot of a city's radius with the build the city AI would have a Worker make there and that build's value, for SASPilot's 'workers' command.
+// Until then SASPilot could only automate Workers: the user wanted it to choose builds itself and compare them with the AI's choice (2026-11-14).
 // CvCityAI keeps these per plot (AI_updateBestBuild, each turn), and Python had no getter for them. (Claude code Opus 5.5) -->
 std::string getSASPilotCityBuildsJson(int iPlayer, int iCity)
 {
@@ -3645,7 +3645,7 @@ std::string getSASPilotCityBuildsJson(int iPlayer, int iCity)
 }
 
 
-// <!-- custom: A player's units for the pilot's 'units' command, or every living player's with iPlayer -1.
+// <!-- custom: A player's units for SASPilot's 'units' command, or every living player's with iPlayer -1.
 // On a Huge map at turn 300, Python took 2 ms to read the 876 units and 6 ms to write them as JSON (2026-11-13). (Claude code Opus 5.5) -->
 // <!-- custom: iFogTeam added: with a team, only the units that team sees now, as on the map. (Claude code Fable 5.2) -->
 std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam)
@@ -3678,7 +3678,7 @@ std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam)
 }
 
 
-// <!-- custom: The route a unit's group would take to a plot, step by step, for the pilot's 'path' command: a person sees it drawn on the map before committing, while Python's generatePath gives only whether a path exists and its turns.
+// <!-- custom: The route a unit's group would take to a plot, step by step, for SASPilot's 'path' command: a person sees it drawn on the map before committing, while Python's generatePath gives only whether a path exists and its turns.
 // Each step has the plot, the turn of the path it is reached on (1 is this turn) and the moves left there, as the pathfinder's nodes hold them.
 // A pathfinder of its own, so the shared one that missions and the AI rely on is untouched, and CvSelectionGroup::generatePath is not used because it asserts that the group is AI-controlled.
 // "null" for a missing unit or plot. (Claude code Fable 5.2) -->
@@ -3721,7 +3721,7 @@ std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFla
 }
 
 
-// <!-- custom: The city sites the window circles when a person selects this Settler, for the pilot's 'sites' command; Python cannot reach CvPlayerAI's site list (fog-on playthrough, 2026-11-13).
+// <!-- custom: The city sites the window circles when a person selects this Settler, for SASPilot's 'sites' command; Python cannot reach CvPlayerAI's site list (fog-on playthrough, 2026-11-13).
 // Same rules as CvGame::updateColoredPlots: the active player's AI_getCitySite list in its order, only sites the unit's group reaches within 7 turns, and a weaker site (later in the list) only while turns plus its index stay within 8 (advc.004).
 // Each site has its found value for the player, as AI_foundValue gives it, and the path turns; "null" for a unit that cannot found a city or is missing. (Claude code Opus 5.5) -->
 std::string getSASPilotCitySitesJson(int iPlayer, int iUnit)
@@ -3843,7 +3843,7 @@ namespace
 }
 
 
-// <!-- custom: A deal the pilot's player proposes to an AI, as the diplomacy screen's Propose button does: the AI weighs it through AI_considerOfferExternal, the EXE's own entry, so SASGameRecord records it like a person's offer, and an accepted deal is implemented.
+// <!-- custom: A deal SASPilot's player proposes to an AI, as the diplomacy screen's Propose button does: the AI weighs it through AI_considerOfferExternal, the EXE's own entry, so SASGameRecord records it like a person's offer, and an accepted deal is implemented.
 // Python could list what each side can trade (canTradeItem, getTradeDenial) but not ask the AI or make the deal (fog-on playthrough, 2026-11-13).
 // Each item must pass canTradeItem for its giver; "null" on bad players or items. (Claude code Opus 5.5) -->
 namespace
@@ -3858,7 +3858,7 @@ namespace
 		CvPlayer const& kOther = GET_PLAYER((PlayerTypes)iOther);
 		if (!kPlayer.isAlive() || !kOther.isAlive() || kOther.isHuman() || !kPlayer.canContact(kOther.getID()))
 			return false;
-		// <!-- custom: The deal is made directly, as the pilot's other orders are; in a network game that would bypass the net messages that keep the clients in sync (Codex's review), so refuse there. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		// <!-- custom: The deal is made directly, as SASPilot's other orders are; in a network game that would bypass the net messages that keep the clients in sync (Codex's review), so refuse there. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		if (GC.getGame().isNetworkMultiPlayer())
 			return false;
 		if (!readSASPilotTradeList(szWeGive.c_str(), kPlayer, kWeGive) || !readSASPilotTradeList(szTheyGive.c_str(), kOther, kTheyGive))
@@ -3902,7 +3902,7 @@ std::string proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, s
 
 // <!-- custom: Opens the diplomacy screen with an AI on its trade table, with the given items already on it, as Ctrl+clicking the leader and then clicking the items does; CvPlayer::contact opens the same table under Ctrl, and AI offers fill it the same way.
 // 'propose' skipped the screen, so "What would you want?"
-// and the AI's counter-offer, which only the screen's replies reach (CyDiplomacy::counterPropose in CvDiplomacy.py), were out of the pilot's reach (fog-on playthrough, 2026-11-13); Python cannot add items to the EXE's table.
+// and the AI's counter-offer, which only the screen's replies reach (CyDiplomacy::counterPropose in CvDiplomacy.py), were out of SASPilot's reach (fog-on playthrough, 2026-11-13); Python cannot add items to the EXE's table.
 // "Our" list is what the player gives, "their" list what the AI gives, as in the AI's own offers (CvPlayerAI::AI_proposeWarTrade and others).
 // false when readSASPilotDeal refuses or the player's turn is done, as contact itself requires. (Claude code Opus 5.5) -->
 bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive)
@@ -3922,7 +3922,7 @@ bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::strin
 }
 
 
-// <!-- custom: Groups a unit with another on the same plot, as selecting both in the window does, or splits it off alone with iHeadUnit -1; for the pilot's 'group' command.
+// <!-- custom: Groups a unit with another on the same plot, as selecting both in the window does, or splits it off alone with iHeadUnit -1; for SASPilot's 'group' command.
 // Python has no joinGroup, and at turn 91 of the fog-on playthrough (2026-11-13) a Settler could not be escorted.
 // canJoinGroup is the game's own test (same owner, plot and domain, no group about to split); refused in network games, as a direct change would bypass the net messages.
 // "null" on a refusal, else the unit's group ID. (Claude code Opus 5.5) -->
@@ -3953,7 +3953,7 @@ std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit)
 // At turn 105 of the fog-on playthrough (2026-11-13) the Oracle's free tech waited in a held choose-tech popup that 'todo' did not show.
 // Only while the player is choosing a free tech, for a tech its chooser would list (canResearch); false otherwise. (Claude code Opus 5.5) -->
 // <!-- custom: iHeldId added in place of iDiscover after Codex's review: two separate one-tech awards both had data1 1, so the Python side closed both choosers after spending one, and the binding trusted any positive count.
-// The exact chooser now decides: a held one by its ID, which alone is removed, or with -1 the one on display, which a load can open before the pilot holds popups again.
+// The exact chooser now decides: a held one by its ID, which alone is removed, or with -1 the one on display, which a load can open before SASPilot holds popups again.
 // Its data1 is the count, as the window's buttons pass it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 bool chooseSASPilotFreeTech(int iTech, int iHeldId)
 {
@@ -3965,7 +3965,7 @@ bool chooseSASPilotFreeTech(int iTech, int iHeldId)
 		return false;
 	// <!-- custom: Only a held chooser: the first version also took the one on display, reading its count and leaving it on screen, and Codex's review found that a later award, or the rest of a two-tech award, makes the player choosing again and that old chooser usable once more.
 	// The DLL cannot consume a displayed popup: calling killAll(BUTTONPOPUP_CHOOSETECH, iDiscover) after the grant left it on screen (2026-11-13), as Fable had found (see launchButtonPopup).
-	// Holding now starts at the load, so the pilot asks for a held one. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	// Holding now starts at the load, so SASPilot asks for a held one. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if (iHeldId < 0)
 		return false;
 	int const iHeldIndex = findSASPilotHeldPopup(iHeldId);
@@ -3982,7 +3982,7 @@ bool chooseSASPilotFreeTech(int iTech, int iHeldId)
 }
 
 
-// <!-- custom: The messages the game showed a player at the top of the screen (combat results, a city growing, a rival's border), which the pilot never saw without the window: from iSinceTurn on, oldest first.
+// <!-- custom: The messages the game showed a player at the top of the screen (combat results, a city growing, a rival's border), which SASPilot never saw without the window: from iSinceTurn on, oldest first.
 // The game drops a message once its display time has passed, so this is what is still listed, not a full history; SASGameRecord keeps the lasting record. (Claude code Fable 5.2) -->
 std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn)
 {

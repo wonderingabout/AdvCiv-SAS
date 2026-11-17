@@ -1099,7 +1099,7 @@ public:
 	void killAll(ButtonPopupTypes ePopupType, int iData1 = -1);
 	// <!-- custom: SASPilot drops or answers this player's popups without the window; see the definitions. (Claude code Fable 5.2) -->
 	void closeSASPilotPopups(ButtonPopupTypes ePopupType, int iData1);
-	// <!-- custom: Moves holdable popups from this player's queue into the pilot's held list. (Claude code Opus 5.5) -->
+	// <!-- custom: Moves holdable popups from this player's queue into SASPilot's held list. (Claude code Opus 5.5) -->
 	void takeSASPilotQueuedPopups();
 	bool dropSASPilotPopup(int iHeldId, ButtonPopupTypes ePopupType, int iData1, int iData3, CvWString const& szText); // <!-- custom: Drops one notice exactly; see the definition. (Claude code Opus 5.5) -->
 	// <!-- custom: Takes the held popup's ID from getSASPilotPopups, which was a list position before Codex's review. (Claude code Opus 5.5 + GPT-6.1-Sol) -->

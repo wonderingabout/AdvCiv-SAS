@@ -3,15 +3,15 @@
 
 # <!-- custom: The commands SASPilot answers. SASPilot.py loads this file from disk and reloads it when it changes, so commands can be added or fixed while Civ4 runs; nothing imports it normally, and it lives outside Assets because the EXE reinitializes Python when a .py file there changes.
 # Each command is a function cmd_<name>(args) taking the request's args dict and returning plain data (dict, list, str, number, bool, None), which poll() writes back as JSON.
-# Commands see everything, without fog of war: the pilot is a research and debugging tool for the active player, not a fair opponent as in civai.
+# Commands see everything, without fog of war: SASPilot is a research and debugging tool for the active player, not a fair opponent as in civai.
 # 'fog on=1' switches to what the active player's team knows, to play as a person would; see cmd_fog. (Claude code Fable 5.2)
 # Python 2.4 has no json module, so the encoder and decoder below are our own. (Claude code Fable 5.2) -->
 
 # <!-- custom: This API keeps growing, with plain fact commands (what a screen shows) and strategic ones that combine them (targets, settings' leader personalities); the user's rule (2026-11-15). Add commands freely, and keep them reusable:
 # make a 'py' snippet a command once a later game would ask it again; build a new command on existing ones and shared helpers (targets calls relations and borders, settings and its possibleLeaders share _leaderFacts) rather than copying their code;
-# reuse a screen's own code where a player-visible screen already decides what is known (timeline calls CvInfoScreen.getTimelineRecords), so the pilot and the screen cannot disagree; keep to what the player may know unless the command is meant to be omniscient.
+# reuse a screen's own code where a player-visible screen already decides what is known (timeline calls CvInfoScreen.getTimelineRecords), so SASPilot and the screen cannot disagree; keep to what the player may know unless the command is meant to be omniscient.
 # Reuse data SAS already prepared for its screens too: settings ranks each leader's AI personality from the Sevopedia leader panel's predumped cache (SevoPediaLeaderCachePredumped, one of SAS's oldest additions, which CI keeps in step with the leader XML) rather than ranking the leaders again.
-# A suggestion, not a rule: what a player needs to see, the pilot likely needs too, and the reverse. When the pilot needed a unit's fortified state (islands replay, 2026-11-15), the player saw it only as an icon, so both may gain from showing it as text; an agent looking for a pilot field can ask whether a player screen deserves it as well, and a new screen feature whether the pilot should read it.
+# A suggestion, not a rule: what a player needs to see, SASPilot likely needs too, and the reverse. When SASPilot needed a unit's fortified state (islands replay, 2026-11-15), the player saw it only as an icon, so both may gain from showing it as text; an agent looking for a pilot field can ask whether a player screen deserves it as well, and a new screen feature whether SASPilot should read it.
 # The AI's own ratings, such as found values or the city governor's picks, are a reference to weigh, not the answer: they follow the AI's general rules, which may not fit the game at hand. At turn 57 of the islands replay (2026-11-15) AI_foundValue rated only one site on our island and gave 0 to every coastal corner near our cities, while the user's plan for an isolated island, claiming the coast by settling its corners with overlap accepted, favours exactly those; 'plansites legal=1' shows them beside the AI's value so the agent can choose.
 # Measure before moving a command to C++: on 2026-11-15, with 48 players, most took 1 to 25 ms in game, and world dropped from 52 to 4 ms by finding its wonder buildings once rather than per city. (Claude code Opus 5.5) -->
 
@@ -610,7 +610,7 @@ def _cityFull(city):
 	result["occupationTurns"] = city.getOccupationTimer()
 	result["maintenance"] = city.getMaintenance()
 	# <!-- custom: What else the city screen shows: its trade routes with each partner and the commerce it brings, the defense bonus and its bombard damage, and Great People progress.
-	# The user asked at turn 141 of the turn-0 game (2026-11-14) whether the pilot has the city screen's details; trade routes in particular need explored land and contact (a world map widens them), and 'city' had none of these. (Claude code Opus 5.5) -->
+	# The user asked at turn 141 of the turn-0 game (2026-11-14) whether SASPilot has the city screen's details; trade routes in particular need explored land and contact (a world map widens them), and 'city' had none of these. (Claude code Opus 5.5) -->
 	routes = []
 	for i in range(city.getTradeRoutes()):
 		partner = city.getTradeCity(i)
@@ -653,7 +653,7 @@ def _plotsJson(iX, iY, iRadius, iFogTeam=-1):
 
 
 def _pilotGame(szNewestBinding):
-	# <!-- custom: The pilot's C++ bindings grew over several builds, and a DLL without the newest one a command needs, such as the shipped Release DLL until it is refreshed, would raise a bare AttributeError or TypeError; name the cause instead. (Claude code Fable 5.2) -->
+	# <!-- custom: SASPilot's C++ bindings grew over several builds, and a DLL without the newest one a command needs, such as the shipped Release DLL until it is refreshed, would raise a bare AttributeError or TypeError; name the cause instead. (Claude code Fable 5.2) -->
 	game = gc.getGame()
 	if not hasattr(game, szNewestBinding):
 		raise ValueError("this DLL predates CyGame.%s; build or install a current one" % szNewestBinding)
@@ -758,7 +758,7 @@ def cmd_ping(args):
 		result["gridHeight"] = CyMap().getGridHeight()
 		# <!-- custom: The enabled game options, so a run can confirm its setup, such as GAMEOPTION_NO_EVENTS: the user tests with random events off, as they add variation between runs, and new games take it from the user's CivilizationIV.ini. (Claude code Fable 5.2) -->
 		result["gameOptions"] = [gc.getGameOptionInfo(i).getType() for i in range(gc.getNumGameOptionInfos()) if game.isOption(GameOptionTypes(i))]
-		# <!-- custom: The difficulty, which the Victory screen shows a player: the user asked whether the pilot played Monarch or Noble (2026-11-14), and no command said.
+		# <!-- custom: The difficulty, which the Victory screen shows a player: the user asked whether SASPilot played Monarch or Noble (2026-11-14), and no command said.
 		# The game's level and the active player's, which can differ. (Claude code Opus 5.5) -->
 		result["handicap"] = _typeOrNone(gc.getHandicapInfo, game.getHandicapType())
 		if game.getActivePlayer() >= 0:
@@ -1210,7 +1210,7 @@ def cmd_grid(args):
 	x0, y0, x1, y1 = _gridBounds(kMap, args)
 	tiles, network, owners = [], {}, {}
 	bNetwork = bool(args.get("network", True))
-	# <!-- custom: The fog edge, the user's point at turn 2 of the scouting trial (2026-11-14): the plot two north of the Clam was unrevealed, yet the screen showed its shore, so the water beside it looked like a lake; strong players read the art at the fog's edge, and the pilot knew nothing there.
+	# <!-- custom: The fog edge, the user's point at turn 2 of the scouting trial (2026-11-14): the plot two north of the Clam was unrevealed, yet the screen showed its shore, so the water beside it looked like a lake; strong players read the art at the fog's edge, and SASPilot knew nothing there.
 	# Civ4 draws each revealed plot's coastline from whether its neighbours are land or water, so that much of an unrevealed neighbour is on screen and stays fair under play.
 	# Only water is given: terrain and trees in the fade were not checked against the art. (Claude code Opus 5.5) -->
 	bEdge = iFogTeam >= 0 and bool(args.get("edge", True))
@@ -1359,7 +1359,7 @@ def cmd_role(args):
 
 
 def cmd_fog(args):
-	# <!-- custom: The pilot began with full information only, as a debugging tool; the user then asked for play as a person would, "manage the fog" included (2026-11-13).
+	# <!-- custom: SASPilot began with full information only, as a debugging tool; the user then asked for play as a person would, "manage the fog" included (2026-11-13).
 	# A switch rather than a second set of commands, so the same orders and reads serve both uses. (Claude code Fable 5.2) -->
 	if args.get("on") is not None:
 		_state["fog"] = bool(args["on"])
@@ -1450,7 +1450,7 @@ _HELP["todo"] = "What waits for the player's orders: cities with an empty build 
 
 
 def cmd_todo(args):
-	# <!-- custom: The game's choose-production and choose-tech popups only show in the window and do not stop 'endturn': 22 turns ended with an empty queue and no research (2026-11-13), so the pilot has to ask what is idle. (Claude code Fable 5.2) -->
+	# <!-- custom: The game's choose-production and choose-tech popups only show in the window and do not stop 'endturn': 22 turns ended with an empty queue and no research (2026-11-13), so SASPilot has to ask what is idle. (Claude code Fable 5.2) -->
 	player = _player(args)
 	# <!-- custom: The game turn too: a turn loop of the islands replay (2026-11-15) asked it with a 'py' call after each endturn; the year with it, as autosaves are named by year (AutoSave_BC-2120 was turn 68). (Claude code Opus 5.5) -->
 	result = {"turn": gc.getGame().getGameTurn(), "year": gc.getGame().getGameTurnYear(), "turnActive": player.isTurnActive()}
@@ -1458,7 +1458,7 @@ def cmd_todo(args):
 	result["needsResearch"] = (player.getCurrentResearch() < 0)
 	# <!-- custom: An automated group, such as a scout on Explore, was listed as idle every turn of the fog-on playthrough (2026-11-13), while the window does not ask for its orders; leave such groups out. (Claude code Opus 5.5) -->
 	result["idleUnits"] = [_unitBrief(unit) for unit in _units(player) if unit.getGroup().readyToMove(False) and unit.getGroup().getLengthMissionQueue() == 0 and not unit.getGroup().isAutomated()]
-	# <!-- custom: Choices the game asked for and the pilot holds, such as keeping or razing a captured city; production and tech popups are left out, as the two entries above cover them. (Claude code Fable 5.2) -->
+	# <!-- custom: Choices the game asked for and SASPilot holds, such as keeping or razing a captured city; production and tech popups are left out, as the two entries above cover them. (Claude code Fable 5.2) -->
 	if player.getID() == gc.getGame().getActivePlayer() and hasattr(gc.getGame(), "getSASPilotPathJson"):
 		result["heldPopups"] = [{"id": popup["id"], "type": popup["type"], "data1": popup["data1"], "buttons": [item["name"] for item in popup["buttons"]], "about": popup.get("about")} for popup in _popups() if popup["state"] == "HELD" and not (popup["type"] == "BUTTONPOPUP_CHOOSEPRODUCTION" or (popup["type"] == "BUTTONPOPUP_CHOOSETECH" and popup["data1"] <= 0)) and not _isNotice(popup)]
 	# <!-- custom: An open diplomacy screen waits for a reply as a popup does; see 'diplo'. (Claude code Opus 5.5) -->
@@ -1480,7 +1480,7 @@ def cmd_todo(args):
 		others = [szName for szName in _openScreens() if szName != "cityScreen"]
 		if others:
 			result["openScreens"] = others
-	# <!-- custom: A free-tech chooser already on display, as after loading a save before the pilot held popups again, is not in heldPopups, so 'endturn --turns' did not stop for it (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: A free-tech chooser already on display, as after loading a save before SASPilot held popups again, is not in heldPopups, so 'endturn --turns' did not stop for it (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: Only while the game still counts a free tech as owed: after 'freetech' took one through a displayed chooser, the chooser stayed on screen, and listing it kept 'todo' waiting for good (2026-11-13). (Claude code Opus 5.5) -->
 	if player.getID() == gc.getGame().getActivePlayer() and hasattr(gc.getGame(), "getSASPilotPathJson"):
 		displayed = [popup for popup in _popups() if popup["state"] == "DISPLAYED" and popup["type"] == "BUTTONPOPUP_CHOOSETECH" and popup["data1"] > 0]
@@ -2059,7 +2059,7 @@ def cmd_mission(args):
 			szWhy += ", whose current mission is %s" % gc.getMissionInfo(group.getMissionType(0)).getType()
 		raise ValueError("unit %d cannot start %s (%s, %s) now (%s)" % (unit.getID(), args["mission"], iData1, iData2, szWhy))
 	# <!-- custom: No mission AI plot or unit, as the window's own orders give none (CvNetPushMission).
-	# The pilot first passed the plot above, which pushMission records as the group's mission AI plot while the group can move: a Work Boat sent by 'move' from (39,32) then had fishing boats appended after arriving with no moves left, and at the next turn the KI#176 stale-target guard in continueMission cancelled the build, as the boat was not at (39,32) (fog-on playthrough, turns 116-118, 2026-11-13). See KI#176.
+	# SASPilot first passed the plot above, which pushMission records as the group's mission AI plot while the group can move: a Work Boat sent by 'move' from (39,32) then had fishing boats appended after arriving with no moves left, and at the next turn the KI#176 stale-target guard in continueMission cancelled the build, as the boat was not at (39,32) (fog-on playthrough, turns 116-118, 2026-11-13). See KI#176.
 	# CySelectionGroup.pushMission dereferenced None until that same day's DLL, hence the binding check. (Claude code Opus 5.5) -->
 	_pilotGame("isSASPilotChoosingFreeTech")
 	iUnit = unit.getID()
@@ -2550,7 +2550,7 @@ _HELP["timeline"] = "The Info screen's Timeline tab as entries, newest first: th
 
 def cmd_timeline(args):
 	# <!-- custom: The user's follow-up after the public-information survey (2026-11-15): the Timeline shows met rivals' era changes, first discoveries and Great People, which no command read.
-	# Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so the pilot and the tab share one filter and the open screen's own state and cache stay untouched. (Claude code Opus 5.5) -->
+	# Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so SASPilot and the tab share one filter and the open screen's own state and cache stay untouched. (Claude code Opus 5.5) -->
 	import copy
 	player = _player(args)
 	iTeam = player.getTeam()
@@ -3272,7 +3272,7 @@ _HELP["topcivs"] = "The Greatest Civilizations screen, while it is up (it comes 
 
 
 def cmd_topcivs(args):
-	# <!-- custom: The user saw this screen at turn 82 of the islands replay (2026-11-15) and asked that the pilot map it: a ranking of the most powerful civilizations, public in that a player reads it, all eight unknown to us then.
+	# <!-- custom: The user saw this screen at turn 82 of the islands replay (2026-11-15) and asked that SASPilot map it: a ranking of the most powerful civilizations, public in that a player reads it, all eight unknown to us then.
 	# CvTopCivs keeps its ranking in aiTopCivsValues but not which category it chose, so the category is found by matching the order against each measure, as makeList computes them. (Claude code Opus 5.5) -->
 	import CvScreensInterface
 	topCivs = getattr(CvScreensInterface, "topCivs", None)
@@ -3319,7 +3319,7 @@ _HELP["closescreens"] = "Close the screens left open in the window, as Esc or th
 
 
 def cmd_closescreens(args):
-	# <!-- custom: The pilot could open an advisor ('control', 'screen') but not close it: the Foreign Advisor from a test (2026-11-14) took an Esc sent to the window.
+	# <!-- custom: SASPilot could open an advisor ('control', 'screen') but not close it: the Foreign Advisor from a test (2026-11-14) took an Esc sent to the window.
 	# hideScreen is what an advisor's Exit button calls; the city screen closes by clearing the selected cities, as noted in 'todo'. (Claude code Opus 5.5) -->
 	import CvScreensInterface
 	szOnly = args.get("name")
@@ -3344,7 +3344,7 @@ def _remindScreens(player, args):
 	result = []
 	for szName in _openScreens():
 		result.append({"text": "the %s screen is open in the window; 'closescreens' closes it" % szName, "screen": szName})
-	# <!-- custom: Popups on display in the window, as against those the pilot holds, which 'todo' lists.
+	# <!-- custom: Popups on display in the window, as against those SASPilot holds, which 'todo' lists.
 	# Read through the DLL, so only with one that has it. (Claude code Opus 5.5) -->
 	if not hasattr(gc.getGame(), "getSASPilotPathJson"):
 		return result
@@ -4318,7 +4318,7 @@ def _dealItems(deal, bFirst):
 def cmd_deals(args):
 	# <!-- custom: At turn 125 of the turn-0 game (2026-11-14) the mined and roaded Iron diagonal to London read unconnected, and no city could train a Swordsman.
 	# The trade network itself connected (two roaded plots, CvPlot::isTradeNetworkConnected); CvPlot::updatePlotGroupBonus subtracts the capital's exports, so a resource given away in a deal reads as missing.
-	# The pilot had no way to list deals, which the Foreign Advisor's Active tab shows a player (CvForeignAdvisor's deal loop). (Claude code Opus 5.5) -->
+	# SASPilot had no way to list deals, which the Foreign Advisor's Active tab shows a player (CvForeignAdvisor's deal loop). (Claude code Opus 5.5) -->
 	player = gc.getPlayer(_playerId(args))
 	iPlayer = player.getID()
 	game = gc.getGame()
@@ -4348,7 +4348,7 @@ _HELP["canceldeal"] = "Cancel one of our deals, as the Foreign Advisor's cancel 
 
 
 def cmd_canceldeal(args):
-	# <!-- custom: Our only Iron went to Gilgamesh inside a Pig sale at turn 118 of the turn-0 game (2026-11-14), and the pilot could not cancel a deal.
+	# <!-- custom: Our only Iron went to Gilgamesh inside a Pig sale at turn 118 of the turn-0 game (2026-11-14), and SASPilot could not cancel a deal.
 	# CvDLLWidgetData::doDealKill tests CvDeal::isCancelable, then raises BUTTONPOPUP_DEAL_CANCELED, whose Yes sends the kill as a network message; isCancelable is not exposed, so its turn rule is checked here and vassal deals, which it may refuse, are left to the window. (Claude code Opus 5.5) -->
 	player = gc.getPlayer(_activePlayerId())
 	iDeal = int(args["deal"])
@@ -4457,7 +4457,7 @@ _HELP["demographics"] = "The Info screen's Demographics tab: for soldiers (milit
 
 
 def cmd_demographics(args):
-	# <!-- custom: The user pointed out at turn 90 of the turn-0 game (2026-11-14) that we were falling behind militarily, and that a player sees it on the Info screen's Demographics tab; the pilot had no command for it, and 'relations' hides power under fog.
+	# <!-- custom: The user pointed out at turn 90 of the turn-0 game (2026-11-14) that we were falling behind militarily, and that a player sees it on the Info screen's Demographics tab; SASPilot had no command for it, and 'relations' hides power under fog.
 	# This follows CvInfoScreen.drawDemographicsTab (advc.077): the same rivals, current power, land and population for all, history for the rivals' economy, industry and agriculture. (Claude code Opus 5.5) -->
 	player = gc.getPlayer(_playerId(args))
 	_requireOwnTeamUnderFog(args, player, "the demographics")
@@ -4587,7 +4587,7 @@ _HELP["routes"] = "A text map of the player's land, row by row from the north, t
 
 
 def cmd_routes(args):
-	# <!-- custom: The pilot gave plots one by one and no picture of the network: at turn 281 of the modern baseline (2026-11-14) the user spotted a marsh at (11,42) with no route between a railroad and two roads, which the agent had not noticed.
+	# <!-- custom: SASPilot gave plots one by one and no picture of the network: at turn 281 of the modern baseline (2026-11-14) the user spotted a marsh at (11,42) with no route between a railroad and two roads, which the agent had not noticed.
 	# A row of characters per map row shows such a gap the way the map does. (Claude code Opus 5.5) -->
 	player = gc.getPlayer(_playerId(args))
 	iTeam = _fogTeam(args)
@@ -4658,14 +4658,14 @@ def _checkMissionData(eMission, iData1, iData2, bQueued):
 		if iData1 != -1 or iData2 != -1:
 			raise ValueError("%s takes no data" % szMission)
 	else:
-		raise ValueError("%s cannot be queued behind other missions by the pilot; give it when the queue is empty" % szMission)
+		raise ValueError("%s cannot be queued behind other missions by SASPilot; give it when the queue is empty" % szMission)
 
 
 _HELP["group"] = "Group units on one plot as selecting them together does, so they move and take missions as one: with=<unit> joins 'unit' to that unit's group; without it, 'unit' leaves its group. Then order the group through any of its units. args: unit, with, player."
 
 
 def cmd_group(args):
-	# <!-- custom: At turn 91 of the fog-on playthrough (2026-11-13) a Settler had to go where Barbarian Archers had pillaged, and the pilot could not escort it: Python has no joinGroup.
+	# <!-- custom: At turn 91 of the fog-on playthrough (2026-11-13) a Settler had to go where Barbarian Archers had pillaged, and SASPilot could not escort it: Python has no joinGroup.
 	# See joinSASPilotGroup in CvGameInterface.cpp. (Claude code Opus 5.5) -->
 	unit = _unit(args)
 	iHead = -1
@@ -4725,7 +4725,7 @@ def _diploState():
 	return state
 
 
-# <!-- custom: A contact the pilot queued is (leader, fill columns, time) until its screen opens; the EXE opens it on later frames, so 'menu' could load in between (Codex's review).
+# <!-- custom: A contact SASPilot queued is (leader, fill columns, time) until its screen opens; the EXE opens it on later frames, so 'menu' could load in between (Codex's review).
 # Forgotten after CONTACT_PENDING_SECONDS, in case the screen never opens. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 # <!-- custom: Timed with time.clock(), not time.time(): Direct3D sets the process's FPU to single precision, so inside Civ4 time.time() (about 1.79e9) moves in 128-second steps, and 1794652928.0 + 1.5 printed 1794652928.0 (turn 291, 2026-11-14).
 # A contact queued by a failed 'price' then never expired and blocked every later contact.
@@ -4803,7 +4803,7 @@ def _tradeDataName(eKind, iData):
 
 
 def cmd_diplo(args):
-	# <!-- custom: Seven AI contacts reached the pilot's player in the 97-turn fog-on game (2026-11-13): tech offers, Open Borders, and Zara Yaqob pressing for Paganism, which refusing can anger.
+	# <!-- custom: Seven AI contacts reached SASPilot's player in the 97-turn fog-on game (2026-11-13): tech offers, Open Borders, and Zara Yaqob pressing for Paganism, which refusing can anger.
 	# They opened the diplomacy screen in the window, unseen; Moctezuma's first-contact screen was still open at turn 97. (Claude code Opus 5.5) -->
 	state = _diploState()
 	if not state["open"]:
@@ -5039,7 +5039,7 @@ def cmd_techs(args):
 
 
 def cmd_trade(args):
-	# <!-- custom: The AI announced "Pacal II will trade Agriculture, Mysticism" in the fog-on playthrough (2026-11-13), but the pilot could not see the diplomacy screen's table.
+	# <!-- custom: The AI announced "Pacal II will trade Agriculture, Mysticism" in the fog-on playthrough (2026-11-13), but SASPilot could not see the diplomacy screen's table.
 	# These are the same per-item checks the screen makes (canTradeItem, getTradeDenial); proposing a deal is not covered. (Claude code Opus 5.5) -->
 	player = _player(args)
 	other = gc.getPlayer(_otherAiId(player, args["with"]))
@@ -5101,7 +5101,7 @@ _HELP["odds"] = "The odds the window shows when a unit is pointed at a plot to a
 
 
 def cmd_odds(args):
-	# <!-- custom: A person sees the combat odds on hovering an enemy before attacking; the pilot had moves and paths but no odds (fog-on playthrough, 2026-11-13).
+	# <!-- custom: A person sees the combat odds on hovering an enemy before attacking; SASPilot had moves and paths but no odds (fog-on playthrough, 2026-11-13).
 	# The defender is the one the game would pick against this attacker, as getBestDefender does for the hover text; with fog on, only a plot in sight. (Claude code Opus 5.5) -->
 	unit = _unit(args)
 	plot = _plot(args)
@@ -5143,7 +5143,7 @@ _HELP["sites"] = "The city sites the window circles when this Settler is selecte
 
 
 def cmd_sites(args):
-	# <!-- custom: At the first Settler of the fog-on playthrough (2026-11-13) the pilot had plots and yields but not the green circles BtS draws for a selected Settler; this reads the same list in C++, as Python cannot reach it. (Claude code Opus 5.5) -->
+	# <!-- custom: At the first Settler of the fog-on playthrough (2026-11-13) SASPilot had plots and yields but not the green circles BtS draws for a selected Settler; this reads the same list in C++, as Python cannot reach it. (Claude code Opus 5.5) -->
 	unit = _unit(args)
 	text = _pilotGame("getSASPilotCitySitesJson").getSASPilotCitySitesJson(unit.getOwner(), unit.getID())
 	if text == "null":
@@ -5302,7 +5302,7 @@ def _improvable(plot, player):
 
 
 def cmd_workers(args):
-	# <!-- custom: The pilot only automated Workers until the user asked it to plan them itself and compare its choices with the AI's (2026-11-14): yields, rivers, roads to neighbours for trade.
+	# <!-- custom: SASPilot only automated Workers until the user asked it to plan them itself and compare its choices with the AI's (2026-11-14): yields, rivers, roads to neighbours for trade.
 	# The city AI's per-plot best build comes from getSASPilotCityBuildsJson, as Python had no getter; the rest is read here. (Claude code Opus 5.5) -->
 	player = _player(args)
 	_requireOwnTeamUnderFog(args, player, "Worker planning")
@@ -5452,7 +5452,7 @@ def cmd_step(args):
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "movesLeft": unit.movesLeft(), "stepsLeft": len(path["steps"]) - 1, "newlyRevealed": after - before, "foreignNear": foreign}
 
 
-_HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what the pilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, spy, targets, hurry, produce, dequeue, citizens, work, specialist, emphasize) looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
+_HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what SASPilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, spy, targets, hurry, produce, dequeue, citizens, work, specialist, emphasize) looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
 
 
 def _lookAt(plot):
@@ -5483,7 +5483,7 @@ def _followOrder(name, args):
 
 
 def cmd_look(args):
-	# <!-- custom: The user watches the playthrough in the window, and the pilot never moved the camera: when Paper was discovered the view was too far from the action to follow it (2026-11-13).
+	# <!-- custom: The user watches the playthrough in the window, and SASPilot never moved the camera: when Paper was discovered the view was too far from the action to follow it (2026-11-13).
 	# The camera changes only what is drawn, not the game. (Claude code Opus 5.5) -->
 	if args.get("follow") is not None:
 		_state["follow"] = bool(args["follow"])
@@ -5612,7 +5612,7 @@ _HELP["finance"] = "The Domestic Advisor's Finance tab: treasury and net gold pe
 
 
 def cmd_finance(args):
-	# <!-- custom: The Finance tab breaks gold down into income and expenses, which the pilot had only as two totals in 'player' (turn 265 of the modern baseline, 2026-11-14, visual pass over the advisors).
+	# <!-- custom: The Finance tab breaks gold down into income and expenses, which SASPilot had only as two totals in 'player' (turn 265 of the modern baseline, 2026-11-14, visual pass over the advisors).
 	# The expense arithmetic is the tab's own (CvDomesticAdvisor.py), inflation applied per line and once overall. (Claude code Opus 5.5) -->
 	import TradeUtil
 	player = _player(args)
@@ -5635,7 +5635,7 @@ def cmd_domestic(args):
 		row = {"id": city.getID(), "name": city.getName(), "population": city.getPopulation(), "happyMargin": city.happyLevel() - city.unhappyLevel(0), "healthMargin": city.goodHealth() - city.badHealth(False), "food": city.foodDifference(True), "production": city.getYieldRate(YieldTypes.YIELD_PRODUCTION), "commerce": dict([(gc.getCommerceInfo(i).getType()[9:], city.getCommerceRate(CommerceTypes(i))) for i in range(int(CommerceTypes.NUM_COMMERCE_TYPES))]), "culture": city.getCulture(city.getOwner()), "cultureNextLevel": city.getCultureThreshold(), "greatPeopleProgress": city.getGreatPeopleProgress(), "greatPeopleRate": city.getGreatPeopleRate(), "maintenance": city.getMaintenanceTimes100() / 100, "tradeCommerce": city.getTradeYield(YieldTypes.YIELD_COMMERCE), "building": (queue and [queue[0]] or [None])[0], "turns": city.getProductionTurnsLeft()}
 		# <!-- custom: Coastal, as the Domestic Advisor's columns mark it (isCoastal with the game's MIN_WATER_SIZE_FOR_OCEAN), with an empire summary below: the user asked at turn 156 of the turn-0 game (2026-11-14) how many coastal cities we have, since a Harbor or Lighthouse pays per coastal city, and which cities need health or happiness, as the advisor's overview shows at a glance. (Claude code Opus 5.5) -->
 		row["coastal"] = bool(city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()))
-		# <!-- custom: More of the advisor's overview pages, as the user asked at turn 157 of the turn-0 game (2026-11-14): defense and garrison and the revolt chance from page 1 (advc.ctr's column; Orleans showed 9.2% to Pericles's culture at turn 139, which the pilot learned only from a turn message), food stored against the growth threshold from page 2, war weariness from page 3, and the turn founded from page 4.
+		# <!-- custom: More of the advisor's overview pages, as the user asked at turn 157 of the turn-0 game (2026-11-14): defense and garrison and the revolt chance from page 1 (advc.ctr's column; Orleans showed 9.2% to Pericles's culture at turn 139, which SASPilot learned only from a turn message), food stored against the growth threshold from page 2, war weariness from page 3, and the turn founded from page 4.
 		# Revolt in per mille, an integer, as floats lose precision inside Civ4 (KI#1093). (Claude code Opus 5.5) -->
 		row["defensePercent"] = city.getDefenseModifier(False)
 		row["garrison"] = city.plot().getNumDefenders(city.getOwner())
@@ -5708,7 +5708,7 @@ _HELP["military"] ="The Military Advisor's summary as decisions need it: unit co
 
 
 def cmd_military(args):
-	# <!-- custom: From a visual pass over SAS's Military Advisor Summary at turn 265 of the modern baseline (2026-11-14): the pilot had the unit list but not what it adds up to, and the Summary's "Upgradeable: 24, total cost 2574" gave no unit IDs to act on.
+	# <!-- custom: From a visual pass over SAS's Military Advisor Summary at turn 265 of the modern baseline (2026-11-14): SASPilot had the unit list but not what it adds up to, and the Summary's "Upgradeable: 24, total cost 2574" gave no unit IDs to act on.
 	# This lists them, cheapest target first; canUpgrade is the game's own check, so an SAS tech gate such as the Rifleman's Military Tradition is respected. (Claude code Opus 5.5) -->
 	player = _player(args)
 	team = gc.getTeam(player.getTeam())
@@ -5858,7 +5858,7 @@ _HELP["espionage"] ="The espionage screen: per team met, the points gathered aga
 
 
 def cmd_espionage(args):
-	# <!-- custom: The pilot had nothing for espionage (2026-11-14): no points per rival, no spending weights, which the Espionage Advisor sets with its +/- buttons. (Claude code Opus 5.5) -->
+	# <!-- custom: SASPilot had nothing for espionage (2026-11-14): no points per rival, no spending weights, which the Espionage Advisor sets with its +/- buttons. (Claude code Opus 5.5) -->
 	player = _player(args)
 	team = gc.getTeam(player.getTeam())
 	if args.get("team") is not None:
@@ -5934,7 +5934,7 @@ def cmd_endturn(args):
 	# <!-- custom: Moctezuma's war declaration at turn 148 stayed open on the diplomacy screen while three 'endturn' calls went through, each reporting it under 'skipped' (2026-11-13); in the window that screen covers the End Turn button until it is answered, so 'endturn' refuses as well. (Claude code Opus 5.5) -->
 	if _diploState()["open"]:
 		raise ValueError("a diplomacy screen waits for an answer; see 'diplo' and 'reply'")
-	# <!-- custom: A contact the pilot queued opens on later frames, so an 'endturn' right after it could slip past the check above (Codex's review); refused as 'menu' does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: A contact SASPilot queued opens on later frames, so an 'endturn' right after it could slip past the check above (Codex's review); refused as 'menu' does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if _pendingContact() is not None:
 		raise ValueError("a contact is queued and its screen has not opened yet; read 'diplo' once it does")
 	skipped = cmd_todo({})
@@ -6096,7 +6096,7 @@ _HELP["save"] ="Save the game; through SASPilotClient.py a bare name goes to Sav
 
 
 def cmd_save(args):
-	# <!-- custom: Saving over an existing file made the EXE ask "already exists. Press OK to proceed, overwriting the file" in the window, which the pilot cannot answer, and the reply still said exists for the old file (2026-11-13). So an existing file is refused unless overwrite=true, and then removed first, which is what that OK does. (Claude code Opus 5.5) -->
+	# <!-- custom: Saving over an existing file made the EXE ask "already exists. Press OK to proceed, overwriting the file" in the window, which SASPilot cannot answer, and the reply still said exists for the old file (2026-11-13). So an existing file is refused unless overwrite=true, and then removed first, which is what that OK does. (Claude code Opus 5.5) -->
 	# <!-- custom: With overwrite, the new save is written beside the old one and replaces it only once it exists: the first version removed the old file first, so a failed write would have lost both (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if os.path.isfile(args["path"]):
 		if args.get("overwrite") is not True:
@@ -6129,7 +6129,7 @@ def cmd_save(args):
 	return {"path": args["path"], "exists": os.path.isfile(args["path"])}
 
 
-_HELP["menu"] = "Leave the game for the main menu; with path, load that save instead. The reply is written first; the pilot answers again once a game runs. args: path."
+_HELP["menu"] = "Leave the game for the main menu; with path, load that save instead. The reply is written first; SASPilot answers again once a game runs. args: path."
 
 
 def cmd_menu(args):
@@ -6203,7 +6203,7 @@ def _popups():
 
 def _popupAbout(popup):
 	# <!-- custom: The window says "Adopt Caste System?", while the held CHANGECIVIC popup at turn 70 of the fog-on playthrough (2026-11-13) gave data1 2 and data2 12 with no text.
-	# Name what the data stand for in the popups the pilot answers, from each launcher's use of them in CvDLLButtonPopup.cpp. (Claude code Opus 5.5) -->
+	# Name what the data stand for in the popups SASPilot answers, from each launcher's use of them in CvDLLButtonPopup.cpp. (Claude code Opus 5.5) -->
 	szType = popup["type"]
 	if szType == "BUTTONPOPUP_CHANGECIVIC":
 		popup["about"] = {"civicOption": _typeOrNone(gc.getCivicOptionInfo, popup["data1"]), "civic": _typeOrNone(gc.getCivicInfo, popup["data2"])}
@@ -6216,7 +6216,7 @@ def _popupAbout(popup):
 	elif szType == "BUTTONPOPUP_CHOOSETECH" and popup["data1"] > 0:
 		popup["about"] = {"freeTechs": popup["data1"], "use": "freetech"}
 	elif szType == "BUTTONPOPUP_DECLAREWARMOVE":
-		# <!-- custom: Declaring war in the diplomacy screen raised this confirmation, held by the pilot, with the target team in data1 (2026-11-13). (Claude code Opus 5.5) -->
+		# <!-- custom: Declaring war in the diplomacy screen raised this confirmation, held by SASPilot, with the target team in data1 (2026-11-13). (Claude code Opus 5.5) -->
 		popup["about"] = {"team": popup["data1"], "leaders": [gc.getPlayer(i).getName() for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and gc.getPlayer(i).getTeam() == popup["data1"]]}
 	elif szType == "BUTTONPOPUP_CHANGERELIGION":
 		popup["about"] = {"religion": _typeOrNone(gc.getReligionInfo, popup["data1"])}
@@ -6250,7 +6250,7 @@ def _popupAbout(popup):
 CITY_TIP_CALLBACK = "cityWarningOnClickedCallback"
 
 
-_HELP["popups"] = "The active player's popups. HELD ones were kept from the window while the pilot drives and can be answered by their id; DISPLAYED and QUEUED ones are in the window. Each has state, id (-1 unless held), type (BUTTONPOPUP_ name), data1-3, flags, options, buttons (the ones 'answer' takes now, by number and name) and text. args: held (optional, 1 or 0, to switch holding on or off first; switching it off hands the held popups back to the window)."
+_HELP["popups"] = "The active player's popups. HELD ones were kept from the window while SASPilot drives and can be answered by their id; DISPLAYED and QUEUED ones are in the window. Each has state, id (-1 unless held), type (BUTTONPOPUP_ name), data1-3, flags, options, buttons (the ones 'answer' takes now, by number and name) and text. args: held (optional, 1 or 0, to switch holding on or off first; switching it off hands the held popups back to the window)."
 
 
 def cmd_popups(args):

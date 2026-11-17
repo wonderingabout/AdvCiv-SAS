@@ -302,6 +302,15 @@ def check_progression(repo, default_branch_ref=None, event_name="local", event_d
     for parent, commit in transitions:
         if parent is None:
             continue
+        # <!-- custom: A merge brings in both parents' revisions, so it is judged against the parent with the higher one, for its number and for whether it changes the recorder.
+        # Merging main into saspilot on 2026-11-17 failed as a jump from 202 to 204, as both branches had used 202 meanwhile: against main's 203, the merge adds saspilot's reflow, renumbered 204.
+        # A merge that only brings in a branch's own bump equals that parent and needs none; squash mode compares with the branch's base, not a parent, so it keeps that base. (Claude code Opus 5.5) -->
+        parents = subprocess.check_output(["git", "rev-list", "--parents", "-n", "1", commit], cwd=repo).decode().split()[1:] if commit else []
+        if len(parents) > 1 and parents[0] == parent:
+            ranked = [(commit_revision(repo, item), -index, item) for index, item in enumerate(parents)]
+            ranked = [entry for entry in ranked if entry[0] is not None]
+            if ranked:
+                parent = max(ranked)[2]
         previous = commit_revision(repo, parent)
         current = commit_revision(repo, commit)
         short = commit[:12] if commit else "working-tree"

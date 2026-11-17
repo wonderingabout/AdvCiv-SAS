@@ -286,7 +286,7 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
-The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling. The Pilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
+The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling. SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -840,7 +840,7 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as the Pilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as SASPilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 

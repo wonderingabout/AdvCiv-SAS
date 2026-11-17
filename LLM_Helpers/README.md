@@ -2542,7 +2542,7 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 
 ### Piloting a running game
 
-- Why a folder of its own: the pilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
+- Why a folder of its own: SASPilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
   - Inside it the old `pilot_` prefix said nothing, so `pilot_checks/` and `pilot_sequences/` became `checks/` and `sequences/`.
   - The folder is `saspilot/`, not `pilot/`: a bare "pilot" leaves a reader wondering what it is, while SASPilot names the feature, as SGR and BBAI logging do, and greps as one word (the user's point).
   - `run_autoplay.py` stays in `game_runs/` and `desktop_windows.py` sits in [`desktop/`](#desktop), as other tools use them too; `SASPilotClient.py` and `SASPilotConsole.py` add those folders to their import path.
@@ -2556,7 +2556,7 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 - `SASPilotClient.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
 - `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
   - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/saspilot/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
-- The pilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
+- SASPilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
 - Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
 - `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).

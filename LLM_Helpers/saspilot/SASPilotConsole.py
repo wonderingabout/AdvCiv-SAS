@@ -300,7 +300,7 @@ def main():
 		waited = True
 		time.sleep(1.0)
 		path = newest_log(args.pid)
-	# <!-- custom: A console of its own says it is open in <log>.watch, its PID and creation time, which pilot.ensure_watcher reads to reopen a console that was closed: on 2026-11-14 the user could not find the console, which had ended with the agent's session while Civ4 ran on (the user asked for it to start with the pilot). (Claude code Opus 5.5) -->
+	# <!-- custom: A console of its own says it is open in <log>.watch, its PID and creation time, which pilot.ensure_watcher reads to reopen a console that was closed: on 2026-11-14 the user could not find the console, which had ended with the agent's session while Civ4 ran on (the user asked for it to start with SASPilot). (Claude code Opus 5.5) -->
 	if args.arrange_self and args.pid:
 		try:
 			path.with_suffix(".watch").write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
@@ -310,7 +310,7 @@ def main():
 	# The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
 	started = time.time()
 	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the SASPilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
-	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like the pilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
+	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like SASPilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
 	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads.
 	# They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
 	if os.name == "nt":
