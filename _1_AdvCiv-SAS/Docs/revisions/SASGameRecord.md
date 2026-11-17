@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 205 - SAS practical 6803 (SASSaveTransplanter branch)
 
 - **Date:** 2026-11-17
-- **Git commit:** pending
+- **Git commit:** `4985acbe8bb133398e426366cf57d7b42c0e91cf`
 - **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's.
   - First taken as 206 in merge commit `94bf831d30e6cf8621026f189d41e8a59d2778d9`, above saspilot's then 205; saspilot folded its 205 into 204, keeping one revision above main as it is squashed when it lands, so this branch keeps one above saspilot's: 205.
 

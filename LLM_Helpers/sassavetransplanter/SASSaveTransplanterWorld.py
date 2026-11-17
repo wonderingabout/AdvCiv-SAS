@@ -399,10 +399,14 @@ def analyze(lines: Sequence[str], destination_types: Optional[set], allow_nonzer
         sy = first_value(player, "StartingY")
         if sx is None and sy is None:
             continue
+        # <!-- custom: Was int(sx) and int(sy) silenced for the type checker, relying on int(None) raising TypeError when a file gives only one of the two; checking for None first says it in code, so nothing needs silencing.
+        # The same error is reported as before, for a missing coordinate and for one that is not a number. (Claude code Opus 5.5) -->
+        if sx is None or sy is None:
+            errors.append("player %d has invalid StartingX/StartingY: %r/%r" % (player_index, sx, sy))
+            continue
         try:
-            # <!-- custom: One of sx and sy may be None; int(None) then raises TypeError, caught below as an invalid start. (Claude code Opus 5.5) -->
-            coord = (int(sx), int(sy))  # type: ignore[arg-type]
-        except (TypeError, ValueError):
+            coord = (int(sx), int(sy))
+        except ValueError:
             errors.append("player %d has invalid StartingX/StartingY: %r/%r" % (player_index, sx, sy))
             continue
         if width is not None and height is not None and not (0 <= coord[0] < width and 0 <= coord[1] < height):
@@ -784,8 +788,12 @@ def command_inspect(args: argparse.Namespace) -> int:
         destination_types, _per_root, xml_warnings = load_destination_types(xml_roots)
         destination_type_count = len(destination_types)
     analysis = analyze(text.splitlines(True), destination_types, args.allow_nonzero_turn, args.allow_unresolved_types)
-    # <!-- custom: analyze() returns Dict[str, object], but its "warnings" value is the list it builds. (Claude code Opus 5.5) -->
-    analysis["warnings"].extend(xml_warnings)  # type: ignore[union-attr]
+    # <!-- custom: Was analysis["warnings"].extend(...) silenced for the type checker, as analyze() returns Dict[str, object] although its "warnings" value is the list it builds.
+    # Checking that it is a list says so in code, so nothing needs silencing, and fails loudly if analyze() ever changes it. (Claude code Opus 5.5) -->
+    analysis_warnings = analysis["warnings"]
+    if not isinstance(analysis_warnings, list):
+        raise TypeError("analyze() returned warnings as %s, not a list" % type(analysis_warnings).__name__)
+    analysis_warnings.extend(xml_warnings)
     report = report_for(source, source_data, analysis, xml_roots or None, destination_type_count, {"type_remaps": {}, "mod_path_changes": 0}, args.source_build, args.destination_build)
     write_report(args.report.resolve() if args.report else None, report)
     print_summary(report)
@@ -820,8 +828,12 @@ def command_transplant(args: argparse.Namespace) -> int:
     output_data = output_text.encode(WB_ENCODING)
 
     analysis = analyze(transformed, destination_types, args.allow_nonzero_turn, args.allow_unresolved_types)
-    # <!-- custom: analyze() returns Dict[str, object], but its "warnings" value is the list it builds. (Claude code Opus 5.5) -->
-    analysis["warnings"].extend(xml_warnings)  # type: ignore[union-attr]
+    # <!-- custom: Was analysis["warnings"].extend(...) silenced for the type checker, as analyze() returns Dict[str, object] although its "warnings" value is the list it builds.
+    # Checking that it is a list says so in code, so nothing needs silencing, and fails loudly if analyze() ever changes it. (Claude code Opus 5.5) -->
+    analysis_warnings = analysis["warnings"]
+    if not isinstance(analysis_warnings, list):
+        raise TypeError("analyze() returned warnings as %s, not a list" % type(analysis_warnings).__name__)
+    analysis_warnings.extend(xml_warnings)
     transformations = {
         "type_remaps": dict(sorted(remapped.items())),
         "mapping_file": str(args.mapping.resolve()) if args.mapping else None,
