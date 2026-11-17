@@ -3,10 +3,10 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # <!-- custom: SASSaveTransplanter: recreates the turn-0 world of a save that the current build can no longer load, as a new save written by the current build.
-# The build that wrote the save loads it and writes its world as WorldBuilder text (type names, not XML indexes), transplant_t0_world.py checks those names against the current XML, and the current build loads that text as a scenario and saves normally.
-# No binary field crosses versions. See README_Save_Transplanter.md. (Claude code Fable 5.2) -->
+# The build that wrote the save loads it and writes its world as WorldBuilder text (type names, not XML indexes), SASSaveTransplanterWorld.py checks those names against the current XML, and the current build loads that text as a scenario and saves normally.
+# No binary field crosses versions. See README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
 
-# <!-- custom: argparse reads the commands; collections counts mods and plot differences; json reads facts and writes reports; re finds leftover mod-folder names in a mod copy; shutil copies a source build; struct reads and rewrites the save header; subprocess runs transplant_t0_world.py; uuid names the pilot session. (Claude code Fable 5.2) -->
+# <!-- custom: argparse reads the commands; collections counts mods and plot differences; json reads facts and writes reports; re finds leftover mod-folder names in a mod copy; shutil copies a source build; struct reads and rewrites the save header; subprocess runs SASSaveTransplanterWorld.py; uuid names the pilot session. (Claude code Fable 5.2) -->
 import argparse
 import collections
 import datetime
@@ -36,15 +36,15 @@ BTS_DIR = MODS_DIR.parent
 CIV4_DIR = BTS_DIR.parent
 SAVE_EXT = ".CivBeyondSwordSave"
 WB_EXT = ".CivBeyondSwordWBSave"
-EXPORTER = "SASSaveTransplantExport"
+EXPORTER = "SASSaveTransplanterExport"
 # <!-- custom: Written into every folder install_mod_copy creates; only a folder holding it may be reused or given the export hook. (Claude code Fable 5.2) -->
 MOD_COPY_MARK = "SASModCopy.json"
 # <!-- custom: The scenario setup screens' OK button as PrintWindow shows it, 120 x 36 pixels around the click point, taken at the window size beside it. A mean colour difference above 4 of 255 per channel counts as another picture: measured 2026-11-16, the first screen's "OK >" differed from the reference by 0.79, the other two by 0, and the black loading screen by 71. (Claude code Fable 5.2) -->
 SETUP_OK_MAX_DIFFERENCE = 4.0
 # <!-- custom: The reference pictures were beside this script; on 2026-11-16 the user asked for them in the Images folder, where other pictures that helpers read and write already live, such as the art-tool samples in Images/LLM. (Claude code Opus 5.5) -->
-SETUP_OK_DIR = run_autoplay.REPO_ROOT / "_1_AdvCiv-SAS" / "Images" / "LLM" / "save_transplant"
+SETUP_OK_DIR = run_autoplay.REPO_ROOT / "_1_AdvCiv-SAS" / "Images" / "LLM" / "sassavetransplanter"
 HOOK_MARK = "# SASSaveTransplanter hook"
-HOOK = "\n\n%s: writes the loaded game's world out once; added to this copy by sas_save_transplanter.py.\nimport %s\n_sasSaveTransplantInnerOnEvent = onEvent\ndef onEvent(argsList):\n\t%s.onEvent(argsList)\n\treturn _sasSaveTransplantInnerOnEvent(argsList)\n" % (HOOK_MARK, EXPORTER, EXPORTER)
+HOOK = "\n\n%s: writes the loaded game's world out once; added to this copy by SASSaveTransplanter.py.\nimport %s\n_sasSaveTransplanterInnerOnEvent = onEvent\ndef onEvent(argsList):\n\t%s.onEvent(argsList)\n\treturn _sasSaveTransplanterInnerOnEvent(argsList)\n" % (HOOK_MARK, EXPORTER, EXPORTER)
 
 
 def utc_stamp():
@@ -178,7 +178,7 @@ def remove_ini(ini_path):
 
 def write_request(build, values):
 	# <!-- custom: What the hook in a mod copy is to do on its next launch, as a Python module of plain values beside CvEventInterface.py. "%a" keeps it ASCII; a human name with other letters would not compare equal in the hook, which was not tried. (Claude code Fable 5.2) -->
-	path = MODS_DIR / build / "Assets" / "Python" / "EntryPoints" / "SASSaveTransplantRequest.py"
+	path = MODS_DIR / build / "Assets" / "Python" / "EntryPoints" / "SASSaveTransplanterRequest.py"
 	path.write_text("".join("%s = %a\n" % item for item in sorted(values.items())), encoding="ascii")
 	return path
 
@@ -241,7 +241,7 @@ def export_world(build, save, prefix, timeout):
 	save_copy = Path("%s_copy_%s_%d%s" % (prefix, utc_stamp(), os.getpid(), SAVE_EXT))
 	old_mod = copy_with_mod_path(save, save_copy, "Mods\\%s\\" % build)
 	request = write_request(build, {"MODE": "export", "OUT_PREFIX": str(prefix)})
-	ini_name, ini_path = write_ini("SASSaveTransplant", build)
+	ini_name, ini_path = write_ini("SASSaveTransplanter", build)
 	pid = desktop_windows.launch_detached('/FXSLOAD="%s" ini=%s' % (save_copy, ini_name))
 	print("source build %s: launched pid %d" % (build, pid), flush=True)
 	done = Path(str(prefix) + ".done")
@@ -343,7 +343,7 @@ def import_world_hook(build, wb, prefix, timeout, keep_techs=None, seeds=None, h
 			leftover.unlink()
 	save = Path(str(prefix) + "_T0" + SAVE_EXT)
 	request = write_request(build, {"MODE": "import", "OUT_PREFIX": str(prefix), "SAVE_PATH": str(save), "KEEP_GRANTS": keep_techs, "SEEDS": seeds, "MAP_UPDATE": map_update, "HUMAN_NAME": human and human.get("name"), "HUMAN_SLOT": human and human["slot"]})
-	ini_name, ini_path = write_ini("SASSaveTransplant", build)
+	ini_name, ini_path = write_ini("SASSaveTransplanter", build)
 	pid = desktop_windows.launch_detached('/FXSLOAD="%s" ini=%s' % (wb, ini_name))
 	print("receiving build %s: launched pid %d on %s" % (build, pid, wb), flush=True)
 	done = Path(str(prefix) + ".import.done")
@@ -393,7 +393,7 @@ def import_world(wb, prefix, timeout, keep_open=False, keep_techs=None, seeds=No
 		code = exporter_import() + "result = %s.keepSourceGrants(%r, %r)\n" % (EXPORTER, keep_techs[0], keep_techs[1])
 		result["grantsRemovedAfterLoad"] = SASPilotClient.call(pid, "py", {"code": code}, 120.0).get("result")
 	if seeds is not None:
-		# <!-- custom: --seeds source: both generators continue from the source game's states, so the same transplant always gives the same game. Whether that game then matches the source's own continuation is a separate question; see README_Save_Transplanter.md. (Claude code Fable 5.2) -->
+		# <!-- custom: --seeds source: both generators continue from the source game's states, so the same transplant always gives the same game. Whether that game then matches the source's own continuation is a separate question; see README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
 		code = "game.getSorenRand().init(%d)\ngame.getMapRand().init(%d)\nresult = [game.getSorenRand().getSeed(), game.getMapRand().getSeed()]\n" % (seeds[0], seeds[1])
 		result["seedsSet"] = SASPilotClient.call(pid, "py", {"code": code}, 120.0).get("result")
 	if map_update is not None:
@@ -586,7 +586,7 @@ def explain_plots(source, destination, renames, update):
 
 
 def judge_map_update(update, facts, out_path):
-	# <!-- custom: Checks what the map update reported against what it is allowed to do: put a new feature type on a plot without one and a new bonus type on a plot without one, nothing else. Writes those plots' expected WorldBuilder lines for transplant_t0_world.py compare --allowed-plot-changes, which then compares every plot in full.
+	# <!-- custom: Checks what the map update reported against what it is allowed to do: put a new feature type on a plot without one and a new bonus type on a plot without one, nothing else. Writes those plots' expected WorldBuilder lines for SASSaveTransplanterWorld.py compare --allowed-plot-changes, which then compares every plot in full.
 	# The first version waived every "plot payload" difference of the WorldBuilder comparison whenever the smaller facts comparison passed, so a changed river direction on a plot that stayed a river plot would have passed (Codex (GPT-6.1-Sol)'s 2026-11-16 review). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	new_features, new_bonuses = set(update.get("newFeatureTypes", [])), set(update.get("newBonusTypes", []))
 	allowed = {}
@@ -706,7 +706,7 @@ def explain_techs(source, destination, policy):
 
 
 def run_helper(arguments):
-	completed = subprocess.run([sys.executable, str(HERE / "transplant_t0_world.py")] + [str(a) for a in arguments], capture_output=True, text=True)
+	completed = subprocess.run([sys.executable, str(HERE / "SASSaveTransplanterWorld.py")] + [str(a) for a in arguments], capture_output=True, text=True)
 	print(completed.stdout, end="")
 	if completed.stderr:
 		print(completed.stderr, end="", file=sys.stderr)
@@ -714,7 +714,7 @@ def run_helper(arguments):
 
 
 def xml_roots(build):
-	# <!-- custom: Low to high load precedence, as transplant_t0_world.py asks: Civ4, Warlords, BtS, then the receiving mod. (Claude code Fable 5.2) -->
+	# <!-- custom: Low to high load precedence, as SASSaveTransplanterWorld.py asks: Civ4, Warlords, BtS, then the receiving mod. (Claude code Fable 5.2) -->
 	return [CIV4_DIR / "Assets" / "XML", CIV4_DIR / "Warlords" / "Assets" / "XML", BTS_DIR / "Assets" / "XML", MODS_DIR / build / "Assets" / "XML"]
 
 
@@ -886,7 +886,7 @@ def finish_variant(args, out, name, candidate_wb, source_facts, renames, keep, s
 def command_transplant(args):
 	out = args.out.resolve()
 	out.mkdir(parents=True, exist_ok=True)
-	report = {"format": "SASSaveTransplantReport", "formatVersion": 2, "startedUtc": utc_stamp(), "steps": {}, "variants": {}}
+	report = {"format": "SASSaveTransplanterReport", "formatVersion": 2, "startedUtc": utc_stamp(), "steps": {}, "variants": {}}
 	variants = [name for name in ("preserve", "update") if args.map_variants in ("both", name)]
 	check_outputs(args.save.resolve(), out, variants, args.overwrite)
 	if args.build != run_autoplay.MOD_FOLDER:
@@ -973,7 +973,7 @@ def main():
 	export.add_argument("--prefix", type=Path, required=True, help="output path without extension")
 	export.set_defaults(run=command_export)
 	transplant.add_argument("--out", type=Path, required=True, help="output folder")
-	transplant.add_argument("--mapping", type=Path, help="JSON old-type to new-type mapping for transplant_t0_world.py")
+	transplant.add_argument("--mapping", type=Path, help="JSON old-type to new-type mapping for SASSaveTransplanterWorld.py")
 	transplant.add_argument("--destination-label", help="the receiving build's name in the reports; default --destination")
 	transplant.add_argument("--destination", default=run_autoplay.MOD_FOLDER, help="the receiving build's folder name under Mods; default the current mod. Another build must be a copy made by install-mod-copy, and its import runs through the hook, without SASPilot")
 	transplant.add_argument("--destination-release-tree", type=Path, help="an extracted release or a mod folder to install as --destination when that folder does not exist yet")

@@ -26,7 +26,7 @@
 *.opensdf
 __pycache__
 # <!-- custom: __pycache__ catches only Python 3 bytecode; CPython 2.4 writes X.pyc beside the imported source and has no -B switch (added in 2.6).
-# On 2026-11-16 a hand-run Python 2.4 test that imported LLM_Helpers/save_transplant/SASSaveTransplantExport.py left SASSaveTransplantExport.pyc untracked there; python24_compile.py avoids this by compiling into a temp folder. Civ4 itself writes none. (Claude code Opus 5.5) -->
+# On 2026-11-16 a hand-run Python 2.4 test that imported LLM_Helpers/sassavetransplanter/SASSaveTransplanterExport.py left SASSaveTransplanterExport.pyc untracked there; python24_compile.py avoids this by compiling into a temp folder. Civ4 itself writes none. (Claude code Opus 5.5) -->
 *.pyc
 /.agents/
 /.ruff_cache/

@@ -20,16 +20,16 @@ Any commit may break existing saves ([AGENTS.md](/AGENTS.md#unsupported-and-depr
 
 ## What it does
 
-[`sas_save_transplanter.py`](/LLM_Helpers/save_transplant/sas_save_transplanter.py) runs five steps with one command:
+[`SASSaveTransplanter.py`](/LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py) runs five steps with one command:
 
 1. **Export.** The build that wrote the save loads a copy of it and writes its world as a WorldBuilder file (`.CivBeyondSwordWBSave`) plus a facts file. WorldBuilder text names every terrain, bonus, unit, leader and tech by its XML type, such as `BONUS_WHEAT`, so no binary field and no XML index crosses versions.
-2. **Type check.** [`transplant_t0_world.py`](/LLM_Helpers/save_transplant/transplant_t0_world.py) checks every type name and leader or civilization text key against the current XML, applies the renames in [`type_renames.json`](/LLM_Helpers/save_transplant/type_renames.json), and refuses to go on while a name is missing.
+2. **Type check.** [`SASSaveTransplanterWorld.py`](/LLM_Helpers/sassavetransplanter/SASSaveTransplanterWorld.py) checks every type name and leader or civilization text key against the current XML, applies the renames in [`type_renames.json`](/LLM_Helpers/sassavetransplanter/type_renames.json), and refuses to go on while a name is missing.
 3. **Import.** The current build starts on that file as a scenario; the tool clicks through its three setup screens, then sets techs and random seeds as asked.
 4. **Save and re-export.** SASPilot saves the game as a normal current-format save and exports the world again.
 5. **Compare.** The re-export is compared with what went in, plot by plot, and the two builds' facts files are compared for what WorldBuilder text does not hold.
 
 ```bash
-python LLM_Helpers/save_transplant/sas_save_transplanter.py transplant "C:/Users/PC/Documents/My Games/beyond the sword/Saves/single/old_sas_saves_0/PC BC-50000 SAS-4986 249 0.CivBeyondSwordSave" --build AdvCiv-SAS-4986 --release-tree "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/chatgpt_context_sources/AdvCiv-SAS_old_versions/AdvCiv-SAS-4986" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/save_transplants/sas4986_249" --mapping LLM_Helpers/save_transplant/type_renames.json
+python LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py transplant "C:/Users/PC/Documents/My Games/beyond the sword/Saves/single/old_sas_saves_0/PC BC-50000 SAS-4986 249 0.CivBeyondSwordSave" --build AdvCiv-SAS-4986 --release-tree "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/chatgpt_context_sources/AdvCiv-SAS_old_versions/AdvCiv-SAS-4986" --out "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/save_transplants/sas4986_249" --mapping LLM_Helpers/sassavetransplanter/type_renames.json
 ```
 
 The output folder then holds:
@@ -106,7 +106,7 @@ So compare AI changes between two games made from the same transplant, not betwe
 
 ## Renames and mappings
 
-[`type_renames.json`](/LLM_Helpers/save_transplant/type_renames.json) holds only names that AdvCiv-SAS retired while the asset lived on under another name, each backed by [Deprecated XML asset names](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md). The same name maps the same way from any source version, so one flat table is enough.
+[`type_renames.json`](/LLM_Helpers/sassavetransplanter/type_renames.json) holds only names that AdvCiv-SAS retired while the asset lived on under another name, each backed by [Deprecated XML asset names](/_1_AdvCiv-SAS/Docs/Deprecated/xml_asset_names.md). The same name maps the same way from any source version, so one flat table is enough.
 
 - A type that was removed, split or merged is not a rename and needs a decision; the type check lists the plots and players it affects. Find when it changed in the `commit_diffs` corpus ([AGENTS.md](/AGENTS.md#source-analysis)) before adding a mapping.
 - Text keys are mapped too. The first 4986 import showed the Aztec leader's name as the raw `TXT_KEY_LEADER_MOCTEZUMA`: the player block names its leader text by key, the key was retired, and only type names were being checked.
@@ -119,7 +119,7 @@ So compare AI changes between two games made from the same transplant, not betwe
 - **The copy alone**, for instance to launch an old build for a bisect, is `install-mod-copy <extracted release> <folder name>`; `--dry-run` says what it would rewrite. It adds no export hook and touches no save.
 
   ```bash
-  python LLM_Helpers/save_transplant/sas_save_transplanter.py install-mod-copy "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/chatgpt_context_sources/AdvCiv-SAS_old_versions/AdvCiv-SAS-4986" AdvCiv-SAS-4986
+  python LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py install-mod-copy "C:/Users/PC/Downloads/AdvCiv-SAS_LLM/chatgpt_context_sources/AdvCiv-SAS_old_versions/AdvCiv-SAS-4986" AdvCiv-SAS-4986
   ```
 
 - **Only the tool's own copies are written to.** Each copy holds `SASModCopy.json`, naming the release it came from. A folder under `Mods` without that file is refused, as is a copy made from another release, and the export hook is installed only while no Civ4 runs.
@@ -130,7 +130,7 @@ So compare AI changes between two games made from the same transplant, not betwe
   - the theme path renamed in `Assets/XML/Art/CIV4ArtDefines_Misc.xml` (`DEFAULT_THEME_NAME`) and twice in `Resource/Civ4.thm`. Without it AdvCiv stops at startup on an "Invalid path to UI theme" dialog, as the first 4986 launch did.
 - **A save names its mod folder** in its header (`Mods\AdvCiv-SAS\`), and Civ4 asks to restart into that mod when it differs. The tool gives the source build a copy of the save with the header's mod path rewritten.
   - The checksum that ends a save does not cover the mod path, so the copy needs no checksum repair; [c4lib](https://github.com/hankinsohl/c4lib)'s `checksum.cpp` lists what it covers.
-- **The export is unattended.** The copy's `EntryPoints/CvEventInterface.py` gets a small wrapper around `onEvent`, and [`SASSaveTransplantExport.py`](/LLM_Helpers/save_transplant/SASSaveTransplantExport.py) writes the world with the build's own `CvWBDesc` on the first game update after the load. It uses only the stock BtS Python API, as a 4986 build has no SASPilot or SASGameRecord.
+- **The export is unattended.** The copy's `EntryPoints/CvEventInterface.py` gets a small wrapper around `onEvent`, and [`SASSaveTransplanterExport.py`](/LLM_Helpers/sassavetransplanter/SASSaveTransplanterExport.py) writes the world with the build's own `CvWBDesc` on the first game update after the load. It uses only the stock BtS Python API, as a 4986 build has no SASPilot or SASGameRecord.
 - A save the current build still loads needs none of this: with `--build AdvCiv-SAS` SASPilot loads it and runs the same exporter. That is also how to keep a test start as text before a later commit breaks its save.
 - Saves of other mods (Caveman2Cosmos, base AdvCiv) sit in the same folders under the same `PC BC-<year>` names; `inventory` reads each header's mod before anything is assigned to a build. Embedded source history starts at practical 6358 (`94f6359e2`, 2026-08-31); for older saves the filename, timestamps and a successful load on a candidate build are the evidence.
 
@@ -139,12 +139,12 @@ So compare AI changes between two games made from the same transplant, not betwe
 Asked by the user on 2026-11-16: can a current world go into base AdvCiv, or an old one into a newer base AdvCiv? `--destination <folder>` names the receiving build, which must be a mod copy made by `install-mod-copy`; `--build` stays the build that wrote the save, and either may be the current mod.
 
 ```bash
-python LLM_Helpers/save_transplant/sas_save_transplanter.py transplant "<a current turn-0 save>" --build AdvCiv-SAS --destination AdvCiv-1.14-copy --destination-release-tree "<Mods>/AdvCiv" --mapping LLM_Helpers/save_transplant/type_map_sas_to_advciv_1.14.json --map-variants preserve --out "<output folder>"
+python LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py transplant "<a current turn-0 save>" --build AdvCiv-SAS --destination AdvCiv-1.14-copy --destination-release-tree "<Mods>/AdvCiv" --mapping LLM_Helpers/sassavetransplanter/type_map_sas_to_advciv_1.14.json --map-variants preserve --out "<output folder>"
 ```
 
 - **No SASPilot there.** The receiving copy's hook does the import in the game (`finishImport` in the exporter): source grants, seeds, map update, re-export and `CyGame.saveGame`, which is in the stock BtS API. The current build still imports through SASPilot.
 - **Types the receiving build lacks** need a decision in the mapping file: `types` renames, `drop` leaves out.
-  - [`type_map_sas_to_advciv_1.14.json`](/LLM_Helpers/save_transplant/type_map_sas_to_advciv_1.14.json) maps `CIVIC_PREHISTORIC_RELIGION` and `PROMOTION_RETREAT1` back to the AdvCiv names they were renamed from (practical 4748 and 4865, found in the `commit_diffs` corpus) and drops Marsh, Peat and Camel.
+  - [`type_map_sas_to_advciv_1.14.json`](/LLM_Helpers/sassavetransplanter/type_map_sas_to_advciv_1.14.json) maps `CIVIC_PREHISTORIC_RELIGION` and `PROMOTION_RETREAT1` back to the AdvCiv names they were renamed from (practical 4748 and 4865, found in the `commit_diffs` corpus) and drops Marsh, Peat and Camel.
   - A drop applies to plot feature, bonus, improvement and route lines, unit promotions and team techs. A type used elsewhere, such as a civilization or a leader, stops the type check until it is mapped.
 - **Player slots:** current AdvCiv-SAS writes 48 team and player blocks and base AdvCiv has 18. The unused blocks after the last used one are cut; a used slot is never moved, and a file naming a cut slot stops the run.
 - **Free techs and promotions** follow `--free-grants current` as in any transplant, so the receiving build deals its own. The user's view (2026-11-16): unlike civilizations, leaders and resources, these are not part of the world and may take the receiving build's settings.
@@ -163,7 +163,7 @@ python LLM_Helpers/save_transplant/sas_save_transplanter.py transplant "<a curre
 ## Limits
 
 - Tested on two builds, 4986 and the current one, on Pangaea maps with the human in slot 0. Team games, scenarios with cities, `--human-slot` and saves of releases between 4986 and 6200 were not run.
-- The import clicks OK on the three scenario setup screens until SASPilot answers. Before each click it compares the picture at the button with the reference pictures in [`Images/LLM/save_transplant/`](/_1_AdvCiv-SAS/Images/LLM/save_transplant/), such as `setup_ok_button_1926x1120.png`, and waits until the user has been idle for 1.5 s.
+- The import clicks OK on the three scenario setup screens until SASPilot answers. Before each click it compares the picture at the button with the reference pictures in [`Images/LLM/sassavetransplanter/`](/_1_AdvCiv-SAS/Images/LLM/sassavetransplanter/), such as `setup_ok_button_1926x1120.png`, and waits until the user has been idle for 1.5 s.
   - The pictures sat beside the script until 2026-11-16, when they moved there with the other pictures helpers read.
   - At a window size with no reference picture nothing is clicked: after a minute the run asks for OK to be clicked by hand and names the folder of pictures it took at the button, one of which can become the new reference. Only 1926 x 1120 windows, SAS's and base AdvCiv 1.14's, have references so far.
   - Launched this way, the Civilization step kept BtS's 850 x 569 box until a 2026-11-16 fix of the setup-size EXE patch ([KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)). OK stays at the same corner, and the reference picture still matched on all three steps after the fix.
@@ -173,7 +173,7 @@ python LLM_Helpers/save_transplant/sas_save_transplanter.py transplant "<a curre
 
 ## Where it stands (2026-11-16)
 
-On the `sastransplant` branch since 2026-11-16, built on `saspilot`, which it needs: `LLM_Helpers/save_transplant/`, this guide, the one-line `bNeverAlive` fix in `Assets/Python/pyWB/CvWBDesc.py` ([KI#1095](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)), and `requestFromJson` in `LLM_Helpers/saspilot/SASPilotCommands.py` ([KI#1096](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)).
+On the `sastransplant` branch since 2026-11-16, built on `saspilot`, which it needs: `LLM_Helpers/sassavetransplanter/`, this guide, the one-line `bNeverAlive` fix in `Assets/Python/pyWB/CvWBDesc.py` ([KI#1095](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)), and `requestFromJson` in `LLM_Helpers/saspilot/SASPilotCommands.py` ([KI#1096](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)).
 
 Run outputs are in `Downloads/AdvCiv-SAS_LLM/save_transplants`, and the 4986 source build is installed as `Mods/AdvCiv-SAS-4986`.
 
@@ -188,4 +188,4 @@ Run outputs are in `Downloads/AdvCiv-SAS_LLM/save_transplants`, and the 4986 sou
   - this guide's Menu, markdownlint and CI;
   - a release between 4986 and 6200, a team game, `--human-slot`, a save from before 4986 or from base AdvCiv.
 - Found on the way: SASPilot's `save` failed for a path holding a backslash before a "u" (`...\update_T0`), which its JSON reader took for a `\uXXXX` escape. Requests are now read by `requestFromJson`; the DLL's replies still use `fromJson`. See [KI#1096](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096).
-- [`pilot_dump_player_unit_state.py`](/LLM_Helpers/save_transplant/pilot_dump_player_unit_state.py) is the SASPilot `py` snippet (`SASPilotClient.py py @<file>`) that listed each player's and unit's fields, unit IDs included, in the original save and in its transplant for the fidelity comparison above.
+- [`SASSaveTransplanterUnitState.py`](/LLM_Helpers/sassavetransplanter/SASSaveTransplanterUnitState.py) is the SASPilot `py` snippet (`SASPilotClient.py py @<file>`) that listed each player's and unit's fields, unit IDs included, in the original save and in its transplant for the fidelity comparison above.

@@ -569,7 +569,7 @@ def compare_sequence_blocks(source_lines: Sequence[str], destination_lines: Sequ
     }
 
 
-# <!-- custom: Added allowed_plot_changes for sas_save_transplanter.py's "update" map variant, which adds features and bonuses on purpose: it maps "x,y" to the exact lines that plot may lose ("removed") and gain ("added"). A plot whose difference is exactly that passes, any other difference still fails, and an announced change that is not found fails too.
+# <!-- custom: Added allowed_plot_changes for SASSaveTransplanter.py's "update" map variant, which adds features and bonuses on purpose: it maps "x,y" to the exact lines that plot may lose ("removed") and gain ("added"). A plot whose difference is exactly that passes, any other difference still fails, and an announced change that is not found fails too.
 # Before, the caller waived all plot differences of that variant, which Codex (GPT-6.1-Sol)'s 2026-11-16 review showed could hide a changed river. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 def compare_worldbuilder(source_lines: Sequence[str], destination_lines: Sequence[str], allowed_plot_changes: Optional[Mapping[str, Mapping[str, Sequence[str]]]] = None) -> Dict[str, object]:
     """Compare the T0 payload of two WB saves, tolerating added tail slots."""
@@ -691,7 +691,7 @@ def report_for(
 ) -> Dict[str, object]:
     report: Dict[str, object] = {
         "report_format_version": REPORT_FORMAT_VERSION,
-        "tool": "LLM_Helpers/transplant_t0_world.py",
+        "tool": "LLM_Helpers/sassavetransplanter/SASSaveTransplanterWorld.py",
         "source": {
             "path": str(source),
             "size_bytes": len(source_data),
@@ -857,11 +857,11 @@ def command_compare(args: argparse.Namespace) -> int:
     source_lines = source_text.splitlines(True)
     destination_lines = destination_text.splitlines(True)
     if args.ignore_free_grants:
-        # <!-- custom: sas_save_transplanter.py's default policy lets the destination build deal its own civilization free techs and free promotions, and checks them itself against both builds' lists; team Tech lines and unit PromotionType lines then differ by design and would hide any other difference. (Claude code Fable 5.2) -->
+        # <!-- custom: SASSaveTransplanter.py's default policy lets the destination build deal its own civilization free techs and free promotions, and checks them itself against both builds' lists; team Tech lines and unit PromotionType lines then differ by design and would hide any other difference. (Claude code Fable 5.2) -->
         source_lines = [line for line in source_lines if not line.strip().startswith(("Tech=", "PromotionType="))]
         destination_lines = [line for line in destination_lines if not line.strip().startswith(("Tech=", "PromotionType="))]
     if args.ignore_player_names:
-        # <!-- custom: For sas_save_transplanter.py's load check, which compares a game's world before saving with the same game's world after loading the save. A scenario start keeps each player's name lines as text keys (LeaderName=TXT_KEY_LEADER_ISABELLA); after a save and load the game only has the resolved text (LeaderName=Isabella I), so all 11 players of the first check differed in those lines and nothing else. (Claude code Fable 5.2) -->
+        # <!-- custom: For SASSaveTransplanter.py's load check, which compares a game's world before saving with the same game's world after loading the save. A scenario start keeps each player's name lines as text keys (LeaderName=TXT_KEY_LEADER_ISABELLA); after a save and load the game only has the resolved text (LeaderName=Isabella I), so all 11 players of the first check differed in those lines and nothing else. (Claude code Fable 5.2) -->
         name_keys = ("LeaderName=", "CivDesc=", "CivShortDesc=", "CivAdjective=")
         source_lines = [line for line in source_lines if not line.strip().startswith(name_keys)]
         destination_lines = [line for line in destination_lines if not line.strip().startswith(name_keys)]
@@ -878,7 +878,7 @@ def command_compare(args: argparse.Namespace) -> int:
     comparison["destination_validation"] = destination_validation
     report = {
         "report_format_version": REPORT_FORMAT_VERSION,
-        "tool": "LLM_Helpers/transplant_t0_world.py compare",
+        "tool": "LLM_Helpers/sassavetransplanter/SASSaveTransplanterWorld.py compare",
         "source": {"path": str(source), "size_bytes": len(source_data), "sha256": sha256_bytes(source_data)},
         "destination": {"path": str(destination), "size_bytes": len(destination_data), "sha256": sha256_bytes(destination_data)},
         "comparison": comparison,

@@ -249,7 +249,7 @@
       "controls": {
         "list": {"xy": [460, 600], "note": "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857, as base AdvCiv 1.14 still is, titled SELECT A MAP); see KI#1082"},
         "preview": {"xy": [1290, 430], "note": "globe, name and map size, x 822-1758 since the 2026-11-12 enlarged setup screen (was x 886-1377)"},
-        "ok": {"xy": [1857, 1094], "to": "scenario_civilization", "note": "starts the scenario's setup steps; or launch Civ4 with /FXSLOAD=\"<file>.CivBeyondSwordWBSave\", as sas_save_transplanter.py does"},
+        "ok": {"xy": [1857, 1094], "to": "scenario_civilization", "note": "starts the scenario's setup steps; or launch Civ4 with /FXSLOAD=\"<file>.CivBeyondSwordWBSave\", as SASSaveTransplanter.py does"},
         "go_back": {"xy": [100, 1094], "to": "single_player"}
       }
     },
@@ -273,7 +273,7 @@
         ["GO BACK", "returned to the scenario list, not to Civilization, in both mods (2026-11-16)"]
       ],
       "controls": {
-        "leader_name": {"xy": [1033, 653], "note": "text field; base AdvCiv (1033, 646). Civ4 gives it the keyboard, so typing meant for another window lands here (see README_Save_Transplanter.md)"},
+        "leader_name": {"xy": [1033, 653], "note": "text field; base AdvCiv (1033, 646). Civ4 gives it the keyboard, so typing meant for another window lands here (see README_SASSaveTransplanter.md)"},
         "civ_description": {"xy": [1033, 692], "note": "base AdvCiv (1033, 685)"},
         "short_description": {"xy": [1033, 731], "note": "base AdvCiv (1033, 724)"},
         "civ_adjective": {"xy": [1033, 770], "note": "base AdvCiv (1033, 763)"},
@@ -287,7 +287,7 @@
       "controls": {
         "handicap_rows": {"xy": [179, 178], "note": "SAS: 11 rows 24 px apart, Rookie to Deity+; base AdvCiv: 9 rows from Settler at (598, 406), 31 px apart, under DIFFICULTY"},
         "speed_rows": {"xy": [179, 876], "note": "SAS: 8 rows 24 px apart, Nitro to Very Slow; base AdvCiv: Marathon, Epic, Normal, Quick at x 598 from y 723, 31 px apart"},
-        "ok": {"xy": [1855, 1095], "note": "not clicked: starts the game; the save transplanter clicks it"},
+        "ok": {"xy": [1855, 1095], "note": "not clicked: starts the game; the SASSaveTransplanter clicks it"},
         "go_back": {"xy": [100, 1095], "to": "scenario_details"}
       }
     },

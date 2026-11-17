@@ -1,10 +1,10 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Runs inside Civ4 (Python 2.4), in any build old or new: sas_save_transplanter.py copies it into a source build's Assets/Python and hooks CvEventInterface.onEvent, so the build that wrote a save also reads it and writes its world out as text.
+# <!-- custom: Runs inside Civ4 (Python 2.4), in any build old or new: SASSaveTransplanter.py copies it into a source build's Assets/Python and hooks CvEventInterface.onEvent, so the build that wrote a save also reads it and writes its world out as text.
 # It uses only the stock BtS Python API and the build's own CvWBDesc, as a 4986 build has no SASPilot, SASGameRecord or SASUtils. (Claude code Fable 5.2) -->
 
-# <!-- custom: CvPythonExtensions is the game API; CvWBDesc is the build's own WorldBuilder writer; os and traceback write the result files. SASSaveTransplantRequest is generated beside this file by sas_save_transplanter.py and holds the output path. (Claude code Fable 5.2) -->
+# <!-- custom: CvPythonExtensions is the game API; CvWBDesc is the build's own WorldBuilder writer; os and traceback write the result files. SASSaveTransplanterRequest is generated beside this file by SASSaveTransplanter.py and holds the output path. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
 import os
 import traceback
@@ -91,7 +91,7 @@ def _gameFacts():
 	_attempt(facts, "numAreas", cyMap.getNumAreas)
 	_attempt(facts, "gameOptions", lambda: [gc.getGameOptionInfo(i).getType() for i in range(gc.getNumGameOptionInfos()) if game.isOption(i)])
 	_attempt(facts, "victories", lambda: [gc.getVictoryInfo(i).getType() for i in range(gc.getNumVictoryInfos()) if game.isVictoryValid(i)])
-	# <!-- custom: The two generators' current states: WorldBuilder text holds no seed, so a scenario start draws new ones. sas_save_transplanter.py can set these in the receiving game, which then draws the numbers the source game would have drawn next. (Claude code Fable 5.2) -->
+	# <!-- custom: The two generators' current states: WorldBuilder text holds no seed, so a scenario start draws new ones. SASSaveTransplanter.py can set these in the receiving game, which then draws the numbers the source game would have drawn next. (Claude code Fable 5.2) -->
 	_attempt(facts, "syncRandSeed", lambda: game.getSorenRand().getSeed())
 	_attempt(facts, "mapRandSeed", lambda: game.getMapRand().getSeed())
 	_attempt(facts, "maxCivPlayers", gc.getMAX_CIV_PLAYERS)
@@ -139,7 +139,7 @@ def _playerFacts(iPlayer, bProbeFreePromotions):
 	_attempt(facts, "traits", lambda: [gc.getTraitInfo(i).getType() for i in range(gc.getNumTraitInfos()) if player.hasTrait(i)])
 	_attempt(facts, "techs", lambda: [gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if gc.getTeam(player.getTeam()).isHasTech(i)])
 	# <!-- custom: The civilization's free techs under this build's XML: a scenario start adds the loading build's free techs to those in the file, so the 4986 Benin (Mysticism, Fishing) became Mysticism, Fishing, Pottery in current SAS, neither build's start.
-	# With both builds' lists, sas_save_transplanter.py can drop the old ones first. (Claude code Fable 5.2) -->
+	# With both builds' lists, SASSaveTransplanter.py can drop the old ones first. (Claude code Fable 5.2) -->
 	_attempt(facts, "civFreeTechs", lambda: [gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if gc.getCivilizationInfo(player.getCivilizationType()).isCivilizationFreeTechs(i)])
 	_attempt(facts, "civics", lambda: [_typeOrNone(gc.getCivicInfo, player.getCivics(i)) for i in range(gc.getNumCivicOptionInfos())])
 
@@ -189,7 +189,7 @@ PLOT_COLUMNS = ["x", "y", "plotType", "terrain", "feature", "bonus", "improvemen
 
 
 def collectFacts(bProbeFreePromotions):
-	facts = {"format": "SASSaveTransplantFacts", "formatVersion": 1}
+	facts = {"format": "SASSaveTransplanterFacts", "formatVersion": 1}
 	_attempt(facts, "game", _gameFacts)
 	_attempt(facts, "players", lambda: [_playerFacts(i, bProbeFreePromotions) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isEverAlive()])
 	facts["plotColumns"] = PLOT_COLUMNS
@@ -221,7 +221,7 @@ def export(szPrefix, bProbeFreePromotions):
 
 
 def keepSourceGrants(techsByTeam, unitsByPlayer):
-	# <!-- custom: For sas_save_transplanter.py's "source" policy, run in the receiving game after the scenario start: removes the techs and promotions that start added beyond the source's own.
+	# <!-- custom: For SASSaveTransplanter.py's "source" policy, run in the receiving game after the scenario start: removes the techs and promotions that start added beyond the source's own.
 	# techsByTeam maps a team to its source techs; unitsByPlayer maps a player to source rows of [x, y, unit type, promotions], and each unit there is matched to one row of its plot and type. (Claude code Fable 5.2) -->
 	removed = []
 	for iTeam in techsByTeam.keys():
@@ -258,7 +258,7 @@ def _plotContent(plot):
 
 
 def updateMap(sourceFeatureTypes, sourceBonusTypes):
-	# <!-- custom: For sas_save_transplanter.py's --map-variants update, run in the receiving game: places only the feature and bonus types that the source build's XML did not have, by the current build's own rules, and leaves every plot that already holds a feature or bonus as it is. The user asked whether a transplanted world should get such content (Camel, Marsh) for balance; "preserve" keeps the world, and this is the other variant.
+	# <!-- custom: For SASSaveTransplanter.py's --map-variants update, run in the receiving game: places only the feature and bonus types that the source build's XML did not have, by the current build's own rules, and leaves every plot that already holds a feature or bonus as it is. The user asked whether a transplanted world should get such content (Camel, Marsh) for balance; "preserve" keeps the world, and this is the other variant.
 	# Returns every plot it changed with its content before and after, read from the map itself, so that the caller can check that nothing else changed; the first version returned counts only (Codex (GPT-6.1-Sol)'s 2026-11-16 review).
 	# Plots with a starting position or units get nothing, as nothing normalizes starts afterwards. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	cyMap = CyMap()
@@ -279,7 +279,7 @@ def updateMap(sourceFeatureTypes, sourceBonusTypes):
 				# On a new map Marsh is placed before Forest; here Forests are already in place and keep their plots, so Marsh gets fewer than on a new map. marshFractalPlotsHeldByOtherFeatures counts those. (Claude code Fable 5.2) -->
 				import CvMapGeneratorUtil
 				CvMapGeneratorUtil.FeatureGenerator.addMarshesAtPlot.im_func(holder, plot, plot.getX(), plot.getY())
-			elif plot.canHaveFeature(iFeature) and gc.getGame().getMapRand().get(10000, "SASSaveTransplant feature") < gc.getFeatureInfo(iFeature).getAppearanceProbability():
+			elif plot.canHaveFeature(iFeature) and gc.getGame().getMapRand().get(10000, "SASSaveTransplanter feature") < gc.getFeatureInfo(iFeature).getAppearanceProbability():
 				plot.setFeatureType(iFeature, -1)
 		if szType == "FEATURE_MARSH" and getattr(holder, "marshes", None) is not None:
 			iHeld = 0
@@ -326,7 +326,7 @@ def updateMap(sourceFeatureTypes, sourceBonusTypes):
 
 
 def finishImport(request):
-	# <!-- custom: The receiving side for a build without SASPilot, such as base AdvCiv or an older AdvCiv-SAS: the user asked whether a current world could also go into those. Run by the hook once the scenario has started, it does what sas_save_transplanter.py's import_world does through SASPilot in the current build: source grants, seeds, map update, re-export, save.
+	# <!-- custom: The receiving side for a build without SASPilot, such as base AdvCiv or an older AdvCiv-SAS: the user asked whether a current world could also go into those. Run by the hook once the scenario has started, it does what SASSaveTransplanter.py's import_world does through SASPilot in the current build: source grants, seeds, map update, re-export, save.
 	# Writes <prefix>.import.json with each step's result and <prefix>.import.done last. CyGame.saveGame is in the stock BtS API. (Claude code Fable 5.2) -->
 	szPrefix = request.OUT_PREFIX
 	result = {}
@@ -374,24 +374,24 @@ def onEvent(argsList):
 	_bDone = True
 	try:
 		# <!-- custom: A request is served once: the first version left it armed in the copy, so a later launch of that copy by hand would have exported another game over the last run's files (Codex (GPT-6.1-Sol)'s 2026-11-16 review).
-		# sas_save_transplanter.py removes the request once Civ4 has closed; should that not happen, the finished run's .done file makes the hook do nothing. The hook does not delete the request itself, as a changed .py under Assets makes a running Civ4 reload its Python. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+		# SASSaveTransplanter.py removes the request once Civ4 has closed; should that not happen, the finished run's .done file makes the hook do nothing. The hook does not delete the request itself, as a changed .py under Assets makes a running Civ4 reload its Python. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		try:
-			import SASSaveTransplantRequest
+			import SASSaveTransplanterRequest
 		except ImportError:
 			return
 		# <!-- custom: MODE "import" makes this build the receiving one. (Claude code Fable 5.2) -->
-		bImport = getattr(SASSaveTransplantRequest, "MODE", "export") == "import"
-		if bImport and os.path.isfile(SASSaveTransplantRequest.OUT_PREFIX + ".import.done"):
+		bImport = getattr(SASSaveTransplanterRequest, "MODE", "export") == "import"
+		if bImport and os.path.isfile(SASSaveTransplanterRequest.OUT_PREFIX + ".import.done"):
 			return
-		if not bImport and os.path.isfile(SASSaveTransplantRequest.OUT_PREFIX + ".done"):
+		if not bImport and os.path.isfile(SASSaveTransplanterRequest.OUT_PREFIX + ".done"):
 			return
 		if bImport:
-			finishImport(SASSaveTransplantRequest)
+			finishImport(SASSaveTransplanterRequest)
 		else:
-			export(SASSaveTransplantRequest.OUT_PREFIX, True)
+			export(SASSaveTransplanterRequest.OUT_PREFIX, True)
 	except Exception:
 		try:
-			handle = open(os.path.join(os.environ.get("TEMP", "."), "SASSaveTransplantExport_error.txt"), "wb")
+			handle = open(os.path.join(os.environ.get("TEMP", "."), "SASSaveTransplanterExport_error.txt"), "wb")
 			handle.write(traceback.format_exc())
 			handle.close()
 		except Exception:
