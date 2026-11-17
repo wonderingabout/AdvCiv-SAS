@@ -17,7 +17,7 @@ import Popup as PyPopup
 from SASUtils import findInfoTypeNumOrFail
 import SASFastSave
 import SASAutoplayRequest # <!-- custom: Starts autoplay requested by an [SASAutoplay] section in an ini= launch file, for unattended runs. (Claude Code Opus 5.5) -->
-import SASPilot # <!-- custom: Serves an external agent's command-line requests when the pilot is switched on. (Claude code Fable 5.2) -->
+import SASPilot # <!-- custom: Serves an external agent's command-line requests when SASPilot is switched on. (Claude code Fable 5.2) -->
 
 import ChangePlayer
 import time # Erik (BM1)

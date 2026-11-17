@@ -6,6 +6,8 @@
 #
 # This is intentionally not run by GitHub Actions. The CI check should only report/fail; this helper is
 # for local, reviewed cleanup passes.
+# <!-- custom: A file switched whole between LF and CRLF has one consistent style again, so the default mode finds nothing to fix; restore its earlier style with --eol lf or --eol crlf.
+# line_ending_churn.py catches such a switch per commit, and a deliberate --eol conversion needs "Convert line endings" in its commit message. See KI#1097. (Claude code Opus 5.5) -->
 
 from pathlib import Path
 import argparse
@@ -37,7 +39,7 @@ IGNORED_RELATIVE_DIRS = {
 	Path("_1_AdvCiv-SAS/Docs/examples/sasgamerecord"),
 	Path("LLM_Helpers/outputs"),
 	Path("LLM_Helpers/context/mapscript_refs"),
-	Path("LLM_Helpers/context/svn_history"),
+	Path("LLM_Helpers/context/commit_diffs"),
 	Path("_0_Legacy"),
 	Path("_1_AdvCiv-SAS/Docs/Sevopedia/Debug"),
 	Path("CvGameCoreDLL/Project/temp_files"),

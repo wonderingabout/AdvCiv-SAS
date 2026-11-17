@@ -74,6 +74,17 @@ class HelperDocOrderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             self.assertEqual(self.errors(self.repository(folder)), [])
 
+    def test_check_script_without_a_section_fails(self):
+        # <!-- custom: A check script needs its own README section, while shared lib/ helpers and "_" modules need none. (Claude code Opus 5.5) -->
+        with tempfile.TemporaryDirectory() as folder:
+            root = self.repository(folder)
+            for path in ("build/xml/launch_guard.py", "build/xml/new_check.py", "build/lib/shared.py", "build/xml/_helpers.py"):
+                (root / ".github/workflows" / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / ".github/workflows" / path).write_text("", encoding="utf-8")
+            errors = self.errors(root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("build/xml/new_check.py", errors[0])
+
     def test_loose_helper_and_undescribed_file_fail(self):
         with tempfile.TemporaryDirectory() as folder:
             root = self.repository(folder)

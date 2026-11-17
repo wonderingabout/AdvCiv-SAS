@@ -3,11 +3,13 @@
 
 """Compare fog-frontier destinations for one land scout using SASPilot."""
 
+# <!-- custom: argparse reads the options, json prints the comparison, math measures the angle each destination turns from the scout's heading, and sys reports errors. (Claude code Opus 5.5) -->
 import argparse
 import json
 import math
 import sys
 
+# <!-- custom: SASPilotClient sends the requests to the running game. (Claude code Opus 5.5) -->
 from SASPilotClient import PilotError, pick_pid, request
 
 

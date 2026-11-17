@@ -10,15 +10,16 @@ import re
 # <!-- custom: subprocess reads Git and pathlib reads the corpus and the guide. (Claude code Opus 5.5) -->
 import subprocess
 from pathlib import Path
+# <!-- custom: read_revision_headers reads Better BTS AI's revision headers in commit_diffs/. (Claude code Opus 5.5) -->
+from svn_history_to_diffs import read_revision_headers
 
 
 # <!-- custom: Caution: tracing each model's contribution is hazy, so the model tables are only a general indication and the real picture may be quite different.
 # Credits can be reworded, moved or omitted, which can bring retired models back; names are inconsistent, with typos, "Claude AI" versus "Claude code", and a question mark where a model was unsure. (Claude code Opus 5.5) -->
 DOC = "_1_AdvCiv-SAS/Docs/Source_Analysis/README.md"
 # <!-- custom: Generated logs, published changelogs and example captures repeat model names without being mentions by anyone. (Claude code Opus 5.5) -->
-DOC_MENTION_SKIP = ("git_logs/", "changelogs_web/", "examples/", "AGENTS.md")
+DOC_MENTION_SKIP = ("dev_logs/", "changelogs_web/", "examples/", "AGENTS.md")
 COMMIT_DIFFS = "LLM_Helpers/context/commit_diffs"
-SVN_INDEX = "LLM_Helpers/context/svn_history/bbai/INDEX.txt"
 NAMES = {"KMod": "K-Mod", "AdvCivPreSAS": "AdvCiv before the SAS fork", "SASBranch": "AdvCiv-SAS branch"}
 NOTES = {"KMod": "Last commit in this history", "AdvCivPreSAS": "Ends at the SAS fork"}
 OTHER_ACCOUNT = {"codingnewcode": "wonderingabout's other account"}
@@ -38,7 +39,7 @@ def git(*args: str) -> str:
 
 
 def load_segments() -> dict[str, list[dict[str, str]]]:
-    # <!-- custom: Rows are kept in git log order, newest first, because dates alone cannot order commits made on the same day. (Claude code Opus 5.5) -->
+    # <!-- custom: Rows are kept in the dev logs' order, which is git log's, newest first, because dates alone cannot order commits made on the same day. (Claude code Opus 5.5) -->
     commits = {}
     for position, line in enumerate(git("log", "--format=%H%x09%an%x09%ad%x09%s", "--date=short", "HEAD").splitlines()):
         full, author, date, title = line.split("\t", 3)
@@ -48,7 +49,8 @@ def load_segments() -> dict[str, list[dict[str, str]]]:
     stale = []
     for line in Path(COMMIT_DIFFS, "INDEX.txt").read_text(encoding="utf-8").splitlines():
         fields = line.split("\t")
-        if not line.startswith("#") and len(fields) >= 3:
+        # <!-- custom: BBAI rows name SVN revisions, not Git commits; load_svn reads them from their own headers. (Claude code Opus 5.5) -->
+        if not line.startswith("#") and len(fields) >= 3 and fields[0] != "BBAI":
             if fields[2] in commits:
                 segments[fields[0]].append(commits[fields[2]])
             else:
@@ -59,12 +61,8 @@ def load_segments() -> dict[str, list[dict[str, str]]]:
 
 
 def load_svn() -> list[dict[str, str]]:
-    rows = []
-    for line in Path(SVN_INDEX).read_text(encoding="utf-8").splitlines():
-        if not line.startswith("#"):
-            fields = line.split("\t")
-            rows.append({"sha": "r" + fields[0], "author": fields[2], "date": fields[1][:10]})
-    return rows
+    # <!-- custom: Better BTS AI's revisions are tracked in commit_diffs/ and their headers carry the author and date, so no separate export index is read. (Claude code Opus 5.5) -->
+    return [{"sha": f"r{header['revision']}", "author": header["author"], "date": header["date"][:10]} for header in read_revision_headers(Path(COMMIT_DIFFS), "BBAI")]
 
 
 def cell(row: dict[str, str], ongoing: bool = False) -> str:
@@ -78,7 +76,7 @@ def project_table(segments: dict[str, list[dict[str, str]]], svn: list[dict[str,
     unmerged = int(git("rev-list", "--count", f"HEAD..{upstream_ref}"))
     tip = git("log", "-1", "--format=%h %ad", "--date=short", "--abbrev=9", upstream_ref).split()
     rows = ["| Project | Searchable in | Commits | First | Last | Notes |", "| --- | --- | --- | --- | --- | --- |"]
-    rows.append(f"| Better BTS AI, with its Firaxis SDK drops | `svn_history/bbai/` | {len(svn)} | {cell(svn[0])} | {cell(svn[-1])} | Frozen; a text copy, not joined to our Git ancestry |")
+    rows.append(f"| Better BTS AI, with its Firaxis SDK drops | `commit_diffs/`, files `BBAI_r*` | {len(svn)} | {cell(svn[0])} | {cell(svn[-1])} | Frozen; from SVN, so its files are tracked rather than generated from our Git |")
     for name in ("KMod", "AdvCivPreSAS", "SASBranch"):
         data = segments[name]
         note = NOTES.get(name, f"Includes the {len(merged)} upstream AdvCiv commits of the next row")

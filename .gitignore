@@ -40,7 +40,10 @@ __pycache__
 /LLM_Helpers/outputs/
 # <!-- custom: Commit-diff archaeology context is generated locally from Git ancestry and injected into light-source ZIPs; do not duplicate Git history by tracking the generated corpus itself. The permanent 6164-6402 rewrite map remains tracked separately under LLM_Helpers/context/. (GPT-5.6-Sol) -->
 # <!-- custom: also Codex has them locally, while ChatGPT or such also has them in the bundled light-source ZIP, so no need to pollute git history with heavy and change prone git diff files; keep locally ignored instead only. -->
-/LLM_Helpers/context/commit_diffs/
+# <!-- custom: Ignore everything inside commit_diffs/, as it is regenerated from our Git history; the trailing /* ignores the folder's contents rather than the folder itself, because Git cannot re-include a file inside an ignored folder, which the next rule needs. (Claude code Opus 5.5) -->
+/LLM_Helpers/context/commit_diffs/*
+# <!-- custom: The leading ! re-includes, so Better BTS AI's revision files stay tracked: they came from SVN, which our Git cannot regenerate, and keeping them beside the generated ones lets a single grep cover all our history. (Claude code Opus 5.5) -->
+!/LLM_Helpers/context/commit_diffs/BBAI_r*.diff
 # <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
 # <!-- custom: keep _old and _new versions rather than only one, this way a chatgpt handoff can compare (e.g. with vs code) changes without overwriting them, because the files are untracked and thus have no protection. -->
 /changes_old.md

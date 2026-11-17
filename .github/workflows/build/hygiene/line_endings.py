@@ -7,6 +7,7 @@
 # Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., BugInit.py) while true CI failures stayed mixed in both (e.g., Pangaea.py).
 # Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw.
 # This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set. (GPT-5.5) -->
+# <!-- custom: A file switched whole between LF and CRLF has no mixed endings, so it passes here while its commit shows every line as changed; line_ending_churn.py catches that per commit. See KI#1097. (Claude code Opus 5.5) -->
 
 from pathlib import Path
 import argparse
@@ -42,7 +43,7 @@ IGNORED_RELATIVE_DIRS = {
 	Path("_1_AdvCiv-SAS/Docs/examples/sasgamerecord"),
 	Path("LLM_Helpers/outputs"),
 	Path("LLM_Helpers/context/mapscript_refs"),
-	Path("LLM_Helpers/context/svn_history"),
+	Path("LLM_Helpers/context/commit_diffs"),
 	Path("_0_Legacy"),
 	Path("_1_AdvCiv-SAS/Docs/Sevopedia/Debug"),
 	Path("CvGameCoreDLL/Project/temp_files"),
@@ -188,6 +189,25 @@ def get_index_clean_worktree_failures(repo_root: Path, failures: list[EolIssue])
 	return clean_in_index
 
 
+def stored_crlf_issues(repo_root: Path) -> list[EolIssue]:
+	# <!-- custom: Since 2026-11-17 .gitattributes gives each text kind one style, stored and checked out alike: the few kinds marked -text there (themes, batch and Visual Studio files) are CRLF, all other text LF; so a file stored otherwise means a tool bypassed it.
+	# Read Git's own report of the stored endings (git ls-files --eol, column i/), which every clone and GitHub's checkout share, rather than the working files: on 2026-06-26 a working-file check failed locally only. See KI#1097. (Claude code Opus 5.5) -->
+	result = subprocess.run(["git", "-c", "core.quotepath=off", "ls-files", "--eol"], cwd=repo_root, capture_output=True)
+	if result.returncode != 0:
+		return []
+	issues = []
+	for line in result.stdout.decode("utf-8", errors="replace").splitlines():
+		info, _, path = line.partition("\t")
+		fields = info.split()
+		stored = fields[0] if fields else ""
+		crlf_kind = "attr/-text" in info
+		if crlf_kind and stored in ("i/lf", "i/mixed"):
+			issues.append(EolIssue(Path(path), "stored in Git as %s; its kind is kept CRLF (-text in .gitattributes), so store it with CRLF line endings" % stored[2:].upper()))
+		elif not crlf_kind and stored in ("i/crlf", "i/mixed"):
+			issues.append(EolIssue(Path(path), "stored in Git as %s; text is stored as LF (.gitattributes), so restage it with git add --renormalize" % stored[2:].upper()))
+	return issues
+
+
 def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
 	failures: list[EolIssue] = []
 	candidate_files, scan_mode = iter_candidate_files(repo_root)
@@ -195,6 +215,7 @@ def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
 	for path in candidate_files:
 		failures.extend(check_file(repo_root, path))
 
+	failures.extend(stored_crlf_issues(repo_root))
 	return failures, scan_mode
 
 

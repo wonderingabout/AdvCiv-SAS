@@ -11,8 +11,8 @@ import subprocess
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-# <!-- custom: Verbatim history keeps the names it was written with: the git logs, archived changelogs, generated corpora, and the deprecated-name table, whose old-name column must stay old (fix its new-name column by hand). (Claude code Opus 5.5) -->
-SKIPPED = ("_1_AdvCiv-SAS/Docs/git_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/", "LLM_Helpers/context/", "_1_AdvCiv-SAS/Docs/Deprecated/")
+# <!-- custom: Verbatim history keeps the names it was written with: the dev logs, archived changelogs, generated corpora, and the deprecated-name table, whose old-name column must stay old (fix its new-name column by hand). (Claude code Opus 5.5) -->
+SKIPPED = ("_1_AdvCiv-SAS/Docs/dev_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/", "LLM_Helpers/context/", "_1_AdvCiv-SAS/Docs/Deprecated/")
 # <!-- custom: KI#1001.2's byte limit for SAS define names, drawn from AdvCiv. (Claude code Opus 5.5) -->
 MAX_DEFINE_BYTES = 42
 

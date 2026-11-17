@@ -190,41 +190,42 @@ class SevoPediaEraChart:
 	def _buildTableFromGameData(self):
 		row_specs = (
 			# (field_key, display_label_or_None, getter_name_or_None, icon_token, value_type)
-			("bNoGoodies",                 "No Goodies",                 "isNoGoodies",                 "btn:skull",        "bool"),
-			("bAllGoodyTechs",             "All Goody Techs",             "isAllGoodyTechs",             "glyph:research",   "bool"),
-			("bNoAnimals",                 "No Animals",                 "isNoAnimals",                 "btn:lion",         "bool"),
-			("bNoBarbUnits",               "No Barb Units",              "isNoBarbUnits",               "btn:skull",        "bool"),
-			("bNoBarbCities",              "No Barb Cities",             "isNoBarbCities",              "btn:skull",        "bool"),
-			("iAdvancedStartPoints",       "Advanced Start Points",      "getAdvancedStartPoints",      "glyph:defense",    "int"),
-			("iStartingUnitMultiplier",    "Starting Unit Multiplier",   "getStartingUnitMultiplier",   "btn:swords",       "int"),
-			("iStartingDefenseUnits",      "Starting Defense Units",     "getStartingDefenseUnits",     "btn:swords",       "int"),
-			("iStartingWorkerUnits",       "Starting Worker Units",      "getStartingWorkerUnits",      "glyph:citizen",    "int"),
-			("iStartingExploreUnits",      "Starting Explore Units",     "getStartingExploreUnits",     "btn:swords",       "int"),
-			("iStartingGold",              "Starting Gold",              "getStartingGold",             "glyph:gold",       "int"),
-			("iFreePopulation",            "Free Population",            "getFreePopulation",           "glyph:citizen",    "int"),
-			("iStartPercent",              "Start Percent",              "getStartPercent",             "glyph:defense",    "int"),
-			("iGrowthPercent",             None,                         "getGrowthPercent",            "glyph:food",       "int"),
-			("iTrainPercent",              None,                         "getTrainPercent",             "btn:swords",       "int"),
-			("iConstructPercent",          None,                         "getConstructPercent",         "glyph:prod",       "int"),
-			("iCreatePercent",             None,                         "getCreatePercent",            "glyph:prod",       "int"),
-			("iResearchPercent",           None,                         "getResearchPercent",          "glyph:research",   "int"),
-			("iTechCostModifier",          "Tech Cost Modifier",         "getTechCostModifier",         "glyph:research",   "int"),
-			("iAIMaxGroundbreakingPenalty","AI Max Groundbreaking Pen.", "getAIMaxGroundbreakingPenalty","btn:brain",        "int"),
-			("iHumanMaxGroundbreakingPenalty","Human Max Groundbreaking Pen.","getHumanMaxGroundbreakingPenalty","btn:brain",  "int"),
-			("iBuildPercent",              None,                         "getBuildPercent",             "glyph:citizen",    "int"),
-			("iImprovementPercent",        None,                         "getImprovementPercent",       "glyph:citizen",    "int"),
-			("iGreatPeoplePercent",        None,                         "getGreatPeoplePercent",       "glyph:great_people","int"),
-			("iCulturePercent",            None,                         "getCulturePercent",           "glyph:culture",    "int"),
-			("iAnarchyPercent",            None,                         "getAnarchyPercent",           "btn:fire",         "int"),
-			("iEventChancePerTurn",        "Event Chance Per Turn",      "getEventChancePerTurn",       "btn:gear",         "int"),
-			("bAIAgeOfPestilence",          "AI Age Of Pestilence",        "isAIAgeOfPestilence",          "btn:brain",        "bool"),
-			("bAIAgeOfExploration",         "AI Age Of Exploration",       "isAIAgeOfExploration",         "btn:brain",        "bool"),
-			("bAIAgeOfPollution",           "AI Age Of Pollution",         "isAIAgeOfPollution",           "btn:brain",        "bool"),
-			("bAIAgeOfFertility",           "AI Age Of Fertility",         "isAIAgeOfFertility",           "btn:brain",        "bool"),
-			("bAIAgeOfGuns",                "AI Age Of Guns",              "isAIAgeOfGuns",                "btn:brain",        "bool"),
-			("bAIAgeOfProduction",          "AI Age Of Production",        "isAIAgeOfProduction",          "btn:brain",        "bool"),
-			("bAIAtomicAge",                "AI Atomic Age",               "isAIAtomicAge",                "btn:brain",        "bool"),
-			("Techs",                       "Techs",                       None,                            "glyph:research",   "techs"),
+			# <!-- custom: value_type is bool, int or list (the Techs row), Python's own types: it was the strings "bool", "int" and "techs", and a misspelt "bool" would have shown True/False instead of + without any error. (Claude code Opus 5.5) -->
+			("bNoGoodies",                 "No Goodies",                 "isNoGoodies",                 "btn:skull",        bool),
+			("bAllGoodyTechs",             "All Goody Techs",             "isAllGoodyTechs",             "glyph:research",   bool),
+			("bNoAnimals",                 "No Animals",                 "isNoAnimals",                 "btn:lion",         bool),
+			("bNoBarbUnits",               "No Barb Units",              "isNoBarbUnits",               "btn:skull",        bool),
+			("bNoBarbCities",              "No Barb Cities",             "isNoBarbCities",              "btn:skull",        bool),
+			("iAdvancedStartPoints",       "Advanced Start Points",      "getAdvancedStartPoints",      "glyph:defense",    int),
+			("iStartingUnitMultiplier",    "Starting Unit Multiplier",   "getStartingUnitMultiplier",   "btn:swords",       int),
+			("iStartingDefenseUnits",      "Starting Defense Units",     "getStartingDefenseUnits",     "btn:swords",       int),
+			("iStartingWorkerUnits",       "Starting Worker Units",      "getStartingWorkerUnits",      "glyph:citizen",    int),
+			("iStartingExploreUnits",      "Starting Explore Units",     "getStartingExploreUnits",     "btn:swords",       int),
+			("iStartingGold",              "Starting Gold",              "getStartingGold",             "glyph:gold",       int),
+			("iFreePopulation",            "Free Population",            "getFreePopulation",           "glyph:citizen",    int),
+			("iStartPercent",              "Start Percent",              "getStartPercent",             "glyph:defense",    int),
+			("iGrowthPercent",             None,                         "getGrowthPercent",            "glyph:food",       int),
+			("iTrainPercent",              None,                         "getTrainPercent",             "btn:swords",       int),
+			("iConstructPercent",          None,                         "getConstructPercent",         "glyph:prod",       int),
+			("iCreatePercent",             None,                         "getCreatePercent",            "glyph:prod",       int),
+			("iResearchPercent",           None,                         "getResearchPercent",          "glyph:research",   int),
+			("iTechCostModifier",          "Tech Cost Modifier",         "getTechCostModifier",         "glyph:research",   int),
+			("iAIMaxGroundbreakingPenalty","AI Max Groundbreaking Pen.", "getAIMaxGroundbreakingPenalty","btn:brain",        int),
+			("iHumanMaxGroundbreakingPenalty","Human Max Groundbreaking Pen.","getHumanMaxGroundbreakingPenalty","btn:brain",  int),
+			("iBuildPercent",              None,                         "getBuildPercent",             "glyph:citizen",    int),
+			("iImprovementPercent",        None,                         "getImprovementPercent",       "glyph:citizen",    int),
+			("iGreatPeoplePercent",        None,                         "getGreatPeoplePercent",       "glyph:great_people",int),
+			("iCulturePercent",            None,                         "getCulturePercent",           "glyph:culture",    int),
+			("iAnarchyPercent",            None,                         "getAnarchyPercent",           "btn:fire",         int),
+			("iEventChancePerTurn",        "Event Chance Per Turn",      "getEventChancePerTurn",       "btn:gear",         int),
+			("bAIAgeOfPestilence",          "AI Age Of Pestilence",        "isAIAgeOfPestilence",          "btn:brain",        bool),
+			("bAIAgeOfExploration",         "AI Age Of Exploration",       "isAIAgeOfExploration",         "btn:brain",        bool),
+			("bAIAgeOfPollution",           "AI Age Of Pollution",         "isAIAgeOfPollution",           "btn:brain",        bool),
+			("bAIAgeOfFertility",           "AI Age Of Fertility",         "isAIAgeOfFertility",           "btn:brain",        bool),
+			("bAIAgeOfGuns",                "AI Age Of Guns",              "isAIAgeOfGuns",                "btn:brain",        bool),
+			("bAIAgeOfProduction",          "AI Age Of Production",        "isAIAgeOfProduction",          "btn:brain",        bool),
+			("bAIAtomicAge",                "AI Atomic Age",               "isAIAtomicAge",                "btn:brain",        bool),
+			("Techs",                       "Techs",                       None,                            "glyph:research",   list),
 		)
 
 		field_getters_list = []
@@ -270,7 +271,7 @@ class SevoPediaEraChart:
 			("great_people", (u"%s" % (SASVisuals.Font.GREAT_PEOPLE_CHAR))),
 		)
 		for name, glyph in _glyph_defs:
-			glyph_by_name[name] = glyph
+			glyph_by_name[name] = (glyph, 0)
 
 		icon_token_by_key = {}
 		display_label_by_key = {}
@@ -283,25 +284,7 @@ class SevoPediaEraChart:
 		def icon_cell_for_key(icon_key, iRowIndex):
 			if not icon_key:
 				return (chart_sort_key(0, iRowIndex), "")
-			token = icon_token_by_key.get(icon_key, "")
-			if not token:
-				return (chart_sort_key(0, iRowIndex), "")
-			if token.startswith("btn:"):
-				name = token[4:]
-				btn = btn_by_name.get(name)
-				if btn is None:
-					return (chart_sort_key(0, iRowIndex), "")
-				path, iGroup = btn[0], btn[1]
-				if not path:
-					return (chart_sort_key(0, iRowIndex), "")
-				return (chart_sort_key(iGroup, iRowIndex), path)
-			if token.startswith("glyph:"):
-				name = token[6:]
-				glyph = glyph_by_name.get(name, u"")
-				if not glyph:
-					return (chart_sort_key(0, iRowIndex), "")
-				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
-			return (chart_sort_key(0, iRowIndex), "")
+			return chart_icon_cell(icon_token_by_key.get(icon_key, ""), iRowIndex, btn_by_name, glyph_by_name)
 
 		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
 		# <!-- custom: Removed yes_text and no_text, read from TXT_KEY_YES and TXT_KEY_NO, which no loaded text defines, so they held the keys themselves; _format_bool never used them, as the chart shows "+" and blank, which the Eras page confirmed in game on 2026-11-13.
@@ -381,7 +364,7 @@ class SevoPediaEraChart:
 
 			for era_type in era_types:
 				val = parsed_data.get(era_type, {}).get(field_name, "")
-				if value_type == "bool":
+				if value_type is bool:
 					val = self._format_bool(val)
 				row.append(chart_font2(val))
 
@@ -390,6 +373,7 @@ class SevoPediaEraChart:
 
 		return table
 
+	# <!-- custom: Was _format_bool(self, value, yes_text, no_text); the two texts were never used and came from undefined keys, so the parameters went with them. See KI#1085. (Claude code Opus 5.5) -->
 	def _format_bool(self, value):
 		# <!-- custom: normalize bool strings from Cy* getters so chart uses + / empty instead of True/False. (GPT-5.2-Codex) -->
 		if value in (True, "1", 1):
@@ -397,8 +381,10 @@ class SevoPediaEraChart:
 		if value in (False, "0", 0):
 			return ""
 		if isinstance(value, basestring):
+			# <!-- custom: sas-ci-string-compare-exemption: a getter can return its bool as the text "True" or "False". (Claude code Opus 5.5) -->
 			if value.lower() == "true":
 				return "+"
+			# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 			if value.lower() == "false":
 				return ""
 		return value

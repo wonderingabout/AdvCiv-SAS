@@ -20,7 +20,7 @@ void clearSASPilotHeldPopups();
 bool isSASPilotPopupHoldable(ButtonPopupTypes eType);
 void holdSASPilotPopup(CvPopupInfo const& kInfo);
 void pruneSASPilotHeldPopups();
-// <!-- custom: The buttons a held popup can be answered with, for the pilot to list and for answerSASPilotPopup to check. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+// <!-- custom: The buttons a held popup can be answered with, for SASPilot to list and for answerSASPilotPopup to check. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 std::string getSASPilotPopupButtons(CvPopupInfo const& kInfo);
 bool isSASPilotPopupButtonOffered(CvPopupInfo const& kInfo, int iButton);
 

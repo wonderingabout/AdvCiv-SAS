@@ -1,9 +1,9 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: Plot analysis for the pilot, in numbers rather than pictures.
+# <!-- custom: Plot analysis for SASPilot, in numbers rather than pictures.
 # At turn 57 of the islands replay (2026-11-15) the AI's found value rated one site on our island, while the user's plan (claim the coast by settling its corners) needed sites the AI rates 0; judging them meant reading plots one by one.
-# The user asked for plots judged numerically, for settling and also for Workers and military: this fetches the plot data once through the pilot's 'plots' (fog respected, as the game shows it: every revealed plot with its current yields; 'grid' gives yields only for plots in sight) and computes over it with numpy and scipy, which the game's Python 2.4 does not have.
+# The user asked for plots judged numerically, for settling and also for Workers and military: this fetches the plot data once through SASPilot's 'plots' (fog respected, as the game shows it: every revealed plot with its current yields; 'grid' gives yields only for plots in sight) and computes over it with numpy and scipy, which the game's Python 2.4 does not have.
 # The area is a square around an anchor the user asked for (2026-11-15): coordinates, one of our units, a city, a known bonus or the plot the camera looks at, with --radius for its size.
 # Run with modern Python; the game must be running under SASPilotClient.py.
 # Its requests go through SASPilotClient.request, so the command log keeps them.
@@ -27,7 +27,7 @@ for (cy, cx) in ((0, 0), (0, 4), (4, 0), (4, 4)):
 
 
 def pilot(command, **args):
-	# <!-- custom: One pilot request; an error reply ends the run with the pilot's message. (Claude code Opus 5.5) -->
+	# <!-- custom: One pilot request; an error reply ends the run with SASPilot's message. (Claude code Opus 5.5) -->
 	reply = request(PID, command, args)
 	if not reply["ok"]:
 		raise PilotError("%s: %s" % (command, reply["error"]))
@@ -135,7 +135,7 @@ def fetch_square(center, radius):
 
 
 def improve(area, weights, bLater):
-	# <!-- custom: --potential: each plot takes the yields of its best improvement by the given weights, from the pilot's 'potential' (today's techs; builds a tech away only with --later), or keeps its yields when nothing improves it more.
+	# <!-- custom: --potential: each plot takes the yields of its best improvement by the given weights, from SASPilot's 'potential' (today's techs; builds a tech away only with --later), or keeps its yields when nothing improves it more.
 	# Asked by the user at turn 59 of the islands replay (2026-11-15), as a site with two Clams rated below plain coast on today's yields. (Claude code Opus 5.5) -->
 	for ((r, c), options) in area.options.items():
 		best = list(area.yields[:, r, c])
@@ -205,7 +205,7 @@ def cmd_regions(args):
 
 def main():
 	# <!-- custom: The examples live in --help rather than the header comment, where the comment reflow joined the command lines into one sentence. (Claude code Opus 5.5) -->
-	parser = argparse.ArgumentParser(description="Plot analysis in numbers over the pilot's map data (fog respected).", formatter_class=argparse.RawDescriptionHelpFormatter, epilog="examples:\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --camera --radius 6\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer commerce --sum --city 8192 --radius 5\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer production --bonus BONUS_HORSE --radius 3\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --unit 40962\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --sum --potential 2,1,3 --later --x 96 --y 22 --radius 4\n  python LLM_Helpers/saspilot/SASPilotPlots.py regions --x 99 --y 25 --radius 10")
+	parser = argparse.ArgumentParser(description="Plot analysis in numbers over SASPilot's map data (fog respected).", formatter_class=argparse.RawDescriptionHelpFormatter, epilog="examples:\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --camera --radius 6\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer commerce --sum --city 8192 --radius 5\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer production --bonus BONUS_HORSE --radius 3\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --unit 40962\n  python LLM_Helpers/saspilot/SASPilotPlots.py layer food --sum --potential 2,1,3 --later --x 96 --y 22 --radius 4\n  python LLM_Helpers/saspilot/SASPilotPlots.py regions --x 99 --y 25 --radius 10")
 	sub = parser.add_subparsers(dest="command", required=True)
 	for name in ("layer", "regions"):
 		p = sub.add_parser(name)

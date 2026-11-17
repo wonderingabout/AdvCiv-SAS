@@ -20,7 +20,7 @@ class TextBlankLineTests(unittest.TestCase):
             self.assertEqual(check.policy(name)[1], 1)
         for name in ('Makefile', 'Makefile.project', 'x.inl', 'x.rc', 'x.ps1', 'x.sh', 'x.bat', 'x.cmd', 'x.def'):
             self.assertEqual(check.policy(name)[1], 2)
-        for name in ('x.py', 'x.cpp', 'x.xml', 'x.md', 'Assets/Art/example/ReadMe.txt', '_1_AdvCiv-SAS/Docs/git_logs/example.txt'):
+        for name in ('x.py', 'x.cpp', 'x.xml', 'x.md', 'Assets/Art/example/ReadMe.txt', '_1_AdvCiv-SAS/Docs/dev_logs/example.txt'):
             self.assertIsNone(check.policy(name))
 
     def test_new_runs_block_deletions_and_inherited_cleanup(self):

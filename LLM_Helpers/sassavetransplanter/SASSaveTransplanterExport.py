@@ -4,7 +4,8 @@
 # <!-- custom: Runs inside Civ4 (Python 2.4), in any build old or new: SASSaveTransplanter.py copies it into a source build's Assets/Python and hooks CvEventInterface.onEvent, so the build that wrote a save also reads it and writes its world out as text.
 # It uses only the stock BtS Python API and the build's own CvWBDesc, as a 4986 build has no SASPilot, SASGameRecord or SASUtils. (Claude code Fable 5.2) -->
 
-# <!-- custom: CvPythonExtensions is the game API; CvWBDesc is the build's own WorldBuilder writer; os and traceback write the result files. SASSaveTransplanterRequest is generated beside this file by SASSaveTransplanter.py and holds the output path. (Claude code Fable 5.2) -->
+# <!-- custom: CvPythonExtensions is the game API; CvWBDesc is the build's own WorldBuilder writer; os and traceback write the result files.
+# SASSaveTransplanterRequest is generated beside this file by SASSaveTransplanter.py and holds the output path. (Claude code Fable 5.2) -->
 from CvPythonExtensions import *
 import os
 import traceback
@@ -91,7 +92,8 @@ def _gameFacts():
 	_attempt(facts, "numAreas", cyMap.getNumAreas)
 	_attempt(facts, "gameOptions", lambda: [gc.getGameOptionInfo(i).getType() for i in range(gc.getNumGameOptionInfos()) if game.isOption(i)])
 	_attempt(facts, "victories", lambda: [gc.getVictoryInfo(i).getType() for i in range(gc.getNumVictoryInfos()) if game.isVictoryValid(i)])
-	# <!-- custom: The two generators' current states: WorldBuilder text holds no seed, so a scenario start draws new ones. SASSaveTransplanter.py can set these in the receiving game, which then draws the numbers the source game would have drawn next. (Claude code Fable 5.2) -->
+	# <!-- custom: The two generators' current states: WorldBuilder text holds no seed, so a scenario start draws new ones.
+	# SASSaveTransplanter.py can set these in the receiving game, which then draws the numbers the source game would have drawn next. (Claude code Fable 5.2) -->
 	_attempt(facts, "syncRandSeed", lambda: game.getSorenRand().getSeed())
 	_attempt(facts, "mapRandSeed", lambda: game.getMapRand().getSeed())
 	_attempt(facts, "maxCivPlayers", gc.getMAX_CIV_PLAYERS)
@@ -153,7 +155,8 @@ def _playerFacts(iPlayer, bProbeFreePromotions):
 		return rows
 	_attempt(facts, "units", units)
 
-	# <!-- custom: The promotions this build gives each of the player's unit types for free, from the unit itself and from the leader's traits. As with civFreeTechs, a scenario start adds the loading build's on top of the file's: a 4986 world's Archers gained City Garrison I in current SAS, their leader now being Protective, and a unit could likewise keep a promotion from a trait its leader has lost. (Claude code Fable 5.2) -->
+	# <!-- custom: The promotions this build gives each of the player's unit types for free, from the unit itself and from the leader's traits.
+	# As with civFreeTechs, a scenario start adds the loading build's on top of the file's: a 4986 world's Archers gained City Garrison I in current SAS, their leader now being Protective, and a unit could likewise keep a promotion from a trait its leader has lost. (Claude code Fable 5.2) -->
 	def freePromotionsByUnit():
 		# <!-- custom: Found by creating one unit of each type and reading what it starts with, then removing it: the first version read the XML, but Python has no call for which unit combats a trait's free promotion applies to (CvTraitInfo has isFreePromotion only), so it failed in both builds.
 		# Only where the game is thrown away afterwards, as a new unit takes an ID and a random birthmark. (Claude code Fable 5.2) -->
@@ -258,7 +261,8 @@ def _plotContent(plot):
 
 
 def updateMap(sourceFeatureTypes, sourceBonusTypes):
-	# <!-- custom: For SASSaveTransplanter.py's --map-variants update, run in the receiving game: places only the feature and bonus types that the source build's XML did not have, by the current build's own rules, and leaves every plot that already holds a feature or bonus as it is. The user asked whether a transplanted world should get such content (Camel, Marsh) for balance; "preserve" keeps the world, and this is the other variant.
+	# <!-- custom: For SASSaveTransplanter.py's --map-variants update, run in the receiving game: places only the feature and bonus types that the source build's XML did not have, by the current build's own rules, and leaves every plot that already holds a feature or bonus as it is.
+	# The user asked whether a transplanted world should get such content (Camel, Marsh) for balance; "preserve" keeps the world, and this is the other variant.
 	# Returns every plot it changed with its content before and after, read from the map itself, so that the caller can check that nothing else changed; the first version returned counts only (Codex (GPT-6.1-Sol)'s 2026-11-16 review).
 	# Plots with a starting position or units get nothing, as nothing normalizes starts afterwards. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	cyMap = CyMap()
@@ -276,7 +280,8 @@ def updateMap(sourceFeatureTypes, sourceBonusTypes):
 				continue
 			if szType == "FEATURE_MARSH":
 				# <!-- custom: Marsh has its own fractal in CvMapGeneratorUtil.FeatureGenerator.addMarshesAtPlot, which sets itself up on first use, so it is called on a bare object rather than a generator built for a map script.
-				# On a new map Marsh is placed before Forest; here Forests are already in place and keep their plots, so Marsh gets fewer than on a new map. marshFractalPlotsHeldByOtherFeatures counts those. (Claude code Fable 5.2) -->
+				# On a new map Marsh is placed before Forest; here Forests are already in place and keep their plots, so Marsh gets fewer than on a new map.
+				# marshFractalPlotsHeldByOtherFeatures counts those. (Claude code Fable 5.2) -->
 				import CvMapGeneratorUtil
 				CvMapGeneratorUtil.FeatureGenerator.addMarshesAtPlot.im_func(holder, plot, plot.getX(), plot.getY())
 			elif plot.canHaveFeature(iFeature) and gc.getGame().getMapRand().get(10000, "SASSaveTransplanter feature") < gc.getFeatureInfo(iFeature).getAppearanceProbability():
@@ -294,7 +299,8 @@ def updateMap(sourceFeatureTypes, sourceBonusTypes):
 			if info.getPlacementOrder() != iOrder or info.getType() in sourceBonusTypes:
 				continue
 			result["newBonusTypes"].append(info.getType())
-			# <!-- custom: The same choice as CvMapGenerator::addBonuses: isOneArea. The first version chose by unique range, and Camel and Peat (a range above 0, bArea 0) would have gone to addUniqueBonusType, which asserts a one-area bonus; found by Codex (GPT-6.1-Sol)'s review before it ever ran. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+			# <!-- custom: The same choice as CvMapGenerator::addBonuses: isOneArea.
+			# The first version chose by unique range, and Camel and Peat (a range above 0, bArea 0) would have gone to addUniqueBonusType, which asserts a one-area bonus; found by Codex (GPT-6.1-Sol)'s review before it ever ran. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 			if info.isOneArea():
 				generator.addUniqueBonusType(iBonus)
 				result["bonusPlacement"][info.getType()] = "addUniqueBonusType"
@@ -326,8 +332,10 @@ def updateMap(sourceFeatureTypes, sourceBonusTypes):
 
 
 def finishImport(request):
-	# <!-- custom: The receiving side for a build without SASPilot, such as base AdvCiv or an older AdvCiv-SAS: the user asked whether a current world could also go into those. Run by the hook once the scenario has started, it does what SASSaveTransplanter.py's import_world does through SASPilot in the current build: source grants, seeds, map update, re-export, save.
-	# Writes <prefix>.import.json with each step's result and <prefix>.import.done last. CyGame.saveGame is in the stock BtS API. (Claude code Fable 5.2) -->
+	# <!-- custom: The receiving side for a build without SASPilot, such as base AdvCiv or an older AdvCiv-SAS: the user asked whether a current world could also go into those.
+	# Run by the hook once the scenario has started, it does what SASSaveTransplanter.py's import_world does through SASPilot in the current build: source grants, seeds, map update, re-export, save.
+	# Writes <prefix>.import.json with each step's result and <prefix>.import.done last.
+	# CyGame.saveGame is in the stock BtS API. (Claude code Fable 5.2) -->
 	szPrefix = request.OUT_PREFIX
 	result = {}
 	szError = ""
@@ -363,7 +371,8 @@ def finishImport(request):
 
 
 def onEvent(argsList):
-	# <!-- custom: Called before the build's own onEvent. The export runs once, on the first gameUpdate after the save has loaded: at OnLoad itself the EXE has not finished setting up the game for display. (Claude code Fable 5.2) -->
+	# <!-- custom: Called before the build's own onEvent.
+	# The export runs once, on the first gameUpdate after the save has loaded: at OnLoad itself the EXE has not finished setting up the game for display. (Claude code Fable 5.2) -->
 	global _bDone
 	if _bDone:
 		return
@@ -374,7 +383,8 @@ def onEvent(argsList):
 	_bDone = True
 	try:
 		# <!-- custom: A request is served once: the first version left it armed in the copy, so a later launch of that copy by hand would have exported another game over the last run's files (Codex (GPT-6.1-Sol)'s 2026-11-16 review).
-		# SASSaveTransplanter.py removes the request once Civ4 has closed; should that not happen, the finished run's .done file makes the hook do nothing. The hook does not delete the request itself, as a changed .py under Assets makes a running Civ4 reload its Python. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+		# SASSaveTransplanter.py removes the request once Civ4 has closed; should that not happen, the finished run's .done file makes the hook do nothing.
+		# The hook does not delete the request itself, as a changed .py under Assets makes a running Civ4 reload its Python. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		try:
 			import SASSaveTransplanterRequest
 		except ImportError:

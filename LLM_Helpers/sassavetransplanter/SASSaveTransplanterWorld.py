@@ -400,6 +400,7 @@ def analyze(lines: Sequence[str], destination_types: Optional[set], allow_nonzer
         if sx is None and sy is None:
             continue
         try:
+            # <!-- custom: One of sx and sy may be None; int(None) then raises TypeError, caught below as an invalid start. (Claude code Opus 5.5) -->
             coord = (int(sx), int(sy))  # type: ignore[arg-type]
         except (TypeError, ValueError):
             errors.append("player %d has invalid StartingX/StartingY: %r/%r" % (player_index, sx, sy))
@@ -569,7 +570,8 @@ def compare_sequence_blocks(source_lines: Sequence[str], destination_lines: Sequ
     }
 
 
-# <!-- custom: Added allowed_plot_changes for SASSaveTransplanter.py's "update" map variant, which adds features and bonuses on purpose: it maps "x,y" to the exact lines that plot may lose ("removed") and gain ("added"). A plot whose difference is exactly that passes, any other difference still fails, and an announced change that is not found fails too.
+# <!-- custom: Added allowed_plot_changes for SASSaveTransplanter.py's "update" map variant, which adds features and bonuses on purpose: it maps "x,y" to the exact lines that plot may lose ("removed") and gain ("added").
+# A plot whose difference is exactly that passes, any other difference still fails, and an announced change that is not found fails too.
 # Before, the caller waived all plot differences of that variant, which Codex (GPT-6.1-Sol)'s 2026-11-16 review showed could hide a changed river. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 def compare_worldbuilder(source_lines: Sequence[str], destination_lines: Sequence[str], allowed_plot_changes: Optional[Mapping[str, Mapping[str, Sequence[str]]]] = None) -> Dict[str, object]:
     """Compare the T0 payload of two WB saves, tolerating added tail slots."""
@@ -782,6 +784,7 @@ def command_inspect(args: argparse.Namespace) -> int:
         destination_types, _per_root, xml_warnings = load_destination_types(xml_roots)
         destination_type_count = len(destination_types)
     analysis = analyze(text.splitlines(True), destination_types, args.allow_nonzero_turn, args.allow_unresolved_types)
+    # <!-- custom: analyze() returns Dict[str, object], but its "warnings" value is the list it builds. (Claude code Opus 5.5) -->
     analysis["warnings"].extend(xml_warnings)  # type: ignore[union-attr]
     report = report_for(source, source_data, analysis, xml_roots or None, destination_type_count, {"type_remaps": {}, "mod_path_changes": 0}, args.source_build, args.destination_build)
     write_report(args.report.resolve() if args.report else None, report)
@@ -817,6 +820,7 @@ def command_transplant(args: argparse.Namespace) -> int:
     output_data = output_text.encode(WB_ENCODING)
 
     analysis = analyze(transformed, destination_types, args.allow_nonzero_turn, args.allow_unresolved_types)
+    # <!-- custom: analyze() returns Dict[str, object], but its "warnings" value is the list it builds. (Claude code Opus 5.5) -->
     analysis["warnings"].extend(xml_warnings)  # type: ignore[union-attr]
     transformations = {
         "type_remaps": dict(sorted(remapped.items())),
@@ -861,7 +865,8 @@ def command_compare(args: argparse.Namespace) -> int:
         source_lines = [line for line in source_lines if not line.strip().startswith(("Tech=", "PromotionType="))]
         destination_lines = [line for line in destination_lines if not line.strip().startswith(("Tech=", "PromotionType="))]
     if args.ignore_player_names:
-        # <!-- custom: For SASSaveTransplanter.py's load check, which compares a game's world before saving with the same game's world after loading the save. A scenario start keeps each player's name lines as text keys (LeaderName=TXT_KEY_LEADER_ISABELLA); after a save and load the game only has the resolved text (LeaderName=Isabella I), so all 11 players of the first check differed in those lines and nothing else. (Claude code Fable 5.2) -->
+        # <!-- custom: For SASSaveTransplanter.py's load check, which compares a game's world before saving with the same game's world after loading the save.
+        # A scenario start keeps each player's name lines as text keys (LeaderName=TXT_KEY_LEADER_ISABELLA); after a save and load the game only has the resolved text (LeaderName=Isabella I), so all 11 players of the first check differed in those lines and nothing else. (Claude code Fable 5.2) -->
         name_keys = ("LeaderName=", "CivDesc=", "CivShortDesc=", "CivAdjective=")
         source_lines = [line for line in source_lines if not line.strip().startswith(name_keys)]
         destination_lines = [line for line in destination_lines if not line.strip().startswith(name_keys)]

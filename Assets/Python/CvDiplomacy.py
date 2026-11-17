@@ -18,7 +18,7 @@ gc = CyGlobalContext()
 localText = CyTranslator()
 
 # <!-- custom: What the diplomacy screen shows, for SASPilot's 'diplo' and 'reply': CyDiplomacy has getters for the deal on the table but none for the AI's line or the replies offered, which only this module knows as it builds them.
-# Seven AI contacts reached the pilot's player in a 97-turn fog-on game (2026-11-13), offers and a religion demand among them, and the pilot saw none.
+# Seven AI contacts reached SASPilot's player in a 97-turn fog-on game (2026-11-13), offers and a religion demand among them, and SASPilot saw none.
 # Bookkeeping only: it changes nothing on the screen. (Claude code Opus 5.5) -->
 SASPilotScreen = {"open": False, "who": -1, "aiComment": -1, "aiText": u"", "responses": [], "screen": 0, "conversation": 0}
 
@@ -51,7 +51,7 @@ class CvDiplomacy:
 
 		# Eliminate previous comments
 		self.diploScreen.clearUserComments()
-		# <!-- custom: Cleared with the buttons, and counted, for SASPilot: CvDiplomacyInterface.refresh calls determineResponses without setAIComment, so the replies the pilot kept from setAIComment stayed answerable after the screen had new buttons (Codex's review).
+		# <!-- custom: Cleared with the buttons, and counted, for SASPilot: CvDiplomacyInterface.refresh calls determineResponses without setAIComment, so the replies SASPilot kept from setAIComment stayed answerable after the screen had new buttons (Codex's review).
 		# 'reply' must name the count 'diplo' gave, so a late reply cannot answer a newer screen. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		SASPilotScreen["responses"] = []
 		SASPilotScreen["screen"] += 1
@@ -376,8 +376,8 @@ class CvDiplomacy:
 
 		# <!-- custom: The AI's line as the screen gets it, with its arguments, for SASPilot; see SASPilotScreen.
 		# determineResponses below refills the replies. (Claude code Opus 5.5) -->
-		# <!-- custom: The comment's raw ID, which the pilot resolves when it reads it: the first version looked its type up here, an extra lookup in every player's diplomacy (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		# <!-- custom: The pilot counted a conversation only when one of its own reads found the screen newly open, so a screen closed and reopened between two reads kept the old count and an old read token could answer it (Codex's review).
+		# <!-- custom: The comment's raw ID, which SASPilot resolves when it reads it: the first version looked its type up here, an extra lookup in every player's diplomacy (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		# <!-- custom: SASPilot counted a conversation only when one of its own reads found the screen newly open, so a screen closed and reopened between two reads kept the old count and an old read token could answer it (Codex's review).
 		# The EXE's beginDiplomacy entry point builds a fresh instance and calls setAIComment first, while handleUserResponse and dealCanceled mark theirs as responding before any AI line, so this counts each conversation once, as it begins. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		if not self.bSASPilotResponding:
 			SASPilotScreen["conversation"] += 1

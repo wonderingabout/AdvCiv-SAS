@@ -50,7 +50,7 @@ import SASDefineGuard
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import SASGameRecordActions
-# <!-- custom: SASPilot serves the agent pilot's mailbox from screen updates; it returns at once unless the pilot is on. (Claude code Opus 5.5) -->
+# <!-- custom: SASPilot serves the agent pilot's mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
 import SASPilot
 import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
 # <!-- custom: Structured interface diagnostics now use CvUtil.pyPrintRecord, so the former BugUtil-only writer import is no longer needed; the same shared stream layer still supplies row timestamps. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->

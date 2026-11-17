@@ -772,6 +772,25 @@ def chart_sort_key(iGroup, iRowIndex):
 	# 3 digits cover up to 124 rows.
 	return u"<font=1>" + chart_encode_base5(iGroup, 4) + chart_encode_base5(iRowIndex, 3) + u"</font>"
 
+def chart_icon_cell(szToken, iRowIndex, btn_by_name, glyph_by_name):
+	# <!-- custom: The Era, Handicap, World Size and Game Speed charts each had their own copy of this reader, and each showed no icon, without an error, for a misspelt kind or name in its table; one reader now fails on either.
+	# Each chart keeps its own tables: their order sets the icon column's sort groups, which differ between charts.
+	# szToken is "btn:<name>" or "glyph:<name>", or empty for a row without an icon; both tables map a name to (art or glyph, sort group). (Claude code Opus 5.5) -->
+	if not szToken:
+		return (chart_sort_key(0, iRowIndex), "")
+	szKind, szName = szToken.split(":", 1)
+	# <!-- custom: sas-ci-string-compare-exemption: the kind is part of the chart tables' readable tokens, and any other kind raises below. (Claude code Opus 5.5) -->
+	if szKind == "btn":
+		szPath, iGroup = btn_by_name[szName]
+		if not szPath:
+			return (chart_sort_key(0, iRowIndex), "")
+		return (chart_sort_key(iGroup, iRowIndex), szPath)
+	# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
+	if szKind == "glyph":
+		szGlyph, iGroup = glyph_by_name[szName]
+		return (chart_font2(szGlyph) + chart_sort_key(iGroup, iRowIndex), "")
+	raise ValueError("unknown chart icon kind in %s" % szToken)
+
 def chart_beautify_field_name(raw_name):
 	# Convert camelCase/underscore field names to readable labels.
 	# Strips leading 'i' or 'b' prefix, replaces _ with spaces, splits camelCase, replaces Percent with %.

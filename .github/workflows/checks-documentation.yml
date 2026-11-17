@@ -78,6 +78,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/disclaimers_first.py
 
+      # <!-- custom: Old references are renamed retroactively, so a renamed tool's old name, listed in Deprecated/retired_names.md, must not come back outside the history records. (Claude code Opus 5.5) -->
+      - name: Retired tool and feature names
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/documentation/retired_names.py
+
       - name: Known Issues update chronology
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/documentation/known_issues_chronology.py --base-ref "$BASE_REF" --event-name "$EVENT_NAME"

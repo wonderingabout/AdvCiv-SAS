@@ -28,7 +28,7 @@ TEXT_SUFFIXES = {
 IGNORE_PREFIXES = (
     ".github/",
     "_1_AdvCiv-SAS/Docs/changelogs_web/",
-    "_1_AdvCiv-SAS/Docs/git_logs/",
+    "_1_AdvCiv-SAS/Docs/dev_logs/",
     "LLM_Helpers/context/",
     "LLM_Helpers/outputs/",
     "_SNAPSHOT_CONTEXT/",

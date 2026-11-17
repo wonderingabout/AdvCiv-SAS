@@ -28,10 +28,10 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `art_viewing/` | finding, rendering and comparing art: [`nif_preview.py`](#nif_previewpy), [`civ4_assets.py`](#civ4_assetspy), [`fpk_tool.py`](#fpk_toolpy), [`gamefont_tga.py`](#gamefont_tgapy), [`regenerate_art_samples.py`](#regenerate_art_samplespy) and others |
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
-| `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy) and [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), with shared path and formatting helpers |
-| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
-| `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
-| `desktop/` | controlling the computer rather than the game, for any app: [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; `layouts/` holds the apps' click points and saved window layouts |
+| `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
+| `desktop/` | controlling the computer rather than the game, for any app: [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; `layouts/` holds the apps' click points and saved window layouts |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
@@ -79,7 +79,7 @@ The second split named folders by job, and review of it renamed three that were 
 
 Helper names follow the same idea: `audit_first_city_scouting.py` became `summarize_first_city_scouting.py`, since it summarizes logs rather than auditing code, and `audit_unit_obsolescence_continuity.py` became `military_tree_continuity.py`, after the [Military Tree](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md) it checks.
 
-- The move renamed old paths in place across the maintained documents, Known Issues and revision histories included, rather than adding notes that a helper used to live elsewhere: one path per helper keeps links and searches simple, and nobody has to remember the old layout. Only verbatim copies keep the flat paths: the git logs, the archived changelogs and captured console output.
+- The move renamed old paths in place across the maintained documents, Known Issues and revision histories included, rather than adding notes that a helper used to live elsewhere: one path per helper keeps links and searches simple, and nobody has to remember the old layout. Only verbatim copies keep the flat paths: the dev logs, the archived changelogs and captured console output.
 - Moving `LLM_Helpers/` itself under `_1_AdvCiv-SAS/`, which holds SAS documents and images, was considered and rejected. It is a working folder of tools, like `.github/` and `tests/`, which also sit at the root although they are SAS-specific.
   - At the root, commands stay short (`python LLM_Helpers/audits/ci_report.py`), and helpers reach `Assets/` and `CvGameCoreDLL/` one folder up.
   - Moving it would have lengthened every command and also changed the packager's history exclusions, `.gitattributes`, `.gitignore` and many CI checks, for no gain in finding a helper.
@@ -126,6 +126,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`svn_history_to_diffs.py`](#svn_history_to_diffspy)
   - [`git_history_to_diffs.py`](#git_history_to_diffspy)
   - [`svn_history_verify.py`](#svn_history_verifypy)
+  - [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
 - [`context/`](#context)
   - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
@@ -133,6 +134,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [Driving desktop windows](#driving-desktop-windows)
     - [`desktop_windows.py`](#desktop_windowspy)
     - [`agent_message.py`](#agent_messagepy)
+    - [`git_bash_history.py`](#git_bash_historypy)
     - [`contact_sheet.py`](#contact_sheetpy)
     - [`sound_check.py`](#sound_checkpy)
 - [`diagnostics/`](#diagnostics)
@@ -813,7 +815,8 @@ git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
 
 Exports a Subversion repository's history as one greppable diff per revision, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt`, in the spirit of `commit_diffs/`. It is written for any repository, so nothing in it is specific to Better BTS AI.
 
-- Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+- Why it exists: our Git ancestry starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+  - Better BTS AI's export is tracked in `LLM_Helpers/context/commit_diffs/` as `BBAI_r*.diff`, beside the generated files there, so one grep covers it with K-Mod, AdvCiv and SAS, and [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy) gives it a dev log like theirs.
 - It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
   - The SlikSVN command line was installed on 2026-11-12 for updating working copies (see [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers)); this exporter still does not need it.
 - How it talks to the server:
@@ -823,6 +826,7 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
   - A `REPORT` with no revision range returned only the latest revision from SourceForge, so the script reads the latest revision first and then requests the full span.
   - A file edited inside a folder copied in that same revision does not exist at its new path one revision earlier, so its diff is taken against the copy source.
   - A CRLF conversion would look like a whole-file rewrite, so line endings are normalized and such a file reports `No text change`.
+    - So the diffs cannot show endings that changed along with the text. `--eol-audit FILE` fetches the raw versions instead and writes a TSV of each modified file whose lines changed only in their endings, with no diffs. Run on BBAI on 2026-11-17, it found no switch, only 15 one-line cases in its documentation. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Each revision file records its source, author, date, coverage, full message and changed paths, including `(from <path>@<revision>)` copy origins.
   - Coverage is `full`, `partial` (some text was left out) or `summary-only`.
   - Binary files are listed without contents and do not lower coverage. Paths matching `--summarize` and files over the limits do, as they are real text left out. The default limits match `commit_diffs/`.
@@ -831,14 +835,14 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
 - Interrupted runs resume: existing revision files are kept, failures are listed and the indexes are only written once every revision succeeded. `--force` re-renders existing files.
   - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
 - To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
-- Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
+- In `commit_diffs/`, only the `BBAI_r*.diff` files are kept, not the exporter's `INDEX.txt` and `PATH_HISTORY_INDEX.txt`: their headers hold the same rows, so the generator, [`svn_history_verify.py`](#svn_history_verifypy) and the lineage tables read them there. Other mods' exports, such as Realism Invictus's below, stay outside the repository.
 - Verified on 2026-11-09 by Claude Code and independently rerun by Codex (GPT-6.1-Sol): replaying 1,175 stored patches reproduced all 198 DLL source files in the Better BTS AI r597 reference tree line for line.
   - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
 
-The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
+The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched. Export into a scratch folder, then copy only its `BBAI_r*.diff` files into `commit_diffs/`: the exporter's own `INDEX.txt` would overwrite the generated one there.
 
 ```bash
-python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
+python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out bbai_export --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
 ```
 
 Realism Invictus (added 2026-11-12) shows two options for other mods' repositories:
@@ -884,7 +888,19 @@ Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a 
 - Give `--repo-path` without a leading slash: Git Bash rewrites `/trunk/...` into a Windows path, which would silently match no files.
 
 ```bash
-python LLM_Helpers/code_history/svn_history_verify.py --out LLM_Helpers/context/svn_history/bbai --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+python LLM_Helpers/code_history/svn_history_verify.py --out LLM_Helpers/context/commit_diffs --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+```
+
+### `svn_export_to_dev_log.py`
+
+Writes an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export's revision messages as a dev log, newest first, in the layout of the Git dev logs (`commit`, `Author`, `Date`, message), so a mod from SVN reads like the others.
+
+- It reads the messages from the export's revision headers, so it needs no server, and names each entry `commit r<revision>`, as SVN has no commit hashes.
+- SVN dates are UTC, written in the Git-made dev logs' `--date=iso` form with `+0000`.
+- Made on 2026-11-17 for Better BTS AI's `000_BBAI` log, beside K-Mod's and base AdvCiv's in `_0_Legacy/Docs/dev_logs/`; that history is frozen, so the log needs regenerating only if the export changes.
+
+```bash
+python LLM_Helpers/code_history/svn_export_to_dev_log.py --export LLM_Helpers/context/commit_diffs --label BBAI --out _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_000_BBAI.txt
 ```
 
 ### `history_lineage_tables.py`
@@ -932,6 +948,7 @@ python LLM_Helpers/code_history/history_lineage_tables.py --write
   - `paste` clicks a message box and pastes text without sending it, restoring the clipboard's text; `key enter` then sends it, or `key ctrl+enter` queues it in an app that is still working. Claude Code and Codex message each other this way; see the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#agents-talking-to-each-other).
   - Named `civ4_window.py` until 2026-11-10, before it was committed: it began as a Civ4 helper and was renamed once it drove other apps too.
 - `screenshot --crop LEFT TOP RIGHT BOTTOM --scale 0.5` keeps one part of the window and shrinks it: a full 3840-pixel window costs many tokens per read, a crop of the part that matters a fraction.
+  - `screenshot --page` keeps only the web page of the user's Chrome window, asking Chrome where the page starts below its bars; see [The user's Chrome](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-chrome).
 - `clipboard --out shot.png` saves an image the user copied, such as a full-screen capture of a moment an agent cannot catch itself; it accepts `--crop` and `--scale` too and refuses when the clipboard holds no image.
 - A screenshot captures only the game window, at its current place and size. The default `--method window` (Windows' `PrintWindow`) works while the window is covered; `--method screen` brings it to the front and copies its screen area. Neither can capture a minimized window. It needs Pillow.
 - Coordinates are physical pixels from the window's top-left corner, as in its screenshots; the tool makes itself DPI-aware, since display scaling otherwise cropped them.
@@ -944,6 +961,8 @@ python LLM_Helpers/code_history/history_lineage_tables.py --write
 - `click`, `drag`, `key`, `type` and `paste` first wait until the user has been idle for 3 seconds (`--idle-seconds`, `0` skips it), since taking the focus while the user types sends their keystrokes to the target: on 2026-11-11 the user's typing put "ntwt" in Civ4's autoplay turn box.
 - The idle wait belongs to the command line only. A script calling `desktop_windows.click` and friends directly gets none, so call `wait_for_idle_user` before each step, not once per batch: on 2026-11-12 a batch that waited once at its start sent eight filter clicks while the user moved the mouse, and from the second click on they hit the main map instead of the city screen.
 - `click --with ctrl` (or `shift`, `alt`, repeatable) holds the key during the click, as Civ4's Ctrl-, Shift- and Alt-clicks on units and production need, and `click --double` double-clicks, which opens a city from its banner.
+- Since 2026-11-17, `click` checks once more, just before pressing, that the cursor is still on its point and the target still in front, and refuses otherwise. The `click` command then gives the focus back to the window that was in front, as `key`, `type` and `paste` already did: the user, working in VS Code during an agent's clicks, had found Civ4 left in front.
+  - Code calling `desktop_windows.click` keeps the focus, unless it passes `give_back=True`: `paste` clicks a message box before pressing Ctrl+V, and when every click gave the focus back, three pastes meant for Codex went to the user's window instead, the same day. Scripts chaining clicks, such as `set_dropdown.py`, also need the focus to stay.
 - `click` and `hover` take `--point NAME` instead of x and y: a named Civ4 point from [`civ4_points.json`](/LLM_Helpers/game_runs/ui_maps/civ4_points.json), such as `main_menu_sevopedia` or `pedia_units`, with each point's measurement date.
   - Points are window-relative, so where the window sits does not matter, but its size does: each layout is keyed by the window's outer size, and a window of another size is refused rather than clicked in the wrong spot.
   - When a resolution, text scale or UI change moves a point, read it off a screenshot and update the file, or add a layout for the new window size.
@@ -999,6 +1018,58 @@ python LLM_Helpers/desktop/agent_message.py --to claude --sender "Codex GPT-6.1-
 ```
 
 - Added with help of Claude Code Opus 5.5.
+
+#### `git_bash_history.py`
+
+Prints what the user did in Git Bash (Git for Windows' MINGW64 bash, in a `mintty` window) since a given time.
+
+- By default it prints the commands, from the record `~/.bashrc` writes to `Downloads/AdvCiv-SAS_LLM/git_bash_history/bash_history.txt`; with `--output`, the windows' full text, from the logs `~/.minttyrc` writes beside it.
+- With `--vscode`, it prints the Git actions the user took in VS Code's Source Control panel instead, such as staging, amending or pushing, from the Git log VS Code keeps; see [Git in VS Code and other tools](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#git-in-vs-code-and-other-tools), which also names the checks that work whatever tool the user used.
+- See [The user's Git Bash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#the-users-git-bash) for the setup.
+
+- Agents' own apps show only the commands they run themselves, so this is how they see the user's amends, pushes and force-pushes before assuming what reached GitHub. On 2026-11-17 an agent told the user to force-push what the user had already pushed.
+- Both keep everything, so the view is chosen when reading, with `--since`: `today` (the default), `boot` (since Windows started), a number of hours or minutes such as `2h` or `30m`, or a time such as `2026-11-17T13:00`.
+  - The record's first 500 commands, seeded from the old `~/.bash_history`, have no times, so every view skips them.
+  - A window opened before the setup writes to neither, and saves its commands the old way when it closes, so an empty result can mean that rather than no commands.
+- The record's time is when a command was entered; it holds only commands that ran, so a line cancelled with Ctrl+C is not in it. Sample, from a test window on 2026-11-17 (`--since 2026-11-17T19:04`); the last line, the count, goes to standard error:
+
+```text
+2026-11-17 19:04:53  git log --oneline -1XX
+2026-11-17 19:05:08  echo before clear
+2026-11-17 19:05:12  clear
+2026-11-17 19:05:27  git diff --stat -- Assets/XML/GlobalDefines_advciv_sas.xml
+2026-11-17 19:05:52  git log --oneline -1
+2026-11-17 19:06:11  exit
+6 command(s) since 2026-11-17 19:04:00, of 9 timed in the record
+```
+
+- `--output` prints the windows' full text instead, Git's answers included, from the per-window logs `~/.minttyrc` writes (`window_<time it opened>.log` in the same folder). Each block starts at the time line before a prompt, so its time is when the prompt appeared.
+  - It needs [pyte](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers), a terminal emulator in pure Python: a log is the raw stream sent to the window, not the text it shows.
+    - The first version only stripped the stream's control codes; a prompt then merged with the command typed after it, and long `git log` lines lost text in the middle, as readline redraws an edited line and Git rewrites its progress lines with cursor moves.
+    - Replaying the stream on pyte's screen, as wide as the window (`--columns`, 160 by default, as in `~/.minttyrc`), gives what the window showed: an edited command in its final form, Ctrl+C as `^C`, progress lines in their last state.
+  - `clear` wipes the screen, so the reader keeps the rows it wiped, or a push followed by `clear` would vanish.
+  - Sample, from the same test window, shortened to its last blocks and with the folder path shortened to `…/AdvCiv-SAS`:
+
+```console
+2026-11-17 19:04:53
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ echo this line is cancelled^C
+2026-11-17 19:05:08
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ clear
+2026-11-17 19:05:12
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ git diff --stat -- Assets/XML/GlobalDefines_advciv_sas.xml
+warning: in the working copy of 'Assets/XML/GlobalDefines_advciv_sas.xml', CRLF will be replaced by LF the next time Git touches it
+ Assets/XML/GlobalDefines_advciv_sas.xml | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+```
+
+```bash
+python LLM_Helpers/desktop/git_bash_history.py --since boot
+python LLM_Helpers/desktop/git_bash_history.py --output --since 2h
+python LLM_Helpers/desktop/git_bash_history.py --vscode --since today
+```
 
 #### `contact_sheet.py`
 
@@ -1152,7 +1223,8 @@ python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
 - `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
 - `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
 - Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
-- The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited. The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
+  - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
 
 ## `exe_analysis/`
@@ -1348,7 +1420,7 @@ cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Be
 
 In the tested broad PrivateMaps pass, this produced a high-impact Ruff cleanup: for example, `Wheel.py` dropped from roughly 400 Ruff findings to 15, while the staged diff was still mostly mechanical whitespace-only matrix indentation replacement.
 
-```bash
+```text
 LLM_Helpers/formatting/fix_matrix_indent.py     |  290 ++++++++
 PrivateMaps/Archipelago.py           |  186 +++---
 PrivateMaps/BTG_Lagoon.py            |  220 +++----
@@ -1479,7 +1551,7 @@ External cleanup helper for line-ending hygiene.
 - Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 
 Examples:
@@ -1499,7 +1571,7 @@ Renames identifiers, such as SAS defines, in every tracked or new untracked text
 - Written on 2026-11-12 for the `SAS_EXE_PATCH_*` rename, which reached 15 files of 7 kinds; hand edits miss files and can turn CRLF into LF.
 - Each `OLD=NEW` pair can be a whole name or a prefix, matched only at an identifier's start; where several match, the longest wins, so `SAS_EXE_PATCH_SETUP_SCREEN_=...` beats `SAS_EXE_PATCH_=...`.
 - Rewrites bytes, so line endings and encodings stay as they were.
-- Skips verbatim history (git logs, archived changelogs, `LLM_Helpers/context/`) and the [deprecated-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), whose old-name column must stay; add or fix that table's rows by hand. `--include-history` overrides it.
+- Skips verbatim history (dev logs, archived changelogs, `LLM_Helpers/context/`) and the [deprecated-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), whose old-name column must stay; add or fix that table's rows by hand. `--include-history` overrides it.
 - `--exclude PATH` leaves a file alone, such as this entry, which describes the `SAS_EXE_PATCH_*` rename by its old names.
 - Dry run by default: lists each file with its count. It fails if a new `SAS_` name passes the 42-byte limit of KI#1001.2.
 - Before running it with `--write`, check that Civ4 is not running this mod, since it edits XML and Python.
@@ -2187,8 +2259,8 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
     - Untracked files and generated history context are excluded; selected untracked files remain available separately in the ZIP. Unavailable default metadata, unrelated histories or multiple merge bases produce an explicit unavailable message instead of a guessed comparison.
   - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
   - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
-  - `git_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`git_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/Docs/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication.
-    - Unlike the repository's tracked AdvCiv-SAS Git log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom.
+  - `dev_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`dev_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/Docs/dev_logs/dev_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication.
+    - Unlike the repository's tracked AdvCiv-SAS dev log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom.
     - Keeping the full commit-message gap preserves detailed implemented notes that may later be removed from the temporary untracked `changes_old.md` and `changes_new.md`, without needlessly embedding every potentially huge source/XML patch in the light archive.
 - Adds freshly generated canonical history context under `LLM_Helpers/context/commit_diffs/`, including `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and `<segment>_<practical-count>_<short-sha>.diff` files for every selected commit reachable from the snapshot's current `HEAD` by default.
   - This spans the inherited K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history.
@@ -2197,16 +2269,17 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Repository storage policy: `commit_diffs/` is generated and Git-ignored rather than tracked because it is reproducible from Git ancestry.
     - The permanent [`context/commit_rewrite_map_6164_6402.tsv`](/LLM_Helpers/context/commit_rewrite_map_6164_6402.tsv) translates pre-rewrite SHAs from the one-time cleanup that removed the formerly tracked generated mirror; see also the [deprecated commit-identifier reference](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md).
   - History segments: `KMod` is the K-Mod history; `AdvCivPreSAS` is the base AdvCiv history before the AdvCiv-SAS branch began; `SASBranch` is the later current-branch history.
+    - `BBAI` is Better BTS AI's SVN history (r1-r597), older than K-Mod's first snapshot, tracked in this folder as `BBAI_r<revision>.diff`, since our Git cannot regenerate it; its rows give `r<revision>` in place of a SHA.
   - Post-fork meaning: `SASBranch` is deliberately a history/log segment rather than an authorship label.
     - Upstream AdvCiv development continued after SAS began, so genuine later AdvCiv commits merged/imported into the SAS branch appear there alongside SAS commits.
     - This keeps the existing three anonymized logs intact while clearly distinguishing inherited pre-SAS AdvCiv from the post-fork branch history.
   - Contents/messages: each commit diff keeps a short title preview, compact change summary, patch coverage marker, and useful textual patches.
-    - Full commit messages/metadata are intentionally not duplicated there: use the included anonymized K-Mod, base AdvCiv, and AdvCiv-SAS Git logs, with `_SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
-  - Index/navigation: `INDEX.txt` is deliberately a lean locator (`segment`, practical count, short SHA, coverage, short title) rather than another Git log.
+    - Full commit messages/metadata are intentionally not duplicated there: use the included anonymized Better BTS AI, K-Mod, base AdvCiv, and AdvCiv-SAS dev logs, with `_SNAPSHOT_CONTEXT/dev_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
+  - Index/navigation: `INDEX.txt` is deliberately a lean locator (`segment`, practical count, short SHA, coverage, short title) rather than another dev log.
     - `PATH_HISTORY_INDEX.txt` provides the reverse path -> commits view, so an LLM can narrow a historical investigation to commits that touched a particular file before opening their diff files.
     - Practical counts are useful historical hints but can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
   - Compactness/filtering:
-    - Known generated/log/binary or redundant historical payloads such as copied Git logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded.
+    - Known generated/log/binary or redundant historical payloads such as copied dev logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded.
       - The `.log` suffix is covered regardless of directory, including SASGameRecord and SASAssertions example captures; their historical payloads are summarized without removing the current example files from the source snapshot.
       - Generated `.build.json` reports are summarized too: volatile timestamps, local paths and captured source state need not be repeated in each historical patch. Changed paths/counts remain searchable; ordinary JSON configuration patches remain included, and the current DLL report is still supplied as snapshot context.
     - Imported reference documents under the current `_0_Legacy/Docs/` and former `_0_Common_Docs/` paths, plus published changelog payloads under current/former `Docs/changelogs_web/` locations, are also summarized: changed paths, counts and omission reasons remain in the commit record and path-history index, while the current files remain available under the usual snapshot selection rules.
@@ -2221,8 +2294,8 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them.
     - The cache needs no `.gitignore` entry and is never included as a repository file.
     - After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
-  - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses.
-    - Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten.
+  - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS dev-log exports, generated commit-history context does not expose Git author/committer email addresses.
+    - Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied dev logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten.
     - Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
   - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
   - Canonical context/self-recursion guard: the same `LLM_Helpers/context/commit_diffs/` path is used for the Git-ignored local mirror and inside the light ZIP.
@@ -2230,7 +2303,7 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
     - This prevents generated context from being tracked recursively inside the history it describes or dominating a handoff's working-tree diff.
     - Use `--no-sync-context` when a full-history ZIP should deliberately leave the local generated context untouched; dry-runs and disabled/truncated history never refresh it.
   - Current map references and source-analysis records remain in the light ZIP, but their own histories are likewise omitted from generated patches so large reference/progress revisions do not obscure runtime-source history.
-  - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history.
+  - `pending_upstream/INDEX.txt`, `DEV_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history.
     - During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward.
     - Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target.
     - In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible.
@@ -2247,7 +2320,7 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Root lone files, selected [Assets](/Assets/) folders, and root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself.
   - Top-level [CvGameCoreDLL](/CvGameCoreDLL/) files and top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB.
   - Nothing from `CvGameCoreDLL/Project/temp_files`: retained Debug-opt compiler intermediates and private symbols are excluded.
-  - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS Git log.
+  - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS dev log.
   - [_0_Legacy](/_0_Legacy/), including inherited reference docs and the curated base-AdvCiv UI screenshot set used for before/after or inherited-UI comparison.
   - Full [SASGameRecord examples](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/): the included sample is an unchanged full-game log rather than a selected excerpt, making it reusable for external LLM analysis/review and development reference. Although a level-3 record can occupy tens of megabytes raw, it compresses substantially in the ZIP.
 - Includes selected screenshot folders for LLM/UI/rendered-map-text review:
@@ -2472,7 +2545,7 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 
 ### Piloting a running game
 
-- Why a folder of its own: the pilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
+- Why a folder of its own: SASPilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
   - Inside it the old `pilot_` prefix said nothing, so `pilot_checks/` and `pilot_sequences/` became `checks/` and `sequences/`.
   - The folder is `saspilot/`, not `pilot/`: a bare "pilot" leaves a reader wondering what it is, while SASPilot names the feature, as SGR and BBAI logging do, and greps as one word (the user's point).
   - `run_autoplay.py` stays in `game_runs/` and `desktop_windows.py` sits in [`desktop/`](#desktop), as other tools use them too; `SASPilotClient.py` and `SASPilotConsole.py` add those folders to their import path.
@@ -2486,14 +2559,20 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
 - `SASPilotClient.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
 - `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
   - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/saspilot/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
-- The pilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
+- SASPilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
 - Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
-- `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once. Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).
+- `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once.
+  - Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).
   - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
-- `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/LLM_Helpers/saspilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`. Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole).
-- [`SASPilotScout.py`](/LLM_Helpers/saspilot/SASPilotScout.py) is a read-only opening experiment for locked play clients. It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder. `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear. See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
-- [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units. Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
+- `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/LLM_Helpers/saspilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`.
+  - Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole).
+- [`SASPilotScout.py`](/LLM_Helpers/saspilot/SASPilotScout.py) is a read-only opening experiment for locked play clients.
+  - It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder.
+  - `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear.
+  - See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
+- [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units.
+  - Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
 - [`SASPilotSites.py`](/LLM_Helpers/saspilot/SASPilotSites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
 - [`SASPilotPlots.py`](/LLM_Helpers/saspilot/SASPilotPlots.py) judges plots in numbers rather than pictures, with numpy and scipy, which Civ4's Python 2.4 lacks: `layer` prints food, production, commerce, owner or coast as a grid you can read row by row, or with `--sum` each plot's total over a city radius, and `regions` lists landmasses and unowned clusters with their sizes.
   - With `--potential food,production,commerce`, each plot counts its best improvement by those weights, from the in-game `potential` command (`--later` adds builds a tech away), so a site with two unimproved Clams no longer reads as plain coast.

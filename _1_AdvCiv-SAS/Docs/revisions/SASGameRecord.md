@@ -113,11 +113,36 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 202 - SAS practical 6750
+### Revision 206 - SAS practical 6801 (SASSaveTransplanter branch)
 
-- **Date:** 2026-11-15
+- **Date:** 2026-11-17
 - **Git commit:** pending
+- **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's 205.
+
+### Revision 205 - SAS practical 6793 (SASPilot branch)
+
+- **Date:** 2026-11-17
+- **Git commit:** `50e1d3eb8230206b5da32cee415c459ab574bb16`
+- **Change:** No change to the record: the revision check judges a merge against the parent with the higher revision, for its number and for whether it changes the recorder, as merging main into this branch had both sides at 202; and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+
+### Revision 204 - SAS practical 6750 (SASPilot branch)
+
+- **Date:** 2026-11-17
+- **Git commit:** `b57f87e3382783e7d19020606d64edd11fdb0851`
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch; main had used 202 and 203 meanwhile, so merging main into it on 2026-11-17 made it 204, in that merge commit.
+
+### Revision 203 - SAS practical 6772
+
+- **Date:** 2026-11-17
+- **Git commit:** `1d6a223865cbe2c13e008f9fd6c30f1dc7823f02`
+- **Change:** No change to the record: the revision check now ignores line-ending-only changes (`git diff --ignore-cr-at-eol`). The line-ending conversion restaged three GlobalDefines files whose `GAME_RECORD` lines then counted as changed, so GitHub failed that commit for lacking this bump. See KI#1097.
+
+### Revision 202 - SAS practical 6756
+
+- **Date:** 2026-11-16
+- **Git commit:** `e183db41cc6ef826a123ae03fed580e3d097694b`
+- **Change:** No change to the record: `SASGameRecordSettings.py` gained two `sas-ci-string-compare-exemption` notes for its comparisons with BUG's option types, which `string_label_compares.py` requires.
 
 ### Revision 201 - SAS practical 6749
 

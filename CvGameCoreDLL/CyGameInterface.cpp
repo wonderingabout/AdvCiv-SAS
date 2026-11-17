@@ -381,24 +381,24 @@ void CyGamePythonInterface()
 		.def("getSASPilotTradeItemsJson", &CyGame::getSASPilotTradeItemsJson, "string (int iGiver, int iReceiver, int iKindOnly) - what iGiver could put on the diplomacy table for iReceiver, as JSON with each AI denial; iKindOnly a TradeableItems kind or -1 for all")
 		// <!-- custom: Python's 'spy' lists a spy's missions from this, as the costs depend on the spy, which CyPlayer.getEspionageMissionCost does not take (2026-11-14). (Claude code Opus 5.5) -->
 		.def("getSASPilotEspionageJson", &CyGame::getSASPilotEspionageJson, "string (int iPlayer, int iUnit) - the espionage missions and targets the unit could run where it stands, with their costs, as the window's espionage popups offer them, as JSON")
-		// <!-- custom: Python's 'workers' compares the city AI's best build per plot with the pilot's own choice; CvCityAI keeps it per plot but Python had no getter (2026-11-14). (Claude code Opus 5.5) -->
+		// <!-- custom: Python's 'workers' compares the city AI's best build per plot with SASPilot's own choice; CvCityAI keeps it per plot but Python had no getter (2026-11-14). (Claude code Opus 5.5) -->
 		.def("getSASPilotCityBuildsJson", &CyGame::getSASPilotCityBuildsJson, "string (int iPlayer, int iCity) - each plot of a city's radius with the city AI's best build there and its value, and whether the city works it, as JSON")
 		.def("getSASPilotPlotsJson", &CyGame::getSASPilotPlotsJson, "string (int iX, int iY, int iRadius, int iFogTeam) - the plots within a radius as JSON, written in C++; with a fog team, only what it knows")
-		// <!-- custom: Python's generatePath gives no steps, and Python cannot read the player's on-screen messages; the pilot needs both to play as a person does. (Claude code Fable 5.2) -->
+		// <!-- custom: Python's generatePath gives no steps, and Python cannot read the player's on-screen messages; SASPilot needs both to play as a person does. (Claude code Fable 5.2) -->
 		.def("getSASPilotPathJson", &CyGame::getSASPilotPathJson, "string (int iPlayer, int iUnit, int iX, int iY, int iFlags) - the steps of a unit's path to a plot as JSON")
 		.def("getSASPilotMessagesJson", &CyGame::getSASPilotMessagesJson, "string (int iPlayer, int iSinceTurn) - a player's listed on-screen messages as JSON")
-		// <!-- custom: The window circles recommended city sites for a selected Settler from CvPlayerAI's site list, which Python cannot reach; the pilot needs them to choose a site as a person does. (Claude code Opus 5.5) -->
+		// <!-- custom: The window circles recommended city sites for a selected Settler from CvPlayerAI's site list, which Python cannot reach; SASPilot needs them to choose a site as a person does. (Claude code Opus 5.5) -->
 		.def("getSASPilotCitySitesJson", &CyGame::getSASPilotCitySitesJson, "string (int iPlayer, int iUnit) - the city sites the window would circle for this Settler, as JSON")
-		// <!-- custom: Python can list tradeable items but cannot ask an AI to weigh an offer or make the deal; the pilot needs both to trade as a person does. (Claude code Opus 5.5) -->
-		// <!-- custom: Python has no CyUnit.joinGroup; the pilot needs it to escort a unit or move a stack as one, as selecting units together does in the window. (Claude code Opus 5.5) -->
+		// <!-- custom: Python can list tradeable items but cannot ask an AI to weigh an offer or make the deal; SASPilot needs both to trade as a person does. (Claude code Opus 5.5) -->
+		// <!-- custom: Python has no CyUnit.joinGroup; SASPilot needs it to escort a unit or move a stack as one, as selecting units together does in the window. (Claude code Opus 5.5) -->
 		.def("joinSASPilotGroup", &CyGame::joinSASPilotGroup, "string (int iPlayer, int iUnit, int iHeadUnit) - join a unit to another's group on its plot, or split it off with -1; the group ID or null")
-		// <!-- custom: CyMessageControl.sendResearch cannot grant a free tech (it passes iDiscover -1); the pilot needs it for the Oracle's and other free techs. (Claude code Opus 5.5) -->
-		// <!-- custom: The pilot's notices dropped popups through closeSASPilotPopups, whose killAll relaunches the popups on display (Codex's review); this drops one exactly. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+		// <!-- custom: CyMessageControl.sendResearch cannot grant a free tech (it passes iDiscover -1); SASPilot needs it for the Oracle's and other free techs. (Claude code Opus 5.5) -->
+		// <!-- custom: SASPilot's notices dropped popups through closeSASPilotPopups, whose killAll relaunches the popups on display (Codex's review); this drops one exactly. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		.def("dropSASPilotPopup", &CyGame::dropSASPilotPopup, "bool (int iHeldId, int iButtonPopupType, int iData1, int iData3, wstring szText) - drop the held popup with that ID, or with -1 the first queued one matching type, data1, data3 and text")
 		.def("chooseSASPilotFreeTech", &CyGame::chooseSASPilotFreeTech, "bool (int iTech, int iHeldId) - choose a free tech as the tech chooser does, through the held chooser with that ID")
 		.def("isSASPilotChoosingFreeTech", &CyGame::isSASPilotChoosingFreeTech, "bool () - whether the active player still owes a free tech choice")
 		.def("proposeSASPilotDeal", &CyGame::proposeSASPilotDeal, "string (int iPlayer, int iOther, string szWeGive, string szTheyGive) - propose a deal to an AI as 'kind:data,...' lists; JSON with whether it was accepted and made")
-		// <!-- custom: Python cannot put items on the EXE's trade table; the pilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?"
+		// <!-- custom: Python cannot put items on the EXE's trade table; SASPilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?"
 		// and the counter-offer included, can answer it. (Claude code Opus 5.5) -->
 		.def("tableSASPilotDeal", &CyGame::tableSASPilotDeal, "bool (int iPlayer, int iOther, string szWeGive, string szTheyGive) - open the diplomacy screen with an AI on its trade table with these 'kind:data,...' items on it")
 		// advc.095:

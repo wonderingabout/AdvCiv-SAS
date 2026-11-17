@@ -56,12 +56,14 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/documentation/markdown_links.py`](#builddocumentationmarkdown_linkspy)
     - [`build/documentation/markdown_prose_changes.py`](#builddocumentationmarkdown_prose_changespy)
     - [`build/documentation/markdown_structure.py`](#builddocumentationmarkdown_structurepy)
+    - [`build/documentation/retired_names.py`](#builddocumentationretired_namespy)
     - [`build/documentation/sas_source_guide.py`](#builddocumentationsas_source_guidepy)
   - [EXE patches](#exe-patches)
     - [`build/exe_patches/exe_internals_placement.py`](#buildexe_patchesexe_internals_placementpy)
     - [`build/exe_patches/exe_patches_export_ignore.py`](#buildexe_patchesexe_patches_export_ignorepy)
   - [Hygiene](#hygiene)
     - [`build/hygiene/control_characters.py`](#buildhygienecontrol_characterspy)
+    - [`build/hygiene/line_ending_churn.py`](#buildhygieneline_ending_churnpy)
     - [`build/hygiene/line_endings.py`](#buildhygieneline_endingspy)
     - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
@@ -70,11 +72,13 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Repository](#repository)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
     - [`build/repository/commit_trailers.py`](#buildrepositorycommit_trailerspy)
+    - [`build/repository/dev_logs.py`](#buildrepositorydev_logspy)
     - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
     - [`build/repository/dll_define_changes.py`](#buildrepositorydll_define_changespy)
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
     - [`build/repository/dll_runtime_revision.py`](#buildrepositorydll_runtime_revisionpy)
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
+    - [`build/repository/future_dates.py`](#buildrepositoryfuture_datespy)
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
@@ -82,6 +86,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
     - [`build/repository/workflow_keep_going.py`](#buildrepositoryworkflow_keep_goingpy)
+    - [`build/repository/workflow_script_coverage.py`](#buildrepositoryworkflow_script_coveragepy)
   - [Runtime](#runtime)
     - [`build/runtime/aip.py`](#buildruntimeaippy)
     - [`build/runtime/aip_predump_values.py`](#buildruntimeaip_predump_valuespy)
@@ -94,11 +99,14 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
+    - [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy)
     - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
   - [XML and rules](#xml-and-rules)
     - [`build/xml/advanced_start_era_points.py`](#buildxmladvanced_start_era_pointspy)
@@ -202,6 +210,10 @@ The workflow first prints the full `ruff check . --isolated --select ALL` groupe
 
 The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output.
 
+A third step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
+
+- Added on 2026-11-17: a `noqa: E402` was added for an import after a `sys.path` insert, which E402 already allows, and [`lint_suppressions.py`](#buildsourcelint_suppressionspy) passed it, since it checks that a suppression names a rule and a reason, not that one is needed.
+
 For example, this helped spot shadowed duplicate Python callbacks in the base Civ4 `Oasis.py` map script (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)) and a dormant undefined `Point` (instead of `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)).
 
 Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now.
@@ -214,7 +226,7 @@ Rule settings come from [`.markdownlint.jsonc`](/.markdownlint.jsonc), shared wi
 
 [`.markdownlint-cli2.jsonc`](/.markdownlint-cli2.jsonc) defines the shared local/CI scope: all Markdown files anywhere in the repository, respecting `.gitignore`.
 
-Explicit exclusions cover upstream common docs, generated helper outputs/examples/commit diffs, imported map-script reference subfolders, dependency folders and version-named published changelog archives. Maintained context guides and archive README indexes remain checked.
+Explicit exclusions cover the legacy reference material in `_0_Legacy`, generated helper outputs/examples/commit diffs, imported map-script reference subfolders, dependency folders and version-named published changelog archives. Maintained context guides and archive README indexes remain checked.
 
 New documentation locations need no per-file registration.
 
@@ -274,7 +286,9 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
-The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling. The Pilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
+The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+
+SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -578,7 +592,8 @@ Keeps maintained documentation/reference image filenames unambiguous across [`_0
 - Legacy/base-reference screenshots use the `0.x` namespace; numbered current AdvCiv-SAS images use `1.x`. Descriptive unnumbered SAS images remain valid when a numbered series is not useful.
 - Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
 - `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
-- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets. The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
+- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets.
+  - The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
 - The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
 
 The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
@@ -599,7 +614,7 @@ Verifies the two archives under [`_1_AdvCiv-SAS/Docs/Long_Comments`](/_1_AdvCiv-
 
 The documentation archives must also remain valid UTF-8; this prevents legacy encoding damage from being silently reintroduced.
 
-Historical changelogs, archived Git logs, generated LLM commit-diff context and helper outputs, snapshots, and workflow/test files are ignored as references: they may legitimately preserve old marker text, but they must not keep a dead current entry alive. Multiple IDs on one marker line are supported.
+Historical changelogs, archived dev logs, generated LLM commit-diff context and helper outputs, snapshots, and workflow/test files are ignored as references: they may legitimately preserve old marker text, but they must not keep a dead current entry alive. Multiple IDs on one marker line are supported.
 
 IDs remain stable and are not renumbered when stale entries are removed.
 
@@ -628,6 +643,10 @@ Local links must use repository-root paths beginning with `/` (for example `/_1_
 It also verifies the continuous Known Issues ledger and its standardized `KI#number` schema. Every integer through the highest body entry or stable `F### / provisional KI#number` assignment in the C++ File Audit Album must have an explicit Fixed, Pending, Merged, Rejected or Retired entry; the menu and body identifier sets must match without duplicates; and every entry uses a stable short `#ki-number` anchor.
 
 This catches both undiscoverable body entries such as the previously omitted KI#202 and wholly absent provisional/disposition entries such as KI#501.
+
+Read its whole output, or at least its last line, which gives the verdict: `FAIL Markdown links: N error(s) above`, or the two OK lines.
+
+- Example (2026-11-16): an agent ran it through `tail -1` with KI#1095 alone on main. The last line was then only "Checked N local link reference(s)", so it read a pass and told the user a gap in the KI numbers was fine, while the errors above it listed KI#1084 to KI#1094 as missing; the final FAIL line was added after.
 
 When `_LLM_REPO_FILE_MANIFEST.txt` is present in a light-source ZIP, tracked files and directories intentionally omitted from the bundle are still recognized as existing repository paths; Markdown fragments are checked whenever the target Markdown file itself is bundled. This prevents both moved/renamed repository targets and renamed Markdown headings from silently leaving stale local links.
 
@@ -665,6 +684,22 @@ Create missing menus or refresh existing ones with `python .github/workflows/bui
 A folder-wide Deprecated/examples exemption also hid missing menus in maintained migration and runtime-example guides; those now require menus, with only the named short index/generated artifact exempt.
 
 The Logging Inventory reached 55 headings without navigation because the earlier check only validated declared menus. The missing-menu regression now fails for arbitrary new document paths, while fixtures verify exemptions, hierarchy and repeatable generation.
+
+#### `build/documentation/retired_names.py`
+
+Fails on a retired tool or feature name, such as SASSaveTransplanter's former plain-English name or SASPilot's early nickname, in any text file of the repository outside the history records.
+
+- We rename old references retroactively, so agents meet only current names. The names come from the table in [`retired_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/retired_names.md), the single list, as the retired define and XML asset checks read theirs.
+- Added on 2026-11-17: main's history had been rewritten that morning to give SASSaveTransplanter its name, yet the same day an agent wrote the old name twice in new text, in the dev-log check's comment and its README section, and only the user's review caught it.
+- It reads tracked files and new untracked ones, so a local run also catches a file not yet added: its own first draft was missed that way.
+  - [`retired_names.md`](/_1_AdvCiv-SAS/Docs/Deprecated/retired_names.md) and the check's test, which must spell the old names, are exempt.
+- Each name has a **Checked** switch, `yes` or `no`, so one can be turned off while a branch that still uses it, such as SASPilot's own docs, catches up and can merge main without failing.
+- Matching ignores case and takes whole words only, so a harbour's "pilots" do not match SASPilot's retired nickname. The list says why the nickname is listed as a whole phrase and not as the bare word.
+- The dev logs, the `commit_diffs` corpus, archived changelogs, the `Deprecated` folder, the source-analysis records and the recorders' revision histories keep the wording of their time: they quote old commit titles and describe the renames themselves.
+
+```bash
+python .github/workflows/build/documentation/retired_names.py
+```
 
 #### `build/documentation/sas_source_guide.py`
 
@@ -719,11 +754,30 @@ Rejects stray control characters (NUL, BEL, form feed and other C0 control bytes
   - Prefer single-quoted strings or here-strings when generating Markdown with backticks.
 - Form feed was allowed at first, as an old page break, though no text file held one. On 2026-11-13 text written through Claude Code's Bash lost backslashes, so `\find.exe` became a form feed and `ind.exe` in the Makefile and in this README, four slips in one session, and this check passed each time. It now rejects form feed too, and scans `.tsv`. See KI#38.7.
 
+#### `build/hygiene/line_ending_churn.py`
+
+Fails when a commit switches a file's line endings between LF and CRLF, so that lines whose text did not change show as changed.
+
+- `line_endings.py` catches a file with mixed endings, but a file switched whole has none, so it passed. Its diff then hides the real change: on 2026-11-17 a commit showed 3,481 changed lines in this README for 23 real ones, and only the user's eye on the line count caught it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+- Per file, it compares the commit's changed lines with Git's count ignoring line endings (`--ignore-cr-at-eol`); 20 or more lines that differ only there fail. Removed or rewritten lines count in both, so they never trip it.
+- A deliberate conversion passes with `Convert line endings` in the commit message. Commit selection is shared with `dll_commit_message.py`.
+- Replayed over all of SAS's 2,815 commits, it found 82 files in 56 commits, most from March to May 2026 and only 4 after `line_endings.py` arrived, besides the two README switches already removed by rewriting history. The same command audits any range: `--base-ref <commit> --head-ref main`.
+
+```bash
+python .github/workflows/build/hygiene/line_ending_churn.py
+```
+
 #### `build/hygiene/line_endings.py`
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/formatting/fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py).
 
-Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/svn_history` corpora are excluded to avoid noise or rewriting downloaded originals.
+Since 2026-11-17 it also fails a text file stored with the wrong endings, LF or mixed for the CRLF kinds and CRLF or mixed for all other text.
+
+`.gitattributes` keeps theme, batch and Visual Studio files CRLF (`-text`) and all other text LF, one style per kind, stored and checked out alike. The check reads Git's own report, `git ls-files --eol`, so a Windows checkout's CRLF working files do not make it fail locally only.
+
+A file switched whole between LF and CRLF has no mixed endings and passes here; [`line_ending_churn.py`](#buildhygieneline_ending_churnpy) catches it per commit. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+
+Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/commit_diffs` corpora are excluded to avoid noise or rewriting downloaded originals.
 
 The script prints its scan mode. In a normal Git checkout it lists tracked files with `git ls-files` and checks the current checked-out bytes. In a plain exported folder, such as an extracted light-source zip without `.git`, it falls back to scanning the configured active source/doc folders directly.
 
@@ -789,7 +843,9 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as the Pilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as SASPilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml).
+
+It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -832,6 +888,27 @@ Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.c
 
 ```bash
 python .github/workflows/build/repository/commit_trailers.py
+```
+
+#### `build/repository/dev_logs.py`
+
+Keeps the dev logs' hand edits, anonymized authors and commits in the branch's history: `_0_Legacy/Docs/dev_logs/` and `_1_AdvCiv-SAS/Docs/dev_logs/` hold one log per mod, newest first.
+
+- The logs are hand-edited copies of `git log`. On 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's 3,094 and 3 of K-Mod's 1,249 differed from Git's own messages, with typo, churn and wording fixes such as "LLM/AI helpers" becoming "AI/LLM helpers".
+  - A naive regeneration with `git log` would erase them all, so a commit that changes a dev log must keep its earlier content as the exact tail of the new one: new entries go on top.
+  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `Edit dev log`, as `Update DLL` does for the DLL.
+  - Deleting a log fails. A moved log is followed to its earlier path, even when the move and a large prepend together fall below Git's rename similarity, by pairing logs with the same key after `anonymized_email_`, such as `003_AdvCiv-SAS.txt`.
+- Every `Author:` line must be `<hidden>`, as the `anonymized_email` file names promise.
+  - Addresses inside message bodies stay as their commits wrote them, such as agents' and bots' `Co-authored-by: GPT-Codex-5.2 <codex@openai.com>` or Dependabot's `Signed-off-by`. They are not personal, and replacing them by hand would be brittle, as more come with new commits.
+- Every logged commit must still be in the checked branch's history, so a history rewrite cannot leave the log citing SHAs that no longer exist there.
+  - On 2026-11-17 main was rewritten twice, to give SASSaveTransplanter its name in older commits and to reword KI#1091's message. Both times the SAS log ended just before the rewritten commits, but a rewrite reaching further back would have left it stale without any failure.
+  - After such a rewrite, replace the old SHAs in the log with the new ones from the rewrite's old-to-new map, keeping the entries' hand edits, and say `Edit dev log` in the commit message.
+  - The CI checkout fetches the full history (`fetch-depth: 0`), so a missing commit means it left the history, not that the clone was shallow.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+- Added on 2026-11-17, while the SAS dev log was brought up to date from practical 6402 to 6763; the check first confirmed that the committed log survived as the exact tail of the new one.
+
+```bash
+python .github/workflows/build/repository/dev_logs.py
 ```
 
 #### `build/repository/dll_commit_message.py`
@@ -941,6 +1018,25 @@ Keeps compact documentation examples in archives while requiring manual review w
 python .github/workflows/build/repository/examples_archive_size.py
 ```
 
+#### `build/repository/future_dates.py`
+
+Rejects a date that a commit adds when it is later than the commit's own date, taken in the committer's time zone.
+
+- On the evening of 2026-11-16, Claude Code took 2026-11-17 from its session's date instead of the local clock. Two commits added it to an AGENTS.md example, a KI entry, three check comments and two notes in this README before the user noticed.
+- Only added lines count, so old text is never judged again. Generated history under `LLM_Helpers/context/` is skipped, since it quotes other commits' dates, and so are test folders, whose fixtures make up dates on purpose.
+- The committer date decides, so an amend after midnight may add the new day's date.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+
+For example, a replay of those two commits reported:
+
+```log
+FAIL commit d387f6b148dd adds 2026-11-17 to AGENTS.md, after its own commit date 2026-11-16; take dates from the local clock or the commit date, not a session's date: - Example: two titles a few days apart. "Record peer Civ4 clients in SASGameRecord…" (SGR200, KI#38, 2026-11-11) was a real record, as SGR began logging those clients. "Record
+```
+
+```bash
+python .github/workflows/build/repository/future_dates.py
+```
+
 #### `build/repository/ki_commit_titles.py`
 
 Requires a commit that adds Known Issues to name them, so the commit that opened an issue can be found from its number. Most titles already did, such as `(SGR194, KI#203.2)`, but commits adding two or three KIs mostly named them only in the body, if at all.
@@ -958,7 +1054,8 @@ python .github/workflows/build/repository/ki_commit_titles.py
 
 Fails when the DLL Makefiles call a tool that both Windows and Git ship under the same name (`find`, `sort`, `expand`, `tar`, `timeout`, `whoami`) without its `System32` path, or contain a control character other than tab and line ends.
 
-- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited. It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited.
+  - It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - The control-character test came from the fix itself: written through a shell, `\find.exe` became a form feed and `ind.exe`, which the name test could not see. Writing this README entry through the same shell then did it again; the Edit tool, which no shell touches, put it right.
 
 #### `build/repository/project_sources.py`
@@ -979,12 +1076,12 @@ This helps catch stale fast-compile intermediates and forgetting to replace the 
 
 Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_map.py` into a temporary file and fails unless it matches the committed JSON, compared as text so line endings do not count.
 
-The repository workflow also runs [`json_format.py`](/LLM_Helpers/formatting/json_format.py) on the saved window positions and Sevopedia map. The same formatter writes those files, so integer coordinates stay together on one line. The check's error gives the command to reformat the file.
-
 - Until 2026-11-16 it compared bytes, so on a Windows clone with `core.autocrlf`, whose checkout writes CRLF while the generator writes LF, it failed on an unchanged JSON while GitHub's LF checkout passed. [`test_ui_map_sync.py`](/.github/workflows/tests/repository/test_ui_map_sync.py) checks that CRLF and LF copies pass and an edited copy fails, through `--map-json`.
 - The JSON is generated: edit the generator, never the JSON. On 2026-11-12 an agent had edited the JSON directly, so rerunning the generator would have dropped the WorldBuilder mapping, as Codex's review found.
 - The generator derives the Simple Game map list from the map scripts, through the same classifier as [`map_previews.py`](#buildassetsmap_previewspy), so a script added, removed or hidden from Simple Game also fails this check until the JSON is regenerated, with each row's point placed 24 px below the last.
 - The generator itself fails when more scripts are shown than the 38 rows that fit at 1920 x 1080 without a scrollbar, since the list's points would then need re-measuring.
+
+The repository workflow also runs [`json_format.py`](/LLM_Helpers/formatting/json_format.py) on the saved window positions and Sevopedia map. The same formatter writes those files, so integer coordinates stay together on one line. The check's error gives the command to reformat the file.
 
 #### `build/repository/version_metadata.py`
 
@@ -999,6 +1096,13 @@ The anchor is one-time repository infrastructure and must not be moved or rename
 Verifies that every check step of `checks-*.yml` keeps running after an earlier check fails, so one push reports every failure. A step added without that condition would otherwise be skipped after any earlier failure, and nothing would show it.
 
 Whether a script itself collects all its findings is left to review: an audit of 95 scripts on 2026-11-09 flagged 25 by how they exit, of which about 6 really stopped early, so a check on it would mostly raise false alarms.
+
+#### `build/repository/workflow_script_coverage.py`
+
+Fails when a check script under `.github/workflows/build/` is not named by any workflow, so a new check cannot sit in the folder, pass locally and never run on GitHub. Shared helpers in `lib/` and modules whose names start with `_` are imported rather than run, so they are left out.
+
+- Added on 2026-11-16, when `string_label_compares.py` had been written and run by hand but no workflow ran it; nothing failed, as `workflow_keep_going.py` only checks the steps that exist.
+- Its documentation counterpart is in [`folder_indexes.py`](#builddocumentationfolder_indexespy), which now also fails when a check script has no section in this README.
 
 ### Runtime
 
@@ -1089,6 +1193,15 @@ Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python t
 - Added on 2026-11-12, when two late imports after a `sys.path` entry each needed a `noqa`, one with no reason. Both were fixed at the cause by loading the module with `importlib`, and the check's first run found one more, a `type: ignore` around `re.match`, fixed by slicing.
 - Comments are read with Python's tokenizer, so suppression text inside strings, such as test fixtures, is not counted; verbatim third-party copies under `LLM_Helpers/context/` and `_0_Legacy/` are skipped.
 
+#### `build/source/python_binding_targets.py`
+
+Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a neighbour's target rather than its own, as a copied line left unchanged does. Comments are ignored, in the bindings and in the headers. Three rules:
+
+- An enum binding `.value("NAME", VALUE)` fails when `NAME` is itself an enumerator of the headers but `VALUE` is another, as `.value("TASK_CONSCRIPT", TASK_HURRY)` was ([KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)). A rename whose Python name has no enumerator of its own, such as `PLOT_STYLE_NONE` for `NO_PLOT_STYLE`, passes.
+- A method binding `.def("name", &Class::target)` fails when `Class` declares its own `name()` and `target` is neither `name` nor its `py_`/`py` wrapper. Methods AdvCiv retired by commenting out their declaration, such as `getStealTreasuryTypes`, pass.
+- Inside `python::class_<Owner>`, a `.def` fails when it points at a class that is neither `Owner` nor one of its bases.
+- Added on 2026-11-16 for [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). Run against the older files, it finds all seven slips known so far: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)'s and KI#1090.2's four enum names, and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed by hand.
+
 #### `build/source/python_resource_api.py`
 
 Checks consumers of `SASVisualUtils` and `SASTextScale` against their source-derived API, without importing Civ4 or maintaining one spelling guard per resource family. `checks-source.yml` runs it as **Shared Python resource API contracts**.
@@ -1137,6 +1250,17 @@ python .github/workflows/build/source/python_resource_api.py --all
 It does not impose a character-width limit or reflow inherited comments; structured, code-like and ambiguous blocks remain explicit skips for manual review.
 
 Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, then use `--apply` on selected files and review the result. See [the helper documentation](/LLM_Helpers/README.md#custom-comment-logical-reflow) for scope and examples.
+
+#### `build/source/python_wrapper_null_args.py`
+
+Fails when a Python wrapper in the DLL's `Cy*.cpp` files dereferences a pointer argument, written `p->getX()`, while the native function it calls declares that parameter `= NULL` in the headers. Python's `None` then raised "unidentifiable C++ exception" instead of meaning no plot or no attacker; the fix passes it on as `(p == NULL ? NULL : p->getX())`.
+
+- Added on 2026-11-17 for [KI#1091.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2). [KI#1091](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)'s combat wrappers and `pushMission` had this shape, and the check, run against the files before their fixes, found 18 such arguments in 15 wrappers.
+- A native parameter without a `NULL` default needs a real object, such as `canWork`'s plot, so dereferencing it passes. Comments are ignored, with the comment stripper of [`python_binding_targets.py`](#buildsourcepython_binding_targetspy).
+
+```bash
+python .github/workflows/build/source/python_wrapper_null_args.py
+```
 
 #### `build/source/raw_getinfotype.py`
 
@@ -1212,6 +1336,17 @@ Or provide an explicit comparison base:
 ```bash
 python .github/workflows/build/source/source_change_provenance.py --base-ref <base-sha>
 ```
+
+#### `build/source/string_label_compares.py`
+
+Fails when runtime Python (`Assets/Python`, `PrivateMaps`) compares a value with a short lowercase string literal, such as `kind == "btn"`, unless a `sas-ci-string-compare-exemption: <reason>` note sits on that line or the line above, inside a credited custom comment.
+
+A note above an `if` also covers the `elif` branches of its chain.
+
+- A label of our own compared as a string fails without any error when it is misspelt, so it is better as a boolean, a widget, a named constant or a lookup that raises on an unknown value. A string read from outside, such as BUG's option types or a WorldBuilder file's `"false"`, is fine with its reason.
+- Added on 2026-11-16: the first draft of [KI#300.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2) told its Timeline events apart with `"city"` and `"player"`.
+  - The same review found the Sevopedia charts showing no icon for a misspelt token, the movie player playing any unknown kind as a BIK and the Customizable Domestic Advisor silently stopping a row on an unknown column type; each now fails loudly or compares no string.
+- Three inherited files SAS does not extend are skipped whole: BUG's `BugOptions.py` and `UnitNameEventManager.py`, and the Planet Generator map script.
 
 #### `build/source/unicode_button_paths.py`
 
@@ -1409,7 +1544,7 @@ Wildcard references such as `SAS_BBAI_UWAI_*_LOG_LEVEL` also fail when they matc
 
 Name-fragment parsers still require source review: the BBAI formatter retained the former suffix matcher after the complete keys were renamed, emitting full keys instead of compact category tokens.
 
-Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, Git logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
+Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, dev logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
 
 The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
 
@@ -1450,7 +1585,11 @@ It also keeps SAS pedia names consistent: a SAS text used as an XML `<Civilopedi
 
 Verifies every `TXT_KEY` defined across all SAS-owned GameText files (`Assets/XML/Text/AdvCiv-SAS*.xml`) is referenced by active mod XML, BUG configuration, Python, map-script Python, or C++.
 
-The other direction too: every `TXT_KEY` used by active mod XML, Config, Python, map scripts or C++ must be defined by mod GameText or the inherited text, reading a `CHANGED_` tag as its key. Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key. Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
+The other direction too: every `TXT_KEY` used by active mod XML, Config, Python, map scripts or C++ must be defined by mod GameText or the inherited text, reading a `CHANGED_` tag as its key.
+
+Inherited text counts only where BtS, Warlords or vanilla define it, from the hash list's `game` column: base AdvCiv's original files are not loaded by SAS, which carries its own copies, so 2,302 tags defined only there would otherwise pass while the game shows the key.
+
+Base AdvCiv's own undefined keys are listed in [`xml_text_undefined_inherited.tsv`](/.github/workflows/build/xml/xml_text_undefined_inherited.tsv). See [KI#1085](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1085).
 
 It also verifies that buildings, units, civilizations, and leaders with SAS-owned descriptions reference Civilopedia keys defined in the mod's GameText files, unless the pedia text is explicitly confirmed as inherited from the base game or expansion.
 

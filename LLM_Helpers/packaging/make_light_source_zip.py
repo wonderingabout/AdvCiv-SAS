@@ -29,6 +29,9 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 import refresh_commit_diffs
 # <!-- custom: Add Linux Python 2.4 package metadata and a handoff reminder for external review agents; local Civ4/Windows runtime checking is unchanged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import light_source_python24_linux
+# <!-- custom: read_revision_headers rebuilds Better BTS AI's index and path rows from its tracked revision files, the one place they live. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "code_history"))
+from svn_history_to_diffs import read_revision_headers
 
 
 # <!-- custom: Keep Git's canonical `Assets/Res` casing here even on Windows, whose case-insensitive filesystem may also display/accept `Assets/res`; GitHub/Linux paths and CI are case-sensitive. (ChatGPT-5.6-Sol) -->
@@ -90,7 +93,7 @@ COMMIT_DIFF_CONTEXT_DIR = "LLM_Helpers/context/commit_diffs"
 # <!-- custom: Include current map references and resumable source analyses in the light ZIP, but do not duplicate their imported/generated history inside generated historical patches. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MAP_REFERENCE_DIR = "LLM_Helpers/context/mapscript_refs"
 SOURCE_ANALYSIS_DIR = "_1_AdvCiv-SAS/Docs/Source_Analysis"
-# <!-- custom: Ordinary tree selection includes older mods' SVN history in the ZIP like mapscript_refs, but its patches must not reappear inside our own commit diffs.
+# <!-- custom: Older commits hold Better BTS AI's SVN history at this path, so its patches are kept out of our own commit diffs.
 # Not part of LEGACY_COMMIT_DIFF_EXCLUDED_PATHS, so the commit-diff cache key stays valid: no cached commit touches this path. (Claude code Opus 5.5) -->
 SVN_HISTORY_DIR = "LLM_Helpers/context/svn_history"
 # <!-- custom: Exclude both former and canonical context paths so the relocation commit itself cannot inject hundreds of megabytes of generated/imported context into future historical patches.
@@ -111,11 +114,14 @@ COMMIT_DIFF_MAX_FILE_CHANGED_LINES = 10_000
 COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES = 16 * 1024 * 1024
 COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS = (
     "/sasgamerecord_log/",
+    # <!-- custom: Old commits keep the paths from before the 2026-11-17 rename to dev_logs, so both spellings stay summarized; see _1_AdvCiv-SAS/Docs/Deprecated/repository_paths.md. (Claude code Opus 5.5) -->
     "/git_logs/",
+    "/dev_logs/",
     "/_2.1_doc_files_to_feed_chatgpt_at_each_new_session_not_exhaustive/",
     "/_2.2_source_files_to_feed_chatgpt_at_each_new_session_not_exhaustive/",
     "/git_log_repository_full.txt",
     "/git_log_anonymized_email.txt",
+    "/dev_log_anonymized_email.txt",
     "/manual.txt",
     "/leaders_data.py",
     "/sevopedialeadercachepredumped.py",
@@ -155,7 +161,7 @@ GENERATED_UNSTAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/unstaged_changes_no_eol
 GENERATED_BRANCH_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/branch_changes_no_eol.diff"
 GENERATED_COMMITTED_BRANCH_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/branch_committed_changes_no_eol.diff"
 GENERATED_BRANCH_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/branch_comparison_log.txt"
-GENERATED_INCREMENTAL_GIT_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/git_log_since_tracked_advciv_sas_log.txt"
+GENERATED_INCREMENTAL_DEV_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/dev_log_since_tracked_advciv_sas_log.txt"
 # <!-- custom: Generate commit history freshly for the archive at its canonical shared repository path rather than duplicating it under _SNAPSHOT_CONTEXT. (GPT-5.6-Sol) -->
 GENERATED_COMMIT_DIFF_DIR = COMMIT_DIFF_CONTEXT_DIR
 GENERATED_COMMIT_DIFF_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/INDEX.txt"
@@ -164,26 +170,27 @@ GENERATED_PATH_HISTORY_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/PATH_HISTORY_I
 # ZIP-only reviewers can inspect upcoming merge changes without mistaking them for current source.
 GENERATED_PENDING_UPSTREAM_DIR = f"{GENERATED_CONTEXT_DIR}/pending_upstream"
 GENERATED_PENDING_UPSTREAM_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/INDEX.txt"
-GENERATED_PENDING_UPSTREAM_LOG_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/GIT_LOG.txt"
+GENERATED_PENDING_UPSTREAM_LOG_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/DEV_LOG.txt"
 GENERATED_PENDING_UPSTREAM_PATH_INDEX_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/PATH_HISTORY_INDEX.txt"
 GENERATED_PENDING_UPSTREAM_REFS_NAME = f"{GENERATED_PENDING_UPSTREAM_DIR}/UPSTREAM_REFS.txt"
 # Auto-detect ordinary release-style remote refs while deliberately ignoring topic/experimental
 # branches. Explicit --upstream-ref remains the escape hatch if upstream naming ever changes.
 UPSTREAM_RELEASE_REF_RE = re.compile(r"^upstream/(?:(?:v)|(?:release[-/]))?(\d+)\.(\d+)(?:\.(\d+))?$", re.IGNORECASE)
-TRACKED_KMOD_GIT_LOG = "_0_Legacy/Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt"
-TRACKED_BASE_ADVCIV_GIT_LOG = "_0_Legacy/Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt"
-TRACKED_ADVCIV_SAS_GIT_LOG = "_1_AdvCiv-SAS/Docs/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt"
+TRACKED_BBAI_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_000_BBAI.txt"
+TRACKED_KMOD_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_001_K-Mod.txt"
+TRACKED_BASE_ADVCIV_DEV_LOG = "_0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt"
+TRACKED_ADVCIV_SAS_DEV_LOG = "_1_AdvCiv-SAS/Docs/dev_logs/dev_log_anonymized_email_003_AdvCiv-SAS.txt"
 HISTORY_SEGMENTS = (
-    ("KMod", "K-Mod history", TRACKED_KMOD_GIT_LOG),
-    ("AdvCivPreSAS", "pre-SAS AdvCiv history", TRACKED_BASE_ADVCIV_GIT_LOG),
-    ("SASBranch", "AdvCiv-SAS branch history", TRACKED_ADVCIV_SAS_GIT_LOG),
+    ("KMod", "K-Mod history", TRACKED_KMOD_DEV_LOG),
+    ("AdvCivPreSAS", "pre-SAS AdvCiv history", TRACKED_BASE_ADVCIV_DEV_LOG),
+    ("SASBranch", "AdvCiv-SAS branch history", TRACKED_ADVCIV_SAS_DEV_LOG),
 )
 HISTORY_TITLE_PREVIEW_CHARS = 160
 # Generated Git-history context is meant to preserve code/history, not personal Git identities.
 # Match ordinary Internet addresses plus local Git-style identities such as user@host.
 GENERATED_HISTORY_EMAIL_RE = re.compile(r"(?i)(?<![A-Z0-9._%+\-])<?[A-Z0-9._%+\-]+@[A-Z0-9][A-Z0-9.\-]*>?(?![A-Z0-9._%+\-])")
 GENERATED_HISTORY_EMAIL_PRIVACY_MARKER = "# Email privacy: email-shaped addresses redacted from generated commit-history text."
-GENERATED_HISTORY_LAYOUT_MARKER = "# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs)."
+GENERATED_HISTORY_LAYOUT_MARKER = "# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized dev logs)."
 
 # Skip Python bytecode/cache folders anywhere in the tree.
 # They are generated, can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
@@ -1134,33 +1141,35 @@ def build_default_branch_file_context(repo_root: Path, repository_state: str, br
     return context, summary
 
 
-def latest_commit_in_tracked_git_log(repo_root: Path) -> tuple[str | None, str | None]:
-    """Return the newest commit already recorded in the tracked AdvCiv-SAS Git log."""
-    log_path = repo_root / TRACKED_ADVCIV_SAS_GIT_LOG
+# <!-- custom: Was latest_commit_in_tracked_git_log; renamed with the git_logs folders, which became dev_logs. (Claude code Opus 5.5) -->
+def latest_commit_in_tracked_dev_log(repo_root: Path) -> tuple[str | None, str | None]:
+    """Return the newest commit already recorded in the tracked AdvCiv-SAS dev log."""
+    log_path = repo_root / TRACKED_ADVCIV_SAS_DEV_LOG
     if not log_path.is_file():
-        return None, f"tracked Git log not found: {TRACKED_ADVCIV_SAS_GIT_LOG}"
+        return None, f"tracked dev log not found: {TRACKED_ADVCIV_SAS_DEV_LOG}"
     try:
         text = log_path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
         return None, str(exc)
     match = re.search(r"(?m)^commit ([0-9a-fA-F]{40})\s*$", text)
     if not match:
-        return None, f"no full commit hash found in {TRACKED_ADVCIV_SAS_GIT_LOG}"
+        return None, f"no full commit hash found in {TRACKED_ADVCIV_SAS_DEV_LOG}"
     return match.group(1).lower(), None
 
 
-def build_incremental_git_log(repo_root: Path) -> str:
-    """Build compact history from the tracked SAS Git-log boundary through this snapshot's HEAD."""
-    base_commit, base_error = latest_commit_in_tracked_git_log(repo_root)
+# <!-- custom: Was build_incremental_git_log; renamed with the git_logs folders, which became dev_logs. (Claude code Opus 5.5) -->
+def build_incremental_dev_log(repo_root: Path) -> str:
+    """Build compact history from the tracked SAS dev-log boundary through this snapshot's HEAD."""
+    base_commit, base_error = latest_commit_in_tracked_dev_log(repo_root)
     head_raw, head_error = run_git(repo_root, "rev-parse", "HEAD")
     head_commit = head_raw.strip() if head_raw else None
 
     lines = [
         "# Incremental AdvCiv-SAS Git history for this light-source snapshot",
         "# Generated automatically by LLM_Helpers/packaging/make_light_source_zip.py.",
-        f"# Tracked history file: {TRACKED_ADVCIV_SAS_GIT_LOG}",
+        f"# Tracked history file: {TRACKED_ADVCIV_SAS_DEV_LOG}",
         "# This archive-only file fills the gap after that tracked history through snapshot HEAD.",
-        "# Unlike the tracked AdvCiv-SAS Git log (newest -> oldest), this generated gap is",
+        "# Unlike the tracked AdvCiv-SAS dev log (newest -> oldest), this generated gap is",
         "# chronological (oldest -> newest), so snapshot HEAD is the final commit below.",
         "# It lists every intervening commit message without duplicating potentially huge source/XML patches.",
         "# Detailed commit messages can preserve implemented notes removed later from the temporary untracked changes_old.md and changes_new.md.",
@@ -1196,14 +1205,14 @@ def build_incremental_git_log(repo_root: Path) -> str:
             f"Tracked-log boundary already recorded: {base_resolved}",
             f"Snapshot HEAD: {head_commit}",
             f"Git range below: {base_resolved}..{head_commit}",
-            "Boundary commit is excluded below because it already exists in the tracked Git log.",
+            "Boundary commit is excluded below because it already exists in the tracked dev log.",
             "Order: oldest newer commit -> snapshot HEAD.",
             "",
         ]
     )
 
     if base_resolved == head_commit:
-        lines.append("(No newer committed changes after the tracked Git-log boundary.)")
+        lines.append("(No newer committed changes after the tracked dev-log boundary.)")
         return "\n".join(lines) + "\n"
 
     count_raw, _ = run_git(repo_root, "rev-list", "--count", f"{base_resolved}..{head_commit}")
@@ -1221,7 +1230,7 @@ def build_incremental_git_log(repo_root: Path) -> str:
         f"{base_resolved}..{head_commit}",
     )
     if log_raw is None:
-        lines.append(f"Unable to generate incremental Git log: {log_error}")
+        lines.append(f"Unable to generate incremental dev log: {log_error}")
         return "\n".join(lines) + "\n"
 
     lines.append("[ALL NEWER COMMITS - MESSAGES | OLDEST -> NEWEST]")
@@ -1234,7 +1243,7 @@ def redact_generated_history_emails(text: str) -> str:
     return GENERATED_HISTORY_EMAIL_RE.sub("<hidden-email>", text)
 
 def compact_history_title(subject: str, max_chars: int = HISTORY_TITLE_PREVIEW_CHARS) -> str:
-    """Return a short single-line commit-title preview; full messages remain in the canonical Git logs."""
+    """Return a short single-line commit-title preview; full messages remain in the canonical dev logs."""
     title = " ".join(subject.split()) or "(no commit title)"
     title = redact_generated_history_emails(title)
     if len(title) <= max_chars:
@@ -1249,12 +1258,12 @@ def read_tracked_history_segments(repo_root: Path) -> tuple[dict[str, tuple[str,
     for segment_id, segment_label, log_rel in HISTORY_SEGMENTS:
         log_path = repo_root / log_rel
         if not log_path.is_file():
-            warnings.append(f"missing {segment_label} Git log: {log_rel}")
+            warnings.append(f"missing {segment_label} dev log: {log_rel}")
             continue
         try:
             text = log_path.read_text(encoding="utf-8", errors="replace")
         except OSError as exc:
-            warnings.append(f"unable to read {segment_label} Git log {log_rel}: {exc}")
+            warnings.append(f"unable to read {segment_label} dev log {log_rel}: {exc}")
             continue
         for full_hash in re.findall(r"(?m)^commit ([0-9a-fA-F]{40})\s*$", text):
             by_hash[full_hash.lower()] = (segment_id, segment_label, log_rel)
@@ -1265,7 +1274,7 @@ def assign_commit_history_segments(repo_root: Path, commits: list[dict[str, str]
     """Assign exact history/log segments; these describe ancestry partition, not commit authorship."""
     tracked, warnings = read_tracked_history_segments(repo_root)
     recent_sas_hashes: set[str] = set()
-    newest_tracked_sas, newest_error = latest_commit_in_tracked_git_log(repo_root)
+    newest_tracked_sas, newest_error = latest_commit_in_tracked_dev_log(repo_root)
     if newest_tracked_sas:
         merge_base_raw, merge_base_error = run_git(repo_root, "merge-base", newest_tracked_sas, "HEAD")
         if merge_base_raw is not None and merge_base_raw.strip().lower() == newest_tracked_sas.lower():
@@ -1273,11 +1282,11 @@ def assign_commit_history_segments(repo_root: Path, commits: list[dict[str, str]
             if raw is not None:
                 recent_sas_hashes = {value.lower() for value in raw.splitlines() if value.strip()}
             else:
-                warnings.append(f"unable to identify recent AdvCiv-SAS Git-log gap: {error}")
+                warnings.append(f"unable to identify recent AdvCiv-SAS dev-log gap: {error}")
         elif merge_base_raw is None:
-            warnings.append(f"unable to verify recent AdvCiv-SAS Git-log boundary: {merge_base_error}")
+            warnings.append(f"unable to verify recent AdvCiv-SAS dev-log boundary: {merge_base_error}")
         else:
-            warnings.append("newest tracked AdvCiv-SAS Git-log commit is not an ancestor of current HEAD")
+            warnings.append("newest tracked AdvCiv-SAS dev-log commit is not an ancestor of current HEAD")
     elif newest_error:
         warnings.append(newest_error)
 
@@ -1289,10 +1298,10 @@ def assign_commit_history_segments(repo_root: Path, commits: list[dict[str, str]
             message_location = log_rel
         elif commit_hash in recent_sas_hashes:
             segment_id, segment_label = "SASBranch", "AdvCiv-SAS branch history"
-            message_location = GENERATED_INCREMENTAL_GIT_LOG_NAME
+            message_location = GENERATED_INCREMENTAL_DEV_LOG_NAME
         else:
             segment_id, segment_label = "Other", "Other reachable ancestry"
-            message_location = "the anonymized Git logs and snapshot Git-log context included with this archive"
+            message_location = "the anonymized dev logs and snapshot dev-log context included with this archive"
         commit["history_segment_id"] = segment_id
         commit["history_segment_label"] = segment_label
         commit["message_location"] = message_location
@@ -1300,8 +1309,8 @@ def assign_commit_history_segments(repo_root: Path, commits: list[dict[str, str]
 
 
 def commit_diff_header(commit: dict[str, str], version: str, parent_label: str) -> list[str]:
-    """Build lean diff metadata; canonical full commit messages stay in the anonymized Git logs."""
-    message_location = commit.get("message_location") or "the anonymized Git logs included with this archive"
+    """Build lean diff metadata; canonical full commit messages stay in the anonymized dev logs."""
+    message_location = commit.get("message_location") or "the anonymized dev logs included with this archive"
     return [
         "# AdvCiv-SAS reachable-history commit diff",
         GENERATED_HISTORY_EMAIL_PRIVACY_MARKER,
@@ -1868,7 +1877,7 @@ def build_pending_upstream_context(repo_root: Path, explicit_refs: Iterable[str]
         "",
     ]
     if log_raw is None:
-        log_lines.append(f"Unable to generate pending upstream Git log: {log_error}")
+        log_lines.append(f"Unable to generate pending upstream dev log: {log_error}")
     else:
         log_lines.append("[PENDING UPSTREAM COMMITS - MESSAGES | OLDEST -> NEWEST]")
         log_lines.append(redact_generated_history_emails(log_raw.rstrip()))
@@ -1913,6 +1922,23 @@ def assign_dag_practical_versions(commits: list[dict[str, str]]) -> bool:
         commit["version"] = str(bits.bit_count())
     return True
 
+def add_bbai_history(repo_root: Path, generated: dict[str, bytes | Path], index_lines: list[str], path_history: dict[str, list[tuple[str, str, str]]]) -> int:
+    # <!-- custom: Better BTS AI is in our ancestry, after the BtS SDK and before K-Mod, but came from SVN, which our Git cannot regenerate, so its revision files are tracked inside commit_diffs/ alongside the generated ones.
+    # Their headers hold every index and path row; BBAI is older than every Git commit, so its rows follow them in each newest-to-oldest list.
+    # See _1_AdvCiv-SAS/Docs/Deprecated/repository_paths.md. (Claude code Opus 5.5) -->
+    folder = repo_root / COMMIT_DIFF_CONTEXT_DIR
+    headers = read_revision_headers(folder, "BBAI")
+    for header in reversed(headers):
+        revision = header["revision"]
+        name = f"BBAI_r{revision:06d}.diff"
+        generated[f"{GENERATED_COMMIT_DIFF_DIR}/{name}"] = folder / name
+        index_lines.append(f"BBAI\t{revision}\tr{revision}\t{header['coverage']}\t{compact_history_title(header['title'])}")
+        for action, path, origin, origin_revision in header["changes"]:
+            change = f"{action} from {origin}@{origin_revision}" if origin else action
+            path_history.setdefault(path, []).append(("BBAI", f"r{revision}", change))
+    return len(headers)
+
+
 def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_cache: bool) -> tuple[dict[str, bytes | Path], str]:
     """Build current-HEAD reachable commit-patch ancestry, reusing immutable SHA-keyed local cache entries."""
     if commit_count == 0:
@@ -1954,12 +1980,13 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
         "# Generated automatically by LLM_Helpers/packaging/make_light_source_zip.py.",
         "# Scope: selected commits reachable from the snapshot's current HEAD only; unrelated/unmerged branch refs are excluded.",
         "# Merged side-branch commits remain included because they genuinely contribute to current HEAD ancestry; each commit is diffed against its first parent.",
-        "# Segments: KMod = K-Mod history; AdvCivPreSAS = base AdvCiv history before the SAS branch; SASBranch = post-fork AdvCiv-SAS branch history.",
+        "# Segments: KMod = K-Mod history; AdvCivPreSAS = base AdvCiv history before the SAS branch; SASBranch = post-fork AdvCiv-SAS branch history;",
+        "#   BBAI = Better BTS AI's SVN history (r1-r597, 2006-2010), before K-Mod's first snapshot; its files are tracked, the rest generated.",
         "# SASBranch is a history/log segment, not an authorship label: it includes SAS commits plus later upstream AdvCiv commits merged/imported into the branch.",
-        f"# Full commit messages/metadata: {TRACKED_KMOD_GIT_LOG}; {TRACKED_BASE_ADVCIV_GIT_LOG}; {TRACKED_ADVCIV_SAS_GIT_LOG}.",
-        f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_GIT_LOG_NAME}.",
+        f"# Full commit messages/metadata: {TRACKED_BBAI_DEV_LOG}; {TRACKED_KMOD_DEV_LOG}; {TRACKED_BASE_ADVCIV_DEV_LOG}; {TRACKED_ADVCIV_SAS_DEV_LOG}.",
+        f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_DEV_LOG_NAME}.",
         "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
-        "# Files are named <segment>_<practical-count>_<short-sha>.diff; coverage is full, partial, summary-only, or unknown.",
+        "# Files are named <segment>_<practical-count>_<short-sha>.diff, and BBAI_r<revision>.diff for BBAI, whose rows give r<revision> in place of a SHA; coverage is full, partial, summary-only, or unknown.",
         f"# Self-recursion guard: {COMMIT_DIFF_CONTEXT_DIR}/ is excluded from these historical patches because it is only a generated local mirror of this same data.",
         "# Columns: segment<TAB>practical-count<TAB>short-sha<TAB>coverage<TAB>title-preview",
     ]
@@ -2034,6 +2061,10 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
             print(f"History preparation: {position}/{len(commits)} commits processed; {reused} cache hits, {mirror_reused} mirror hits, {rendered} regenerated.", flush=True)
             last_progress_time = now
 
+    # <!-- custom: Tracked and frozen, BBAI joins any corpus with history enabled, a newest-N one included, as nothing else carries it. (Claude code Opus 5.5) -->
+    if commit_count != 0:
+        segment_counts["BBAI"] = add_bbai_history(repo_root, generated, index_lines, path_history)
+
     pruned_cache_dirs = 0
     prune_errors: list[str] = []
     if cache_writable and cache_dir is not None and in_memory == 0:
@@ -2047,7 +2078,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
     if prune_errors:
         prune_note += f"; prune warnings={len(prune_errors)}"
     migration_note = f"; cache-migrated={cache_migrations}" if cache_migrations else ""
-    segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "Other") if key in segment_counts)
+    segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "BBAI", "Other") if key in segment_counts)
     if segment_warnings:
         segment_note += f"; segment warnings={len(segment_warnings)}"
     summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} private-cache hit(s), {mirror_reused} local-mirror hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
@@ -2119,19 +2150,19 @@ def build_snapshot_context_readme() -> str:
         "unstaged_changes_no_eol.diff\n"
         "  Raw unstaged diff (index -> working tree), with the same EOL-noise and generated-history-context exclusions.\n"
         "  An empty file means there were no other unstaged tracked changes.\n\n"
-        "git_log_since_tracked_advciv_sas_log.txt\n"
-        f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_GIT_LOG}\n"
+        "dev_log_since_tracked_advciv_sas_log.txt\n"
+        f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_DEV_LOG}\n"
         "  through this snapshot's HEAD. The boundary commit is not duplicated. Unlike the tracked\n"
-        "  AdvCiv-SAS Git log (newest -> oldest), this generated gap is ordered oldest -> newest,\n"
+        "  AdvCiv-SAS dev log (newest -> oldest), this generated gap is ordered oldest -> newest,\n"
         "  so snapshot HEAD appears at the bottom. Together with the tracked K-Mod, AdvCiv and\n"
-        "  AdvCiv-SAS anonymized Git logs, these are the canonical full commit messages for history review.\n"
+        "  AdvCiv-SAS anonymized dev logs, these are the canonical full commit messages for history review.\n"
         f"\n../{COMMIT_DIFF_CONTEXT_DIR}/INDEX.txt + <segment>_<practical-count>_<short-sha>.diff\n"
         "  Filtered first-parent textual diffs for every selected commit reachable from current HEAD by default,\n"
         "  spanning K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. The last segment includes SAS work plus\n"
         "  later upstream AdvCiv commits merged/imported after SAS began. Unrelated/unmerged branch refs are not\n"
         "  included; merged side-branch commits remain because they genuinely contribute to current HEAD. Diff files\n"
         "  keep a short title, change summary and useful patches, while full messages/metadata redirect to the tracked\n"
-        "  anonymized Git logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
+        "  anonymized dev logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
         "  Known generated/log/binary, imported reference documents, published changelog copies and exceptionally huge\n"
         "  historical payloads are summarized instead of embedded; maintained README indexes retain their patches.\n"
         f"  This canonical generated context lives at {COMMIT_DIFF_CONTEXT_DIR}/ locally for code agents, and the light ZIP\n"
@@ -2142,10 +2173,11 @@ def build_snapshot_context_readme() -> str:
         f"\n../{COMMIT_DIFF_CONTEXT_DIR}/PATH_HISTORY_INDEX.txt\n"
         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
         "  diffs touched it. Use it to narrow investigation before opening the matching commit diff files.\n"
-        f"\n../{SVN_HISTORY_DIR}/<project>/INDEX.txt + PATH_HISTORY_INDEX.txt + <label>_r<revision>.diff\n"
-        "  One greppable diff per SVN revision for older mods outside our Git ancestry, such as Better BTS AI, with\n"
-        "  revision, author, date, full message and copy origins. Use it for origins older than K-Mod's first snapshot.\n"
-        "\npending_upstream/INDEX.txt + GIT_LOG.txt + PATH_HISTORY_INDEX.txt + UPSTREAM_REFS.txt + <sequence>_<short-sha>.diff\n"
+        f"\n../{COMMIT_DIFF_CONTEXT_DIR}/BBAI_r<revision>.diff\n"
+        "  Better BTS AI's SVN history, older than K-Mod's first snapshot: one greppable diff per revision, with revision,\n"
+        "  author, date, full message and copy origins. Unlike the generated files beside them, these are tracked, since our\n"
+        "  Git cannot regenerate them; INDEX.txt and PATH_HISTORY_INDEX.txt list them as segment BBAI.\n"
+        "\npending_upstream/INDEX.txt + DEV_LOG.txt + PATH_HISTORY_INDEX.txt + UPSTREAM_REFS.txt + <sequence>_<short-sha>.diff\n"
         "  Separate fetched-but-unmerged base-AdvCiv context. During an active merge, exact MERGE_HEAD is authoritative.\n"
         "  Outside a merge, all locally fetched release-like refs are considered and their HEAD-external commits are\n"
         "  unioned/deduplicated by SHA; the highest detected version is only a presentation target, so divergent older\n"
@@ -2155,7 +2187,7 @@ def build_snapshot_context_readme() -> str:
         "  current-HEAD ancestry. Remote refs can be stale until `git fetch upstream --prune`; use --fetch-upstream when\n"
         "  archive creation should explicitly refresh upstream first (runtime package update checks are separate).\n"
         "\nHistory cache/privacy\n"
-        "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
+        "  Generated history follows the existing anonymized dev-log email policy and also redacts email-shaped strings\n"
         "  embedded in historical patch text. Reuse checks the private immutable-SHA cache inside Git metadata first, then\n"
         f"  the local generated {COMMIT_DIFF_CONTEXT_DIR}/ mirror as a read-only secondary cache when present, so populated working copies do not rerender\n"
         "  already-generated history. Git renders only missing/new entries; amend/force-push/reset needs no arbitrary last-N refresh.\n"
@@ -2189,7 +2221,7 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path], com
         GENERATED_BRANCH_DIFF_NAME: branch_diff,
         GENERATED_COMMITTED_BRANCH_DIFF_NAME: committed_branch_diff,
         GENERATED_BRANCH_LOG_NAME: branch_log,
-        GENERATED_INCREMENTAL_GIT_LOG_NAME: build_incremental_git_log(repo_root).encode("utf-8"),
+        GENERATED_INCREMENTAL_DEV_LOG_NAME: build_incremental_dev_log(repo_root).encode("utf-8"),
     }
     context.update(default_files)
     context.update(uncommitted_files)

@@ -2,7 +2,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 # <!-- custom: SASPilot lets an external agent read and drive the running game from the command line instead of through the UI: requests arrive as JSON files in a per-process mailbox folder, run inside the game's Python, and are answered as JSON files.
-# This module is only the stable loader: it decides once whether the pilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/saspilot/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
+# This module is only the stable loader: it decides once whether SASPilot is on, then on game updates and screen updates hands the mailbox to LLM_Helpers/saspilot/SASPilotCommands.py, loaded from disk and reloaded when that file changes.
 # Off unless SAS_PILOT_ON is 1 or the ini= launch file has an [SASPilot] section with On = 1, so ordinary players pay one comparison per game update and per frame.
 # See LLM_Helpers/saspilot/SASPilotClient.py and _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md. (Claude code Fable 5.2) -->
 
@@ -15,6 +15,7 @@ import os
 import sys
 import traceback
 import BugPath
+# <!-- custom: CvUtil writes SASPilot's structured log rows (pyPrintRecord), and SASAutoplayRequest finds the per-run INI whose [SASPilot] section configures it. (Claude code Opus 5.5) -->
 import CvUtil
 import SASAutoplayRequest
 
@@ -194,9 +195,9 @@ def onGameUpdate(argsList):
 
 def onLoad(argsList):
 	# <!-- custom: Counts finished loads, which 'ping' reports, so the client can wait for the game it asked to load: after 'menu path=' the old game still answered ping as in game with its turn active, so waiting for an active turn returned before the load had begun, and commands ran on the old game (2026-11-13).
-	# Counted whether or not the pilot is on, as the switch may not be resolved yet when a launch loads a save; one addition per load. (Claude code Opus 5.5) -->
+	# Counted whether or not SASPilot is on, as the switch may not be resolved yet when a launch loads a save; one addition per load. (Claude code Opus 5.5) -->
 	state["loads"] = state["loads"] + 1
-	# <!-- custom: Holding popups began with the first request, after the load had already launched the save's popups: starting from the turn-105 save, the Oracle's free-tech chooser came up in the window instead of being held, and once the pilot chose through it, it stayed there, as the DLL cannot close a popup on display (2026-11-13).
+	# <!-- custom: Holding popups began with the first request, after the load had already launched the save's popups: starting from the turn-105 save, the Oracle's free-tech chooser came up in the window instead of being held, and once SASPilot chose through it, it stayed there, as the DLL cannot close a popup on display (2026-11-13).
 	# So hold from the load on.
 	# The XML defines are loaded by now, so the switch can be read here. (Claude code Opus 5.5) -->
 	# <!-- custom: Read here without setting _bEnabled or starting the mailbox, which stay with the first game update and _safeTick's guard: the first version started them here, where a bad pilot INI or a missing command file would have raised into the load handler with _bEnabled already set (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->

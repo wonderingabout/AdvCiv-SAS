@@ -94,6 +94,7 @@ MY_GAMES_FOLDER = "My Games"
 def isMac():
 	# Returns True if running on a Mac operating system.
 	#
+	# <!-- custom: sas-ci-string-compare-exemption: sys.platform names the operating system as a string. (Claude code Opus 5.5) -->
 	return sys.platform == 'darwin'
 
 ## Mod Info, Folder and Path Accessors

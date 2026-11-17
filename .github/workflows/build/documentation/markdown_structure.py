@@ -35,7 +35,7 @@ MENU_EXEMPT_FILES = {
 MENU_EXEMPT_PREFIXES = {
     "_1_AdvCiv-SAS/Docs/Source_Analysis/": "investigation records follow their own maintenance process",
     "_1_AdvCiv-SAS/Docs/changelogs_web/": "published historical release copies",
-    "_1_AdvCiv-SAS/Docs/git_logs/": "historical commit records",
+    "_1_AdvCiv-SAS/Docs/dev_logs/": "historical commit records",
     "_1_AdvCiv-SAS/Docs/revisions/": "append-oriented subsystem revision histories",
 }
 UNMAINTAINED_PREFIXES = ("_0_Legacy/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/", ".git/")

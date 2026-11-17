@@ -1,6 +1,18 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
+# <!-- custom: Text is stored and checked out as LF whatever each clone's core.autocrlf, so a tool can no longer store a file in CRLF and switch every line, as on 2026-11-16; binary files are left alone. See KI#1097. (Claude code Opus 5.5) -->
+* text=auto eol=lf
+# <!-- custom: Forced CRLF: these kinds are CRLF everywhere, stored and checked out. -text makes Git keep their bytes unconverted, and line_endings.py fails if one is ever stored with LF or mixed endings; Git has no single attribute meaning "CRLF everywhere", as eol=crlf stores LF.
+# Why each: theme files are parsed by the Civ4 EXE, whose reading of LF themes was never tried, and Windows' batch files and Visual Studio's project files want CRLF.
+# One style per kind, with no kind stored in one style and checked out in the other.
+# These files are text all the same: -text only switches off Git's line-ending conversion, while diffs and merges still treat them as text, unlike "binary". (Claude code Opus 5.5) -->
+*.thm -text
+*.bat -text
+*.cmd -text
+*.sln -text
+*.vcxproj -text
+
 # <!-- custom: unclutter the player zip; keep only for cloning or such thanks to chatgpt 5.1's help -->
 # Example: keep in repo, exclude from Download ZIP / archives
 
@@ -59,9 +71,8 @@
 /LLM_Helpers/context/mapscript_refs/**/*.txt        -diff linguist-vendored
 /LLM_Helpers/context/mapscript_refs/**/*.properties -diff linguist-vendored
 
-# <!-- custom: Older mods' SVN history is tracked like mapscript_refs because it is not in our Git ancestry. Suppress ordinary diffs and language statistics so its one adding commit stays reviewable. (Claude code Opus 5.5) -->
-/LLM_Helpers/context/svn_history/**/*.diff          -diff linguist-vendored
-/LLM_Helpers/context/svn_history/**/*.txt           -diff linguist-vendored
+# <!-- custom: Better BTS AI's SVN history is tracked inside commit_diffs/ like mapscript_refs, since our Git cannot regenerate it. Suppress ordinary diffs and language statistics so the commits that touch it stay reviewable. (Claude code Opus 5.5) -->
+/LLM_Helpers/context/commit_diffs/BBAI_r*.diff      -diff linguist-vendored
 
 # <!-- custom: Expand the immutable SAS version-anchor describe string plus exact commit/date into the runtime archive marker for GitHub/git-archive downloads.
 # The anchor version + Git describe distance reproduces the practical commit count without a manually maintained VERSION file.
@@ -73,7 +84,7 @@
 /.gitattributes       export-ignore
 /.gitignore           export-ignore
 
-# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including legacy manuals/API docs/git logs and current Docs/changelogs_web, Modding_Resources, and Docs/Sevopedia/Debug. -->
+# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including the legacy manuals, API docs and dev logs, and the current Docs/changelogs_web, Modding_Resources and Docs/Sevopedia/Debug. -->
 /Assets/Res/Fonts/other_mods/                             export-ignore
 
 # <!-- custom: Include compact documentation examples such as runtime JSON/JSONL and build reports in player/GitHub Download ZIP archives.

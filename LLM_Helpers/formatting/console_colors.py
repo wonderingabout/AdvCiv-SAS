@@ -37,6 +37,7 @@ def enable(stream=None):
 	if not stream.isatty():
 		return False
 	if sys.platform == "win32":
+		# <!-- custom: ctypes switches the Windows console to read colour codes; imported only on Windows. (Claude code Opus 5.5) -->
 		import ctypes
 		kernel32 = ctypes.windll.kernel32
 		handle = kernel32.GetStdHandle(-11)

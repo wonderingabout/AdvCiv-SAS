@@ -126,6 +126,16 @@ def check_workflows(root):
         errors += unordered(scripts, ".github/workflows/README.md %s helpers" % title)
     areas = [match.group(1) for match in re.finditer(r"^\| `(build/[^`]+/)` \|", text, re.MULTILINE)]
     errors += unordered(areas, ".github/workflows/README.md helper/test areas")
+    # <!-- custom: Every check script also needs its own section: the order check above passed while string_label_compares.py had none (2026-11-16).
+    # Shared helpers in lib/ and "_" modules are imported, not run, so they need none; workflow_script_coverage.py checks that each script is run. (Claude code Opus 5.5) -->
+    documented = set(re.search(r"`([^`]+)`", heading).group(1) for _, level, heading in found if level == 4 and heading.startswith("`build/"))
+    build = root / ".github" / "workflows" / "build"
+    for path in sorted(build.rglob("*.py")):
+        relative = path.relative_to(build.parent)
+        if "__pycache__" in relative.parts or "lib" in relative.parts or path.name.startswith("_"):
+            continue
+        if relative.as_posix() not in documented:
+            errors.append(".github/workflows/README.md has no '#### `%s`' section for this check script" % relative.as_posix())
     return errors
 
 

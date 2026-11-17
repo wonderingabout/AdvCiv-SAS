@@ -55,7 +55,7 @@ class LongCommentsTests(unittest.TestCase):
 
     def test_historical_reference_does_not_keep_entry_alive(self):
         self.complete_archives()
-        self.write("_1_AdvCiv-SAS/Docs/git_logs/history.txt", "Long_Comments_XML.txt #1")
+        self.write("_1_AdvCiv-SAS/Docs/dev_logs/history.txt", "Long_Comments_XML.txt #1")
         self.write("Assets/Python/live.py", "# Long_Comments_py.txt #1")
         self.assertTrue(any("XML.txt #1: archived entry is orphaned" in error for error in comments.check(self.repo)))
 

@@ -480,7 +480,8 @@ void CyEnumsPythonInterface()
 		.value("BUTTONPOPUP_ADDBUDDY", BUTTONPOPUP_ADDBUDDY)
 		.value("BUTTONPOPUP_FORCED_DISCONNECT", BUTTONPOPUP_FORCED_DISCONNECT)
 		.value("BUTTONPOPUP_PITBOSS_DISCONNECT", BUTTONPOPUP_PITBOSS_DISCONNECT)
-		.value("BUTTONPOPUP_KICKED", BUTTONPOPUP_PITBOSS_DISCONNECT)
+		// <!-- custom: Vanilla Civ4 bound BUTTONPOPUP_KICKED to BUTTONPOPUP_PITBOSS_DISCONNECT, a copy of the line above, though CvEnums.h has its own BUTTONPOPUP_KICKED; Warlords, BtS, Better BTS AI, K-Mod and base AdvCiv 1.14 kept it. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("BUTTONPOPUP_KICKED", BUTTONPOPUP_KICKED)
 		.value("BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE", BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE)
 		.value("BUTTONPOPUP_VASSAL_GRANT_TRIBUTE", BUTTONPOPUP_VASSAL_GRANT_TRIBUTE)
 		.value("BUTTONPOPUP_EVENT", BUTTONPOPUP_EVENT)
@@ -850,7 +851,7 @@ void CyEnumsPythonInterface()
 		.value("TASK_CHANGE_WORKING_PLOT", TASK_CHANGE_WORKING_PLOT)
 		.value("TASK_CLEAR_WORKING_OVERRIDE", TASK_CLEAR_WORKING_OVERRIDE)
 		.value("TASK_HURRY", TASK_HURRY)
-		// <!-- custom: Vanilla Civ IV bound Python's TASK_CONSCRIPT to TASK_HURRY, a copy of the line above, so drafting from Python would have hurried production instead; base AdvCiv 1.14 and Civ4CE's BtS source have the same line.
+		// <!-- custom: Vanilla Civ IV bound Python's TASK_CONSCRIPT to TASK_HURRY, a copy of the line above, so drafting from Python would have hurried production instead; base AdvCiv 1.14, Better BTS AI and Civ4CE's BtS source have the same line.
 		// No Python file in the mod uses it; found while reading the task list for SASPilot's city commands. See KI#1090. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		.value("TASK_CONSCRIPT", TASK_CONSCRIPT)
 		.value("TASK_CLEAR_ORDERS", TASK_CLEAR_ORDERS)
@@ -1489,7 +1490,8 @@ void CyEnumsPythonInterface()
 		// advc.130p:
 		.value("MEMORY_INDEPENDENCE", MEMORY_INDEPENDENCE)
 		// advc.104i:
-		.value("MEMORY_DECLARED_WAR_RECENT", MEMORY_INDEPENDENCE)
+		// <!-- custom: AdvCiv's advc.104i added MEMORY_DECLARED_WAR_RECENT (2018-09-30) and bound it to MEMORY_INDEPENDENCE, a copy of the line above. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("MEMORY_DECLARED_WAR_RECENT", MEMORY_DECLARED_WAR_RECENT)
 		.value("NUM_MEMORY_TYPES", NUM_MEMORY_TYPES)
 		;
 
@@ -2043,7 +2045,8 @@ void CyEnumsPythonInterface()
 		.value("GLOBE_LAYER_RELIGION", GLOBE_LAYER_RELIGION)
 		.value("GLOBE_LAYER_CULTURE", GLOBE_LAYER_CULTURE)
 		.value("NUM_GLOBE_LAYER_TYPES", NUM_GLOBE_LAYER_TYPES)
-		.value("NO_GLOBE_LAYER", NUM_GLOBE_LAYER_TYPES)
+		// <!-- custom: AdvCiv's advc.004m (2019-04-14) exposed the globe layers and bound NO_GLOBE_LAYER to NUM_GLOBE_LAYER_TYPES, the line above, though it placed its own NO_GLOBE_LAYER after it; so CvMainInterface reported NUM_GLOBE_LAYER_TYPES to reportCurrentLayer when no layer was shown. See KI#1090.2. (Claude code Opus 5.5) -->
+		.value("NO_GLOBE_LAYER", NO_GLOBE_LAYER)
 		;
 	// advc.pf: If generatePath (CvUnit, CvSelectionGroup) is exposed, so should this be.
 	python::enum_<MovementFlags>("MovementFlags")

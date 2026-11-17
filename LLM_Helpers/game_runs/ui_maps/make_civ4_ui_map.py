@@ -633,6 +633,21 @@ S["popup_first_unit"] = {"reach": "the first unit of a new kind is trained, such
 	"carry_on": c((1700, 267), "game_main", "Very well, carry on then"), "big_picture": c((1700, 297), None, "What's the Big Picture?")}}
 S["popup_vote_result"] = {"reach": "a vote in the Apostolic Palace or United Nations ends", "shows": "the resolution, the result and each civilization's vote", "controls": {
 	"ok": c((1630, 396), "game_main")}}
+# <!-- custom: Mapped on 2026-11-17 while testing KI#1094 on a turn-293 Large Pangaea save in the same 1926x1120 window; the city-advice popup had first been clicked away, and the user asked to map it instead, as it comes up often. (Claude code Opus 5.5) -->
+S["popup_city_advice"] = {"reach": "a city finished its build and the advisor suggests the next one, a building or a unit; came at the start of a turn after an autoplay", "shows": "at the top right, \"Sire, <city> is a great center of ... The construction of a <building> would ...\", with three answers", "controls": {
+	"fine": c((1704, 246), "game_main", "Fine, do so at the next opportunity: queues the suggested build"),
+	"forget_it": c((1704, 276), "game_main", "Forget it, I'm the one in charge here!: keeps the city's own choice"),
+	"examine_city": c((1704, 308), "city_screen", "Wait, let me examine the city first.")}}
+S["diplomacy_leader"] = {"reach": "click a leader's name on the scoreboard, at x about 1850; the rows are about 22 px apart, from about y 713 for the first rival at 11 players", "shows": "the leader's portrait, their greeting and a list of answers; hovering a scoreboard name first shows their attitude and wars", "note": "Measured on BtS's stock diplomacy screen, laid out on a fixed 1024x768 canvas whatever the window. RI's diplomacy screen rescale (RI r5627, listed in README_EXE_Patches.md) enlarges it, so these positions hold only without such a patch. If one is added, measure the patched screen as well and keep these: base AdvCiv and other mods without it still show the stock screen.", "tests": [
+	["Let's stop this pointless fighting and declare peace!, at war with Kublai Khan while either side was a victory-denial threat (2026-11-17)", "he answered \"No way.\" and offered no treaty, and the peace answer was gone; see KI#1094"],
+	["the same, at war with Isabella I", "the trade table opened with her offer, Peace Treaty (10 Turns) for 885 gold; We accept your offer. made peace and the gold left the treasury"]], "controls": {
+	"trade_proposal": c((962, 826), None, "We would like to make a trade proposal: opens the trade table"),
+	"second_answer": c((962, 860), None, "at war: Let's stop this pointless fighting and declare peace!; at peace: What are the current deals we have?"),
+	"discuss_else": c((962, 890), None, "Let's discuss something else..."),
+	"farewell": c((962, 922), "game_main", "Farewell ... (Exit); after a refusal the list is one answer shorter, and Farewell moves up to y 890"),
+	"trade_accept": c((962, 826), "game_main", "on the trade table: We accept your offer."),
+	"trade_refuse": c((962, 860), None, "on the trade table: Sorry, we cannot accept such a deal."),
+	"their_clear_table": c((583, 926), None, "CLEAR TABLE under their offer"), "our_clear_table": c((1338, 926), None, "CLEAR TABLE under our offer")}}
 
 
 # <!-- custom: Write the JSON, one control per line, then reread it to check that every "to" names a screen. (Claude Code Opus 5.5) -->

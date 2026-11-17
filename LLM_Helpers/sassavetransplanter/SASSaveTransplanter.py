@@ -4,9 +4,10 @@
 #
 # <!-- custom: SASSaveTransplanter: recreates the turn-0 world of a save that the current build can no longer load, as a new save written by the current build.
 # The build that wrote the save loads it and writes its world as WorldBuilder text (type names, not XML indexes), SASSaveTransplanterWorld.py checks those names against the current XML, and the current build loads that text as a scenario and saves normally.
-# No binary field crosses versions. See README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
+# No binary field crosses versions.
+# See README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
 
-# <!-- custom: argparse reads the commands; collections counts mods and plot differences; json reads facts and writes reports; re finds leftover mod-folder names in a mod copy; shutil copies a source build; struct reads and rewrites the save header; subprocess runs SASSaveTransplanterWorld.py; uuid names the pilot session. (Claude code Fable 5.2) -->
+# <!-- custom: argparse reads the commands; collections counts mods and plot differences; json reads facts and writes reports; re finds leftover mod-folder names in a mod copy; shutil copies a source build; struct reads and rewrites the save header; subprocess runs SASSaveTransplanterWorld.py; uuid names SASPilot session. (Claude code Fable 5.2) -->
 import argparse
 import collections
 import datetime
@@ -39,7 +40,8 @@ WB_EXT = ".CivBeyondSwordWBSave"
 EXPORTER = "SASSaveTransplanterExport"
 # <!-- custom: Written into every folder install_mod_copy creates; only a folder holding it may be reused or given the export hook. (Claude code Fable 5.2) -->
 MOD_COPY_MARK = "SASModCopy.json"
-# <!-- custom: The scenario setup screens' OK button as PrintWindow shows it, 120 x 36 pixels around the click point, taken at the window size beside it. A mean colour difference above 4 of 255 per channel counts as another picture: measured 2026-11-16, the first screen's "OK >" differed from the reference by 0.79, the other two by 0, and the black loading screen by 71. (Claude code Fable 5.2) -->
+# <!-- custom: The scenario setup screens' OK button as PrintWindow shows it, 120 x 36 pixels around the click point, taken at the window size beside it.
+# A mean colour difference above 4 of 255 per channel counts as another picture: measured 2026-11-16, the first screen's "OK >" differed from the reference by 0.79, the other two by 0, and the black loading screen by 71. (Claude code Fable 5.2) -->
 SETUP_OK_MAX_DIFFERENCE = 4.0
 # <!-- custom: The reference pictures were beside this script; on 2026-11-16 the user asked for them in the Images folder, where other pictures that helpers read and write already live, such as the art-tool samples in Images/LLM. (Claude code Opus 5.5) -->
 SETUP_OK_DIR = run_autoplay.REPO_ROOT / "_1_AdvCiv-SAS" / "Images" / "LLM" / "sassavetransplanter"
@@ -64,7 +66,8 @@ def read_header(path):
 
 
 def copy_with_mod_path(save, out, mod_path):
-	# <!-- custom: Was out.write_bytes: Codex (GPT-6.1-Sol)'s 2026-11-16 review made the input and the "_copy" path one file and the original save was rewritten in place. Mode "xb" only creates, so the copy can never be an existing file, the input and its hard links included. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Was out.write_bytes: Codex (GPT-6.1-Sol)'s 2026-11-16 review made the input and the "_copy" path one file and the original save was rewritten in place.
+	# Mode "xb" only creates, so the copy can never be an existing file, the input and its hard links included. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	data, version, old = read_header(save)
 	encoded = mod_path.encode("latin-1")
 	with open(out, "xb") as handle:
@@ -93,8 +96,10 @@ def command_inventory(args):
 
 
 def install_mod_copy(tree, name, dry_run=False):
-	# <!-- custom: Installs an extracted release under Mods with another folder name, so it runs beside the current mod: for a transplant's source build, or to launch an old build for a bisect. The release tree stays as it was.
-	# Was part of install_build, which accepted any existing folder under Mods: Codex (GPT-6.1-Sol)'s 2026-11-16 review noted that --build AdvCiv would have patched a real AdvCiv installation. A copy now carries MOD_COPY_MARK, and a folder without it is refused. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Installs an extracted release under Mods with another folder name, so it runs beside the current mod: for a transplant's source build, or to launch an old build for a bisect.
+	# The release tree stays as it was.
+	# Was part of install_build, which accepted any existing folder under Mods: Codex (GPT-6.1-Sol)'s 2026-11-16 review noted that --build AdvCiv would have patched a real AdvCiv installation.
+	# A copy now carries MOD_COPY_MARK, and a folder without it is refused. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	if Path(name).name != name or name in ("", ".", ".."):
 		raise SystemExit("%r is not a folder name" % name)
 	target = MODS_DIR / name
@@ -148,7 +153,8 @@ def install_mod_copy(tree, name, dry_run=False):
 
 
 def install_build(tree, name):
-	# <!-- custom: A transplant's source build: a mod copy plus the export hook. Refuses while Civ4 runs, before anything is written, as the running client could be that copy. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: A transplant's source build: a mod copy plus the export hook.
+	# Refuses while Civ4 runs, before anything is written, as the running client could be that copy. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	refuse_running_civ4()
 	install_mod_copy(tree, name)
 	target = MODS_DIR / name
@@ -177,7 +183,8 @@ def remove_ini(ini_path):
 
 
 def write_request(build, values):
-	# <!-- custom: What the hook in a mod copy is to do on its next launch, as a Python module of plain values beside CvEventInterface.py. "%a" keeps it ASCII; a human name with other letters would not compare equal in the hook, which was not tried. (Claude code Fable 5.2) -->
+	# <!-- custom: What the hook in a mod copy is to do on its next launch, as a Python module of plain values beside CvEventInterface.py.
+	# "%a" keeps it ASCII; a human name with other letters would not compare equal in the hook, which was not tried. (Claude code Fable 5.2) -->
 	path = MODS_DIR / build / "Assets" / "Python" / "EntryPoints" / "SASSaveTransplanterRequest.py"
 	path.write_text("".join("%s = %a\n" % item for item in sorted(values.items())), encoding="ascii")
 	return path
@@ -209,7 +216,8 @@ def exporter_code(prefix, probe):
 
 
 def export_world_current(save, prefix, timeout):
-	# <!-- custom: A save the current build still loads needs no source copy or hook: SASPilot loads it and runs the same exporter. This is the control run, and the way to keep a test start as text before a later commit breaks its save. (Claude code Fable 5.2) -->
+	# <!-- custom: A save the current build still loads needs no source copy or hook: SASPilot loads it and runs the same exporter.
+	# This is the control run, and the way to keep a test start as text before a later commit breaks its save. (Claude code Fable 5.2) -->
 	refuse_running_civ4()
 	prefix = Path(prefix)
 	prefix.parent.mkdir(parents=True, exist_ok=True)
@@ -228,7 +236,8 @@ def export_world(build, save, prefix, timeout):
 	if build == run_autoplay.MOD_FOLDER:
 		return export_world_current(save, prefix, timeout)
 	install_build(None, build)
-	# <!-- custom: Loads a copy of the save in the source build and waits for the hook's .done file. The original save is only read. (Claude code Fable 5.2) -->
+	# <!-- custom: Loads a copy of the save in the source build and waits for the hook's .done file.
+	# The original save is only read. (Claude code Fable 5.2) -->
 	refuse_running_civ4()
 	build_dir = MODS_DIR / build
 	prefix = Path(prefix)
@@ -271,7 +280,8 @@ def export_world(build, save, prefix, timeout):
 
 def setup_ok_button(pid, crop_path):
 	# <!-- custom: Where the setup screens' OK is, and whether it is on screen now, by comparing the window's picture there with the reference pictures in SETUP_OK_DIR (setup_ok_button_1926x1120.png).
-	# Was a blind click every 2 s; Codex (GPT-6.1-Sol)'s 2026-11-16 review noted that a slow start, a dialog or another layout would send that click to some other Civ4 control. PrintWindow reads the window without bringing it forward. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# Was a blind click every 2 s; Codex (GPT-6.1-Sol)'s 2026-11-16 review noted that a slow start, a dialog or another layout would send that click to some other Civ4 control.
+	# PrintWindow reads the window without bringing it forward. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	# <!-- custom: Pillow compares the two pictures; imported here so the other commands work without it. (Claude code Fable 5.2) -->
 	from PIL import Image, ImageChops, ImageStat
 	hwnd = desktop_windows.find_window(pid)
@@ -287,7 +297,8 @@ def setup_ok_button(pid, crop_path):
 	if crop_path is not None:
 		crop_path.parent.mkdir(parents=True, exist_ok=True)
 		image.save(crop_path)
-	# <!-- custom: One reference per look of the button at that window size; a build with another theme gets its own file next to the first. With no reference for the window's size the answer is False and nothing is clicked: the second version still clicked then, which Codex (GPT-6.1-Sol)'s second review flagged. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: One reference per look of the button at that window size; a build with another theme gets its own file next to the first.
+	# With no reference for the window's size the answer is False and nothing is clicked: the second version still clicked then, which Codex (GPT-6.1-Sol)'s second review flagged. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	for reference in sorted(SETUP_OK_DIR.glob("setup_ok_button*_%dx%d.png" % size)):
 		difference = ImageStat.Stat(ImageChops.difference(image, Image.open(reference).convert("RGB"))).mean
 		if sum(difference) / 3.0 <= SETUP_OK_MAX_DIFFERENCE:
@@ -325,7 +336,8 @@ def click_setup_screens(pid, finished, deadline, prefix):
 
 def human_problem(human, name, slot):
 	# <!-- custom: The Your Details screen's Leader Name box has the keyboard while the setup screens are up: during the second 4986 run the user was typing elsewhere and two letters landed in it, so the human "PC" came out as "PCdo", and "PCor" on the next run.
-	# No Python call sets a player's name, so a changed name is reported and the transplant command imports again, up to three times; nothing is saved for a failed attempt, whose save used to stay at the normal output path. The slot is checked too, as names can repeat (Codex (GPT-6.1-Sol)'s reviews). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# No Python call sets a player's name, so a changed name is reported and the transplant command imports again, up to three times; nothing is saved for a failed attempt, whose save used to stay at the normal output path.
+	# The slot is checked too, as names can repeat (Codex (GPT-6.1-Sol)'s reviews). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	if human is None:
 		return None
 	if (human.get("name") is not None and name != human["name"]) or slot != human["slot"]:
@@ -334,7 +346,8 @@ def human_problem(human, name, slot):
 
 
 def import_world_hook(build, wb, prefix, timeout, keep_techs=None, seeds=None, human=None, map_update=None):
-	# <!-- custom: The import for a receiving build without SASPilot: a mod copy whose hook does the work in the game (the exporter's finishImport). The user asked whether a current world could go into base AdvCiv or an older AdvCiv-SAS. (Claude code Fable 5.2) -->
+	# <!-- custom: The import for a receiving build without SASPilot: a mod copy whose hook does the work in the game (the exporter's finishImport).
+	# The user asked whether a current world could go into base AdvCiv or an older AdvCiv-SAS. (Claude code Fable 5.2) -->
 	install_build(None, build)
 	prefix = Path(prefix)
 	for suffix in (".import.done", ".import.json", "_reexport" + WB_EXT, "_reexport.facts.json", "_reexport.done"):
@@ -393,7 +406,8 @@ def import_world(wb, prefix, timeout, keep_open=False, keep_techs=None, seeds=No
 		code = exporter_import() + "result = %s.keepSourceGrants(%r, %r)\n" % (EXPORTER, keep_techs[0], keep_techs[1])
 		result["grantsRemovedAfterLoad"] = SASPilotClient.call(pid, "py", {"code": code}, 120.0).get("result")
 	if seeds is not None:
-		# <!-- custom: --seeds source: both generators continue from the source game's states, so the same transplant always gives the same game. Whether that game then matches the source's own continuation is a separate question; see README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
+		# <!-- custom: --seeds source: both generators continue from the source game's states, so the same transplant always gives the same game.
+		# Whether that game then matches the source's own continuation is a separate question; see README_SASSaveTransplanter.md. (Claude code Fable 5.2) -->
 		code = "game.getSorenRand().init(%d)\ngame.getMapRand().init(%d)\nresult = [game.getSorenRand().getSeed(), game.getMapRand().getSeed()]\n" % (seeds[0], seeds[1])
 		result["seedsSet"] = SASPilotClient.call(pid, "py", {"code": code}, 120.0).get("result")
 	if map_update is not None:
@@ -414,7 +428,8 @@ def import_world(wb, prefix, timeout, keep_open=False, keep_techs=None, seeds=No
 
 
 def compare_facts(source_path, destination_path):
-	# <!-- custom: The WorldBuilder comparison only sees what that format holds. The facts files add what each build computed from it: yields under its own rules, area sizes, who is human, each player's units.
+	# <!-- custom: The WorldBuilder comparison only sees what that format holds.
+	# The facts files add what each build computed from it: yields under its own rules, area sizes, who is human, each player's units.
 	# Differences here are expected across versions (a terrain's yield changed) and are listed, not failed: they say what the new rules made of the old world. (Claude code Fable 5.2) -->
 	source = json.loads(Path(source_path).read_text(encoding="ascii"))
 	destination = json.loads(Path(destination_path).read_text(encoding="ascii"))
@@ -475,8 +490,10 @@ def team_blocks(lines):
 
 
 def drop_source_free_techs(wb_path, facts):
-	# <!-- custom: A scenario start gives each team the techs in the file plus the free techs of its members' civilizations under the loading build's XML. The first 4986 transplant therefore gave Benin Mysticism and Fishing (4986) plus Pottery (current), a start neither build would deal.
-	# So the techs that were the source build's civilization free techs leave the file, the current build adds its own, and techs from another origin, such as a handicap's AI techs, stay. --techs source keeps the file as it is and removes the added ones after the load instead. (Claude code Fable 5.2) -->
+	# <!-- custom: A scenario start gives each team the techs in the file plus the free techs of its members' civilizations under the loading build's XML.
+	# The first 4986 transplant therefore gave Benin Mysticism and Fishing (4986) plus Pottery (current), a start neither build would deal.
+	# So the techs that were the source build's civilization free techs leave the file, the current build adds its own, and techs from another origin, such as a handicap's AI techs, stay.
+	# --techs source keeps the file as it is and removes the added ones after the load instead. (Claude code Fable 5.2) -->
 	free = collections.defaultdict(set)
 	for player in facts.get("players", []):
 		free[player["team"]].update(player.get("civFreeTechs", []))
@@ -497,7 +514,8 @@ def drop_source_free_techs(wb_path, facts):
 
 
 def drop_source_free_promotions(wb_path, facts):
-	# <!-- custom: The same for promotions: those the source build gave a unit for free, by its type or its leader's traits, leave the file, and the current build gives its own when it creates the unit. Earned promotions stay. (Claude code Fable 5.2) -->
+	# <!-- custom: The same for promotions: those the source build gave a unit for free, by its type or its leader's traits, leave the file, and the current build gives its own when it creates the unit.
+	# Earned promotions stay. (Claude code Fable 5.2) -->
 	free = dict((player["id"], player.get("freePromotionsByUnit", {})) for player in facts.get("players", []))
 	lines = Path(wb_path).read_text(encoding="latin-1").splitlines(True)
 	dropped = collections.Counter()
@@ -535,7 +553,8 @@ def explain_units(source, destination, policy, renames):
 			if policy == "current":
 				promotions -= set(old_free.get(unit[2], []))
 			expected.append([unit[0], unit[1], unit_type, sorted(promotions)])
-		# <!-- custom: Under "current" the receiving build's own free promotions are not predicted, only listed: its facts are taken from the game that gets saved, where no probe unit may be created. A unit matches when it stands where it stood with at least the promotions it should keep. (Claude code Fable 5.2) -->
+		# <!-- custom: Under "current" the receiving build's own free promotions are not predicted, only listed: its facts are taken from the game that gets saved, where no probe unit may be created.
+		# A unit matches when it stands where it stood with at least the promotions it should keep. (Claude code Fable 5.2) -->
 		found = [[unit[0], unit[1], unit[2], sorted(unit[6])] for unit in other.get("units", [])]
 		left = list(found)
 		unexpected = []
@@ -558,8 +577,7 @@ def explain_units(source, destination, policy, renames):
 
 
 def explain_plots(source, destination, renames, update):
-	# <!-- custom: Every plot must be as it was, except for renamed types and, in the "update" variant, the feature and bonus the map update reported for that very plot.
-	# Was a set of added type names valid on any plot that held none, so a new type could have appeared where the update never put it. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Every plot must be as it was, except for renamed types and, in the "update" variant, the feature and bonus the map update reported for that very plot; was a set of added type names valid on any plot that held none, so a new type could have appeared where the update never put it. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	columns = source.get("plotColumns", [])
 	kept = [columns.index(name) for name in ("plotType", "terrain", "improvement", "route", "river", "areaTiles", "startingPlot")]
 	feature, bonus = columns.index("feature"), columns.index("bonus")
@@ -586,7 +604,8 @@ def explain_plots(source, destination, renames, update):
 
 
 def judge_map_update(update, facts, out_path):
-	# <!-- custom: Checks what the map update reported against what it is allowed to do: put a new feature type on a plot without one and a new bonus type on a plot without one, nothing else. Writes those plots' expected WorldBuilder lines for SASSaveTransplanterWorld.py compare --allowed-plot-changes, which then compares every plot in full.
+	# <!-- custom: Checks what the map update reported against what it is allowed to do: put a new feature type on a plot without one and a new bonus type on a plot without one, nothing else.
+	# Writes those plots' expected WorldBuilder lines for SASSaveTransplanterWorld.py compare --allowed-plot-changes, which then compares every plot in full.
 	# The first version waived every "plot payload" difference of the WorldBuilder comparison whenever the smaller facts comparison passed, so a changed river direction on a plot that stayed a river plot would have passed (Codex (GPT-6.1-Sol)'s 2026-11-16 review). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	new_features, new_bonuses = set(update.get("newFeatureTypes", [])), set(update.get("newBonusTypes", []))
 	allowed = {}
@@ -629,7 +648,8 @@ def judge_map_update(update, facts, out_path):
 
 
 def map_script_overrides(name):
-	# <!-- custom: The map update uses the current build's general placement: the Marsh fractal and the DLL's bonus placement. A map script can replace either on a new map (addFeatures, addBonuses, addBonusType), and whether the source's script did is not carried over, so the report says which of them the script of that name defines today. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: The map update uses the current build's general placement: the Marsh fractal and the DLL's bonus placement.
+	# A map script can replace either on a new map (addFeatures, addBonuses, addBonusType), and whether the source's script did is not carried over, so the report says which of them the script of that name defines today. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	for folder in (run_autoplay.REPO_ROOT / "PrivateMaps", BTS_DIR / "PublicMaps", BTS_DIR / "PrivateMaps", CIV4_DIR / "PublicMaps"):
 		script = folder / (str(name) + ".py")
 		if script.is_file():
@@ -639,7 +659,8 @@ def map_script_overrides(name):
 
 
 def audit_map_types(source, destination, renames):
-	# <!-- custom: Which plot-content types the current build has that the source build lacked, per kind. Features and bonuses are placed by the "update" variant; a new terrain, improvement or route is only listed, as nothing says which existing plots should change (the user's question, 2026-11-16). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Which plot-content types the current build has that the source build lacked, per kind.
+	# Features and bonuses are placed by the "update" variant; a new terrain, improvement or route is only listed, as nothing says which existing plots should change (the user's question, 2026-11-16). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	audit = {}
 	for kind in ("terrainTypes", "featureTypes", "bonusTypes", "improvementTypes", "routeTypes"):
 		before = source.get("game", {}).get(kind)
@@ -653,7 +674,8 @@ def audit_map_types(source, destination, renames):
 
 
 def require_free_promotion_probes(facts):
-	# <!-- custom: --free-grants current removes each unit's source-build free promotions, which the export finds with probe units. A failed probe used to count as "no free promotions", so an old free promotion would have stayed on the unit and passed (Codex (GPT-6.1-Sol)'s 2026-11-16 review); now the run stops. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: --free-grants current removes each unit's source-build free promotions, which the export finds with probe units.
+	# A failed probe used to count as "no free promotions", so an old free promotion would have stayed on the unit and passed (Codex (GPT-6.1-Sol)'s 2026-11-16 review); now the run stops. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	lacking = []
 	for player in facts.get("players", []):
 		probed = player.get("freePromotionsByUnit")
@@ -667,7 +689,8 @@ def require_free_promotion_probes(facts):
 
 
 def restrict_human(wb_path, slot):
-	# <!-- custom: The scenario's Civilization screen preselects the first playable slot, and the unattended import only clicks OK. For a source whose human was another slot, every other slot is marked unplayable so that the list holds only that one; the AIs still play their slots. (Claude code Fable 5.2) -->
+	# <!-- custom: The scenario's Civilization screen preselects the first playable slot, and the unattended import only clicks OK.
+	# For a source whose human was another slot, every other slot is marked unplayable so that the list holds only that one; the AIs still play their slots. (Claude code Fable 5.2) -->
 	lines = Path(wb_path).read_text(encoding="latin-1").splitlines(True)
 	player = -1
 	changed = 0
@@ -685,7 +708,8 @@ def explain_techs(source, destination, policy):
 	# <!-- custom: Says for each player whether its turn-0 techs are what the chosen policy predicts, so a tech difference in the facts comparison is either explained here or a real finding. (Claude code Fable 5.2) -->
 	rows = []
 	after = dict((player["id"], player) for player in destination.get("players", []))
-	# <!-- custom: Techs belong to teams: a team has the free techs of all its members' civilizations. Was each player's own civilization only, which Codex (GPT-6.1-Sol)'s 2026-11-16 review showed failing both players of a correct two-player team. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Techs belong to teams: a team has the free techs of all its members' civilizations.
+	# Was each player's own civilization only, which Codex (GPT-6.1-Sol)'s 2026-11-16 review showed failing both players of a correct two-player team. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	old_free, new_free = collections.defaultdict(set), collections.defaultdict(set)
 	for player in source.get("players", []):
 		old_free[player.get("team")].update(player.get("civFreeTechs", []))
@@ -719,7 +743,8 @@ def xml_roots(build):
 
 
 def check_outputs(save, out, variants, overwrite):
-	# <!-- custom: Before anything is launched: the final save was still written with overwrite, so transplanting an earlier run's preserve_T0 into the same folder would have replaced the input before any check (Codex (GPT-6.1-Sol)'s second review). The input may not be one of this run's saves, hard links included, and an earlier run's save is only replaced with --overwrite. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Before anything is launched: the final save was still written with overwrite, so transplanting an earlier run's preserve_T0 into the same folder would have replaced the input before any check (Codex (GPT-6.1-Sol)'s second review).
+	# The input may not be one of this run's saves, hard links included, and an earlier run's save is only replaced with --overwrite. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	for name in variants:
 		planned = out / (name + "_T0" + SAVE_EXT)
 		if planned.exists():
@@ -762,7 +787,8 @@ def rename_facts(facts, renames, drops):
 
 
 def drop_types(wb_in, wb_out, drops):
-	# <!-- custom: For a receiving build that lacks some of the source's types, such as base AdvCiv without Marsh, Peat and Camel: the mapping file's "drop" list names types whose plot feature, bonus, improvement or route, unit promotion or team tech line is left out, each counted in the report. A type used anywhere else, such as a civic or a leader, cannot be dropped and still needs a mapping. (Claude code Fable 5.2) -->
+	# <!-- custom: For a receiving build that lacks some of the source's types, such as base AdvCiv without Marsh, Peat and Camel: the mapping file's "drop" list names types whose plot feature, bonus, improvement or route, unit promotion or team tech line is left out, each counted in the report.
+	# A type used anywhere else, such as a civic or a leader, cannot be dropped and still needs a mapping. (Claude code Fable 5.2) -->
 	dropped = collections.Counter()
 	kept = []
 	for line in Path(wb_in).read_text(encoding="latin-1").splitlines(True):
@@ -788,7 +814,8 @@ def named_blocks(lines, name):
 
 
 def trim_unused_slots(wb_path):
-	# <!-- custom: Current AdvCiv-SAS writes 48 team and 48 player blocks, base AdvCiv has 18 slots. A reader pads a file with fewer blocks (advc.056), so the unused blocks after the last used one are cut; a used slot is never moved, as Codex (GPT-6.1-Sol) advised, and anything that names a cut slot stops the run. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	# <!-- custom: Current AdvCiv-SAS writes 48 team and 48 player blocks, base AdvCiv has 18 slots.
+	# A reader pads a file with fewer blocks (advc.056), so the unused blocks after the last used one are cut; a used slot is never moved, as Codex (GPT-6.1-Sol) advised, and anything that names a cut slot stops the run. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	lines = Path(wb_path).read_text(encoding="latin-1").splitlines(True)
 	teams, players = list(named_blocks(lines, "Team")), list(named_blocks(lines, "Player"))
 
@@ -841,7 +868,8 @@ def command_facts(args):
 
 
 def finish_variant(args, out, name, candidate_wb, source_facts, renames, keep, seeds, human, map_update):
-	# <!-- custom: One receiving game: import, save, re-export and judge. The user suggested making both worlds by default, the one kept as it was and the one with the current build's new map content, since which is wanted depends on the test; each is a variant with its own save and its own verdict. (Claude code Fable 5.2) -->
+	# <!-- custom: One receiving game: import, save, re-export and judge.
+	# The user suggested making both worlds by default, the one kept as it was and the one with the current build's new map content, since which is wanted depends on the test; each is a variant with its own save and its own verdict. (Claude code Fable 5.2) -->
 	steps = {}
 	for attempt in range(3):
 		if args.destination == run_autoplay.MOD_FOLDER:
@@ -909,7 +937,8 @@ def command_transplant(args):
 	code = run_helper(arguments)
 	report["steps"]["typeCheck"] = {"exitCode": code, "report": str(out / "transplant.types.json")}
 	if code == 0:
-		# <!-- custom: The facts are read in the receiving build's names. They used to keep the source's names while the WorldBuilder file had the new ones, with a rename applied here and there; Codex (GPT-6.1-Sol)'s second review showed both free-grant removals then finding nothing for a renamed unit, tech or promotion. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+		# <!-- custom: The facts are read in the receiving build's names.
+		# They used to keep the source's names while the WorldBuilder file had the new ones, with a rename applied here and there; Codex (GPT-6.1-Sol)'s second review showed both free-grant removals then finding nothing for a renamed unit, tech or promotion. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		source_facts = rename_facts(read_facts(out / "source.facts.json"), renames, drops)
 		if args.destination != run_autoplay.MOD_FOLDER:
 			report["steps"]["unusedSlotsTrimmed"] = trim_unused_slots(candidate_wb)

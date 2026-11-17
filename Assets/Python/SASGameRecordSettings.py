@@ -411,6 +411,7 @@ def _collectBugGroups():
 			iParameterizedSkipped += 1
 			continue
 		# <!-- custom: Limit string collection to the numeric exceptions and explicitly reviewed options; the raw-value opt-in must not include other BUG paths, URLs or naming templates. (GPT-6.1-Sol) -->
+		# <!-- custom: sas-ci-string-compare-exemption: BUG reports its option types as strings. (Claude code Opus 5.5) -->
 		if option.getType() == "string" and optionID not in _SAS_NUMERIC_STRING_BUG_OPTIONS and optionID not in _SAS_REVIEWED_STRING_BUG_OPTIONS:
 			iStringSkipped += 1
 			continue
@@ -436,6 +437,7 @@ def _collectBugGroups():
 			else:
 				groups[group][optionID] = _redactedBugString(value)
 				iStringRedacted += 1
+		# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 		elif option.getType() == "color":
 			groups[group][optionID] = _safeColorValue(value)
 		else:

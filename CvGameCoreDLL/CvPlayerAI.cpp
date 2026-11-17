@@ -10982,7 +10982,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> cons
 	}
 	// <!-- custom: End - direct Tribute/Demand acceptance for pure vassal/surrender offers to match counter-propose outcome. (GPT-5.3-Codex) -->
 
-	// <!-- custom: A peace treaty the victory-denial rule keeps from taking effect would be accepted here and then dropped by CvDeal, so a human's offer, or the pilot's 'propose', read as accepted while the war went on.
+	// <!-- custom: A peace treaty the victory-denial rule keeps from taking effect would be accepted here and then dropped by CvDeal, so a human's offer, or SASPilot's 'propose', read as accepted while the war went on.
 	// Refuse it, as CvDeal would. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if (isSASVictoryDenialPeaceBundleBlocked(getTeam(), TEAMID(ePlayer), kWeGive, kTheyGive))
 		return false;

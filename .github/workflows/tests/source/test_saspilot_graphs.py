@@ -1,12 +1,13 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Exercise the Pilot command module with small Civ4 API substitutes.
+# <!-- custom: Exercise SASPilot command module with small Civ4 API substitutes.
 # The live DLL supplies these getters in game, but Linux CI can still verify the JSON relationships and the player-specific projections. (GPT-6.1-Sol) -->
 from pathlib import Path
 import runpy
 import sys
 from types import ModuleType, SimpleNamespace
+# <!-- custom: unittest runs the graph tests, patch stands in for the game's modules, such as CvPythonExtensions, and ElementTree reads the XML the graphs are checked against. (Claude code Opus 5.5) -->
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET

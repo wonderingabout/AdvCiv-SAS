@@ -78,7 +78,7 @@ def qualifies(repo, parent, commit):
         # <!-- custom: LLM_Helpers/ holds local tooling the game never loads; toggle_dev_diagnostics.py naming SAS_RUNTIME_* defines was miscounted as a Runtime implementation change. (Claude code Opus 5.5) -->
         if path.startswith(("tests/", ".github/", "LLM_Helpers/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
             continue
-        args = ["git", "diff", "--unified=0", parent]
+        args = ["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent]
         if commit is not None:
             args.append(commit)
         diff = subprocess.check_output(args + ["--", path], cwd=repo, text=True, encoding="utf-8", errors="replace")

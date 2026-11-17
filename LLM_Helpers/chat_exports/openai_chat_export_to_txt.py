@@ -13,6 +13,7 @@ import re
 import sys
 
 # <!-- custom: Use the same configurable output folder as the Claude transcript helper. (GPT-6.1-Sol) -->
+# <!-- custom: format_message is the speaker formatting shared with the Claude transcript helper. (Claude code Opus 5.5) -->
 from chat_export_format import format_message
 from chat_export_paths import DEFAULT_EXPORT_DIR
 
