@@ -325,7 +325,7 @@ Additionally, some extra files can be found on this google drive: [full AdvCiv-S
 
 ### Legacy references (e.g. AdvCiv, K-Mod, BTS, etc.)
 
-[/_0_Legacy/](/_0_Legacy/) holds pre-AdvCiv-SAS reference material, with notable files such as [AdvCiv's manual](/_0_Legacy/Docs/AdvCiv/manual.txt) (also as .txt for easier grepping), the BBAI, BUG and K-Mod documentation, the [pre AdvCiv-SAS git logs](/_0_Legacy/Docs/git_logs/), the web [Civ4BUG Python API reference](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt), base-AdvCiv [UI screenshots](/_0_Legacy/Images/) and BtS/vanilla Civ4 tech trees from the web.
+[/_0_Legacy/](/_0_Legacy/) holds pre-AdvCiv-SAS reference material, with notable files such as [AdvCiv's manual](/_0_Legacy/Docs/AdvCiv/manual.txt) (also as .txt for easier grepping), the BBAI, BUG and K-Mod documentation, the [pre AdvCiv-SAS dev logs](/_0_Legacy/Docs/dev_logs/), the web [Civ4BUG Python API reference](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt), base-AdvCiv [UI screenshots](/_0_Legacy/Images/) and BtS/vanilla Civ4 tech trees from the web.
 
 ## Full exhaustive very long and exhaustive changes
 
@@ -334,7 +334,7 @@ If you want to see the full very exhaustive code changes between the current bas
 For release-by-release AdvCiv-SAS history, see:
 
 - the [published web changelog archive](/_1_AdvCiv-SAS/Docs/changelogs_web/) for historical release text as it appeared on the web at the time
-- the [AdvCiv-SAS Git log](/_1_AdvCiv-SAS/Docs/git_logs/) for detailed commit history
+- the [AdvCiv-SAS dev log](/_1_AdvCiv-SAS/Docs/dev_logs/) for detailed commit history
 - the [GitHub tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) for release boundaries and Git history/compare references.
 
 ## Main Changes Guide
@@ -1650,7 +1650,7 @@ The [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy)
 
 Light-source archives include separate cumulative review patches for committed branch changes and the full tracked working snapshot, including staged/unstaged edits. Both use the same shared ancestor with the detected default branch and filter CRLF/LF and trailing-whitespace noise; see the [snapshot context details](/LLM_Helpers/README.md#make_light_source_zippy).
 
-It also generates a small archive-only `_SNAPSHOT_CONTEXT/` folder containing the tracked Git file manifest, a compact ignored-path tree, a separate repository-state file (branch/HEAD, commit count, locally known upstream/ahead-behind state, tracked short status, and ZIP-selected untracked files), staged and unstaged diffs with line-ending-only noise ignored, and incremental committed history since the newest commit already recorded in the repository's AdvCiv-SAS Git-log file, or other similar data.
+It also generates a small archive-only `_SNAPSHOT_CONTEXT/` folder containing the tracked Git file manifest, a compact ignored-path tree, a separate repository-state file (branch/HEAD, commit count, locally known upstream/ahead-behind state, tracked short status, and ZIP-selected untracked files), staged and unstaged diffs with line-ending-only noise ignored, and incremental committed history since the newest commit already recorded in the repository's AdvCiv-SAS dev-log file, or other similar data.
 
 The command also prints a compact summary of the current snapshot and includes it as `_SNAPSHOT_CONTEXT/archive_contents_and_context.txt`, identifying current versus default-branch progress, staged/unstaged tracked-file counts and diff paths, selected packaging options and supporting-file status, UTC timestamps, and observed game/IDE/build processes.
 

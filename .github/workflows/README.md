@@ -70,6 +70,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Repository](#repository)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
     - [`build/repository/commit_trailers.py`](#buildrepositorycommit_trailerspy)
+    - [`build/repository/dev_logs.py`](#buildrepositorydev_logspy)
     - [`build/repository/dll_commit_message.py`](#buildrepositorydll_commit_messagepy)
     - [`build/repository/dll_define_changes.py`](#buildrepositorydll_define_changespy)
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
@@ -205,6 +206,10 @@ The workflow first prints the full `ruff check . --isolated --select ALL` groupe
 
 The first GitHub run showed that only a few rules were clearly too noisy, so this is the first cautious narrowing step; narrow further only from actual failure output.
 
+A third step fails on Ruff's RUF100, a `noqa` that suppresses nothing. RUF100 needs every rule enabled, or each `noqa` naming a rule outside the narrow critical gate, such as `E402`, would look unused, so this step runs `--select ALL` and fails only on RUF100.
+
+- Added on 2026-11-17: a `noqa: E402` was added for an import after a `sys.path` insert, which E402 already allows, and [`lint_suppressions.py`](#buildsourcelint_suppressionspy) passed it, since it checks that a suppression names a rule and a reason, not that one is needed.
+
 For example, this helped spot shadowed duplicate Python callbacks in the base Civ4 `Oasis.py` map script (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-164)) and a dormant undefined `Point` (instead of `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-165)).
 
 Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now.
@@ -217,7 +222,7 @@ Rule settings come from [`.markdownlint.jsonc`](/.markdownlint.jsonc), shared wi
 
 [`.markdownlint-cli2.jsonc`](/.markdownlint-cli2.jsonc) defines the shared local/CI scope: all Markdown files anywhere in the repository, respecting `.gitignore`.
 
-Explicit exclusions cover upstream common docs, generated helper outputs/examples/commit diffs, imported map-script reference subfolders, dependency folders and version-named published changelog archives. Maintained context guides and archive README indexes remain checked.
+Explicit exclusions cover the legacy reference material in `_0_Legacy`, generated helper outputs/examples/commit diffs, imported map-script reference subfolders, dependency folders and version-named published changelog archives. Maintained context guides and archive README indexes remain checked.
 
 New documentation locations need no per-file registration.
 
@@ -595,7 +600,7 @@ Verifies the two archives under [`_1_AdvCiv-SAS/Docs/Long_Comments`](/_1_AdvCiv-
 
 The documentation archives must also remain valid UTF-8; this prevents legacy encoding damage from being silently reintroduced.
 
-Historical changelogs, archived Git logs, generated LLM commit-diff context and helper outputs, snapshots, and workflow/test files are ignored as references: they may legitimately preserve old marker text, but they must not keep a dead current entry alive. Multiple IDs on one marker line are supported.
+Historical changelogs, archived dev logs, generated LLM commit-diff context and helper outputs, snapshots, and workflow/test files are ignored as references: they may legitimately preserve old marker text, but they must not keep a dead current entry alive. Multiple IDs on one marker line are supported.
 
 IDs remain stable and are not renumbered when stale entries are removed.
 
@@ -722,7 +727,7 @@ Rejects stray control characters (NUL, BEL and other C0 control bytes except tab
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/formatting/fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py).
 
-Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/svn_history` corpora are excluded to avoid noise or rewriting downloaded originals.
+Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/commit_diffs` corpora are excluded to avoid noise or rewriting downloaded originals.
 
 The script prints its scan mode. In a normal Git checkout it lists tracked files with `git ls-files` and checks the current checked-out bytes. In a plain exported folder, such as an extracted light-source zip without `.git`, it falls back to scanning the configured active source/doc folders directly.
 
@@ -831,6 +836,23 @@ Co-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.c
 
 ```bash
 python .github/workflows/build/repository/commit_trailers.py
+```
+
+#### `build/repository/dev_logs.py`
+
+Keeps the dev logs' hand edits and anonymized authors: `_0_Legacy/Docs/dev_logs/` and `_1_AdvCiv-SAS/Docs/dev_logs/` hold one log per mod, newest first.
+
+- The logs are hand-edited copies of `git log`. On 2026-11-17, 650 of the SAS log's 2,420 entries, 8 of base AdvCiv's 3,094 and 3 of K-Mod's 1,249 differed from Git's own messages, with typo, churn and wording fixes such as "LLM/AI helpers" becoming "AI/LLM helpers".
+  - A naive regeneration with `git log` would erase them all, so a commit that changes a dev log must keep its earlier content as the exact tail of the new one: new entries go on top.
+  - A deliberate edit of earlier entries, such as a typo fix, passes when the commit message contains `Edit dev log`, as `Update DLL` does for the DLL.
+  - Deleting a log fails. A moved log is followed to its earlier path, even when the move and a large prepend together fall below Git's rename similarity, by pairing logs with the same key after `anonymized_email_`, such as `003_AdvCiv-SAS.txt`.
+- Every `Author:` line must be `<hidden>`, as the `anonymized_email` file names promise.
+  - Addresses inside message bodies stay as their commits wrote them, such as agents' and bots' `Co-authored-by: GPT-Codex-5.2 <codex@openai.com>` or Dependabot's `Signed-off-by`. They are not personal, and replacing them by hand would be brittle, as more come with new commits.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+- Added on 2026-11-17, while the SAS dev log was brought up to date from practical 6402 to 6763; the check first confirmed that the committed log survived as the exact tail of the new one.
+
+```bash
+python .github/workflows/build/repository/dev_logs.py
 ```
 
 #### `build/repository/dll_commit_message.py`
@@ -945,7 +967,7 @@ python .github/workflows/build/repository/examples_archive_size.py
 Rejects a date that a commit adds when it is later than the commit's own date, taken in the committer's time zone.
 
 - On the evening of 2026-11-16, Claude Code took 2026-11-17 from its session's date instead of the local clock. Two commits added it to an AGENTS.md example, a KI entry, three check comments and two notes in this README before the user noticed.
-- Only added lines count, so old text is never judged again. Generated history under `LLM_Helpers/context/` is skipped, since it quotes other commits' dates.
+- Only added lines count, so old text is never judged again. Generated history under `LLM_Helpers/context/` is skipped, since it quotes other commits' dates, and so are test folders, whose fixtures make up dates on purpose.
 - The committer date decides, so an amend after midnight may add the new day's date.
 - Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
 
@@ -1444,7 +1466,7 @@ Wildcard references such as `SAS_BBAI_UWAI_*_LOG_LEVEL` also fail when they matc
 
 Name-fragment parsers still require source review: the BBAI formatter retained the former suffix matcher after the complete keys were renamed, emitting full keys instead of compact category tokens.
 
-Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, Git logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
+Exceptions preserve the Known Issues investigation, the two frozen audit/archaeology records, published changelogs, dev logs, SGR revision history and its captured example. The migration table is validated separately; AGENTS permits only its explicit old-name search example. Other documentation, including current source-analysis documents, remains checked.
 
 The checker also verifies every mapped current name is still declared in `GlobalDefines_advciv_sas.xml`; a later rename therefore requires updating the existing original-to-current KI row rather than creating an intermediate mapping chain.
 

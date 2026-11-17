@@ -83,6 +83,6 @@ For leaders and the restored Viking civilization family, it mainly makes externa
 
 These restorations do not restore the inherited gameplay payloads: for example, `BONUS_WINE` still represents the SAS Grapes resource and its current improvement/building behavior.
 
-Historical Git logs, published changelogs, old Known Issues evidence, source-analysis records and saved log examples intentionally retain the identifier that was current when that evidence was produced.
+Historical dev logs, published changelogs, old Known Issues evidence, source-analysis records and saved log examples intentionally retain the identifier that was current when that evidence was produced.
 
 Prepared by ChatGPT-5.6-Sol, 2026-11-04; updated through the Viking civilization restoration by ChatGPT-5.6-Sol, 2026-11-05.

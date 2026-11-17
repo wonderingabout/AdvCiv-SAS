@@ -19,7 +19,7 @@ LIMIT_ONE = {".ini", ".cfg", ".toml", ".yml", ".yaml", ".json", ".jsonc", ".txt"
 LIMIT_TWO = {".inl", ".rc", ".ps1", ".sh", ".bat", ".cmd", ".mk", ".mak", ".def"}
 IGNORED_PREFIXES = (
     "_0_Legacy/", "LLM_Helpers/context/", "LLM_Helpers/outputs/", "_SNAPSHOT_CONTEXT/",
-    "_1_AdvCiv-SAS/Docs/examples/", "_1_AdvCiv-SAS/Docs/git_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/",
+    "_1_AdvCiv-SAS/Docs/examples/", "_1_AdvCiv-SAS/Docs/dev_logs/", "_1_AdvCiv-SAS/Docs/changelogs_web/",
     "Assets/Art/", "_1_AdvCiv-SAS/Docs/Sevopedia/Debug/", "CvGameCoreDLL/Project/temp_files/",
 )
 HISTORICAL_FILES = {

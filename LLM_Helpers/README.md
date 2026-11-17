@@ -29,8 +29,8 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `audits/` | reports of problems to review: [`ci_report.py`](#ci_reportpy), [`audit_define_keys.py`](#audit_define_keyspy), [`audit_unused_text_keys.py`](#audit_unused_text_keyspy), [`audit_cpp_logging_pregates.py`](#audit_cpp_logging_pregatespy) and others |
 | `balance/` | gameplay values and their tuning: [`compare_handicap_infos.py`](#compare_handicap_infospy), [`autotune_speed_from_xml.py`](#autotune_speed_from_xmlpy), [`compare_speed_summaries.py`](#compare_speed_summariespy), [`military_tree_continuity.py`](#military_tree_continuitypy) |
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
-| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
-| `context/` | reference corpora rather than helpers: generated commit diffs, Better BTS AI's SVN history, [map-script originals](#inherited-map-script-reference-sources) |
+| `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
+| `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
@@ -76,7 +76,7 @@ The second split named folders by job, and review of it renamed three that were 
 
 Helper names follow the same idea: `audit_first_city_scouting.py` became `summarize_first_city_scouting.py`, since it summarizes logs rather than auditing code, and `audit_unit_obsolescence_continuity.py` became `military_tree_continuity.py`, after the [Military Tree](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md) it checks.
 
-- The move renamed old paths in place across the maintained documents, Known Issues and revision histories included, rather than adding notes that a helper used to live elsewhere: one path per helper keeps links and searches simple, and nobody has to remember the old layout. Only verbatim copies keep the flat paths: the git logs, the archived changelogs and captured console output.
+- The move renamed old paths in place across the maintained documents, Known Issues and revision histories included, rather than adding notes that a helper used to live elsewhere: one path per helper keeps links and searches simple, and nobody has to remember the old layout. Only verbatim copies keep the flat paths: the dev logs, the archived changelogs and captured console output.
 - Moving `LLM_Helpers/` itself under `_1_AdvCiv-SAS/`, which holds SAS documents and images, was considered and rejected. It is a working folder of tools, like `.github/` and `tests/`, which also sit at the root although they are SAS-specific.
   - At the root, commands stay short (`python LLM_Helpers/audits/ci_report.py`), and helpers reach `Assets/` and `CvGameCoreDLL/` one folder up.
   - Moving it would have lengthened every command and also changed the packager's history exclusions, `.gitattributes`, `.gitignore` and many CI checks, for no gain in finding a helper.
@@ -123,6 +123,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
   - [`svn_history_to_diffs.py`](#svn_history_to_diffspy)
   - [`git_history_to_diffs.py`](#git_history_to_diffspy)
   - [`svn_history_verify.py`](#svn_history_verifypy)
+  - [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy)
   - [`history_lineage_tables.py`](#history_lineage_tablespy)
 - [`context/`](#context)
   - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
@@ -786,7 +787,8 @@ git diff -- "_0_Legacy/Docs/AdvCiv/manual.txt"
 
 Exports a Subversion repository's history as one greppable diff per revision, plus `INDEX.txt` and `PATH_HISTORY_INDEX.txt`, in the spirit of `commit_diffs/`. It is written for any repository, so nothing in it is specific to Better BTS AI.
 
-- Why it exists: `commit_diffs/` can only cover what is in our Git ancestry, which starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+- Why it exists: our Git ancestry starts at K-Mod's first snapshot. Older mods such as Better BTS AI live in SVN, so their history needs its own export.
+  - Better BTS AI's export is tracked in `LLM_Helpers/context/commit_diffs/` as `BBAI_r*.diff`, beside the generated files there, so one grep covers it with K-Mod, AdvCiv and SAS, and [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy) gives it a dev log like theirs.
 - It needs only Python and an `http(s)` SVN server (`mod_dav_svn`, which SourceForge runs). No `svn` client is required: on 2026-11-09 this machine had TortoiseSVN without its optional command-line tools, and `git svn` warns that Git for Windows no longer supports it.
   - The SlikSVN command line was installed on 2026-11-12 for updating working copies (see [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers)); this exporter still does not need it.
 - How it talks to the server:
@@ -804,14 +806,14 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
 - Interrupted runs resume: existing revision files are kept, failures are listed and the indexes are only written once every revision succeeded. `--force` re-renders existing files.
   - The indexes describe the requested range only. After redoing a few revisions with `--start`/`--end`, run the full command once more; it skips existing files and rewrites the indexes.
 - To follow a file back past a branch or tag, read the `from` origin in `PATH_HISTORY_INDEX.txt` and continue from that path.
-- Output under `LLM_Helpers/context/svn_history/` is included in light-source ZIPs by ordinary tree selection and excluded from generated commit diffs, so its patches do not reappear inside our own history.
+- In `commit_diffs/`, only the `BBAI_r*.diff` files are kept, not the exporter's `INDEX.txt` and `PATH_HISTORY_INDEX.txt`: their headers hold the same rows, so the generator, [`svn_history_verify.py`](#svn_history_verifypy) and the lineage tables read them there. Other mods' exports, such as Realism Invictus's below, stay outside the repository.
 - Verified on 2026-11-09 by Claude Code and independently rerun by Codex (GPT-6.1-Sol): replaying 1,175 stored patches reproduced all 198 DLL source files in the Better BTS AI r597 reference tree line for line.
   - [`svn_history_verify.py`](#svn_history_verifypy) repeats this check.
 
-The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched:
+The Better BTS AI export, from the repository root, takes about 15 minutes and 35 MB, with vendored libraries listed but not fetched. Export into a scratch folder, then copy only its `BBAI_r*.diff` files into `commit_diffs/`: the exporter's own `INDEX.txt` would overwrite the generated one there.
 
 ```bash
-python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out LLM_Helpers/context/svn_history/bbai --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
+python -u LLM_Helpers/code_history/svn_history_to_diffs.py --url https://svn.code.sf.net/p/civ4betterai/code/ --out bbai_export --label BBAI --summarize '*/boost-1.32.0/*' --summarize '*/python24/*' --max-file-changed-lines 30000 --max-file-patch-bytes 4194304
 ```
 
 Realism Invictus (added 2026-11-12) shows two options for other mods' repositories:
@@ -857,7 +859,19 @@ Checks an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export against a 
 - Give `--repo-path` without a leading slash: Git Bash rewrites `/trunk/...` into a Windows path, which would silently match no files.
 
 ```bash
-python LLM_Helpers/code_history/svn_history_verify.py --out LLM_Helpers/context/svn_history/bbai --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+python LLM_Helpers/code_history/svn_history_verify.py --out LLM_Helpers/context/commit_diffs --label BBAI --checkout ../civ4betterai-code-r597-trunk/CvGameCoreDLL --repo-path trunk/CvGameCoreDLL
+```
+
+### `svn_export_to_dev_log.py`
+
+Writes an [`svn_history_to_diffs.py`](#svn_history_to_diffspy) export's revision messages as a dev log, newest first, in the layout of the Git dev logs (`commit`, `Author`, `Date`, message), so a mod from SVN reads like the others.
+
+- It reads the messages from the export's revision headers, so it needs no server, and names each entry `commit r<revision>`, as SVN has no commit hashes.
+- SVN dates are UTC, written in the Git-made dev logs' `--date=iso` form with `+0000`.
+- Made on 2026-11-17 for Better BTS AI's `000_BBAI` log, beside K-Mod's and base AdvCiv's in `_0_Legacy/Docs/dev_logs/`; that history is frozen, so the log needs regenerating only if the export changes.
+
+```bash
+python LLM_Helpers/code_history/svn_export_to_dev_log.py --export LLM_Helpers/context/commit_diffs --label BBAI --out _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_000_BBAI.txt
 ```
 
 ### `history_lineage_tables.py`
@@ -1309,7 +1323,7 @@ Renames identifiers, such as SAS defines, in every tracked or new untracked text
 - Written on 2026-11-12 for the `SAS_EXE_PATCH_*` rename, which reached 15 files of 7 kinds; hand edits miss files and can turn CRLF into LF.
 - Each `OLD=NEW` pair can be a whole name or a prefix, matched only at an identifier's start; where several match, the longest wins, so `SAS_EXE_PATCH_SETUP_SCREEN_=...` beats `SAS_EXE_PATCH_=...`.
 - Rewrites bytes, so line endings and encodings stay as they were.
-- Skips verbatim history (git logs, archived changelogs, `LLM_Helpers/context/`) and the [deprecated-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), whose old-name column must stay; add or fix that table's rows by hand. `--include-history` overrides it.
+- Skips verbatim history (dev logs, archived changelogs, `LLM_Helpers/context/`) and the [deprecated-name table](/_1_AdvCiv-SAS/Docs/Deprecated/global_define_names.md), whose old-name column must stay; add or fix that table's rows by hand. `--include-history` overrides it.
 - `--exclude PATH` leaves a file alone, such as this entry, which describes the `SAS_EXE_PATCH_*` rename by its old names.
 - Dry run by default: lists each file with its count. It fails if a new `SAS_` name passes the 42-byte limit of KI#1001.2.
 - Before running it with `--write`, check that Civ4 is not running this mod, since it edits XML and Python.
@@ -2090,8 +2104,8 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
     - Untracked files and generated history context are excluded; selected untracked files remain available separately in the ZIP. Unavailable default metadata, unrelated histories or multiple merge bases produce an explicit unavailable message instead of a guessed comparison.
   - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
   - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
-  - `git_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`git_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/Docs/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication.
-    - Unlike the repository's tracked AdvCiv-SAS Git log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom.
+  - `dev_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`dev_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/Docs/dev_logs/dev_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication.
+    - Unlike the repository's tracked AdvCiv-SAS dev log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom.
     - Keeping the full commit-message gap preserves detailed implemented notes that may later be removed from the temporary untracked `changes_old.md` and `changes_new.md`, without needlessly embedding every potentially huge source/XML patch in the light archive.
 - Adds freshly generated canonical history context under `LLM_Helpers/context/commit_diffs/`, including `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and `<segment>_<practical-count>_<short-sha>.diff` files for every selected commit reachable from the snapshot's current `HEAD` by default.
   - This spans the inherited K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history.
@@ -2100,16 +2114,17 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Repository storage policy: `commit_diffs/` is generated and Git-ignored rather than tracked because it is reproducible from Git ancestry.
     - The permanent [`context/commit_rewrite_map_6164_6402.tsv`](/LLM_Helpers/context/commit_rewrite_map_6164_6402.tsv) translates pre-rewrite SHAs from the one-time cleanup that removed the formerly tracked generated mirror; see also the [deprecated commit-identifier reference](/_1_AdvCiv-SAS/Docs/Deprecated/commit_rewrites.md).
   - History segments: `KMod` is the K-Mod history; `AdvCivPreSAS` is the base AdvCiv history before the AdvCiv-SAS branch began; `SASBranch` is the later current-branch history.
+    - `BBAI` is Better BTS AI's SVN history (r1-r597), older than K-Mod's first snapshot, tracked in this folder as `BBAI_r<revision>.diff`, since our Git cannot regenerate it; its rows give `r<revision>` in place of a SHA.
   - Post-fork meaning: `SASBranch` is deliberately a history/log segment rather than an authorship label.
     - Upstream AdvCiv development continued after SAS began, so genuine later AdvCiv commits merged/imported into the SAS branch appear there alongside SAS commits.
     - This keeps the existing three anonymized logs intact while clearly distinguishing inherited pre-SAS AdvCiv from the post-fork branch history.
   - Contents/messages: each commit diff keeps a short title preview, compact change summary, patch coverage marker, and useful textual patches.
-    - Full commit messages/metadata are intentionally not duplicated there: use the included anonymized K-Mod, base AdvCiv, and AdvCiv-SAS Git logs, with `_SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
-  - Index/navigation: `INDEX.txt` is deliberately a lean locator (`segment`, practical count, short SHA, coverage, short title) rather than another Git log.
+    - Full commit messages/metadata are intentionally not duplicated there: use the included anonymized Better BTS AI, K-Mod, base AdvCiv, and AdvCiv-SAS dev logs, with `_SNAPSHOT_CONTEXT/dev_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
+  - Index/navigation: `INDEX.txt` is deliberately a lean locator (`segment`, practical count, short SHA, coverage, short title) rather than another dev log.
     - `PATH_HISTORY_INDEX.txt` provides the reverse path -> commits view, so an LLM can narrow a historical investigation to commits that touched a particular file before opening their diff files.
     - Practical counts are useful historical hints but can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
   - Compactness/filtering:
-    - Known generated/log/binary or redundant historical payloads such as copied Git logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded.
+    - Known generated/log/binary or redundant historical payloads such as copied dev logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded.
       - The `.log` suffix is covered regardless of directory, including SASGameRecord and SASAssertions example captures; their historical payloads are summarized without removing the current example files from the source snapshot.
       - Generated `.build.json` reports are summarized too: volatile timestamps, local paths and captured source state need not be repeated in each historical patch. Changed paths/counts remain searchable; ordinary JSON configuration patches remain included, and the current DLL report is still supplied as snapshot context.
     - Imported reference documents under the current `_0_Legacy/Docs/` and former `_0_Common_Docs/` paths, plus published changelog payloads under current/former `Docs/changelogs_web/` locations, are also summarized: changed paths, counts and omission reasons remain in the commit record and path-history index, while the current files remain available under the usual snapshot selection rules.
@@ -2124,8 +2139,8 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them.
     - The cache needs no `.gitignore` entry and is never included as a repository file.
     - After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
-  - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses.
-    - Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten.
+  - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS dev-log exports, generated commit-history context does not expose Git author/committer email addresses.
+    - Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied dev logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten.
     - Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
   - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
   - Canonical context/self-recursion guard: the same `LLM_Helpers/context/commit_diffs/` path is used for the Git-ignored local mirror and inside the light ZIP.
@@ -2133,7 +2148,7 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
     - This prevents generated context from being tracked recursively inside the history it describes or dominating a handoff's working-tree diff.
     - Use `--no-sync-context` when a full-history ZIP should deliberately leave the local generated context untouched; dry-runs and disabled/truncated history never refresh it.
   - Current map references and source-analysis records remain in the light ZIP, but their own histories are likewise omitted from generated patches so large reference/progress revisions do not obscure runtime-source history.
-  - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history.
+  - `pending_upstream/INDEX.txt`, `DEV_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history.
     - During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward.
     - Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target.
     - In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible.
@@ -2150,7 +2165,7 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
   - Root lone files, selected [Assets](/Assets/) folders, and root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself.
   - Top-level [CvGameCoreDLL](/CvGameCoreDLL/) files and top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB.
   - Nothing from `CvGameCoreDLL/Project/temp_files`: retained Debug-opt compiler intermediates and private symbols are excluded.
-  - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS Git log.
+  - [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), including the published web changelog archive and tracked AdvCiv-SAS dev log.
   - [_0_Legacy](/_0_Legacy/), including inherited reference docs and the curated base-AdvCiv UI screenshot set used for before/after or inherited-UI comparison.
   - Full [SASGameRecord examples](/_1_AdvCiv-SAS/Docs/examples/sasgamerecord/): the included sample is an unchanged full-game log rather than a selected excerpt, making it reusable for external LLM analysis/review and development reference. Although a level-3 record can occupy tens of megabytes raw, it compresses substantially in the ZIP.
 - Includes selected screenshot folders for LLM/UI/rendered-map-text review:

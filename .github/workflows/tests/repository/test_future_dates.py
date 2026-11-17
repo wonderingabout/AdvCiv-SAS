@@ -43,8 +43,8 @@ class FutureDateTests(unittest.TestCase):
     def test_unchanged_lines_generated_history_and_non_dates_pass(self):
         self.errors("AGENTS.md", "- Old line.\n")
         self.assertEqual(self.errors("AGENTS.md", "- Old line.\n- New line.\n"), [])
-        # <!-- custom: The future date is built from parts, as written whole it would fail the check itself when this file is committed. (Claude code Opus 5.5) -->
-        self.assertEqual(self.errors("LLM_Helpers/context/commit_diffs/X.diff", "Date: " + "2027" + "-01-01\n"), [])
+        self.assertEqual(self.errors("LLM_Helpers/context/commit_diffs/X.diff", "Date: 2027-01-01\n"), [])
+        self.assertEqual(self.errors(".github/workflows/tests/repository/test_x.py", "# 2027-01-01\n"), [])
         self.assertEqual(self.errors("ids.txt", "build 12026-11-30 and 2026-11-30-1 and 2026-13-40\n"), [])
 
 

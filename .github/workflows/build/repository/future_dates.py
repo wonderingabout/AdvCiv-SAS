@@ -21,7 +21,9 @@ from dll_commit_message import ROOT, commit_id, commits_in_range, event_commits,
 
 DATE = re.compile(r"(?<![\d-])(20\d\d)-(\d\d)-(\d\d)(?![\d-])")
 # <!-- custom: Generated history exports quote other commits' text, whose dates are their own. (Claude code Opus 5.5) -->
-SKIPPED_PREFIXES = ("LLM_Helpers/context/",)
+SKIPPED_HISTORY = ("LLM_Helpers/context/",)
+# <!-- custom: Test fixtures make up dates on purpose, this check's own test included. (Claude code Opus 5.5) -->
+SKIPPED_TESTS = (".github/workflows/tests/", "tests/")
 
 
 def added_lines(repo, commit):
@@ -31,7 +33,7 @@ def added_lines(repo, commit):
     for line in text.splitlines():
         if line.startswith("+++ "):
             path = line[6:] if line.startswith("+++ b/") else None
-        elif line.startswith("+") and path and not path.startswith(SKIPPED_PREFIXES):
+        elif line.startswith("+") and path and not path.startswith(SKIPPED_HISTORY + SKIPPED_TESTS):
             yield path, line[1:]
 
 

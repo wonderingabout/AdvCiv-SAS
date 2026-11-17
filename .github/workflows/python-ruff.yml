@@ -44,3 +44,12 @@ jobs:
           # Assets/Python/EntryPoints/CvScreensInterface.py:1091:2: F841 Local variable `bOption1` is assigned to but never used
           # <!-- custom: See full-report command above for why reviewed legacy Python 2 built-ins are passed through Ruff config here. (GPT-5.5) -->
           ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs" --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github
+      - name: No unused noqa
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          # <!-- custom: A noqa that suppresses nothing only hides a later real finding, as a noqa: E402 after a sys.path insert would have, which E402 already allows (2026-11-17).
+          # RUF100 judges a noqa only against enabled rules, so every rule runs here and only RUF100 fails; lint_suppressions.py checks that a needed one names its rule and reason. (Claude code Opus 5.5) -->
+          unused=$(ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs" --config "builtins = ['unicode']" --select ALL --exit-zero --output-format=concise | grep "RUF100" || true)
+          if [ -n "$unused" ]; then echo "$unused"; echo "FAIL unused noqa: remove it, as it suppresses nothing"; exit 1; fi
+          echo "PASS no unused noqa"

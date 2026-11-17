@@ -32957,7 +32957,7 @@ The earliest K-Mod snapshot in this history (`2414225e6`, 2010-12-27) retains bo
 
 That prompted a deeper look at history older than K-Mod, using the full SourceForge repository f1rpo had pointed us to.
 
-The Better BTS AI SVN history is exported to `LLM_Helpers/context/svn_history/bbai/`. Stock BtS (Civ4CE) has the stored cost and the human-dependent growth threshold but no autoplay switch. Its `CvGame::setAIAutoPlay` instead kills the active player's units and cities when autoplay starts.
+The Better BTS AI SVN history is exported to `LLM_Helpers/context/commit_diffs/`, as `BBAI_r<revision>.diff`. Stock BtS (Civ4CE) has the stored cost and the human-dependent growth threshold but no autoplay switch. Its `CvGame::setAIAutoPlay` instead kills the active player's units and cities when autoplay starts.
 
 Both pieces first appear together in r379 (2008-08-07), jdog5000's "Better BTS AI code submission", following the r378 load of release 0.35.
 
@@ -32965,7 +32965,7 @@ r379 is that import rather than the original edit, so it is the earliest evidenc
 
 Later revisions edited around the switch (r382, r403, r524) without adding a refresh, and `setHumanDisabled` in the final r597 still only calls `updateHuman`.
 
-That full history is now available for grepping in `LLM_Helpers/context/svn_history/bbai/`, as described under [comparison sources](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#comparison-sources) and [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
+That full history is now available for grepping in `LLM_Helpers/context/commit_diffs/`, as described under [comparison sources](/_1_AdvCiv-SAS/Docs/Source_Analysis/README.md#comparison-sources) and [`svn_history_to_diffs.py`](/LLM_Helpers/README.md#svn_history_to_diffspy).
 
 The pre-fix autoplay record `SASGameRecord_20261109T112500Z_load2.log` (Monarch, Normal speed) shows the effect: during autoplay the active player's Settlers needed 100 production (T45, T89), while every AI player's needed 92.
 

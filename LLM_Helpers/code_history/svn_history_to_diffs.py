@@ -227,6 +227,48 @@ def render_revision(root_url: str, revision: Revision, args: argparse.Namespace)
     os.replace(temporary, target)
 
 
+# <!-- custom: Each revision file's header holds everything INDEX.txt and PATH_HISTORY_INDEX.txt hold, so tools reading an export in place, such as Better BTS AI's revisions tracked inside commit_diffs/, rebuild those rows from the headers rather than keep separate index files beside them. (Claude code Opus 5.5) -->
+CHANGE_LINE = re.compile(r"^([AMDR]) (.+?)(?: \(from (.+)@(\d+)\))?$")
+
+
+def read_revision_header(path: Path) -> dict:
+    fields: dict = {"message": [], "changes": []}
+    section = ""
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.rstrip("\r\n")
+            if not line.startswith("#"):
+                break
+            if line == "# Message:":
+                section = "message"
+            elif line.startswith("# Changed paths"):
+                section = "changes"
+            elif line.startswith("#   ") and section == "message":
+                fields["message"].append(line[4:])
+            elif line.startswith("#   ") and section == "changes":
+                match = CHANGE_LINE.match(line[4:])
+                if not match:
+                    raise ValueError(f"{path.name}: unreadable changed path: {line}")
+                fields["changes"].append((match[1], match[2], match[3], int(match[4]) if match[4] else None))
+            elif ": " in line and section == "":
+                key, value = line[2:].split(": ", 1)
+                fields[key.lower()] = value
+    for key in ("source", "revision", "author", "date", "coverage"):
+        if key not in fields:
+            raise ValueError(f"{path.name}: no '# {key.title()}:' line in its header")
+    fields["revision"] = int(fields["revision"])
+    fields["message"] = "\n".join(fields["message"])
+    fields["title"] = next((line.strip() for line in fields["message"].splitlines() if line.strip()), "(no message)")
+    return fields
+
+
+def read_revision_headers(folder: Path, label: str) -> list[dict]:
+    headers = [read_revision_header(path) for path in folder.glob(f"{label}_r*.diff")]
+    if not headers:
+        raise FileNotFoundError(f"no {label}_r*.diff files in {folder}")
+    return sorted(headers, key=lambda header: header["revision"])
+
+
 def read_coverage(path: Path) -> str:
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:

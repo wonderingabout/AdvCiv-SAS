@@ -11,7 +11,7 @@ The top-level `Docs/` and `Images/` split intentionally mirrors [`_1_AdvCiv-SAS/
 - `BUG/` contains inherited BUG documentation and local help files used by AdvCiv-SAS.
 - `Civ4BUG_Python_API/` contains a local plain-text copy of the [Civ4 BUG Python API reference](https://civ4bug.sourceforge.net/PythonAPI/). The old SourceForge-derived folder/file names were shortened because their provenance is documented here and the extra repetition was not useful; the `_web` suffix in `all_classes_web.txt` marks content copied from the web rather than written for this repository.
 - `K-Mod/` contains inherited K-Mod documentation.
-- `git_logs/` contains anonymized K-Mod and pre-SAS AdvCiv Git history used by the source-history tooling.
+- `dev_logs/` contains the anonymized messages of Better BTS AI's SVN history and of K-Mod's and pre-SAS AdvCiv's Git history, used by the source-history tooling.
 
 Imported material remains subject to its original rights and provenance; moving or renaming a local reference file does not make it AdvCiv-SAS-original work.
 

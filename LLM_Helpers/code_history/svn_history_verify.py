@@ -10,16 +10,16 @@ import sys
 # <!-- custom: pathlib reads the export and checkout; text_lines makes the comparison normalize text exactly as the exporter did. (Claude code Opus 5.5) -->
 from pathlib import Path
 
-from svn_history_to_diffs import text_lines
+# <!-- custom: read_revision_headers gives each revision's changed paths and copy origins, so the history comes from the revision files themselves, wherever they live. (Claude code Opus 5.5) -->
+from svn_history_to_diffs import read_revision_headers, text_lines
 
 
 HUNK = re.compile(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
-HISTORY_ROW = re.compile(r"  \S+ r(\d+) ([AMDR])(?: from (.+)@(\d+))?$")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Verify an svn_history_to_diffs.py export: rebuild files from their stored patches, from the first revision, and compare them with a checkout.")
-    parser.add_argument("--out", required=True, type=Path, help="Export folder holding the .diff files and PATH_HISTORY_INDEX.txt")
+    parser.add_argument("--out", required=True, type=Path, help="Folder holding the <label>_r<revision>.diff files, for example LLM_Helpers/context/commit_diffs")
     parser.add_argument("--label", required=True, help="Label used for the export, for example BBAI")
     parser.add_argument("--checkout", required=True, type=Path, help="Checkout folder to compare with")
     parser.add_argument("--repo-path", required=True, help="Repository path of that checkout, for example trunk/CvGameCoreDLL")
@@ -27,18 +27,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_history(out: Path) -> dict[str, list[tuple[int, str, str | None, int | None]]]:
+def load_history(out: Path, label: str) -> dict[str, list[tuple[int, str, str | None, int | None]]]:
+    # <!-- custom: Was read from the export's PATH_HISTORY_INDEX.txt; Better BTS AI's revisions now sit in commit_diffs/ without it, and their headers rebuild the same rows exactly. (Claude code Opus 5.5) -->
     history: dict[str, list[tuple[int, str, str | None, int | None]]] = {}
-    current = ""
-    for line in (out / "PATH_HISTORY_INDEX.txt").read_text(encoding="utf-8").splitlines():
-        if line.startswith("#"):
-            continue
-        if not line.startswith("  "):
-            current = line
-            history[current] = []
-            continue
-        match = HISTORY_ROW.match(line)
-        history[current].append((int(match[1]), match[2], match[3], int(match[4]) if match[4] else None))
+    for header in reversed(read_revision_headers(out, label)):
+        for action, path, origin, origin_revision in header["changes"]:
+            history.setdefault(path, []).append((header["revision"], action, origin, origin_revision))
     return history
 
 
@@ -120,7 +114,7 @@ def rebuild(out: Path, label: str, steps: list[tuple[int, str, str]]) -> tuple[l
 
 def main() -> int:
     args = parse_args()
-    history = load_history(args.out)
+    history = load_history(args.out, args.label)
     newest = max(row[0] for rows in history.values() for row in rows)
     # <!-- custom: Git Bash rewrote a leading-slash argument into a Windows path, which silently matched no files, so the slash is optional and added here. (Claude code Opus 5.5) -->
     repo_path = "/" + args.repo_path.strip("/")

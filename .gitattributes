@@ -59,9 +59,8 @@
 /LLM_Helpers/context/mapscript_refs/**/*.txt        -diff linguist-vendored
 /LLM_Helpers/context/mapscript_refs/**/*.properties -diff linguist-vendored
 
-# <!-- custom: Older mods' SVN history is tracked like mapscript_refs because it is not in our Git ancestry. Suppress ordinary diffs and language statistics so its one adding commit stays reviewable. (Claude code Opus 5.5) -->
-/LLM_Helpers/context/svn_history/**/*.diff          -diff linguist-vendored
-/LLM_Helpers/context/svn_history/**/*.txt           -diff linguist-vendored
+# <!-- custom: Better BTS AI's SVN history is tracked inside commit_diffs/ like mapscript_refs, since our Git cannot regenerate it. Suppress ordinary diffs and language statistics so the commits that touch it stay reviewable. (Claude code Opus 5.5) -->
+/LLM_Helpers/context/commit_diffs/BBAI_r*.diff      -diff linguist-vendored
 
 # <!-- custom: Expand the immutable SAS version-anchor describe string plus exact commit/date into the runtime archive marker for GitHub/git-archive downloads.
 # The anchor version + Git describe distance reproduces the practical commit count without a manually maintained VERSION file.
@@ -73,7 +72,7 @@
 /.gitattributes       export-ignore
 /.gitignore           export-ignore
 
-# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including legacy manuals/API docs/git logs and current Docs/changelogs_web, Modding_Resources, and Docs/Sevopedia/Debug. -->
+# <!-- custom: include most documentation/reference material as it may be useful in downloaded ZIPs, including the legacy manuals, API docs and dev logs, and the current Docs/changelogs_web, Modding_Resources and Docs/Sevopedia/Debug. -->
 /Assets/Res/Fonts/other_mods/                             export-ignore
 
 # <!-- custom: Include compact documentation examples such as runtime JSON/JSONL and build reports in player/GitHub Download ZIP archives.

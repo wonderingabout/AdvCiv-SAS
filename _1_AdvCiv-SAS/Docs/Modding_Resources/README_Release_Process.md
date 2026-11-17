@@ -35,7 +35,7 @@ Prefer verifying the current repository state over mechanically following stale 
 - Identify the previous stable release boundary or tag that should be used for the player-facing cumulative changelog.
 - Distinguish a stable release from an update to the same stable release.
   - Existing tag conventions and the preferred advanced tag example are documented in [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well).
-- Record the exact old and new SHAs before generating release comparisons, changelogs, or Git logs.
+- Record the exact old and new SHAs before generating release comparisons, changelogs, or dev logs.
 - If the release is still being developed, prepare draft material but do not freeze the changelog/version metadata prematurely.
 
 ## 2. If base AdvCiv was updated, finish that integration first
@@ -104,8 +104,8 @@ Prefer verifying the current repository state over mechanically following stale 
 - For AI-heavy SAS releases, it can be useful to explain the recurring empirical development loop when it materially shaped the release: add targeted BBAI/SASGameRecord diagnostics -> reproduce questionable behavior in-game/autoplay -> improve/fix the AI decision -> add or refine diagnostics -> verify and continue.
   - When relevant, explain that SASGameRecord acts as a compact external whole-game observer designed especially for efficient LLM review, making long-game AI investigation broader and easier than isolated raw logging alone.
 - Start from the full commit range between the previous stable release boundary and the candidate release.
-  - Review `git log`, cumulative `git diff`, commit diffs, `changes_old.md` and `changes_new.md`/development notes when available, Main Changes Guide, Known Issues, asset-rebalancing/supporting docs, and the final XML/code rather than relying on commit titles alone.
-  - The light-source ZIP normally carries the current post-stable Git log and commit-diff context and is a good external-LLM source.
+  - Review the dev logs, updated first if they are behind (see below), cumulative `git diff`, the `commit_diffs` corpus, `changes_old.md` and `changes_new.md`/development notes when available, Main Changes Guide, Known Issues, asset-rebalancing/supporting docs, and the final XML/code rather than relying on commit titles alone.
+  - The light-source ZIP normally carries the current post-stable dev log and commit-diff context and is a good external-LLM source.
 - Treat the **previous stable release -> candidate release** comparison as the player-facing truth.
   - Temporary development-only names, values, designs and experiments are evidence for understanding the final result, not changes that players experienced.
   - A feature that did not exist in the previous stable release should be described as new even if it was renamed or redesigned several times before release.
@@ -156,7 +156,7 @@ Prefer verifying the current repository state over mechanically following stale 
 
 ## 7. Prepare Git history/reference updates
 
-- Refresh the tracked anonymized AdvCiv-SAS Git log using the incremental method documented in [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#git-log-with-anonymized-email-in-a-txt). Preserve the existing manually cleaned history and append only the intended new range.
+- Refresh the tracked anonymized AdvCiv-SAS dev log using the incremental method documented in [Modding Resources](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#dev-log-with-anonymized-email-in-a-txt). Preserve the existing manually cleaned history and append only the intended new range.
 - If base AdvCiv history/log copies are intentionally maintained and the merged upstream range extends them, update those copies consistently rather than replacing historical text with a new unrelated dump.
 - Generate a fresh light-source ZIP with `--fetch-upstream` when a release review should include the latest upstream awareness as well as current SAS state.
 - Verify that `_SNAPSHOT_CONTEXT/pending_upstream/` becomes empty for the just-merged release lineage after the merge commit, except for any newer fetched upstream commits or genuinely divergent release-line commits not contained in SAS.
@@ -188,6 +188,6 @@ Prefer verifying the current repository state over mechanically following stale 
 ## 10. After release
 
 - Update release/tag examples or version-specific documentation only when doing so adds useful future guidance; avoid turning every example into a maintenance burden.
-- Update the incremental Git log and archive the newly published web release text in [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) if it has not already been captured. Preserve older former CivFanatics/ModDB publication text as historical provenance rather than rewriting it.
+- Update the incremental dev log and archive the newly published web release text in [`Docs/changelogs_web/`](/_1_AdvCiv-SAS/Docs/changelogs_web/) if it has not already been captured. Preserve older former CivFanatics/ModDB publication text as historical provenance rather than rewriting it.
 - Record post-release hotfix/update boundaries clearly so the next cumulative changelog uses the intended previous stable release rather than accidentally starting from an intermediate development commit.
 - Keep newly discovered release-process omissions or repetitive manual steps as improvements to this checklist. The goal is for future LLM/user release preparation to become more reliable and less tedious over time.
