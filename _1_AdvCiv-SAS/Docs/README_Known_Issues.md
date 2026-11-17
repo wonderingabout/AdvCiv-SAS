@@ -1273,7 +1273,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
-[KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)
+[KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
+[KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)
 
 <a id="ki-1"></a>
 
@@ -38043,3 +38044,132 @@ Found by Claude Code Opus 5.5 while asking for peace through SASPilot.
   - A triggered string would also have turned `\t` or `\n` in a folder name into a tab or a line break.
 
 Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
+
+<a id="ki-1097"></a>
+
+## KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines
+
+- A file whose line endings change from LF to CRLF, or back, shows its unchanged lines as removed and added again, which hides the real change in review. Line endings are invisible in an editor, so only the diff's line count gives it away.
+  - Two forms: some lines of a file written in the other style (mixed endings), or the whole file switched.
+- History, oldest first:
+  - 2026-04-12 (`deba579c9`): editing `CvInfoScreen.py` in VS Code gave a massive diff, so the user added a one-line comment with Notepad.exe instead, noting in the commit "add comment with Notepad.exe solves massive git diff when doing so with VS Code for some reason". That commit's file held 4,247 CRLF and 450 LF lines, so it was the mixed form.
+    - Before then, cleaning such a diff was very tedious: the user tried several ways and asked Codex and Claude, who also found it hard, going through the diff hunk by hunk with selective staging and unstaging.
+    - Nothing flagged it either: the first CI workflows came on 2026-06-09.
+    - Two later commits tried again: `6574be400` (2026-04-25), "minor line changes to tentatively fix CvInfoScreen.py weird large diff", and `0cf840679` (2026-05-04), "fix military advisor noisy empty diff and add info about it in agents.md", which added AGENTS.md's first note on it.
+  - 2026-06-19 (`e4ef11ca1`): [`line_endings.py`](/.github/workflows/README.md#buildhygieneline_endingspy) began failing mixed files, and [`fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py) fixes them in one pass, keeping each file's dominant style; a file switched whole needs its `--eol lf` or `--eol crlf` instead.
+    - The cause then suspected was Codex's patch tool writing LF lines into CRLF files: Git Bash warned "LF will be replaced by CRLF" after its one-line edits to AGENTS.md.
+  - 2026-06-26 (`b16dd3699`): `line_endings.py` failed locally but passed on GitHub, because the working copy was mixed while the committed blob was clean; it now says which it checks.
+  - The review tools learned to look past endings: the light-source ZIP's history patches normalize them, so a conversion reads `No text change` rather than a whole-file rewrite, and the backup diffs in AGENTS.md use `--ignore-space-at-eol`.
+  - 2026-11-16: `ui_map_sync.py` failed on an unchanged UI map in the user's Windows checkout, whose CRLF bytes differed from the generator's LF; [`checkout_byte_compares.py`](/.github/workflows/README.md#buildsourcecheckout_byte_comparespy) now guards every such byte comparison.
+  - 2026-11-16 (`e183db41c`, the Sevopedia chart labels commit): it switched `.github/workflows/README.md` whole from LF to CRLF, with 3,260 changed lines for 20.
+- On 2026-11-17 the user found a just-pushed commit's line count suspicious: 2,118 lines added and 1,768 removed across 20 files, for a commit that mostly added new content, such as two new CI checks and their docs.
+  - Removals nearly matching additions in one file were the clue, as with `CvInfoScreen.py` back in April: `.github/workflows/README.md` showed 1,751 added against 1,730 removed, while its real change was 22 added lines and 1 removed.
+  - An agent's `sed` edit in Git Bash had rewritten the file's CRLF endings as LF, undoing the switch of the day before. LF is the repository's usual style (1,968 tracked text files, against 98 in CRLF), so the file is right now.
+  - The user remembered the Notepad.exe note, and a grep of the dev log for it traced the problem back to April.
+  - `line_endings.py` had passed both switches: a file switched whole has no mixed endings.
+- A replay over the 300 commits before then found three more whole-file switches: `CIV4BuildInfos.xml` in `15395ec77` (1,504 of 1,658 changed lines only in their endings), and `Hemispheres.py` and `Mixed_Continents.py` in `8c043c71e`.
+  - Each went from CRLF to the usual LF and was never undone, so those files are right today; rewriting 19 to 36 commits to keep the less usual CRLF in between was not worth it, so they were left as they are.
+- A replay over all 2,815 commits of SAS's history, after the README rewrite below, found 82 files whose lines changed only in their endings, in 56 commits from 2025-03-28 to 2026-11-12.
+  - Most came from March to May 2026, during the UI work on the Info Screen, the Military Advisor and the Sevopedia; the font-scaling merge (pull request #20) alone switched 4 files.
+  - After `line_endings.py` arrived on 2026-06-19, only 4 commits did, on 2026-08-04, 2026-08-14, 2026-11-07 and 2026-11-12, besides the two README switches the rewrite had removed: the mixed-endings check had already cut them down, and the whole-file switches it let through are what `line_ending_churn.py` now catches.
+
+  All 56 SAS commits that switched files (82 files), from the replay of 2026-11-17, after the README rewrite:
+
+  | Commit | Date | Files | Title |
+  | --- | --- | --- | --- |
+  | `592eccd35` | 2025-03-28 | 4 | move gitignore to root of project folder, minor fixes not sure why it is not at the roo... |
+  | `94bb0637c` | 2025-04-02 | 1 | rename remaining files in a similar manner maybe i did not get it all right but at leas... |
+  | `264008067` | 2025-04-10 | 1 | rename promotion_intercept to promotion_air_interception, also add an "Adjusted" word i... |
+  | `50f798316` | 2025-05-06 | 10 | mega commit: AI Personality Panel mostly finalized, add generate_leaders_data.py and le... |
+  | `bf00d2970` | 2025-05-10 | 1 | major barbarian rework, + other changes major barbarian reword i am very happy about bu... |
+  | `7fa2d1618` | 2026-01-15 | 3 | replace concept road/railroad links with sevopedia build road/railroad links |
+  | `955b2298b` | 2026-02-10 | 1 | fix military advisor map overflow to the progress bar |
+  | `be75be8cf` | 2026-02-10 | 2 | add getInfoTypeOrFail to more python files (GPT-5.3-Codex) - Fail-fast XML lookup har... |
+  | `a1db61111` | 2026-02-10 | 1 | add Boreal to maps in Simple Game |
+  | `c5cc18837` | 2026-02-10 | 1 | add maps in PrivateMaps so they are ordered alphabetically in Simple Game or Custom Gam... |
+  | `96163add0` | 2026-02-18 | 1 | Fix inaccurate game speed timelines so they are much closer to Normal game speed; add L... |
+  | `8827c3e2d` | 2026-02-22 | 1 | change default ordering from from alphabetical to from most to least Built/Current in t... |
+  | `e92a36c49` | 2026-02-23 | 1 | Add new Score Tab (Info Screen), Add legend text and sevopedia concept pages/items - Ad... |
+  | `08396a2b1` | 2026-02-26 | 1 | add PowT (total power a player has, distinct from ratio) in score tab - remove some mus... |
+  | `b421b9e33` | 2026-02-27 | 1 | AdvCiv-SAS 5500 Update: fixes and tweaks |
+  | `36b53f94a` | 2026-03-14 | 1 | upscale the info screen |
+  | `bbbd9fea2` | 2026-03-20 | 1 | merge CvForeignAdvisor.py and CvExoticForeignAdvisor.py into a single unified file |
+  | `8f60e16c5` | 2026-03-22 | 1 | fix too short and adjust score tab rows when text is upscaled |
+  | `208a8b6a9` | 2026-03-23 | 1 | adjust info screen tabs' dimensions (log button when upscaled, demographics' first colu... |
+  | `b36211565` | 2026-03-24 | 1 | adjust civics advisor similarly plus expand top panels so long civic names don't overflow |
+  | `0ace3d709` | 2026-03-24 | 1 | cache CvCivicsScreen.py - minor update docs |
+  | `9953b9f0a` | 2026-03-25 | 1 | move the environment tab to the info screen, delete EconomicsAdvisor.py |
+  | `0bb222d64` | 2026-03-25 | 1 | merge religion advisor into the policy advisor as a tab |
+  | `f21276c11` | 2026-03-27 | 1 | cache in domestic advisor, policy advisor, foreign advisor, military advisor (non-bug),... |
+  | `6c23de1a0` | 2026-04-11 | 1 | add abbreviations and legend in sevopedia speeds; reduce per font first column width (f... |
+  | `ad18001b5` | 2026-04-12 | 1 | fix military icons being misaligned when text was upscaled to label; removed clunky dua... |
+  | `88cda735b` | 2026-04-13 | 1 | expand military advisor and refactor to use helper format |
+  | `d01fbb4c7` | 2026-04-13 | 1 | cache in military advisor |
+  | `d1fb5d675` | 2026-04-13 | 1 | rename history tab to timeline tab |
+  | `e916c2826` | 2026-04-13 | 1 | add icons for buildings and units in CvDawnOfMan.py |
+  | `33f32dd81` | 2026-04-13 | 1 | add score tab T1/T2 columns and legend updates |
+  | `e987566be` | 2026-04-13 | 1 | add Tech (total techs) column in score tab |
+  | `a121ffba5` | 2026-04-14 | 1 | upscale and expand moderately CvTechSplashScreen.py |
+  | `57e2cacb5` | 2026-04-15 | 4 | Merge pull request #20 from wonderingabout/ui-font-scaling |
+  | `4a4783e4f` | 2026-04-18 | 1 | add sevopedia shortcuts Cheats item (from CFC), equalize tab indentation for font label... |
+  | `fb18bad9c` | 2026-04-21 | 1 | add sevopedia votes - load votes before a game is started - fix incorrect vote parse (s... |
+  | `6574be400` | 2026-04-25 | 1 | minor line changes to tentatively fix CvInfoScreen.py weird large diff on commit change... |
+  | `3ae737e05` | 2026-04-25 | 2 | Add new World Advisor (F7), move the Environment tab there |
+  | `0cf840679` | 2026-05-04 | 1 | fix military advisor noisy empty diff and add info about it in agents.md |
+  | `1763ecf09` | 2026-05-05 | 1 | battles tab: switch to our unit/their unit display |
+  | `f0a7f2228` | 2026-05-05 | 2 | add end effective strength so it is distinct from start effective str |
+  | `6b70f34f6` | 2026-05-05 | 1 | record retreats in battles tab |
+  | `5f8b6c5e4` | 2026-05-05 | 1 | add hill or peak, terrain, and feature optional columns in battles tab |
+  | `dd03caa3f` | 2026-05-06 | 2 | Expand Battles Tab (Add Estimated %, etc.), add Sevopedia Playground and other changes... |
+  | `fc82d9300` | 2026-05-06 | 1 | add city plot information in battles tab |
+  | `dfaf0ab34` | 2026-05-06 | 1 | add XP, great general recording and yellow color text, result emojis, polish and cleanup |
+  | `1c7dd567d` | 2026-05-06 | 1 | add sorting for icon buttons in tables for battles tab (military advisor), score tab (i... |
+  | `38e49c80d` | 2026-05-15 | 2 | change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files; refactor... |
+  | `a18e92afb` | 2026-05-17 | 1 | Repo-wide blank-line trim (`.py` only) - sevopedia main multiline collapsing and cleanup |
+  | `0e6854abc` | 2026-05-31 | 1 | repair legacy map script indentation (manually using ChatGPT then user review) |
+  | `d4cf22da9` | 2026-06-01 | 1 | Adjust the grid size of several map scripts that are too big or too small - Tuned sever... |
+  | `e4ef11ca1` | 2026-06-19 | 1 | Add GitHub Workflow check: line-ending CRLF/LF eol check and cleanup helper. Fix files... |
+  | `921cbbd9c` | 2026-08-04 | 4 | Rework BUILDING_JAPAN_DOUJOU from Jail to Barracks; balance and other changes |
+  | `86b81c25b` | 2026-08-14 | 1 | Rework Arabia, Babylon, Carthage, Germany, Ireland, Korea, Netherlands, Portugal, Russi... |
+  | `15395ec77` | 2026-11-07 | 1 | Add the Marsh feature, revert AdvCiv's own-border impassable exemption for land units (... |
+  | `8c043c71e` | 2026-11-12 | 2 | Make the main menu setup screens and their world-picker globe tunable and resolution-in... |
+
+- Inherited history had the same problem, and fixed it deliberately: the same replay over the ~4,300 K-Mod and base AdvCiv commits before SAS found 17 that switched files.
+  - K-Mod: karadoc's "Fixed crlf issue" (`d0a44eb13`, 2011-06-27) switched 433 files at once.
+  - Base AdvCiv: f1rpo's initial import (2017-04-16) switched 30 files, then "Removed CR from all line endings" (`cd9396b81`, 2019-06-18) 65, the merge four days later 55 more, and "Fixed inconsistent line endings in PerfectMongoose.py" (2019-09-04) and "Fix line endings in CvUnitAI.cpp" (2020-01-16) one each.
+  - So base AdvCiv chose LF on purpose in 2019, which confirms LF as our style; SAS's 98 CRLF files are mostly inherited files that kept or regained CRLF.
+  - Better BTS AI, before K-Mod, never had it: its history is SVN, whose exported diffs normalize endings, so `svn_history_to_diffs.py` gained `--eol-audit`, which fetched every modified file of its 597 revisions raw. No file was switched; 15 changes, all in its documentation text files between r387 and r595, each changed one line's ending, typically the last line's when text was appended.
+  - A curiosity: the user remarked that the fixes always seemed to come around summer, and the dates turned out closer than that: all three projects fixed it in the second half of June, 15 years apart, K-Mod on 2011-06-27, base AdvCiv on 2019-06-18 and SAS, with `line_endings.py`, on 2026-06-19.
+
+  All 17 inherited K-Mod and base AdvCiv commits that switched files (594 files):
+
+  | Commit | Date | Files | Title |
+  | --- | --- | --- | --- |
+  | `d0a44eb13` | 2011-06-27 | 433 | Fixed crlf issue |
+  | `43d62e84c` | 2017-04-16 | 13 | Initial commit (cont.) |
+  | `9009a9166` | 2017-04-16 | 1 | Initial commit (cont.) |
+  | `f6ff6a182` | 2017-04-16 | 16 | Initial commit (cont.) |
+  | `a44438ed3` | 2017-11-25 | 1 | Financial trait nerfed: +1 commerce only on tiles with a natural yield of at least 2 co... |
+  | `de300b90d` | 2018-05-06 | 1 | Merged the official K-Mod 1.46 release. |
+  | `f6d8434b5` | 2019-04-17 | 1 | AI1: Great merchants now ignore players that the owner has a war plan against |
+  | `cd9396b81` | 2019-06-18 | 65 | Removed CR from all line endings |
+  | `ee97a144e` | 2019-06-22 | 55 | Merge branch 'master' into Removed_DLLExports |
+  | `41b70de09` | 2019-09-04 | 1 | Fixed inconsistent line endings in PerfectMongoose.py |
+  | `fd46d8e59` | 2019-09-10 | 1 | War plan counts are cached; related bugfixes. |
+  | `2c72dfda1` | 2019-09-14 | 1 | Whitespace changes: curly braces on a separate line |
+  | `9230b90e5` | 2019-10-09 | 1 | EnumMap from "We the People" added |
+  | `a22598147` | 2019-10-13 | 1 | FOR_EACH_ENUM macro added |
+  | `de7f93446` | 2020-01-16 | 1 | Performance tweaks: plotDanger, isEnemy |
+  | `ee5320eb9` | 2020-01-16 | 1 | Fix line endings in CvUnitAI.cpp |
+  | `2c364d8c7` | 2022-05-11 | 1 | Refactor CvArtFileMgr singleton pattern |
+
+- Of the 46 file paths SAS switched, 9 are back to their first style after an even number of switches, such as `CvInfoScreen.py` after 16, and 21 were moved, renamed or deleted since.
+  - The other 15 began CRLF and are LF now, such as `CvMilitaryAdvisor.py` after 14 switches, eight `Assets/XML` files and five map scripts; that matches the usual style, so they were left LF.
+- History rewritten for the README: asked when the switch first happened, so as to tell whether the file had always been CRLF or only recently, the review traced it to the 2026-11-16 commit, a day before. That was recent enough to rewrite main from it on 2026-11-17, keeping the README in LF in all 13 commits since.
+  - Only the README's endings and the SHAs citing those commits changed: the dev log, SASGameRecord's revision history and the Modding Resources README now cite the new ones.
+  - The force push made GitHub's date check, `future_dates.py`, judge the rewritten commits again, including two from the evening of 2026-11-16 that had written "2026-11-17" a day early before the KI#1090 commit corrected them, so that push showed a red cross. Recreating the two newest commits with a new commit time and pushing again made CI judge only those two, which passed.
+  - The two noisy diffs disappeared: the KI#1094 commit now shows 389 lines added and 39 removed instead of 2,118 and 1,768, and the 2026-11-16 commit 416 and 170. Its SHA changed with the rewrite, from `2b7c59cab` to `e183db41c`.
+- Guarded since 2026-11-17 by [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy), so nobody has to notice a line count or remember April: a commit fails when 20 or more of a file's changed lines differ only in their endings. A deliberate conversion passes with `Convert line endings` in its message.
+  - Tools that rewrite a whole file, such as `sed -i` in Git Bash or PowerShell's `Set-Content`, can switch its endings; LLM_Helpers' editing helpers keep each file's style.
+
+Noticed by wonderingabout, who also recalled the 2026-04-12 workaround that traced it back; the check by Claude code Opus 5.5.

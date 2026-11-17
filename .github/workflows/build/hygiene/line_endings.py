@@ -7,6 +7,7 @@
 # Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., BugInit.py) while true CI failures stayed mixed in both (e.g., Pangaea.py).
 # Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw.
 # This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set. (GPT-5.5) -->
+# <!-- custom: A file switched whole between LF and CRLF has no mixed endings, so it passes here while its commit shows every line as changed; line_ending_churn.py catches that per commit. See KI#1097. (Claude code Opus 5.5) -->
 
 from pathlib import Path
 import argparse

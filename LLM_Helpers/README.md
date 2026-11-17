@@ -798,6 +798,7 @@ Exports a Subversion repository's history as one greppable diff per revision, pl
   - A `REPORT` with no revision range returned only the latest revision from SourceForge, so the script reads the latest revision first and then requests the full span.
   - A file edited inside a folder copied in that same revision does not exist at its new path one revision earlier, so its diff is taken against the copy source.
   - A CRLF conversion would look like a whole-file rewrite, so line endings are normalized and such a file reports `No text change`.
+    - So the diffs cannot show endings that changed along with the text. `--eol-audit FILE` fetches the raw versions instead and writes a TSV of each modified file whose lines changed only in their endings, with no diffs. Run on BBAI on 2026-11-17, it found no switch, only 15 one-line cases in its documentation. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Each revision file records its source, author, date, coverage, full message and changed paths, including `(from <path>@<revision>)` copy origins.
   - Coverage is `full`, `partial` (some text was left out) or `summary-only`.
   - Binary files are listed without contents and do not lower coverage. Paths matching `--summarize` and files over the limits do, as they are real text left out. The default limits match `commit_diffs/`.
@@ -1303,7 +1304,7 @@ External cleanup helper for line-ending hygiene.
 - Defaults to active repo text-like files and excludes generated/reference folders such as `LLM_Helpers/outputs`, `_1_AdvCiv-SAS/Docs/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
-- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
+- Use `--eol lf` or `--eol crlf` only for deliberate normalization passes; their commit needs `Convert line endings` in its message, or [`line_ending_churn.py`](/.github/workflows/README.md#buildhygieneline_ending_churnpy) fails it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 - Always review the diff before committing generated source changes.
 
 Examples:

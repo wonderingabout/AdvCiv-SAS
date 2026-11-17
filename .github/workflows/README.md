@@ -63,6 +63,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/exe_patches/exe_patches_export_ignore.py`](#buildexe_patchesexe_patches_export_ignorepy)
   - [Hygiene](#hygiene)
     - [`build/hygiene/control_characters.py`](#buildhygienecontrol_characterspy)
+    - [`build/hygiene/line_ending_churn.py`](#buildhygieneline_ending_churnpy)
     - [`build/hygiene/line_endings.py`](#buildhygieneline_endingspy)
     - [`build/hygiene/repository_hygiene.py`](#buildhygienerepository_hygienepy)
     - [`build/hygiene/text_blank_lines.py`](#buildhygienetext_blank_linespy)
@@ -741,9 +742,24 @@ Rejects stray control characters (NUL, BEL and other C0 control bytes except tab
 - PowerShell double-quoted strings also silently drop a backtick before most other characters (`` `_web` `` became `_web`).
   - Prefer single-quoted strings or here-strings when generating Markdown with backticks.
 
+#### `build/hygiene/line_ending_churn.py`
+
+Fails when a commit switches a file's line endings between LF and CRLF, so that lines whose text did not change show as changed.
+
+- `line_endings.py` catches a file with mixed endings, but a file switched whole has none, so it passed. Its diff then hides the real change: on 2026-11-17 a commit showed 3,481 changed lines in this README for 23 real ones, and only the user's eye on the line count caught it. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
+- Per file, it compares the commit's changed lines with Git's count ignoring line endings (`--ignore-cr-at-eol`); 20 or more lines that differ only there fail. Removed or rewritten lines count in both, so they never trip it.
+- A deliberate conversion passes with `Convert line endings` in the commit message. Commit selection is shared with `dll_commit_message.py`.
+- Replayed over all of SAS's 2,815 commits, it found 82 files in 56 commits, most from March to May 2026 and only 4 after `line_endings.py` arrived, besides the two README switches already removed by rewriting history. The same command audits any range: `--base-ref <commit> --head-ref main`.
+
+```bash
+python .github/workflows/build/hygiene/line_ending_churn.py
+```
+
 #### `build/hygiene/line_endings.py`
 
 Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/formatting/fix_line_endings.py`](/LLM_Helpers/formatting/fix_line_endings.py).
+
+A file switched whole between LF and CRLF has no mixed endings and passes here; [`line_ending_churn.py`](#buildhygieneline_ending_churnpy) catches it per commit. See [KI#1097](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097).
 
 Generated/reference helper folders such as `LLM_Helpers/outputs` and the verbatim `LLM_Helpers/context/mapscript_refs` and `LLM_Helpers/context/commit_diffs` corpora are excluded to avoid noise or rewriting downloaded originals.
 
