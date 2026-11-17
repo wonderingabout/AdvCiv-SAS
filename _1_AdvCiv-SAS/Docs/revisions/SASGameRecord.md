@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 205 - SAS practical 6793 (SASPilot branch)
 
 - **Date:** 2026-11-17
-- **Git commit:** pending
+- **Git commit:** `50e1d3eb8230206b5da32cee415c459ab574bb16`
 - **Change:** No change to the record: the revision check judges a merge against the parent with the higher revision, for its number and for whether it changes the recorder, as merging main into this branch had both sides at 202; and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
 
 ### Revision 204 - SAS practical 6750 (SASPilot branch)

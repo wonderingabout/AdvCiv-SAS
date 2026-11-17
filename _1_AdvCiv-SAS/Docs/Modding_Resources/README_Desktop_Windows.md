@@ -54,7 +54,9 @@ python LLM_Helpers/desktop/desktop_windows.py hover --pid 8572 --layout codex-us
 - Coordinates are physical pixels from the window's top-left corner, as in its screenshots. A screenshot shown to an agent is often scaled down, so multiply back by the scale the viewer reports before clicking.
 - The [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#screenshots-and-clicks) covers the screenshot methods and what was tested on Civ4.
 
-On 2026-11-13, the ChatGPT computer-use skill found Claude's window, but capture timed out twice and the accessibility view had no usage controls. `desktop_windows.py screenshot` used `PrintWindow` and captured it in about 0.2 seconds without taking focus. Use the [named usage crops](#quick-usage-map) for this check. A window-only capture can miss a transient tooltip, so check the image after hovering.
+On 2026-11-13, the ChatGPT computer-use skill found Claude's window, but capture timed out twice and the accessibility view had no usage controls. `desktop_windows.py screenshot` used `PrintWindow` and captured it in about 0.2 seconds without taking focus. Use the [named usage crops](#quick-usage-map) for this check.
+
+A window-only capture can miss a transient tooltip, so check the image after hovering.
 
 ## Look, then act
 
@@ -116,7 +118,9 @@ Its message box has three states, told apart by the round button at its bottom r
   - Those limits are shared across Codex and ChatGPT's other agent products; ordinary chats are not counted.
   - On 2026-11-13 the five-hour arc was red when the account reported 10% left. Hovering the wheel alone produced no visible tooltip in the window capture. Click it, then hover a limit row for the reset countdown.
   - **At a glance, without opening it:** the wheel has two arcs, the top one for the 5-hour limit and the bottom one for the weekly limit, and the dark part of each shows what is **left**. On 2026-11-10 a top arc about half dark and a bottom arc about four-fifths dark matched the popup's "55% left" and "81% left". The user spotted this; a cropped, enlarged screenshot of the wheel reads it.
-- **Find the latest message.** If Codex is scrolled up, look just above the composer. The user's 2026-11-13 capture shows a round down arrow after a reply. During a live turn, the same area showed three dots while the composer still had its square Stop button. The round control can move with draft height, so confirm its position in a fresh capture before clicking the arrow. For a script, scroll the chat pane down instead. The measured half-window layout provides `chat-scroll`, `chat-latest-status` and `composer-action`. The mapped scroll brought the chat to the bottom and the dots disappeared while the turn continued. Use the composer crop to check whether a turn is still running.
+- **Find the latest message.** If Codex is scrolled up, look just above the composer.
+  - The user's 2026-11-13 capture shows a round down arrow after a reply. During a live turn, the same area showed three dots while the composer still had its square Stop button. The round control can move with draft height, so confirm its position in a fresh capture before clicking the arrow.
+  - For a script, scroll the chat pane down instead. The measured half-window layout provides `chat-scroll`, `chat-latest-status` and `composer-action`. The mapped scroll brought the chat to the bottom and the dots disappeared while the turn continued. Use the composer crop to check whether a turn is still running.
 
   ```powershell
   $codexWindow = Get-Process ChatGPT | Where-Object { $_.MainWindowHandle -ne 0 }
@@ -153,7 +157,8 @@ Learned on 2026-11-11, with Codex on the right half of the user's second 4K moni
 - **Quit fully:** File > Quit ChatGPT, or Ctrl+Q. The window's X and File > Close (Ctrl+W) only hide Codex in the system tray, where it keeps running. After Quit, all of Codex's processes ended within about 6 seconds.
 - **Start:** `explorer.exe "shell:AppsFolder\OpenAI.Codex_2p2nqsd0c76g0!App"`, the app ID that `Get-StartApps` lists for it. Its window appeared 4 seconds later.
   - After a normal quit it reopened at its last place, the right half, unlike after the update. Both times it opened on a new-chat page with the chat list shown, so reopen the thread from the list and collapse the list again; see [Collapsing the side panels](#collapsing-the-side-panels).
-  - Since 2026-11-15 [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy) does both steps: `--start` opens Codex with that app ID when it has no window, and `--thread "<title>"` reopens the wanted thread through `codex://threads/<id>`, a link the app registers, with the ID looked up by title in `~/.codex/session_index.jsonl`. The chat list it leaves shown is closed with the toggle at (157, 32), right of the Back and Forward arrows.
+  - Since 2026-11-15 [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy) does both steps: `--start` opens Codex with that app ID when it has no window, and `--thread "<title>"` reopens the wanted thread through `codex://threads/<id>`, a link the app registers, with the ID looked up by title in `~/.codex/session_index.jsonl`.
+    - The chat list it leaves shown is closed with the toggle at (157, 32), right of the Back and Forward arrows.
   - Check for it with `Get-Process ChatGPT`; a process with no window title is a tray or child process, not the window.
 - **New chat**, for when a long thread fills Codex's context: the pencil icon left of the thread title, at (132, 124) in the half-screen window, or File > New Chat (Ctrl+N). It opened "What should we build in AdvCiv-SAS?" with the AdvCiv-SAS project, This computer and GPT-6.1 Sol Medium already selected; the user finds that model and effort efficient, so nothing needed changing.
   - Its message box sat at the same height as in a thread, so the same `--box` and `--text-area` work, and `--wait-reply` finds the new thread's log like any other.
@@ -370,7 +375,10 @@ Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly l
   - **Full reset,** expiring Dec 10.
   - **Fable reset,** expiring Nov 17. It refills the 5-hour limit and the Fable allowance and gives back what Fable used of the weekly limit, without resetting the whole week.
   - Each has a "Reset for free" button. Resets are rare, so using one is the user's call: an agent can say when one would help, for example when it or Codex is near a limit with work in flight.
-- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SAS Pilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room. In **Settings > Usage**, check **Current session**, the overall weekly usage, and the Fable weekly allowance if your plan shows one. During the launch offer, Fable could have its own weekly cap within the overall allowance. A Fable reset restores the Fable portion of weekly usage and refills the shared 5-hour window where applicable. See [Claude Fable 5.2 launch offers](https://support.claude.com/en/articles/17506494-claude-fable-5-2-launch-offers) and [How usage limits work](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).
+- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SAS Pilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room.
+  - In **Settings > Usage**, check **Current session**, the overall weekly usage, and the Fable weekly allowance if your plan shows one. During the launch offer, Fable could have its own weekly cap within the overall allowance.
+  - A Fable reset restores the Fable portion of weekly usage and refills the shared 5-hour window where applicable.
+  - See [Claude Fable 5.2 launch offers](https://support.claude.com/en/articles/17506494-claude-fable-5-2-launch-offers) and [How usage limits work](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).
 - The page also offers Upgrade plan, Buy usage credits and a usage-credits switch. These cost money, so they are the user's alone.
 - Near the limit, an "Approaching 5-hour limit" banner with a "Get more usage" button appears above the message box.
 - The **Prompt suggestions** setting, on by default, spends one more model request after every reply to suggest a next prompt. Turning it off saves that usage.
@@ -395,19 +403,24 @@ The same day, on the user's ChatGPT Plus plan. Codex counts what is left where t
 - **Getting there:** the account button at the bottom of Codex's left icon strip opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
 - The limits are shared across Codex and OpenAI's other work tools; the page says ChatGPT chat conversations are not counted.
 - **Usage limit resets:** **Available** lists unspent resets and their expiry dates. A **Full reset (Weekly + 5 hr)** restores both windows. **Use reset** redeems one, and **History** shows past resets.
-  - Mapped on 2026-11-15 at the user's request, so an agent can reach a reset when Codex runs out of weekly usage: wheel > **Manage usage**, then scroll the page to its bottom, where the section sits below the assistant switch and above Credits (earlier versions had Credits first). In `codex-usage-half`, `settings-scroll` is where to scroll, `resets-available` and `resets-history` the two tabs, `use-reset` the first reset's button, and the `resets` crop shows the switch and the list.
+  - Mapped on 2026-11-15 at the user's request, so an agent can reach a reset when Codex runs out of weekly usage: wheel > **Manage usage**, then scroll the page to its bottom, where the section sits below the assistant switch and above Credits (earlier versions had Credits first).
+    - In `codex-usage-half`, `settings-scroll` is where to scroll, `resets-available` and `resets-history` the two tabs, `use-reset` the first reset's button, and the `resets` crop shows the switch and the list.
   - `use-reset` was checked by hovering, not clicked. Redeeming a reset spends one for good, so it waits for the user's go each time; when only the 5-hour window is out, waiting is usually better, as below.
   - `allow-resets-switch` is the **Allow your assistant to use resets** switch above the list, off on 2026-11-15. Turning it on changes a setting, so it is the user's to choose; even on, the app lets an assistant use a reset only on an explicit request and at 10% or less left.
-  - **History** (`resets-history`) lists the past 30 days, newest first, as "Reset received" and "Reset used" rows with dates; "Past 30 days" beside the tabs is a label, not a range picker. On 2026-11-15 it showed resets received on Oct 31, Nov 1 and Nov 12 and used on Oct 22, Oct 31, Nov 10 and Nov 14; the one available, received on Nov 12 at 10:10 PM, expires on Dec 12 at 10:10 PM, so a reset appears to last 30 days. The `reset-history` crop shows it after the same scroll.
+  - **History** (`resets-history`) lists the past 30 days, newest first, as "Reset received" and "Reset used" rows with dates; "Past 30 days" beside the tabs is a label, not a range picker.
+    - On 2026-11-15 it showed resets received on Oct 31, Nov 1 and Nov 12 and used on Oct 22, Oct 31, Nov 10 and Nov 14; the one available, received on Nov 12 at 10:10 PM, expires on Dec 12 at 10:10 PM, so a reset appears to last 30 days. The `reset-history` crop shows it after the same scroll.
   - The page's **Analytics** tab, beside Overview, charts usage per day and lists **Top chats** with each thread's share of the 5-hour and weekly limits, which tells which thread spends the most.
-  - These points are for the half-screen window of Codex 26.1111.2228.0 only, and app updates move settings pages often, as this section's own move above Credits shows. A changed window mode or size fails the layout's title and size check rather than clicking elsewhere; then follow the route above by its labels in a fresh screenshot and re-measure the points in the window mode in use, adding a layout for it if it is new, as the user pointed out on 2026-11-15.
+  - These points are for the half-screen window of Codex 26.1111.2228.0 only, and app updates move settings pages often, as this section's own move above Credits shows.
+    - A changed window mode or size fails the layout's title and size check rather than clicking elsewhere; then follow the route above by its labels in a fresh screenshot and re-measure the points in the window mode in use, adding a layout for it if it is new, as the user pointed out on 2026-11-15.
 - **Allow your assistant to use resets:** the screenshot shows the switch off. The UI says an assistant can use a reset with the switch on, an explicit request in the conversation, and 10% or less remaining in the current limit. Resets are never used automatically.
 - **Credits:** a balance (0), "Add more" and an automatic-reload switch. These cost money, so they are the user's alone.
 - Settings is left with the Back arrow at the top left.
 
 If only the 5-hour window runs out, check its scheduled reset and how much weekly usage is left. When the window is about to refill and the weekly allowance has room, wait for the scheduled refill and save the full reset for when the weekly allowance is low too.
 
-On 2026-11-13, the user still saw the out-of-usage banner after the displayed reset time. Codex's read-only `get_usage_limits` later showed the 5-hour window had refilled. If the banner lingers, give it a moment and compare it with a fresh usage reading when available. If the app still blocks the next turn after the refill, save any draft and [quit and reopen Codex](#updating-quitting-and-starting-codex). If Codex cannot take another turn, the user or another desktop agent can reopen it.
+On 2026-11-13, the user still saw the out-of-usage banner after the displayed reset time. Codex's read-only `get_usage_limits` later showed the 5-hour window had refilled. If the banner lingers, give it a moment and compare it with a fresh usage reading when available.
+
+If the app still blocks the next turn after the refill, save any draft and [quit and reopen Codex](#updating-quitting-and-starting-codex). If Codex cannot take another turn, the user or another desktop agent can reopen it.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_usage_stale_after_reset.PNG" alt="llm_codex_usage_stale_after_reset.PNG" width="250">
 
@@ -423,9 +436,15 @@ Later on 2026-11-13, `get_usage_limits` showed **4% weekly left**, **79% five-ho
 
 ## Quick usage map
 
-For agent-to-agent checks, use structured usage data when available. Codex's read-only `get_usage_limits` was verified on 2026-11-13 and returns percentage used. Claude Code can use `get_usage` when available. If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time. Use a named screenshot crop when checking what the app actually shows. The screenshot command prints the PNG path for the agent to open.
+For agent-to-agent checks, use structured usage data when available. Codex's read-only `get_usage_limits` was verified on 2026-11-13 and returns percentage used. Claude Code can use `get_usage` when available. If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time.
 
-The user keeps both left chat lists collapsed to free up chat width and can reopen them when switching chats. Claude's right context rail stays open because it takes little space in this layout. The [desktop layout map](/LLM_Helpers/desktop/layouts/app_layouts.json) stores window-relative points and crops, one named entry per line, so agents can find a control by name and review a remap in one diff line. Use the layout whose window size and panel arrangement match your capture. A raw point copied from the older Claude session would miss the ring with the session rail open.
+Use a named screenshot crop when checking what the app actually shows. The screenshot command prints the PNG path for the agent to open.
+
+The user keeps both left chat lists collapsed to free up chat width and can reopen them when switching chats. Claude's right context rail stays open because it takes little space in this layout.
+
+The [desktop layout map](/LLM_Helpers/desktop/layouts/app_layouts.json) stores window-relative points and crops, one named entry per line, so agents can find a control by name and review a remap in one diff line. Use the layout whose window size and panel arrangement match your capture.
+
+A raw point copied from the older Claude session would miss the ring with the session rail open.
 
 Start with a named crop. The command below was checked on the current Claude layout. For the current Codex half-window, use the ChatGPT window PID and `--layout codex-usage-half` with the same crop name.
 
@@ -446,7 +465,11 @@ Use `hover` or `click` with the same `--layout` and `--point NAME`. Check a fres
 | `codex-usage-half` | `indicator`, `five-hour`, `weekly`, `manage`, `back`. The account-menu route uses `account`, `settings`, and `usage-billing`; the reset section, after scrolling at `settings-scroll`, uses `allow-resets-switch`, `resets-available`, `resets-history` and `use-reset`. | `indicator`, `popup`, `five-hour-tooltip`, `weekly-tooltip`, `settings`, `resets`, `reset-history` |
 | `codex-usage-max` | `indicator`, `five-hour`, `weekly`, `manage` | `indicator`, `popup` |
 
-The rail-open Claude route was verified on 2026-11-13, including hover, the three-row popup, **See all**, and expanding **This week**. Check the popup before clicking **See all**, since its position can move when the number of meters changes. The warning ribbon appears near a limit and is separate from the ring. The Codex half-window route was checked on the same day from the wheel through both reset tooltips and **Manage usage**. **Back** returned to the chat. If the UI moves, take a fresh window capture and update only the matching layout in `app_layouts.json`. See the [indicator and popup screenshots](#reference-screenshots), [Claude Usage page](#claude-usage-limit-resets-and-settings), and [Codex Usage & billing page](#codex-usage-and-limit-resets) for what to look for.
+The rail-open Claude route was verified on 2026-11-13, including hover, the three-row popup, **See all**, and expanding **This week**. Check the popup before clicking **See all**, since its position can move when the number of meters changes. The warning ribbon appears near a limit and is separate from the ring.
+
+The Codex half-window route was checked on the same day from the wheel through both reset tooltips and **Manage usage**. **Back** returned to the chat. If the UI moves, take a fresh window capture and update only the matching layout in `app_layouts.json`.
+
+See the [indicator and popup screenshots](#reference-screenshots), [Claude Usage page](#claude-usage-limit-resets-and-settings), and [Codex Usage & billing page](#codex-usage-and-limit-resets) for what to look for.
 
 The captures below are from that Claude run. The hover shows the five-hour meter, the popup shows all three meters, and the settings crop shows that Fable's launch allowance was capped at half the weekly limit.
 
@@ -635,9 +658,11 @@ Both apps kept their full chats at 1,920 px wide, with the empty margins mostly 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_app_half_4k.PNG" alt="llm_claude_app_half_4k.PNG" width="250">
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_codex_app_half_4k.PNG" alt="llm_codex_app_half_4k.PNG" width="250">
 
-- Halving the screen stretched Civ4 to 1920x2100 when the user watched SASPilot on 2026-11-14 (a "monster chicken", in the user's words), so `move` gained `topleft`, which keeps the window's size (or `--size W H`) in the work area's top-left corner, and `beside --beside <pid>`, which fills the area to the right of another window. `SASPilotConsole.py --window` lays out Civ4 and its console with them; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole). Measured on the user's 3840x2160 monitor only.
+- Halving the screen stretched Civ4 to 1920x2100 when the user watched SASPilot on 2026-11-14 (a "monster chicken", in the user's words), so `move` gained `topleft`, which keeps the window's size (or `--size W H`) in the work area's top-left corner, and `beside --beside <pid>`, which fills the area to the right of another window.
+  - `SASPilotConsole.py --window` lays out Civ4 and its console with them; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole). Measured on the user's 3840x2160 monitor only.
   - `bottomleft` followed on 2026-11-15, the user's ask, for a second client started with `--multiple` beside SASPilot's game: `move topleft` for the first and `move bottomleft` for the second keep both on one monitor. Two 1920x1120 windows overlap by about 140 px in a 2100 px tall work area.
-- `positions save <name>` records where the Claude app (`claude.exe`), the Codex app (`ChatGPT.exe`) and Civ4 stand, by program name as their process IDs change, into [`window_positions.json`](/LLM_Helpers/desktop/layouts/window_positions.json); `positions restore <name>` puts them back and warns if the monitors differ. The user asked for it on 2026-11-14 so a moved window or a changed layout needs neither the user nor manual measuring. `pilot-watch-4k` holds the layout of that day: Civ4 at 1920x1110 top-left of monitor 1 (beside its `SASPilotConsole.py` console), Claude on the left half of monitor 2, Codex on its right half.
+- `positions save <name>` records where the Claude app (`claude.exe`), the Codex app (`ChatGPT.exe`) and Civ4 stand, by program name as their process IDs change, into [`window_positions.json`](/LLM_Helpers/desktop/layouts/window_positions.json); `positions restore <name>` puts them back and warns if the monitors differ.
+  - The user asked for it on 2026-11-14 so a moved window or a changed layout needs neither the user nor manual measuring. `pilot-watch-4k` holds the layout of that day: Civ4 at 1920x1110 top-left of monitor 1 (beside its `SASPilotConsole.py` console), Claude on the left half of monitor 2, Codex on its right half.
 - `move` places the visible frame exactly on the half, as Win+Left and Win+Right do. The Claude app's window carries an invisible border, so its outer rectangle came out at 3830 to 5770; Codex has none and came out at 5760 to 7680.
 - `agent_message.py`'s click points had been measured on maximized windows, so the first send in this layout needed `--box 900 1932 --text-area 370 1905 1500 1960` by hand. Later that day both half-width boxes were measured and added as a `4k-half` layout, which the helper picks from the window's width; `--check-box` confirmed it on both windows.
   - The layouts live in `app_layouts.json` beside the script, with each one's measurement date and conditions, so an app update that moves a box means re-measuring and editing that file, not the code; see [re-measuring a layout](/LLM_Helpers/README.md#agent_messagepy).

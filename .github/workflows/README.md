@@ -286,7 +286,9 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
-The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling. SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
+The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+
+SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -590,7 +592,8 @@ Keeps maintained documentation/reference image filenames unambiguous across [`_0
 - Legacy/base-reference screenshots use the `0.x` namespace; numbered current AdvCiv-SAS images use `1.x`. Descriptive unnumbered SAS images remain valid when a numbered series is not useful.
 - Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
 - `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
-- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets. The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
+- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets.
+  - The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
 - The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
 
 The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
@@ -840,7 +843,9 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as SASPilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as SASPilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml).
+
+It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -1049,7 +1054,8 @@ python .github/workflows/build/repository/ki_commit_titles.py
 
 Fails when the DLL Makefiles call a tool that both Windows and Git ship under the same name (`find`, `sort`, `expand`, `tar`, `timeout`, `whoami`) without its `System32` path, or contain a control character other than tab and line ends.
 
-- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited. It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited.
+  - It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - The control-character test came from the fix itself: written through a shell, `\find.exe` became a form feed and `ind.exe`, which the name test could not see. Writing this README entry through the same shell then did it again; the Edit tool, which no shell touches, put it right.
 
 #### `build/repository/project_sources.py`

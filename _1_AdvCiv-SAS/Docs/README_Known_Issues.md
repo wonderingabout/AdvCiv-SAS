@@ -3762,7 +3762,9 @@ No source fix was needed for the identical-tree run to pass. The cause remains u
 
 Found by Claude code Opus 5.5 on 2026-11-11, and again on 2026-11-13, when wonderingabout asked whether the rule could be enforced rather than remembered.
 
-Update (2026-11-13, later session): writing that fix through Claude Code's Bash had turned `\find.exe` into a form feed and `ind.exe`, in the Makefile and in the workflows README, so the repository-wide [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy) should have failed. It passed, because it allowed form feed as an old page break, although no text file held one. It now rejects form feed too; a scan of all 2,018 text files found none.
+Update (2026-11-13, later session): writing that fix through Claude Code's Bash had turned `\find.exe` into a form feed and `ind.exe`, in the Makefile and in the workflows README, so the repository-wide [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy) should have failed.
+
+It passed, because it allowed form feed as an old page break, although no text file held one. It now rejects form feed too; a scan of all 2,018 text files found none.
 
 <a id="ki-39"></a>
 
