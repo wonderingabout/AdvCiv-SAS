@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Every check script under .github/workflows/build must be run by a workflow: on 2026-11-17 string_label_compares.py sat in build/source, passing locally, while no workflow ran it, and no check noticed.
+# <!-- custom: Every check script under .github/workflows/build must be run by a workflow: on 2026-11-16 string_label_compares.py sat in build/source, passing locally, while no workflow ran it, and no check noticed.
 # A script counts as run when a workflow names its path; shared helpers in lib/ and modules whose names start with "_" are imported, not run, so they are left out.
 # Its README section is checked by folder_indexes.py, so an unwired script and an undocumented one each fail on their own. (Claude code Opus 5.5) -->
 

@@ -1265,6 +1265,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
 [KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
 [KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)
+[KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
+[KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)
 
 <a id="ki-1"></a>
 
@@ -11495,6 +11497,12 @@ Fix:
 File changed:
 
 - [CvGameCoreDLL/CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp)
+
+Provenance, added on 2026-11-16 with [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2):
+
+- All three came with BtS, which introduced event triggers; vanilla Civ4 and Warlords have no such bindings (Civ4CE's SDK copies). Better BTS AI (r597) and K-Mod kept them.
+- AdvCiv fixed them the same day as this entry, 2026-04-23, in f1rpo's `92556c71f` ("Fix 3 unused Python-to-DLL bindings for Random Events"); SAS's fix is `e991959c5`.
+- [`python_binding_targets.py`](/.github/workflows/README.md#buildsourcepython_binding_targetspy) now guards this pattern: run against the file before this fix, it finds all three.
 
 <a id="ki-123"></a>
 
@@ -37878,7 +37886,7 @@ Found by Claude code Opus 5.5 on 2026-11-13, following up Codex's (GPT-6.1-Sol) 
   - **Screen closed first:** 8 of 8 loads worked, five of them right after a trade made through the screen.
   - **Screen open:** the screen stayed open over the reloaded game with the old partner and offers each time, and 1 of 4 loads crashed.
 - A person cannot do this: the diplomacy screen is modal, so the game's menu cannot be reached while it is open. Only the pilot's `menu path=` could load past it.
-- The SASPilot work, on its own branch as of 2026-11-17, avoids it: its `SASPilotCommands.py` `menu` refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
+- The SASPilot work, on its own branch as of 2026-11-16, avoids it: its `SASPilotCommands.py` `menu` refuses while a diplomacy screen is open and asks for its Farewell first, as the window does. Whether the open screen caused both crashes, and whether KI#1084's EXE crash in a Huge game shares the cause, was not shown.
 - Dumps, each with the DLL and PDB of the Debug-opt build that crashed, outside the repository:
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups`: the first crash, a normal dump (22 MB), so the heap and the plot-group list cannot be read.
   - `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_with_diplomacy_open`: the second, a full dump (1.38 GB, written in about a dozen seconds), with its SASRuntime exit and history files.
@@ -37899,3 +37907,29 @@ Found by Claude code Opus 5.5 on 2026-11-13, while testing the pilot's trade tab
 - See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) for reading a dump and the full-dump rule.
 
 Found by Claude code Opus 5.5 with Codex (GPT-6.1-Sol) on 2026-11-13, while writing the dump tool after KI#1088's dump took three tries; wonderingabout suggested recording it as a KI.
+
+<a id="ki-1090"></a>
+
+## KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production
+
+`CyEnumsInterface.cpp` exported `TaskTypes.TASK_CONSCRIPT` with the value of `TASK_HURRY`. Passing that enum to a Python city task selected the hurry-production handler instead of drafting. The normal Draft button already sends the correct C++ enum.
+
+The local Civ4CE vanilla, Warlords and BtS SDK copies all contain the defect. Better BTS AI (r597), the initial K-Mod snapshot (`2414225e6`, 2010-12-27) and base AdvCiv 1.14 preserve it.
+
+Claude Code Fable 5.2 found and fixed the binding while reading the task list for SASPilot. Claude Code Opus 5.5 verified in game that drafting now reads 10 and hurry stays 9, where both read 9 before. Codex (GPT-6.1-Sol) checked the SDK lineage and the native Draft path.
+
+- Follow-up: a check for this pattern found three more enum names bound to their neighbour's value, see [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed the same kind of slip in three event trigger getters.
+
+<a id="ki-1090.2"></a>
+
+## KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was
+
+- `CyEnumsInterface.cpp` bound three names that are enumerators of their own to the line above's value:
+  - `BUTTONPOPUP_KICKED` to `BUTTONPOPUP_PITBOSS_DISCONNECT`: already in vanilla Civ4's SDK (Civ4CE's `Civ4` copy), as KI#1090's `TASK_CONSCRIPT` is, and kept by Warlords, BtS, Better BTS AI (r597), K-Mod and base AdvCiv 1.14;
+  - `MEMORY_DECLARED_WAR_RECENT` to `MEMORY_INDEPENDENCE`: AdvCiv commit `20a48bbe1` (pre-SAS practical 1363, 2018-09-30, toward AdvCiv 0.94) added the enumerator for advc.104i and its binding together, copying the line above;
+  - `NO_GLOBE_LAYER` to `NUM_GLOBE_LAYER_TYPES`: AdvCiv commit `1e107b2c0` (pre-SAS practical 1465, 2019-04-14) exposed the globe layers for advc.004m and placed its own `NO_GLOBE_LAYER` after `NUM_GLOBE_LAYER_TYPES` in the enum. No DLL code compared against `NO_GLOBE_LAYER` then, so whether the binding was meant is not known.
+- Only the globe layer had an effect: `CvMainInterface.py` reports `GlobeLayerTypes.NO_GLOBE_LAYER` to `CvGame::reportCurrentLayer` when no layer is shown, so the DLL kept `NUM_GLOBE_LAYER_TYPES` as its current layer, which SASGameRecord's layer names, added later by SAS, do not know as "NONE". No Python in the mod uses the other two names.
+- Fixed by binding each name to its own enumerator. As with KI#1090, the fix reaches the game with the next Release DLL.
+- Guarded by [`python_binding_targets.py`](/.github/workflows/README.md#buildsourcepython_binding_targetspy), which also covers method bindings: run against the older files, it finds these three, KI#1090's `TASK_CONSCRIPT` and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) had fixed by hand, one of them a `CvEventInfo` binding pointing at `CvEventTriggerInfo`.
+
+Found by Claude code Opus 5.5 on 2026-11-16, after wonderingabout asked, while KI#1090 was being brought over, whether a check could find more slips like it, and recalled KI#122's event trigger bindings.

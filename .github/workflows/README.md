@@ -75,6 +75,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/dll_python_bindings.py`](#buildrepositorydll_python_bindingspy)
     - [`build/repository/dll_runtime_revision.py`](#buildrepositorydll_runtime_revisionpy)
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
+    - [`build/repository/future_dates.py`](#buildrepositoryfuture_datespy)
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
@@ -94,6 +95,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
@@ -938,6 +940,25 @@ Keeps compact documentation examples in archives while requiring manual review w
 python .github/workflows/build/repository/examples_archive_size.py
 ```
 
+#### `build/repository/future_dates.py`
+
+Rejects a date that a commit adds when it is later than the commit's own date, taken in the committer's time zone.
+
+- On the evening of 2026-11-16, Claude Code took 2026-11-17 from its session's date instead of the local clock. Two commits added it to an AGENTS.md example, a KI entry, three check comments and two notes in this README before the user noticed.
+- Only added lines count, so old text is never judged again. Generated history under `LLM_Helpers/context/` is skipped, since it quotes other commits' dates.
+- The committer date decides, so an amend after midnight may add the new day's date.
+- Commit selection is shared with `dll_commit_message.py`: the pushed or PR commits in CI, `HEAD` locally.
+
+For example, a replay of those two commits reported:
+
+```log
+FAIL commit d387f6b148dd adds 2026-11-17 to AGENTS.md, after its own commit date 2026-11-16; take dates from the local clock or the commit date, not a session's date: - Example: two titles a few days apart. "Record peer Civ4 clients in SASGameRecord…" (SGR200, KI#38, 2026-11-11) was a real record, as SGR began logging those clients. "Record
+```
+
+```bash
+python .github/workflows/build/repository/future_dates.py
+```
+
 #### `build/repository/ki_commit_titles.py`
 
 Requires a commit that adds Known Issues to name them, so the commit that opened an issue can be found from its number. Most titles already did, such as `(SGR194, KI#203.2)`, but commits adding two or three KIs mostly named them only in the body, if at all.
@@ -992,7 +1013,7 @@ Whether a script itself collects all its findings is left to review: an audit of
 
 Fails when a check script under `.github/workflows/build/` is not named by any workflow, so a new check cannot sit in the folder, pass locally and never run on GitHub. Shared helpers in `lib/` and modules whose names start with `_` are imported rather than run, so they are left out.
 
-- Added on 2026-11-17, when `string_label_compares.py` had been written and run by hand but no workflow ran it; nothing failed, as `workflow_keep_going.py` only checks the steps that exist.
+- Added on 2026-11-16, when `string_label_compares.py` had been written and run by hand but no workflow ran it; nothing failed, as `workflow_keep_going.py` only checks the steps that exist.
 - Its documentation counterpart is in [`folder_indexes.py`](#builddocumentationfolder_indexespy), which now also fails when a check script has no section in this README.
 
 ### Runtime
@@ -1082,6 +1103,15 @@ Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python t
 
 - Added on 2026-11-12, when two late imports after a `sys.path` entry each needed a `noqa`, one with no reason. Both were fixed at the cause by loading the module with `importlib`, and the check's first run found one more, a `type: ignore` around `re.match`, fixed by slicing.
 - Comments are read with Python's tokenizer, so suppression text inside strings, such as test fixtures, is not counted; verbatim third-party copies under `LLM_Helpers/context/` and `_0_Legacy/` are skipped.
+
+#### `build/source/python_binding_targets.py`
+
+Fails when a Python binding in the DLL's `Cy*Interface*.cpp` files points at a neighbour's target rather than its own, as a copied line left unchanged does. Comments are ignored, in the bindings and in the headers. Three rules:
+
+- An enum binding `.value("NAME", VALUE)` fails when `NAME` is itself an enumerator of the headers but `VALUE` is another, as `.value("TASK_CONSCRIPT", TASK_HURRY)` was ([KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)). A rename whose Python name has no enumerator of its own, such as `PLOT_STYLE_NONE` for `NO_PLOT_STYLE`, passes.
+- A method binding `.def("name", &Class::target)` fails when `Class` declares its own `name()` and `target` is neither `name` nor its `py_`/`py` wrapper. Methods AdvCiv retired by commenting out their declaration, such as `getStealTreasuryTypes`, pass.
+- Inside `python::class_<Owner>`, a `.def` fails when it points at a class that is neither `Owner` nor one of its bases.
+- Added on 2026-11-16 for [KI#1090.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2). Run against the older files, it finds all seven slips known so far: [KI#1090](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)'s and KI#1090.2's four enum names, and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) fixed by hand.
 
 #### `build/source/python_resource_api.py`
 
@@ -1214,7 +1244,7 @@ Fails when runtime Python (`Assets/Python`, `PrivateMaps`) compares a value with
 A note above an `if` also covers the `elif` branches of its chain.
 
 - A label of our own compared as a string fails without any error when it is misspelt, so it is better as a boolean, a widget, a named constant or a lookup that raises on an unknown value. A string read from outside, such as BUG's option types or a WorldBuilder file's `"false"`, is fine with its reason.
-- Added on 2026-11-17: the first draft of [KI#300.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2) told its Timeline events apart with `"city"` and `"player"`.
+- Added on 2026-11-16: the first draft of [KI#300.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-300.2) told its Timeline events apart with `"city"` and `"player"`.
   - The same review found the Sevopedia charts showing no icon for a misspelt token, the movie player playing any unknown kind as a BIK and the Customizable Domestic Advisor silently stopping a row on an unknown column type; each now fails loudly or compares no string.
 - Three inherited files SAS does not extend are skipped whole: BUG's `BugOptions.py` and `UnitNameEventManager.py`, and the Planet Generator map script.
 

@@ -2,7 +2,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: KI#300.2's first draft told its two kinds of Timeline events apart with "city" and "player" strings; a misspelt one would have compared false without any error, and the same review found three Sevopedia screens doing the same (2026-11-17).
+# <!-- custom: KI#300.2's first draft told its two kinds of Timeline events apart with "city" and "player" strings; a misspelt one would have compared false without any error, and the same review found three Sevopedia screens doing the same (2026-11-16).
 # So a comparison of runtime Python with a short lowercase string literal must carry a "sas-ci-string-compare-exemption: <reason>" note on its line or the line above, inside a credited custom comment like any other: a label of our own is better as a boolean, a widget or a value that fails when misspelt, while a string read from outside (a BUG option type, XML "true") is fine with its reason.
 # Inherited files that compare values read from their own option files are skipped whole. (Claude code Opus 5.5) -->
 import argparse
