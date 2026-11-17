@@ -1269,7 +1269,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)\
 [KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
-[KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)
+[KI#1092 - (Fixed in SAS) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
+[KI#1093 - (Fixed in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)
 
 <a id="ki-1"></a>
 
@@ -37985,3 +37986,16 @@ Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091'
 - Fixed in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py): the targets come from `upgradeAvailable`, still cached per unit type, as the answer depends only on the type and the owner's civilization.
 
 Found by Claude Code Opus 5.5 during a visual pass over the advisors that the user suggested, to see what SASPilot was missing.
+
+<a id="ki-1093"></a>
+
+## KI#1093 - (Fixed in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
+
+- Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
+- Found through the SASPilot work, on its own branch, at turn 291 of its modern-era baseline (2026-11-14): two `SASPilotClient.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
+- Fixed there with `time.clock()`, which counts from the process start, small enough to stay precise.
+- For any Python inside Civ4:
+  - No in-game Python on main calls `time.time()` (2026-11-17); measure intervals with `time.clock()`.
+  - Other floats lose precision the same way, so SASPilot keeps integers where exactness matters, such as a rival's power ratio in per mille (1489 for 1.489, which came back as 1.4889999628067017 as a float).
+
+Found by Claude Code Opus 5.5 while asking Kublai Khan for peace through SASPilot.
