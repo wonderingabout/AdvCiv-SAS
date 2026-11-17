@@ -158,43 +158,43 @@ class SevoPediaGameSpeedChart:
 		#
 		# icon_spec:
 		#   None
-		# <!-- custom: ("btn", <name>) -> cached SASVisuals InterfaceArt path; the symbolic name remains local chart metadata only. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol) -->
-		#   ("glyph", <name>)   -> GameFont glyph (yield/commerce/symbol char)
+		# <!-- custom: "btn:<name>" -> cached SASVisuals InterfaceArt path; the symbolic name remains local chart metadata only; was ("btn", <name>), now the other charts' token form, read by chart_icon_cell. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + Claude code Opus 5.5) -->
+		#   "glyph:<name>"   -> GameFont glyph (yield/commerce/symbol char)
 		row_specs = (
-			("iGrowthPercent",              "getGrowthPercent",              ("glyph", "food")),
-			("iTrainPercent",               "getTrainPercent",               ("btn",   "swords")),
-			("iConstructPercent",           "getConstructPercent",           ("glyph", "prod")),
-			("iCreatePercent",              "getCreatePercent",              ("glyph", "prod")),
-			("iResearchPercent",            "getResearchPercent",            ("glyph", "research")),
-			("iBuildPercent",               "getBuildPercent",               ("glyph", "citizen")),
-			("iImprovementPercent",         "getImprovementPercent",         ("glyph", "citizen")),
-			("iGreatPeoplePercent",         "getGreatPeoplePercent",         ("glyph", "great_people")),
-			("iCulturePercent",             "getCulturePercent",             ("glyph", "culture")),
-			("iAnarchyPercent",             "getAnarchyPercent",             ("btn",   "fire")),
-			("iBarbPercent",                "getBarbPercent",                ("btn",   "skull")),
-			("iFeatureProductionPercent",   "getFeatureProductionPercent",   ("glyph", "citizen")),
-			("iUnitDiscoverPercent",        "getUnitDiscoverPercent",        ("glyph", "research")),
-			("iUnitHurryPercent",           "getUnitHurryPercent",           ("glyph", "prod")),
-			("iUnitTradePercent",           "getUnitTradePercent",           ("btn",   "swords")),
-			("iUnitGreatWorkPercent",       "getUnitGreatWorkPercent",       ("glyph", "culture")),
-			("iGoldenAgePercent",           "getGoldenAgePercent",           ("glyph", "golden_age")),
-			("iHurryPercent",               "getHurryPercent",               ("glyph", "prod")),
-			("iHurryConscriptAngerPercent", "getHurryConscriptAngerPercent", ("glyph", "happy")),
-			("iInflationPercent",           "getInflationPercent",           ("glyph", "gold")),
-			("iInflationOffset",            "getInflationOffset",            ("glyph", "gold")),
-			("iUnitCostPercent",            "getUnitCostPercent",            ("btn",   "swords")),
-			("iExtraFreeOutsideUnits",      "getExtraFreeOutsideUnits",      ("btn",   "swords")),
-			("iVictoryDelayPercent",        "getVictoryDelayPercent",        ("btn",   "trophy")),
-			("iAIMemoryRandPercent",        "getAIMemoryRandPercent",        ("btn",   "brain")),
-			("iAIContactRandPercent",       "getAIContactRandPercent",       ("btn",   "dove")),
-			("iAIContactDelayPercent",      "getAIContactDelayPercent",      ("btn",   "hourglass")),
-			("iFullTradeCreditPercent",     "getFullTradeCreditPercent",     ("glyph", "gold")),
-			("iRevoltDivPercent",           "getRevoltDivPercent",           ("btn",   "fire")),
-			("iReligionSpreadDivPercent",   "getReligionSpreadDivPercent",   ("btn",   "dove")),
-			("iEventRollSidesPercent",      "getEventRollSidesPercent",      ("btn",   "gear")),
-			("iVoteIntervalPercent",        "getVoteIntervalPercent",        ("btn",   "dove")),
-			("NumTurnIncrements",           None,                            ("btn",   "hourglass")),
-			("TotalTurns",                  None,                            ("btn",   "hourglass")),
+			("iGrowthPercent",              "getGrowthPercent",              "glyph:food"),
+			("iTrainPercent",               "getTrainPercent",               "btn:swords"),
+			("iConstructPercent",           "getConstructPercent",           "glyph:prod"),
+			("iCreatePercent",              "getCreatePercent",              "glyph:prod"),
+			("iResearchPercent",            "getResearchPercent",            "glyph:research"),
+			("iBuildPercent",               "getBuildPercent",               "glyph:citizen"),
+			("iImprovementPercent",         "getImprovementPercent",         "glyph:citizen"),
+			("iGreatPeoplePercent",         "getGreatPeoplePercent",         "glyph:great_people"),
+			("iCulturePercent",             "getCulturePercent",             "glyph:culture"),
+			("iAnarchyPercent",             "getAnarchyPercent",             "btn:fire"),
+			("iBarbPercent",                "getBarbPercent",                "btn:skull"),
+			("iFeatureProductionPercent",   "getFeatureProductionPercent",   "glyph:citizen"),
+			("iUnitDiscoverPercent",        "getUnitDiscoverPercent",        "glyph:research"),
+			("iUnitHurryPercent",           "getUnitHurryPercent",           "glyph:prod"),
+			("iUnitTradePercent",           "getUnitTradePercent",           "btn:swords"),
+			("iUnitGreatWorkPercent",       "getUnitGreatWorkPercent",       "glyph:culture"),
+			("iGoldenAgePercent",           "getGoldenAgePercent",           "glyph:golden_age"),
+			("iHurryPercent",               "getHurryPercent",               "glyph:prod"),
+			("iHurryConscriptAngerPercent", "getHurryConscriptAngerPercent", "glyph:happy"),
+			("iInflationPercent",           "getInflationPercent",           "glyph:gold"),
+			("iInflationOffset",            "getInflationOffset",            "glyph:gold"),
+			("iUnitCostPercent",            "getUnitCostPercent",            "btn:swords"),
+			("iExtraFreeOutsideUnits",      "getExtraFreeOutsideUnits",      "btn:swords"),
+			("iVictoryDelayPercent",        "getVictoryDelayPercent",        "btn:trophy"),
+			("iAIMemoryRandPercent",        "getAIMemoryRandPercent",        "btn:brain"),
+			("iAIContactRandPercent",       "getAIContactRandPercent",       "btn:dove"),
+			("iAIContactDelayPercent",      "getAIContactDelayPercent",      "btn:hourglass"),
+			("iFullTradeCreditPercent",     "getFullTradeCreditPercent",     "glyph:gold"),
+			("iRevoltDivPercent",           "getRevoltDivPercent",           "btn:fire"),
+			("iReligionSpreadDivPercent",   "getReligionSpreadDivPercent",   "btn:dove"),
+			("iEventRollSidesPercent",      "getEventRollSidesPercent",      "btn:gear"),
+			("iVoteIntervalPercent",        "getVoteIntervalPercent",        "btn:dove"),
+			("NumTurnIncrements",           None,                            "btn:hourglass"),
+			("TotalTurns",                  None,                            "btn:hourglass"),
 		)
 
 		# Derived rows have no getter (getter_name is None): values are computed from per-increment data, not read from a single XML field. Mark them with '*' in the display label.
@@ -257,24 +257,13 @@ class SevoPediaGameSpeedChart:
 
 			# Calendar rows are derived fields and not part of row_specs: treat them consistently.
 			if key.startswith("Calendar_"):
-				icon_spec = ("btn", "hourglass")
+				icon_spec = "btn:hourglass"
 			if key.startswith("Summary_"):
-				icon_spec = ("glyph", "defense")
+				icon_spec = "glyph:defense"
 			if key.startswith("IncrementsYears_") or key.startswith("IncrementsMonths_"):
-				icon_spec = ("btn", "hourglass")
+				icon_spec = "btn:hourglass"
 
-			if not icon_spec:
-				# No icon: still return a stable, invisible tie-breaker so sorting can't shuffle.
-				return (chart_sort_key(0, iRowIndex), "")
-
-			(kind, name) = icon_spec
-			if kind == "btn":
-				(path, iGroup) = btn_by_name.get(name, ("", 0))
-				return (chart_sort_key(iGroup, iRowIndex), path)
-
-			# kind == "glyph"
-			(glyph, iGroup) = glyph_by_name.get(name, ("", 0))
-			return (chart_font2(glyph) + chart_sort_key(iGroup, iRowIndex), "")
+			return chart_icon_cell(icon_spec, iRowIndex, btn_by_name, glyph_by_name)
 
 		# Extract data from DLL infos
 		# Collect available game speed types in their DLL order.

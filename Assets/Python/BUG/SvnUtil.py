@@ -5,6 +5,9 @@
 ## Copyright (c) 2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
+#
 
 import BugUtil
 import os.path
@@ -90,6 +93,7 @@ def getLocalRevision(path):
 			if name != "":
 				BugUtil.warn("SvnUtil.getLocalRevision - first SVN entry has name '%s'", name)
 			kind = input.readline().strip()
+			# <!-- custom: sas-ci-string-compare-exemption: the kind is read from SVN's entries file. (Claude code Opus 5.5) -->
 			if kind != "dir":
 				BugUtil.warn("SvnUtil.getLocalRevision - first SVN is not a dir, kind '%s'", kind)
 

@@ -484,7 +484,7 @@ int g_iSetupScreenGlobeHeight = 0;
 
 // <!-- custom: Picks this process's largest visible top-level window: the game window, not the startup splash or a message box. (Claude code Opus 5.5) -->
 // <!-- custom: The game window, of class GFC_StdWindowClass, counts while still hidden too.
-// Launched with /FXSLOAD on a WorldBuilder file, as the save transplanter does, Civ4 builds the scenario's Civilization step before showing its window: a temporary probe on 2026-11-16 found that window hidden but already 1920 x 1080, so no window qualified and the step kept BtS's 850 x 569, while Your Details, built once the window showed, grew.
+// Launched with /FXSLOAD on a WorldBuilder file, as the SASSaveTransplanter does, Civ4 builds the scenario's Civilization step before showing its window: a temporary probe on 2026-11-16 found that window hidden but already 1920 x 1080, so no window qualified and the step kept BtS's 850 x 569, while Your Details, built once the window showed, grew.
 // A side effect of measuring the window, which made the box tunable and resolution-independent (KI#1082), unlike RI's fixed sizes.
 // Matching the class rather than an EXE address keeps this working on any EXE build. See KI#1082.2. (Claude code Opus 5.5) -->
 bool sasIsGameWindow(HWND hWnd)

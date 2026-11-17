@@ -2138,7 +2138,9 @@ class CvCustomizableDomesticAdvisor:
 					columnDef = self.COLUMNS_LIST[self.COLUMNS_INDEX[key]]
 					type = columnDef[2]
 					iColW = int(round(self.columnWidth[key] * fHScaleFactor)) # advc.193
+					# <!-- custom: sas-ci-string-compare-exemption: inherited BUG column types, labels of COLUMNS_LIST's own; the dispatch below raises on any other. (Claude code Opus 5.5) -->
 					if (type == "bldg" or type == "bldgclass"):
+						# <!-- custom: sas-ci-string-compare-exemption: as above. (Claude code Opus 5.5) -->
 						if (type == "bldg"):
 							building = columnDef[7]
 							buildingInfo = self.BUILDING_INFO_LIST[building]
@@ -2160,6 +2162,7 @@ class CvCustomizableDomesticAdvisor:
 					iBuildingButtonX += iColW
 
 					# And the correct writing function.
+					# <!-- custom: sas-ci-string-compare-exemption: the same column types; this note covers the elif chain below. (Claude code Opus 5.5) -->
 					if (type == "text"):
 						funcTableWrite = screen.setTableText
 						justify = CvUtil.FONT_LEFT_JUSTIFY
@@ -2175,8 +2178,9 @@ class CvCustomizableDomesticAdvisor:
 					elif (type == "bldg" or type == "bldgclass"):
 						funcTableWrite = screen.setTableText
 						justify = CvUtil.FONT_CENTER_JUSTIFY
+					# <!-- custom: Was a bare return, so a column of any other type, such as a misspelt one in COLUMNS_LIST, silently stopped drawing the rest of that city's row; all 195 columns use these five types. (Claude code Opus 5.5) -->
 					else:
-						return
+						raise ValueError("unknown column type %s for column %s" % (type, key))
 
 					colorFunc = self.ColorCityValues
 					# <advc.186b> Attach examine text to the city name column (if present) - rather than to the zoom button.

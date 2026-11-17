@@ -198,6 +198,7 @@ Each client's files carry its process ID, so they cannot collide:
 | SASGameRecord and BBAI | `SASGameRecord_<UTC>_<pid>_load1.log`, `BBAI_<UTC>_<pid>_new1.log` |
 | Assertions | `SASAssertions_<UTC with milliseconds>_<pid>_new1.log` |
 
+- One file is the exception: the EXE writes every client's crash dump to the same `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`, and the mod cannot rename it. Keep a dump with [`desktop_windows.py dump --pid`](/LLM_Helpers/README.md#desktop_windowspy), which checks the process ID recorded inside it; see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
 - In one test both clients started in the same millisecond and their SGR logs in the same second; before the process ID was added, both would have written to the same SGR file.
 - The SGR and BBAI session headers also name `processId` and `processStartUtc`.
 - Two clients on the same save matched at every RNG and state checkpoint over 100 turns, so parallel runs are as repeatable as single ones.

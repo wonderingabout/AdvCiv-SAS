@@ -35,7 +35,7 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 &emsp;&emsp;[simple version(s)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#simple-versions)\
 &emsp;&emsp;[More advanced version to also set the date of the tag to last commit and not time of tagging, plus using shell variables so less tedious](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#more-advanced-version-to-also-set-the-date-of-the-tag-to-last-commit-and-not-time-of-tagging-plus-using-shell-variables-so-less-tedious)\
 &emsp;&emsp;&emsp;[example with more advanced version (totally not shameless (or yes xd)) (but it might also help as well)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well)\
-&emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#git-log-with-anonymized-email-in-a-txt)\
+&emsp;[dev log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#dev-log-with-anonymized-email-in-a-txt)\
 &emsp;[published web release changelogs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#published-web-release-changelogs-in-txt)\
 &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#manuals-and-docs-in-txt)\
 &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#advciv-id-changes-manualtxt-results)\
@@ -96,7 +96,7 @@ AdvCiv-SAS keeps a resumable source-archeology investigation for bugs, regressio
 
 The core method is not simply to search the current source or trust commit messages. The investigation systematically reviews historical K-Mod and AdvCiv commit diffs and then AdvCiv-SAS runtime-source history, comparing the actual before/after code and tracing suspicious changes across lineage boundaries when needed.
 
-The local light-source tooling makes this practical by keeping greppable commit-diff mirrors, Git logs, map/source references, and exact practical/SHA anchors together; large EOL/whitespace-only churn can be normalized so the substantive code change is still reviewed. Commit messages are useful clues, but the diff and resulting source behavior are the main evidence.
+The local light-source tooling makes this practical by keeping greppable commit-diff mirrors, dev logs, map/source references, and exact practical/SHA anchors together; large EOL/whitespace-only churn can be normalized so the substantive code change is still reviewed. Commit messages are useful clues, but the diff and resulting source behavior are the main evidence.
 
 The primary investigation phase was carried out with ChatGPT-5.6-Sol and is now complete for its defined runtime-source scope. At the current completed checkpoint, the tracker records **131 confirmed findings: 43 inherited/pre-SAS and 88 SAS-specific**.
 
@@ -273,29 +273,31 @@ git tag -fa "$TAG" "$NEWSHA" \
 git push --force origin "refs/tags/$TAG:refs/tags/$TAG"
 ```
 
-### git log with anonymized email in a .txt
+### dev log with anonymized email in a .txt
 
-It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
+It can be useful to keep a dev log, a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
 
-To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user).
+To create a dev log from past commits with git log on a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user).
 
 Note: although redundant, we as of now keep in code comment the version where it ended, so it is easier to remember where we stopped last and to append only what is new and not everything from scratch again each time (which would lose our manual edits to remove churn/typoes etc).
 
 ```shell
 # 1. Set your commit hashes here
-NEWSHA=9887bed3ce4addb2a03d5c21deba3f63a2b32852 # new (included), e.g. AdvCiv-SAS 6200
-OLDSHA=feddabdf89f022dcf6412aab0cab414a54b4610c # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g. AdvCiv-SAS 6020
+NEWSHA=db199dba0aa4c40500086101132561f9024e6b38 # new (included), e.g. AdvCiv-SAS 6763 (2026-11-17)
+OLDSHA=492ad93e03c105fa7fe42b393e8a65f6d66e07be # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g. AdvCiv-SAS 6402
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
-git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$OLDSHA".."$NEWSHA" > git_log_anonymized_email.txt
+git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$OLDSHA".."$NEWSHA" > dev_log_anonymized_email.txt
 ```
 
-Note 2: since as of now git log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for git log incremental last addition), the command may use different old and new tags than the git tag release one.
+Note 2: since as of now dev log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for the dev log's incremental last addition), the command may use different old and new tags than the git tag release one.
 
-Note 3: it seems that due to this, some commits are not ordered chronologically, for example `24dbe0256ce974067b99f4d545fa8ca23596c344` (2026-04-25 00:18:51 +0200) is part of the AdvCiv-SAS 6020 release batch's changelog, so it is more recent in our git log than the newer `82f042a44f4cd4bbc2b687444356d220b83131c1` 2026-06-04 19:20:56 +0200, but as of now keep it as such for no tedium and clearer/more reliable version boundaries.
+Note 3: it seems that due to this, some commits are not ordered chronologically, for example `24dbe0256ce974067b99f4d545fa8ca23596c344` (2026-04-25 00:18:51 +0200) is part of the AdvCiv-SAS 6020 release batch's changelog, so it is more recent in our dev log than the newer `82f042a44f4cd4bbc2b687444356d220b83131c1` 2026-06-04 19:20:56 +0200, but as of now keep it as such for no tedium and clearer/more reliable version boundaries.
 
-For example, i put thes git log files in the [/_0_Legacy/Docs/git_logs/](/_0_Legacy/Docs/git_logs/) and [/_1_AdvCiv-SAS/Docs/git_logs/](/_1_AdvCiv-SAS/Docs/git_logs/) folders.
+Prepend only the new entries: the older ones hold hand edits that a full regeneration would erase, and [`dev_logs.py`](/.github/workflows/README.md#buildrepositorydev_logspy) fails a commit that changes them unless its message says `Edit dev log`.
+
+For example, i put thes dev log files in the [/_0_Legacy/Docs/dev_logs/](/_0_Legacy/Docs/dev_logs/) and [/_1_AdvCiv-SAS/Docs/dev_logs/](/_1_AdvCiv-SAS/Docs/dev_logs/) folders.
 
 ### published web release changelogs in .txt
 
@@ -529,6 +531,7 @@ Installed, as checked on 2026-11-08:
 | Python 2.4.4 (`C:\Python24\python.exe`) | Compile checks with Civ4's Python version; see [Python 2.4 compatibility](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) |
 | Pillow 13.0 (`py -m pip install pillow`, for both `py` and `python`) | Opening `.tga` and `.dds` files, so an agent can look at buttons and fonts as images; installed on 2026-11-08; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) |
 | PyFFI 2.2.3, setuptools and numpy (`py -m pip install pyffi setuptools numpy`) | Reading and drawing `.nif` models for [`nif_preview.py`](/LLM_Helpers/README.md#nif_previewpy); PyFFI and setuptools installed on 2026-11-08, numpy already present |
+| pyte 0.8.2 (`python -m pip install pyte`) | A terminal emulator in pure Python: [`git_bash_history.py --output`](/LLM_Helpers/README.md#git_bash_historypy) replays the user's Git Bash window logs through it to get the text the window showed; installed on 2026-11-17. Useful for any recorded terminal output, not for Civ4 itself |
 | Node.js (`npx`) | `npx markdownlint-cli2@0.23.2`, the same Markdown lint CI runs |
 | Ruff (`py -m ruff`) | Python lint reports; see [Ruff](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report) |
 | Git, ripgrep (`rg`) | History and search |
@@ -614,7 +617,7 @@ py -m ruff check PrivateMaps/ --output-format=grouped > ruff_privatemaps_all_gro
 
 Example of how i used it:
 
-```powershell
+```console
 Windows PowerShell
 Copyright (C) Microsoft Corporation. Tous droits réservés.
 
@@ -670,7 +673,7 @@ For example, to solve E101, an easy and clean way we used is to collapse those l
 
 Example:
 
-```powershell
+```console
 Windows PowerShell
 Copyright (C) Microsoft Corporation. Tous droits réservés.
 
@@ -723,6 +726,8 @@ The exception/error info as well as possibly some other things i don't know abou
 I don't know too much about these but i thought i'd compile (no pun) this info quick if helps.
 
 To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
+
+See also, since 2026-11-13: always choose Full Dump at the prompt, as a normal dump lacks the heap, with the steps in the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md); with several Civ4 clients, every one writes the same dump file, see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
 
 ## Another example of how to use VS Code global search (also shows how to browse the Civ4 BUG docs copy included in the mod)
 

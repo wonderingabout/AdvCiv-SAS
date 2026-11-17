@@ -2623,7 +2623,7 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
 }
 
 // <!-- custom: Whether a deal between two teams at war is a non-surrender peace treaty that the victory-denial rule keeps from taking effect: CvDeal::addTradeItems returns before making such a peace.
-// The AI's counter-proposal to a human's "Suggest peace" did not ask, so it offered the treaty, the screen answered "We're glad you accepted our offer.", and the war went on (Kublai Khan, turns 291-292 of a pilot game, 2026-11-14).
+// The AI's counter-proposal to a human's "Suggest peace" did not ask, so it offered the treaty, the screen answered "We're glad you accepted our offer.", and the war went on (Kublai Khan, turns 291-292 of a SASPilot game, 2026-11-14).
 // Shared by AI_counterPropose and AI_considerOffer, so the AI refuses such peace on the screen instead, as CvDeal would; surrender keeps its exception. See KI#1094. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 bool isSASVictoryDenialPeaceBundleBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList)
 {

@@ -13,6 +13,10 @@ Expect to update it: these apps change their interfaces often, and every finding
 [Codex (the ChatGPT desktop app)](#codex-the-chatgpt-desktop-app)\
 &emsp;[Updating, quitting and starting Codex](#updating-quitting-and-starting-codex)\
 [VS Code](#vs-code)\
+[The user's Chrome](#the-users-chrome)\
+[The user's Git Bash](#the-users-git-bash)\
+&emsp;[Timestamps and window size](#timestamps-and-window-size)\
+&emsp;[Git in VS Code and other tools](#git-in-vs-code-and-other-tools)\
 [Claude Code (the Claude desktop app)](#claude-code-the-claude-desktop-app)\
 &emsp;[Claude menus, panels and startup](#claude-menus-panels-and-startup)\
 &emsp;[Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings)\
@@ -177,6 +181,127 @@ The user reviews diffs and searches the code in VS Code, so its window shows wha
 - The panel lists results as of its last run: it did not yet show the moved getter's new line in `CvGameCoreUtils.cpp`, so rerun a search rather than trusting an old panel.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_plain_search_no_fallbacks.PNG" alt="llm_vscode_plain_search_no_fallbacks.PNG" width="250">
+
+## The user's Chrome
+
+When the user asks an agent to look at a page open in their own Chrome, `desktop_windows.py screenshot` reads that window the same way, with no browser extension. Chrome runs many processes; `Get-Process chrome | Where-Object MainWindowHandle -ne 0 | Select-Object Id, MainWindowTitle, Path` gives those that own a window.
+
+- The user also has Chrome Canary, whose process is named `chrome` too, so this lists one window per browser. Pick by `Path` (`Google\Chrome\Application` for Chrome, `Google\Chrome SxS\Application` for Canary) or by the title, which ends with the open tab's name. On 2026-11-17 an agent took the first window it found, Canary's, which was minimized, so its screenshot held only a title bar.
+
+- `screenshot --pid <PID> --page --scale 0.5` keeps only the web page. It asks Chrome where its page area starts, so the tab strip, address bar and bookmarks bar are cut off whatever the window size, display scale or bars shown, where a fixed crop would need remeasuring.
+  - Why crop them: the other tabs' titles, the address and the bookmarks show what else the user browses, which the task does not need and the user may not want in a chat, a log or a screenshot shared later; they also cost tokens for nothing.
+  - `--scale 0.5` is optional: a 4K window at a high display scale draws page text about twice as large as reading needs, so half the size kept the commits page readable at a quarter of the pixels, and so of the tokens. Keep `1.0` for small text or fine detail, such as a tooltip or a dense table.
+- Example (2026-11-17): after a force-push, the user asked an agent to check whether GitHub's commits page still showed CI's red cross. The Claude in Chrome extension was not connected, but a screenshot of the user's open tab showed the checks at once.
+- This only looks: the reasons under [Browsers for agents](#browsers-for-agents) still keep agents from clicking or typing in the user's browser, unless the user asks for a specific action.
+  - Example (2026-11-17): the user opened a ChatGPT chat and let the agent click its "Worked for" line to expand it and scroll through the chat, which it did with `desktop_windows.py click` and `scroll`.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_chrome_page_github_commits.PNG" alt="llm_chrome_page_github_commits.PNG" width="250">
+
+## The user's Git Bash
+
+The user often runs Git commands, such as pushes, in Git Bash: Git for Windows' bash shell in its MINGW64 environment, shown in a `mintty` terminal window whose title starts with `MINGW64:` and the current folder.
+
+The window belongs to the `mintty` process: `Get-Process mintty | Where-Object MainWindowHandle -ne 0` finds it, and `desktop_windows.py screenshot --pid <PID>` reads what the user ran and Git's answers.
+
+- This is handy because the user's own commands appear nowhere else an agent can look: Claude Code and Codex see only the commands they run themselves, while the user's amends, pushes and force-pushes often happen in this window. Others come from VS Code; see [Git in VS Code and other tools](#git-in-vs-code-and-other-tools).
+- A minimized window gives only its title bar, at about (-32000, -32000), where Windows parks minimized windows; ask the user to restore it.
+- Example (2026-11-17): after rewording a pushed commit's message, Claude Code Opus 5.5 told the user that a force push was needed, assuming GitHub still had the old commits.
+  - The user had already force-pushed from this window, which the agent could not see, and asked why it was needed. Only then did the agent check GitHub with `git ls-remote origin refs/heads/main`, which showed the reworded commits already there.
+  - The window also cleared an earlier puzzle: it showed `+ 44c774063...58e821b28 main -> main (forced update)`, so a commit had come back under another SHA because the user had amended it, adding a later guide edit, and force-pushed.
+  - The gap was the agent's: it stated GitHub's state from memory instead of asking GitHub, and it did not think of reading the user's window until the user suggested it. Check the remote before telling the user to push, and read this window when the user's own Git steps matter.
+
+### Timestamps and window size
+
+Set up on 2026-11-17 in the user's home folder, after reading the window showed two gaps: its pushes carried no time, so the agent could not tell which of several it was, and the window always reopened small.
+
+- **Timestamps:** `~/.bashrc`, which did not exist before, holds one line:
+
+  ```bash
+  PS1='\[\033[90m\]\D{%Y-%m-%d %H:%M:%S}\[\033[0m\] '"$PS1"
+  ```
+
+  - It puts the date and time in grey before Git Bash's own prompt, which starts with a line break, so the time sits on its own line above `PC@…`. The time is when the prompt appeared, so it marks when the previous command, such as a push, finished.
+  - On the next start, Git for Windows warned once, in red, that it found `~/.bashrc` but no `~/.bash_profile`, and created a `~/.bash_profile` that loads it. That message does not come back.
+- **Window size:** before, each window opened at mintty's stock 80 × 24 characters, about 930 × 540 pixels on this screen. `~/.minttyrc`, also new, sets `Columns=160` and `Rows=48`, about 1,810 × 1,020 pixels.
+  - The title bar's **Options… → Window → Current size** saves a resized window as the default, into the same file.
+- **Command record:** the same `~/.bashrc` sends bash's history to `Downloads/AdvCiv-SAS_LLM/git_bash_history/bash_history.txt`, outside the repo, so agents can read the user's commands as text, including ones that have scrolled off or ran in a window since closed.
+  - Bash used to save only the last 500 commands, in `~/.bash_history`, and only when a window closed. Now each command is written as it runs (`PROMPT_COMMAND="history -a…"`), with a `#` line holding its Unix time before it (`HISTTIMEFORMAT`), and up to 100,000 are kept; the old 500 seeded the file.
+  - It records commands, not their output; the window itself still shows Git's answers.
+  - [`git_bash_history.py`](/LLM_Helpers/README.md#git_bash_historypy) reads it with local times, filtered with `--since today`, `boot`, `2h`, `30m` or a time, so agents need not parse the `#1794919573` lines themselves.
+- **Window logs:** the record alone left out what the user's window showed best: Git's answers, such as the line-ending warnings of KI#1097, `Everything up-to-date` or a push's `(forced update)` line with its two SHAs, which say what really reached GitHub.
+  - So the same day `~/.minttyrc` gained two lines, and each Git Bash window now writes everything it shows to its own `window_<time it opened>.log` in the same folder:
+
+  ```ini
+  Log=/c/Users/PC/Downloads/AdvCiv-SAS_LLM/git_bash_history/window_%Y%m%d_%H%M%S.log
+  Logging=yes
+  ```
+
+  - `Log=` alone wrote nothing: mintty logs from the start only with `Logging=yes`.
+  - mintty drops whatever follows a window-title code in the same chunk of output, a bug of its logging. Git Bash's prompt starts with that code, so the first logs lost the `PC@… MINGW64 <folder>` line of every prompt; a test printing a title then text lost the text, while the window showed it.
+    - So `~/.bashrc` also moves the title code from the start of the prompt to its end, where nothing follows it. The window's title still shows the folder.
+  - A log is the raw stream sent to the window, with its color codes and cursor moves, so read it with `git_bash_history.py --output`, which replays it as the window showed it; see its entry for how.
+  - Only windows opened after this setup write a log, and a window closed by its X button rather than `exit` can lose its last few lines, which mintty had not written yet.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_gitbash_timestamped_prompt_160x48.PNG" alt="llm_gitbash_timestamped_prompt_160x48.PNG" width="250">
+
+- Sample of the window's text, copied by the user on 2026-11-17 (folder path shortened to `…/AdvCiv-SAS`). Unlike the record, it holds Git's output too, such as the line-ending warnings of KI#1097 and the forced update a push made:
+
+```console
+2026-11-17 13:48:51
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ git diff --staged --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff" && git diff --ignore-space-at-eol > "C:/Users/PC/Downloads/uncommitted_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"
+warning: in the working copy of '.github/workflows/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF will be replaced by CRLF the next time Git touches it
+2026-11-17 17:25:26
+PC@DESKTOP-V23MJR7 MINGW64 …/AdvCiv-SAS (main)
+$ git push origin --force-with-lease main
+Enumerating objects: 216, done.
+Counting objects: 100% (216/216), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (110/110), done.
+Writing objects: 100% (111/111), 168.41 KiB | 4.68 MiB/s, done.
+Total 111 (delta 96), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (96/96), completed with 94 local objects.
+To https://github.com/wonderingabout/AdvCiv-SAS
+ + 89c72cc64...761327207 main -> main (forced update)
+```
+
+- **What failed first:** the agent gave the `.bashrc` line as an `echo ... >> ~/.bashrc` command in a code block. It ran in PowerShell rather than Git Bash, probably through the app's Run button, whose terminal is PowerShell.
+  - PowerShell's `>>` wrote the file in UTF-16, starting with a byte-order mark, and its quoting dropped the `"$PS1"` part, so bash read a garbled first line and stopped: `bash: ��PS1=… \: No such file or directory`, shown under the one-time warning.
+  - The agent then rewrote the file in UTF-8 from its own Git Bash shell and tested it in a login shell before the user reopened the window.
+  - So write Git Bash files from Git Bash, and say "in Git Bash" beside a command meant for it.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_gitbash_bashrc_written_by_powershell.PNG" alt="llm_gitbash_bashrc_written_by_powershell.PNG" width="250">
+
+### Git in VS Code and other tools
+
+Git Bash is not the only place the user works with Git: on 2026-11-17, right after the window logs were set up, the user pushed a commit from VS Code's Source Control panel, which neither the record nor the window logs could show.
+
+- VS Code logs every Git command it runs into its own `Git.log`, one per window and session under `%APPDATA%\Code\logs\<session>\window<N>\exthost\vscode.git\`, and keeps about the last 10 sessions.
+  - Most lines are its own polling, such as `status`, `for-each-ref` or `merge-base`; the user's actions are among them, such as staging (`git add -A -- <files>`), unstaging (`git reset -q HEAD -- <files>`), an amend (`git -c user.useConfigOnly=true commit --quiet --amend`) or a push (`git push origin main:main`).
+  - `git_bash_history.py --vscode` keeps only such actions, with their times. Sample from 2026-11-17, shortened:
+
+```text
+2026-11-17 12:51:04  git -c user.useConfigOnly=true commit --quiet --amend
+2026-11-17 14:22:46  git reset -q HEAD -- _1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2026-11-17 16:19:20  git add -A -- .github/workflows/build/hygiene/line_endings.py
+2026-11-17 19:16:39  git push origin main:main
+```
+
+- Tested on 2026-11-17: the user amended a commit with nothing staged, through the Source Control panel's **…** → **Commit** → **Commit (Amend)**.
+  - Git gave the new commit the time 19:41:15, `git reflog` listed it as `commit (amend)` of the previous SHA, and `--since 30m` showed it two seconds later, once VS Code's commit had finished:
+
+    ```text
+    2026-11-17 19:16:39  git push origin main:main
+    2026-11-17 19:41:17  git -c user.useConfigOnly=true commit --quiet --amend
+    2 VS Code Git action(s) since 2026-11-17 19:11:36
+    ```
+
+  - A force push was the first idea for the test, but VS Code offers it only once **Git: Allow Force Push** (`git.allowForcePush`) is ticked in its settings; it then pushes with `--force-with-lease`, as `git.useForcePushWithLease` is on by default.
+- These sources are examples from this computer's setup as of 2026-11-17, not a full list: the user may use other tools, change them over time, and another contributor's setup differs. Two checks work whatever the tool:
+  - `git reflog` lists every local commit, amend, reset and checkout, with its tool unnamed.
+  - `git ls-remote origin refs/heads/main` shows what GitHub has; compare it with `git rev-parse HEAD` before telling the user that a push is needed.
 
 ## Claude Code (the Claude desktop app)
 

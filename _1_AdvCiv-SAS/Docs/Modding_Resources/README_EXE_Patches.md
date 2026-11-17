@@ -137,7 +137,7 @@ All live in [`SelfMod.cpp`](/CvGameCoreDLL/SelfMod.cpp) and switch off together 
 
 The full record of [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2), kept here as it describes the EXE's internals. Addresses are Steam's.
 
-- The user noticed it on 2026-11-16 in two screenshots, `Civ4ScreenShot0036.JPG` (Civilization, small) and `Civ4ScreenShot0037.JPG` (Your Details, tall but narrow), while the save transplanter was clicking through a scenario's setup steps; it starts Civ4 with `/FXSLOAD="<file>.CivBeyondSwordWBSave"`. Screenshots are in the KI's Drive folder.
+- The user noticed it on 2026-11-16 in two screenshots, `Civ4ScreenShot0036.JPG` (Civilization, small) and `Civ4ScreenShot0037.JPG` (Your Details, tall but narrow), while the SASSaveTransplanter was clicking through a scenario's setup steps; it starts Civ4 with `/FXSLOAD="<file>.CivBeyondSwordWBSave"`. Screenshots are in the KI's Drive folder.
 - Reproduced the same day by loading `transplant.CivBeyondSwordWBSave` from the 4986 transplant with `/FXSLOAD` in a 1920 x 1080 window, once with `SAS_EXE_P_DYNAM_MAIN_MENU_ON` at 1 and once at 0. The patch-off column is a control run, which is why Your Details is small there too; with the patch on, only Civilization was ever small.
 
   | Step | Patch off | Patch on |
@@ -155,7 +155,7 @@ The full record of [KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-108
   - By Your Details the window showed and 1632 x 994 came back.
   - So the slip was ours, not RI's: RI writes fixed sizes into the function's immediates, which never depend on the window, while our port measures the window each time a setup screen opens. That measuring is what made the box tunable and resolution-independent (KI#1082), and this was a side effect of it found later. A scenario opened from the main menu builds its steps after the window shows.
     - The same pattern as [KI#284.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-284.2): making map generation tunable assumed `self.gc`, which ordinary generators set but inherited map scripts replacing `__init__` did not. Each tunability change relied on state that the usual path has and an alternate path lacks, here a visible window under `/FXSLOAD`.
-- Fix: the game window also counts by its class while hidden, which needs no EXE address and so should hold for GOG too. Tested the same day with a Debug-opt build: the `/FXSLOAD` transplant's Civilization step fills the 1632 x 994 box, Your Details and Game Snapshot are unchanged, a menu-launched scenario still grows, and the save transplanter's OK-button reference still matches on each step.
+- Fix: the game window also counts by its class while hidden, which needs no EXE address and so should hold for GOG too. Tested the same day with a Debug-opt build: the `/FXSLOAD` transplant's Civilization step fills the 1632 x 994 box, Your Details and Game Snapshot are unchanged, a menu-launched scenario still grows, and the SASSaveTransplanter's OK-button reference still matches on each step.
 - Only `/FXSLOAD` launches were affected. Play a Scenario was checked before and after the fix; Custom Scenario opens the same list and steps and was not run separately; Simple Game and Custom Game open from the visible window.
 - Base AdvCiv 1.14, which has no such patch, shows all three steps at BtS's size: Civilization 840 x 560, Your Details 468 x 560.
 

@@ -1129,6 +1129,34 @@
       "controls": {
         "ok": {"xy": [1630, 396], "to": "game_main"}
       }
+    },
+    "popup_city_advice": {
+      "reach": "a city finished its build and the advisor suggests the next one, a building or a unit; came at the start of a turn after an autoplay",
+      "shows": "at the top right, \"Sire, <city> is a great center of ... The construction of a <building> would ...\", with three answers",
+      "controls": {
+        "fine": {"xy": [1704, 246], "to": "game_main", "note": "Fine, do so at the next opportunity: queues the suggested build"},
+        "forget_it": {"xy": [1704, 276], "to": "game_main", "note": "Forget it, I'm the one in charge here!: keeps the city's own choice"},
+        "examine_city": {"xy": [1704, 308], "to": "city_screen", "note": "Wait, let me examine the city first."}
+      }
+    },
+    "diplomacy_leader": {
+      "reach": "click a leader's name on the scoreboard, at x about 1850; the rows are about 22 px apart, from about y 713 for the first rival at 11 players",
+      "shows": "the leader's portrait, their greeting and a list of answers; hovering a scoreboard name first shows their attitude and wars",
+      "note": "Measured on BtS's stock diplomacy screen, laid out on a fixed 1024x768 canvas whatever the window. RI's diplomacy screen rescale (RI r5627, listed in README_EXE_Patches.md) enlarges it, so these positions hold only without such a patch. If one is added, measure the patched screen as well and keep these: base AdvCiv and other mods without it still show the stock screen.",
+      "tests": [
+        ["Let's stop this pointless fighting and declare peace!, at war with Kublai Khan while either side was a victory-denial threat (2026-11-17)", "he answered \"No way.\" and offered no treaty, and the peace answer was gone; see KI#1094"],
+        ["the same, at war with Isabella I", "the trade table opened with her offer, Peace Treaty (10 Turns) for 885 gold; We accept your offer. made peace and the gold left the treasury"]
+      ],
+      "controls": {
+        "trade_proposal": {"xy": [962, 826], "note": "We would like to make a trade proposal: opens the trade table"},
+        "second_answer": {"xy": [962, 860], "note": "at war: Let's stop this pointless fighting and declare peace!; at peace: What are the current deals we have?"},
+        "discuss_else": {"xy": [962, 890], "note": "Let's discuss something else..."},
+        "farewell": {"xy": [962, 922], "to": "game_main", "note": "Farewell ... (Exit); after a refusal the list is one answer shorter, and Farewell moves up to y 890"},
+        "trade_accept": {"xy": [962, 826], "to": "game_main", "note": "on the trade table: We accept your offer."},
+        "trade_refuse": {"xy": [962, 860], "note": "on the trade table: Sorry, we cannot accept such a deal."},
+        "their_clear_table": {"xy": [583, 926], "note": "CLEAR TABLE under their offer"},
+        "our_clear_table": {"xy": [1338, 926], "note": "CLEAR TABLE under our offer"}
+      }
     }
   }
 }

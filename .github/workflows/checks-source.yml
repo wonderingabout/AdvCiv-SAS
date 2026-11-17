@@ -39,17 +39,33 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/raw_getinfotype.py
 
+      - name: Sevopedia pages read only defined self.top attributes
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/sevopedia_top_attributes.py
+
+      - name: Byte comparisons in CI scripts say why
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/checkout_byte_compares.py
+
       - name: Runtime Python never starts a button path as u""
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/unicode_button_paths.py
+
+      - name: Runtime Python string comparisons say why
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/string_label_compares.py
 
       - name: Runtime Python never formats an integer division with %.Nf
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/float_format_int_division.py
 
-      - name: Sevopedia pages read only defined self.top attributes
+      - name: Python bindings point at their own enumerator or method
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: python .github/workflows/build/source/sevopedia_top_attributes.py
+        run: python .github/workflows/build/source/python_binding_targets.py
+
+      - name: Python wrappers pass None on where the native call takes NULL
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/python_wrapper_null_args.py
 
       - name: Lint suppressions name their rule and reason
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

@@ -39,6 +39,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/line_endings.py
 
+      # <!-- custom: A file switched whole between LF and CRLF has no mixed endings, so line_endings.py passes it, while its diff shows every line as changed. See KI#1097. (Claude code Opus 5.5) -->
+      - name: Line ending switches in commits
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/hygiene/line_ending_churn.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+
       - name: Text control characters
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/hygiene/control_characters.py

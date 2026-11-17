@@ -186,7 +186,8 @@ bool CyUnit::canAirPatrol(CyPlot* pPlot)
 
 bool CyUnit::canSeaPatrol(CyPlot* pPlot)
 {
-	return m_pUnit ? m_pUnit->canSeaPatrol(pPlot->getPlot(),
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pUnit ? m_pUnit->canSeaPatrol((pPlot == NULL ? NULL : pPlot->getPlot()),
 			true) // advc.004k: For the same behavior as in K-Mod
 			: false;
 }
@@ -250,7 +251,8 @@ bool CyUnit::canParadropAt(CyPlot* pPlot, int iX, int iY)
 
 bool CyUnit::canAirBomb(CyPlot* pPlot)
 {
-	return m_pUnit ? m_pUnit->canAirBomb(pPlot->getPlot()) : false;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pUnit ? m_pUnit->canAirBomb((pPlot == NULL ? NULL : pPlot->getPlot())) : false;
 }
 
 // advc: Adjusted to changed param list of CvUnit::canAirBombAt
@@ -741,7 +743,8 @@ bool CyUnit::canAttack()
 
 bool CyUnit::canDefend(CyPlot* pPlot)
 {
-	return m_pUnit ? m_pUnit->canDefend(pPlot->getPlot()) : false;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pUnit ? m_pUnit->canDefend((pPlot == NULL ? NULL : pPlot->getPlot())) : false;
 }
 
 bool CyUnit::canSiege(int /*TeamTypes*/ eTeam)
@@ -791,7 +794,8 @@ bool CyUnit::canAirAttack()
 
 bool CyUnit::canAirDefend(CyPlot* pPlot)
 {
-	return m_pUnit ? m_pUnit->canAirDefend(pPlot->getPlot()) : false;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pUnit ? m_pUnit->canAirDefend((pPlot == NULL ? NULL : pPlot->getPlot())) : false;
 }
 
 int CyUnit::airCombatDamage(CyUnit* pDefender)

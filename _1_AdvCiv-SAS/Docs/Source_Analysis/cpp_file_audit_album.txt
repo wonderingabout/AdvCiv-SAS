@@ -36520,8 +36520,8 @@ Comparison/history material checked locally:
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
     LLM_Helpers/context/commit_diffs/*
-    _0_Common_Docs/AdvCiv_Base_Doc/manual.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/AdvCiv/manual.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C019-WIP22
@@ -36959,8 +36959,8 @@ Comparison/history material used across the queue-031 pass:
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
     LLM_Helpers/context/commit_diffs/*
-    _0_Common_Docs/AdvCiv_Base_Doc/manual.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/AdvCiv/manual.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C019-WIP23
@@ -37516,7 +37516,7 @@ Comparison material:
 Historical material:
     LLM_Helpers/context/commit_diffs/*
     LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior durable checkpoint:
     C020 -- queue 031 UWAICache.cpp COMPLETE
@@ -38066,7 +38066,7 @@ Comparison/history material checked:
     Civ4CE-main(9).zip
     LLM_Helpers/context/commit_diffs/*
     _SNAPSHOT_CONTEXT/pending_upstream/*
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C020-WIP01
@@ -38535,7 +38535,7 @@ Comparison/history material checked:
     Civ4CE-main(9).zip
     LLM_Helpers/context/commit_diffs/*
     _SNAPSHOT_CONTEXT/pending_upstream/*
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C020-WIP02
@@ -40909,7 +40909,7 @@ Comparison/history material used across the queue-045 pass:
     current SAS XML / GlobalDefines
     LLM_Helpers/context/commit_diffs/*
     LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C020-WIP08
@@ -41366,7 +41366,7 @@ Comparison/history material checked:
     current SAS victory-stage helpers
     LLM_Helpers/context/commit_diffs/*
     LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior durable checkpoint:
     C021 -- queue 045 CvMapGenerator.cpp COMPLETE
@@ -41721,7 +41721,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     current AdvCiv/UWAI history and earlier album roots
     LLM_Helpers/context/commit_diffs/*
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
     C021-WIP01
@@ -45532,7 +45532,7 @@ Comparison/history material used across the queue-023 pass:
     current SAS source / XML / GlobalDefines
     LLM_Helpers/context/commit_diffs/*
     LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
-    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    _0_Legacy/Docs/dev_logs/dev_log_anonymized_email_002_Base_AdvCiv.txt
     Base AdvCiv manual / UWAI notes where they document route-distance intent
 
 Prior physical checkpoint:

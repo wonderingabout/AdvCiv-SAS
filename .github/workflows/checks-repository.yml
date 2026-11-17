@@ -32,6 +32,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/workflow_keep_going.py
 
+      - name: Every check script is run by a workflow
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/workflow_script_coverage.py
+
       - name: Temporary files
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/temp_files.py
@@ -79,6 +83,18 @@ jobs:
       - name: No Co-authored-by trailers in commit messages
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/commit_trailers.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: Dev logs keep hand edits and hidden authors
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/dev_logs.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
+      - name: No dates later than the commit that adds them
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/future_dates.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
         env:
           EVENT_NAME: ${{ github.event_name }}
 

@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import filecmp
 import shutil
+# <!-- custom: subprocess asks Git which files in the folder are tracked, so a refresh never deletes them. (Claude code Opus 5.5) -->
+import subprocess
 from pathlib import Path
 
 
@@ -54,7 +56,10 @@ def refresh_commit_diff_context(repo_root: Path, generated: dict[str, bytes | Pa
     if local_dir.is_dir():
         existing_generated.update(path for path in local_dir.glob("*.diff") if path.is_file())
         existing_generated.update(local_dir / name for name in GENERATED_NAMES if (local_dir / name).is_file())
-    stale = sorted(existing_generated - set(wanted))
+    # <!-- custom: Better BTS AI's revision files are tracked inside this otherwise generated folder, since our Git cannot regenerate them; a stale entry would be unlinked permanently, so tracked files are never stale. (Claude code Opus 5.5) -->
+    listed = subprocess.run(["git", "ls-files", "-z", "--", context_dir], cwd=repo_root, capture_output=True, check=True).stdout.decode("utf-8")
+    tracked = {repo_root / rel for rel in listed.split("\0") if rel}
+    stale = sorted(existing_generated - set(wanted) - tracked)
 
     added = updated = unchanged = 0
     for path, value in sorted(wanted.items(), key=lambda item: item[0].name.lower()):

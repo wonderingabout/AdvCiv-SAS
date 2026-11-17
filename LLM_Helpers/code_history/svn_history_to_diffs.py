@@ -68,6 +68,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-file-changed-lines", type=int, default=DEFAULT_MAX_FILE_CHANGED_LINES)
     parser.add_argument("--max-revision-patch-bytes", type=int, default=DEFAULT_MAX_REVISION_PATCH_BYTES)
     parser.add_argument("--force", action="store_true", help="Re-render revision files that already exist")
+    # <!-- custom: The diffs normalize line endings, so they cannot show a file whose endings changed along with its text; this mode fetches the raw versions instead and writes no diffs. See KI#1097. (Claude code Opus 5.5) -->
+    parser.add_argument("--eol-audit", type=Path, metavar="FILE", help="Instead of exporting, write a TSV of each modified file whose lines changed only in their line endings: revision, path, changed lines, of which only endings")
     return parser.parse_args()
 
 
@@ -150,6 +152,31 @@ def text_lines(data: bytes) -> list[str]:
     return text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
 
 
+def changed_line_count(old: bytes, new: bytes, keep_endings: bool) -> int:
+    # <!-- custom: Changed lines as a diff counts them, with each line's CR kept or stripped, so the difference between the two counts is the lines that changed only in their endings. (Claude code Opus 5.5) -->
+    def lines(data: bytes) -> list[bytes]:
+        return [line if keep_endings else line.rstrip(b"\r") for line in data.split(b"\n")]
+    matcher = difflib.SequenceMatcher(None, lines(old), lines(new), autojunk=False)
+    return sum(max(i2 - i1, j2 - j1) for tag, i1, i2, j1, j2 in matcher.get_opcodes() if tag != "equal")
+
+
+def audit_revision(root_url: str, revision: Revision, args: argparse.Namespace) -> list[str]:
+    rows = []
+    for change in revision.changes:
+        if change.kind != "file" or change.action != "M" or not change.text_mods or matches_any(change.path, args.summarize) or matches_any(change.path, BINARY_PATTERNS):
+            continue
+        old_path, old_rev = base_location(revision, change)
+        old_data = fetch_file(root_url, old_path, old_rev)
+        new_data = fetch_file(root_url, change.path, revision.number)
+        if old_data is None or new_data is None or b"\0" in old_data or b"\0" in new_data:
+            continue
+        changed = changed_line_count(old_data, new_data, True)
+        eol_only = changed - changed_line_count(old_data, new_data, False)
+        if eol_only > 0:
+            rows.append(f"r{revision.number}\t{change.path}\t{changed}\t{eol_only}")
+    return rows
+
+
 def describe_change(change: Change) -> str:
     origin = f" (from {change.copy_path}@{change.copy_rev})" if change.copy_path else ""
     return f"{change.action} {change.path}{origin}"
@@ -227,6 +254,48 @@ def render_revision(root_url: str, revision: Revision, args: argparse.Namespace)
     os.replace(temporary, target)
 
 
+# <!-- custom: Each revision file's header holds everything INDEX.txt and PATH_HISTORY_INDEX.txt hold, so tools reading an export in place, such as Better BTS AI's revisions tracked inside commit_diffs/, rebuild those rows from the headers rather than keep separate index files beside them. (Claude code Opus 5.5) -->
+CHANGE_LINE = re.compile(r"^([AMDR]) (.+?)(?: \(from (.+)@(\d+)\))?$")
+
+
+def read_revision_header(path: Path) -> dict:
+    fields: dict = {"message": [], "changes": []}
+    section = ""
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.rstrip("\r\n")
+            if not line.startswith("#"):
+                break
+            if line == "# Message:":
+                section = "message"
+            elif line.startswith("# Changed paths"):
+                section = "changes"
+            elif line.startswith("#   ") and section == "message":
+                fields["message"].append(line[4:])
+            elif line.startswith("#   ") and section == "changes":
+                match = CHANGE_LINE.match(line[4:])
+                if not match:
+                    raise ValueError(f"{path.name}: unreadable changed path: {line}")
+                fields["changes"].append((match[1], match[2], match[3], int(match[4]) if match[4] else None))
+            elif ": " in line and section == "":
+                key, value = line[2:].split(": ", 1)
+                fields[key.lower()] = value
+    for key in ("source", "revision", "author", "date", "coverage"):
+        if key not in fields:
+            raise ValueError(f"{path.name}: no '# {key.title()}:' line in its header")
+    fields["revision"] = int(fields["revision"])
+    fields["message"] = "\n".join(fields["message"])
+    fields["title"] = next((line.strip() for line in fields["message"].splitlines() if line.strip()), "(no message)")
+    return fields
+
+
+def read_revision_headers(folder: Path, label: str) -> list[dict]:
+    headers = [read_revision_header(path) for path in folder.glob(f"{label}_r*.diff")]
+    if not headers:
+        raise FileNotFoundError(f"no {label}_r*.diff files in {folder}")
+    return sorted(headers, key=lambda header: header["revision"])
+
+
 def read_coverage(path: Path) -> str:
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
@@ -271,6 +340,21 @@ def main() -> int:
         return 1
     print(f"{args.label}: r{revisions[0].number}-r{revisions[-1].number}, {len(revisions)} revisions, {sum(len(revision.changes) for revision in revisions)} changed paths")
     failures = []
+    if args.eol_audit:
+        rows = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+            futures = {pool.submit(audit_revision, root_url, revision, args): revision.number for revision in revisions}
+            for done, future in enumerate(concurrent.futures.as_completed(futures), 1):
+                if future.exception() is not None:
+                    failures.append((futures[future], future.exception()))
+                else:
+                    rows += future.result()
+                if done % 25 == 0 or done == len(futures):
+                    print(f"  {done}/{len(futures)} revisions audited, {len(failures)} failed", flush=True)
+        rows.sort(key=lambda row: int(row.split("\t")[0][1:]))
+        args.eol_audit.write_text("revision\tpath\tchanged_lines\tonly_line_endings\n" + "".join(row + "\n" for row in rows), encoding="utf-8")
+        print(f"Wrote {args.eol_audit}: {len(rows)} file changes with lines changed only in their endings, {len(failures)} revisions failed")
+        return 1 if failures else 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
         order = reversed(revisions) if args.newest_first else revisions
         futures = {pool.submit(render_revision, root_url, revision, args): revision.number for revision in order}

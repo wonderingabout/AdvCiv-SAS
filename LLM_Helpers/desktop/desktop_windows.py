@@ -15,6 +15,7 @@ import ctypes.wintypes as wt
 from importlib import import_module
 import json
 # <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
+# <!-- custom: os finds the crash dump's folder, shutil copies it and struct reads the process ID it records, for 'dump'. See KI#1089. (Claude code Opus 5.5) -->
 import os
 import shutil
 import struct
@@ -105,7 +106,21 @@ def print_window_image(hwnd):
 		USER32.ReleaseDC(hwnd, window_dc)
 
 
-def screenshot(pid, out_path, method="window", crop=None, scale=1.0):
+def browser_page_box(hwnd):
+	# <!-- custom: The web page's rectangle in a Chromium browser window, in window pixels, from the browser's own UI Automation tree: the MultiContentsView panel that holds the tabs' contents.
+	# The tab strip, address bar and bookmarks bar above it vary with the window size, display scale and which bars are shown (182 screen pixels on the user's maximized 4K Chrome, 2026-11-17), so reading the panel replaces a fixed crop.
+	# Cropping them keeps the user's other tabs, address and bookmarks out of the agent's chat and any shared screenshot, since the task needs only the page. (Claude code Opus 5.5) -->
+	command = "Add-Type -AssemblyName UIAutomationClient; $w = [System.Windows.Automation.AutomationElement]::FromHandle([IntPtr]%d); foreach ($e in $w.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) { if ($e.Current.ClassName -eq 'MultiContentsView') { $r = $e.Current.BoundingRectangle; \"$($r.Left) $($r.Top) $($r.Right) $($r.Bottom)\"; break } }" % hwnd
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout.split()
+	if len(output) != 4:
+		raise RuntimeError("no browser page panel in this window; --page reads Chrome's window")
+	left, top = window_rect(hwnd)[:2]
+	page = [int(float(value)) for value in output]
+	return page[0] - left, page[1] - top, page[2] - left, page[3] - top
+
+
+def screenshot(pid, out_path, method="window", crop=None, scale=1.0, page=False):
+	# <!-- custom: Added page, which replaces crop with the web page's rectangle from browser_page_box, so the --page option can crop Chrome to its page without a measured crop. (Claude code Opus 5.5) -->
 	# <!-- custom: method "window": PrintWindow, which leaves the window where it is; "screen": bring the window to the front and grab its screen area. (Claude Code Opus 5.5) -->
 	# <!-- custom: Pillow's ImageGrab copies the window's screen area for the screen method. (Claude Code Opus 5.5) -->
 	from PIL import ImageGrab
@@ -123,6 +138,8 @@ def screenshot(pid, out_path, method="window", crop=None, scale=1.0):
 		image = ImageGrab.grab(bbox=box, all_screens=True)
 	else:
 		raise ValueError("unknown screenshot method %r" % method)
+	if page:
+		crop = browser_page_box(hwnd)
 	# <!-- custom: crop is (left, top, right, bottom) in window pixels and scale shrinks the result: a full 3840-pixel window cost many tokens per read, so on 2026-11-10 nearly every screenshot was cropped and shrunk with throwaway Pillow code; these two options replace it. (Claude Code Opus 5.5) -->
 	if crop:
 		image = image.crop(tuple(crop))
@@ -208,11 +225,14 @@ def bring_to_front(hwnd, pid, allow_click=True):
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y, modifiers=(), double=False):
+def click(pid, x, y, modifiers=(), double=False, give_back=False):
+	# <!-- custom: give_back returns the focus to the user's window after the click.
+	# Only the command line sets it: paste calls click first, and giving the focus back there made Ctrl+V land in the user's window on 2026-11-17. (Claude code Opus 5.5) -->
 	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	# <!-- custom: Codex's 2026-11-10 review found that click pressed the mouse even when the window had not come to the front or the point lay outside it, so the click could land in whatever window was there, such as the user's.
 	# Check the bounds, the foreground window and the window under the point before pressing; a Civ4 popup is a separate window of the same process, so the last check compares processes, not handles. (Claude Code Opus 5.5) -->
 	hwnd, screen_x, screen_y = window_point(pid, x, y)
+	previous = USER32.GetForegroundWindow()
 	foreground = bring_to_front(hwnd, pid)
 	if window_pid(foreground) != pid:
 		raise RuntimeError("process %d's window did not come to the front; the foreground window belongs to process %d" % (pid, window_pid(foreground)))
@@ -221,6 +241,14 @@ def click(pid, x, y, modifiers=(), double=False):
 		raise RuntimeError("screen point %d,%d is covered by a window of process %d" % (screen_x, screen_y, window_pid(under) if under else 0))
 	USER32.SetCursorPos(screen_x, screen_y)
 	time.sleep(0.05)
+	# <!-- custom: The idle wait and the checks above all come before the cursor moves, so a user moving the mouse or switching windows in the last instant would send the press somewhere else; check both once more just before pressing.
+	# The user asked for this on 2026-11-17, while working in other windows during an agent's clicks. (Claude code Opus 5.5) -->
+	cursor = wt.POINT()
+	USER32.GetCursorPos(ctypes.byref(cursor))
+	if (cursor.x, cursor.y) != (screen_x, screen_y):
+		raise RuntimeError("the mouse moved to %d,%d before the click at %d,%d; nothing was pressed" % (cursor.x, cursor.y, screen_x, screen_y))
+	if window_pid(USER32.GetForegroundWindow()) != pid:
+		raise RuntimeError("another window came to the front before the click; nothing was pressed")
 	# <!-- custom: Civ4 gives Ctrl-, Shift- and Alt-clicks their own meanings, such as selecting all units of a type or queueing production, so modifiers are held around the click. (Claude Code Opus 5.5) -->
 	# <!-- custom: Presses sit inside the try and only what was pressed is released, so a Ctrl+C mid-click leaves no key or button held, as Codex's 2026-11-11 review reproduced. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	pressed, button_down = [], False
@@ -242,6 +270,13 @@ def click(pid, x, y, modifiers=(), double=False):
 			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
+	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
+	# Only the click command does it, through give_back: paste calls click to focus a message box before pressing Ctrl+V, and when click gave the focus back first, three pastes meant for Codex went to the user's window instead, the same day.
+	# Scripts chaining clicks, such as set_dropdown.py opening a dropdown and then picking an option, keep the focus between them too. (Claude code Opus 5.5) -->
+	if give_back:
+		# <!-- custom: Hold a moment so the game reads the click on its own frames, as key does, before giving the focus back. (Claude code Opus 5.5) -->
+		time.sleep(0.3)
+		give_focus_back(previous, pid)
 	return screen_x, screen_y
 
 
@@ -969,6 +1004,7 @@ def main():
 	shot.add_argument("--layout", help="desktop usage layout from app_layouts.json, required with --crop-name")
 	shot.add_argument("--crop-name", help="named crop from the selected desktop usage layout")
 	shot.add_argument("--scale", type=float, default=1.0, help="shrink the result, e.g. 0.5; crops read far cheaper than full windows")
+	shot.add_argument("--page", action="store_true", help="in Chrome, keep only the web page, without the tabs, address and bookmarks bars")
 	clip = sub.add_parser("clipboard", help="save the image on the clipboard, such as the user's screen capture")
 	clip.add_argument("--out", type=Path, required=True)
 	clip.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"))
@@ -1022,12 +1058,12 @@ def main():
 	typing.add_argument("--pid", type=int, required=True)
 	typing.add_argument("text")
 	typing.add_argument("--us-keys", action="store_true", help="send ASCII as US-keyboard keys whatever the layout, for Civ4's Sevopedia search box, which reads key codes; Civ4's own text boxes, such as the autoplay turn box, need the default")
-	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
-	close.add_argument("--pid", type=int, required=True)
 	dump = sub.add_parser("dump", help="at Civ4's crash prompt, press Full Dump (or --kind normal) by its label and wait until the .dmp file is written")
 	dump.add_argument("--pid", type=int, required=True)
 	dump.add_argument("--kind", choices=("full", "normal"), default="full")
 	dump.add_argument("--timeout", type=float, default=300.0)
+	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
+	close.add_argument("--pid", type=int, required=True)
 	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in layouts/window_positions.json")
 	keep.add_argument("action", choices=("save", "restore", "list"))
 	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
@@ -1061,7 +1097,7 @@ def main():
 		if bool(args.crop_name) != bool(args.layout) or (args.crop_name and args.crop):
 			parser.error("use --layout and --crop-name together, or pass --crop")
 		crop = usage_geometry(args.pid, args.crop_name, args.layout, "crops") if args.crop_name else args.crop
-		path, box = screenshot(args.pid, args.out, args.method, crop, args.scale)
+		path, box = screenshot(args.pid, args.out, args.method, crop, args.scale, args.page)
 		print("saved %s window=%s" % (path, box))
 	elif args.command == "clipboard":
 		path, size = save_clipboard_image(args.out, args.crop, args.scale)
@@ -1076,7 +1112,7 @@ def main():
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
 		if args.command == "click":
-			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double))
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
 		else:
 			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y))
 	elif args.command == "drag":
@@ -1101,6 +1137,9 @@ def main():
 	elif args.command == "type":
 		type_text(args.pid, args.text, us_keys=args.us_keys)
 		print("typed %d characters" % len(args.text))
+	elif args.command == "dump":
+		(path, size) = save_dump(args.pid, args.kind, args.timeout)
+		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
 	elif args.command == "close":
 		if not request_close(args.pid):
 			sys.exit("no window for process %d" % args.pid)

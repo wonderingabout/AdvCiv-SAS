@@ -12,7 +12,8 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
-# <!-- custom: The inherited-text hash manifest lists every GameText tag that BtS/vanilla/base AdvCiv define, which the GitHub mod-only checkout otherwise cannot see. (Claude code Opus 5.5) -->
+# <!-- custom: The inherited-text hash manifest lists every GameText tag that BtS/vanilla/base AdvCiv define, which the GitHub mod-only checkout otherwise cannot see.
+# game_defined_tags replaced read_manifest when the undefined-key direction was added: it gives only the tags BtS, Warlords or vanilla define, as SAS does not load base AdvCiv's own text files. See KI#1085. (Claude code Opus 5.5) -->
 from xml_sas_text_inherited import MANIFEST, game_defined_tags
 
 
