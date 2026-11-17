@@ -113,17 +113,12 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 206 - SAS practical 6801 (SASSaveTransplanter branch)
+### Revision 205 - SAS practical 6803 (SASSaveTransplanter branch)
 
 - **Date:** 2026-11-17
 - **Git commit:** pending
-- **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's 205.
-
-### Revision 205 - SAS practical 6793 (SASPilot branch)
-
-- **Date:** 2026-11-17
-- **Git commit:** `50e1d3eb8230206b5da32cee415c459ab574bb16`
-- **Change:** No change to the record: the revision check judges a merge against the parent with the higher revision, for its number and for whether it changes the recorder, as merging main into this branch had both sides at 202; and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+- **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's.
+  - First taken as 206 in merge commit `94bf831d30e6cf8621026f189d41e8a59d2778d9`, above saspilot's then 205; saspilot folded its 205 into 204, keeping one revision above main as it is squashed when it lands, so this branch keeps one above saspilot's: 205.
 
 ### Revision 204 - SAS practical 6750 (SASPilot branch)
 
@@ -131,6 +126,8 @@ Only the listed collections use this convention; other compact fields retain the
 - **Git commit:** `b57f87e3382783e7d19020606d64edd11fdb0851`
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged.
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch; main had used 202 and 203 meanwhile, so merging main into it on 2026-11-17 made it 204, in that merge commit.
+  - Later the same day, the branch's next commit, `50e1d3eb8230206b5da32cee415c459ab574bb16`, first took 205 for two more changes that count for the record: the revision check now judges a merge against the parent with the higher revision, for its number and for whether it changes the recorder, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+  - As this branch is squashed when it lands, it keeps one revision above main, so 205 was folded into this entry.
 
 ### Revision 203 - SAS practical 6772
 
