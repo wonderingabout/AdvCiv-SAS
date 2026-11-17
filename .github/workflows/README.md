@@ -99,6 +99,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_resource_api.py`](#buildsourcepython_resource_apipy)
     - [Custom-comment logical reflow](#custom-comment-logical-reflow)
+    - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
@@ -1183,6 +1184,17 @@ python .github/workflows/build/source/python_resource_api.py --all
 It does not impose a character-width limit or reflow inherited comments; structured, code-like and ambiguous blocks remain explicit skips for manual review.
 
 Preview with `python LLM_Helpers/formatting/reflow_custom_comments.py --diff`, then use `--apply` on selected files and review the result. See [the helper documentation](/LLM_Helpers/README.md#custom-comment-logical-reflow) for scope and examples.
+
+#### `build/source/python_wrapper_null_args.py`
+
+Fails when a Python wrapper in the DLL's `Cy*.cpp` files dereferences a pointer argument, written `p->getX()`, while the native function it calls declares that parameter `= NULL` in the headers. Python's `None` then raised "unidentifiable C++ exception" instead of meaning no plot or no attacker; the fix passes it on as `(p == NULL ? NULL : p->getX())`.
+
+- Added on 2026-11-17 for [KI#1091.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2). [KI#1091](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)'s combat wrappers and `pushMission` had this shape, and the check, run against the files before their fixes, found 18 such arguments in 15 wrappers.
+- A native parameter without a `NULL` default needs a real object, such as `canWork`'s plot, so dereferencing it passes. Comments are ignored, with the comment stripper of [`python_binding_targets.py`](#buildsourcepython_binding_targetspy).
+
+```bash
+python .github/workflows/build/source/python_wrapper_null_args.py
+```
 
 #### `build/source/raw_getinfotype.py`
 

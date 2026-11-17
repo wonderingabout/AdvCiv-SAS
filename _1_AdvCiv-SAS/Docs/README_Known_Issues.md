@@ -1264,9 +1264,11 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1086 - (Fixed in SAS Python, guarded by CI) SAS's move of the Sevopedia colors into SASVisuals missed one reader, so Down in the Index after a search raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086)\
 [KI#1087 - (Fixed in SAS config, guarded by CI) SAS's split of BtS's melee unit combat left BUG's Unit Naming without options for the two new types, so with Unit Naming on every Spearman or Swordsman raised a Python exception](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1087)\
 [KI#1088 - (Open; only the SASPilot work could trigger it, and it avoids it) Loading a save while a diplomacy screen was open sometimes crashed Civ4 while it tore down the game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)\
-[KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)
-[KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
-[KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)
+[KI#1089 - (Worked around in the agent tools) Every Civ4 writes its crash dump to the same file, so the next crash overwrites the previous dump, and its name alone does not show which of several instances crashed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)\
+[KI#1090 - (Fixed inherited vanilla Civ4 Python binding) The drafting task pointed to hurry production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090)\
+[KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)\
+[KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
+[KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)
 
 <a id="ki-1"></a>
 
@@ -15029,6 +15031,8 @@ WORKER_MISSION_EXECUTION phase=result turn=181 player=7 Native American Empire w
 In the confirming run, the old Mine-to-Cottage corruption on `(59,24)` no longer appeared. The Worker cancelled the stale build, replanned normally, and moved to a valid new target.
 
 Fixed with the help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+
+- Update (2026-11-17): the SASPilot work's first order commands passed the unit's plot to `pushMission`, because its Python binding rejected `None`. The stale mission target this left made the guard cancel a Work Boat's queued fishing boats, as intended; the binding is fixed in [KI#1091](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091).
 
 <a id="ki-177"></a>
 
@@ -37910,7 +37914,7 @@ Found by Claude code Opus 5.5 with Codex (GPT-6.1-Sol) on 2026-11-13, while writ
 
 <a id="ki-1090"></a>
 
-## KI#1090 - (Fixed inherited Civ IV Python binding) The drafting task pointed to hurry production
+## KI#1090 - (Fixed inherited vanilla Civ4 Python binding) The drafting task pointed to hurry production
 
 `CyEnumsInterface.cpp` exported `TaskTypes.TASK_CONSCRIPT` with the value of `TASK_HURRY`. Passing that enum to a Python city task selected the hurry-production handler instead of drafting. The normal Draft button already sends the correct C++ enum.
 
@@ -37933,3 +37937,38 @@ Claude Code Fable 5.2 found and fixed the binding while reading the task list fo
 - Guarded by [`python_binding_targets.py`](/.github/workflows/README.md#buildsourcepython_binding_targetspy), which also covers method bindings: run against the older files, it finds these three, KI#1090's `TASK_CONSCRIPT` and the three getters [KI#122](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-122) had fixed by hand, one of them a `CvEventInfo` binding pointing at `CvEventTriggerInfo`.
 
 Found by Claude code Opus 5.5 on 2026-11-16, after wonderingabout asked, while KI#1090 was being brought over, whether a check could find more slips like it, and recalled KI#122's event trigger bindings.
+
+<a id="ki-1091"></a>
+
+## KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python
+
+`CyUnit` dereferenced the plot and attacker in `maxCombatStr`, `currCombatStr`, `currFirepower`, `maxCombatStrFloat` and `currCombatStrFloat` even when Python passed `None`. The native methods accept null pointers, including when asking for an attacker's own strength.
+
+`CySelectionGroup.pushMission` did the same with its AI mission plot and unit. Native orders from the UI pass null pointers for both when there is no AI mission target.
+
+The local Civ4CE vanilla, Warlords and BtS SDK copies all contain both defects. The initial K-Mod snapshot (`2414225e6`, 2010-12-27) and base AdvCiv 1.14 preserve them.
+
+The SASPilot work, on its own branch, exposed them:
+
+- Its order commands, which give orders as the window does, first passed the unit's plot to `pushMission` as a workaround (2026-11-13); the stale mission target this left made [KI#176](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-176)'s guard cancel a Work Boat's queued fishing boats.
+- Later its `odds` command's `currCombatStrFloat(None, None)` raised a C++ exception in game.
+
+The six wrappers now pass null through.
+
+- Follow-up: [KI#1091.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2) found the same pattern in ten more wrappers.
+
+Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.1-Sol).
+
+<a id="ki-1091.2"></a>
+
+## KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL
+
+- [KI#1091](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)'s six wrappers had one shape: a `Cy*.cpp` wrapper dereferenced a pointer argument that the native function declares `= NULL`, so Python's `None` raised "unidentifiable C++ exception" instead of meaning no plot, no city or no attacker.
+- A scan of every wrapper for that shape found ten more, all latent, as no Python in the mod passes them `None`:
+  - from vanilla Civ4: `CyPlot.getBestDefender` and `nukeExplosion`, `CySelectionGroup.canStartMission`, and `CyUnit.canDefend`, `canAirDefend` and `canAirBomb`. Vanilla's `canAirBomb` never reads its plot, so `None` was always valid there; base AdvCiv only wrote out its `= NULL` default, which is what lets the check see it;
+  - from BtS, with Advanced Start: `CyPlayer.getAdvancedStartPopCost`, `getAdvancedStartCultureCost` and `getAdvancedStartBuildingCost`;
+  - from base AdvCiv: `CyUnit.canSeaPatrol`. BtS's native function dereferenced its plot too, so the wrapper matched it; AdvCiv made the native function fall back to the unit's own plot on `NULL` but left the wrapper dereferencing.
+- The same scan of the earlier copies shows three vanilla slips that base AdvCiv no longer has: `CyMap.findCity`, `CyPlayer.countUnimprovedBonuses` and `countPotentialForeignTradeCities`.
+- Fixed by passing `None` on as null in all ten. Guarded by [`python_wrapper_null_args.py`](/.github/workflows/README.md#buildsourcepython_wrapper_null_argspy): run against the files before these fixes, it finds all 18 arguments of KI#1091 and KI#1091.2.
+
+Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091's pattern while bringing it over from the SASPilot work, after wonderingabout agreed to fix the pattern rather than the one case.

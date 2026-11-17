@@ -13,6 +13,7 @@ Expect to update it: these apps change their interfaces often, and every finding
 [Codex (the ChatGPT desktop app)](#codex-the-chatgpt-desktop-app)\
 &emsp;[Updating, quitting and starting Codex](#updating-quitting-and-starting-codex)\
 [VS Code](#vs-code)\
+[The user's Chrome](#the-users-chrome)\
 [Claude Code (the Claude desktop app)](#claude-code-the-claude-desktop-app)\
 &emsp;[Claude menus, panels and startup](#claude-menus-panels-and-startup)\
 &emsp;[Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings)\
@@ -161,6 +162,20 @@ The user reviews diffs and searches the code in VS Code, so its window shows wha
 - The panel lists results as of its last run: it did not yet show the moved getter's new line in `CvGameCoreUtils.cpp`, so rerun a search rather than trusting an old panel.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_vscode_plain_search_no_fallbacks.PNG" alt="llm_vscode_plain_search_no_fallbacks.PNG" width="250">
+
+## The user's Chrome
+
+When the user asks an agent to look at a page open in their own Chrome, `desktop_windows.py screenshot` reads that window the same way, with no browser extension. Chrome runs many processes; `Get-Process chrome | Where-Object MainWindowHandle -ne 0 | Select-Object Id, MainWindowTitle, Path` gives those that own a window.
+
+- The user also has Chrome Canary, whose process is named `chrome` too, so this lists one window per browser. Pick by `Path` (`Google\Chrome\Application` for Chrome, `Google\Chrome SxS\Application` for Canary) or by the title, which ends with the open tab's name. On 2026-11-17 an agent took the first window it found, Canary's, which was minimized, so its screenshot held only a title bar.
+
+- `screenshot --pid <PID> --page --scale 0.5` keeps only the web page. It asks Chrome where its page area starts, so the tab strip, address bar and bookmarks bar are cut off whatever the window size, display scale or bars shown, where a fixed crop would need remeasuring.
+  - Why crop them: the other tabs' titles, the address and the bookmarks show what else the user browses, which the task does not need and the user may not want in a chat, a log or a screenshot shared later; they also cost tokens for nothing.
+  - `--scale 0.5` is optional: a 4K window at a high display scale draws page text about twice as large as reading needs, so half the size kept the commits page readable at a quarter of the pixels, and so of the tokens. Keep `1.0` for small text or fine detail, such as a tooltip or a dense table.
+- Example (2026-11-17): after a force-push, the user asked an agent to check whether GitHub's commits page still showed CI's red cross. The Claude in Chrome extension was not connected, but a screenshot of the user's open tab showed the checks at once.
+- This only looks: the reasons under [Browsers for agents](#browsers-for-agents) still keep agents from clicking or typing in the user's browser.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_chrome_page_github_commits.PNG" alt="llm_chrome_page_github_commits.PNG" width="250">
 
 ## Claude Code (the Claude desktop app)
 

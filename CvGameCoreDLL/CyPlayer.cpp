@@ -1008,17 +1008,20 @@ int CyPlayer::getAdvancedStartCityCost(bool bAdd, CyPlot* pPlot)
 
 int CyPlayer::getAdvancedStartPopCost(bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartPopCost(bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartPopCost(bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartCultureCost(bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartCultureCost(bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartCultureCost(bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartBuildingCost(int /*BuildingTypes*/ eBuilding, bool bAdd, CyCity* pCity)
 {
-	return m_pPlayer ? m_pPlayer->getAdvancedStartBuildingCost((BuildingTypes) eBuilding, bAdd, pCity->getCity()) : -1;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlayer ? m_pPlayer->getAdvancedStartBuildingCost((BuildingTypes) eBuilding, bAdd, (pCity == NULL ? NULL : pCity->getCity())) : -1;
 }
 
 int CyPlayer::getAdvancedStartImprovementCost(int /*ImprovementTypes*/ eImprovement, bool bAdd, CyPlot* pPlot)

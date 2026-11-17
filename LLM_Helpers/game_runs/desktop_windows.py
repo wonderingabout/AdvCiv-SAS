@@ -100,7 +100,21 @@ def print_window_image(hwnd):
 		USER32.ReleaseDC(hwnd, window_dc)
 
 
-def screenshot(pid, out_path, method="window", crop=None, scale=1.0):
+def browser_page_box(hwnd):
+	# <!-- custom: The web page's rectangle in a Chromium browser window, in window pixels, from the browser's own UI Automation tree: the MultiContentsView panel that holds the tabs' contents.
+	# The tab strip, address bar and bookmarks bar above it vary with the window size, display scale and which bars are shown (182 screen pixels on the user's maximized 4K Chrome, 2026-11-17), so reading the panel replaces a fixed crop.
+	# Cropping them keeps the user's other tabs, address and bookmarks out of the agent's chat and any shared screenshot, since the task needs only the page. (Claude code Opus 5.5) -->
+	command = "Add-Type -AssemblyName UIAutomationClient; $w = [System.Windows.Automation.AutomationElement]::FromHandle([IntPtr]%d); foreach ($e in $w.FindAll([System.Windows.Automation.TreeScope]::Descendants, [System.Windows.Automation.Condition]::TrueCondition)) { if ($e.Current.ClassName -eq 'MultiContentsView') { $r = $e.Current.BoundingRectangle; \"$($r.Left) $($r.Top) $($r.Right) $($r.Bottom)\"; break } }" % hwnd
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout.split()
+	if len(output) != 4:
+		raise RuntimeError("no browser page panel in this window; --page reads Chrome's window")
+	left, top = window_rect(hwnd)[:2]
+	page = [int(float(value)) for value in output]
+	return page[0] - left, page[1] - top, page[2] - left, page[3] - top
+
+
+def screenshot(pid, out_path, method="window", crop=None, scale=1.0, page=False):
+	# <!-- custom: Added page, which replaces crop with the web page's rectangle from browser_page_box, so the --page option can crop Chrome to its page without a measured crop. (Claude code Opus 5.5) -->
 	# <!-- custom: method "window": PrintWindow, which leaves the window where it is; "screen": bring the window to the front and grab its screen area. (Claude Code Opus 5.5) -->
 	# <!-- custom: Pillow's ImageGrab copies the window's screen area for the screen method. (Claude Code Opus 5.5) -->
 	from PIL import ImageGrab
@@ -118,6 +132,8 @@ def screenshot(pid, out_path, method="window", crop=None, scale=1.0):
 		image = ImageGrab.grab(bbox=box, all_screens=True)
 	else:
 		raise ValueError("unknown screenshot method %r" % method)
+	if page:
+		crop = browser_page_box(hwnd)
 	# <!-- custom: crop is (left, top, right, bottom) in window pixels and scale shrinks the result: a full 3840-pixel window cost many tokens per read, so on 2026-11-10 nearly every screenshot was cropped and shrunk with throwaway Pillow code; these two options replace it. (Claude Code Opus 5.5) -->
 	if crop:
 		image = image.crop(tuple(crop))
@@ -780,6 +796,7 @@ def main():
 	shot = sub.add_parser("screenshot", help="save a PNG of the window")
 	shot.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"), help="keep only this window-relative rectangle")
 	shot.add_argument("--scale", type=float, default=1.0, help="shrink the result, e.g. 0.5; crops read far cheaper than full windows")
+	shot.add_argument("--page", action="store_true", help="in Chrome, keep only the web page, without the tabs, address and bookmarks bars")
 	clip = sub.add_parser("clipboard", help="save the image on the clipboard, such as the user's screen capture")
 	clip.add_argument("--out", type=Path, required=True)
 	clip.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"))
@@ -856,7 +873,7 @@ def main():
 		for pid, cmd in civ4_processes():
 			print("%d\t%s" % (pid, cmd))
 	elif args.command == "screenshot":
-		path, box = screenshot(args.pid, args.out, args.method, args.crop, args.scale)
+		path, box = screenshot(args.pid, args.out, args.method, args.crop, args.scale, args.page)
 		print("saved %s window=%s" % (path, box))
 	elif args.command == "clipboard":
 		path, size = save_clipboard_image(args.out, args.crop, args.scale)

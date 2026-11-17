@@ -115,7 +115,8 @@ int CyPlot::getTeam()
 void CyPlot::nukeExplosion(int iRange, CyUnit* pNukeUnit)
 {
 	if (m_pPlot)
-		m_pPlot->nukeExplosion(iRange, pNukeUnit->getUnit());
+		// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+		m_pPlot->nukeExplosion(iRange, (pNukeUnit == NULL ? NULL : pNukeUnit->getUnit()));
 }
 
 bool CyPlot::isConnectedTo(CyCity* pCity)
@@ -274,7 +275,8 @@ int CyPlot::getFeatureProduction(int /*BuildTypes*/ eBuild, int /*TeamTypes*/ eT
 
 CyUnit* CyPlot::getBestDefender(int /*PlayerTypes*/ eOwner, int /*PlayerTypes*/ eAttackingPlayer, CyUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove)
 {
-	return m_pPlot ? new CyUnit(m_pPlot->getBestDefender((PlayerTypes) eOwner, (PlayerTypes) eAttackingPlayer, pAttacker->getUnit(), bTestAtWar, bTestPotentialEnemy, bTestCanMove)) : NULL;
+	// <!-- custom: Python's None now passes as NULL, as the native function allows; it was dereferenced. See KI#1091.2. (Claude code Opus 5.5) -->
+	return m_pPlot ? new CyUnit(m_pPlot->getBestDefender((PlayerTypes) eOwner, (PlayerTypes) eAttackingPlayer, (pAttacker == NULL ? NULL : pAttacker->getUnit()), bTestAtWar, bTestPotentialEnemy, bTestCanMove)) : NULL;
 }
 
 CyUnit* CyPlot::getSelectedUnit()
