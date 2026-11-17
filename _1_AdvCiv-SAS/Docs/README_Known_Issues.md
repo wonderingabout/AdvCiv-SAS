@@ -1272,7 +1272,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
 [KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
-[KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)
+[KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
+[KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)
 
 <a id="ki-1"></a>
 
@@ -38030,3 +38031,15 @@ Found by Claude Code Opus 5.5 while asking for peace through SASPilot.
   - That shows the padding path still loads; the flag itself has no visible effect, as above.
   - It was not compared with the unfixed code: a run without the fix would look the same, since the padded slots have no leader or starting plot. Telling the two apart would take a temporary log line counting the skipped slots, expected 0 without the fix and 30 with it, which was not run.
 - Found and fixed by ChatGPT-5.6-Sol while tracing SASSaveTransplanter's path through advc.056, in the candidate it handed over ("I also found a tiny inherited bug directly on that path"); Claude code Fable 5.2 brought it into the SASSaveTransplanter work, on its own branch, on 2026-11-16, and the fix stands on its own.
+
+<a id="ki-1096"></a>
+
+## KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape
+
+- `SASPilotCommands.fromJson` read the client's JSON as a Python 2 literal and decoded `\uXXXX` escapes afterwards. A Windows path whose backslash comes before a "u" looks the same, so `...\save_transplants\sas4986_249_variants\update_T0` broke the request, while the `preserve_T0` save in the same folder had worked minutes before.
+- Found on 2026-11-16 in SASSaveTransplanter's first `--map-variants both` run, on its own branch. Requests are now read by `requestFromJson` in SASPilot's `SASPilotCommands.py`, which reads every JSON string as a Python unicode literal (both escapes known) and returns plain ASCII strings as before; checked under Python 2.4 with `\update` and a literal `\u`. The DLL's replies still go through `fromJson`, as they carry no backslash paths.
+- Exactly which strings it hit: `_unescapeStrings` decoded a string only when it held a lowercase `\u`, and then decoded the whole string with `unicode_escape`.
+  - The error came from the path's `C:\Users`, read as a `\U` escape once `\update` had triggered the decoding; without a `\u`, the same `C:\Users` path passed untouched, as in every earlier `save`.
+  - A triggered string would also have turned `\t` or `\n` in a folder name into a tab or a line break.
+
+Found and fixed by Claude code Fable 5.2, checked by Codex (GPT-6.1-Sol).
