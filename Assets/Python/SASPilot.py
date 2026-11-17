@@ -15,6 +15,7 @@ import os
 import sys
 import traceback
 import BugPath
+# <!-- custom: CvUtil writes SASPilot's structured log rows (pyPrintRecord), and SASAutoplayRequest finds the per-run INI whose [SASPilot] section configures it. (Claude code Opus 5.5) -->
 import CvUtil
 import SASAutoplayRequest
 

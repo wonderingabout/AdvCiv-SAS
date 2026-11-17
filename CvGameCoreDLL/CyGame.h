@@ -384,7 +384,7 @@ public:
 	std::string getSASPilotUnitsJson(int iPlayer, int iFogTeam);
 	std::string getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly);
 	std::string getSASPilotCityBuildsJson(int iPlayer, int iCity); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
-	std::string getSASPilotEspionageJson(int iPlayer, int iUnit); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) --> // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+	std::string getSASPilotEspionageJson(int iPlayer, int iUnit); // <!-- custom: see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 	std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 	std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
 	std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: For SASPilot's 'sites' command. (Claude code Opus 5.5) -->

@@ -7,6 +7,7 @@ from pathlib import Path
 import runpy
 import sys
 from types import ModuleType, SimpleNamespace
+# <!-- custom: unittest runs the graph tests, patch stands in for the game's modules, such as CvPythonExtensions, and ElementTree reads the XML the graphs are checked against. (Claude code Opus 5.5) -->
 import unittest
 from unittest.mock import patch
 import xml.etree.ElementTree as ET

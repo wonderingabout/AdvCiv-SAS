@@ -758,7 +758,7 @@ def named_point(pid, name):
 	# <!-- custom: Civ4 click points were first read off screenshots and passed as numbers, then forgotten or re-measured.
 	# On 2026-11-11 the user suggested keeping them as data like the agent apps' app_layouts.json, so they live in civ4_points.json, keyed by the window's outer size.
 	# The points are window-relative, so where the window sits on the screen does not matter; a different size, such as another game resolution, fails loudly instead of clicking a wrong spot. (Claude Code Opus 5.5) -->
-	# <!-- custom: json reads the points file; imported here since only named points need it. (Claude Code Opus 5.5) -->
+	# <!-- custom: json was imported here when only named points read it; the module imports it now, as the layout files are read elsewhere too. (Claude code Opus 5.5) -->
 	make_dpi_aware()
 	hwnd = find_window(pid)
 	if hwnd is None:
@@ -807,6 +807,7 @@ def monitors():
 
 
 def move(pid, monitor, part, size=None, beside=None):
+	# <!-- custom: Was move(pid, monitor, part); size and beside serve the topleft and beside parts described below. (Claude code Opus 5.5) -->
 	# <!-- custom: Maximized, the Claude and Codex apps each spread a chat column about 1,200 px wide across a 3,840 px 4K window, leaving most of it empty (screenshots of 2026-11-11).
 	# On 2026-11-11 the user suggested sharing one monitor between them, half each, to free the other.
 	# The window is restored from maximized first.

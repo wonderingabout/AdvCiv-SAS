@@ -321,6 +321,7 @@ def health(pid, timeout):
 	operators = list_operators(pid)
 	watchers = []
 	try:
+		# <!-- custom: subprocess asks PowerShell for running watcher processes; imported here as only this listing needs it. (Claude code Opus 5.5) -->
 		import subprocess
 		output = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | Where-Object { $_.CommandLine -match 'SASPilotConsole' } | ForEach-Object { $_.CommandLine }"], capture_output=True, text=True, timeout=30).stdout
 		watchers = [line for line in output.splitlines() if "--pid %d" % pid in line]
@@ -488,6 +489,7 @@ def _request(pid, command, args=None, timeout=60.0):
 			return reply
 		if alive_check_at is not None and time.monotonic() > alive_check_at:
 			alive_check_at = None
+			# <!-- custom: desktop_windows tells whether the game process is still alive; imported only when a reply is late. (Claude code Opus 5.5) -->
 			import desktop_windows
 			if not desktop_windows.process_alive(pid):
 				try:
@@ -510,6 +512,7 @@ def _request(pid, command, args=None, timeout=60.0):
 				started_note = "the game claimed request %s, outcome unknown, so check the game's state before retrying; a late reply would be %s" % (request_id, reply_path.name)
 			except OSError:
 				started_note = "request %s could not be withdrawn, so check the game's state before retrying" % request_id
+			# <!-- custom: desktop_windows tells whether the game process is still alive, before saying the request timed out. (Claude code Opus 5.5) -->
 			import desktop_windows
 			if not desktop_windows.process_alive(pid):
 				raise PilotError("Civ4 %d has exited" % pid)
@@ -637,6 +640,7 @@ def print_settings_check():
 
 def start(args):
 	print_settings_check()
+	# <!-- custom: desktop_windows finds running clients and launches Civ4 detached, and run_autoplay writes the per-run INI; imported here as only start needs them. (Claude code Opus 5.5) -->
 	import desktop_windows
 	import run_autoplay
 	settings = {}

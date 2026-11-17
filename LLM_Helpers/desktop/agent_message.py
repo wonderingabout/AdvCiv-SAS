@@ -50,6 +50,7 @@ def pick_layout(app, pid, name):
 
 
 def find_pid(process, required=True):
+	# <!-- custom: Was find_pid(process); required=False returns None instead of exiting, for --start, which opens the app when it has no window. (Claude code Opus 5.5) -->
 	command = "(Get-Process -Name '%s' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object -First 1).Id" % process
 	result = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True)
 	pid = result.stdout.strip()

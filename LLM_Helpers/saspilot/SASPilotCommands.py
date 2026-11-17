@@ -34,7 +34,7 @@ PILOT_REVISION = 1
 _state = None
 
 
-# JSON
+# <!-- custom: JSON (Claude code Opus 5.5) -->
 
 # <!-- custom: Writing 441 plots took 28 ms of the 31 ms the request spent in the game, against 3 ms to read them, as the loop below handled every character in Python (2026-11-13).
 # Most strings are plain ASCII XML types and names, so they are copied whole when this finds nothing to escape; that brought the encoding of the same plots to a few ms. (Claude code Opus 5.5) -->
@@ -138,7 +138,7 @@ def fromJson(text):
 	return _unescapeStrings(eval(text, {"__builtins__": {}, "true": True, "false": False, "null": None}))
 
 
-# Mailbox
+# <!-- custom: Mailbox (Claude code Opus 5.5) -->
 
 def _writeAtomic(path, text):
 	temp = path + ".tmp"
@@ -273,7 +273,7 @@ def _serve(text):
 	return reply
 
 
-# Lookups
+# <!-- custom: Lookups (Claude code Opus 5.5) -->
 
 def _typeName(info):
 	if info is None:
@@ -415,7 +415,7 @@ def _yields(getter):
 	return [getter(YieldTypes(i)) for i in range(YieldTypes.NUM_YIELD_TYPES)]
 
 
-# Views
+# <!-- custom: Views (Claude code Opus 5.5) -->
 
 def _unitBrief(unit, iFogTeam=None):
 	# <!-- custom: The 'units' list and the units inside plots come from appendSASPilotUnitJson in CvGameInterface.cpp instead; keep the two writers' fields the same. (Claude code Opus 5.5) -->
@@ -721,7 +721,7 @@ def _playerFull(player):
 	return result
 
 
-# Read commands
+# <!-- custom: Read commands (Claude code Opus 5.5) -->
 
 # <!-- custom: One line per command for 'help', kept beside each function instead of a docstring. (Claude code Fable 5.2) -->
 # <!-- custom: Help texts are returned as written, never %-formatted, so a percent sign is a plain %: the first 'advise' help had "70%%", from habit with format strings, which 'help' would have shown doubled (2026-11-14).
@@ -1704,6 +1704,7 @@ def _historyStart(player, other, metric, first, current, fog, partial):
 
 
 def _historyGraph(args, result):
+	# <!-- custom: BUG's advisor options say whether the score graph shows partial scores, as the Info Screen's graph does; imported here as only this command needs them. (Claude code Opus 5.5) -->
 	from BugCore import game as bug
 	metric = args.get("metric", "score")
 	if metric not in _HISTORY_GETTERS:
@@ -2016,7 +2017,7 @@ def describe(target):
 	return result
 
 
-# Order commands
+# <!-- custom: Order commands (Claude code Opus 5.5) -->
 
 _HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. Under fog, MISSION_MOVE_TO_UNIT (data1=owner, data2=unit) follows only our own team's units. args: unit, mission, data1, data2, flags, append, player."
 
@@ -6300,7 +6301,7 @@ def cmd_answer(args):
 	return popup
 
 
-# City screen
+# <!-- custom: City screen (Claude code Opus 5.5) -->
 
 def _cityPlots(city):
 	plots = []
@@ -6392,7 +6393,7 @@ def cmd_emphasize(args):
 	return _citizens(city)
 
 
-# Empire choices
+# <!-- custom: Empire choices (Claude code Opus 5.5) -->
 
 _HELP["civics"] = "Without set: each civic option with the current civic and the ones the player can adopt, and whether a revolution is possible now. With set: adopt those civics, one per option at most, as the civics screen's Revolution button does. args: set (list of CIVIC_ types), player."
 
@@ -6459,7 +6460,7 @@ def cmd_religion(args):
 	return {"stateReligion": _typeOrNone(gc.getReligionInfo, player.getStateReligion()), "canConvertTo": [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if player.canConvert(i)], "anarchyLength": player.getReligionAnarchyLength()}
 
 
-# Sevopedia
+# <!-- custom: Sevopedia (Claude code Opus 5.5) -->
 
 _reMarkup = re.compile(r"<[^>]*>")
 
