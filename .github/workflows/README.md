@@ -588,11 +588,14 @@ To refresh, run `python LLM_Helpers/code_history/convert_advciv_manual_to_txt.py
 
 #### `build/documentation/image_filename_policy.py`
 
-Keeps maintained documentation/reference image filenames unambiguous across [`_0_Legacy/Images/`](/_0_Legacy/Images/) and [`_1_AdvCiv-SAS/Images/`](/_1_AdvCiv-SAS/Images/). The check is intentionally limited to these documentation trees rather than gameplay art, where inherited assets can legitimately reuse basenames.
+Keeps maintained documentation/reference image filenames unambiguous across [`_0_Legacy/Images/`](/_0_Legacy/Images/) and [`_1_AdvCiv-SAS/Images/`](/_1_AdvCiv-SAS/Images/). These naming rules apply to the maintained image trees. Inherited gameplay art can reuse basenames.
 
 - Legacy/base-reference screenshots use the `0.x` namespace; numbered current AdvCiv-SAS images use `1.x`. Descriptive unnumbered SAS images remain valid when a numbered series is not useful.
 - Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
 - `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
+- Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets.
+  - Added on 2026-11-13: the Sevopedia EXPAND template, `civ4_expand_button.png`, had sat in `LLM_Helpers/game_runs/ui_maps/` since 2026-11-11, outside the image trees, so their naming checks did not see it and light-source ZIPs, which pack selected image folders, left out the template `map_sevopedia.py` needs. It moved to `_1_AdvCiv-SAS/Images/sevopedia/`, beside the Sevopedia screenshots.
+  - The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output, the one listed exception.
 - The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
 
 The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
@@ -1081,6 +1084,8 @@ Regenerates `LLM_Helpers/game_runs/ui_maps/civ4_ui_map.json` with `make_civ4_ui_
 - The JSON is generated: edit the generator, never the JSON. On 2026-11-12 an agent had edited the JSON directly, so rerunning the generator would have dropped the WorldBuilder mapping, as Codex's review found.
 - The generator derives the Simple Game map list from the map scripts, through the same classifier as [`map_previews.py`](#buildassetsmap_previewspy), so a script added, removed or hidden from Simple Game also fails this check until the JSON is regenerated, with each row's point placed 24 px below the last.
 - The generator itself fails when more scripts are shown than the 38 rows that fit at 1920 x 1080 without a scrollbar, since the list's points would then need re-measuring.
+
+The repository workflow also runs [`json_format.py`](/LLM_Helpers/formatting/json_format.py) on the saved window positions and Sevopedia map. The same formatter writes those files, so integer coordinates stay together on one line. The check's error gives the command to reformat the file.
 
 #### `build/repository/version_metadata.py`
 

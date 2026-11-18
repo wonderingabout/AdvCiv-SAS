@@ -716,6 +716,7 @@ Claude and Codex use the timestamp of each source record, for example `=== CLAUD
   - `--steps` includes tool calls and short output excerpts in the plain-text export. With `--markdown`, it adds output excerpts to the command summaries already present. For example, the output of the Python harness used in the 2026-11-11 peer review shows which suspected bugs reproduced.
   - Codex compresses its older chat logs itself, as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded; to find a session, search the decompressed logs by date folder (`sessions/<y>/<m>/<d>/`).
   - `--longest N` lists the N longest turns with their duration, step count and opening words, to find a turn worth reading in full.
+  - `--list [N]` lists the N newest session logs (default 10), compressed ones included, with their last write time, size, model, reasoning effort and title, as the Claude helper's `--list` does for Claude Code. Codex has not always been able to name its own model, so this is where to read it, such as `gpt-6.1-sol` with `medium` effort.
   - `--markdown` reconstructs a readable layout from the session log, with the prompt, collapsible progress notes and command summaries, the reply, and the turn duration. It uses the title from `~/.codex/session_index.jsonl` when available. The app's **Copy as Markdown** uses similar formatting, and grouping can differ.
     - On 2026-11-11 it wrote a 161,000-line chat in about 2 seconds, while the app's copy of that chat had copied nothing for several tries.
 - **ChatGPT:** ask an agent with the desktop app's chat tools to export the latest or a named conversation. Use `list_threads` with `source="chatgpt"` and `mode="history"` to select the thread, then fetch it with `read_thread`.
@@ -731,6 +732,7 @@ python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex rollout.jso
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --tail 3
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --steps --tail 12
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --longest 5
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --list 5
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --markdown
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
 ```

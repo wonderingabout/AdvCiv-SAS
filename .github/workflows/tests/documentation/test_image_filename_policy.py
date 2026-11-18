@@ -47,10 +47,32 @@ class ImageFilenamePolicyTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("legacy_only", errors[0])
 
-    def test_unrelated_game_assets_are_outside_policy(self):
+    def test_images_outside_allowed_locations_fail(self):
+        misplaced = [
+            "LLM_Helpers/game_runs/ui_maps/civ4_expand_button.PNG",
+            "_1_AdvCiv-SAS/Docs/screenshots/screen.png",
+            "Assets/Art_drafts/button.dds",
+        ]
+        errors = checker.filename_errors([
+            *misplaced,
+            "_1_AdvCiv-SAS/Images/sevopedia/civ4_expand_button.png",
+            "LLM_Helpers/game_runs/ui_maps/civ4_points.json",
+        ])
+        self.assertEqual(errors, [
+            f"{path}: image outside allowed locations. Put maintained images in _1_AdvCiv-SAS/Images/"
+            for path in sorted(misplaced)
+        ])
+
+    def test_extracted_fpk_example_preserves_its_path(self):
+        self.assertEqual(checker.filename_errors([
+            "_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds",
+        ]), [])
+
+    def test_game_asset_locations_allow_reused_basenames(self):
         self.assertEqual(checker.filename_errors([
             "Assets/Art/Interface/Button.dds",
             "Assets/Art/Units/Button.dds",
+            "Assets/Res/Fonts/Example.tga",
         ]), [])
 
     def test_check_reads_tracked_and_untracked_current_files(self):

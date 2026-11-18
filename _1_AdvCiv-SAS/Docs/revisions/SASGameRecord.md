@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 204 - SAS practical 6776
 
 - **Date:** 2026-11-18
-- **Git commit:** pending
+- **Git commit:** `024cdb4ffa22c564ed2d303bc5468356b64be0e9`
 - **Change:** No change to the record: the revision check now judges a merge commit against the parent with the higher revision, for its number and for whether it changes the recorder. Merging main into the SASPilot branch on 2026-11-17 had failed as a jump from 202 to 204, as both had used 202 meanwhile.
 
 ### Revision 203 - SAS practical 6772

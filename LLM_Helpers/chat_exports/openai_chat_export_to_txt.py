@@ -27,6 +27,27 @@ def latest_codex_rollout():
     return max(logs, key=lambda path: path.stat().st_mtime)
 
 
+# <!-- custom: Lists the newest Codex logs with the model and reasoning effort their turns ran, as claude_session_export_to_txt.py --list does for Claude Code: Codex has not always been able to name its own model, and crediting it meant an rg search on the raw log (2026-11-18).
+# A turn records both in its turn_context row; the most frequent of each is shown. (Claude code Opus 5.5) -->
+def list_codex_sessions(count):
+    root = Path.home() / ".codex"
+    logs = [path for pattern in ("sessions/*/*/*/rollout-*.jsonl*", "archived_sessions/rollout-*.jsonl*") for path in root.glob(pattern)]
+    for path in sorted(logs, key=lambda path: path.stat().st_mtime, reverse=True)[:count]:
+        models, efforts = {}, {}
+        with open_codex_log(path) as stream:
+            for line in stream:
+                if b'"turn_context"' not in line:
+                    continue
+                payload = json.loads(line).get("payload", {})
+                for found, value in ((models, payload.get("model")), (efforts, payload.get("effort"))):
+                    if value:
+                        found[value] = found.get(value, 0) + 1
+        model = max(models, key=models.get) if models else "-"
+        effort = max(efforts, key=efforts.get) if efforts else "-"
+        stat = path.stat()
+        print("%s  %8d KB  %-14s %-7s %s" % (datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M"), stat.st_size // 1024, model, effort, codex_title(path)))
+
+
 def codex_message_text(item, omit_agents=False):
     # <!-- custom: The Markdown export and turn list used to hide all text starting with "<", which also hid real XML and HTML prompts.
     # Match the injected context blocks explicitly so those prompts stay searchable. (GPT-6.1-Sol) -->
@@ -343,9 +364,14 @@ def main():
     parser.add_argument("--steps", action="store_true", help="codex: include tool calls and output excerpts in text exports, or add output excerpts to Markdown")
     mode.add_argument("--markdown", action="store_true", help="codex: write the chat in the layout of the app's Copy as Markdown, with each turn's working time")
     mode.add_argument("--longest", type=int, help="codex: list the N longest turns with their duration, step count and opening words, instead of exporting")
+    mode.add_argument("--list", type=int, nargs="?", const=10, metavar="N", help="codex: list the N newest session logs (default 10) with their last write time, size, model, reasoning effort and title, instead of exporting")
     args = parser.parse_args()
-    if args.source != "codex" and (args.steps or args.markdown or args.longest is not None):
-        parser.error("--steps, --markdown and --longest require the codex source")
+    if args.source != "codex" and (args.steps or args.markdown or args.longest is not None or args.list is not None):
+        parser.error("--steps, --markdown, --longest and --list require the codex source")
+    if args.list is not None:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        list_codex_sessions(args.list)
+        return
     if args.steps and args.longest is not None:
         parser.error("--steps requires a transcript export, not --longest")
     if args.input is None and args.source != "codex":

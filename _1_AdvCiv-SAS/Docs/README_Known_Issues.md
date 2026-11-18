@@ -3573,6 +3573,16 @@ See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
 
+Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`), still on the SASPilot branch, to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
+
+Running `bin\fastdep.exe -q -O x <file>` on each edited translation unit isolated `CvGameTextMgr.cpp` in seconds; the other edited files passed.
+
+Removing the apostrophes from all five lines passed, and so did keeping them on any one, two, three or four of the five; only all five together crashed.
+
+Several of these lines held an odd number of apostrophes, but their total was even, and dropping a line with two kept that total's parity yet passed, so a simple quote-parity rule does not explain it either.
+
+As in the first case, the trigger is a source layout that the old scanner reads, not the code. Rewording the five comments without possessives ("the build of a Worker") passed `fastdep` and the build. Testing `fastdep.exe` per file, as above, is the quick way to find such a trigger before reading any diff. (Claude code Opus 5.5)
+
 <a id="ki-38.6"></a>
 
 ## KI#38.6 - (Observed transient CI failure; cause undetermined) GitHub fixture cleanup failed, then an identical-tree retry passed
