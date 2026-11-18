@@ -209,6 +209,19 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         new = "// <!-- custom: Existing rationale. -->\nint value = 1;\n"
         self.assertTrue(any("dropped existing credit" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, new)))
 
+    # <!-- custom: New prose credited only to an app or family fails in each language, also beside an exact credit; exact models, unknown future models and an unchanged old generic credit pass. (Claude code Opus 5.5) -->
+    def test_new_comment_needs_an_exact_model_credit(self):
+        for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
+            for credit in ("Codex", "ChatGPT", "Claude", "Claude code", "GPT", "Claude code Opus 5.5 + Codex"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertTrue(any("names only the app or model family" in error for error in self.errors(path, "", source)))
+                    self.assertEqual(self.errors(path, source, source), [])
+            for credit in ("GPT-6.1-Sol", "Claude code Opus 5.5", "GPT-5.3-Codex", "ChatGPT-5.6-Sol + GPT-6.1-Sol", "FutureModel-9000"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertFalse(any("names only the app or model family" in error for error in self.errors(path, "", source)))
+
     # <!-- custom: Refining a generic family credit is more precise provenance, not a dropped contributor; the reverse remains a lossy rewrite. (ChatGPT-5.6-Sol) -->
     def test_generic_model_credit_can_be_refined_but_not_generalized(self):
         old = "# <!-- custom: Existing rationale. (ChatGPT) -->\nvalue = 1\n"
@@ -296,7 +309,7 @@ class SourceChangeProvenanceTests(unittest.TestCase):
     def test_cpp_include_change_requires_nearby_new_custom_rationale(self):
         old = '#include "Old.h"\nint value;\n'
         bad = '#include "New.h"\nint value;\n'
-        good = '// <!-- custom: Replace Old.h with New.h because the used declaration now lives there. (Codex) -->\n#include "New.h"\nint value;\n'
+        good = '// <!-- custom: Replace Old.h with New.h because the used declaration now lives there. (GPT-6.1-Sol) -->\n#include "New.h"\nint value;\n'
         self.assertTrue(any("include/import change" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, bad)))
         self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, good), [])
 
