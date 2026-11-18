@@ -112,6 +112,7 @@ Its message box has three states, told apart by the round button at its bottom r
 - **Why agents use the session log.** In the 2026-11-11 tests, expanding **Worked for** brought Codex to the foreground and caught a keystroke the user was typing elsewhere.
   - The separate **Copy as Markdown** command left the clipboard unchanged in the agent's tests, though the user sometimes got a copy after retries. Opening the menu, retrying the copy and pasting it into a file also took extra time.
   - The log export gives agents the progress notes and tool activity without touching the window. It reconstructs the layout from recorded events, so command summaries and grouping can differ from the app.
+- **Which model it ran.** The session log records each turn's model and reasoning effort, useful as Codex has not always been able to name its own model; [`openai_chat_export_to_txt.py codex --list`](/LLM_Helpers/README.md#codex-and-chatgpt-transcript-helper) shows them for the newest chats.
 
 - **Usage:** the gray wheel at the bottom left opens a popup with the 5-hour and weekly limits as percentages left; hovering a row shows its reset time ("Resets in 23m", "Resets in 6d 19h").
   - "Manage usage" in that popup opens the app's own Settings > Usage & billing page, not a browser. It repeats both limits with countdowns. Its back arrow, top left, returns to the chat.
@@ -317,6 +318,7 @@ Observed on 2026-11-10.
   - Centre: the chat, with the message box at the bottom; under the box sit the model and effort ("Opus 5.5 Medium"), the permission mode ("Auto") and the usage ring.
   - Right: a side panel with the environment (folder, branch), the context breakdown, outputs and changes; the icons at the top right switch its views, such as a terminal or a browser.
 - **Change model or effort.** Click the label below the composer, which read **Opus 5.5 Medium** in this test. The checkmark shows the current model. Select a model there, or open **Effort** to change the compute level. Claude marked **Medium** as recommended for Opus 5.5, and it is the user's usual choice for this project. Press Esc to close the menu and keep the current settings.
+  - The model a session actually ran is in its log; [`claude_session_export_to_txt.py --list`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) shows it for this project's newest sessions.
 - **Recognize a running reply.** In a short test, the square **Stop** button appeared at the right edge of the composer, just left of the microphone. It stayed visible as the reply formed and disappeared when the reply finished. The test let the reply finish normally.
 - **Check whether Claude is still working.** The square **Stop** button stays visible during a pending tool call, even if the reply text stops growing. The composer can still accept input and showed “Enter to send, Ctrl+Enter to queue for later.” For a handoff, wait for **Stop** to disappear and the idle placeholder to return before sending another message.
 - **Inspect permission mode.** Click **Auto** under the composer to see the current selection.

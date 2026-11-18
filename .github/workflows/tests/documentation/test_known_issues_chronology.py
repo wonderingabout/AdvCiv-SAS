@@ -48,6 +48,19 @@ class KnownIssuesChronologyTests(unittest.TestCase):
         self.assertEqual(checker.chronology_errors(self.baseline, top), [])
         self.assertEqual(checker.chronology_errors(end, top), [])
 
+    # <!-- custom: The 2026-11-18 case: a misplaced patch carried KI#39's last paragraphs into the entry before it, which the insertion rule allowed as a deletion plus a new entry. (Claude code Opus 5.5) -->
+    def test_paragraph_moved_into_another_entry_fails(self):
+        new = self.baseline.replace('Archaeology and rationale.\n\n', '').replace('Other history.', 'Other history.\n\nArchaeology and rationale.')
+        errors = checker.chronology_errors(self.baseline, new)
+        self.assertEqual(len(errors), 1)
+        self.assertIn('KI#979 now sits in KI#980', errors[0])
+
+    def test_shared_lines_and_merged_entries_pass(self):
+        shared = self.baseline.replace('Other history.', 'Other history.\n\nOriginal credits.')
+        self.assertEqual(checker.chronology_errors(shared, shared.replace('Original credits.\n\n<a id="ki-980">', '<a id="ki-980">')), [])
+        merged = '<a id="ki-980"></a>\n\n## KI#980 - Other finding\n\nOther history.\n\nArchaeology and rationale.\n'
+        self.assertEqual(checker.chronology_errors(self.baseline, merged), [])
+
     def test_relocation_to_end_passes(self):
         note = '2026-10-21 replay result.\n\n'
         old = self.baseline.replace('Archaeology and rationale.', note + 'Archaeology and rationale.')

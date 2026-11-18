@@ -61,6 +61,32 @@ def chronology_errors(old, new):
         for kind, start, _end, new_start, _new_end in matcher.get_opcodes():
             if kind == "insert" and start < len(before):
                 errors.append(f"{DOCUMENT}:{paragraphs[new_start][1]}: KI#{number}: new paragraph inserted before existing history; append the follow-up at the entry's end")
+    errors += moved_errors(previous, entries(new))
+    return errors
+
+
+# <!-- custom: On 2026-11-18 a KI#38.7 patch applied at a shifted line landed inside KI#39, and moving it back carried KI#39's last three paragraphs into KI#38.7.
+# The insertion rule above saw nothing, as deletions are allowed and a new entry has no history, and the structure checks passed; only the user's review noticed.
+# So a paragraph that leaves an entry still present and appears in another fails; a whole entry merged into another, as KI#176.2 into KI#1091, leaves no source and passes.
+# Only a paragraph found in a single entry before and after counts: replayed over the 546 commits that changed this document, the first draft failed 7, each a shared credit line such as "Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; …", which stayed in dozens of other entries when one entry's credit changed. (Claude code Opus 5.5) -->
+def moved_errors(previous, current):
+    errors = []
+    found, owners = {}, {}
+    for number, paragraphs in current.items():
+        for value, line in paragraphs:
+            found.setdefault(value, []).append((number, line))
+    for number, paragraphs in previous.items():
+        for value, _line in paragraphs:
+            owners.setdefault(value, set()).add(number)
+    for number, before in previous.items():
+        if number not in current:
+            continue
+        kept = {value for value, _line in current[number]}
+        for value, _line in before:
+            if value in kept or len(owners[value]) > 1 or len(found.get(value, [])) != 1:
+                continue
+            other, line = found[value][0]
+            errors.append(f"{DOCUMENT}:{line}: a paragraph of KI#{number} now sits in KI#{other}; keep it in its own entry")
     return errors
 
 

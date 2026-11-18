@@ -5,6 +5,7 @@ Use this reference to translate folder and file paths found in older commits, lo
 ## Menu
 
 - [Legacy documentation](#legacy-documentation)
+- [Modding resources](#modding-resources)
 - [Dev logs](#dev-logs)
 - [Better BTS AI's SVN history](#better-bts-ais-svn-history)
 
@@ -24,6 +25,21 @@ On 2026-11-03, commit `029cd420b` ("Reorganize legacy documentation and image na
 - Why: "Common" did not say what the folder held, inherited documentation from the mods AdvCiv-SAS builds on. `_0_Legacy` names it and pairs with `_1_AdvCiv-SAS`, separating inherited reference material from our own, and its `Images/` folder took the base-AdvCiv UI screenshots in the same move.
   - The `_Doc` suffixes and the long SourceForge-derived names repeated what the folder already says, so they were shortened; the [Legacy README](/_0_Legacy/README.md) records each source.
 - Our own records were updated to the new paths on 2026-11-17, the [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) included, for easier grepping and archiving.
+
+## Modding resources
+
+On 2026-11-10, commit `3d6f100d1` ("Group LLM_Helpers into folders named by job, tidy the Docs folders, …") renamed the modding guides' folder and moved the two logging guides into it:
+
+| Old path | Current path |
+| --- | --- |
+| `_1_AdvCiv-SAS/Docs/Modding_Ressources/` | `_1_AdvCiv-SAS/Docs/Modding_Resources/` |
+| `_1_AdvCiv-SAS/Docs/README_Logging_Inventory.md` | `_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md` |
+| `_1_AdvCiv-SAS/Docs/README_Logging_Flushing_Comparison.md` | `_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md` |
+
+- Why: "Ressources" is the French spelling; the folder took the English one, like the rest of the repository.
+- Old names remain where they match old commits: the markdownlint ignore globs for the archived changelogs and a commit-diff filtering test.
+  - The user's Google Drive folder is still titled "Modding_Ressources", which AGENTS.md quotes as that folder's real title.
+  - So the old spelling is not in the [retired names](/_1_AdvCiv-SAS/Docs/Deprecated/retired_names.md) check, which would fail on those correct uses.
 
 ## Dev logs
 

@@ -1437,11 +1437,7 @@ This is why AdvCiv-SAS targets the capital more aggressively as the decisive tar
   - The earlier AdvCiv-SAS fix kept the war active as intended, but didn't take into account that UWAI had already accepted the peace treaty internally even though the teams remained at war: the SAS rejection was too late in the process.
   - To fix this, these treaties are now rejected before UWAI processes them, so its decisions and logs correctly show that the war continues; capitulation remains available, and confirming runs had zero false peace successes.
   - See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-184).
-- (Requires AdvCiv-SAS 6750+) Update: asking an AI for peace while either side is a victory threat now gets a refusal on the diplomacy screen.
-  - That peace was already blocked, but only at the last step: the AI still offered the treaty to a human's "Suggest peace", the screen said "We're glad you accepted our offer.", and the war silently went on.
-  - Found while an agent played through SASPilot: Kublai Khan, who had just built the Internet, offered peace twice that way and the war continued both times.
-  - Now the AI refuses such peace when it counter-proposes and when it considers an offer, the same rule the final step applies; surrender still ends a war.
-  - See [KI#1094](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094).
+- (Requires AdvCiv-SAS 6777+) Update: asking an AI for peace while either side is a victory threat now gets a refusal on the diplomacy screen, instead of an offer that seemed accepted while the war went on. See [KI#1094](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094).
 - **Space victory denial now starts before the final launch window when parts are already high:**
   - After KI#184 made AIs react faster and harder to immediate Space-win threats, BBAI follow-up logs showed that some Space rivals were sometimes still too close to winning before the countdown response began.
   - In save file 450, Arabia still won because its recent war with Hannibal, the strongest nearby threat, had ended in normal Civ4 forced peace, temporarily preventing Hannibal from immediately restarting the war; by the time another anti-Space war could happen, Arabia was already at countdown 4.
