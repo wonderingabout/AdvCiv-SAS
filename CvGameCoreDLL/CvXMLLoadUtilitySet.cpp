@@ -451,6 +451,7 @@ bool CvXMLLoadUtility::SetGlobalTypes()
 				"Civ4Types/FootstepAudioTypes/FootstepAudioType",
 				&GC.getNumFootstepAudioTypes());
 
+		// <!-- custom: Not a doubled line: each call moves the XML cursor up one level, so the pair climbs two, as in BtS's original. See KI#1098. (Claude code Opus 5.5) -->
 		gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		gDLL->getXMLIFace()->SetToParent(m_pFXml);
 		SetVariableListTagPair(&GC.getFootstepAudioTags(), "FootstepAudioTags",

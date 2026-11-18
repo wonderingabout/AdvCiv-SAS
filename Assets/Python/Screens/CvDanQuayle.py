@@ -30,7 +30,7 @@ class CvDanQuayle:
 		self.LEADERHEAD_ID = "CvDanQuayleLeaderhead"
 		self.LIST_ID = "CvDanQuayleList"
 		self.TEXT_ID = "CvDanQuayleText"
-		self.SCORE_ID = "CvDanQuayleScore"
+		# <!-- custom: Was assigned twice in a row, as in vanilla Civ4's copy; the second assignment only repeated the first. See KI#1098. (Claude code Opus 5.5) -->
 		self.SCORE_ID = "CvDanQuayleScore"
 		self.WIDGET_HEADER = "CvDanQuayleHeader"
 

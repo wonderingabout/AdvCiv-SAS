@@ -70,6 +70,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
   - [Python compatibility](#python-compatibility)
     - [`build/python/python24_compile.py`](#buildpythonpython24_compilepy)
   - [Repository](#repository)
+    - [`build/repository/adjacent_duplicate_lines.py`](#buildrepositoryadjacent_duplicate_linespy)
     - [`build/repository/assets_dlls.py`](#buildrepositoryassets_dllspy)
     - [`build/repository/commit_trailers.py`](#buildrepositorycommit_trailerspy)
     - [`build/repository/dev_logs.py`](#buildrepositorydev_logspy)
@@ -858,6 +859,16 @@ It uses `py_compile` on each source file but redirects bytecode to a temporary d
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
 ### Repository
+
+#### `build/repository/adjacent_duplicate_lines.py`
+
+Rejects a code line that a commit adds when it repeats the line right above or below it, indentation included, in Python, C++ and PowerShell files.
+
+- Such doubles come from a merge resolution keeping both sides, a script run twice or a paste, and the code still runs, so nothing else catches them. The review on 2026-11-18 found three: `SevoPediaMusic.py` set the same label twice, and the inherited `CvDanQuayle.py` and `CvCustomizableDomesticAdvisor.py` assigned or hid the same thing twice.
+- Only added lines count: across the tracked code, 114 lines repeat their neighbour, most on purpose, such as two `NEWLINE` appends for a blank line or matrix rows in map scripts. A deliberate double can say so with a trailing comment, which makes the lines differ.
+- Lines of only brackets, separators or comment rules are not counted, nor XML, which repeats rows on purpose, nor test folders, whose harnesses call a function twice to prove the second call changes nothing. Line-ending-only changes are ignored, so a conversion does not count every line as added.
+- Replayed over the last 400 commits of main, saspilot and sassavetransplanter, it flags none. Commit selection is shared with `dll_commit_message.py`.
+- [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098) traces where each of the three doubles came from.
 
 #### `build/repository/assets_dlls.py`
 
