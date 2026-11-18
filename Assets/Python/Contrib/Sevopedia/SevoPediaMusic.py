@@ -233,7 +233,7 @@ class SevoPediaMusic:
 		iScreenW, iScreenH, _, _, _, _ = self.mediaPlayer.setupLayout(screen, "", False)
 		iPanelX, iPanelY, iPanelW, iPanelH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.placeTvPanel(screen, iScreenW, iScreenH)
 		self.mediaPlayer.placeTimerLabel(screen, iScreenW, iScreenH)
-		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
+		# <!-- custom: Was set twice in a row since the Movies Toggle Button commit (2026-01-30); the second call only repeated the first. See KI#1098. (Claude code Opus 5.5) -->
 		self.mediaPlayer.setCurrentLabel(screen, self.top.SAS_getMusicTitle(iMusic))
 		self.mediaPlayer.startTimer()
 

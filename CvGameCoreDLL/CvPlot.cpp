@@ -2643,6 +2643,8 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePl
 	int iTurnsLeft = iBuildLeft / iThenBuildRate;
 	if (iTurnsLeft * iThenBuildRate < iBuildLeft)
 		iTurnsLeft++;
+	// <!-- custom: Not a doubled line: the increment above rounds the build time up, this one adds the current turn.
+	// In BtS the first sat in braces with a blank line after it; AdvCiv's dropped braces put the two side by side. See KI#1098. (Claude code Opus 5.5) -->
 	iTurnsLeft++;
 
 	return std::max(1, iTurnsLeft);
