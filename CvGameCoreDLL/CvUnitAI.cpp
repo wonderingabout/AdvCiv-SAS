@@ -27877,7 +27877,7 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 				eBuild = kPlot.SAS_getBonusSpecificBuild(eNonObsoleteBonus);
 			if (eBuild == NO_BUILD)
 			{
-				// Let "best build" handle improvement replacements near cities for non-land-worker cases.
+				// <!-- custom: Let "best build" handle improvement replacements near cities for non-land-worker cases. (GPT-5.5) -->
 				eBuild = pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(kPlot));
 			}
 			bool const bCandidateConnectsBonus = (eBuild != NO_BUILD && kOwner.doesImprovementConnectBonus(

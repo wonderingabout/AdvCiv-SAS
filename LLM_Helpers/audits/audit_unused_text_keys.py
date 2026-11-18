@@ -146,7 +146,7 @@ def main():
 
 	likely = {}   # rel file -> [tags]
 	review = {}   # rel file -> [tags]  (dynamic-prefix families)
-	rescued = 0   # tags that mod-only would flag but base/vanilla confirm used
+	rescued = 0   # <!-- custom: tags that mod-only would flag but base/vanilla confirm used (Claude code Opus 4.7) -->
 	for tag in sorted(defined):
 		if tag in referenced:
 			if tag not in mod_only:

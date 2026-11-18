@@ -658,7 +658,7 @@ def assignStartingPlots():
 				iPass += 1
 				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
 					continue
-				else: # Hard fallback: force any valid land plot in this region.
+				else: # <!-- custom: Hard fallback: force any valid land plot in this region. (GPT-5.3-Codex) -->
 					for iX in range(westX, eastX + 1):
 						for iY in range(southY, northY + 1):
 							pPlot = map.plot(iX, iY)
@@ -673,7 +673,7 @@ def assignStartingPlots():
 						if pBestPlot is not None:
 							break
 					if pBestPlot is None:
-						# Last-resort global fallback (should never happen on this script).
+						# <!-- custom: Last-resort global fallback (should never happen on this script). (GPT-5.3-Codex) -->
 						for iX in range(iW):
 							for iY in range(iH):
 								pPlot = map.plot(iX, iY)

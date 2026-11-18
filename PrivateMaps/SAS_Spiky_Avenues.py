@@ -311,7 +311,7 @@ def generatePlotTypes():
 		for x in range(layout["avenue_left"], layout["avenue_right"] + 1):
 			for y in range(iAvenueTop, iAvenueBottom + 1):
 				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
-		# Spikes: facing houses on both sides of avenue.
+		# <!-- custom: Spikes: facing houses on both sides of avenue. (GPT-5.3-Codex) -->
 		for (iX0, iX1, _) in layout["house_rects"]:
 			for x in range(iX0, iX1 + 1):
 				for y in range(iStreetTop, iAvenueTop):
@@ -328,20 +328,20 @@ def generatePlotTypes():
 						plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_OCEAN
 					for y in range(iAvenueBottom + 1, iStreetBottom + 1):
 						plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_OCEAN
-		# Soft avenue end-caps near bridges for smoother side movement.
+		# <!-- custom: Soft avenue end-caps near bridges for smoother side movement. (GPT-5.3-Codex) -->
 		for y in range(iAvenueTop, iAvenueBottom + 1):
 			plot_types[map_obj.plotNum(layout["avenue_left"] - 1, y)] = PlotTypes.PLOT_LAND
 			plot_types[map_obj.plotNum(layout["avenue_right"] + 1, y)] = PlotTypes.PLOT_LAND
 			if y == iAvenueTop or y == iAvenueBottom:
 				plot_types[map_obj.plotNum(layout["avenue_left"] - 2, y)] = PlotTypes.PLOT_LAND
 				plot_types[map_obj.plotNum(layout["avenue_right"] + 2, y)] = PlotTypes.PLOT_LAND
-		# Bridge endpoints on both map edges for this street.
+		# <!-- custom: Bridge endpoints on both map edges for this street. (GPT-5.3-Codex) -->
 		for y in range(iAvenueTop, iAvenueBottom + 1):
 			for x in range(layout["left_bridge_start"], layout["left_bridge_start"] + layout["bridge_width"]):
 				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
 			for x in range(layout["right_bridge_start"], layout["right_bridge_start"] + layout["bridge_width"]):
 				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
-		# Edge bridges connect this street to next street; movement between streets is routed via avenue edge.
+		# <!-- custom: Edge bridges connect this street to next street; movement between streets is routed via avenue edge. (GPT-5.3-Codex) -->
 		if iStreet < len(layout["street_rows"]) - 1:
 			(_, nextAvenueTop, nextAvenueBottom, _) = layout["street_rows"][iStreet + 1]
 			iStartY = (iAvenueTop + iAvenueBottom) / 2
@@ -406,7 +406,7 @@ def findStartingPlot(argsList):
 			sas_slot_assignments[playerID] = iNum
 			return iNum
 
-	# Safety search only near this house slot; never steal distant slots and never reuse an already-used start plot.
+	# <!-- custom: Safety search only near this house slot; never steal distant slots and never reuse an already-used start plot. (GPT-5.3-Codex) -->
 	for iRadius in range(1, 3):
 		for dx in range(-iRadius, iRadius + 1):
 			for dy in range(-iRadius, iRadius + 1):

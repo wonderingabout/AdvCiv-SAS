@@ -24,7 +24,8 @@ NAMES = {"KMod": "K-Mod", "AdvCivPreSAS": "AdvCiv before the SAS fork", "SASBran
 NOTES = {"KMod": "Last commit in this history", "AdvCivPreSAS": "Ends at the SAS fork"}
 OTHER_ACCOUNT = {"codingnewcode": "wonderingabout's other account"}
 CREDIT_TAIL = re.compile(r"\(([^()]*(?:\([^()]*\)[^()]*)?)\)\s*-->")
-CREDIT_TOKEN = re.compile(r"claude(?P<cp>[ -]code|[ -]ai)?[ -](?P<cf>opus|sonnet|haiku)[ -](?P<cv>\d(?:\.\d)?)|(?P<cg>chat[ -]?gpt|chagpt|catgpt|chtagpt|chatcpt|chatgp)(?:[- ]?(?P<cgv>o-?3|3-o|4-o|\d(?:\.\d)?o?))?(?:[- ]?(?P<cgs>sol))?(?:[- ]?(?P<cgt>thinking))?|(?<![a-z-])gpt[- ]?(?P<gv>\d(?:\.\d)?)(?:[- ]?(?P<gs>codex|sol|thinking))?|\b(?P<gem>gemini)(?:[- ](?P<gemv>\d(?:\.\d)?))?(?:[- ](?P<gemk>pro|flash))?\b|\b(?P<other>deepseek|grok|kimi|copilot|antigravity)\b|(?<![\w.-])(?P<bare>o-?3|3-o|4-?o)(?![\w-])|\b(?P<cc>claude[ -]code)\b|\b(?P<ca>claude[ -]?ai)\b|\b(?P<c>claude)\b|\b(?P<x>codex)\b|(?<![a-z-])(?P<g>gpt)\b", re.I)
+# <!-- custom: On 2026-11-18 the tables counted "Claude code Fable 5.2" credits as "Claude code, no model", as Fable was not a known family, and read the transcript marker "=== CHATGPT 00001 ===" as a model "ChatGPT-0"; a version now cannot be the start of a longer number. (Claude code Opus 5.5) -->
+CREDIT_TOKEN = re.compile(r"claude(?P<cp>[ -]code|[ -]ai)?[ -](?P<cf>opus|sonnet|haiku|fable)[ -](?P<cv>\d(?:\.\d)?)|(?P<cg>chat[ -]?gpt|chagpt|catgpt|chtagpt|chatcpt|chatgp)(?:[- ]?(?P<cgv>o-?3|3-o|4-o|\d(?:\.\d)?o?(?!\d)))?(?:[- ]?(?P<cgs>sol))?(?:[- ]?(?P<cgt>thinking))?|(?<![a-z-])gpt[- ]?(?P<gv>\d(?:\.\d)?)(?:[- ]?(?P<gs>codex|sol|thinking))?|\b(?P<gem>gemini)(?:[- ](?P<gemv>\d(?:\.\d)?))?(?:[- ](?P<gemk>pro|flash))?\b|\b(?P<other>deepseek|grok|kimi|copilot|antigravity)\b|(?<![\w.-])(?P<bare>o-?3|3-o|4-?o)(?![\w-])|\b(?P<cc>claude[ -]code)\b|\b(?P<ca>claude[ -]?ai)\b|\b(?P<c>claude)\b|\b(?P<x>codex)\b|(?<![a-z-])(?P<g>gpt)\b", re.I)
 
 
 def parse_args() -> argparse.Namespace:

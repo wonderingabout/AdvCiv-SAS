@@ -276,7 +276,7 @@ def generatePlotTypes():
 				if _is_island_land(x - iX0, y - iY0, iIslandW, iIslandH):
 					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
 
-	# Keep terrain texture light and predictable on starts.
+	# <!-- custom: Keep terrain texture light and predictable on starts. (GPT-5.3-Codex) -->
 	for i in range(iW * iH):
 		if plot_types[i] != PlotTypes.PLOT_LAND:
 			continue
@@ -383,7 +383,7 @@ def _apply_horizontal_coast_lanes(terrain_types):
 			if i < len(row_islands) - 1:
 				gap_x = range(iLeftX1 + 1, iRightX0)
 			else:
-				# wrap-edge gap between last and first island
+				# <!-- custom: wrap-edge gap between last and first island (GPT-5.3-Codex) -->
 				gap_x = list(range(iLeftX1 + 1, iW)) + list(range(0, iRightX0))
 
 			iGapLen = len(gap_x)

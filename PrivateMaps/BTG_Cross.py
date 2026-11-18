@@ -291,7 +291,7 @@ def beforeGeneration():
 
 	#2.22
 	global isBTPon
-	# BTG-only blocks are disabled in AdvCiv-SAS.
+	# <!-- custom: BTG-only blocks are disabled in AdvCiv-SAS. (GPT-5.3-Codex) -->
 	isBTPon = False
 
 	gc = CyGlobalContext()
@@ -329,7 +329,7 @@ def beforeGeneration():
 	# Error catching.
 	if iPlayers < 1 or iPlayers > gc.getMAX_CIV_PLAYERS():
 		return None
-	# Keep legacy cross-region templates to preserve original map identity.
+	# <!-- custom: Keep legacy cross-region templates to preserve original map identity. (GPT-5.3-Codex) -->
 	iNumRegions = iRegionsBase
 
 	# Some regions may go unused. We need to track the ones that have been used.

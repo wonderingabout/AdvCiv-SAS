@@ -35,7 +35,7 @@ def _getMultiplierPercent(iFontBody):
 	return iPercent
 
 def _buildScaledKeys(iPercent):
-	# return formatted CITYBILLBOARD_SCALE <Key> lines using the given percent multiplier.
+	# <!-- custom: return formatted CITYBILLBOARD_SCALE <Key> lines using the given percent multiplier. (GPT-5.3-Codex) -->
 	fMult = iPercent / 100.0
 	lines = []
 	for (iDist, fBase) in _BASE_BILLBOARD_KEYS:
@@ -44,7 +44,7 @@ def _buildScaledKeys(iPercent):
 	return lines
 
 def _rewriteDetailManagerXML(szPath, scaledKeyLines):
-	# replace CITYBILLBOARD_SCALE key lines in CIV4DetailManager.xml; skip file write when unchanged.
+	# <!-- custom: replace CITYBILLBOARD_SCALE key lines in CIV4DetailManager.xml; skip file write when unchanged. (GPT-5.3-Codex) -->
 	try:
 		f = open(szPath, "r")
 		content = f.read()
@@ -65,7 +65,7 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 
 	currentKeys = [line.strip() for line in match.group(2).splitlines() if line.strip()]
 	targetKeys = [line.strip() for line in scaledKeyLines]
-	# If already in the desired state, do nothing to avoid needless disk churn.
+	# <!-- custom: If already in the desired state, do nothing to avoid needless disk churn. (GPT-5.3-Codex) -->
 	if currentKeys == targetKeys:
 		BugUtil.info("SASBillboardScale: CITYBILLBOARD_SCALE already up to date in %s", szPath)
 		return True
@@ -86,7 +86,7 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 	return True
 
 def apply():
-	# apply define-driven CITYBILLBOARD_SCALE keys for the active SAS_UI_FONT_BODY.
+	# <!-- custom: apply define-driven CITYBILLBOARD_SCALE keys for the active SAS_UI_FONT_BODY. (GPT-5.3-Codex) -->
 	iFontBody = SASTextScale.getSASUIFontBody()
 	iPercent = _getMultiplierPercent(iFontBody)
 

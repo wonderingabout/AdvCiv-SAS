@@ -323,7 +323,7 @@ def generatePlotTypes():
 		iPrevTop = iLocalTop
 		iPrevBottom = iLocalBottom
 
-	# Add sparse hills/peaks on the strip for texture, but keep enough flat plots for starts.
+	# <!-- custom: Add sparse hills/peaks on the strip for texture, but keep enough flat plots for starts. (GPT-5.3-Codex) -->
 	for x in range(iW):
 		for y in range(iTopRow, iBottomRow + 1):
 			i = map_obj.plotNum(x, y)

@@ -43,7 +43,7 @@ These local trees sit alongside the AdvCiv-SAS installation in the Civ4 `Mods` d
 
 ## History lineage
 
-The searchable history runs from the first Firaxis SDK drop to current AdvCiv-SAS. Counts are revisions or commits as of 2026-11-09, under the author names SVN and Git record. Rows are chronological by first commit.
+The searchable history runs from the first Firaxis SDK drop to current AdvCiv-SAS. Counts are revisions or commits as of 2026-11-18, under the author names SVN and Git record. Rows are chronological by first commit.
 
 See also the in-game Sevopedia [Mods Info](/README.md#info-about-other-mods) category, for players: the main rule changes between these mods.
 
@@ -71,7 +71,7 @@ Release dates come from web listings, which differ slightly by region and source
 | Better BTS AI, with its Firaxis SDK drops | `commit_diffs/`, files `BBAI_r*` | 597 | 2006-10-14 (r1) | 2010-09-04 (r597) | Frozen; from SVN, so its files are tracked rather than generated from our Git |
 | K-Mod | `commit_diffs/`, segment `KMod` | 1249 | 2010-12-27 (`7dd0684d3`) | 2016-11-04 (`d0a60f8b9`) | Last commit in this history |
 | AdvCiv before the SAS fork | `commit_diffs/`, segment `AdvCivPreSAS` | 3094 | 2017-04-16 (`79f5e6b02`) | 2025-03-15 (`967909152`) | Ends at the SAS fork |
-| AdvCiv-SAS branch | `commit_diffs/`, segment `SASBranch` | 2395 | 2025-03-22 (`0f161c707`) | 2026-11-09 (`2126df30a`) (ongoing) | Includes the 77 upstream AdvCiv commits of the next row |
+| AdvCiv-SAS branch | `commit_diffs/`, segment `SASBranch` | 2436 | 2025-03-22 (`0f161c707`) | 2026-11-18 (`2852d7432`) (ongoing) | Includes the 77 upstream AdvCiv commits of the next row |
 | AdvCiv upstream after the SAS fork | Merged into `SASBranch` | 77, counted in `SASBranch` | 2025-03-23 (`12cf73525`) | 2026-08-19 (`989950ec6`) (ongoing) | All by f1rpo; fetched `upstream/1.14` (`7f498cf1b`, 2026-08-21) has 11 more commits not merged here |
 
 | Project | Author | Commits | First | Last |
@@ -87,7 +87,7 @@ Release dates come from web listings, which differ slightly by region and source
 | AdvCiv before the SAS fork | Igor Kushnir | 1 | 2019-06-26 (`2001a9b33`) | 2019-06-26 (`2001a9b33`) |
 | AdvCiv-SAS branch | codingnewcode (wonderingabout's other account) | 64 | 2025-03-22 (`0f161c707`) | 2025-03-28 (`a570624ed`) |
 | AdvCiv-SAS branch | f1rpo (upstream AdvCiv commits merged in, not SAS work) | 77 | 2025-03-23 (`12cf73525`) | 2026-08-19 (`989950ec6`) (ongoing) |
-| AdvCiv-SAS branch | wonderingabout | 2251 | 2025-03-27 (`5fe05819c`) | 2026-11-09 (`2126df30a`) (ongoing) |
+| AdvCiv-SAS branch | wonderingabout | 2292 | 2025-03-27 (`5fe05819c`) | 2026-11-18 (`2852d7432`) (ongoing) |
 | AdvCiv-SAS branch | dependabot[bot] | 3 | 2026-06-09 (`372ec1f86`) | 2026-07-23 (`10c6e91c1`) |
 
 ### Model credit timeline
@@ -98,19 +98,19 @@ Looking back at the LLM side of this history as well, we tried to trace each mod
 
 These tables are offered as a general indication of each model's contribution, and the real picture may be quite different.
 
-The LLM counterpart of the tables above, for AdvCiv-SAS, extracted from `commit_diffs/` on 2026-11-09, through `2126df30a`. Rows are chronological by first appearance.
+The LLM counterpart of the tables above, for AdvCiv-SAS, extracted from `commit_diffs/` on 2026-11-18, through `2852d7432`. Rows are chronological by first appearance.
 
 The first table counts the AdvCiv-SAS commit titles naming each model, which reach further back than comment credits and use the same labels as the second table. A title is written once, so its last date is meaningful. A title can name several models.
 
 | Model, as named in titles | Commit titles | First | Last |
 | --- | --- | --- | --- |
-| ChatGPT | 74 | 2025-04-10 (`f0f55128e`) | 2026-10-17 (`e70922991`) |
+| ChatGPT | 75 | 2025-04-10 (`f0f55128e`) | 2026-10-17 (`e70922991`) |
 | Claude AI, no model | 16 | 2025-05-12 (`adf53965f`) | 2025-08-20 (`e7181173b`) |
 | GPT, no version | 10 | 2025-05-24 (`b84196868`) | 2026-09-07 (`be2d65233`) |
 | Gemini | 8 | 2025-07-18 (`6c860ed1e`) | 2025-08-05 (`c4ffe6951`) |
 | DeepSeek | 1 | 2025-07-21 (`f6b992b46`) | 2025-07-21 (`f6b992b46`) |
 | ChatGPT-o3 | 2 | 2025-08-06 (`4148c4ace`) | 2025-08-07 (`6ac4d9729`) |
-| ChatGPT-5 | 47 | 2025-08-08 (`bda7d2fa2`) | 2025-11-25 (`137bb408c`) |
+| ChatGPT-5 | 46 | 2025-08-08 (`bda7d2fa2`) | 2025-11-15 (`8d6fb6020`) |
 | ChatGPT-5.1 | 16 | 2025-11-13 (`983cc7f25`) | 2025-12-04 (`2a453a1f3`) |
 | Claude Sonnet 4.1 | 1 | 2025-11-18 (`7cade60a7`) | 2025-11-18 (`7cade60a7`) |
 | Grok | 1 | 2025-11-18 (`7cade60a7`) | 2025-11-18 (`7cade60a7`) |
@@ -119,7 +119,7 @@ The first table counts the AdvCiv-SAS commit titles naming each model, which rea
 | Gemini 3 Pro | 9 | 2025-12-10 (`360549918`) | 2025-12-27 (`cd1292fe3`) |
 | ChatGPT-5.2 | 34 | 2025-12-12 (`96e8d47e6`) | 2026-01-14 (`419e28e4b`) |
 | Claude Opus 4.5 | 10 | 2025-12-22 (`3811b1864`) | 2026-01-03 (`f83dcc927`) |
-| Codex, no model | 12 | 2025-12-23 (`ff14e3e25`) | 2026-09-02 (`620c9263a`) |
+| Codex, no model | 13 | 2025-12-23 (`ff14e3e25`) | 2026-11-18 (`2852d7432`) |
 | GPT-5.2-Codex | 9 | 2025-12-23 (`940d04ce7`) | 2026-02-02 (`feaaae6ce`) |
 | Claude code Sonnet 4.5 | 3 | 2026-01-02 (`d8a03aaf8`) | 2026-01-14 (`419e28e4b`) |
 | Claude code Opus 4.5 | 5 | 2026-01-16 (`22723a30c`) | 2026-02-02 (`feaaae6ce`) |
@@ -134,63 +134,70 @@ The first table counts the AdvCiv-SAS commit titles naming each model, which rea
 | Claude Sonnet 4.6 | 1 | 2026-05-24 (`1548510c7`) | 2026-05-24 (`1548510c7`) |
 | ChatGPT-5.5 | 4 | 2026-06-06 (`e73e44b6b`) | 2026-06-28 (`7a6be1b48`) |
 | ChatGPT-5.6-Sol | 1 | 2026-08-24 (`f2d72e7f9`) | 2026-08-24 (`f2d72e7f9`) |
+| Claude code, no model | 1 | 2026-11-18 (`2852d7432`) | 2026-11-18 (`2852d7432`) |
 
 The second table covers model credits in code and XML comments.
 
 | Model, as credited | First credit | Last new credit | Commits | Credited lines | Inline mentions | Doc mentions |
 | --- | --- | --- | --- | --- | --- | --- |
-| ChatGPT | 2025-04-10 (`f0f55128e`) | 2026-11-03 (`029cd420b`) | 10 | 20 | 621 | 1242 |
+| ChatGPT | 2025-04-10 (`f0f55128e`) | 2026-11-03 (`029cd420b`) | 10 | 20 | 626 | 1353 |
 | ChatGPT-4o | 2025-05-06 (`50f798316`) | - | 0 | 0 | 9 | 31 |
-| GPT, no version | 2025-05-06 (`50f798316`) | 2025-09-18 (`fce68b70e`) | 4 | 4 | 28 | 134 |
-| Claude AI, no model | 2025-05-12 (`adf53965f`) | 2026-01-07 (`b9c21a28c`) | 4 | 5 | 191 | 257 |
-| Claude, no model | 2025-05-21 (`e82115dc5`) | - | 0 | 0 | 12 | 77 |
+| GPT, no version | 2025-05-06 (`50f798316`) | 2025-09-18 (`fce68b70e`) | 4 | 4 | 28 | 137 |
+| Claude AI, no model | 2025-05-12 (`adf53965f`) | 2026-01-07 (`b9c21a28c`) | 4 | 5 | 192 | 260 |
+| Claude, no model | 2025-05-21 (`e82115dc5`) | - | 0 | 0 | 24 | 198 |
 | Gemini | 2025-07-18 (`6c860ed1e`) | - | 0 | 0 | 113 | 141 |
 | DeepSeek | 2025-07-21 (`f6b992b46`) | - | 0 | 0 | 3 | 28 |
-| ChatGPT-o3 | 2025-08-06 (`4148c4ace`) | - | 0 | 0 | 50 | 43 |
-| ChatGPT-5 | 2025-08-08 (`bda7d2fa2`) | 2026-10-08 (`89a9db59b`) | 17 | 27 | 1924 | 627 |
+| ChatGPT-o3 | 2025-08-06 (`4148c4ace`) | - | 0 | 0 | 51 | 43 |
+| ChatGPT-5 | 2025-08-08 (`bda7d2fa2`) | 2026-10-08 (`89a9db59b`) | 17 | 27 | 1925 | 581 |
 | Gemini 2.5 Pro | 2025-08-21 (`0704fd52d`) | - | 0 | 0 | 7 | 7 |
 | Grok | 2025-08-28 (`fc87dcc30`) | - | 0 | 0 | 10 | 29 |
 | Claude Sonnet 4.5 | 2025-10-29 (`ce8cc2aa4`) | - | 0 | 0 | 90 | 53 |
-| ChatGPT-5.1 | 2025-11-13 (`983cc7f25`) | - | 0 | 0 | 124 | 107 |
+| ChatGPT-5.1 | 2025-11-13 (`983cc7f25`) | - | 0 | 0 | 125 | 108 |
 | Kimi | 2025-11-16 (`c4d71d146`) | - | 0 | 0 | 3 | 8 |
 | Gemini 3 Pro | 2025-11-26 (`df56f22fc`) | - | 0 | 0 | 284 | 50 |
 | Claude Sonnet 4 | 2025-11-29 (`c4e736db8`) | - | 0 | 0 | 0 | 30 |
 | Gemini Pro | 2025-12-11 (`916d3a319`) | - | 0 | 0 | 11 | 0 |
 | ChatGPT-5.2 | 2025-12-12 (`8a47389a1`) | 2026-01-21 (`b1773e07c`) | 25 | 115 | 256 | 131 |
 | Claude Opus 4.5 | 2025-12-22 (`3811b1864`) | 2026-01-28 (`978e8252b`) | 39 | 255 | 144 | 45 |
-| Codex, no model | 2025-12-23 (`940d04ce7`) | - | 1 | 1 | 17 | 224 |
-| GPT-5.2-Codex | 2025-12-23 (`940d04ce7`) | 2026-02-04 (`d87fe0098`) | 86 | 476 | 207 | 100 |
+| Codex, no model | 2025-12-23 (`940d04ce7`) | - | 1 | 1 | 85 | 518 |
+| GPT-5.2-Codex | 2025-12-23 (`940d04ce7`) | 2026-11-18 (`2852d7432`) | 88 | 490 | 208 | 103 |
 | Claude code Sonnet 4.5 | 2025-12-31 (`1f9b99fd9`) | 2026-01-28 (`978e8252b`) | 22 | 150 | 6 | 25 |
-| Claude code, no model | 2025-12-31 (`1f9b99fd9`) | - | 0 | 0 | 3 | 45 |
+| Claude code, no model | 2025-12-31 (`1f9b99fd9`) | - | 0 | 0 | 12 | 147 |
 | GPT-5 | 2025-12-31 (`1f9b99fd9`) | - | 0 | 0 | 0 | 2 |
 | ChatGPT-5.2 Thinking | 2026-01-08 (`77dc1e64a`) | 2026-01-22 (`6facedf5d`) | 14 | 34 | 19 | 10 |
 | GPT-5.2 | 2026-01-09 (`e8659a5e4`) | - | 0 | 0 | 0 | 1 |
 | Claude code Opus 4.5 | 2026-01-14 (`419e28e4b`) | 2026-07-19 (`e9307c6bf`) | 27 | 74 | 26 | 27 |
 | GPT-5.2 Thinking | 2026-01-23 (`06c01a7e5`) | - | 0 | 0 | 16 | 8 |
-| Claude code Opus 4.6 | 2026-02-06 (`a595618dd`) | 2026-04-15 (`57e2cacb5`) | 21 | 56 | 10 | 9 |
-| GPT-5.3-Codex | 2026-02-06 (`74aed0721`) | 2026-04-25 (`9abe202a3`) | 214 | 1199 | 54 | 62 |
+| Claude code Opus 4.6 | 2026-02-06 (`a595618dd`) | 2026-04-15 (`57e2cacb5`) | 21 | 56 | 10 | 11 |
+| GPT-5.3-Codex | 2026-02-06 (`74aed0721`) | 2026-11-18 (`2852d7432`) | 216 | 1257 | 55 | 67 |
 | Claude Opus 4.6 | 2026-02-18 (`96163add0`) | 2026-02-18 (`96163add0`) | 2 | 6 | 1 | 0 |
 | GPT-5.4 | 2026-03-19 (`08d32a43c`) | 2026-04-21 (`fb18bad9c`) | 8 | 28 | 2 | 7 |
 | GPT-5-Codex | 2026-03-23 (`c5b7209bf`) | 2026-04-15 (`57e2cacb5`) | 2 | 6 | 0 | 0 |
-| Claude code Sonnet 4.6 | 2026-04-13 (`c8726554a`) | 2026-05-16 (`b6192c987`) | 28 | 135 | 1 | 4 |
-| Claude code Opus 4.7 | 2026-04-18 (`ad844aa89`) | 2026-05-22 (`dee1d9c5a`) | 89 | 589 | 24 | 8 |
-| GPT-5.5 | 2026-04-24 (`72e780b45`) | 2026-10-09 (`f17159a56`) | 263 | 2174 | 45 | 64 |
+| Claude code Sonnet 4.6 | 2026-04-13 (`c8726554a`) | 2026-11-18 (`2852d7432`) | 29 | 138 | 1 | 4 |
+| Claude code Opus 4.7 | 2026-04-18 (`ad844aa89`) | 2026-11-18 (`2852d7432`) | 90 | 594 | 24 | 8 |
+| GPT-5.5 | 2026-04-24 (`72e780b45`) | 2026-11-18 (`2852d7432`) | 266 | 2182 | 45 | 70 |
 | ChatGPT-5.5 Thinking | 2026-05-11 (`76d024947`) | - | 0 | 0 | 1 | 1 |
-| GPT-5.5 Thinking | 2026-05-13 (`3afcce597`) | 2026-07-12 (`570fe0922`) | 13 | 34 | 2 | 8 |
-| ChatGPT-5.5 | 2026-06-03 (`505f032ce`) | 2026-10-12 (`9c6c31341`) | 109 | 650 | 46 | 35 |
-| ChatGPT-5.6-Sol | 2026-07-10 (`c023244d8`) | 2026-11-09 (`2126df30a`) | 503 | 4682 | 13 | 1243 |
-| GPT-5.6-Sol | 2026-07-15 (`7b6aeb7f1`) | 2026-10-06 (`fdcd91c77`) | 410 | 3421 | 14 | 1203 |
+| GPT-5.5 Thinking | 2026-05-13 (`3afcce597`) | 2026-07-12 (`570fe0922`) | 13 | 34 | 2 | 10 |
+| ChatGPT-5.5 | 2026-06-03 (`505f032ce`) | 2026-11-12 (`8c043c71e`) | 111 | 653 | 46 | 36 |
+| ChatGPT-5.6-Sol | 2026-07-10 (`c023244d8`) | 2026-11-11 (`700d714f6`) | 511 | 4714 | 16 | 1252 |
+| GPT-5.6-Sol | 2026-07-15 (`7b6aeb7f1`) | 2026-10-06 (`fdcd91c77`) | 413 | 3425 | 14 | 1205 |
 | ChatGPT-5.6 | 2026-08-05 (`f651eeade`) | 2026-08-05 (`f651eeade`) | 2 | 2 | 0 | 0 |
 | GPT-5.6 Thinking | 2026-08-05 (`bff444456`) | 2026-08-14 (`86b81c25b`) | 21 | 144 | 1 | 10 |
-| GPT-5.6 | 2026-08-07 (`63eef1e11`) | 2026-08-11 (`ad20f152b`) | 10 | 18 | 0 | 0 |
-| GPT-6 | 2026-09-12 (`265ed92d9`) | 2026-09-13 (`3e8be2332`) | 3 | 9 | 0 | 0 |
+| GPT-5.6 | 2026-08-07 (`63eef1e11`) | 2026-08-11 (`ad20f152b`) | 10 | 18 | 0 | 1 |
+| GPT-6 | 2026-09-12 (`265ed92d9`) | 2026-09-13 (`3e8be2332`) | 3 | 9 | 0 | 2 |
 | Claude Opus 5 | 2026-09-21 (`37448599d`) | - | 1 | 1 | 0 | 0 |
 | Claude Sonnet 5 | 2026-09-21 (`37448599d`) | 2026-09-21 (`37448599d`) | 1 | 1 | 0 | 0 |
-| GPT-6.1-Sol | 2026-10-02 (`a3292818a`) | 2026-11-09 (`2126df30a`) | 120 | 2494 | 8 | 70 |
+| GPT-6.1-Sol | 2026-10-02 (`a3292818a`) | 2026-11-18 (`37e81625f`) | 139 | 2624 | 13 | 97 |
 | ChatGPT-6-Sol | 2026-10-10 (`789474a31`) | 2026-10-10 (`789474a31`) | 4 | 14 | 0 | 0 |
 | Claude Sonnet 5.5 | 2026-10-20 (`6cca29250`) | - | 1 | 7 | 0 | 4 |
-| Claude code Opus 5.5 | 2026-11-02 (`d709f875c`) | 2026-11-09 (`f45b84be0`) | 25 | 847 | 0 | 39 |
-| Claude code Sonnet 5.5 | 2026-11-03 (`029cd420b`) | 2026-11-03 (`029cd420b`) | 1 | 14 | 0 | 0 |
+| Claude code Opus 5.5 | 2026-11-02 (`d709f875c`) | 2026-11-18 (`168b1e2f0`) | 60 | 1830 | 20 | 114 |
+| Claude code Sonnet 5.5 | 2026-11-03 (`029cd420b`) | 2026-11-03 (`029cd420b`) | 2 | 15 | 0 | 0 |
+| GPT-6-Sol | 2026-11-11 (`5ff32ab18`) | - | 0 | 0 | 0 | 1 |
+| GPT-6.1 | 2026-11-11 (`5ff32ab18`) | - | 0 | 0 | 0 | 1 |
+| Claude Opus 5.5 | 2026-11-16 (`2e6c26523`) | - | 0 | 0 | 0 | 2 |
+| Claude code Fable 5.2 | 2026-11-17 (`db199dba0`) | 2026-11-18 (`758cfc1e2`) | 3 | 12 | 0 | 3 |
+| Claude Fable 5 | 2026-11-18 (`758cfc1e2`) | - | 0 | 0 | 0 | 1 |
+| Claude Fable 5.2 | 2026-11-18 (`758cfc1e2`) | - | 0 | 0 | 0 | 1 |
 
 How to read it:
 

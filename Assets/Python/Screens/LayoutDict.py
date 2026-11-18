@@ -5,7 +5,7 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
-# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability) -->
+# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability) (Claude code Opus 4.7) -->
 
 from RectLayout import *
 from math import pow
