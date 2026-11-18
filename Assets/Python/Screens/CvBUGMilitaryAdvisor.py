@@ -372,7 +372,8 @@ class CvMilitaryAdvisor:
 				# K-Mod
 				# (GPT-6.1-Sol) -->
 				if bWHEOOH and not bCurrentWar:
-					# which symbol for Col_Curr_Wars? using QUESTION_MARK; alternatives tried: "Art/Interface/Buttons/Civilizations/Barbarian.dds" or ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
+					# <!-- custom: which symbol for Col_Curr_Wars?
+					# using QUESTION_MARK; alternatives tried: "Art/Interface/Buttons/Civilizations/Barbarian.dds" or ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath() (Claude code Opus 4.7) -->
 					self.iconGrid.addIcon(iRow, self.Col_Curr_Wars, SASVisuals.InterfaceArt.QUESTION_MARK, 32, WidgetTypes.WIDGET_GENERAL, -1)
 					self.iconGrid.addIcon(iRow, self.Col_WillDeclareOn, SASVisuals.InterfaceArt.QUESTION_MARK, 32, WidgetTypes.WIDGET_GENERAL, -1)
 				# K-Mod end
@@ -396,7 +397,7 @@ class CvMilitaryAdvisor:
 
 	def initIconGrid(self, screen, bVassals, bDefPacts):
 
-		# was range(9); Col_WHEOOH removed from this unpack
+		# <!-- custom: was range(9); Col_WHEOOH removed from this unpack (Claude code Opus 4.7) -->
 		(self.Col_Leader, self.Col_WEnemy, self.Col_Threat, self.Col_Curr_Wars, self.Col_WillDeclareOn, self.Col_WillEmbargo, self.Col_Vassals, self.Col_DefPacts) = range(8)
 		if (not bVassals):
 			# shift over 1 to make room for vassals column

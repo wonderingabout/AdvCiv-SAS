@@ -11,7 +11,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 <!-- NOTE: If you remove any of these you need to update GameInfo/CultureLevelInfos.xml. Also you will need to update the GlobalDefines.xml if you remove GAMESPEED_STANDARD -->
 <!-- custom: Long_Comments_XML.txt #138, #358 -->
 <!-- custom: note to agents: if you want to modify this file, read the Long Comments referenced above first; they contain key design rationale used by the timelines below.
-Removed here for concision. -->
+Removed here for concision. (GPT-5.3-Codex) -->
 <Civ4GameSpeedInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<GameSpeedInfos>
 		<!-- custom: new game speed with the help of chatgpt 5.2 thanks. -->
@@ -425,7 +425,7 @@ Removed here for concision. -->
 				<!-- +1,800 to +1,850: modern transition -->
 				<GameTurnInfo><iMonthIncrement>36</iMonthIncrement><iTurnsPerIncrement>34</iTurnsPerIncrement></GameTurnInfo>
 				<GameTurnInfo><iMonthIncrement>24</iMonthIncrement><iTurnsPerIncrement>46</iTurnsPerIncrement></GameTurnInfo>
-				<!-- +1,850 to +2,010: industrial to modern -->
+				<!-- custom: +1,850 to +2,010: industrial to modern (GPT-5.3-Codex) -->
 				<GameTurnInfo><iMonthIncrement>12</iMonthIncrement><iTurnsPerIncrement>130</iTurnsPerIncrement></GameTurnInfo>
 				<!-- +2,010 to +2,105: contemporary -->
 				<GameTurnInfo><iMonthIncrement>6</iMonthIncrement><iTurnsPerIncrement>140</iTurnsPerIncrement></GameTurnInfo>

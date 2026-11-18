@@ -258,7 +258,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.X_STATS = self.X_TECH_PANE
 		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + SMALL_MARGIN
 		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
-		# Stats height - slightly increased to avoid bottom clipping in stats tables.
+		# <!-- custom: Stats height - slightly increased to avoid bottom clipping in stats tables. (GPT-5.3-Codex) -->
 		self.H_STATS = 384
 
 		# Stats sub-panels layout - blue panels without headers, margin separation
@@ -268,7 +268,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
 		self.STATS_MARGIN = STATS_MARGIN
 		self.STATS_INNER = STATS_INNER
 
-		# Left side deterministic split with explicit transfer to the right chart.
+		# <!-- custom: Left side deterministic split with explicit transfer to the right chart. (GPT-5.3-Codex) -->
 		self.STATS_LEFT_W = int(self.W_STATS * 0.60) - TECH_STATS_MOVE_LEFT_TO_RIGHT_W
 		self.STATS_LEFT_X = self.X_STATS + STATS_MARGIN
 		self.STATS_LEFT_TOP_Y = self.Y_STATS + STATS_MARGIN

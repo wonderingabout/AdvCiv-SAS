@@ -77,7 +77,7 @@ class SevoPediaHandicapChart:
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(table)
 
-		# Minor Python-level micro-opt: bind methods used in hot loops.
+		# <!-- custom: Minor Python-level micro-opt: bind methods used in hot loops. (GPT-5.2-Codex) -->
 		setHeader = screen.setTableColumnHeader
 		appendRow = screen.appendTableRow
 		setCell = screen.setTableText
@@ -259,7 +259,7 @@ class SevoPediaHandicapChart:
 					goody_types.append(gt)
 		goody_groups = tuple(goody_groups_list)
 
-		anchor_field = gc.getDefineSTRING("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # not cached: read once only (table is cached via _cachedTable)
+		anchor_field = gc.getDefineSTRING("SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD")  # <!-- custom: not cached: read once only (table is cached via _cachedTable) (Claude code Sonnet 4.6) -->
 		if not anchor_field:
 			raise ValueError("[FATAL] Missing SAS_SEVO_HANDICAP_CHART_ANCHOR_FIELD define.")
 
@@ -383,7 +383,7 @@ class SevoPediaHandicapChart:
 
 		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
 
-		# One-time render prep (kept local; cache stores only final table cells)
+		# <!-- custom: One-time render prep (kept local; cache stores only final table cells) (GPT-5.2-Codex) -->
 		icon_cell_for_key = None
 		if self.IS_SAS_SEVO_HANDICAP_CHART_HEADER_ICONS:
 			game = CyGame()

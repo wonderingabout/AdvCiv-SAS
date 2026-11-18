@@ -1420,13 +1420,13 @@ def normalizeAddExtras():
 				#if pPlot.getTerrainType() == desert and pPlot.getBonusType(-1) == BonusTypes.NO_BONUS and pPlot.getFeatureType(-1) == FeatureTypes.NO_FEATURE:
 					pPlot.setTerrainType(grass, True, True)
 
-	# BTG Resources option removed: keep default behavior (no BTG extra-resource injections).
+	# <!-- custom: BTG Resources option removed: keep default behavior (no BTG extra-resource injections). (GPT-5.3-Codex) -->
 
 	# <!-- custom: Only mirror layers when this generation completed the regional Grid path; generic/failure fallbacks have no valid regional geometry. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (CyMap().getCustomMapOption(1) == 3 and bGridRegionalGenerationCompleted):
 		mirrorizeMap() #2020 06 - BTP 2.15 - Restart feature
 
-	# BTG Resources option removed: no sulphur-on-capital mode.
+	# <!-- custom: BTG Resources option removed: no sulphur-on-capital mode. (GPT-5.3-Codex) -->
 
 	CyMap().recalculateAreas()#2.21zz Mirror looks weird				
 
@@ -1439,7 +1439,7 @@ def addBonusType(argsList):
 
 	#2.21y
 	if isBTPon:
-		# BTG Resources option removed: keep default exclusion behavior.
+		# <!-- custom: BTG Resources option removed: keep default exclusion behavior. (GPT-5.3-Codex) -->
 		if (type_string in balancer.newResourcesBTP):
 			return None
 		if (type_string in balancer.newStrategicBTP):
@@ -1570,7 +1570,7 @@ def mirrorizeMap():
 	return None
 
 def startHumansOnSameTile():
-	# BTG Forest Type option removed: keep default forest behavior.
+	# <!-- custom: BTG Forest Type option removed: keep default forest behavior. (GPT-5.3-Codex) -->
 	if (CyMap().getCustomMapOption(9) == 1):
 		return True
 
@@ -1579,7 +1579,7 @@ def normalizeStartingPlotLocations():#2.21z
 	gc = CyGlobalContext()	
 	dice = gc.getGame().getMapRand()	
 
-	# BTG Start Position option removed: keep default normalization flow.
+	# <!-- custom: BTG Start Position option removed: keep default normalization flow. (GPT-5.3-Codex) -->
 	CyPythonMgr().allowDefaultImpl()#this is the bit that puts team together and is normal case			
 
 ''' 11 - BTG local/map Redclaration of MapGeneratorUtil functions for logic '''

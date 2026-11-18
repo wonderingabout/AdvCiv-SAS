@@ -280,14 +280,14 @@ class CvInfoScreen:
 		if not CyGame().isFinalInitialized():
 			return
 
-		# Calculate width for the links every time because it depends on runtime X_EXIT/screen width.
+		# <!-- custom: Calculate width for the links every time because it depends on runtime X_EXIT/screen width. (GPT-5.3-Codex) -->
 		aszPageLabels = []
 		for i in self.PAGE_NAME_LIST:
 			aszPageLabels.append(localText.getText(i, ()).upper())
 		szExitLabel = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), aszPageLabels, szExitLabel, self.X_EXIT)
 
-		# only execute language-dependent text initialization once per active language.
+		# <!-- custom: only execute language-dependent text initialization once per active language. (GPT-5.3-Codex) -->
 		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
 			return
 		self.iLanguageLoaded = CyGame().getCurrentLanguage()

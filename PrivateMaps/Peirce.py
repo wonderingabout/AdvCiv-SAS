@@ -132,7 +132,7 @@ def getGridSize(argsList):
 	iGridPercent = cgc.getDefineINT("SAS_PEIRCE_GRID_PCT")
 	iGridPercent = max(1, min(200, iGridPercent))
 	iBaseSide = max(8, int((iMinWorldSide * iGridPercent + 50) / 100))
-	# Keep original Peirce-type relative sizing (normalized from old Huge tables).
+	# <!-- custom: Keep original Peirce-type relative sizing (normalized from old Huge tables). (GPT-5.3-Codex) -->
 	if iPeirceWrap == 0: # Toroidal
 		type_scale = {0: 1.0, 1: 1.4, 2: 1.2667, 3: 1.0, 4: 1.0667}
 	else: # No Wrap
@@ -2091,7 +2091,7 @@ def getVariationFractal(iGrain):
 	varFractal = CyFractal()
 	iFlags = 0  # Disallow FRAC_POLAR flag, to prevent "zero row" problems.
 
-	# The Peirce map has the same width and height, so both frac Y-exp args use DEFAULT_FRAC_Y_EXP
+	# <!-- custom: The Peirce map has the same width and height, so both frac Y-exp args use DEFAULT_FRAC_Y_EXP (Claude code Opus 4.7) -->
 	varFractal.fracInit(map.getGridWidth(), map.getGridHeight(), iGrain, game.getMapRand(), iFlags, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP, CyFractal.FracVals.DEFAULT_FRAC_Y_EXP)
 
 	return varFractal

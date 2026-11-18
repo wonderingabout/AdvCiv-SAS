@@ -694,7 +694,7 @@ class SevoPediaEventTrigger:
 		screen = self.top.getScreen()
 		info = self._getTriggerInfo()
 
-		# Header panel covers the full events strip; per-event "choice cards" live inside.
+		# <!-- custom: Header panel covers the full events strip; per-event "choice cards" live inside. (GPT-5.3-Codex) -->
 		panelName = self.top.getNextWidgetName()
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER", ()), "", True, False, self.X_EVENTS, self.Y_EVENTS, self.W_EVENTS, self.H_EVENTS, PanelStyles.PANEL_STYLE_BLUE50)
 
@@ -848,7 +848,7 @@ class SevoPediaEventTrigger:
 				screen.appendMultiListButton(rowListName, civicInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
 				iButtonIndex += 1
 
-		# Required buildings — display default building of the class.
+		# <!-- custom: Required buildings — display default building of the class. (GPT-5.5) -->
 		for i in range(info.getNumBuildingsRequired()):
 			iBC = info.getBuildingRequired(i)
 			if iBC < 0:

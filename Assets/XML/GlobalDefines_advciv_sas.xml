@@ -836,7 +836,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_PROD_QUEUE_BUTTONS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: show unit info button in the map view unit panel -->
+	<!-- custom: show unit info button in the map view unit panel (GPT-5.2-Codex) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_UNIT_INFO_BUTTON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

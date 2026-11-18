@@ -45,7 +45,7 @@ class SevoPediaCivilization:
 		self.Y_CITIES = self.Y_CIVILIZATION_PANE
 		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
 
-		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. -->
+		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. (GPT-5.3-Codex) -->
 		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + MEDIUM_MARGIN
 		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
 		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)

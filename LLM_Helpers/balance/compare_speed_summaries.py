@@ -65,8 +65,8 @@ def _finalize_block(rows):
             break
 
     if header is None:
-        # Fallback for log formats that omit the explicit CSV header row.
-        # Use standard speed ordering and size from first data row.
+        # <!-- custom: Fallback for log formats that omit the explicit CSV header row.
+        # Use standard speed ordering and size from first data row. (GPT-5.3-Codex) -->
         width = len(rows[0])
         header = ["", HEADER_FIELD]
         for i in range(2, width):

@@ -2122,7 +2122,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return -1
 
 	def SAS_getMusicCivId(self, iPacked):
-		# Returns the civ ID if this is a civ music type, otherwise returns -1
+		# <!-- custom: Returns the civ ID if this is a civ music type, otherwise returns -1 (GPT-5.2-Codex) -->
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
 		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
@@ -2132,7 +2132,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return -1
 
 	def SAS_isMusicSound3D(self, iPacked):
-		# Returns True when a sound id should be played as 3D audio.
+		# <!-- custom: Returns True when a sound id should be played as 3D audio. (GPT-5.2-Codex) -->
 		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
 		if iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
 			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
@@ -2162,7 +2162,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.SAS_packMusicKey(SAS_MAGIC_PEDIA_MUSIC_TYPE_ERA, 0)
 
 	def SAS_getFirstCivScript3DMusicKey(self):
-		# Returns the packed music key for the first item in the Civilizations 3D scripts grouping.
+		# <!-- custom: Returns the packed music key for the first item in the Civilizations 3D scripts grouping. (GPT-5.2-Codex) -->
 		if self.SAS_firstCivScript3DMusicKey is None:
 			self.getMusicList()
 		if self.SAS_firstCivScript3DMusicKey is None:
@@ -2170,7 +2170,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		return self.SAS_firstCivScript3DMusicKey
 
 	def SAS_getFirstCivMusicKey(self, iCiv):
-		# Returns the packed music key for the first civ-specific entry (Select/Order) in the Music list.
+		# <!-- custom: Returns the packed music key for the first civ-specific entry (Select/Order) in the Music list. (GPT-5.2-Codex) -->
 		if self.SAS_musicCivTracks is None:
 			self.getMusicList()
 		if self.SAS_musicCivTracks is None or len(self.SAS_musicCivTracks) == 0:

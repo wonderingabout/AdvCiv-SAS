@@ -172,7 +172,7 @@ def generatePlotTypes():
 # subclass TerrainGenerator to create a lush grassland utopia.
 class ArboriaTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def __init__(self, fracXExp=-1, fracYExp=-1, grain_amount=5):
-		# Keep only fractal state persistent; handles/derived values stay local.
+		# <!-- custom: Keep only fractal state persistent; handles/derived values stay local. (GPT-5.3-Codex) -->
 		self.terrain = CyFractal()
 		self.initFractals(grain_amount, fracXExp, fracYExp)
 

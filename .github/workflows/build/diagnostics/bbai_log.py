@@ -16,7 +16,7 @@ from xml_defines import add_staged_argument, get_default_repo_root, read_global_
 
 
 EXPECTED_NONZERO_LOGGING_DEFAULTS = {
-	# These configure enabled logging but do not enable it themselves.
+	# <!-- custom: These configure enabled logging but do not enable it themselves. (GPT-5.5) -->
 	"SAS_BBAI_SCORE_LOG_INTERVAL_T_UNSCALED_GS": 100,
 	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
 }

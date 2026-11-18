@@ -90,7 +90,7 @@ class SevoPediaGameSpeedChart:
 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, CHART_TABLE_STYLE)
 		screen.enableSort(table)
 
-		# Minor Python-level micro-opt: bind methods used in hot loops.
+		# <!-- custom: Minor Python-level micro-opt: bind methods used in hot loops. (GPT-5.2-Codex) -->
 		setHeader = screen.setTableColumnHeader
 		appendRow = screen.appendTableRow
 		setCell = screen.setTableText
@@ -334,7 +334,7 @@ class SevoPediaGameSpeedChart:
 			months_increment_fields.append(szField)
 			display_label_by_field[szField] = "Inc M %02d" % (iChunk + 1)
 
-		# Additional derived increment rows split across chunks for readability.
+		# <!-- custom: Additional derived increment rows split across chunks for readability. (GPT-5.3-Codex) -->
 		for i in xrange(gc.getNumGameSpeedInfos()):
 			info = gc.getGameSpeedInfo(i)
 			speed_type = info.getType()
