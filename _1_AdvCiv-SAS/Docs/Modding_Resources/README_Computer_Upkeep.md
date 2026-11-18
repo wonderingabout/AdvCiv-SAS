@@ -48,6 +48,16 @@ In one parallel save-load run on 2026-11-11, the final PNG was about 921 KB, the
 | `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots` | optional final PNGs from `run_autoplay.py` | See the example sizes above. |
 | `Documents/My Games/beyond the sword/Replays` | one `.CivBeyondSwordReplay` per finished game, read by the Hall of Fame | 1,018 files (479 MB) on 2026-11-12, mostly from older mod versions; all but the newest were moved to `old_20261111T230303Z`, after which the Hall of Fame showed only the newest replay |
 
+Crash dumps clutter by size rather than by count: a full dump of a game is 1.2 to 1.5 GB.
+
+| Place | What fills it | Seen on 2026-11-18 |
+| --- | --- | --- |
+| `%LOCALAPPDATA%\Temp` | Civ4's own `Civ4BeyondSword.exe.dmp`, replaced at each crash, and a `Civ4BeyondSword_<pid>_<time>.dmp` copy from [`desktop_windows.py dump`](/LLM_Helpers/README.md#desktop_windowspy) per crash, which nothing removes | none |
+| `Downloads/AdvCiv-SAS_LLM/crash_dumps` | dumps kept on purpose with their DLL and PDB, one folder per KI | 3 dumps, 2.74 GB |
+
+- `archive_old_files.py --dumps` lists them with size and age, and `run_autoplay.py` runs the same report after each run, printing only when they pass 5 GB in all or a `Temp` copy is over a week old.
+- Nothing is deleted automatically: a kept dump may still be a KI's evidence. Send one to the Recycle Bin once its KI is closed. See the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#crash-dumps).
+
 ### Archiving with archive_old_files.py
 
 [`archive_old_files.py`](/LLM_Helpers/README.md#archive_old_filespy) keeps a folder's newest entries in place, 1,000 by default, and moves the rest into one subfolder named `old_<UTC time>`, so archives sort by date instead of `old1`, `old2`.

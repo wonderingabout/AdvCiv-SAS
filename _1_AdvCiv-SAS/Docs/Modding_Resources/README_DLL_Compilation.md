@@ -15,7 +15,6 @@ By default, AI/LLM helpers should let the user compile unless compilation is nee
   - [Example build output](#example-build-output)
 - [Install, test, and clean](#install-test-and-clean)
 - [Retained Debug-opt crash symbols](#retained-debug-opt-crash-symbols)
-  - [Inspecting a dump from the command line](#inspecting-a-dump-from-the-command-line)
 - [Dependency-scanner access violations](#dependency-scanner-access-violations)
 - [Transient legacy-compiler failures](#transient-legacy-compiler-failures)
 
@@ -155,52 +154,9 @@ cmd.exe /d /s /c 'call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\b
 
 ## Retained Debug-opt crash symbols
 
-A clean Debug-opt build writes both `CvGameCoreDLL.dll` and its exact matching `CvGameCoreDLL.pdb` under `CvGameCoreDLL/Project/temp_files/Debug-opt`. The linked DLL records that build-time PDB path.
+Keep the successful `temp_files/Debug-opt` folder while its installed DLL may need crash analysis: the DLL records that folder's PDB path, so debuggers find the exact matching symbols there. Delete it before the next Debug-opt build, as above.
 
-Installing only the DLL in `Assets` while retaining the successful build folder therefore lets automatic WinDbg dump analysis resolve private symbols, source files and line numbers without copying the PDB into `Assets` or manually extending the debugger's symbol path.
-
-This was confirmed empirically during KI#475.2: after `temp_files/Debug-opt` was removed, a later matching Debug-opt crash report lost the useful source frames despite copying a PDB beside the installed Assets DLL; retaining the freshly rebuilt target restored them.
-
-Keep the successful `temp_files/Debug-opt` folder while its installed DLL may need crash analysis. The folder is locally Git-ignored because retaining its exact PDB is now the normal Debug-opt workflow.
-
-This is not permission to reuse its `.obj`, `.pch`, dependency or linker files for another accepted Debug-opt build: delete the whole `temp_files/Debug-opt` target before every subsequent Debug-opt compile or retry, then create a fresh DLL/PDB pair.
-
-Since 2026-11-11, `build_with_report.ps1` refuses a `BUILD` while `temp_files/<target>` holds any file, so stale intermediates cannot reach a build: use `REBUILD` (Rebuild in Visual C++ 2010 Express), which runs `nmake clean` first, or delete the folder.
-
-Other temporary build folders, such as `temp_files/Release` and `temp_files/Profile`, used to stay unignored so stale intermediates showed in local status as a reminder; with the refusal in place, the whole `temp_files` folder is git-ignored, so nothing in it reaches commits, release archives or the light-source ZIP.
-
-To preserve symbols beyond the next Debug-opt build, archive the exact DLL/PDB pair outside the repository and explicitly add that archive directory to WinDbg's symbol path when analyzing its matching dump.
-
-### Inspecting a dump from the command line
-
-The x86 console debugger installed with WinDbg can inspect Civ4's full-memory dump directly. This PowerShell command was tested from the repository root during the KI#475.2/KI#475.3 investigation; the matching Debug-opt folder resolved the DLL functions and source lines correctly:
-
-```powershell
-$cdbExe = "$env:LOCALAPPDATA\Microsoft\WindowsApps\cdbX86.exe"
-$dumpFile = "$env:LOCALAPPDATA\Temp\Civ4BeyondSword.exe.dmp"
-$symbolDir = (Resolve-Path 'CvGameCoreDLL\Project\temp_files\Debug-opt').Path
-& $cdbExe -z $dumpFile -y "$symbolDir;srv*" -c '.ecxr; kb; q'
-```
-
-The useful debugger commands are compact:
-
-- `.ecxr` switches to the crashing exception context.
-- `kb` prints the symbolic call stack with arguments.
-- `.frame N; dv /t` selects a stack frame and shows its typed locals. Debug-opt is optimized, so treat surprising local values as leads rather than authoritative state.
-- `dt TypeName address` inspects a typed object, `dd address` displays raw memory and `u FunctionName` disassembles a function when the ordinary stack is insufficient.
-- `.reload /f CvGameCoreDLL.dll` forces symbol reloading after correcting the symbol path.
-
-At Civ4's "Program Execution Problem" prompt, always choose **Full Dump** (the user's rule, 2026-11-13). A normal dump holds the stack and registers but not the heap, so the objects a crash points at cannot be read.
-
-- On 2026-11-13 an agent chose Normal Dump for a crash in `FFreeListTrashArray<CvPlotGroup>::removeAll` ([KI#1088](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1088)): the 22 MB dump gave the stack and the bad pointer, but not the plot-group list or the player it belonged to.
-- The prompt's buttons in its 524 x 455 window: Normal Dump at about (90, 416), Full Dump at (258, 416), No Dump at (430, 416). `desktop_windows.py screenshot --pid` captures the prompt itself while it is up, and `click --pid` aims inside it.
-- A full dump of a Small game took about a dozen seconds and 1.38 GB, written to `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp`; the process stays alive a little after. Check the file size once or twice rather than waiting in a long loop: a loop that started PowerShell on each pass and piped through `tail` showed nothing for minutes on 2026-11-13.
-- [`desktop_windows.py dump --pid <pid>`](/LLM_Helpers/README.md#desktop_windowspy) does both steps: it presses Full Dump by its label, with no coordinates or focus, and returns once the file differs from before the press and its writer has let go of it (it opens without shared writing).
-  - Added after KI#1088's dump took three tries; it was not tried on a real crash prompt.
-  - Every Civ4 writes the same file name, so it checks the process ID the dump records (its MiscInfo stream; read correctly from both KI#1088 dumps) and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` while still holding the original, so another client's crash cannot replace it in between ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)).
-- Keep each valuable dump with its matching DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/<date>_<what>/`, outside the repository, and write that path in its KI so a grep finds it.
-
-`Civ4BeyondSword.exe.dmp` is replaced by a later crash, so preserve a valuable dump before reproducing another one. The dump, installed DLL and PDB must all belong to the same build; source-line information from a different build is not reliable.
+How to use those symbols, to read crash dumps and attach to a running game, and why breakpoints end the Steam game, is in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md), which these sections moved to on 2026-11-18.
 
 ## Dependency-scanner access violations
 

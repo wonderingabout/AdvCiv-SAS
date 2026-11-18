@@ -37852,7 +37852,7 @@ It started as Codex's suggested check that held popups survive a save and reload
 
 So the crash comes from leaving this game, not from loading it, and from none of SASPilot's code, the day's DLL changes or the development diagnostics; the one success was luck. Whether a player leaving such a game through the menus also crashes was not tried, nor base AdvCiv.
 
-- The full dump, `Civ4BeyondSword.exe.dmp`, is kept with its matching Debug-opt DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_huge_t305_leaving_game` (1.5 GB, outside the repository). It was read as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
+- The full dump, `Civ4BeyondSword.exe.dmp`, is kept with its matching Debug-opt DLL and PDB in `Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_huge_t305_leaving_game` (1.5 GB, outside the repository). It was read as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#inspecting-a-dump-from-the-command-line).
   - `.ecxr; kb` stopped in the EXE: `call dword ptr [eax+4]` with `eax=bf800000`, a virtual call through an object whose first word was the float -1.0 rather than a table pointer, as in memory already freed or reused. The EXE has no unwind information, so the stack ended after six EXE frames.
   - `dds esp L800` found older return addresses on the stack, among them `CvPlayer::nextUnit` and `FFreeListTrashArray<CvUnit,CvUnitAI>::nextIter`: the EXE had been walking a player's units through the DLL just before.
   - A possible reading, not shown: the EXE frees a unit's or plot's graphics while tearing the game down and then calls one it already freed; the large unit count may matter, as small games reloaded without trouble the same day.
@@ -37947,7 +37947,7 @@ Found by Claude code Opus 5.5 on 2026-11-13, while testing SASPilot's trade tabl
   - It reads the process ID the minidump records in its MiscInfo stream and refuses a dump from another process. Read from both KI#1088 dumps, it gave 15292 and 22356, their two crashed clients.
   - It copies the dump to `Civ4BeyondSword_<pid>_<time>.dmp`, named by process like SAS's own files, while holding the original open without shared writing, so no other client can replace it in between, and reports the copy.
   - It was not tried on a real crash prompt; Codex's review noted that the click, `BM_CLICK`, can fail on an inactive dialog, which the tool would report as no dump within its timeout.
-- See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) for reading a dump and the full-dump rule.
+- See the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#crash-dumps) for reading a dump and the full-dump rule.
 
 Found by Claude code Opus 5.5 with Codex (GPT-6.1-Sol) on 2026-11-13, while writing the dump tool after KI#1088's dump took three tries; wonderingabout suggested recording it as a KI.
 

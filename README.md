@@ -2087,6 +2087,7 @@ Around [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#4
 
 - A `Debug-opt` build writes its matching `.pdb` into its `temp_files` folder. Keeping that folder, instead of deleting it as i did for `Release` builds, let WinDbg show real crash traces from a crash dump (since 2026-11-11 the build wrapper refuses to build over any leftover folder, so keeping it is safe); see [Retained Debug-opt crash symbols](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#retained-debug-opt-crash-symbols).
 - To get a crash dump in the first place, see [how to enable .dmp files](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash).
+- To read a dump, attach a debugger to a running game, and why breakpoints end the Steam game, see the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md) (since 2026-11-18).
 
 Earlier crash fixes were made without such traces, so their real cause was never confirmed, and some had side effects.
 

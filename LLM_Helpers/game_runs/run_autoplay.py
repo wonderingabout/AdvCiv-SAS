@@ -400,6 +400,8 @@ def main():
 	# The user asked on 2026-11-12 for upkeep that agents need not remember, as Logs had grown to 5,363 files; archive_crowded does nothing while any Civ4 runs, such as a client left open with --keep-open. (Claude code Opus 5.5) -->
 	try:
 		archive_old_files.archive_crowded()
+		# <!-- custom: Then the dump report, which prints only when the crash dumps pass 5 GB or a Temp copy is over a week old (user's request, 2026-11-18). (Claude code Opus 5.5) -->
+		archive_old_files.dump_report(quiet=True)
 	except OSError as error:
 		print("folder upkeep skipped: %s" % error)
 	sys.exit(0 if outcome == COMPLETED else 1)

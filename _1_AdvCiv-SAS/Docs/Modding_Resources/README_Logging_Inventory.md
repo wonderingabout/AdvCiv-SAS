@@ -237,7 +237,7 @@ These are supported by current source or inherited documentation. Absence does n
 | `<DLL filename>.build.json` | Yes | Build status, configuration, inputs, warning/error counts and binary identity; includes the installed DLL's companion report. |
 | BUG Autolog / StatusDump directory | No current file found in the checked default paths | Autolog and StatusDump normally use their configurable/default Autolog directory rather than requiring `Logs`. |
 | `ThemeParseLog.txt` | Not inventoried in this snapshot | Historical BtS engine/theme parser diagnostic reported in the Beyond the Sword installation directory rather than the user `Logs` folder. It records `.thm` parsing/resource errors; some warnings can be benign. |
-| Crash dump files | `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp` | Binary crash evidence, not a text log, written by the EXE's crash prompt; `GenerateCrashDumps=1` is currently configured. Every Civ4 uses that one name, so agents keep a dump with `desktop_windows.py dump --pid`, which checks the process ID recorded inside and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Reading one is in the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md). |
+| Crash dump files | `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp` | Binary crash evidence, not a text log, written by the EXE's crash prompt; `GenerateCrashDumps=1` is currently configured. Every Civ4 uses that one name, so agents keep a dump with `desktop_windows.py dump --pid`, which checks the process ID recorded inside and copies it to `Civ4BeyondSword_<pid>_<time>.dmp` ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Reading one is in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#crash-dumps). |
 
 ## Historical engine outputs not present in this snapshot
 
@@ -367,6 +367,8 @@ The full game capture also illustrates how a repeatedly failing check can genera
 Public Civ4/mod documentation shows the traditional workflow clearly: Better AI asked testers to use an Assert build, manually capture the assertion popup, then choose Ignore Once or Always Ignore.
 
 Civ4 DLL compilation guidance likewise describes using assertion-enabled builds/dialogs and a debugger, and recent Civ4Col discussion still describes individual assertions as popups that can be ignored or reported.
+
+On the Steam game, a breakpoint on the main thread ends the game instead of stopping in the debugger, and an assertion's **Debug** button can be expected to do the same (not tried); see the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md).
 
 These sources support the comparison that persistent paired assertion/action rows plus an unattended policy are an SAS extension of the inherited popup workflow. They do **not** prove that no Civ4 derivative anywhere has independently built similar tooling.
 
