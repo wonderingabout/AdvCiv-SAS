@@ -169,7 +169,7 @@ def compare_from_xml(xml_path, normal_speed_name, target_speed_name, summary_ste
     }
 
 def score_alignment(parsed):
-    # Weight the difficult early-mid zone where we tune the most.
+    # <!-- custom: Weight the difficult early-mid zone where we tune the most. (GPT-5.3-Codex) -->
     weights = {1: 1.0, 2: 1.5, 3: 2.5, 4: 5.0, 5: 5.0, 6: 5.0, 7: 4.0, 8: 4.5, 9: 3.0, 10: 2.0, 11: 2.0, 12: 2.0}
     score = 0.0
     for idx, _pct, _n, _t, delta_months in parsed:
@@ -179,7 +179,7 @@ def score_alignment(parsed):
     return score
 
 def score_alignment_slow(parsed):
-    # Style-first: keep close enough to Normal, but prioritize smooth shape over exactness.
+    # <!-- custom: Style-first: keep close enough to Normal, but prioritize smooth shape over exactness. (GPT-5.3-Codex) -->
     score = 0.0
 
     delta_years = {}
@@ -210,7 +210,7 @@ def score_alignment_slow(parsed):
             w = 1.0
         score += w * y
 
-    # Strongly avoid cliffs/overshoot in the key zone.
+    # <!-- custom: Strongly avoid cliffs/overshoot in the key zone. (GPT-5.3-Codex) -->
     for idx in [4, 5, 6]:
         y = delta_years.get(idx, 0.0)
         if y < -30:
@@ -294,11 +294,11 @@ def _emit_report(compare_result, title, meta_lines=None):
     return "\n".join(lines)
 
 def _slow_autoloop_candidate_rows(base_rows, rng):
-    # Row indices are 0-based in GameTurnInfos list for GAMESPEED_SLOW.
-    # Tune only a narrow section to keep behavior interpretable.
+    # <!-- custom: Row indices are 0-based in GameTurnInfos list for GAMESPEED_SLOW.
+    # Tune only a narrow section to keep behavior interpretable. (GPT-5.3-Codex) -->
     rows = [list(r) for r in base_rows]
 
-    # Build a strictly non-increasing, human-readable sequence for rows 5..16 (indices 4..15).
+    # <!-- custom: Build a strictly non-increasing, human-readable sequence for rows 5..16 (indices 4..15). (GPT-5.3-Codex) -->
     prev = rows[3][0]
     for idx in range(4, 16):
         base_inc = rows[idx][0]
@@ -312,7 +312,7 @@ def _slow_autoloop_candidate_rows(base_rows, rng):
         rows[idx][0] = options[pos2]
         prev = rows[idx][0]
 
-    # Move turns around early-mid boundaries to smooth summary 4-8.
+    # <!-- custom: Move turns around early-mid boundaries to smooth summary 4-8. (GPT-5.3-Codex) -->
     d0 = rng.randint(-3, 3)
     if rows[4][1] + d0 < 1 or rows[5][1] - d0 < 1:
         return None
@@ -331,11 +331,11 @@ def _slow_autoloop_candidate_rows(base_rows, rng):
     rows[13][1] += d2
     rows[14][1] -= d2
 
-    # Hard global rule: no yoyo, increments must be non-increasing.
+    # <!-- custom: Hard global rule: no yoyo, increments must be non-increasing. (GPT-5.3-Codex) -->
     if not _has_non_increasing_increments([(m, n) for (m, n) in rows]):
         return None
 
-    # Preserve total months by compensating on late rows.
+    # <!-- custom: Preserve total months by compensating on late rows. (GPT-5.3-Codex) -->
     base_total = sum(m * n for m, n in base_rows)
     new_total = sum(m * n for m, n in rows)
     delta = new_total - base_total
@@ -344,9 +344,9 @@ def _slow_autoloop_candidate_rows(base_rows, rng):
     shift = delta // 2
     if abs(shift) > 180:
         return None
-    # +shift means move turns 6m -> 4m; -shift means reverse.
+    # <!-- custom: +shift means move turns 6m -> 4m; -shift means reverse. (GPT-5.3-Codex) -->
     if shift > 0:
-        # donors: rows 24,23,22 (indices 23,22,21), recipient row 26.
+        # <!-- custom: donors: rows 24,23,22 (indices 23,22,21), recipient row 26. (GPT-5.3-Codex) -->
         for donor in [23, 22, 21]:
             if shift <= 0:
                 break
@@ -368,7 +368,7 @@ def _slow_autoloop_candidate_rows(base_rows, rng):
 
     if sum(n for _m, n in rows) != sum(n for _m, n in base_rows):
         return None
-    # Keep late-zone turn counts within sane range to avoid pathological tails.
+    # <!-- custom: Keep late-zone turn counts within sane range to avoid pathological tails. (GPT-5.3-Codex) -->
     if rows[22][1] < 100 or rows[22][1] > 320:
         return None
     if rows[23][1] < 100 or rows[23][1] > 320:
@@ -402,7 +402,7 @@ def run_autoloop(xml_path, target_speed, normal_speed, iterations, seed):
         if candidate_rows is None:
             continue
 
-        # Evaluate candidate quickly by replacing target rows in-memory.
+        # <!-- custom: Evaluate candidate quickly by replacing target rows in-memory. (GPT-5.3-Codex) -->
         speeds[target_type]["rows"] = candidate_rows
         target_summary = build_summary_rows(speeds[target_type], SUMMARY_STEPS)
         normal_summary = build_summary_rows(speeds[normal_type], SUMMARY_STEPS)
@@ -420,7 +420,7 @@ def run_autoloop(xml_path, target_speed, normal_speed, iterations, seed):
             if inc >= 120 and inc not in preferred:
                 sc += 800.0
 
-        # Extra guard: reject any candidate that violates global monotonic increments.
+        # <!-- custom: Extra guard: reject any candidate that violates global monotonic increments. (GPT-5.3-Codex) -->
         if not _has_non_increasing_increments(candidate_rows):
             continue
 

@@ -2303,7 +2303,7 @@ class CvMilitaryAdvisor:
 		iListY = self.Y_TEXT + self.PANEL_MARGIN + 15
 		iListW = self.W_TEXT - 2*self.PANEL_MARGIN
 		iListH = self.H_TEXT - 2*self.PANEL_MARGIN - 15
-		# Extra text-indent is only needed when icons are disabled.
+		# <!-- custom: Extra text-indent is only needed when icons are disabled. (GPT-5.3-Codex) -->
 		szUnitIndentSpace = u"  "  # <!-- custom: level 1: unit-type rows (e.g. Warrior (3)) (GPT-5.3-Codex) -->
 		szDetailIndentSpace = u"      "  # <!-- custom: level 2: individual unit detail rows (expanded view) (GPT-5.3-Codex) -->
 		if self.IS_SAS_MILIT_UI_UNIT_COMBATS_UNITS_ICONS:

@@ -754,7 +754,7 @@ def add_multilist_connector_numTxt_before_button(multiListX, multiListY, iButton
 	add_multilist_numTxt_under_button(multiListX, multiListY, get_extra_correction_x_inbetween_buttons(button_size), iButtonIndex, button_size, maxButtonsPerRow, numTxt, screen, selfTop, widgetType, font)
 
 def chart_font2(szText):
-	# Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>.
+	# <!-- custom: Wrap chart text using SAS dynamic scaling instead of hardcoded <font=2>. (GPT-5.3-Codex) -->
 	return SASTextScale.sasFontTagLabel + unicode(szText) + SASTextScale.SAS_FONT_TAG_CLOSE
 
 def chart_encode_base5(iValue, iDigits):

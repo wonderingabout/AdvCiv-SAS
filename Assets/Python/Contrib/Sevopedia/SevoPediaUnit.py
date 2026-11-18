@@ -92,7 +92,7 @@ class SevoPediaUnit:
 		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
-		# Small panels width - fits 2 buttons with standard panel spacing.
+		# <!-- custom: Small panels width - fits 2 buttons with standard panel spacing. (GPT-5.3-Codex) -->
 		self.W_SMALL_PANEL = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 
 		# Row 1 left half: Requires | Obsolete With | Free Promotions

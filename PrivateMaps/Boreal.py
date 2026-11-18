@@ -218,7 +218,7 @@ def generatePlotTypes():
 # subclass TerrainGenerator to redefine everything. This is a regional map.
 class BorealTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
 	def __init__(self, fracXExp=-1, fracYExp=-1):
-		# Keep only fractal objects as persistent state; other handles/params stay local.
+		# <!-- custom: Keep only fractal objects as persistent state; other handles/params stay local. (GPT-5.3-Codex) -->
 		self.map = CyMap()
 		self.iWidth = self.map.getGridWidth()
 		self.iHeight = self.map.getGridHeight()
@@ -278,7 +278,7 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
 		self.iGridW = self.map.getGridWidth()
 		self.iGridH = self.map.getGridHeight()
 		self.mapRand = gc.getGame().getMapRand()
-		# Keep only forest fractal as persistent state; everything else local.
+		# <!-- custom: Keep only forest fractal as persistent state; everything else local. (GPT-5.3-Codex) -->
 		self.forests = CyFractal()
 
 		iForestGrain = forest_grain + gc.getWorldInfo(self.map.getWorldSize()).getFeatureGrainChange()

@@ -333,7 +333,7 @@ class CvWorldAdvisorScreen:
 		bDebug = CyGame().isDebugMode()
 		iObserverTeam = self.getMapObserverTeam()
 		aszRows = []
-		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
+		# <!-- custom: Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal (GPT-5.5) -->
 		aiPlotTotals = [0, 0, 0, 0, 0, 0, 0, 0]
 		aaiTerrainTotals = []
 		aaiFeatureTotals = []
@@ -592,7 +592,7 @@ class CvWorldAdvisorScreen:
 
 	def collectTerritoryData(self):
 		aiBFCPlots = self.getTerritoryBFCPlotSet()
-		# Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal
+		# <!-- custom: Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal (GPT-5.5) -->
 		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
 		aaiTerrainCounts = []
 		aaiFeatureCounts = []

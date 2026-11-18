@@ -466,7 +466,7 @@ class CvMainInterface:
 			gSetPoint(szIconName, PointLayout(iX, iY + iIconYOffset))
 			self.setText(szIconName, szAttachTo, szIcon, CvUtil.FONT_LEFT_JUSTIFY, eFont, fZ, eWidgetType, iData1, iData2)
 		else:
-			# Avoid gRect lookup; we have explicit coords and size.
+			# <!-- custom: Avoid gRect lookup; we have explicit coords and size. (GPT-5.2-Codex) -->
 			self.screen.setImageButton(szIconName, szIcon, iX, iY + iIconYOffset, iIconSize, iIconSize, eWidgetType, iData1, iData2)
 		self.setText(szTextName, szAttachTo, szText, CvUtil.FONT_LEFT_JUSTIFY, eFont, fZ, eWidgetType, iData1, iData2)
 	# color can be either a key string or a color id
@@ -1393,7 +1393,7 @@ class CvMainInterface:
 		iCityTaskBtnsX = gRect("MiniMapPanel").xRight() - iConfigRowW + HSPACE(2)
 		iCityTaskBtnsY = gRect("MiniMapPanel").y() - iBarH - iSmallBtnH - VSPACE(2)
 		gSetRect("CityTaskBtns", "Top", iCityTaskBtnsX, iCityTaskBtnsY, iConfigRowW, iSmallBtnH)
-		# CityTaskArea is kept for compatibility but sized to fit CityTaskBtns
+		# <!-- custom: CityTaskArea is kept for compatibility but sized to fit CityTaskBtns (GPT-5.2-Codex) -->
 		gSetRect("CityTaskArea", "CityTaskBtns", 0, 0, RectLayout.MAX, RectLayout.MAX)
 		lConfigBtns = RowLayout(gRect("CityTaskBtns"), 0, 0, iConfigBtns, iConfigBtnSpacing, iSmallBtnW, iSmallBtnH)
 		gSetRectangle("AutomateProduction", lConfigBtns.next())
@@ -5736,7 +5736,7 @@ class CvMainInterface:
 					iCount = (pHeadSelectedCity.getSpecialistCount(iSpecialist) + pHeadSelectedCity.getFreeSpecialistCount(iSpecialist))
 					if iCount > 0:
 						iSpecCulture += (gc.getSpecialistInfo(iSpecialist).getCommerceChange(CommerceTypes.COMMERCE_CULTURE) * iCount)
-				# Add civic/tech per-specialist extras (e.g. civics/techs) if exposed in Python.
+				# <!-- custom: Add civic/tech per-specialist extras (e.g. civics/techs) if exposed in Python. (GPT-5.2-Codex) -->
 				iSpecExtraPer = 0
 				if hasattr(pPlayer, "getSpecialistExtraCommerce"):
 					iSpecExtraPer = pPlayer.getSpecialistExtraCommerce(CommerceTypes.COMMERCE_CULTURE)

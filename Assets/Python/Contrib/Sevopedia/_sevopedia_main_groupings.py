@@ -1310,13 +1310,13 @@ def SAS_getLeadersGroupedByCivilization(bSortLists):
 
 		civGroups.append((civInfo.getDescription(), civInfo.getButton(), civLeaders))
 
-	# Keep grouped civ headers alphabetical for easier browsing.
+	# <!-- custom: Keep grouped civ headers alphabetical for easier browsing. (GPT-5.3-Codex) -->
 	civGroups.sort(key=lambda x: x[0])
 
 	for civName, civButton, civLeaders in civGroups:
 		if leadersList:
 			leadersList.append(("", -1))
-		# Optional 3rd tuple value is a custom icon/button path used by placeItems for header rows.
+		# <!-- custom: Optional 3rd tuple value is a custom icon/button path used by placeItems for header rows. (GPT-5.3-Codex) -->
 		leadersList.append((civName, -1, civButton))
 		for x in civLeaders:
 			leadersList.append(x)
@@ -1336,10 +1336,10 @@ def SAS_getCivilizationsGroupedByArtStyle(bSortLists):
 			grouped[iArtStyle] = []
 		grouped[iArtStyle].append((civInfo.getDescription(), iCiv))
 
-	# Build deterministic group order by readable header text.
+	# <!-- custom: Build deterministic group order by readable header text. (GPT-5.3-Codex) -->
 	groupOrder = []
 	for iArtStyle in grouped.keys():
-		# Prefer runtime artstyle tag from DLL (e.g. "ARTSTYLE_EUROPEAN"), then make it human-readable.
+		# <!-- custom: Prefer runtime artstyle tag from DLL (e.g. "ARTSTYLE_EUROPEAN"), then make it human-readable. (GPT-5.3-Codex) -->
 		szTag = gc.getArtStyleTypes(iArtStyle)
 		szHeader = szTag.replace("ARTSTYLE_", "").replace("_", " ").title()
 		groupOrder.append((szHeader, iArtStyle))
