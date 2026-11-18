@@ -328,7 +328,9 @@ build: $(Target_BIN)
 # Redirect before ECHO: the first draft lost numeric values because cmd.exe parsed adjacent digits as redirection descriptors. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 precompile: build_provenance Target_unfinished $(Target_PCH)
 
-# <!-- custom: find.exe is named by its System32 path: a bare FIND resolved to Git Bash's Unix find when a build inherited Git Bash's PATH, which crawled all of C: while the build waited (2026-11-11 and 2026-11-13); in Visual C++ 2010 Express and PowerShell a bare FIND already resolved to this same program. makefile_windows_tools.py keeps it so. See KI#38.7. (Claude code Opus 5.5) -->
+# <!-- custom: The bare FIND came with this step, which SAS added on 2026-10-12 with ChatGPT-5.6-Sol and GPT-6.1-Sol (credited above) to count what a build found in temp_files; DIR piped into FIND /C /V "" is cmd.exe's usual way to count lines.
+# find.exe is now named by its System32 path: a bare FIND resolved to Git Bash's Unix find when a build inherited Git Bash's PATH, which crawled all of C: while the build waited (2026-11-11 and 2026-11-13); in Visual C++ 2010 Express and PowerShell a bare FIND already resolved to this same program.
+# makefile_windows_tools.py keeps it so. See KI#38.7. (Claude code Opus 5.5) -->
 build_provenance: Make_Dir
 	@> "$(Target_BUILD_PROVENANCE)" ECHO #define SAS_BUILD_REQUEST "UNKNOWN"
 	@IF DEFINED SAS_BUILD_REQUEST >> "$(Target_BUILD_PROVENANCE)" ECHO #undef SAS_BUILD_REQUEST

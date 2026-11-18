@@ -479,6 +479,9 @@ Commit selection follows the event and explicit merge intent:
 - Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
 - A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
 - Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
+- A merge commit is judged against the parent with the higher revision, for its number and for whether it changes the recorder.
+  - Merging main into the SASPilot branch on 2026-11-17 failed as a jump from 202 to 204: both had used 202 meanwhile, and against the branch's own parent the merge seemed to skip one. Against main's 203, the merge adds the branch's change as 204, one step.
+  - A merge that only brings in one side's bump equals that parent and needs none.
 
 This history check complements the minimal revision/default synchronization check and runs automatically in `checks-diagnostics.yml`. It needs canonical default-branch history, so that workflow performs a full-history metadata checkout with blob filtering.
 
@@ -593,7 +596,8 @@ Keeps maintained documentation/reference image filenames unambiguous across [`_0
 - Image basenames are case-insensitively unique across both maintained image trees, so an image can be identified reliably in documentation, logs, agent handoffs and filename searches without first knowing its folder.
 - `_0_Legacy` is a subset of the SAS tree, so each `_0_Legacy` top-level folder (`Docs`, `Images`) and each `_0_Legacy/Images` subfolder (`advisors`, `sevopedia`, ...) must also exist under `_1_AdvCiv-SAS`. The reverse direction and `_0_Legacy/Docs` subfolders (`AdvCiv`, `BBAI`, ...) are not checked: they hold inherited source material with no SAS counterpart.
 - Image files belong in the two maintained image trees or in `Assets/Art/` and `Assets/Res/` for game assets.
-  - The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output. The Sevopedia EXPAND template lives alongside the Sevopedia screenshots and follows them into the light-source ZIP.
+  - Added on 2026-11-13: the Sevopedia EXPAND template, `civ4_expand_button.png`, had sat in `LLM_Helpers/game_runs/ui_maps/` since 2026-11-11, outside the image trees, so their naming checks did not see it and light-source ZIPs, which pack selected image folders, left out the template `map_sevopedia.py` needs. It moved to `_1_AdvCiv-SAS/Images/sevopedia/`, beside the Sevopedia screenshots.
+  - The [extracted FPK road texture](/_1_AdvCiv-SAS/Docs/examples/fpk/fpk_tool_extract_example/art/terrain/routes/roads/roadprimitive.dds) keeps its original path so the example shows the extractor's output, the one listed exception.
 - The full current image inventory is cheap to scan and is checked every run, including untracked local draft images. This catches a new file colliding with an unchanged filename rather than limiting the comparison to changed paths.
 
 The `0.x`/`1.x` split was introduced while adding legacy base-AdvCiv UI references: existing SAS category suffixes were retained and only their leading namespace changed, avoiding an unnecessary renumbering of established image families.
@@ -605,6 +609,10 @@ Keeps new history paragraphs at the end of an existing Known Issues entry. It co
 - The motivating example is KI#979's dated post-fix replay note inserted before its existing archaeology and credits. Such placement interrupts the investigation thread; the corrected note follows the earlier material.
 - Rejects clear inserted paragraphs when retained body paragraphs still follow them. New KI entries and appended follow-ups are allowed, including additions before the next entry's anchor.
 - Conventional `Screenshots/files for this issue:` archive headers are metadata, so adding or moving them to the top does not count as inserting investigation history. Actual replay/investigation paragraphs remain subject to the chronology check.
+- Rejects a paragraph that leaves an entry still present and appears in another. On 2026-11-18 a KI#38.7 patch applied at a shifted line landed inside KI#39, and moving it back carried KI#39's last three paragraphs into KI#38.7; the insertion rule allowed it as a deletion plus a new entry, and the structure checks passed.
+  - The user noticed while reviewing: VS Code showed KI#39's text, written months before, as new green lines, which made no sense for a commit adding KI#38.7. A content comparison then showed KI#39 had lost its ending, which this rule now reports by itself.
+  - Only a paragraph found in one entry counts, so shared credit lines, such as the C++ File Audit Album's "Found and documented … with the help of ChatGPT-5.6-Sol", do not; a whole entry merged into another, as KI#176.2 into KI#1091, leaves no source and passes.
+  - Replayed over the 546 commits that changed the Known Issues, it flags 5, all from 2026-08-30: a "Reserved during ChatGPT-5.6-Sol's C031 … re-audit" note moved to the newest provisional entry at each step of that discontinued audit.
 - Whitespace reflow, title/status edits, paragraph corrections and deletions are allowed. This conservative check cannot tell whether rewritten prose falsifies history; semantic review remains necessary.
 - Run `python .github/workflows/build/documentation/known_issues_chronology.py --base-ref HEAD` locally. It reports all detected insertions without editing the document.
 

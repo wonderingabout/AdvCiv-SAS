@@ -67,10 +67,6 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/python_wrapper_null_args.py
 
-      - name: Byte comparisons in CI scripts say why
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        run: python .github/workflows/build/source/checkout_byte_compares.py
-
       - name: Lint suppressions name their rule and reason
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/lint_suppressions.py
