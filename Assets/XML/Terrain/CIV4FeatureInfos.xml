@@ -758,7 +758,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bRequiresRiverSide>0</bRequiresRiverSide>
 			<bAddsFreshWater>0</bAddsFreshWater>
 			<bImpassable>0</bImpassable>
-			<!-- custom: Allow founding to clear this tile as on Forest or Jungle, rather than making settlement wait for drainage research and Worker time. Surrounding Marsh retains its costs. (Gemini 4 Hydrogen + GPT-6.1-Sol) -->
+			<!-- custom: Allow founding to clear this tile as on Forest or Jungle, rather than making settlement wait for drainage research and Worker time.
+			Surrounding Marsh retains its costs. (Gemini 4 Hydrogen + GPT-6.1-Sol) -->
 			<bNoCity>0</bNoCity>
 			<!-- custom: 0 on purpose: bNoImprovement would forbid improvements even when their build removes the feature, forcing a separate drain step the Worker AI does not plan for. (Claude code Opus 5.5) -->
 			<bNoImprovement>0</bNoImprovement>
