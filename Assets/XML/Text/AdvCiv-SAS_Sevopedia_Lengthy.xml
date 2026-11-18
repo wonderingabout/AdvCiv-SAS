@@ -987,7 +987,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_FEATURE_MARSH_PEDIA</Tag>
-		<English>[TAB]A marsh is a wetland dominated by grasses, reeds and rushes rather than trees, often found on low-lying ground beside rivers, lakes and coasts. Its waterlogged soil is rich in nutrients and supports abundant plant and animal life.[PARAGRAPH:1]For early societies, marshes were fertile but difficult land: they were hard to cross, unsuitable for building, and bred disease. Throughout history many civilizations reclaimed them by draining, turning them into some of their most productive farmland, while other marshes were preserved for fishing, fowling and reed harvesting.</English>
+		<English>[TAB]A marsh is a wetland dominated by grasses, reeds and rushes rather than trees, often found on low-lying ground beside rivers, lakes and coasts. Its waterlogged soil is rich in nutrients and supports abundant plant and animal life.[PARAGRAPH:1]For early societies, marshes were fertile but difficult land: they were hard to cross, difficult to build on, and bred disease. Throughout history many civilizations reclaimed them by draining, turning them into some of their most productive farmland, while other marshes were preserved for fishing, fowling and reed harvesting.</English>
 	</TEXT>
     <TEXT>
 		<Tag>TXT_KEY_FEATURE_OASIS_PEDIA</Tag>

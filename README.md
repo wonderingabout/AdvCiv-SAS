@@ -44,7 +44,7 @@ New mechanics as well, including but not only:
 - new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art, `FeatureRemovalDiscoveries` for a chance to find a bonus when a feature is cleared)
 - new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
 
-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage until drained, the new Peat bonus that gives some Marshes production, and occasionally more when a Marsh is drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, the new Marsh feature that holds fertile Grassland hostage for development, the new Peat bonus that gives some Marshes production, and occasionally more when a Marsh is drained, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
 Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate logs.
 
@@ -1005,9 +1005,9 @@ AdvCiv-SAS revises asset stats and historical details. For example, India's Maus
 
 ### Marsh feature
 
-AdvCiv-SAS adds a Marsh feature (`FEATURE_MARSH`) on flat Grassland, which holds good land hostage rather than making it poor.
+AdvCiv-SAS adds a Marsh feature (`FEATURE_MARSH`) on flat Grassland, which holds good land hostage for development rather than making it poor.
 
-Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but the tile cannot be settled, slows and exposes units, adds mild unhealthiness, and allows only a few resource improvements until it is drained. The question becomes when a particular piece of land is worth the Worker time.
+Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but slows and exposes units, adds mild unhealthiness, and allows only a few resource improvements until it is drained. Holding land hostage does not mean forbidding every use: most land units can still cross it, and city founding is a deliberate exception, clearing its own tile as on Forest or Jungle to avoid delaying settlement for a separate Worker drainage job or having to prioritize its required technology just to found there. The surrounding Marsh remains, so the question is when a particular piece of land is worth the Worker time.
 
 A rare Peat resource forms only on Marsh and stays after draining. It gives production, and its Peat Works adds food while keeping the Marsh. Draining an ordinary Marsh can occasionally uncover some through the new [`FeatureRemovalDiscoveries`](/README.md#featureremovaldiscoveries-for-bonuses) chance, so some Marshes are worth seeking rather than clearing at once.
 
