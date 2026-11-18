@@ -14,6 +14,9 @@ from pathlib import Path
 # <!-- custom: Pillow compares captures; desktop_windows launches and drives Civ4, run_autoplay writes the INI copy. (Claude code Opus 5.5) -->
 from PIL import Image, ImageChops, ImageStat
 
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows as d
 import run_autoplay
 

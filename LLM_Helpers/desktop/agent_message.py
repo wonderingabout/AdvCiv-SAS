@@ -31,7 +31,7 @@ REPLIES = ("none needed", "Claude app", "Codex app", "user")
 # They live in app_layouts.json beside this script, with when and how each was measured, since app updates move them and re-measuring should not mean editing code.
 # Each run reads the file once at start, so a fixed layout applies from the next send on without touching code another agent may be running at that moment, such as a background --wait-reply; a wrong number cannot break the script's logic either.
 # Each text area starts just right of where the blinking text cursor sits: a click that left the cursor there made an empty Codex box read as "16 dark pixels". (Claude Code Opus 5.5) -->
-LAYOUTS_FILE = Path(__file__).resolve().parent / "ui_maps" / "app_layouts.json"
+LAYOUTS_FILE = Path(__file__).resolve().parent / "layouts" / "app_layouts.json"
 APPS = json.loads(LAYOUTS_FILE.read_text(encoding="utf-8"))["apps"]
 LAYOUT_NAMES = sorted({name for app in APPS.values() for name in app["layouts"]})
 
@@ -49,13 +49,39 @@ def pick_layout(app, pid, name):
 	return None, None
 
 
-def find_pid(process):
+def find_pid(process, required=True):
+	# <!-- custom: Was find_pid(process); required=False returns None instead of exiting, for --start, which opens the app when it has no window. (Claude code Opus 5.5) -->
 	command = "(Get-Process -Name '%s' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object -First 1).Id" % process
 	result = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True)
 	pid = result.stdout.strip()
 	if not pid:
-		sys.exit("no %s window found" % process)
+		if required:
+			sys.exit("no %s window found; --start opens the app first" % process)
+		return None
 	return int(pid)
+
+
+def start_app(name, timeout, settle, positions):
+	# <!-- custom: Open the app when it has no window, so an agent can reach Codex after the user closed it (the user's request, 2026-11-15) instead of asking for it to be reopened.
+	# Store apps have no stable .exe path (WindowsApps holds a versioned folder), so the launch goes through explorer.exe and shell:AppsFolder with the AppUserModelID kept in app_layouts.json.
+	# The window appears before its message box can take text, so a few seconds more pass before sending; --positions then puts it back in a saved desktop layout, as a fresh window opens wherever the app last was. (Claude code Opus 5.5) -->
+	app = APPS[name]
+	pid = find_pid(app["process"], required=False)
+	if pid is None:
+		subprocess.Popen(["explorer.exe", "shell:AppsFolder\\" + app["launch"]])
+		deadline = time.time() + timeout
+		while pid is None and time.time() < deadline:
+			time.sleep(1.0)
+			pid = find_pid(app["process"], required=False)
+		if pid is None:
+			sys.exit("%s did not open a window within %d seconds" % (name, timeout))
+		print("started %s (pid %d); waiting %d seconds for it to load" % (name, pid, settle), flush=True)
+		time.sleep(settle)
+	else:
+		print("%s already open (pid %d)" % (name, pid))
+	if positions:
+		print("positions %s: %s" % (positions, desktop_windows.restore_positions(positions)))
+	return pid
 
 
 def dark_pixels(pid, area):
@@ -118,6 +144,33 @@ def log_sizes(app):
 		if stat.st_mtime >= cutoff:
 			sizes[path] = stat.st_size
 	return sizes
+
+
+def open_codex_thread(thread, settle):
+	# <!-- custom: A freshly started Codex shows its home screen, a new chat, so a message sent there would start a new conversation rather than reach the thread the agents were using (seen on 2026-11-15).
+	# The app registers codex://threads/<id>, found in its bundle, and the ID is the session ID ending each rollout log's name.
+	# The thread is named by its sidebar title, from ~/.codex/session_index.jsonl (one row per naming, so the last row for an ID wins), or by ID: the user pointed out that the newest log need not be the wanted thread, as a side question in another chat would move that one up; 'latest' stays for when it is. (Claude code Opus 5.5) -->
+	if not re.match(r"^[0-9a-f]{8}-[0-9a-f]{4}-", thread) and thread != "latest":
+		names = {}
+		for line in (Path.home() / ".codex" / "session_index.jsonl").read_text(encoding="utf-8").splitlines():
+			if line.strip():
+				row = json.loads(line)
+				names[row["id"]] = row.get("thread_name") or ""
+		exact = [i for i, n in names.items() if n.lower() == thread.lower()]
+		found = exact or [i for i, n in names.items() if thread.lower() in n.lower()]
+		if len(found) != 1:
+			sys.exit("Codex thread %r matches %s; pass more of its title or its ID" % (thread, ", ".join("%r (%s)" % (names[i], i) for i in found) or "no title"))
+		print("Codex thread %r is %s" % (names[found[0]], found[0]))
+		thread = found[0]
+	if thread == "latest":
+		root, pattern = SESSION_LOGS["codex"]
+		newest = max(root.glob(pattern), key=lambda path: path.stat().st_mtime, default=None)
+		if newest is None:
+			sys.exit("no Codex session log under %s" % root)
+		thread = re.search(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$", newest.name).group(1)
+	subprocess.run(["cmd.exe", "/c", "start", "", "codex://threads/" + thread], check=True)
+	print("opened Codex thread %s" % thread, flush=True)
+	time.sleep(settle)
 
 
 def message_text(content):
@@ -234,10 +287,25 @@ def main():
 	parser.add_argument("--dry-run", action="store_true", help="print the message without sending it")
 	parser.add_argument("--wait-reply", action="store_true", help="after sending, wait until the target app ends the turn holding this message and print its final answer, read from that app's session log")
 	parser.add_argument("--wait-timeout", type=int, default=1800, help="give up waiting for the reply after this many seconds")
+	parser.add_argument("--start", action="store_true", help="open the target app first if it has no window (from its launch ID in app_layouts.json), then send; with no message, only open it")
+	parser.add_argument("--start-timeout", type=int, default=60, help="seconds to wait for the started app's window")
+	parser.add_argument("--start-settle", type=int, default=8, help="seconds to wait after the window appears, before its message box takes text")
+	parser.add_argument("--positions", help="after --start, restore this saved desktop layout (desktop_windows.py positions list)")
+	parser.add_argument("--thread", help="Codex only: open this thread before sending, by its sidebar title (or a unique part of it), its session ID, or latest for the thread last written to; a freshly started Codex otherwise shows a new chat")
 	parser.add_argument("--arrival-timeout", type=int, default=120, help="stop waiting if the message has not appeared in the target app's log after this many seconds, as when the send did not land")
 	args = parser.parse_args()
 	# <!-- custom: The header's middle dot printed as a replacement character in a cp1252 console. (Claude Code Opus 5.5) -->
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+	if args.start:
+		if not args.to:
+			parser.error("--start needs --to")
+		start_app(args.to, args.start_timeout, args.start_settle, args.positions)
+	if args.thread:
+		if args.to != "codex":
+			parser.error("--thread is for --to codex")
+		open_codex_thread(args.thread, 3)
+	if (args.start or args.thread) and args.text is None and not args.file and not args.check_box:
+		return
 	if args.check:
 		problems = check(args.check.read_text(encoding="utf-8"))
 		print("\n".join(problems) if problems else "clean: nothing outside the header and closing tag")

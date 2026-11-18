@@ -81,6 +81,22 @@
         "media_next": {"xy": [1106, 1073], "measured": "2026-11-11", "note": "Movie/music player: next item; started the next wonder's movie (2026-11-11)"},
         "media_next_group": {"xy": [1178, 1073], "measured": "2026-11-11", "note": "Movie/music player, 7th button: next group; Conquest to Angkor Wat to the Internet, Agriculture to Civil Service to Aesthetics (2026-11-11)"}
       }
+    },
+    "crash-dump-dialog": {
+      "window": [524, 455],
+      "conditions": "Civ4's own 'Program Execution Problem' dialog after a crash, a separate window of the Civ4 process; same size whatever the game resolution, as of 2026-11-13; mapped during KI#1084",
+      "points": {
+        "crash_normal_dump": {"xy": [92, 417], "measured": "2026-11-13", "note": "Normal Dump: a small dump with the stacks"},
+        "crash_full_dump": {"xy": [260, 417], "measured": "2026-11-13", "note": "Full Dump: the whole process memory, which cdbX86 reads with the Debug-opt PDB; see README_DLL_Compilation.md 'Inspecting a dump'"},
+        "crash_no_dump": {"xy": [429, 417], "measured": "2026-11-13", "note": "No Dump: closes Civ4 without a file"}
+      }
+    },
+    "crash-dump-saved": {
+      "window": [544, 241],
+      "conditions": "The 'Saved dump file to ...' message Civ4 shows after Normal Dump or Full Dump, as of 2026-11-13",
+      "points": {
+        "crash_dump_saved_ok": {"xy": [443, 197], "measured": "2026-11-13", "note": "OK: Civ4 then exits; the dump is at %LOCALAPPDATA%/Temp/Civ4BeyondSword.exe.dmp"}
+      }
     }
   }
 }

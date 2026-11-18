@@ -274,7 +274,8 @@ UnitNaming__Combat_ARCHER_CROSSBOW | Naming Convention: Combat[ARCHER_CROSSBOW] 
 UnitNaming__Combat_ARMOR | Naming Convention: Combat[ARMOR] | DEFAULT | Unit Naming.ini [UnitName] CombatARMOR
 UnitNaming__Combat_GUN | Naming Convention: Combat[GUN] | DEFAULT | Unit Naming.ini [UnitName] CombatGUN
 UnitNaming__Combat_HELICOPTER | Naming Convention: Combat[HELICOPTER] | DEFAULT | Unit Naming.ini [UnitName] CombatHELICOPTER
-UnitNaming__Combat_MELEE | Naming Convention: Combat[MELEE] | DEFAULT | Unit Naming.ini [UnitName] CombatMELEE
+UnitNaming__Combat_MELEE_POLEARM | Naming Convention: Combat[MELEE POLEARM] | DEFAULT | Unit Naming.ini [UnitName] CombatMELEEPOLEARM
+UnitNaming__Combat_MELEE_SHOCK | Naming Convention: Combat[MELEE SHOCK] | DEFAULT | Unit Naming.ini [UnitName] CombatMELEESHOCK
 UnitNaming__Combat_MOUNTED_MELEE | Naming Convention: Combat[MOUNTED MELEE] | DEFAULT | Unit Naming.ini [UnitName] CombatMOUNTEDMELEE
 UnitNaming__Combat_MOUNTED_RANGED | Naming Convention: Combat[MOUNTED RANGED] | DEFAULT | Unit Naming.ini [UnitName] CombatMOUNTEDRANGED
 UnitNaming__Combat_NAVAL | Naming Convention: Combat[NAVAL] | DEFAULT | Unit Naming.ini [UnitName] CombatNAVAL

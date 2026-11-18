@@ -17,9 +17,9 @@ from pathlib import Path
 
 # <!-- custom: desktop_windows supplies the default Civ4 folder, the running-client list and a detached launch, so this helper starts the game the same way run_autoplay.py does.
 # It is loaded from its file with importlib; a sys.path entry and a late import needed an unexplained noqa (2026-11-12). (Claude code Opus 5.5) -->
-_DESKTOP_WINDOWS_SPEC = importlib.util.spec_from_file_location("desktop_windows", Path(__file__).resolve().parent.parent / "game_runs" / "desktop_windows.py")
+_DESKTOP_WINDOWS_SPEC = importlib.util.spec_from_file_location("desktop_windows", Path(__file__).resolve().parent.parent / "desktop" / "desktop_windows.py")
 if _DESKTOP_WINDOWS_SPEC is None or _DESKTOP_WINDOWS_SPEC.loader is None:
-	raise SystemExit("cannot load LLM_Helpers/game_runs/desktop_windows.py")
+	raise SystemExit("cannot load LLM_Helpers/desktop/desktop_windows.py")
 desktop_windows = importlib.util.module_from_spec(_DESKTOP_WINDOWS_SPEC)
 _DESKTOP_WINDOWS_SPEC.loader.exec_module(desktop_windows)
 

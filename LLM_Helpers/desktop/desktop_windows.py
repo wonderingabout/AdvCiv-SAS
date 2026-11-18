@@ -11,6 +11,9 @@
 import argparse
 import ctypes
 import ctypes.wintypes as wt
+# <!-- custom: json reads and writes the named window layouts of 'positions'. (Claude Code Opus 5.5) -->
+from importlib import import_module
+import json
 # <!-- custom: subprocess runs PowerShell for WMI; sys, time and pathlib handle exit codes, waits and paths. (Claude Code Opus 5.5) -->
 # <!-- custom: os finds the crash dump's folder, shutil copies it and struct reads the process ID it records, for 'dump'. See KI#1089. (Claude code Opus 5.5) -->
 import os
@@ -20,6 +23,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+format_json = import_module("formatting.json_format").format_json
 
 USER32 = ctypes.windll.user32
 WM_CLOSE = 0x0010
@@ -492,6 +498,8 @@ NAMED_VKS = {"enter": 0x0D, "esc": 0x1B, "backspace": 0x08, "tab": 0x09, "space"
 NAMED_VKS.update({"num%d" % n: 0x60 + n for n in range(10)})
 # <!-- custom: Civ4's unit cycling uses comma, period, backslash and slash; these are the US-layout VK_OEM codes, which another keyboard layout can place elsewhere. (Claude Code Opus 5.5) -->
 NAMED_VKS.update({"comma": 0xBC, "period": 0xBE, "backslash": 0xDC, "slash": 0xBF})
+# <!-- custom: 'key escape' failed with "unknown key 'escape'" while closing Civ4's Victory screen (2026-11-15), as only the short name esc was known; the usual long names are aliases now, and the error lists the names it knows. (Claude code Opus 5.5) -->
+NAMED_VKS.update({"escape": 0x1B, "return": 0x0D, "del": 0x2E, "ins": 0x2D, "pageup": 0x21, "pagedown": 0x22})
 MODIFIER_VKS = {"ctrl": VK_CONTROL, "shift": 0x10, "alt": 0x12}
 # <!-- custom: Each printable ASCII character as the US-keyboard key and Shift state that types it, for type --us-keys; see type_text. (Claude Code Opus 5.5) -->
 US_KEYS = {" ": (0x20, False)}
@@ -517,7 +525,7 @@ def parse_key(name):
 	elif last.startswith("f") and last[1:].isdigit() and 1 <= int(last[1:]) <= 12:
 		vk = 0x6F + int(last[1:])
 	else:
-		raise ValueError("unknown key %r" % name)
+		raise ValueError("unknown key %r; use a letter or digit, f1 to f12, one of %s, optionally after ctrl+, shift+ or alt+" % (name, ", ".join(sorted(NAMED_VKS))))
 	return vk, modifiers
 
 
@@ -590,40 +598,6 @@ def request_close(pid):
 	if hwnd is None:
 		return False
 	return bool(USER32.PostMessageW(hwnd, WM_CLOSE, 0, 0))
-
-
-def process_alive(pid):
-	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # <!-- custom: PROCESS_QUERY_LIMITED_INFORMATION (Claude Code Opus 5.5) -->
-	if not handle:
-		return False
-	code = wt.DWORD()
-	ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
-	ctypes.windll.kernel32.CloseHandle(handle)
-	return code.value == 259  # <!-- custom: STILL_ACTIVE (Claude Code Opus 5.5) -->
-
-
-def civ4_processes():
-	# <!-- custom: Return [(pid, command line)] for every running Civ4 client. (Claude Code Opus 5.5) -->
-	command = "Get-CimInstance Win32_Process -Filter \"Name='%s'\" | ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }" % EXE_NAME
-	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout
-	result = []
-	for line in output.splitlines():
-		if "\t" in line:
-			pid, cmd = line.split("\t", 1)
-			result.append((int(pid), cmd))
-	return result
-
-
-def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
-	# <!-- custom: Start Civ4 through WMI so it is not a child of the caller: an agent stopping its shell command once killed the game and its Runtime observers with it. (Claude Code Opus 5.5) -->
-	exe = Path(civ4_dir) / EXE_NAME
-	command_line = '"%s" %s' % (exe, arguments)
-	ps = "$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:SAS_LAUNCH_CMD; CurrentDirectory = $env:SAS_LAUNCH_DIR }; \"$($r.ReturnValue) $($r.ProcessId)\""
-	env = dict(__import__("os").environ, SAS_LAUNCH_CMD=command_line, SAS_LAUNCH_DIR=str(civ4_dir))
-	output = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, check=True, env=env).stdout.split()
-	if len(output) != 2 or output[0] != "0":
-		raise RuntimeError("Win32_Process.Create failed: %s" % " ".join(output))
-	return int(output[1])
 
 
 DUMP_FILE = Path(os.environ.get("LOCALAPPDATA", "")) / "Temp" / "Civ4BeyondSword.exe.dmp"
@@ -724,12 +698,67 @@ def save_dump(pid, kind="full", timeout=300.0):
 	raise SystemExit("no finished dump at %s within %g s" % (DUMP_FILE, timeout))
 
 
+def process_alive(pid):
+	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # <!-- custom: PROCESS_QUERY_LIMITED_INFORMATION (Claude Code Opus 5.5) -->
+	if not handle:
+		return False
+	code = wt.DWORD()
+	ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
+	ctypes.windll.kernel32.CloseHandle(handle)
+	return code.value == 259  # <!-- custom: STILL_ACTIVE (Claude Code Opus 5.5) -->
+
+
+def civ4_processes():
+	# <!-- custom: Return [(pid, command line)] for every running Civ4 client. (Claude Code Opus 5.5) -->
+	command = "Get-CimInstance Win32_Process -Filter \"Name='%s'\" | ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }" % EXE_NAME
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", command], capture_output=True, text=True, check=True).stdout
+	result = []
+	for line in output.splitlines():
+		if "\t" in line:
+			pid, cmd = line.split("\t", 1)
+			result.append((int(pid), cmd))
+	return result
+
+
+def launch_detached(arguments, civ4_dir=DEFAULT_CIV4_DIR):
+	# <!-- custom: Start Civ4 through WMI so it is not a child of the caller: an agent stopping its shell command once killed the game and its Runtime observers with it. (Claude Code Opus 5.5) -->
+	exe = Path(civ4_dir) / EXE_NAME
+	command_line = '"%s" %s' % (exe, arguments)
+	ps = "$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:SAS_LAUNCH_CMD; CurrentDirectory = $env:SAS_LAUNCH_DIR }; \"$($r.ReturnValue) $($r.ProcessId)\""
+	env = dict(__import__("os").environ, SAS_LAUNCH_CMD=command_line, SAS_LAUNCH_DIR=str(civ4_dir))
+	output = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, check=True, env=env).stdout.split()
+	if len(output) != 2 or output[0] != "0":
+		raise RuntimeError("Win32_Process.Create failed: %s" % " ".join(output))
+	return int(output[1])
+
+
+def usage_geometry(pid, name, layout_name, kind):
+	# <!-- custom: Desktop usage positions move with panels even at the same size, so choose a measured layout explicitly.
+	# Check the target title and exact outer size before using a saved point or crop. (GPT-6.1-Sol) -->
+	path = Path(__file__).resolve().parent / "layouts" / "app_layouts.json"
+	layouts = json.loads(path.read_text(encoding="utf-8"))["usage"]["layouts"]
+	layout = layouts.get(layout_name)
+	if layout is None:
+		sys.exit("unknown usage layout %r; known: %s" % (layout_name, ", ".join(sorted(layouts))))
+	hwnd = find_window(pid)
+	if hwnd is None:
+		sys.exit("no window for process %d" % pid)
+	left, top, right, bottom = window_rect(hwnd)
+	size = [right - left, bottom - top]
+	if window_title(hwnd) != layout["title"] or size != layout["window"]:
+		sys.exit("usage layout %s requires the %s window at %dx%d; process %d has a %dx%d window" %
+			(layout_name, layout["title"], *layout["window"], pid, *size))
+	entries = layout[kind]
+	if name not in entries:
+		sys.exit("no %s named %r in %s; known: %s" % (kind[:-1], name, layout_name, ", ".join(sorted(entries))))
+	return tuple(entries[name])
+
+
 def named_point(pid, name):
 	# <!-- custom: Civ4 click points were first read off screenshots and passed as numbers, then forgotten or re-measured.
 	# On 2026-11-11 the user suggested keeping them as data like the agent apps' app_layouts.json, so they live in civ4_points.json, keyed by the window's outer size.
 	# The points are window-relative, so where the window sits on the screen does not matter; a different size, such as another game resolution, fails loudly instead of clicking a wrong spot. (Claude Code Opus 5.5) -->
-	# <!-- custom: json reads the points file; imported here since only named points need it. (Claude Code Opus 5.5) -->
-	import json
+	# <!-- custom: json was imported here when only named points read it; the module imports it now, as the layout files are read elsewhere too. (Claude code Opus 5.5) -->
 	make_dpi_aware()
 	hwnd = find_window(pid)
 	if hwnd is None:
@@ -738,7 +767,7 @@ def named_point(pid, name):
 	size = (right - left, bottom - top)
 	if "." in name:
 		# <!-- custom: SCREEN.CONTROL names come from civ4_ui_map.json, the map of Civ4's screens outside a game, such as single_player.load_game. (Claude Code Opus 5.5) -->
-		ui = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_ui_map.json").read_text(encoding="utf-8"))
+		ui = json.loads((Path(__file__).resolve().parents[1] / "game_runs" / "ui_maps" / "civ4_ui_map.json").read_text(encoding="utf-8"))
 		if abs(size[0] - ui["window"][0]) > 20 or abs(size[1] - ui["window"][1]) > 20:
 			sys.exit("civ4_ui_map.json was measured on a %dx%d window, not %dx%d" % (ui["window"][0], ui["window"][1], size[0], size[1]))
 		screen_name, control = name.split(".", 1)
@@ -746,7 +775,7 @@ def named_point(pid, name):
 		if screen is None or control not in screen["controls"]:
 			sys.exit("no control %r in civ4_ui_map.json" % name)
 		return tuple(screen["controls"][control]["xy"])
-	data = json.loads((Path(__file__).resolve().parent / "ui_maps" / "civ4_points.json").read_text(encoding="utf-8"))
+	data = json.loads((Path(__file__).resolve().parents[1] / "game_runs" / "ui_maps" / "civ4_points.json").read_text(encoding="utf-8"))
 	for layout_name, layout in data["layouts"].items():
 		if abs(size[0] - layout["window"][0]) <= 20 and abs(size[1] - layout["window"][1]) <= 20:
 			if name not in layout["points"]:
@@ -777,7 +806,8 @@ def monitors():
 	return sorted(areas)
 
 
-def move(pid, monitor, part):
+def move(pid, monitor, part, size=None, beside=None):
+	# <!-- custom: Was move(pid, monitor, part); size and beside serve the topleft and beside parts described below. (Claude code Opus 5.5) -->
 	# <!-- custom: Maximized, the Claude and Codex apps each spread a chat column about 1,200 px wide across a 3,840 px 4K window, leaving most of it empty (screenshots of 2026-11-11).
 	# On 2026-11-11 the user suggested sharing one monitor between them, half each, to free the other.
 	# The window is restored from maximized first.
@@ -791,13 +821,36 @@ def move(pid, monitor, part):
 		raise ValueError("monitor %d not found; this computer has %d" % (monitor, len(areas)))
 	left, top, right, bottom = areas[monitor - 1]
 	middle = (left + right) // 2
-	target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
+	# <!-- custom: topleft and beside came from watching SASPilot (2026-11-14): halving the 4K screen stretched Civ4 into a 1920x2100 "monster chicken", as the user put it, while the user wanted Civ4 at its own size in the top-left corner and the SASPilotConsole console filling the rest.
+	# topleft keeps the window's size (or --size, the visible frame's width and height); beside fills the work area right of another process's window. (Claude Code Opus 5.5) -->
+	if part == "beside":
+		if beside is None:
+			raise ValueError("beside needs --beside <pid>")
+		other = find_window(beside)
+		if other is None:
+			raise OSError("no window for process %d" % beside)
+		other_frame = wt.RECT()
+		ctypes.windll.dwmapi.DwmGetWindowAttribute(other, 9, ctypes.byref(other_frame), ctypes.sizeof(other_frame))
+		target = (min(max(other_frame.right, left), right), right)
+	elif part in ("topleft", "bottomleft"):
+		target = None
+	else:
+		target = {"full": (left, right), "left": (left, middle), "right": (middle, right)}[part]
 	USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
 	outer = window_rect(hwnd)
 	border_left, border_top = frame.left - outer[0], frame.top - outer[1]
 	border_right, border_bottom = outer[2] - frame.right, outer[3] - frame.bottom
+	if target is None:
+		if size is None:
+			size = (frame.right - frame.left, frame.bottom - frame.top)
+		target = (left, left + size[0])
+		# <!-- custom: bottomleft, the user's ask (2026-11-15), puts a second client started with --multiple under the first one's top-left place, so both stay in view. (Claude code Opus 5.5) -->
+		if part == "bottomleft":
+			top = bottom - size[1]
+		else:
+			bottom = top + size[1]
 	x = target[0] - border_left
 	y = top - border_top
 	width = target[1] - target[0] + border_left + border_right
@@ -807,12 +860,150 @@ def move(pid, monitor, part):
 	return window_rect(hwnd)
 
 
+def visible_frame(pid):
+	# <!-- custom: The window's visible frame from DWM, without Windows 10's invisible resize border; (left, top, right, bottom). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise OSError("no window for process %d" % pid)
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	return (frame.left, frame.top, frame.right, frame.bottom)
+
+
+def place_frame(pid, left, top, right, bottom):
+	# <!-- custom: Put the window's visible frame exactly on a rectangle, the invisible border added around it as in 'move'; for layouts 'move' has no name for, such as SASPilotConsole.py's bands of one Civ4 and its console per client (2026-11-14). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise OSError("no window for process %d" % pid)
+	return place_window(hwnd, left, top, right, bottom)
+
+
+def place_window(hwnd, left, top, right, bottom):
+	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so SASPilotConsole.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
+	make_dpi_aware()
+	USER32.ShowWindow(hwnd, 9)
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	outer = window_rect(hwnd)
+	border_left, border_top = frame.left - outer[0], frame.top - outer[1]
+	border_right, border_bottom = outer[2] - frame.right, outer[3] - frame.bottom
+	USER32.SetWindowPos(hwnd, None, left - border_left, top - border_top, right - left + border_left + border_right, bottom - top + border_top + border_bottom, 0x0014)
+	return window_rect(hwnd)
+
+
+# <!-- custom: Named window layouts, so the agents' and the game's windows can be put back without the user: the user asked to remember the Claude and Codex app positions too, in case they are moved or a layout is changed (2026-11-14).
+# Windows are found by their program's file name, as process IDs change with each launch; the Codex desktop app runs as ChatGPT.exe.
+# Frames are the visible frames in physical pixels, measured on the user's two 3840x2160 monitors. (Claude Code Opus 5.5) -->
+# <!-- custom: Use the shared formatter so each saved window frame and monitor rectangle stays on one line. (GPT-6.1-Sol) -->
+POSITIONS_FILE = Path(__file__).resolve().parent / "layouts" / "window_positions.json"
+POSITION_APPS = {"claude": "claude.exe", "codex": "ChatGPT.exe", "civ4": "Civ4BeyondSword.exe"}
+
+
+def image_name(pid):
+	handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+	if not handle:
+		return None
+	try:
+		buffer = ctypes.create_unicode_buffer(520)
+		size = wt.DWORD(520)
+		if not ctypes.windll.kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+			return None
+		return os.path.basename(buffer.value)
+	finally:
+		ctypes.windll.kernel32.CloseHandle(handle)
+
+
+def app_window(exe):
+	# <!-- custom: The largest visible, titled, not minimized top-level window of a program, or None. (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def callback(hwnd, _):
+		if USER32.IsWindowVisible(hwnd) and not USER32.IsIconic(hwnd) and window_title(hwnd):
+			name = image_name(window_pid(hwnd))
+			if name is not None and name.lower() == exe.lower():
+				rect = window_rect(hwnd)
+				found.append(((rect[2] - rect[0]) * (rect[3] - rect[1]), hwnd))
+		return True
+
+	USER32.EnumWindows(proc_type(callback), 0)
+	if not found:
+		return None
+	return max(found)[1]
+
+
+def window_by_title(title):
+	# <!-- custom: The visible top-level window whose title ends with this, or None: SASPilotConsole windows belong to their console host rather than to the Python that titles them, so they are found by title, e.g. "SASPilotConsole - Civ4 client 12132" (2026-11-15).
+	# Ends with rather than equals: a console clicked into goes into selection mode, which pauses its output and prefixes the title with a localized word ("Sélection SASPilotConsole - ..." on the user's French Windows), so the exact title missed that console on the first try. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	found = []
+	proc_type = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+
+	def callback(hwnd, _):
+		if USER32.IsWindowVisible(hwnd) and window_title(hwnd).endswith(title):
+			found.append(hwnd)
+		return True
+
+	USER32.EnumWindows(proc_type(callback), 0)
+	if not found:
+		return None
+	return found[0]
+
+
+def hwnd_frame(hwnd):
+	frame = wt.RECT()
+	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
+	return [frame.left, frame.top, frame.right, frame.bottom]
+
+
+def load_positions():
+	if POSITIONS_FILE.is_file():
+		return json.loads(POSITIONS_FILE.read_text(encoding="utf-8"))
+	return {}
+
+
+def save_positions(name, apps):
+	layouts = load_positions()
+	windows = {}
+	for app in apps:
+		hwnd = app_window(POSITION_APPS[app])
+		if hwnd is None:
+			print("%s: no visible window; not saved" % app)
+			continue
+		windows[app] = {"exe": POSITION_APPS[app], "frame": hwnd_frame(hwnd)}
+	layouts[name] = {"saved": time.strftime("%Y-%m-%d"), "workAreas": [list(area) for area in monitors()], "windows": windows}
+	POSITIONS_FILE.write_text(format_json(layouts, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+	return layouts[name]
+
+
+def restore_positions(name):
+	layouts = load_positions()
+	if name not in layouts:
+		raise ValueError("no layout %r; saved: %s" % (name, ", ".join(sorted(layouts)) or "none"))
+	# <!-- custom: A layout saved on other monitors could put a window off screen, so a changed set of work areas is reported rather than ignored. (Claude Code Opus 5.5) -->
+	if layouts[name].get("workAreas") != [list(area) for area in monitors()]:
+		print("warning: the monitors differ from when %r was saved" % name)
+	result = {}
+	for app, entry in sorted(layouts[name]["windows"].items()):
+		hwnd = app_window(entry["exe"])
+		if hwnd is None:
+			result[app] = "no visible window"
+			continue
+		result[app] = place_window(hwnd, *entry["frame"])
+	return result
+
+
 def main():
 	parser = argparse.ArgumentParser(description="Screenshot, click, type into or close a running Civ4 window or any other app's window by process ID.")
 	sub = parser.add_subparsers(dest="command", required=True)
 	sub.add_parser("list", help="list running Civ4 processes and their command lines")
 	shot = sub.add_parser("screenshot", help="save a PNG of the window")
 	shot.add_argument("--crop", type=int, nargs=4, metavar=("LEFT", "TOP", "RIGHT", "BOTTOM"), help="keep only this window-relative rectangle")
+	shot.add_argument("--layout", help="desktop usage layout from app_layouts.json, required with --crop-name")
+	shot.add_argument("--crop-name", help="named crop from the selected desktop usage layout")
 	shot.add_argument("--scale", type=float, default=1.0, help="shrink the result, e.g. 0.5; crops read far cheaper than full windows")
 	shot.add_argument("--page", action="store_true", help="in Chrome, keep only the web page, without the tabs, address and bookmarks bars")
 	clip = sub.add_parser("clipboard", help="save the image on the clipboard, such as the user's screen capture")
@@ -826,19 +1017,24 @@ def main():
 	press.add_argument("--pid", type=int, required=True)
 	press.add_argument("x", type=int, nargs="?")
 	press.add_argument("y", type=int, nargs="?")
-	press.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
+	press.add_argument("--point", help="a named Civ4 point or a desktop usage point with --layout")
+	press.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
 	press.add_argument("--double", action="store_true", help="double-click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
 	point.add_argument("x", type=int, nargs="?")
 	point.add_argument("y", type=int, nargs="?")
-	point.add_argument("--point", help="a named Civ4 point from civ4_points.json instead of x and y")
+	point.add_argument("--point", help="a named Civ4 point or a desktop usage point with --layout")
+	point.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	wheel = sub.add_parser("scroll", help="turn the mouse wheel over a window-relative point; positive clicks scroll up, negative down")
 	wheel.add_argument("--pid", type=int, required=True)
-	wheel.add_argument("x", type=int)
-	wheel.add_argument("y", type=int)
-	wheel.add_argument("clicks", type=int)
+	wheel.add_argument("x", type=int, nargs="?")
+	wheel.add_argument("y", type=int, nargs="?")
+	wheel.add_argument("clicks", type=int, nargs="?")
+	wheel.add_argument("--clicks", dest="mapped_clicks", type=int, help="wheel clicks when using a named point")
+	wheel.add_argument("--layout", help="desktop layout from app_layouts.json")
+	wheel.add_argument("--point", help="named scroll point in the selected desktop layout")
 	pull = sub.add_parser("drag", help="press a mouse button at one window point, move to another and release, e.g. to turn a 3D view")
 	pull.add_argument("--pid", type=int, required=True)
 	for name in ("x1", "y1", "x2", "y2"):
@@ -869,14 +1065,20 @@ def main():
 	dump.add_argument("--timeout", type=float, default=300.0)
 	close = sub.add_parser("close", help="send WM_CLOSE, as the title bar's X does")
 	close.add_argument("--pid", type=int, required=True)
+	keep = sub.add_parser("positions", help="save, restore or list named window layouts of the Claude app, the Codex app (ChatGPT.exe) and Civ4, found by program name; kept in layouts/window_positions.json")
+	keep.add_argument("action", choices=("save", "restore", "list"))
+	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
+	keep.add_argument("--apps", nargs="+", choices=sorted(POSITION_APPS), default=sorted(POSITION_APPS), help="save: which windows (default all three)")
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
-	place.add_argument("part", choices=("full", "left", "right"))
+	place.add_argument("part", choices=("full", "left", "right", "topleft", "bottomleft", "beside"), help="full, left or right half; topleft or bottomleft: that corner of the work area at the window's own size or --size; beside: the area right of --beside's window")
+	place.add_argument("--size", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="topleft and bottomleft: the visible frame's size instead of the current one")
+	place.add_argument("--beside", type=int, help="beside: the process whose window to fill the area right of")
 	# <!-- custom: click, key, type and paste take the focus from whatever window the user is typing in, so their keystrokes then land in the target: on 2026-11-11 the user's typing turned Civ4's autoplay turn box into "ntwt".
 	# So these wait, by default, until the user has been idle for a few seconds; the same rule agent_message.py follows. (Claude Code Opus 5.5) -->
-	for focusing in (press, pull, box, press_key, typing):
+	for focusing in (press, pull, box, press_key, typing, point, wheel):
 		focusing.add_argument("--idle-seconds", type=float, default=3.0, help="first wait until nobody has typed or moved the mouse for this long; 0 skips the wait")
 		focusing.add_argument("--idle-timeout", type=float, default=300.0, help="give up after this many seconds of waiting")
 	args = parser.parse_args()
@@ -884,20 +1086,29 @@ def main():
 		parser.error("drag --steps must be positive")
 	if args.command == "type" and args.us_keys and any(character not in US_KEYS for character in args.text):
 		parser.error("--us-keys accepts only printable ASCII")
-	if args.command in ("click", "drag", "paste", "key", "type") and args.idle_seconds > 0 and not wait_for_idle_user(args.idle_seconds, args.idle_timeout):
+	# <!-- custom: Mapped desktop hovers and scrolls move the user's pointer too, so wait for idle just as for clicks. (GPT-6.1-Sol) -->
+	waits_for_idle = args.command in ("click", "drag", "paste", "key", "type") or (args.command in ("hover", "scroll") and args.layout)
+	if waits_for_idle and args.idle_seconds > 0 and not wait_for_idle_user(args.idle_seconds, args.idle_timeout):
 		sys.exit("the user kept typing or moving the mouse for %d s; nothing was sent" % args.idle_timeout)
 
 	if args.command == "list":
 		for pid, cmd in civ4_processes():
 			print("%d\t%s" % (pid, cmd))
 	elif args.command == "screenshot":
-		path, box = screenshot(args.pid, args.out, args.method, args.crop, args.scale, args.page)
+		if bool(args.crop_name) != bool(args.layout) or (args.crop_name and args.crop):
+			parser.error("use --layout and --crop-name together, or pass --crop")
+		crop = usage_geometry(args.pid, args.crop_name, args.layout, "crops") if args.crop_name else args.crop
+		path, box = screenshot(args.pid, args.out, args.method, crop, args.scale, args.page)
 		print("saved %s window=%s" % (path, box))
 	elif args.command == "clipboard":
 		path, size = save_clipboard_image(args.out, args.crop, args.scale)
 		print("saved %s size=%dx%d" % ((path,) + size))
 	elif args.command in ("click", "hover"):
-		if args.point:
+		if args.layout:
+			if not args.point or args.x is not None or args.y is not None:
+				parser.error("--layout needs --point NAME instead of x and y")
+			args.x, args.y = usage_geometry(args.pid, args.point, args.layout, "points")
+		elif args.point:
 			args.x, args.y = named_point(args.pid, args.point)
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
@@ -909,6 +1120,13 @@ def main():
 		start, end = drag(args.pid, args.x1, args.y1, args.x2, args.y2, args.button, args.steps, tuple(MODIFIER_VKS[m] for m in args.modifiers))
 		print("dragged %s from %d,%d to %d,%d" % ((args.button,) + start + end))
 	elif args.command == "scroll":
+		if args.layout or args.point or args.mapped_clicks is not None:
+			if not args.layout or not args.point or args.mapped_clicks is None or args.x is not None:
+				parser.error("mapped scroll needs --layout, --point and --clicks instead of x y clicks")
+			args.x, args.y = usage_geometry(args.pid, args.point, args.layout, "points")
+			args.clicks = args.mapped_clicks
+		elif args.clicks is None:
+			parser.error("scroll needs x y clicks")
 		scroll(args.pid, args.x, args.y, args.clicks)
 		print("scrolled %d at %d,%d" % (args.clicks, args.x, args.y))
 	elif args.command == "paste":
@@ -927,11 +1145,21 @@ def main():
 		if not request_close(args.pid):
 			sys.exit("no window for process %d" % args.pid)
 		print("WM_CLOSE sent to %d" % args.pid)
+	elif args.command == "dump":
+		(path, size) = save_dump(args.pid, args.kind, args.timeout)
+		print("dump written: %s (%d bytes); move it beside its DLL and PDB before another crash replaces it" % (path, size))
 	elif args.command == "monitors":
 		for number, area in enumerate(monitors(), 1):
 			print("%d\twork area %d,%d to %d,%d (%dx%d)" % ((number,) + area + (area[2] - area[0], area[3] - area[1])))
+	elif args.command == "positions":
+		if args.action == "save":
+			print(format_json(save_positions(args.name, args.apps), indent=1))
+		elif args.action == "restore":
+			print(format_json(restore_positions(args.name), indent=1))
+		else:
+			print(format_json(load_positions(), indent=1, sort_keys=True))
 	elif args.command == "move":
-		print("window now at %s" % (move(args.pid, args.monitor, args.part),))
+		print("window now at %s" % (move(args.pid, args.monitor, args.part, args.size, args.beside),))
 
 
 if __name__ == "__main__":

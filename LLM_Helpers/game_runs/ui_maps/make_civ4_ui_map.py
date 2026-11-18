@@ -96,7 +96,7 @@ S["main_menu"] = {"reach": "start Civ4 with mod=\\AdvCiv-SAS; GO BACK from any f
 	"single_player": c(menu(0), "single_player"), "multiplayer": c(menu(1), "multiplayer"), "hall_of_fame": c(menu(2), "hall_of_fame"),
 	"sevopedia": c((945, 710), "sevopedia"), "advanced": c(menu(4), "advanced"),
 	"unload_mod": c(menu(5), None, NC + "restarts the game without this mod"), "exit_game": c((80, 1092), None, NC + "closes Civ4")}}
-S["single_player"] = {"reach": "main_menu.single_player", "controls": {
+S["single_player"] = {"reach": "main_menu.single_player", "note": "Base AdvCiv 1.14 (checked 2026-11-16) has the same items at the same points, with Play Now for Simple Game.", "controls": {
 	"simple_game": c(menu(0), "simple_game_1_map", "a six-step quick setup"),
 	"load_game": c(menu(1), "load_dialog"),
 	"bts_content": c(menu(2), "bts_content", "drawn grey but works"),
@@ -110,9 +110,27 @@ S["load_dialog"] = {"reach": "single_player.load_game", "controls": {
 	"filename": c((980, 978), None, "file name field"),
 	"ok": c((1732, 978), None, NC + "loads the selected save"), "cancel": c((1732, 1018), "single_player")}}
 S["scenario_list"] = {"reach": "single_player.play_scenario or single_player.custom_scenario", "controls": {
-	"list": c((460, 600), None, "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857); see KI#1082"),
+	"list": c((460, 600), None, "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857, as base AdvCiv 1.14 still is, titled SELECT A MAP); see KI#1082"),
 	"preview": c((1290, 430), None, "globe, name and map size, x 822-1758 since the 2026-11-12 enlarged setup screen (was x 886-1377)"),
-	"ok": c((1857, 1094), None, NC + "starts the scenario"), "go_back": c((100, 1094), "single_player")}}
+	"ok": c((1857, 1094), "scenario_civilization", "starts the scenario's setup steps; or launch Civ4 with /FXSLOAD=\"<file>.CivBeyondSwordWBSave\", as SASSaveTransplanter.py does"), "go_back": c((100, 1094), "single_player")}}
+# <!-- custom: The three steps a WorldBuilder scenario shows before its game starts, measured 2026-11-16 in a 1926 x 1120 window in SAS and in base AdvCiv 1.14 (Mods/AdvCiv-1.14-copy, made by SASSaveTransplanter.py), because the SASSaveTransplanter clicks through them in both.
+# SAS's setup-size patch grows all three, Your Details at 0.56 of the box's width, while base AdvCiv keeps BtS's 850 x 569; see KI#1082.2. (Claude code Opus 5.5) -->
+S["scenario_civilization"] = {"reach": "scenario_list.ok, or a /FXSLOAD launch on a WorldBuilder file", "shows": "titled CIVILIZATION in SAS, SELECT A CIVILIZATION in base AdvCiv; the file's playable civilizations as radio rows, the leader portrait with traits and unique units and buildings, and a LEADERS column; the file's own choice is preselected", "controls": {
+	"civ_rows": c((173, 148), None, "radio rows, SAS 24 px apart from y 148 (x 162 the radio); base AdvCiv's smaller box puts them about 31 px apart from about (592, 380), as SAS tightened the radio buttons (KI#1082)"),
+	"leader_button": c((1688, 218), None, "the first leader of the selected civilization; base AdvCiv about (1297, 432)"),
+	"ok": c((1855, 1095), "scenario_details"), "go_back": c((100, 1095), "scenario_list")},
+	"tests": [["box size in a 1920 x 1080 client", "SAS fills the 1632 x 994 setup box, base AdvCiv keeps BtS's 840 x 560"]]}
+S["scenario_details"] = {"reach": "scenario_civilization.ok", "shows": "YOUR DETAILS: the leader portrait and four text fields with the human's names; SAS 904 x 984 (0.56 of the patched box's width), base AdvCiv 468 x 560", "controls": {
+	"leader_name": c((1033, 653), None, "text field; base AdvCiv (1033, 646). Civ4 gives it the keyboard, so typing meant for another window lands here (see README_SASSaveTransplanter.md)"),
+	"civ_description": c((1033, 692), None, "base AdvCiv (1033, 685)"),
+	"short_description": c((1033, 731), None, "base AdvCiv (1033, 724)"),
+	"civ_adjective": c((1033, 770), None, "base AdvCiv (1033, 763)"),
+	"ok": c((1855, 1095), "scenario_snapshot"), "go_back": c((100, 1095), "scenario_list", "skips the Civilization step, in SAS and base AdvCiv alike")},
+	"tests": [["GO BACK", "returned to the scenario list, not to Civilization, in both mods (2026-11-16)"]]}
+S["scenario_snapshot"] = {"reach": "scenario_details.ok", "shows": "GAME SNAPSHOT: difficulty and game speed radios on the left, the map with its settings and the human's details on the right; SAS fills the patched box with an enlarged globe", "controls": {
+	"handicap_rows": c((179, 178), None, "SAS: 11 rows 24 px apart, Rookie to Deity+; base AdvCiv: 9 rows from Settler at (598, 406), 31 px apart, under DIFFICULTY"),
+	"speed_rows": c((179, 876), None, "SAS: 8 rows 24 px apart, Nitro to Very Slow; base AdvCiv: Marathon, Epic, Normal, Quick at x 598 from y 723, 31 px apart"),
+	"ok": c((1855, 1095), None, NC + "starts the game; the SASSaveTransplanter clicks it"), "go_back": c((100, 1095), "scenario_details")}}
 S["bts_content"] = {"reach": "single_player.bts_content", "controls": {
 	"list": c((460, 600), None, "scenarios of other installed mods, each with map size, description and its Mod Folder; x 152-790 since the 2026-11-12 enlarged setup screen. Its title shows raw markup, <COLOR=165,165,165,255>BTS CONTENT</COLOR>, once the header is visible"),
 	"ok": c((1857, 1094), None, NC + "loads the other mod's scenario"), "go_back": c((100, 1094), "single_player")}}
@@ -436,6 +454,9 @@ for name, xy, note in (
 		("f8_graph_dropdowns", (180, 164), "Graph: two dropdowns at the top left, the measure (Score) and the time span (Entire timeline)"),
 		("f8_timeline_log", (1428, 94), "Timeline: LOG at the top right; the event list scrolls"),
 		("f8_score_table", (400, 140), "Score: one leader per row; a heading click re-sorts"),
+		("f8_wonders_world", (725, 180), "Top 5 Cities / Wonders: World Wonders mode, the first of three round buttons above the list (mapped 2026-11-15 at 1924x1120); wonders by unmet players show their date with owner Unknown"),
+		("f8_wonders_national", (755, 180), "Top 5 Cities / Wonders: National Wonders mode; another player's national wonders show only once met and the city seen"),
+		("f8_wonders_projects", (785, 180), "Top 5 Cities / Wonders: Projects mode; every project built, the team Unknown when not met, no date"),
 		("f9_space_view", (516, 503), "Victories: the space race's View button")):
 	S["advisors"]["controls"][name] = c(xy, None, note)
 S["game_main"]["controls"]["select_next_unit"] = c((1636, 983), None, "Select Next Unit <W>, left of the city arrows; selected the next unit to move")

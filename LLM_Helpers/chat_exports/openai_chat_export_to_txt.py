@@ -13,6 +13,8 @@ import re
 import sys
 
 # <!-- custom: Use the same configurable output folder as the Claude transcript helper. (GPT-6.1-Sol) -->
+# <!-- custom: format_message is the speaker formatting shared with the Claude transcript helper. (Claude code Opus 5.5) -->
+from chat_export_format import format_message
 from chat_export_paths import DEFAULT_EXPORT_DIR
 
 
@@ -43,11 +45,21 @@ def codex_message_text(item, omit_agents=False):
     return "\n\n".join(parts)
 
 
+def open_codex_log(source):
+    # <!-- custom: Codex compresses older logs to rollout-*.jsonl.zst; the January 2026 History tab sessions were only readable that way (2026-11-13).
+    # zstandard is a pip package, imported only for such a file. (Claude Code Opus 5.5) -->
+    if source.suffix == ".zst":
+        import io
+        import zstandard
+        return io.BufferedReader(zstandard.ZstdDecompressor().stream_reader(source.open("rb"), closefd=True))
+    return source.open("rb")
+
+
 def codex_messages(source, steps=False):
     # <!-- custom: Read original conversation messages instead of compaction snapshots, which can repeat older turns. (GPT-6.1-Sol) -->
     # <!-- custom: steps also yields the commands Codex ran and the start of their output, which its app folds under "Worked for".
     # On 2026-11-11 they showed how a review reproduced its findings with a Python harness; unfolding them in the app took clicks that brought its window forward. (Claude Code Opus 5.5) -->
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for number, line in enumerate(stream, 1):
             try:
                 record = json.loads(line)
@@ -55,7 +67,7 @@ def codex_messages(source, steps=False):
                 raise ValueError(f"Invalid JSON in Codex record {number}. Retry if the session is still writing.") from exc
             item = record.get("payload", {})
             if steps and record.get("type") == "response_item" and item.get("type") in STEP_TYPES:
-                yield step_entry(item)
+                yield (*step_entry(item), record.get("timestamp"))
                 continue
             if record.get("type") != "response_item" or item.get("type") != "message":
                 continue
@@ -63,9 +75,10 @@ def codex_messages(source, steps=False):
             if role not in ("user", "assistant"):
                 continue
             label = "USER" if role == "user" else "CODEX"
+            # <!-- custom: Codex's "commentary" phase holds the notes it writes while still working, apart from its final answer; was CODEX UPDATE until 2026-11-18, which the user found could read as a software update or an edited message. (Claude code Opus 5.5) -->
             if item.get("phase") == "commentary":
-                label = "CODEX UPDATE"
-            yield label, codex_message_text(item)
+                label = "CODEX PROGRESS"
+            yield label, codex_message_text(item), record.get("timestamp")
 
 
 STEP_TYPES = ("custom_tool_call", "function_call", "custom_tool_call_output", "function_call_output")
@@ -86,7 +99,7 @@ def codex_turns(source):
     # <!-- custom: Lists each turn's duration, step count and opening user words, to find long turns worth reading in full. (Claude Code Opus 5.5) -->
     started, steps, first_words, turns = {}, {}, {}, []
     current = None
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for line in stream:
             record = json.loads(line)
             item = record.get("payload", {})
@@ -188,7 +201,7 @@ def codex_markdown(source, steps=False):
     # This writes it from the log instead: the user's message quoted, a details block with Codex's progress notes and grouped commands, then its final answer, plus each turn's working time, which the copy lacks. (Claude Code Opus 5.5) -->
     out = ["# " + codex_title(source), ""]
     turn = None
-    with source.open("rb") as stream:
+    with open_codex_log(source) as stream:
         for line in stream:
             record = json.loads(line)
             item = record.get("payload", {})
@@ -226,6 +239,17 @@ def codex_markdown(source, steps=False):
     return "\n".join(out).rstrip() + "\n"
 
 
+def chatgpt_turn_timestamp(turn, kind):
+    # <!-- custom: The desktop connector supplies Unix seconds for the turn, but no timestamp on each message.
+    # Use its start or completion only when the corresponding speaker has one message in that turn. (GPT-6.1-Sol) -->
+    if sum(item["type"] == kind for item in turn["items"]) != 1:
+        return None
+    stamp = turn.get("startedAt" if kind == "userMessage" else "completedAt")
+    if isinstance(stamp, (int, float)):
+        return datetime.fromtimestamp(stamp, timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    return None
+
+
 def chatgpt_messages(source):
     pages = json.loads(source.read_text(encoding="utf-8-sig"))
     if isinstance(pages, dict):
@@ -251,9 +275,10 @@ def chatgpt_messages(source):
                 if item.get("truncated") or any(block.get("truncated") for block in blocks):
                     raise ValueError("The app truncated a message. Export from a source with the full text.")
                 if kind == "userMessage":
-                    yield "USER", "\n\n".join(block["text"] for block in blocks if block["type"] == "text")
+                    message = "\n\n".join(block["text"] for block in blocks if block["type"] == "text")
+                    yield "USER", message, chatgpt_turn_timestamp(turn, kind)
                 else:
-                    yield "CHATGPT", item["text"]
+                    yield "CHATGPT", item["text"], chatgpt_turn_timestamp(turn, kind)
 
 
 def shared_chat_messages(url):
@@ -298,7 +323,7 @@ def shared_chat_messages(url):
                     raise ValueError(f"Could not read shared turn {number} of {len(turns)}: {exc}") from exc
                 if role not in ("user", "assistant") or not body:
                     raise ValueError(f"Shared turn {number} of {len(turns)} has no exportable message text.")
-                yield ("USER" if role == "user" else "CHATGPT"), body
+                yield ("USER" if role == "user" else "CHATGPT"), body, None
             # <!-- custom: Refuse a partial export if navigating through the snapshot exposed more turns than the initial list. (GPT-6.1-Sol) -->
             if desktop.or_(rendered).count() != len(turns):
                 raise ValueError("The shared page changed its turn list during export. Retry the share link.")
@@ -355,7 +380,9 @@ def main():
             messages = codex_messages(source, args.steps) if args.source == "codex" else chatgpt_messages(source)
         output = args.output or DEFAULT_EXPORT_DIR / filename
         # <!-- custom: Stable speaker separators make it easy to grep message boundaries in long handoff transcripts. (GPT-6.1-Sol) -->
-        entries = [f"=== {role} ===\n{message}" for role, message in messages if message.strip()]
+        counters = {}
+        entries = [format_message(counters, role, message, timestamp)
+                   for role, message, timestamp in messages if message.strip()]
         if not entries:
             raise ValueError("No conversation text found.")
         if args.tail:

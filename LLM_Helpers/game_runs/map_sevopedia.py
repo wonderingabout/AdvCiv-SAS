@@ -6,10 +6,10 @@
 # On 2026-11-11 the user asked for this map; reading 36 full screenshots by eye would have been slow and costly, so this clicks each category point from civ4_points.json, finds the panels by their colour and the EXPAND buttons by their look, and writes the positions to civ4_sevopedia_map.json.
 # Panels are a greyish purple, about (110-122, 100-115, 102-118), while the parchment around them is brownish with clearly less blue, such as (145, 124, 102); the rule below keeps the first and drops the second. (Claude Code Opus 5.5) -->
 
-# <!-- custom: argparse reads the options; json reads the points and writes the map, and re keeps its number lists on one line; tempfile holds screenshots; time waits for pages; sys and pathlib handle exits and paths. (Claude Code Opus 5.5) -->
+# <!-- custom: argparse reads the options; json reads the points and the shared formatter writes coordinate arrays on one line; tempfile holds screenshots; time waits for pages; sys and pathlib handle exits and paths. (Claude Code Opus 5.5) -->
 import argparse
+from importlib import import_module
 import json
-import re
 import sys
 import tempfile
 import time
@@ -20,13 +20,19 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage, signal
 
-# <!-- custom: desktop_windows, beside this script, clicks, hovers and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows clicks, hovers and screenshots the Civ4 window. (Claude Code Opus 5.5) -->
+# <!-- custom: desktop_windows moved to LLM_Helpers/desktop on 2026-11-15, as it drives any app's windows, not only Civ4's, so its folder joins the import path. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
 import desktop_windows
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
 POINTS_FILE = HERE / "ui_maps" / "civ4_points.json"
 MAP_FILE = HERE / "ui_maps" / "civ4_sevopedia_map.json"
-TEMPLATE_FILE = HERE / "ui_maps" / "civ4_expand_button.png"
+# <!-- custom: The repository's root, two folders up from LLM_Helpers/game_runs/, so the paths below work in any clone. (Claude code Opus 5.5) -->
+REPO_ROOT = HERE.parents[1]
+# <!-- custom: Keep the EXPAND crop with the Sevopedia images so the template is also included in light-source ZIPs. (GPT-6.1-Sol) -->
+TEMPLATE_FILE = REPO_ROOT / "_1_AdvCiv-SAS" / "Images" / "sevopedia" / "civ4_expand_button.png"
 # <!-- custom: The page area between the title bar and the bottom buttons, right of the category list, at 1920x1080 windowed. (Claude Code Opus 5.5) -->
 CONTENT = (180, 45, 1926, 1075)
 # <!-- custom: An idle spot on the bottom bar, so the pointer leaves no tooltip over the page in the screenshot. (Claude Code Opus 5.5) -->
@@ -132,16 +138,9 @@ def main():
 		print("%s: %d panels, %d EXPAND" % (name, len(panels), len(buttons)))
 		if args.overlays:
 			overlay(image, panels, buttons, args.overlays / ("%s.png" % name))
-	MAP_FILE.write_text(compact_json(data), encoding="utf-8", newline="\n")
+	format_json = import_module("formatting.json_format").format_json
+	MAP_FILE.write_text(format_json(data, indent=1) + "\n", encoding="utf-8", newline="\n")
 	print("wrote %s" % MAP_FILE)
-
-
-def compact_json(data):
-	# <!-- custom: indent=1 put each number of a box on its own line, six lines per panel; on Codex's suggestion (2026-11-11), number-only lists go back on one line, so each box or button reads as one line, as in the other maps. (Claude Code Opus 5.5) -->
-	text = json.dumps(data, indent=1, ensure_ascii=False)
-	# <!-- custom: Match only actual multiline arrays.
-	# Bracketed numbers inside JSON strings, such as "[1,2]", are data and must keep their original spacing. (GPT-6.1-Sol) -->
-	return re.sub(r"\[\n +(-?\d+(?:,\n +-?\d+)*)\n +\]", lambda match: "[" + ", ".join(part.strip() for part in match.group(1).split(",")) + "]", text) + "\n"
 
 
 if __name__ == "__main__":
