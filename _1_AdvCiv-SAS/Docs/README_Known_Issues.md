@@ -81,6 +81,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#38.4 - (Fixed XML launch failure; confirmed the previous SAS define sentinel/guard is validated) UTF-8 BOM prevented SAS GlobalDefines from loading](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.4)\
 [KI#38.5 - (Fixed/Diagnosed DLL build-tooling defect) fastdep access-violated on a redundant include with a trailing custom comment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.5)\
 [KI#38.6 - (Observed transient CI failure; cause undetermined) GitHub fixture cleanup failed, then an identical-tree retry passed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.6)\
+[KI#38.7 - (Fixed in SAS's build provenance step of the Makefile, guarded by CI) A DLL build started from Git Bash ran Git's Unix find for the Makefile's FIND and stalled while it scanned the C drive](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7)\
 [KI#39 - (Seemingly fixed or enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed / addressed) Tremendous/Major Plot allocation improvement 2: If we are high in happiness, favour food tiles much more, and hammer tiles much less if happiness is really high (favour growth dynamically and plot allocation of these the more we can afford it), even if production is slightly reduced short term as a result, it auto corrects at high happiness, with seemingly much stronger AI and developped cities as a result (excluded if food is production (e.g. worker, settler, etc))](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Beyond Tremendously Improved AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast, as well as being braver in our own cultural borders or moving to other cities needing improvements rather than being parked in current city and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
@@ -3737,6 +3738,25 @@ Error: Process completed with exit code 1.
 ```
 
 No source fix was needed for the identical-tree run to pass. The cause remains undetermined; this is a second observation of intermittent fixture cleanup failure, not evidence that arbitrary CI failures can be dismissed. Reported/retried by wonderingabout; GitHub tree/job verification and documentation by GPT-6.1-Sol (Codex).
+
+<a id="ki-38.7"></a>
+
+## KI#38.7 - (Fixed in SAS's build provenance step of the Makefile, guarded by CI) A DLL build started from Git Bash ran Git's Unix find for the Makefile's FIND and stalled while it scanned the C drive
+
+- The Makefile's build provenance step counts leftover objects with `DIR /S /B ... | FIND /C /V ""`. A bare `FIND` runs whichever `find.exe` comes first on `PATH`, and a build started from Git Bash, or from a `cmd.exe` that Git Bash launched, inherits Git's `PATH`, where `C:\Program Files\Git\usr\bin\find.exe` comes first.
+  - SAS added this step on 2026-10-12, in commit `7238c4c5e`, written with ChatGPT-5.6-Sol and GPT-6.1-Sol, as the Makefile's comment credits, so each DLL records how many objects and incomplete-compile markers its build found in `temp_files/<target>`; base AdvCiv's Makefile has no `FIND`.
+    - `DIR /S /B ... | FIND /C /V ""` is the usual `cmd.exe` way to count lines, and builds then ran from Visual C++ 2010 Express or PowerShell, where `FIND` is Windows' `find.exe`, so its reliance on `PATH` showed only once agents built from Git Bash.
+  - Git's Unix `find` read the arguments as folders and crawled all of C:, so the build stalled: the report stayed `RUNNING` with no `cl.exe` process, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines.
+  - It happened on 2026-11-11 and again on 2026-11-13, although the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) said not to build from Git Bash after the first time.
+- Fixed by calling `%SystemRoot%\System32\find.exe` by its path in the [Makefile](/CvGameCoreDLL/Project/Makefile). In Visual C++ 2010 Express and in PowerShell, a bare `FIND` already resolved to this same program, so IDE builds run what they ran before.
+  - Tested in a `cmd.exe` whose `PATH` began with Git's `find`: the provenance line counted 3 test objects correctly. A full Debug-opt build through the changed Makefile then succeeded from Git Bash with no warnings, its provenance line writing `SAS_BUILD_PREEXISTING_OBJECT_COUNT 0` after the clean rebuild, as expected. That day's tests did not include a build from the IDE itself.
+- Guarded by [`makefile_windows_tools.py`](/.github/workflows/README.md#buildrepositorymakefile_windows_toolspy), which fails on a bare call to a tool both Windows and Git ship, and by [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy), which also takes Git's folders off `PATH` for its builds.
+
+Found by Claude code Opus 5.5 on 2026-11-11, and again on 2026-11-13, when wonderingabout asked whether the rule could be enforced rather than remembered.
+
+Update (2026-11-13, later session): writing that fix through Claude Code's Bash had turned `\find.exe` into a form feed and `ind.exe`, in the Makefile and in the workflows README, so the repository-wide [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy) should have failed.
+
+It passed, because it allowed form feed as an old page break, although no text file held one. It now rejects form feed too; a scan of all 2,018 text files found none.
 
 <a id="ki-39"></a>
 

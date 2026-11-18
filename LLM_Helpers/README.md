@@ -35,6 +35,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
 | `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
+| `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
@@ -144,6 +145,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
   - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
     - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
+- [`dll_builds/`](#dll_builds)
+  - [`build_dll.py`](#build_dllpy)
 - [`exe_analysis/`](#exe_analysis)
 - [`formatting/`](#formatting)
   - [UI-map JSON formatting](#ui-map-json-formatting)
@@ -1199,6 +1202,27 @@ python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py off
 ```
 
 - Added with help of Claude code Opus 5.5.
+
+## `dll_builds/`
+
+### `build_dll.py`
+
+Builds the DLL through [`build_with_report.ps1`](/CvGameCoreDLL/Project/build_with_report.ps1), or checks C++ files with VC2003's `cl.exe /Zs`, with the Visual C++ 2010 environment from `vcvars32.bat` set up first. It works from Git Bash too: the build runs under `cmd.exe`, with Git's folders taken off `PATH` and `System32` first.
+
+```bash
+python LLM_Helpers/dll_builds/build_dll.py syntax CvGameInterface.cpp CyGame.cpp
+```
+
+```bash
+python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
+```
+
+- `build` defaults to a Debug-opt `REBUILD`, which cleans `temp_files/<target>` first, as the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) asks; `--configuration Release` for a shipped DLL.
+- `syntax` takes file names in `CvGameCoreDLL` or paths, and writes no objects: three changed files took 9 seconds on 2026-11-13, against about 10 minutes for a build.
+- Why: started without `vcvars32`, `build_with_report.ps1` failed within 4 seconds with cmd's "not recognized as a command" and no compiler line (2026-11-13). Earlier sessions had each written a `.bat` for this into their own scratchpad, which the next session could not see.
+- The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
+  - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
 
 ## `exe_analysis/`
 

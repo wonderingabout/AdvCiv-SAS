@@ -80,6 +80,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/examples_archive_size.py`](#buildrepositoryexamples_archive_sizepy)
     - [`build/repository/future_dates.py`](#buildrepositoryfuture_datespy)
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
+    - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
@@ -594,6 +595,10 @@ Keeps new history paragraphs at the end of an existing Known Issues entry. It co
 - The motivating example is KI#979's dated post-fix replay note inserted before its existing archaeology and credits. Such placement interrupts the investigation thread; the corrected note follows the earlier material.
 - Rejects clear inserted paragraphs when retained body paragraphs still follow them. New KI entries and appended follow-ups are allowed, including additions before the next entry's anchor.
 - Conventional `Screenshots/files for this issue:` archive headers are metadata, so adding or moving them to the top does not count as inserting investigation history. Actual replay/investigation paragraphs remain subject to the chronology check.
+- Rejects a paragraph that leaves an entry still present and appears in another. On 2026-11-18 a KI#38.7 patch applied at a shifted line landed inside KI#39, and moving it back carried KI#39's last three paragraphs into KI#38.7; the insertion rule allowed it as a deletion plus a new entry, and the structure checks passed.
+  - The user noticed while reviewing: VS Code showed KI#39's text, written months before, as new green lines, which made no sense for a commit adding KI#38.7. A content comparison then showed KI#39 had lost its ending, which this rule now reports by itself.
+  - Only a paragraph found in one entry counts, so shared credit lines, such as the C++ File Audit Album's "Found and documented … with the help of ChatGPT-5.6-Sol", do not; a whole entry merged into another, as KI#176.2 into KI#1091, leaves no source and passes.
+  - Replayed over the 546 commits that changed the Known Issues, it flags 5, all from 2026-08-30: a "Reserved during ChatGPT-5.6-Sol's C031 … re-audit" note moved to the newest provisional entry at each step of that discontinued audit.
 - Whitespace reflow, title/status edits, paragraph corrections and deletions are allowed. This conservative check cannot tell whether rewritten prose falsifies history; semantic review remains necessary.
 - Run `python .github/workflows/build/documentation/known_issues_chronology.py --base-ref HEAD` locally. It reports all detected insertions without editing the document.
 
@@ -731,7 +736,7 @@ python .github/workflows/build/exe_patches/exe_patches_export_ignore.py
 
 #### `build/hygiene/control_characters.py`
 
-Rejects stray control characters (NUL, BEL and other C0 control bytes except tab, line feed, carriage return and form feed, plus DEL) in tracked and untracked text-format files.
+Rejects stray control characters (NUL, BEL, form feed and other C0 control bytes except tab, line feed and carriage return, plus DEL) in tracked and untracked text-format files.
 
 - It reports the file, line and a readable escape of the surrounding text.
 - Binary formats such as `.lnk`, `.ani` and `.chm` legitimately contain such bytes and are not scanned.
@@ -741,6 +746,7 @@ Rejects stray control characters (NUL, BEL and other C0 control bytes except tab
   - A repository-wide scan found no other text file affected; this check keeps it that way.
 - PowerShell double-quoted strings also silently drop a backtick before most other characters (`` `_web` `` became `_web`).
   - Prefer single-quoted strings or here-strings when generating Markdown with backticks.
+- Form feed was allowed at first, as an old page break, though no text file held one. On 2026-11-13 text written through Claude Code's Bash lost backslashes, so `\find.exe` became a form feed and `ind.exe` in the Makefile and in this README, four slips in one session, and this check passed each time. It now rejects form feed too, and scans `.tsv`. See KI#38.7.
 
 #### `build/hygiene/line_ending_churn.py`
 
@@ -1035,6 +1041,14 @@ Requires a commit that adds Known Issues to name them, so the commit that opened
 ```bash
 python .github/workflows/build/repository/ki_commit_titles.py
 ```
+
+#### `build/repository/makefile_windows_tools.py`
+
+Fails when the DLL Makefiles call a tool that both Windows and Git ship under the same name (`find`, `sort`, `expand`, `tar`, `timeout`, `whoami`) without its `System32` path, or contain a control character other than tab and line ends.
+
+- Added on 2026-11-13: a bare `FIND` in the build provenance step resolved to Git's Unix `find` when a build inherited Git Bash's `PATH`, and crawled all of C: while the build waited.
+  - It happened on 2026-11-11 and again on 2026-11-13 despite the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md)'s rule against Git Bash, so the Makefile now names `%SystemRoot%\System32\find.exe` and this check keeps it so. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
+- The control-character test came from the fix itself: written through a shell, `\find.exe` became a form feed and `ind.exe`, which the name test could not see. Writing this README entry through the same shell then did it again; the Edit tool, which no shell touches, put it right.
 
 #### `build/repository/project_sources.py`
 

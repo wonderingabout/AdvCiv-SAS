@@ -724,6 +724,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
     - Reviewing that diff, the user then noticed the zero-byte `temp_files/.gitkeep`, kept only so fresh clones had the folder for the old check. The agent had carried it into the new rules unquestioned, but a build with the folder moved away showed the Makefile creates it, so the marker, its `!` exception and its archive and ZIP rules went too.
       - When a change removes a rule's reason, look for what else existed only for that reason, rather than keeping whatever was already there.
     - Each step fit what was known at the time; the lesson is to ask, when a rule depends on memory or carries exceptions, whether the tool could enforce its purpose instead.
+    - A second case (2026-11-13): the DLL Compilation Guide said not to build from Git Bash, as the Makefile's bare `FIND` then runs Git's Unix `find`, which crawls all of C:. A Claude Code Opus 5.5 agent did it anyway two days after the first time, through `cmd.exe` started from Git Bash, which inherits Git Bash's `PATH`.
+      - Rather than a stronger warning, the Makefile now names `%SystemRoot%\System32\find.exe` and [`makefile_windows_tools.py`](/.github/workflows/README.md#buildrepositorymakefile_windows_toolspy) keeps it so, so the mistake no longer stalls a build whoever makes it.
 
 #### Clarity and accuracy
 
@@ -815,6 +817,12 @@ Clear, accurate explanations help users and developers understand the code and i
     - For a Claude Code chat, run [`claude_session_export_to_txt.py`](/LLM_Helpers/README.md#claude_session_export_to_txtpy) with no argument to export this repository's latest session from its local log, or pass a specific `.jsonl` or export ZIP; no desktop export ZIP is needed.
 - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
 - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+- Write text that holds backslashes with the Edit or Write tool, not through a Bash heredoc, `python -c` or script text sent through Claude Code's Bash: there `\\` can arrive as `\`, so `\f`, `\n` and `\t` become control characters and `C:\\Users` becomes `C:\Users`.
+  - Example: seven slips over 2026-11-13 and 2026-11-14, among them `\System32\find.exe` becoming a form feed plus `ind.exe` in the Makefile ([KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7)) and a verbatim JSON log sample losing half its backslashes.
+    - Knowing the rule did not stop agents from making the mistake again: three of the slips came from an agent that already knew it, and on 2026-11-18 Claude Code Opus 5.5, moving this very rule into place with a heredoc script, had `C:\\Program Files` reach Python as `C:\Program`.
+    - So take particular care whenever a script carries backslashes, and when a stray control character or a halved backslash turns up, suspect this first.
+  - After a script writes a file, run [`control_characters.py`](/.github/workflows/README.md#buildhygienecontrol_characterspy); it cannot see a halved backslash, so parse JSON back or grep for the doubled form. The Read tool does not show a form feed, so strip one by byte value (`bytes([12])`).
+  - Seen with Claude Code's Bash tool; Codex's shell was not checked.
 - Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch.
   - Do not "fix" encoding based only on the terminal/tool rendering; rely on VS Code (user feedback) or git diff if they show the file cleanly.
   - The user's IDE can show a wrong view too, so an odd issue the user reports may be fixed by closing and reopening the IDE rather than by a repository change.
@@ -1098,6 +1106,7 @@ int WarEvaluator::evaluateScenario(bool bDiagnosticOnly, WarPlanTypes eWarPlan, 
     - Never ship an assertion or Debug-opt DLL: players would get assertion logging and its slower code, and CI accepts only a `Release` report.
 - Focused local C++ checks can use VC2003 `cl.exe /Zs` with the project's include paths and defines: it checks real translation-unit syntax/types without producing objects, linking or replacing the DLL.
   - The compiler is at `C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe`; the environment setup in [`run_writer_tests.py`](/tests/diagnostics/run_writer_tests.py) uses VS2010's `vcvars32.bat` while explicitly selecting VC2003.
+  - [`build_dll.py`](/LLM_Helpers/README.md#build_dllpy) does both from any shell: `syntax <files>` for `/Zs`, `build` for a Debug-opt rebuild. Before it (2026-11-13), each session wrote its own `vcvars32` `.bat` into its scratchpad, and a build started without one failed within seconds.
   - Extracted production functions can also be compiled/run in a temporary executable with minimal fixtures for focused logic checks.
     - Neither method replaces the appropriate DLL/link/in-game test.
     - The external Windows toolchain and one-off temporary fixtures are not included in light-source ZIPs; source access alone does not give an external reviewer such as ChatGPT this local compiler setup.

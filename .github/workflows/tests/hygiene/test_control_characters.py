@@ -20,8 +20,18 @@ class ControlCharacterTests(unittest.TestCase):
         self.assertIn("0x07", errors[0])
         self.assertIn("<0x00>.610_tech_tree", errors[0])
 
-    def test_tab_crlf_and_form_feed_are_allowed(self):
-        self.assertEqual(checker.control_errors("a.py", b"\tx = 1\r\n\x0c\r\n"), [])
+    def test_tab_and_crlf_are_allowed(self):
+        self.assertEqual(checker.control_errors("a.py", b"\tx = 1\r\n\r\n"), [])
+
+    # <!-- custom: The 2026-11-13 case: a shell turned "\find.exe" into a form feed and "ind.exe" in the Makefile. See KI#38.7. (Claude code Opus 5.5) -->
+    def test_form_feed_from_a_lost_backslash_is_reported(self):
+        errors = checker.control_errors("CvGameCoreDLL/Project/Makefile", b"FOR /F %%i IN ('%SystemRoot%\\System32\x0cind.exe /c') DO\n")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("0x0C", errors[0])
+        self.assertIn("System32<0x0C>ind.exe", errors[0])
+
+    def test_tsv_manifests_are_scanned(self):
+        self.assertTrue(checker.is_text_path(".github/workflows/build/xml/xml_sas_text_inherited_hashes.tsv"))
 
     def test_only_text_formats_are_scanned(self):
         self.assertTrue(checker.is_text_path("AGENTS.md"))
