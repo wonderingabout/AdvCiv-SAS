@@ -49,7 +49,10 @@ def errors_in(text, relative, names):
 	errors = []
 	for name in names:
 		# <!-- custom: Whole words only, so a retired name does not match a longer word, such as the plural "pilots" of a harbour. (Claude code Opus 5.5) -->
-		for match in re.finditer(r"(?<![A-Za-z])" + re.escape(name) + r"(?![A-Za-z])", text, re.I):
+		# <!-- custom: The guard applies only where the name ends in a letter: a listed path starting with a slash first matched nothing, as the folder letter before the slash, such as the M of `Images/LLM`, failed it. (Claude code Opus 5.5) -->
+		before = r"(?<![A-Za-z])" if name[0].isalpha() else ""
+		after = r"(?![A-Za-z])" if name[-1].isalpha() else ""
+		for match in re.finditer(before + re.escape(name) + after, text, re.I):
 			line = text.count("\n", 0, match.start()) + 1
 			errors.append(f"{relative}:{line}: \"{match.group(0)}\" is a retired name; use the current one listed in {LIST.as_posix()}")
 	return errors

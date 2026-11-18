@@ -395,6 +395,11 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
       - A client in WorldBuilder ignored the close request, so leave WorldBuilder before closing it.
   - Advanced Start, recorded as the `advanced_start` screen, needs the Custom Game screen: a QuickStart game with the option starts with 0 points, since the setup's Advanced Start Base Points come only from there, and the game reads no points key from the INI. Started from a per-run INI copy, Custom Game remembers its choices in that copy, not the user's INI.
     - Hovering a plot with an item selected shows its price, a click buys it, and a right-click sells it back for the full price, except items whose help says Not removable, such as cities, culture, buildings and visibility. Build Improvements (Automated) spends nearly all points at once, and Begin! ends the phase, turning leftover points into gold.
+- A WorldBuilder scenario opens three setup steps before its game: Civilization, Your Details and Game Snapshot, recorded as `scenario_civilization`, `scenario_details` and `scenario_snapshot` in the UI map (2026-11-16, in SAS and in base AdvCiv 1.14).
+  - Launching `Civ4BeyondSword.exe /FXSLOAD="<file>.CivBeyondSwordWBSave" ini=<per-run INI>` goes straight to the first step, skipping the main menu, as SASSaveTransplanter does; a mod copy is chosen by the INI's `Mod` line.
+  - OK sits at `1855,1095` on all three in a 1926x1120 window, and the last one starts the game. GO BACK on Your Details returns to the scenario list, not to Civilization, in both mods.
+  - In SAS all three steps fill the enlarged setup box, Your Details at 0.56 of its width; before a 2026-11-16 fix, a `/FXSLOAD` launch left Civilization at BtS's 850x569 ([KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)). Base AdvCiv shows them at BtS's size, its radio rows about 31 px apart against SAS's 24.
+  - Your Details takes the keyboard: letters typed elsewhere land in its Leader Name box, so click through it only while the user is idle.
 - Civ4 remembers Custom Game settings for the user's next game. Note them before changing any, and set them back afterwards.
 - Other resolutions (2026-11-12, testing the setup-screen EXE patch of [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)): set `ScreenWidth`, `ScreenHeight` and `FullScreen` in `CivilizationIV.ini` for the run and restore the file afterwards. The named points fit only 1920x1080, so read positions off a screenshot.
   - A 2560x1380 game opened a 2566x1420 window. The main menu's items stay centred about halfway down: Single Player, then Simple Game, both at `1283,724`.
@@ -515,8 +520,8 @@ Mapped by Claude Code Opus 5.5 on 2026-11-13 during [KI#1084](/_1_AdvCiv-SAS/Doc
 5. Keep the dump with the DLL and PDB it was made with, and read it as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
    - When `kb` stops in the EXE, which has no unwind information, `dds esp L800` lists older return addresses on the stack; those in `CvGameCoreDLL` show which DLL code ran just before.
 
-<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">
-<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_civ4_crash_dump_saved.PNG" alt="llm_civ4_crash_dump_saved.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_saved.PNG" alt="llm_civ4_crash_dump_saved.PNG" width="250">
 
 ### Hearing the game
 

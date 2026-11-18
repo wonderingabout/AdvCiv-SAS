@@ -75,8 +75,9 @@ def codex_messages(source, steps=False):
             if role not in ("user", "assistant"):
                 continue
             label = "USER" if role == "user" else "CODEX"
+            # <!-- custom: Codex's "commentary" phase holds the notes it writes while still working, apart from its final answer; was CODEX UPDATE until 2026-11-18, which the user found could read as a software update or an edited message. (Claude code Opus 5.5) -->
             if item.get("phase") == "commentary":
-                label = "CODEX UPDATE"
+                label = "CODEX PROGRESS"
             yield label, codex_message_text(item), record.get("timestamp")
 
 

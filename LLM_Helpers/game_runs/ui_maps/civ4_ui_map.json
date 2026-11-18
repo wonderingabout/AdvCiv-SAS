@@ -221,6 +221,7 @@
     },
     "single_player": {
       "reach": "main_menu.single_player",
+      "note": "Base AdvCiv 1.14 (checked 2026-11-16) has the same items at the same points, with Play Now for Simple Game.",
       "controls": {
         "simple_game": {"xy": [965, 575], "to": "simple_game_1_map", "note": "a six-step quick setup"},
         "load_game": {"xy": [965, 620], "to": "load_dialog"},
@@ -246,10 +247,48 @@
     "scenario_list": {
       "reach": "single_player.play_scenario or single_player.custom_scenario",
       "controls": {
-        "list": {"xy": [460, 600], "note": "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857); see KI#1082"},
+        "list": {"xy": [460, 600], "note": "WorldBuilder saves, x 152-790, y 140-1065 since the 2026-11-12 enlarged setup screen (was x 543-871, y 300-857, as base AdvCiv 1.14 still is, titled SELECT A MAP); see KI#1082"},
         "preview": {"xy": [1290, 430], "note": "globe, name and map size, x 822-1758 since the 2026-11-12 enlarged setup screen (was x 886-1377)"},
-        "ok": {"xy": [1857, 1094], "note": "not clicked: starts the scenario"},
+        "ok": {"xy": [1857, 1094], "to": "scenario_civilization", "note": "starts the scenario's setup steps; or launch Civ4 with /FXSLOAD=\"<file>.CivBeyondSwordWBSave\", as SASSaveTransplanter.py does"},
         "go_back": {"xy": [100, 1094], "to": "single_player"}
+      }
+    },
+    "scenario_civilization": {
+      "reach": "scenario_list.ok, or a /FXSLOAD launch on a WorldBuilder file",
+      "shows": "titled CIVILIZATION in SAS, SELECT A CIVILIZATION in base AdvCiv; the file's playable civilizations as radio rows, the leader portrait with traits and unique units and buildings, and a LEADERS column; the file's own choice is preselected",
+      "tests": [
+        ["box size in a 1920 x 1080 client", "SAS fills the 1632 x 994 setup box, base AdvCiv keeps BtS's 840 x 560"]
+      ],
+      "controls": {
+        "civ_rows": {"xy": [173, 148], "note": "radio rows, SAS 24 px apart from y 148 (x 162 the radio); base AdvCiv's smaller box puts them about 31 px apart from about (592, 380), as SAS tightened the radio buttons (KI#1082)"},
+        "leader_button": {"xy": [1688, 218], "note": "the first leader of the selected civilization; base AdvCiv about (1297, 432)"},
+        "ok": {"xy": [1855, 1095], "to": "scenario_details"},
+        "go_back": {"xy": [100, 1095], "to": "scenario_list"}
+      }
+    },
+    "scenario_details": {
+      "reach": "scenario_civilization.ok",
+      "shows": "YOUR DETAILS: the leader portrait and four text fields with the human's names; SAS 904 x 984 (0.56 of the patched box's width), base AdvCiv 468 x 560",
+      "tests": [
+        ["GO BACK", "returned to the scenario list, not to Civilization, in both mods (2026-11-16)"]
+      ],
+      "controls": {
+        "leader_name": {"xy": [1033, 653], "note": "text field; base AdvCiv (1033, 646). Civ4 gives it the keyboard, so typing meant for another window lands here (see README_SASSaveTransplanter.md)"},
+        "civ_description": {"xy": [1033, 692], "note": "base AdvCiv (1033, 685)"},
+        "short_description": {"xy": [1033, 731], "note": "base AdvCiv (1033, 724)"},
+        "civ_adjective": {"xy": [1033, 770], "note": "base AdvCiv (1033, 763)"},
+        "ok": {"xy": [1855, 1095], "to": "scenario_snapshot"},
+        "go_back": {"xy": [100, 1095], "to": "scenario_list", "note": "skips the Civilization step, in SAS and base AdvCiv alike"}
+      }
+    },
+    "scenario_snapshot": {
+      "reach": "scenario_details.ok",
+      "shows": "GAME SNAPSHOT: difficulty and game speed radios on the left, the map with its settings and the human's details on the right; SAS fills the patched box with an enlarged globe",
+      "controls": {
+        "handicap_rows": {"xy": [179, 178], "note": "SAS: 11 rows 24 px apart, Rookie to Deity+; base AdvCiv: 9 rows from Settler at (598, 406), 31 px apart, under DIFFICULTY"},
+        "speed_rows": {"xy": [179, 876], "note": "SAS: 8 rows 24 px apart, Nitro to Very Slow; base AdvCiv: Marathon, Epic, Normal, Quick at x 598 from y 723, 31 px apart"},
+        "ok": {"xy": [1855, 1095], "note": "not clicked: starts the game; the SASSaveTransplanter clicks it"},
+        "go_back": {"xy": [100, 1095], "to": "scenario_details"}
       }
     },
     "bts_content": {
