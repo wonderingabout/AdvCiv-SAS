@@ -98,6 +98,12 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
 
+      - name: No added code line repeats the line next to it
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/repository/adjacent_duplicate_lines.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+
       - name: DLL rebuild for structural XML define changes
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/repository/dll_define_changes.py --event-name "$EVENT_NAME" --event-path "$GITHUB_EVENT_PATH"

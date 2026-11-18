@@ -1275,7 +1275,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
 [KI#1096 - (Fixed AdvCiv-SAS bug) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
-[KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)
+[KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
+[KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)
 
 <a id="ki-1"></a>
 
@@ -38244,3 +38245,20 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
 - Since `.gitattributes` says `eol=lf`, those can no longer appear. The reverse one did instead, `CRLF will be replaced by LF`, for the working copies still CRLF from before: 1,345 files in the user's folder.
 - The 1,339 without local edits were rewritten as LF from the repository, so the warning now shows only for a file holding local edits made before the conversion, and goes once that file is committed, as staging stores it as LF.
   - `git checkout -- <file>` alone left them CRLF, since Git skips a file it sees as unchanged; each was deleted and then checked out again.
+
+<a id="ki-1098"></a>
+
+## KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice
+
+- Each second copy only repeated the first, so nothing in game changed: the screen kept its ID, the button stayed hidden and the label showed the same title. Each line came in as part of a larger change, and no later diff touched it, which is why no review caught it.
+  - `CvDanQuayle.py` (the Dan Quayle score screen): vanilla Civ4's own copy, in the game's root `Assets/Python/Screens/`, already assigns `self.SCORE_ID = "CvDanQuayleScore"` twice. Warlords, BtS and K-Mod ship no copy of their own, and AdvCiv added one, double included, in pre-SAS practical 1268 (`e11525d30`, "v0.89rc", 2017-08-24, by f1rpo).
+  - `CvCustomizableDomesticAdvisor.py`: `screen.hide(self.RENAME_PAGE_NAME)` twice came with the BUG-era advisor itself, imported whole by K-Mod's commit 4 (`593c549b5`, "assets to go with the initial commit", 2010-12-27). Every installed mod carrying this advisor has it, 27 of them, from Realism Invictus to Taurus.
+  - `SevoPediaMusic.py`: SAS's own. The Sevopedia media player's TV panel added the `setCurrentLabel` call on 2026-01-30 (`467909328`), and the same day's Toggle Button commit (`118ca10d8`, SAS practical 5395) added a second copy right below it.
+    - The commit names no model, but Codex's session log for that work, which ran `gpt-5.2-codex` throughout, holds the patch: at 05:25:26 UTC it added the call below `placeTimerLabel(...)`, its context showing only that line, so the copy already right after it stayed and the call doubled. The commit was finalized a minute later, at 05:26:37 UTC.
+- Found by Claude code Opus 5.5 on 2026-11-17 while bringing the SASPilot work to main, as a side finding noted for later; reviewed and fixed on 2026-11-18, the user asking for a CI guard, this KI and the archaeology above.
+- Fixed by removing each second copy, with a comment at each place saying what was there.
+- Guarded by [`adjacent_duplicate_lines.py`](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy), which fails on a code line a commit adds when it repeats the line right above or below it.
+  - Only added lines count: across the tracked code, 114 lines repeat their neighbour, most on purpose, such as two `NEWLINE` appends for a blank line, matrix rows in map scripts, or XML tree moves like two `SetToParent` calls.
+  - `CvPlot.cpp`'s two `iTurnsLeft++` look like one too, but in BtS the first sits in an `if` block and the second follows a blank line: one rounds the build time up and the other adds the current turn. AdvCiv dropped the braces, which put them side by side.
+  - It and `CvXMLLoadUtilitySet.cpp`'s two `SetToParent` calls, as in BtS, each moving the XML cursor up one level, now carry a comment saying they are meant.
+  - XML files are not checked: their lists repeat rows on purpose, such as several `<iCommerce>0</iCommerce>` or `<GoodyType>GOODY_TECH</GoodyType>` in a row, 213 and 17 times across the tracked XML, so a repeated row there is data, not a slip.

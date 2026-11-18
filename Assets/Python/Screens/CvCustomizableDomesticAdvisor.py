@@ -1051,7 +1051,7 @@ class CvCustomizableDomesticAdvisor:
 
 		if self.isFlavorful:
 
-			screen.hide(self.RENAME_PAGE_NAME)
+			# <!-- custom: Was hidden twice in a row, as in K-Mod's and base AdvCiv's copies of this BUG-era advisor; the second call only repeated the first. See KI#1098. (Claude code Opus 5.5) -->
 			screen.hide(self.RENAME_PAGE_NAME)
 			screen.hide(self.ADD_PAGE_NAME)
 			screen.hide(self.DEL_PAGE_NAME)
