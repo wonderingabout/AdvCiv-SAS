@@ -47,6 +47,11 @@ class FutureDateTests(unittest.TestCase):
         self.assertEqual(self.errors(".github/workflows/tests/repository/test_x.py", "# 2027-01-01\n"), [])
         self.assertEqual(self.errors("ids.txt", "build 12026-11-30 and 2026-11-30-1 and 2026-13-40\n"), [])
 
+    def test_tool_timestamps_pass_but_a_bare_date_beside_them_fails(self):
+        # <!-- custom: A verbatim tool reply holds future reset times as full timestamps; a hand-written date on the same line is still checked. (Claude code Opus 5.5) -->
+        self.assertEqual(self.errors("guide.md", '"resetsAt": "2026-11-23T03:00:00.887Z",\n'), [])
+        self.assertEqual(len(self.errors("guide.md", '"resetsAt": "2026-11-23T03:00:00.887Z", noted 2026-11-17\n')), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

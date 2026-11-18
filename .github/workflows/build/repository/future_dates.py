@@ -19,7 +19,8 @@ import sys
 # <!-- custom: Reuse the DLL message check's commit selection, so push, PR and local runs check the same commits as the other commit rules. (Claude code Opus 5.5) -->
 from dll_commit_message import ROOT, commit_id, commits_in_range, event_commits, git
 
-DATE = re.compile(r"(?<![\d-])(20\d\d)-(\d\d)-(\d\d)(?![\d-])")
+# <!-- custom: A date followed by a time, such as "2026-11-23T03:00:00.887Z", is a timestamp copied from a tool's output, which may lie in the future, as a usage limit's reset did in a verbatim get_usage reply of 2026-11-18; the hand-written dates this check guards against carry no time. (Claude code Opus 5.5) -->
+DATE = re.compile(r"(?<![\d-])(20\d\d)-(\d\d)-(\d\d)(?![\d-])(?!T\d\d:\d\d)")
 # <!-- custom: Generated history exports quote other commits' text, whose dates are their own. (Claude code Opus 5.5) -->
 SKIPPED_HISTORY = ("LLM_Helpers/context/",)
 # <!-- custom: Test fixtures make up dates on purpose, this check's own test included. (Claude code Opus 5.5) -->
