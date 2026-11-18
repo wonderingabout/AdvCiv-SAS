@@ -467,6 +467,17 @@ def comment_credit_parts(block: CommentBlock) -> tuple[dict[str, str], list[str]
 GENERIC_MODEL_CREDITS = frozenset(("chatgpt", "gpt", "codex", "claude", "gemini", "deepseek", "grok"))
 
 
+# <!-- custom: A credit names the model, not the app or family: "(Codex)" says which app wrote it but not which model, as GPT-5.3-Codex and GPT-6.1-Sol both ran in Codex.
+# The user spotted one in this check's own test on 2026-11-18; no real comment had one.
+# New custom prose must name the exact model, such as GPT-6.1-Sol or Claude code Opus 5.5; an existing comment copied or reflowed unchanged keeps its old credit. (Claude code Opus 5.5) -->
+GENERIC_ONLY_CREDITS = GENERIC_MODEL_CREDITS | frozenset(("claude code",))
+
+
+def generic_credit_errors(path: str, block: CommentBlock) -> list[str]:
+    credits, _ = comment_credit_parts(block)
+    return ["%s:%d: model credit '%s' names only the app or model family; name the exact model, such as GPT-6.1-Sol or Claude code Opus 5.5" % (path, block.start, label) for key, label in credits.items() if key in GENERIC_ONLY_CREDITS]
+
+
 def credit_preserved(old_key: str, new_credits: dict[str, str]) -> bool:
     if old_key in new_credits:
         return True
@@ -1052,6 +1063,8 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     old_custom_text = {block.normalized for block in old_comments if block.custom}
     for block in added_custom:
         errors.extend(credit_spelling_errors(path, block))
+        if block.normalized not in old_custom_text:
+            errors.extend(generic_credit_errors(path, block))
         if not block.credited and block.normalized not in old_custom_text and warnings is not None:
             warnings.append(
                 "%s:%d: new/rewritten custom comment has no recognized model credit near its closing '-->'"

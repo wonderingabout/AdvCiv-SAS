@@ -1007,7 +1007,11 @@ AdvCiv-SAS revises asset stats and historical details. For example, India's Maus
 
 AdvCiv-SAS adds a Marsh feature (`FEATURE_MARSH`) on flat Grassland, which holds good land hostage for development rather than making it poor.
 
-Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but slows and exposes units, adds mild unhealthiness, and allows only a few resource improvements until it is drained. Holding land hostage does not mean forbidding every use: most land units can still cross it, and city founding is a deliberate exception, clearing its own tile as on Forest or Jungle to avoid delaying settlement for a separate Worker drainage job or having to prioritize its required technology just to found there. The surrounding Marsh remains, so the question is when a particular piece of land is worth the Worker time.
+Flat Grassland was the obvious pick wherever it was found, so starts played alike. Marsh keeps the land's yield, unlike Civilization III's marsh that inspired it, but slows and exposes units, adds mild unhealthiness, and allows only a few resource improvements until it is drained.
+
+Holding land hostage does not mean forbidding every use: most land units can still cross it, and city founding is a deliberate exception, clearing its own tile as on Forest or Jungle to avoid delaying settlement for a separate Worker drainage job or having to prioritize its required technology just to found there.
+
+The surrounding Marsh remains, so the question is when a particular piece of land is worth the Worker time.
 
 A rare Peat resource forms only on Marsh and stays after draining. It gives production, and its Peat Works adds food while keeping the Marsh. Draining an ordinary Marsh can occasionally uncover some through the new [`FeatureRemovalDiscoveries`](/README.md#featureremovaldiscoveries-for-bonuses) chance, so some Marshes are worth seeking rather than clearing at once.
 
