@@ -262,7 +262,7 @@ def wait_reply(app, before, marker, timeout, arrival_timeout=120):
 		result = reply_since(app, before, marker, seen)
 		if result is not None:
 			return result
-		if not seen["arrived"] and time.time() - start > arrival_timeout:
+		if arrival_timeout is not None and not seen["arrived"] and time.time() - start > arrival_timeout:
 			return "NOT_ARRIVED"
 		time.sleep(2)
 	return None
@@ -292,10 +292,27 @@ def main():
 	parser.add_argument("--start-settle", type=int, default=8, help="seconds to wait after the window appears, before its message box takes text")
 	parser.add_argument("--positions", help="after --start, restore this saved desktop layout (desktop_windows.py positions list)")
 	parser.add_argument("--thread", help="Codex only: open this thread before sending, by its sidebar title (or a unique part of it), its session ID, or latest for the thread last written to; a freshly started Codex otherwise shows a new chat")
-	parser.add_argument("--arrival-timeout", type=int, default=120, help="stop waiting if the message has not appeared in the target app's log after this many seconds, as when the send did not land")
+	parser.add_argument("--arrival-timeout", type=int, default=120, help="stop waiting if the message has not appeared in the target app's log after this many seconds, as when the send did not land; not applied with --queue")
+	parser.add_argument("--wait-for", metavar="HEADER", help='send nothing; wait for the reply to a queued message already sent, given by its header, e.g. "[Claude Code Opus 5.5 · 2026-11-18 13:54:43.765 UTC]"')
 	args = parser.parse_args()
-	# <!-- custom: The header's middle dot printed as a replacement character in a cp1252 console. (Claude Code Opus 5.5) -->
+	# <!-- custom: The header's middle dot printed as a replacement character in a cp1252 console.
+	# It runs before --wait-for, which Codex's 2026-11-18 review showed raised UnicodeEncodeError on a reply holding a check mark when it returned earlier. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+	if args.wait_for:
+		# <!-- custom: On 2026-11-18 a --queue send's wait stopped after 2 minutes, saying the message did not reach Codex, although it sat in Codex's queue: an app logs a queued message only when it starts on it, so the arrival check does not apply to one, and resending to wait again would have queued it twice.
+		# This picks up the wait for a message already sent and still queued; it reads the logs from now on, so it cannot find a message the app has already started. (Claude Code Opus 5.5) -->
+		if not args.to:
+			parser.error("--wait-for needs --to")
+		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
+		print("waiting for %s to end the turn holding %s..." % (name, args.wait_for), flush=True)
+		result = wait_reply(args.to, log_sizes(args.to), args.wait_for, args.wait_timeout, None)
+		if result is None:
+			sys.exit("no reply from %s within %d seconds" % (name, args.wait_timeout))
+		if result[1] is None:
+			sys.exit("%s ended the turn holding this message without a final answer" % name)
+		print("=== %s REPLY ===" % name.upper())
+		print(result[1])
+		return
 	if args.start:
 		if not args.to:
 			parser.error("--start needs --to")
@@ -352,7 +369,8 @@ def main():
 	if args.wait_reply:
 		name = {"codex": "Codex", "claude": "Claude Code"}[args.to]
 		print("waiting for %s to end the turn holding this message..." % name, flush=True)
-		result = wait_reply(args.to, before, message[:message.index(" UTC]") + 5], args.wait_timeout, args.arrival_timeout)
+		# <!-- custom: A queued message is logged only when the app starts on it, which can be long after the send, so it gets no arrival check. (Claude Code Opus 5.5) -->
+		result = wait_reply(args.to, before, message[:message.index(" UTC]") + 5], args.wait_timeout, None if args.queue else args.arrival_timeout)
 		if result == "NOT_ARRIVED":
 			sys.exit("the message did not reach %s: it was not in its log after %d seconds, so check its window and where the paste went" % (name, args.arrival_timeout))
 		if result is None:

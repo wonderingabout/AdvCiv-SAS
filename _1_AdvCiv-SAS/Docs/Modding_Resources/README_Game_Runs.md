@@ -517,7 +517,7 @@ Mapped by Claude Code Opus 5.5 on 2026-11-13 during [KI#1084](/_1_AdvCiv-SAS/Doc
 2. Before taking a dump, move away an earlier `%LOCALAPPDATA%\Temp\Civ4BeyondSword.exe.dmp` worth keeping: Civ4 writes every dump to that one name.
 3. `python desktop_windows.py click --pid <pid> --point crash_full_dump` writes the whole process memory, about 1.5 GB for a Huge late game; `crash_normal_dump` writes a smaller one and `crash_no_dump` closes Civ4 without a file.
 4. Civ4 then shows "Saved dump file to ...". `python desktop_windows.py click --pid <pid> --point crash_dump_saved_ok` closes it, and Civ4 exits.
-5. Keep the dump with the DLL and PDB it was made with, and read it as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md#inspecting-a-dump-from-the-command-line).
+5. Keep the dump with the DLL and PDB it was made with, and read it as in [Inspecting a dump](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#inspecting-a-dump-from-the-command-line).
    - When `kb` stops in the EXE, which has no unwind information, `dds esp L800` lists older return addresses on the stack; those in `CvGameCoreDLL` show which DLL code ran just before.
 
 <img src="/_1_AdvCiv-SAS/Images/LLM/game_runs/llm_civ4_crash_dump_dialog.PNG" alt="llm_civ4_crash_dump_dialog.PNG" width="250">

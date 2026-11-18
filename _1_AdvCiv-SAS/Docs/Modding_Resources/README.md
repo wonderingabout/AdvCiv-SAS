@@ -48,6 +48,7 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 &emsp;[old info](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#old-info)\
 [Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)\
 [Tools for AI/LLM helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#tools-for-aillm-helpers)\
+&emsp;[One Python for the helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#one-python-for-the-helpers)\
 [Python 2.4 compatibility for modding](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding)\
 [How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)\
 [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)\
@@ -75,6 +76,7 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 - [Computer upkeep guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Computer_Upkeep.md): compiling without needless strain and keeping often-listed folders small; for the user and AI/LLM helpers
 - [Desktop windows guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md): how agents read and work with windows on Windows 10, including the Codex and Claude apps and their usage limits
 - [DLL compilation guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md): command-line workflow primarily for AI/LLM helpers
+- [DLL debugging guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md): crash dumps, attaching WinDbg/CDB or Visual Studio to a running game, and why breakpoints end the Steam game; mainly for AI/LLM helpers
 - [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): see the corresponding [disclaimer](/LICENSE.md#the-games-executable)
 - [Game runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md): launching Civ4 into a save or new game, unattended autoplay, screenshots and parallel runs; for AI/LLM helpers
 - [Logging flushing comparison](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md): revision 154 writer measurements
@@ -528,18 +530,20 @@ Installed, as checked on 2026-11-08:
 
 | Tool | Used for |
 | --- | --- |
-| Python 3.12 to 3.14 (`py`, `python`) | CI checks, tests and [LLM helpers](/LLM_Helpers/README.md) |
+| Python 3.14 (`py` and `python` both run it) | CI checks, tests and [LLM helpers](/LLM_Helpers/README.md); see [One Python for the helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#one-python-for-the-helpers) |
 | Python 2.4.4 (`C:\Python24\python.exe`) | Compile checks with Civ4's Python version; see [Python 2.4 compatibility](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#python-24-compatibility-for-modding) |
 | Pillow 13.0 (`py -m pip install pillow`, for both `py` and `python`) | Opening `.tga` and `.dds` files, so an agent can look at buttons and fonts as images; installed on 2026-11-08; see the [Art Tools Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Art_Tools.md) |
 | PyFFI 2.2.3, setuptools and numpy (`py -m pip install pyffi setuptools numpy`) | Reading and drawing `.nif` models for [`nif_preview.py`](/LLM_Helpers/README.md#nif_previewpy); PyFFI and setuptools installed on 2026-11-08, numpy already present |
 | pyte 0.8.2 (`python -m pip install pyte`) | A terminal emulator in pure Python: [`git_bash_history.py --output`](/LLM_Helpers/README.md#git_bash_historypy) replays the user's Git Bash window logs through it to get the text the window showed; installed on 2026-11-17. Useful for any recorded terminal output, not for Civ4 itself |
+| PyYAML, scipy and git-filter-repo | PyYAML for [`ci_report.py`](/LLM_Helpers/README.md#ci_reportpy), scipy for [`map_sevopedia.py`](/LLM_Helpers/README.md#map_sevopediapy), and `git-filter-repo` for rewriting Git history |
 | Node.js (`npx`) | `npx markdownlint-cli2@0.23.2`, the same Markdown lint CI runs |
 | Ruff (`py -m ruff`) | Python lint reports; see [Ruff](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report) |
 | Git, ripgrep (`rg`) | History and search |
 | ffmpeg 6.1 (`winget install Gyan.FFmpeg`) | Decoding Bink `.bik` movies and their audio for [`movie_frames.py`](/LLM_Helpers/README.md#movie_framespy); its folder may not be on PATH, so the helper also looks in winget's package folder |
 | GitHub CLI (`gh`) | Reading CI results and logs of pushed commits directly; installed on 2026-11-08, and needs the user's one-time `gh auth login` |
 | VC2003 Toolkit, VS2010 Express | Building the DLL, and `cl.exe /Zs` syntax checks of single files; see the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md) |
-| WinDbg's `cdbX86.exe` | Reading crash dumps |
+| WinDbg (Microsoft Store), with its console debugger `cdbX86.exe` | Reading crash dumps and stack snapshots of a running game: agents use `cdbX86.exe`, whose answers are text, and a person can open the same dump in WinDbg's window; see the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md) |
+| Visual Studio Community 2026, "Desktop development with C++" workload | Attaching a debugger to a running game, also from a script; installed on 2026-10-20, it only debugs and does not build the DLL; see the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#visual-studio-community) |
 | Civ4 itself, driven from the command line | Launching a save, autoplaying and exiting with [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy), and screenshots or clicks in the game window with [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy); both added on 2026-11-10 and need no install beyond Pillow |
 | Subversion 1.14 command line (`C:\Program Files\SlikSvn\bin\svn.exe`, `winget install Slik.Subversion`) | Updating SVN working copies such as Realism Invictus's without TortoiseSVN's windows, and `svn log` of one file; installed on 2026-11-12. TortoiseSVN 1.14 shares the same working copy format, so the user can keep using either; see note 3.4 under [Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building) |
 | PakBuild, Dragon UnPACKer, NifSkope | Windowed tools for `.FPK` archives and `.nif` models, which the user runs; agents read the same files with [`fpk_tool.py`](/LLM_Helpers/README.md#fpk_toolpy) and `nif_preview.py` |
@@ -553,6 +557,20 @@ Worth suggesting, not installed:
 | texconv (Microsoft DirectXTex) | Writing `.dds` buttons in a chosen DXT format, if agents make new buttons; Pillow already reads them |
 
 Example: markdownlint. The user had long run it through its VS Code extension, but agents could not, since the command-line version needs Node.js. Only when a Markdown issue passed a local Python-only check but failed on GitHub was Node.js installed, on 2026-11-03; agents now run the same lint as CI.
+
+### One Python for the helpers
+
+Since 2026-11-18 one Python runs the helpers and local checks, 3.14, which both `py` and `python` start; Python 2.4 stays apart for Civ4's own code.
+
+- New processes use the updated PATH. An app started before the change, such as an agent app open that day, keeps its old PATH, where `python` may find the Microsoft Store's `python.exe` alias instead; check both commands there, and use `py -3.14` until the app restarts.
+
+- Before, three were installed: 3.12 (2024), 3.13 (2025) and 3.14 (2026). `python` started 3.12, the only one added to PATH, while the `py` launcher picks the newest, 3.14, so a package installed with one was missing from the other.
+  - On 2026-11-18 the Codex transcript search, run with `py`, read 3 of 222 logs: `zstandard` was installed for 3.12 only, and 219 logs are compressed.
+- The packages the helpers import went to 3.14 first (Pillow, PyFFI with setuptools, numpy, pyte, scipy, PyYAML, plus `git-filter-repo`), and each tool was rerun: `nif_preview.py` drew the same model pixel for pixel under both versions.
+  - Python 3.14 reads zstd itself, so `zstandard` is no longer needed by the transcript helper.
+- 3.14 was then updated to 3.14.10 and added to PATH with its official installer (`/modify /quiet PrependPath=1`), and 3.12 and 3.13 were uninstalled. Their package lists are kept in `Downloads/AdvCiv-SAS_LLM/python_migration_20261118/`: 3.12 also held librosa, numba, pygame and others that no helper imports.
+- Install a new package with `python -m pip install <package>`: with one Python, it lands where every helper looks.
+- GitHub's CI asks for the newest stable Python (`python-version: "3.x"`), which ran 3.14.8 in November 2026. Python 3.15 came out on 2026-10-09, but PyYAML had no ready-built 3.15 package for Windows yet, so the move waits for one; [`python_versions.py`](/LLM_Helpers/README.md#python_versionspy) reports when it is ready.
 
 ## Python 2.4 compatibility for modding
 
@@ -728,7 +746,9 @@ I don't know too much about these but i thought i'd compile (no pun) this info q
 
 To read the output .dmp files (i do normal dump most times to have the vague info of why it crashed xd and don't know too much about these), see an example in this known issue's documentation (although we reverted it eventually, it documents an example of showing/reading .dmp files very grossly as in broadly i.e. just a glance/general view as i don't know too much about these but it gives some indication hopefully helpful) here for example [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did, check if accurate)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-60).
 
-See also, since 2026-11-13: always choose Full Dump at the prompt, as a normal dump lacks the heap, with the steps in the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Compilation.md); with several Civ4 clients, every one writes the same dump file, see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
+See also, since 2026-11-13: always choose Full Dump at the prompt, as a normal dump lacks the heap, with the steps in the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#crash-dumps); with several Civ4 clients, every one writes the same dump file, see [KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089).
+
+Since 2026-11-18 that guide also shows reading a dump with WinDbg's console debugger, tested on real dumps, why a normal dump cannot read the game's objects, and what a debugger attached to the running game can and cannot do.
 
 ## Another example of how to use VS Code global search (also shows how to browse the Civ4 BUG docs copy included in the mod)
 

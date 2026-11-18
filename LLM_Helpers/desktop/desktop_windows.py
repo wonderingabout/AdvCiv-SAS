@@ -656,7 +656,7 @@ def save_dump(pid, kind="full", timeout=300.0):
 	# This presses the button by its label with BM_CLICK, which needs no focus or coordinates, then waits for the file to be finished, about a dozen seconds for 1.38 GB.
 	# BM_CLICK can fail on an inactive dialog (Microsoft's documentation, as Codex noted); the timeout then reports no dump rather than a stale one.
 	# Not yet tried on a real prompt.
-	# A full dump is the user's rule (README_DLL_Compilation.md): a normal one lacks the heap. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# A full dump is the user's rule (README_DLL_Debugging.md): a normal one lacks the heap. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	button = find_button(pid, DUMP_BUTTONS[kind])
 	if button is None:
 		raise SystemExit("no %r button in process %d's windows; is the crash prompt up?" % (DUMP_BUTTONS[kind], pid))

@@ -55,6 +55,10 @@ A patch is written for one exact EXE build. Two builds of BtS 3.19 matter, and R
 - This V1/V2 split is RI's, and its comments give each patch an address for both. We only confirmed it on our Steam EXE: it has a `.bind` section, the wrapper's mark, and at RI's version-check address `0x00601EEC` the file held other bytes than RI's expected `PUSH 0x00C4C678`, while the decrypted copy matched.
 - Addresses differ between V1 and V2, but discovering or adding one patch does not move the others: the EXE never changes, so each address stays fixed. Two patches clash only if they touch the same bytes.
 - RI checks each site's bytes before patching and skips a site that does not match, so an unknown EXE gets no patch rather than a wrong one. Keep that rule for any patch we write.
+- Debuggers: on the Steam EXE, the game's main thread is hidden from debuggers, so a breakpoint there ends the game instead of stopping it ([DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md#why-breakpoints-end-the-game), 2026-11-18).
+  - Which part of the EXE sets that flag was not traced. The DRM wrapper, which decrypts the code at startup, is a likely candidate, not established.
+  - The V1 EXE has no wrapper and would then likely allow breakpoints; untested, as no GOG or CD/DVD copy was on hand. The DLL Debugging Guide gives the two checks to run on one.
+  - SAS was not run on V1 either: our patches use RI's V1 addresses, untested by us, and check each site's bytes first, which is a safeguard rather than a tested result for that pair.
 
 ## Reading the EXE with Ghidra
 
@@ -69,6 +73,8 @@ Each step is a command an agent runs itself; the user needs no Ghidra knowledge:
 1. [`dump_exe_image.py`](#dump_exe_imagepy) writes a decrypted copy of the EXE.
 2. Ghidra's headless analyzer imports that copy into a project once, with the command under `dump_exe_image.py`.
 3. [`describe_exe_sites.py`](#describe_exe_sitespy) describes chosen addresses from that project.
+
+The same project also tells which EXE function a debugger's stack frame is in: stacks and dumps show the EXE only as `Civ4BeyondSword+0x...`, since it has no symbols, and that offset plus the EXE's load address of `0x00400000` is the address to describe ([DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md)).
 
 ## Helpers in LLM_Helpers/exe_analysis
 

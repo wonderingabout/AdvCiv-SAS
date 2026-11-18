@@ -77,13 +77,50 @@ def archive_crowded(keep=1000):
     return moved
 
 
+# <!-- custom: Crash dumps clutter by size, not by count: a full dump of a game is 1.2 to 1.5 GB, so moving them into an old_ subfolder frees nothing.
+# desktop_windows.py dump leaves a Civ4BeyondSword_<pid>_<time>.dmp copy in Temp per crash, and crash_dumps/ grows as dumps are kept for KIs (3.1 GB on 2026-11-18).
+# So dumps get a report rather than an archive, and nothing is deleted: a kept dump may still be a KI's evidence, which only whoever works that KI can judge.
+# The user asked on 2026-11-18 that a forgotten dump not go unnoticed. (Claude code Opus 5.5) -->
+DUMP_PLACES = (
+    ("Temp", Path.home() / "AppData" / "Local" / "Temp", "Civ4BeyondSword*.dmp"),
+    ("crash_dumps", Path.home() / "Downloads" / "AdvCiv-SAS_LLM" / "crash_dumps", "**/*.dmp"),
+)
+DUMP_LIMIT_GB = 5
+TEMP_DUMP_DAYS = 7
+
+
+def dump_report(quiet=False):
+    # <!-- custom: Quiet, as after an autoplay run, it prints only when the dumps pass DUMP_LIMIT_GB or a Temp copy is older than TEMP_DUMP_DAYS, so a run with nothing to say stays silent. (Claude code Opus 5.5) -->
+    now = datetime.datetime.now().timestamp()
+    rows = []
+    for place, folder, pattern in DUMP_PLACES:
+        if folder.is_dir():
+            for path in folder.glob(pattern):
+                stat = path.stat()
+                rows.append((place, path, stat.st_size, (now - stat.st_mtime) / 86400.0))
+    total_gb = sum(row[2] for row in rows) / 1073741824.0
+    stale = [row for row in rows if row[0] == "Temp" and row[3] > TEMP_DUMP_DAYS]
+    if quiet and total_gb <= DUMP_LIMIT_GB and not stale:
+        return total_gb
+    for place, path, size, age in sorted(rows, key=lambda row: -row[2]):
+        print("%-11s %7.2f GB  %5.0f days  %s" % (place, size / 1073741824.0, age, path))
+    print("Civ4 crash dumps: %d, %.2f GB in all%s" % (len(rows), total_gb, " (over %d GB)" % DUMP_LIMIT_GB if total_gb > DUMP_LIMIT_GB else ""))
+    if stale:
+        print("%d dump copies in Temp are over %d days old; keep a useful one in crash_dumps/ with its DLL and PDB, and send the rest to the Recycle Bin" % (len(stale), TEMP_DUMP_DAYS))
+    return total_gb
+
+
 def main():
     parser = argparse.ArgumentParser(description="Keep a folder's newest entries and move the rest into a dated old_<UTC> subfolder. Previews unless --apply is given.")
     parser.add_argument("folder", nargs="?", help="a folder path, or one of: " + ", ".join(sorted(KNOWN_FOLDERS)))
     parser.add_argument("--all", action="store_true", help="check every known folder instead of one, archiving those with more than --keep entries when --apply is given")
     parser.add_argument("--keep", type=int, default=1000, help="how many of the newest entries stay in place (default 1000)")
     parser.add_argument("--apply", action="store_true", help="move the entries; without it, only list what would move")
+    parser.add_argument("--dumps", action="store_true", help="instead, list Civ4 crash dumps in Temp and crash_dumps/ with their size and age; deletes nothing")
     args = parser.parse_args()
+    if args.dumps:
+        dump_report()
+        return 0
     if args.all == bool(args.folder):
         parser.error("give one folder, or --all")
     folders = list(KNOWN_FOLDERS.values()) if args.all else [KNOWN_FOLDERS.get(args.folder, Path(args.folder))]

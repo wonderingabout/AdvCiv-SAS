@@ -69,11 +69,51 @@ def codex_message_text(item, omit_agents=False):
 def open_codex_log(source):
     # <!-- custom: Codex compresses older logs to rollout-*.jsonl.zst; the January 2026 History tab sessions were only readable that way (2026-11-13).
     # zstandard is a pip package, imported only for such a file. (Claude Code Opus 5.5) -->
+    # <!-- custom: On 2026-11-18 a search run under `py` (Python 3.14) skipped all 32 compressed logs with a bare "No module named 'zstandard'", while `python` (3.12) had the package; the error now says which Python lacks it and how to get it. (Claude code Opus 5.5) -->
     if source.suffix == ".zst":
+        # <!-- custom: Python 3.14 reads zstd itself (compression.zstd), which read a compressed Codex log on 2026-11-18, so the zstandard package is needed only on older Pythons. (Claude code Opus 5.5) -->
+        try:
+            from compression import zstd
+            return zstd.open(source, "rb")
+        except ImportError:
+            pass
         import io
-        import zstandard
+        # <!-- custom: Before 3.14, zstd needs the zstandard pip package; io wraps its stream to read lines. (Claude code Opus 5.5) -->
+        try:
+            import zstandard
+        except ImportError:
+            raise ValueError(f"{source.name} is compressed and this Python ({sys.version.split()[0]}, {sys.executable}) lacks the zstandard package: install it with `\"{sys.executable}\" -m pip install zstandard`, or run with a Python that has it")
         return io.BufferedReader(zstandard.ZstdDecompressor().stream_reader(source.open("rb"), closefd=True))
     return source.open("rb")
+
+
+# <!-- custom: Finding which Codex sessions mention something, such as the 2026-10-20 Visual Studio debugger work or the patches behind an uncredited comment, took a one-off scratchpad script twice on 2026-11-18; the first run silently skipped the compressed logs.
+# This searches every session log, raw records included, and lists unreadable logs and fails rather than leave them out unnoticed. (Claude code Opus 5.5) -->
+def search_codex_sessions(pattern):
+    root = Path.home() / ".codex"
+    logs = [path for glob in ("sessions/*/*/*/rollout-*.jsonl*", "archived_sessions/rollout-*.jsonl*") for path in root.glob(glob)]
+    regex = re.compile(pattern.encode("utf-8"), re.IGNORECASE)
+    unreadable = []
+    found = 0
+    for path in sorted(logs, key=lambda path: path.name):
+        hits = 0
+        try:
+            with open_codex_log(path) as stream:
+                for line in stream:
+                    hits += len(regex.findall(line))
+        # <!-- custom: Exception, not only OSError and ValueError: compression.zstd's ZstdError and zstandard's errors derive from Exception, so one corrupt log stopped the search instead of joining the unreadable list, as Codex's 2026-11-18 review reproduced. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+        except Exception as exc:
+            unreadable.append(str(exc) if path.name in str(exc) else f"{path.name}: {exc}")
+            continue
+        if hits:
+            found += 1
+            print("%5d  %s  %s" % (hits, path.relative_to(root), codex_title(path)))
+    print(f"{found} of {len(logs)} session logs mention {pattern!r}")
+    if unreadable:
+        print(f"{len(unreadable)} logs could not be read, so the search is incomplete:")
+        for line in unreadable[:5]:
+            print("  " + line)
+        sys.exit(1)
 
 
 def codex_messages(source, steps=False):
@@ -365,9 +405,14 @@ def main():
     mode.add_argument("--markdown", action="store_true", help="codex: write the chat in the layout of the app's Copy as Markdown, with each turn's working time")
     mode.add_argument("--longest", type=int, help="codex: list the N longest turns with their duration, step count and opening words, instead of exporting")
     mode.add_argument("--list", type=int, nargs="?", const=10, metavar="N", help="codex: list the N newest session logs (default 10) with their last write time, size, model, reasoning effort and title, instead of exporting")
+    mode.add_argument("--search", metavar="REGEX", help="codex: list every session log mentioning this case-insensitive pattern, with its count and title, instead of exporting")
     args = parser.parse_args()
-    if args.source != "codex" and (args.steps or args.markdown or args.longest is not None or args.list is not None):
-        parser.error("--steps, --markdown, --longest and --list require the codex source")
+    if args.source != "codex" and (args.steps or args.markdown or args.longest is not None or args.list is not None or args.search):
+        parser.error("--steps, --markdown, --longest, --list and --search require the codex source")
+    if args.search:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        search_codex_sessions(args.search)
+        return
     if args.list is not None:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         list_codex_sessions(args.list)
