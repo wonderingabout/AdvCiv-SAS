@@ -297,7 +297,7 @@ The scouting helpers built on `grid` came from the [scouting trial](/_1_AdvCiv-S
 
 SASPilotConsole shows the command log for a running Civ4 client. This full console capture from the England playthrough shows orders, results, numbered `why` notes, and a refused mission. It predates the SASPilotConsole title bar.
 
-<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_saspilot_console.PNG" alt="llm_saspilot_console.PNG" width="750">
+<img src="/_1_AdvCiv-SAS/Images/LLM/saspilot/llm_saspilot_console.PNG" alt="llm_saspilot_console.PNG" width="750">
 
 Every request `SASPilotClient.py` sends is appended to `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, named per client like the other per-process logs ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)): its time, turn, command, arguments, `kind` (`read` or `order`), and its result, cut at 1,500 characters, or its error.
 
@@ -461,7 +461,7 @@ The Esc menu and its confirmations still open, so a person at the window can lea
 - Civ4 then stopped on its own dialog asking to restart into that mod. SASPilot cannot answer it, and the game no longer replied to requests, so the client had to be closed.
 - A save's header holds the mod it needs: 4 bytes, then a 4-byte length and the folder, such as `Mods\AdvCiv-SAS\` (16 bytes) or `Mods\Caveman2Cosmos\` (20). `run_autoplay.save_mod_folder` reads it for both tools, as Codex's review suggested, and reports a missing, short or cut file plainly; what the first 4 bytes hold is not known.
 
-<img src="/_1_AdvCiv-SAS/Images/LLM/pilot/llm_pilot_save_needs_other_mod.PNG" alt="llm_pilot_save_needs_other_mod.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/saspilot/llm_saspilot_save_needs_other_mod.PNG" alt="llm_saspilot_save_needs_other_mod.PNG" width="250">
 
 ## What was measured
 

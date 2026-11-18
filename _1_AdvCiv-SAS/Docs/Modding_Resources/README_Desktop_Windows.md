@@ -473,9 +473,9 @@ See the [indicator and popup screenshots](#reference-screenshots), [Claude Usage
 
 The captures below are from that Claude run. The hover shows the five-hour meter, the popup shows all three meters, and the settings crop shows that Fable's launch allowance was capped at half the weekly limit.
 
-<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_tooltip.PNG" alt="llm_claude_fable_usage_tooltip.PNG" width="250">
-<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_popup.PNG" alt="llm_claude_fable_usage_popup.PNG" width="250">
-<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_fable_usage_settings.PNG" alt="llm_claude_fable_usage_settings.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_half_usage_tooltip.PNG" alt="llm_claude_half_usage_tooltip.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_code_fable_usage_popup.PNG" alt="llm_claude_code_fable_usage_popup.PNG" width="250">
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_claude_code_fable_usage_settings.PNG" alt="llm_claude_code_fable_usage_settings.PNG" width="250">
 
 Codex's half-window popup, reset tooltips, and Usage & billing page from the same day:
 

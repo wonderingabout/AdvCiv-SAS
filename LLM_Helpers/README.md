@@ -31,7 +31,9 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `chat_exports/` | readable transcripts of Claude Code, Codex and ChatGPT chats: [`claude_session_export_to_txt.py`](#claude_session_export_to_txtpy), [`openai_chat_export_to_txt.py`](#codex-and-chatgpt-transcript-helper), and `chat_export_paths.py`, which they share |
 | `code_history/` | where code came from: [`svn_history_to_diffs.py`](#svn_history_to_diffspy), [`git_history_to_diffs.py`](#git_history_to_diffspy), [`svn_history_verify.py`](#svn_history_verifypy), [`svn_export_to_dev_log.py`](#svn_export_to_dev_logpy), [`history_lineage_tables.py`](#history_lineage_tablespy), and [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy), whose manual lists AdvCiv's changes by `advc.` tag |
 | `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
-| `desktop/` | controlling the computer rather than the game, for any app: [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app; [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; `layouts/` holds the apps' click points and saved window layouts |
+| `desktop/` | controlling the computer rather than the game, for any app, in the two groups below; `layouts/` holds the apps' click points and saved window layouts |
+| `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
+| `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
 | `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
@@ -708,16 +710,19 @@ Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review arti
 
 ### Codex and ChatGPT transcript helper
 
-[openai_chat_export_to_txt.py](/LLM_Helpers/chat_exports/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex progress updates, and omits raw tool logs and attachments. Use Python 3.
+[openai_chat_export_to_txt.py](/LLM_Helpers/chat_exports/openai_chat_export_to_txt.py) writes UTF-8 conversation text for handoffs. It keeps user and assistant messages, including Codex's progress notes, and omits raw tool logs and attachments. Use Python 3.
 
-Plain-text exports number each speaker separately, so a chat starts with markers such as `=== USER 00001 ===` and `=== CHATGPT 00001 ===`. Run `rg -n "^=== " chat.txt` to find them with line numbers. Codex progress updates share Codex's sequence, and `--tail` retains the numbers from the full export.
+Plain-text exports number each speaker separately, so a chat starts with markers such as `=== USER 00001 ===` and `=== CHATGPT 00001 ===`. Run `rg -n "^=== " chat.txt` to find them with line numbers; `--tail` retains the numbers from the full export.
+
+- Codex's progress notes, the messages it writes while still working, are marked `=== CODEX PROGRESS 00004 ===` and share Codex's sequence, so `CODEX 00003` and `CODEX 00005` around one show where it fell.
+  - Exports made before 2026-11-18 mark them `CODEX UPDATE`. The user found that label could read as a software update or an edited message, so it was renamed to say what the note is.
 
 Claude and Codex use the timestamp of each source record, for example `=== CLAUDE 00001 | 2026-11-14T11:08:32.532Z ===`. ChatGPT app pages provide turn times, so a sole user message gets the turn start and a sole reply gets the turn completion, shown in UTC to milliseconds. Share-link exports omit timestamps because the rendered messages this helper reads do not supply them.
 
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
   - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
   - `--steps` includes tool calls and short output excerpts in the plain-text export. With `--markdown`, it adds output excerpts to the command summaries already present. For example, the output of the Python harness used in the 2026-11-11 peer review shows which suspected bugs reproduced.
-  - Older logs are compressed as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded; to find a session, search the decompressed logs by date folder (`sessions/<y>/<m>/<d>/`).
+  - Codex compresses its older chat logs itself, as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded; to find a session, search the decompressed logs by date folder (`sessions/<y>/<m>/<d>/`).
   - `--longest N` lists the N longest turns with their duration, step count and opening words, to find a turn worth reading in full.
   - `--markdown` reconstructs a readable layout from the session log, with the prompt, collapsible progress notes and command summaries, the reply, and the turn duration. It uses the title from `~/.codex/session_index.jsonl` when available. The app's **Copy as Markdown** uses similar formatting, and grouping can differ.
     - On 2026-11-11 it wrote a 161,000-line chat in about 2 seconds, while the app's copy of that chat had copied nothing for several tries.
@@ -1237,13 +1242,22 @@ See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Pat
 
 #### `json_format.py`
 
-[`json_format.py`](/LLM_Helpers/formatting/json_format.py) keeps integer arrays such as click points, saved window frames and crop rectangles together. The same module formats SASPilotConsole replies with a line-width limit. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
+[`json_format.py`](/LLM_Helpers/formatting/json_format.py) keeps integer arrays such as click points, saved window frames and crop rectangles together. It also has a line-width mode, `format_json(..., inline_width=N)`, written for SASPilot's console replies, which keeps any array or object that fits on one line. Use `--section usage` to reflow the usage controls in `app_layouts.json` while keeping the composer layouts in their existing table-like form.
 
 ```powershell
 python LLM_Helpers/formatting/json_format.py LLM_Helpers/desktop/layouts/app_layouts.json --section usage
 ```
 
 This prints a preview. Add `--in-place` to save it. Regenerate `civ4_ui_map.json` and `civ4_sevopedia_map.json` with their own scripts so the generated maps keep their respective layouts.
+
+Which tracked JSON files it covers, reviewed on 2026-11-18:
+
+- Checked in CI: `window_positions.json` and `civ4_sevopedia_map.json`, the two files our helpers rewrite through it, so a writer that drifts from the shared layout fails.
+- Not checked, each kept in shape another way:
+  - `civ4_ui_map.json` is built line by line by `make_civ4_ui_map.py`, and `ui_map_sync.py` fails when it differs from a fresh run.
+  - `civ4_points.json` and `app_layouts.json` are edited by hand when a point is re-measured, one point per line, and only `app_layouts.json`'s `usage` section goes through this formatter.
+    - The line-width mode at 250 would reproduce `civ4_points.json` except one block, so it could be checked too. The user let the agent decide, and Claude Code Opus 5.5 left it out: the command line has no width option, and a new flag plus a reflow would buy a check on one small file that agents edit one line at a time; `app_layouts.json` would lose its spread-out usage points and crops entirely.
+  - `art_samples_fingerprint.json` belongs to `art_samples.py`, the DLL's `.build.json` to the PowerShell build wrapper, and the VS Code and Claude Code settings files to those apps.
 
 ### Console colors
 
@@ -2141,7 +2155,7 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
 #### `map_sevopedia.py`
 
 - Clicks each Sevopedia category in a running Civ4 and records where its page's panels and EXPAND buttons are, in [`civ4_sevopedia_map.json`](/LLM_Helpers/game_runs/ui_maps/civ4_sevopedia_map.json), so an agent can click into a page without first reading a full screenshot.
-  - Panels are found by their greyish-purple fill against the brownish parchment, and EXPAND buttons by matching [`civ4_expand_button.png`](/_1_AdvCiv-SAS/Images/sevopedia/civ4_expand_button.png). A panel mostly covered by pictures can be missed.
+  - Panels are found by their greyish-purple fill against the brownish parchment, and EXPAND buttons by matching [`civ4_expand_button.png`](/_1_AdvCiv-SAS/Images/sevopedia/civ4_expand_button.png), kept in `_1_AdvCiv-SAS/Images/sevopedia/` with the Sevopedia screenshots. A panel mostly covered by pictures can be missed.
   - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
 - It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
 - The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.

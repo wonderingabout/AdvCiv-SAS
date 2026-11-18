@@ -34,6 +34,13 @@ class RetiredNamesTests(unittest.TestCase):
 		self.assertEqual(checker.errors_in("Ports require the pilots and tugboats.\n", "a.md", self.names()), [])
 		self.assertEqual(len(checker.errors_in("Found through the pilot's map.\n", "a.md", self.names())), 1)
 
+	def test_path_names(self):
+		# <!-- custom: A name starting with a slash matches after a folder's last letter; one ending in a letter still rejects a longer word, such as the plural run-output folder. (Claude code Opus 5.5) -->
+		names = ["/pilot", "save_transplant"]
+		self.assertEqual(len(checker.errors_in("<img src=\"/_1_AdvCiv-SAS/Images/LLM/pilot/a.PNG\">\n", "a.md", names)), 1)
+		self.assertEqual(len(checker.errors_in("See LLM_Helpers/save_transplant/x.py.\n", "a.md", names)), 1)
+		self.assertEqual(checker.errors_in("Images/LLM/saspilot/a.PNG and Downloads/save_transplants\n", "a.md", names), [])
+
 	def test_current_name_passes(self):
 		self.assertEqual(checker.errors_in("Run SASSaveTransplanter first.\n", "a.md", self.names()), [])
 
