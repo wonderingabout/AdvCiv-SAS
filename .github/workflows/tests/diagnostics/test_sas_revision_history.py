@@ -432,6 +432,47 @@ class RevisionHistoryTests(unittest.TestCase):
             created = {'before': '0' * 40, 'after': feature}
             self.assertEqual(history.progression_commits(repo, base, 'push', created), [feature])
 
+    # <!-- custom: Merging main into saspilot on 2026-11-17, both had bumped from the same revision, so the merge took the next number after main's; it must count from the higher parent, and still bump once when it adds the other side's recorder change. (Claude code Opus 5.5) -->
+    def test_merge_counts_from_its_higher_parent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            fixture_git(repo)
+            write_revision_define(repo, 153)
+            source = repo / 'CvGameCoreDLL/SASGameRecordLog.cpp'
+            header = repo / 'CvGameCoreDLL/SASGameRecordLog.h'
+            source.parent.mkdir(parents=True)
+            source.write_text('// base\n')
+            header.write_text('// base\n')
+            commit_fixture(repo, 'base')
+            git(repo, 'branch', 'main')
+            git(repo, 'switch', '-qc', 'feature')
+            source.write_text('// feature recorder change\n')
+            write_revision_define(repo, 154)
+            feature = commit_fixture(repo, 'feature step')
+            git(repo, 'switch', 'main')
+            header.write_text('// main recorder change\n')
+            write_revision_define(repo, 154)
+            commit_fixture(repo, 'main step')
+            write_revision_define(repo, 155)
+            commit_fixture(repo, 'main second step')
+            git(repo, 'switch', 'feature')
+            subprocess.run(['git', 'merge', '--no-commit', '--no-ff', 'main'], cwd=repo, capture_output=True)
+            write_revision_define(repo, 156)
+            git(repo, 'add', '.')
+            git(repo, 'commit', '-qm', 'merge main into feature')
+            merged = git(repo, 'rev-parse', 'HEAD')
+            push = {'before': feature, 'after': merged}
+            self.assertEqual(history.check_progression(repo, 'main', 'push', push), [])
+            git(repo, 'reset', '-q', '--hard', feature)
+            subprocess.run(['git', 'merge', '--no-commit', '--no-ff', 'main'], cwd=repo, capture_output=True)
+            write_revision_define(repo, 155)
+            git(repo, 'add', '.')
+            git(repo, 'commit', '-qm', 'merge main into feature without a bump')
+            unbumped = git(repo, 'rev-parse', 'HEAD')
+            errors = history.check_progression(repo, 'main', 'push', {'before': feature, 'after': unbumped})
+            self.assertEqual(len(errors), 1)
+            self.assertIn('requires exactly one revision increment (155->156)', errors[0])
+
     def test_missing_event_boundary_or_history_is_reported(self):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)

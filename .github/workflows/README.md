@@ -395,6 +395,12 @@ The lifetime rule applies from this checker's introduction; current histories ar
 
 Existing event boundaries and `revision:squash`/local `--squash` intent are reused: squash candidates validate the aggregate transition, ordinary commits retain individual references. Rewrite stale hashes and practical numbers after rebase/squash; an unchanged merge retains valid identities.
 
+The practical number in a revision heading (`### Revision N - SAS practical M`) is not checked. On 2026-11-15 all 200 finalized SGR and 18 Runtime entries matched `git rev-list --count` of their commit, so a finalized entry could be checked, but a pending one cannot: its number depends on how its branch lands.
+
+- A squashed PR lands as one commit, a rebased or merged one keeps its commits, and a squash can sit on main's tip or replace an earlier preview of itself.
+- Example: SASPilot's SGR202 was first written as 6765, a count along its branch, then 6751 for a squash on top of main's preview commit (6750), and finally 6750 again, as the squash replaced that preview.
+- Only the integrator knows which applies, so the number is set when the PR lands, as the rewrite rule above says.
+
 #### `build/diagnostics/runtime_revision_history.py`
 
 Checks the XML runtime-recorder revision (or compiled labels in historical commits) against its [history](/_1_AdvCiv-SAS/Docs/revisions/SASRuntime.md), shared by the current-state JSON and activity JSONL. This label is independent of SASGameRecord's revision.
@@ -471,6 +477,9 @@ Commit selection follows the event and explicit merge intent:
 - Ordinary PRs check each authored commit from the base/head merge base, independently of the synthetic merge checkout.
 - A PR labeled `revision:squash` checks the aggregate base-to-head change as one integration commit: qualifying changes require exactly one bump, unrelated changes require none. Intermediate bumps or corrections do not create public revisions; removing the label restores per-commit checks.
 - Local/manual checks retain per-commit behavior; `--squash` explicitly checks the complete working candidate against its default-branch merge base. For example, `python .github/workflows/build/diagnostics/sas_revision_history.py --squash`; the runtime checker accepts the same option.
+- A merge commit is judged against the parent with the higher revision, for its number and for whether it changes the recorder.
+  - Merging main into the SASPilot branch on 2026-11-17 failed as a jump from 202 to 204: both had used 202 meanwhile, and against the branch's own parent the merge seemed to skip one. Against main's 203, the merge adds the branch's change as 204, one step.
+  - A merge that only brings in one side's bump equals that parent and needs none.
 
 This history check complements the minimal revision/default synchronization check and runs automatically in `checks-diagnostics.yml`. It needs canonical default-branch history, so that workflow performs a full-history metadata checkout with blob filtering.
 
