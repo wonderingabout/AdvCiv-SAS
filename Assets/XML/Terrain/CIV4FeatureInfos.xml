@@ -718,7 +718,7 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<iEffectProbability>0</iEffectProbability>
 			<iAdvancedStartRemoveCost>0</iAdvancedStartRemoveCost>
 		</FeatureInfo>
-		<!-- custom: Marsh holds fertile flat Grassland hostage rather than making it poor: it keeps the land's yield but blocks city founding, slows movement, exposes defenders and adds mild unhealthiness.
+		<!-- custom: Marsh holds fertile flat Grassland hostage for development rather than making it poor: it keeps the land's yield but slows movement, exposes defenders and adds mild unhealthiness.
 		Improvements and routes drain it as part of their own build through FEATURE_MARSH FeatureStructs; BUILD_DRAIN_MARSH clears it alone.
 		Pasture, Plantation and Peat Works have no such entry and keep it, so a Marsh bonus can be worked early but connects only once a road drains the Marsh.
 		A -1 Food version was rejected because SAS already removed that penalty from Jungle for making tiles dead weight.
@@ -758,7 +758,8 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 			<bRequiresRiverSide>0</bRequiresRiverSide>
 			<bAddsFreshWater>0</bAddsFreshWater>
 			<bImpassable>0</bImpassable>
-			<bNoCity>1</bNoCity>
+			<!-- custom: Allow founding to clear this tile as on Forest or Jungle, rather than making settlement wait for drainage research and Worker time. Surrounding Marsh retains its costs. (Gemini 4 Hydrogen + GPT-6.1-Sol) -->
+			<bNoCity>0</bNoCity>
 			<!-- custom: 0 on purpose: bNoImprovement would forbid improvements even when their build removes the feature, forcing a separate drain step the Worker AI does not plan for. (Claude code Opus 5.5) -->
 			<bNoImprovement>0</bNoImprovement>
 			<bVisibleAlways>0</bVisibleAlways>
