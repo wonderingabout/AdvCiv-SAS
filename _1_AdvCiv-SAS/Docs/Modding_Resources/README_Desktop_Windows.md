@@ -372,6 +372,87 @@ Observed on 2026-11-11 with Claude 5.1231.2.0 on the left half of the second 4K 
 Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly limits at 96%. Checking usage now and then lets an agent pace a long task and stop at a good point, such as a commit, before a limit cuts it off.
 
 - **Without clicks:** Claude Code in the desktop app reads the same numbers with its `get_usage` tool: each limit's percent and reset time, whether extra usage is on, and how full its own context is (47% then, compacting at 97%). It reads its Code-tab settings with `get_settings`.
+  - The tool exists only inside Claude Code in the desktop app. Codex, a person, or Claude Code elsewhere still reads the ring and popup below.
+  - On 2026-11-18, near the end of a long session, it answered as follows (verbatim). The plan rows match the popup, with a separate Fable weekly row; the context part breaks the window down by what fills it, here mostly the conversation itself:
+
+```json
+{
+  "plan": {
+    "status": "ok",
+    "plan": "Pro",
+    "windows": [
+      {
+        "label": "5-hour limit",
+        "percentUsed": 14,
+        "resetsAt": "2026-11-18T20:30:00.887Z",
+        "resetsIn": "3h 24m"
+      },
+      {
+        "label": "Weekly · all models",
+        "percentUsed": 33,
+        "resetsAt": "2026-11-23T03:00:00.887Z",
+        "resetsIn": "4d 9h"
+      },
+      {
+        "label": "Weekly · Fable",
+        "percentUsed": 3,
+        "resetsAt": "2026-11-23T02:59:59.887Z",
+        "resetsIn": "4d 9h"
+      }
+    ],
+    "extraUsage": {
+      "enabled": false,
+      "currency": "USD"
+    }
+  },
+  "context": {
+    "session": "self",
+    "status": "ok",
+    "tokensUsed": 784889,
+    "contextWindow": 1000000,
+    "percentUsed": 78,
+    "autoCompactsAtPercent": 97,
+    "categories": [
+      {
+        "name": "Messages",
+        "tokens": 656719,
+        "percent": 66
+      },
+      {
+        "name": "Memory files",
+        "tokens": 74167,
+        "percent": 7
+      },
+      {
+        "name": "System tools",
+        "tokens": 23669,
+        "percent": 2
+      },
+      {
+        "name": "MCP tools",
+        "tokens": 13792,
+        "percent": 1
+      },
+      {
+        "name": "System prompt",
+        "tokens": 10614,
+        "percent": 1
+      },
+      {
+        "name": "Skills",
+        "tokens": 5928,
+        "percent": 1
+      }
+    ]
+  }
+}
+```
+
+- Read it with care: the reply above said `"plan": "Pro"` although the account had moved from Pro to Max a few days earlier, so the plan name can lag behind the account. The user's guess is that the weekly period began on Pro and the upgrade came mid-week, which was not confirmed; until the name catches up, the app's own usage popup is the reference.
+  - The 3% Fable came from two Fable 5.2 sessions on 2026-11-16, the first day of that week, which began at 03:00 UTC; none used Fable afterwards. The session logs show it: `claude_session_export_to_txt.py --list` gives each session's model.
+  - Its two weekly resets differ by a second (`03:00:00.887Z` for all models, `02:59:59.887Z` for Fable), apparently the same reset written two ways.
+  - The context categories add up exactly to `tokensUsed`, 784,889, which leaves no part of the window unaccounted for.
+
 - **The ring under the message box,** right of the model and mode, turns red near a limit. Clicking it shows the 5-hour and weekly limits with their reset times, and a "See all →" link.
 - **Settings > Usage,** opened by "See all", adds a pace warning ("At this pace you'll run out this evening, before Monday's reset") and a **Limit resets** list:
   - **Full reset,** expiring Dec 10.
@@ -400,7 +481,50 @@ Enabling auto-continue replaced the reset explanation with **Auto-resuming at 1:
 
 ### Codex usage and limit resets
 
-The same day, on the user's ChatGPT Plus plan. Codex counts what is left where the Claude app counts what is used: its 5-hour limit showed 55% left, resetting in 1 h 56 min, and its weekly limit 66% left.
+For a quick reading without moving the mouse, Codex can discover the app tool named `get_usage_limits` and call it with `{}`. In this session its full tool name was `mcp__codex_app__get_usage_limits`; it is an app tool, not a PowerShell command. On 2026-11-18 it returned the following `rateLimitsByLimitId` value verbatim (GPT-6.1-Sol):
+
+```json
+{
+  "codex": {
+    "limitId": "codex",
+    "limitName": null,
+    "normalModelSlug": null,
+    "primary": {
+      "usedPercent": 44,
+      "windowDurationMins": 300,
+      "resetsAt": 1795028048
+    },
+    "secondary": {
+      "usedPercent": 49,
+      "windowDurationMins": 10080,
+      "resetsAt": 1795221500
+    },
+    "credits": {
+      "hasCredits": false,
+      "unlimited": false,
+      "balance": "0"
+    },
+    "individualLimit": null,
+    "spendControlReached": false,
+    "planType": "plus",
+    "rateLimitReachedType": null
+  }
+}
+```
+
+Here `primary` covers 300 minutes (five hours), and `secondary` 10,080 minutes (a week). `usedPercent` means consumed, so this reading left 56% and 51% respectively; `resetsAt` is Unix time in seconds.
+
+- Prefer `rateLimitsByLimitId` when supplied, with the older `rateLimits` field as a fallback.
+- A missing or null value is unavailable information, not zero usage.
+- These are account limits shared across chats, rather than this chat's token count.
+
+The same response gave `rateLimitResetCredits.availableCount` as `1`. Reading it does not redeem a reset or buy credits. The account and individual reset identifiers are omitted from this example, since agents need the counts and limits rather than those identifiers. This response did not include Claude's context-token breakdown.
+
+For sustained work, check at the start of a long session and before a substantial build, test or handoff when the remaining allowance may affect who takes it on; check again near a limit to decide whether to finish a small step or hand over. A short task does not need repeated polling. Each reading is a snapshot, and the tool does not start a background monitor.
+
+Keep the UI routes and screenshots below as a fallback when the tool is unavailable, or when checking whether the app's display agrees with its data. The structured reading answers quickly; the captures also show the controls and display problems an agent may need to recognize.
+
+In the earlier UI check on 2026-11-13, on the user's ChatGPT Plus plan, Codex counted what was left where the Claude app counted what was used: its 5-hour limit showed 55% left, resetting in 1 h 56 min, and its weekly limit 66% left.
 
 - **Getting there:** the account button at the bottom of Codex's left icon strip opens a menu with Settings (Ctrl+,). Settings > Usage & billing shows the plan and both limits. That menu shows the account's display name, so crop it out of any screenshot kept in the repo.
 - The limits are shared across Codex and OpenAI's other work tools; the page says ChatGPT chat conversations are not counted.
@@ -438,7 +562,12 @@ Later on 2026-11-13, `get_usage_limits` showed **4% weekly left**, **79% five-ho
 
 ## Quick usage map
 
-For agent-to-agent checks, use structured usage data when available. Codex's read-only `get_usage_limits` was verified on 2026-11-13 and returns percentage used. Claude Code can use `get_usage` when available. If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time.
+For agent-to-agent checks, use structured usage data when available.
+
+- Codex's read-only `get_usage_limits` returns percentage used, with a 2026-11-18 example and calling instructions under [Codex usage and limit resets](#codex-usage-and-limit-resets).
+- Claude Code in the desktop app uses `get_usage`, verified on 2026-11-18 with the example under [Claude usage, limit resets and settings](#claude-usage-limit-resets-and-settings).
+
+If recording repeated checks, use one JSON object per line with the app, usage window, percentage used and reset time.
 
 Use a named screenshot crop when checking what the app actually shows. The screenshot command prints the PNG path for the agent to open.
 
