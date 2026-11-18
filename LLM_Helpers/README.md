@@ -35,7 +35,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
 | `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
-| `dll_builds/` | building and checking the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) |
+| `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
@@ -44,7 +44,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
 | `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
 | `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
-| `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot |
+| `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot; [`python_versions.py`](#python_versionspy) reports when the helpers can move to a newer Python |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
 | `saspilot/` | reading and driving a running game through SASPilot, the in-game bridge, as JSON rather than screenshots and clicks: [`SASPilotClient.py`](#saspilotclientpy-and-saspilotcommandspy) and the commands it sends, `SASPilotCommands.py`; SASPilotConsole for watching; the scouting and site helpers; `SASPilotReplay.py` with its `sequences/`, and in-game `checks/`. Moved out of `game_runs/` on 2026-11-15, as the user saw piloting as a job of its own, and each script renamed `SASPilot<Role>.py` to match the console window's name |
 
@@ -148,6 +148,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
 - [`dll_builds/`](#dll_builds)
   - [`build_dll.py`](#build_dllpy)
+  - [`debug_dll.py`](#debug_dllpy)
 - [`exe_analysis/`](#exe_analysis)
 - [`formatting/`](#formatting)
   - [UI-map JSON formatting](#ui-map-json-formatting)
@@ -202,6 +203,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`archive_old_files.py`](#archive_old_filespy)
   - [Screenshot privacy](#screenshot-privacy)
     - [`redact_image.py`](#redact_imagepy)
+  - [Python upkeep](#python-upkeep)
+    - [`python_versions.py`](#python_versionspy)
 - [`packaging/`](#packaging)
   - [Source packaging and generated-history helpers](#source-packaging-and-generated-history-helpers)
     - [`make_light_source_zip.py`](#make_light_source_zippy)
@@ -720,7 +723,11 @@ Claude and Codex use the timestamp of each source record, for example `=== CLAUD
 - **Codex:** pass the selected local rollout JSONL from the Codex sessions or archived sessions directory, or omit it to use the most recently written log. Codex files each chat under the day it started, so the chat open today can sit in an older folder.
   - `--tail N` prints only the last N messages instead of writing a file: an agent waiting for Codex's answer reads just that, rather than exporting the whole chat each time.
   - `--steps` includes tool calls and short output excerpts in the plain-text export. With `--markdown`, it adds output excerpts to the command summaries already present. For example, the output of the Python harness used in the 2026-11-11 peer review shows which suspected bugs reproduced.
-  - Codex compresses its older chat logs itself, as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded; to find a session, search the decompressed logs by date folder (`sessions/<y>/<m>/<d>/`).
+  - Codex compresses its older chat logs itself, as `rollout-*.jsonl.zst`; pass one directly. Reading them needs the `zstandard` package (`python -m pip install zstandard`, installed 2026-11-13). That day it recovered the January 2026 sessions of the History tab's C++ experiment, which no other file recorded.
+    - On 2026-11-18 the package was installed for `python` (3.12) only, not for `py` (3.14), while 219 of the 222 logs were compressed, so under `py` the helper read 3 of them.
+    - Python 3.14 reads zstd itself (`compression.zstd`), so the helper now uses that and needs the package only on older Pythons, where a missing one is named with the command to install it rather than a bare "No module named 'zstandard'".
+  - `--search REGEX` lists every session log mentioning a case-insensitive pattern, with its count and title, raw tool records included; it lists unreadable logs and exits 1 rather than leave them out unnoticed.
+    - On 2026-11-18 `--search "visual studio community|attach to process"` found the 2026-10-20 Visual Studio debugger work in 2 of 222 logs, after a one-off script under `py` had skipped every compressed log.
   - `--longest N` lists the N longest turns with their duration, step count and opening words, to find a turn worth reading in full.
   - `--list [N]` lists the N newest session logs (default 10), compressed ones included, with their last write time, size, model, reasoning effort and title, as the Claude helper's `--list` does for Claude Code. Codex has not always been able to name its own model, so this is where to read it, such as `gpt-6.1-sol` with `medium` effort.
   - `--markdown` reconstructs a readable layout from the session log, with the prompt, collapsible progress notes and command summaries, the reply, and the turn duration. It uses the title from `~/.codex/session_index.jsonl` when available. The app's **Copy as Markdown** uses similar formatting, and grouping can differ.
@@ -739,6 +746,7 @@ python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --tail 3
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --steps --tail 12
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --longest 5
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --list 5
+python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --search "attach to process"
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py codex --markdown
 python ./LLM_Helpers/chat_exports/openai_chat_export_to_txt.py chatgpt chat-pages.json --output chatgpt-chat.txt
 ```
@@ -1014,6 +1022,8 @@ python LLM_Helpers/desktop/desktop_windows.py click --pid 15692 963 809
   - `--to claude` was added the same day, and Codex ran its first live test: it asked Claude Code a question, and the reply printed 9.5 seconds later while Codex's command ran in the background.
     - Claude Code folds a message that arrives mid-turn into the running turn, so one answer can cover two messages. When another message reached it before the answer, the reply is printed with a note saying so.
     - Codex's test also found that a log ending right after the answer kept waiting; the answer is now taken as soon as it is complete.
+  - With `--queue` there is no arrival check, since an app logs a queued message only when it starts on it. On 2026-11-18 a queued review request's wait stopped after the 2 minutes, saying it had not arrived, while it sat in Codex's queue.
+    - `--wait-for "<header>"` then picks up the wait for that still-queued message without sending it again, e.g. `--to codex --wait-for "[Claude Code Opus 5.5 · 2026-11-18 13:54:43.765 UTC]"`.
 
 ```bash
 python LLM_Helpers/desktop/agent_message.py --to codex --start --thread "Review audit and flushing changes"
@@ -1231,6 +1241,38 @@ python LLM_Helpers/dll_builds/build_dll.py build --configuration Debug-opt
 - The `PATH` change came from its first build, the same day: `cmd.exe` inherited Git Bash's `PATH`, so the Makefile's `FIND /C /V ""` ran Git's Unix `find`, which crawled all of `C:` while nmake waited.
   - The build report stayed `RUNNING` with no `cl.exe` running, and `AdvCiv.log` ended in `FIND: '/C/$Recycle.Bin/...': Permission denied` lines. A build that seems stuck is worth those two checks. See [KI#38.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.7).
 - Read the exit code `build` returns rather than one after a pipe: `build | tail` reported 0 for that stopped build.
+
+### `debug_dll.py`
+
+Looks inside the game DLL, and tests whether breakpoints work on the running EXE, with WinDbg's console debugger, `cdbX86.exe`, as the [DLL Debugging Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL_Debugging.md) describes, one command per recipe:
+
+```bash
+python LLM_Helpers/dll_builds/debug_dll.py list
+python LLM_Helpers/dll_builds/debug_dll.py threads --pid 1892
+python LLM_Helpers/dll_builds/debug_dll.py snapshot --pid 1892
+python LLM_Helpers/dll_builds/debug_dll.py dump --pid 1892 --out C:/Users/PC/Downloads/AdvCiv-SAS_LLM/crash_dumps/<date>_<what>/live.dmp
+python LLM_Helpers/dll_builds/debug_dll.py analyze C:/Users/PC/Downloads/AdvCiv-SAS_LLM/crash_dumps/20261113_small_t148_reload_plotgroups/Civ4BeyondSword.exe.dmp
+python LLM_Helpers/dll_builds/debug_dll.py breaktest --pid 1892 --function CvGameCoreDLL!CvGame::update
+```
+
+- `breaktest` sets one breakpoint, software or `--hardware`, at a `--function` or an `--address`, and reports whether it STOPPED the game (breakpoints work there; CDB detaches and the game runs on), made the GAME EXIT (with its exit code) or got NO HIT.
+  - It answers "do breakpoints work on this EXE?", for a GOG copy or a later Steam build; a breakpoint that ends the game ends it, so use a throwaway game.
+  - Whatever happens, including a timeout or Ctrl+C, it then breaks into a still-running game, clears the breakpoint and detaches, and reports STOPPED only once CDB has exited. If it cannot confirm that, it exits with UNSAFE: that game may still hold the breakpoint or a debugger, so close it.
+    - Codex's 2026-11-18 review found the first version killed CDB on a timeout with the breakpoint still written in the game. The first fix broke in with `DebugBreakProcess`, which returned success, but CDB recorded no break, and a fresh CDB then read `cc` (`int 3`) at the start of `CvGame::doTurn`: the breakpoint was still there, and only the UNSAFE report caught it.
+    - CDB now runs with a hidden console of its own and is interrupted with a console Ctrl+C, as Codex's trials did. Tested the same day on `CvGame::doTurn`, which a turn-0 game never reaches: after a timeout, and again after Ctrl+C on the helper itself, its first instruction read back as `mov eax, fs:[0]`, not `cc`, and the game ran on.
+  - Codex's re-check then found that a second Ctrl+C during the cleanup escaped it. Ctrl+C is now ignored for the bounded cleanup, and CDB is always killed and the handles closed; checked with stand-ins for CDB and the game, where a real Ctrl+C signal during cleanup was ignored.
+  - Every command checks CDB's exit code and its own output, and `dump` refuses an existing file, so an earlier dump cannot pass as a new one (also from Codex's review).
+  - A `--out` you name must not exist yet: the re-check found `analyze --out` pointing at the dump itself deleted it. `dump` writes its log beside the dump as `<name>.log.txt`.
+  - `analyze` warns when no matching PDB loaded, as a dump copied away from its PDB otherwise shows only `CvGameCoreDLL+0x...` frames.
+  - Tested on 2026-11-18 on one turn-0 game: `--address 00695dc3`, an EXE worker thread's code, STOPPED at `eip=00695dc3` and the game kept running; `--function CvGameCoreDLL!CvGame::update` then made it exit with `0x4000001F` (`STATUS_WX86_BREAKPOINT`), repeating Codex's tests 10 and 13.
+
+- `list` shows each running Civ4 with its process ID, start time and command line, whose mod or per-run INI tells which client is which.
+- `threads` reports each thread as HIDDEN, not hidden or UNKNOWN, marks the main one, and exits 1 if any query failed, as an empty answer must not pass for "none hidden".
+- `snapshot` prints the main thread's stack (`--all` for every thread), `dump` writes a full dump; both attach with `-pd` and end with `qd`, so the game keeps running, and both leave CDB's whole session in a log.
+- `analyze` reads a crash dump with the matching PDB, taken from the dump's own folder when it holds one, else `temp_files/Debug-opt`, and prints the stack, whether private symbols loaded and `!analyze -v`'s summary.
+- Tested on 2026-11-18: `analyze` on KI#1088's dump gave the crash in `FFreeListTrashArray<CvPlotGroup>::removeAll` at `FFreeListTrashArray.cpp` line 198. On a turn-0 Duel game, `list`, `threads` (1 of 35 threads hidden, the main one), `snapshot` and a 1.2 GB `dump` all left the game running and responding.
+- Why: the guide's recipes were PowerShell blocks, and the tests behind them ran from scratchpad scripts the next session could not see.
+- Added with help of Claude Code Opus 5.5 + GPT-6.1-Sol.
 
 ## `exe_analysis/`
 
@@ -2183,6 +2225,7 @@ python LLM_Helpers/housekeeping/archive_old_files.py --all --apply
 ```
 
 - `--all` checks every known folder; `run_autoplay.py` calls the same check at the end of each run, so the folders it fills stay under about 1,000 entries without anyone remembering.
+- `--dumps` lists Civ4 crash dumps in `Temp` and `Downloads/AdvCiv-SAS_LLM/crash_dumps/` with their size and age, as dumps clutter by size rather than count; it deletes nothing. `run_autoplay.py` runs it quietly after each run, so it prints only past 5 GB in all or for a `Temp` copy over a week old. On 2026-11-18 it listed 3 kept dumps, 2.74 GB.
 
 ### Screenshot privacy
 
@@ -2197,6 +2240,21 @@ python LLM_Helpers/housekeeping/redact_image.py shot.PNG --box 183 8 590 40 --bo
 ```
 
 - Added with help of Claude Code Opus 5.5.
+
+### Python upkeep
+
+#### `python_versions.py`
+
+Reports which Pythons are installed and which one `py` and `python` each start, the newest release on python.org and of each installed series, and whether every package the helpers import has a ready-built package for the newest Python. It reads python.org's and PyPI's public lists and changes nothing.
+
+```bash
+python LLM_Helpers/housekeeping/python_versions.py
+```
+
+- On 2026-11-18, right after the move to one Python ([One Python for the helpers](/_1_AdvCiv-SAS/Docs/Modding_Resources/README.md#one-python-for-the-helpers)), it reported 3.14.10, the newest 3.14, and Python 3.15 waiting on PyYAML alone.
+- "Ready" means pip needs no compiler: a Windows wheel for that CPython, or a pure-Python or abi3 one. When it reports every package ready, the move to the next Python is a new install plus `python -m pip install` of the listed packages, then a rerun of the helpers that use them.
+- `REQUIRED` in the script lists those packages; add one there when a helper starts importing it.
+- Added with help of Claude Code Opus 5.5 + GPT-6.1-Sol.
 
 ## `packaging/`
 
