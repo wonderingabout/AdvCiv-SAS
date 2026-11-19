@@ -82,7 +82,7 @@ def native_steps():
 	# <!-- custom: The two checks GitHub runs through an action or Docker image, run here by their local tools; a tool that is absent is listed as not covered rather than passing silently. (Claude code Opus 5.5) -->
 	steps, missing = [], []
 	if shutil.which("npx"):
-		steps.append(("documentation-markdownlint.yml", "Check maintained Markdown", "npx markdownlint-cli2@0.23.2", {}))
+		steps.append(("documentation-markdownlint.yml", "Check maintained Markdown", "npx markdownlint-cli2@0.24.0", {}))
 	else:
 		missing.append("markdownlint: Node.js is not installed")
 	if PYTHON24.exists():
