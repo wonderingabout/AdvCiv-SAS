@@ -27,6 +27,8 @@
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-record context rows. (ChatGPT-5.5) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (ChatGPT-5.5) -->
 #include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-record rows. (ChatGPT-5.5) -->
+// <!-- custom: Consolidated the duplicate CvInfo_Symbol.h includes in 989eb50ce and retained the rationale for both uses.
+// Added this comment retroactively as part of KI#1098.2. (GPT-6.2-Sol) -->
 #include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names and actual assigned player-color/primary-color context; CvGlobals only forward-declares the related info classes. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-record city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->

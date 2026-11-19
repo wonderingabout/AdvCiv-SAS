@@ -24,7 +24,8 @@
 #include "BBAILog.h"
 #include "CitySiteEvaluator.h" // <!-- custom: Known-water-bonus queries for cached coastal comparisons avoid replaying found-value scoring. See KI#505.2. (GPT-6.1-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
-#include "RiseFall.h" // advc.708: Needed only for savegame compatibility
+// <!-- custom: The second RiseFall.h include was added here for advc.708 old-save migration.
+// SAS removed that migration, and the first include still supplies the Rise and Fall scoring and turn hooks. See KI#1098.2. (GPT-6.2-Sol) -->
 #include "SelfMod.h" // advc.092b
 
 namespace

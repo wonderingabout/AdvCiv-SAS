@@ -111,6 +111,28 @@ def check_guide_documented(root, name, start, end, found, section):
     return errors
 
 
+def check_workflow_subject_indexes(workflows):
+    # <!-- custom: The short build/ and tests/ indexes both omitted exe_patches/ while the main workflow README listed it.
+    # Compare each short index with its own folder because some build subjects have no test suite. (GPT-6.2-Sol) -->
+    errors = []
+    for folder, pattern in (("build", r"^- `([^/`]+)/`:"), ("tests", r"^\| `([^/`]+)/` \|")):
+        directory = workflows / folder
+        readme = directory / "README.md"
+        label = f".github/workflows/{folder}"
+        if not readme.is_file():
+            errors.append(f"{label}/README.md is missing")
+            continue
+        subjects = {path.name for path in directory.iterdir() if path.is_dir() and path.name != "__pycache__"}
+        # <!-- custom: Read only the folder label so exe_patches/ can point to the guide and license disclaimer.
+        # The guide keeps EXE internals outside player archives. (GPT-6.2-Sol) -->
+        listed = set(re.findall(pattern, readme.read_text(encoding="utf-8"), re.MULTILINE))
+        for subject in sorted(subjects - listed):
+            errors.append(f"{label}/{subject}/ is not listed in {label}/README.md")
+        for subject in sorted(listed - subjects):
+            errors.append(f"{label}/README.md lists {subject}/, which does not exist")
+    return errors
+
+
 def check_workflows(root):
     errors = []
     readme = root / ".github" / "workflows" / "README.md"
@@ -126,17 +148,21 @@ def check_workflows(root):
         errors += unordered(scripts, ".github/workflows/README.md %s helpers" % title)
     areas = [match.group(1) for match in re.finditer(r"^\| `(build/[^`]+/)` \|", text, re.MULTILINE)]
     errors += unordered(areas, ".github/workflows/README.md helper/test areas")
-    # <!-- custom: Every check script also needs its own section: the order check above passed while string_label_compares.py had none (2026-11-16).
-    # Shared helpers in lib/ and "_" modules are imported, not run, so they need none; workflow_script_coverage.py checks that each script is run. (Claude code Opus 5.5) -->
-    documented = set(re.search(r"`([^`]+)`", heading).group(1) for _, level, heading in found if level == 4 and heading.startswith("`build/"))
-    build = root / ".github" / "workflows" / "build"
-    for path in sorted(build.rglob("*.py")):
-        relative = path.relative_to(build.parent)
-        if "__pycache__" in relative.parts or "lib" in relative.parts or path.name.startswith("_"):
-            continue
-        if relative.as_posix() not in documented:
-            errors.append(".github/workflows/README.md has no '#### `%s`' section for this check script" % relative.as_posix())
-    return errors
+    # <!-- custom: Every check script also needs its own section: the order check above passed while string_label_compares.py had none (2026-11-16). (Claude code Opus 5.5) -->
+    # <!-- custom: Include shared lib/ modules in the README coverage so their sections can appear in the menu.
+    # Workflow execution coverage is checked separately by workflow_script_coverage.py. (GPT-6.2-Sol) -->
+    documented = {
+        heading[1:-1] for index, level, heading in found
+        if start < index < end and level == 4 and re.fullmatch(r"`(?:build|lib)/[^`]+`", heading)
+    }
+    for folder, kind in (("build", "check script"), ("lib", "shared helper")):
+        for path in sorted((readme.parent / folder).rglob("*.py")):
+            relative = path.relative_to(readme.parent)
+            if "__pycache__" in relative.parts or path.name.startswith("_") or (folder == "build" and "lib" in relative.parts):
+                continue
+            if relative.as_posix() not in documented:
+                errors.append(f".github/workflows/README.md has no '#### `{relative.as_posix()}`' section for this {kind}")
+    return errors + check_workflow_subject_indexes(readme.parent)
 
 
 def check_guides(root):

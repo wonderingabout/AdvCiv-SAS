@@ -95,6 +95,12 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/hands_free_defaults.py`](#buildruntimehands_free_defaultspy)
     - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
+  - [Shared helpers](#shared-helpers)
+    - [`lib/blank_lines.py`](#libblank_linespy)
+    - [`lib/cpp_lex.py`](#libcpp_lexpy)
+    - [`lib/git_context.py`](#libgit_contextpy)
+    - [`lib/revision_history.py`](#librevision_historypy)
+    - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
@@ -549,7 +555,8 @@ Keeps folder indexes listing what their folders hold, in alphabetical order, so 
   - It found `light_source_python24_linux.py` undescribed when it was added on 2026-11-10.
   - Exception: a folder in `GUIDE_DOCUMENTED_FOLDERS` is documented only in its guide, so every helper file in it, Ghidra `.java` scripts included, must be named in that guide instead, and its README section must be a single line linking to the guide and its disclaimer, with no subsections.
     - Since 2026-11-12 `exe_analysis/` is documented in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): its technical details stay for agents in Git and the light-source ZIP, but out of player downloads, while the README, which ships, says only "See the EXE patches guide and the corresponding disclaimer", so a downloaded ZIP holds no description of the EXE work.
-- This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical.
+- This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical. Each check script in `build/` and shared module in `lib/` has a matching heading in the reference and appears in the menu. Private modules prefixed with `_` are exempt.
+- The short `build/` and `tests/` READMEs list each subject folder that exists in their own directory.
 - Every guide in `_1_AdvCiv-SAS/Docs/Modding_Resources/` is listed under its README's "Guides in this folder", by file name; a list that claims to cover its folder should not need remembering either.
 
 ```bash
@@ -865,6 +872,8 @@ Rejects a code line that a commit adds when it repeats the line right above or b
 - Lines of only brackets, separators or comment rules are not counted, nor XML, which repeats rows on purpose, nor test folders, whose harnesses call a function twice to prove the second call changes nothing. Line-ending-only changes are ignored, so a conversion does not count every line as added.
 - Replayed over the last 400 commits of main, saspilot and sassavetransplanter, it flags none. Commit selection is shared with `dll_commit_message.py`.
 - [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098) traces where each of the three doubles came from.
+- The same check also rejects newly duplicated literal C++ includes, including non-adjacent headers and duplicates added by a merge. It reports both lines when the directives share a preprocessor arm or one is in an enclosing scope.
+  - Existing duplicates and includes under separate conditional groups are outside the comparison. See [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2).
 
 #### `build/repository/assets_dlls.py`
 
@@ -1176,6 +1185,30 @@ Verifies every playable `PrivateMaps/*.py` script is listed exactly once across 
 #### `build/runtime/worldsizes.py`
 
 Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
+
+### Shared helpers
+
+Workflow checks import these modules to share parsing and repository logic.
+
+#### `lib/blank_lines.py`
+
+Finds newly introduced runs of excess blank lines while preserving spacing within literals and structured text. Used by the source provenance and text spacing checks.
+
+#### `lib/cpp_lex.py`
+
+Masks C++ comments and string and character literals while retaining line breaks and character offsets. The duplicate-include and source provenance checks use `mask_cpp` to distinguish active code from commented-out code and literal text.
+
+#### `lib/git_context.py`
+
+Runs Git commands, resolves comparison bases for local and CI checks, and decodes historical file contents.
+
+#### `lib/revision_history.py`
+
+Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks.
+
+#### `lib/xml_defines.py`
+
+Reads integer and text values from Civ4 GlobalDefines XML and supports checks of staged diagnostic defaults.
 
 ### Source
 

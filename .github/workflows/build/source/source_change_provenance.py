@@ -21,6 +21,8 @@ from io import StringIO
 # <!-- custom: Git range resolution and historical text decoding are shared with the Markdown prose checker; import them from lib instead of making documentation depend on the source-provenance scanner. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from git_context import ensure_base, git_text, run_git
+# <!-- custom: Share comment and literal masking with the duplicate-include check so both inspect active C++ code. See KI#1098.2. (GPT-6.2-Sol) -->
+from cpp_lex import mask_cpp
 # <!-- custom: Reuse the extracted literal/ancestry-aware separator check; source spacing keeps its two-blank allowance while text hygiene supplies format-specific limits. (GPT-6.1-Sol) -->
 from blank_lines import blank_line_errors
 
@@ -549,57 +551,6 @@ def import_include_changes(old_text: str, new_text: str, suffix: str):
         if directives:
             changes.append((j1 + 1, max(j1 + 1, j2), directives))
     return changes
-
-
-def mask_cpp(text: str) -> str:
-    chars = list(text)
-    i = 0
-    n = len(chars)
-    state = "code"
-    quote = ""
-    while i < n:
-        ch = chars[i]
-        nxt = chars[i + 1] if i + 1 < n else ""
-        if state == "code":
-            if ch in ('"', "'"):
-                state = "string"
-                quote = ch
-                chars[i] = " "
-                i += 1
-                continue
-            if ch == "/" and nxt == "/":
-                chars[i] = chars[i + 1] = " "
-                i += 2
-                while i < n and chars[i] != "\n":
-                    chars[i] = " "
-                    i += 1
-                continue
-            if ch == "/" and nxt == "*":
-                chars[i] = chars[i + 1] = " "
-                i += 2
-                while i < n - 1 and not (chars[i] == "*" and chars[i + 1] == "/"):
-                    if chars[i] != "\n":
-                        chars[i] = " "
-                    i += 1
-                if i < n - 1:
-                    chars[i] = chars[i + 1] = " "
-                    i += 2
-                continue
-        else:
-            if ch == "\\":
-                chars[i] = " "
-                if i + 1 < n and chars[i + 1] != "\n":
-                    chars[i + 1] = " "
-                i += 2
-                continue
-            if ch == quote:
-                state = "code"
-            if ch != "\n":
-                chars[i] = " "
-            i += 1
-            continue
-        i += 1
-    return "".join(chars)
 
 
 def matching_paren(text: str, open_pos: int) -> int | None:

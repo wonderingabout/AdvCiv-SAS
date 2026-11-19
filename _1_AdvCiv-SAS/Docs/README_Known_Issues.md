@@ -1276,7 +1276,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
 [KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
-[KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)
+[KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
+[KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)
 
 <a id="ki-1"></a>
 
@@ -38258,3 +38259,26 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
   - `CvPlot.cpp`'s two `iTurnsLeft++` look like one too, but in BtS the first sits in an `if` block and the second follows a blank line: one rounds the build time up and the other adds the current turn. AdvCiv dropped the braces, which put them side by side.
   - It and `CvXMLLoadUtilitySet.cpp`'s two `SetToParent` calls, as in BtS, each moving the XML cursor up one level, now carry a comment saying they are meant.
   - XML files are not checked: their lists repeat rows on purpose, such as several `<iCommerce>0</iCommerce>` or `<GoodyType>GOODY_TECH</GoodyType>` in a row, 213 and 17 times across the tracked XML, so a repeated row there is data, not a slip.
+
+<a id="ki-1098.2"></a>
+
+## KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice
+
+During the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, the old-save cleanup exposed two `RiseFall.h` includes in `CvPlayer.cpp`. wonderingabout asked for a Known Issue and a CI guard, then asked for a full sweep to catch any existing cases. The sweep found the second duplicate in `FDialogTemplate.cpp`.
+
+- AdvCiv added the first direct `RiseFall.h` include in `CvPlayer.cpp` on 2019-05-07 (`20e0f16882`, `advc.700`). Its parent had no direct include in that file. The 2020-11-01 header cleanup (`1c909f88f1`) kept it and dropped the inline `advc.700` label.
+  - The 2021-09-23 Rise and Fall handicap change (`b1128b818a`, `advc.708`) added a second include for old-save migration. SAS removed the handicap migration in `87a57bf06f` and left both directives. They were still present at the AdvCiv 1.14 merge tip.
+  - Both directives were unconditional and other headers separated them, so the adjacent-line guard from [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098) could not see the pair.
+- The header guard prevented a second set of declarations. The extra include was redundant, with no expected gameplay effect.
+- `CvPlayer.cpp` still needs one direct include for Rise and Fall scoring and turn hooks.
+- Extended the existing [duplicate-lines CI check](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) from KI#1098 to report both lines when a change adds the same literal include in the same preprocessor arm or an enclosing scope. Its include comparison also checks merge results against their first parent. Includes in mutually exclusive arms remain valid.
+
+- The vanilla Civ4, Warlords and BtS SDKs all include `CvGameCoreDLLUndefNew.h` twice in `FDialogTemplate.cpp`, once unconditionally and again after `tchar.h` in the Windows branch.
+  - The vanilla and Warlords header copies lack a one-time guard, so the header can run twice there. BtS adds `#pragma once`, which makes the second include ineffective in SAS.
+  - Better BTS AI's local SVN r597 snapshot and K-Mod's initial Git snapshot (`2414225e6`) still contain both includes. The 2011 K-Mod line-ending conversion (`d0a44eb132`) preserved them. AdvCiv's C++ standards pass (`616238930`) changed `AppendData` in the same file and left both directives.
+  - Kept the first include so the allocation macros are already undefined before the system header and the dialog code. The final sweep of all 356 tracked C and C++ files passed after removing the second include.
+
+- Earlier SAS precedent: `cac3fa4d2b` already included `CvInfo_Symbol.h` in `SASGameRecordLog.cpp` for commerce-slider names. The player-color logging change (`724500d4a`) added it a second time for the color info types.
+  - The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) recorded the duplicate. `989eb50ce` removed it and kept both reasons in the remaining include comment. That cleanup had no duplicate-include CI check.
+
+Found and fixed by Codex (GPT-6.2-Sol).
