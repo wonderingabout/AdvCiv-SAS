@@ -1867,7 +1867,7 @@ Savegames also persist a compact **game source/version history**. A newly create
 
 Dirty state is retained as context but does not by itself manufacture a new revision. If source metadata itself is unavailable, the creation entry keeps honest unknown values rather than inventing provenance.
 
-Full dirty-file lists remain session-log data rather than being serialized into the save. As with other AdvCiv-SAS save-layout changes, older save formats are intentionally unsupported rather than migrated.
+Full dirty-file lists remain session-log data rather than being serialized into the save. As with other AdvCiv-SAS save-layout changes, older save formats are intentionally unsupported rather than migrated. See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
 
 #### BBAI logging and head example
 
@@ -2122,7 +2122,7 @@ Non-exhaustive list below:
   - I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd.
   - Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad.
   - Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate.
-  - See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) as well.
+  - See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
 - the old K-Mod Aggressive AI (Legacy): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we don't use or value it since we use UWAI so no need to bother supporting it).
 - Legacy Civilopedia: AdvCiv-SAS supports Sevopedia, which is enabled by default. The older Civilopedia option remains in the inherited code but has not been validated in this work; it may function partly and omit SAS information, including Sevopedia-only categories such as Music, Votes and Event Triggers.
 - BUG Military Advisor [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) and BUG Custom Domestic Advisor [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py) (in particular about the Custom Domestic Advisor it is lacking the Finance Tab that the AdvCiv-SAS equivalent as of now has); see also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123)): we may ship a fix/tweak/change or change here and there or not, and they may or not work but we as of now don't support them (we have SAS-specific equivalent or clearly better alternative advisors so no need to bother supporting them).

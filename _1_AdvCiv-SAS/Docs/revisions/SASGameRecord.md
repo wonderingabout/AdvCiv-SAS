@@ -113,10 +113,16 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 205 - SAS practical 6784
+### Revision 206 - SAS practical 6785
 
 - **Date:** 2026-11-19
 - **Git commit:** pending
+- **Change:** Read the persisted WorldBuilder and Advanced Start history directly from the current layout after removing the pre-28 load gate. The writer still reports `CvGame=28`, and loaded flags remain available to SASGameRecord. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
+
+### Revision 205 - SAS practical 6784
+
+- **Date:** 2026-11-19
+- **Git commit:** `fa2393c93c4934b05bb2d64b28c42227d714d4db`
 - **Change:** Added a retroactive [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2) cross-reference above the surviving `CvInfo_Symbol.h` include so the original consolidation can be traced from the source.
 
 ### Revision 204 - SAS practical 6776

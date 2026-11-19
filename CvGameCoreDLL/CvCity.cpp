@@ -11496,6 +11496,8 @@ bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
 
 void CvCity::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: The original KI#46 cleanup began here.
+	// Consume the marker before reading the current city layout. (GPT-6.2-Sol) -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 
@@ -11677,7 +11679,8 @@ void CvCity::read(FDataStreamBase* pStream)
 	{
 		pStream->Read((int*)&m_aTradeCities[i].eOwner);
 		pStream->Read(&m_aTradeCities[i].iID);
-		m_aTradeCities[i].validateOwner(); // advc.opt
+		// <!-- custom: Note: Current saves write BARBARIAN_PLAYER for empty trade-city slots.
+		// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 	}
 
 	m_orderQueue.Read(pStream);

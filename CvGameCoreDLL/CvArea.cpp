@@ -575,6 +575,7 @@ void CvArea::read(FDataStreamBase* pStream)
 	reset();
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -617,7 +618,8 @@ void CvArea::read(FDataStreamBase* pStream)
 	{
 		pStream->Read((int*)&m_aTargetCities[eLoopPlayer].eOwner);
 		pStream->Read(&m_aTargetCities[eLoopPlayer].iID);
-		m_aTargetCities[eLoopPlayer].validateOwner(); // advc.opt
+		// <!-- custom: Note: Current area saves write BARBARIAN_PLAYER for an empty target-city reference.
+		// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 	}
 
 	m_aaiYieldRateModifier.read(pStream);
@@ -636,6 +638,7 @@ void CvArea::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Area(%d)", getID()));
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvArea write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_AREA; // advc.enum: new enum map save behavior

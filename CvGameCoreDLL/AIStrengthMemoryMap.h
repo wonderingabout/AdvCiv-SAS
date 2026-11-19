@@ -25,7 +25,9 @@ public:
 	void init(PlotNumTypes eMapSize, TeamTypes eTeam);
 	void reset();
 	void decay();
-	void read(FDataStreamBase* pStream, uint uiFlag, TeamTypes eTeam);
+	// <!-- custom: The map uses the current layout.
+	// CvTeamAI consumes the enclosing stream marker. See KI#46.2. (GPT-6.2-Sol) -->
+	void read(FDataStreamBase* pStream, TeamTypes eTeam);
 	void write(FDataStreamBase* pStream) const;
 	int get(PlotNumTypes ePlot) const
 	{

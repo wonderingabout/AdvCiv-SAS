@@ -3037,13 +3037,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 		}
 	} // </advc.187>
 	PlayerTypes const eRevealedOwner = kPlot.getRevealedOwner(eActiveTeam, true);
-	if (eRevealedOwner != NO_PLAYER ||
-		/*	<advc.099f> As of AdvCiv 1.0, culture no longer spreads to unowned plots.
-			However, for legacy saves, showing culture w/o an option is annoying.
-			Solution: let CvGame set this bool member based on the save version. */
-		m_bAlwaysShowPlotCulture ||
-		bShift/* || BUGOption::isEnabled("MiscHover__CultureInUnownedTiles", false)*/)
-	{	// </advc.099f>
+	/*	<advc.099f> As of AdvCiv 1.0, culture no longer spreads to unowned plots.
+		However, for legacy saves, showing culture w/o an option is annoying.
+		Solution: let CvGame set this bool member based on the save version. */
+	// <!-- custom: With the advc.099f flag clear, AdvCiv showed culture on owned plots or when Shift was held.
+	// SAS always enabled it through setAlwaysShowPlotCulture, so the current hover still shows culture on unowned plots. See KI#46.2. (GPT-6.2-Sol) -->
+	{
 		if (kPlot.isActiveVisible(true))
 		{	// <advc.101>
 			if (kPlot.isCity() &&

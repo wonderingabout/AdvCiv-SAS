@@ -21,7 +21,7 @@ public:
 		return gs_GameTextMgr;
 	}
 
-	CvGameTextMgr() : /* advc.099f: */ m_bAlwaysShowPlotCulture(true) {}
+	CvGameTextMgr() {}
 	virtual ~CvGameTextMgr() {}
 
 	DllExport void Initialize() {} // allocate memory
@@ -62,8 +62,8 @@ public:
 	// <advc.089>
 	void setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker, CvUnit const& kDefender); // </advc.089>
 	void setPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot);
-	// <advc.099f> (only for legacy saves)
-	void setAlwaysShowPlotCulture(bool bAlwaysShowPlotCulture) { m_bAlwaysShowPlotCulture = bAlwaysShowPlotCulture; } // </advc.099f>
+	// <!-- custom: Note: setAlwaysShowPlotCulture (advc.099f) was declared here to select the save-dependent hover behavior.
+	// SAS always set m_bAlwaysShowPlotCulture to true, so setPlotHelp now uses that behavior directly. See KI#46.2. (GPT-6.2-Sol) -->
 	void setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCity);
 	void setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity); // advc.101
 	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
@@ -361,7 +361,6 @@ private:
 	  static bool listFirstUnitTypeBeforeSecond(UnitTypes eFirst, UnitTypes eSecond);
 	// </advc.061>
 	std::vector<int*> m_apbPromotion;
-	bool m_bAlwaysShowPlotCulture; // advc.099f
 };
 
 // Singleton Accessor

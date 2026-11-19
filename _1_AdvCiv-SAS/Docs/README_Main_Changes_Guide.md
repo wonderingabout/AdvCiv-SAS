@@ -196,7 +196,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - `CvGame` now stores a compact source-revision lineage with each save: the creation revision, then one transition entry whenever a later load runs under a different practical version or full commit SHA.
   - Each entry records game turn, version, canonical SHA and coarse dirty state; full dirty-file lists remain log/runtime-only.
   - If source metadata itself is unavailable, the creation entry keeps honest unknown values rather than inventing provenance.
-  - As with other AdvCiv-SAS save-schema changes, older save layouts are intentionally unsupported rather than migrated.
+  - As with other AdvCiv-SAS save-schema changes, older save layouts are intentionally unsupported rather than migrated. See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
   - The history is exposed read-only to Python for later Victory/Sevopedia/replay presentation and is emitted by SASGameRecord for immediate testing/analysis.
 - (Requires AdvCiv-SAS 6617+) **Exact save-checkpoint provenance without extra saves:**
   - Every `CvGame` serialization embeds a private checkpoint only in the serialized copy of game script data, avoiding another save serialization.

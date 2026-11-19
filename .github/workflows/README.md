@@ -1332,6 +1332,9 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
+- Newly added or changed comparisons on DLL save-layout flags and versions fail, including `uiFlag < 23` and `iSaveVersion == 1`.
+  - The same check catches reintroduced legacy helpers such as `IDInfo::validateOwner`, `MissionDataLegacy`, and `LegacyArrayEnumMap` uses.
+  - It compares active code with the base and permits writer marker assignments, comments, and unrelated flags such as `uiFlagBits`. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
 - another mod's comment may be quoted as is, without a model credit or reflow: a custom line saying it is a quote, such as "Quoted from", and naming the source, then lines each starting with `// >` or `# >`; our own prose mixed into the quote still fails. Added on 2026-11-12 after the globe patch's comments restated Realism Invictus's findings in our voice;
 - added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits, which include mod-component credits written as "by <Name>, ver." (e.g. `*ActualQuotes* by Willowmound, ver. 4.20`);
   - in XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;

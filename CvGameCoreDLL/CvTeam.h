@@ -489,7 +489,9 @@ public:
 	int getCapitalY(TeamTypes eObserver, bool bDebug = false) const;
 	CvCity* getLeaderCapital(TeamTypes eObserver, bool bDebug = false) const;
 	// </advc.127b>
-	void finalizeInit(); // advc.003m
+	// <!-- custom: Note: CvTeam::finalizeInit (advc.003m) was declared here to rebuild war-enemy counts for old saves.
+	// CvTeam::read now takes the stored counts directly. See KI#46.2. (GPT-6.2-Sol) -->
+
 	// <advc.003u>
 	//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
 	/* The above won't work in an inline function b/c the compiler doesn't know that CvTeamAI is derived from CvTeam */

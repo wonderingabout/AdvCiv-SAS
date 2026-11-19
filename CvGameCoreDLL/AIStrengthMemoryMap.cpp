@@ -23,9 +23,9 @@ void AIStrengthMemoryMap::reset()
 }
 
 
-// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
-// <!-- custom: note: here uiflag is not defined but passed as a parameter it seems, so handling it slightly differently, as advised by chatgpt 5, check if accurate -->
-void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint /* <!-- custom: disable this and remove subsequent checks/usage of this parameter in the function i mean, as advised by chatgpt 5, check if accurate --> uiFlag */, TeamTypes eTeam)
+// <!-- custom: KI#46 removed the old layouts and left the stream flag argument unused.
+// CvTeamAI still consumes its marker before the map fields. See KI#46.2. (GPT-6.2-Sol) -->
+void AIStrengthMemoryMap::read(FDataStreamBase* pStream, TeamTypes eTeam)
 {
 	m_eTeam = eTeam;
 

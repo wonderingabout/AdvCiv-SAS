@@ -92,6 +92,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#44.6 - Disable auto citizen specialists for the human player as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.6)\
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
+[KI#46.2 - (Cleaned up inherited AdvCiv and SAS save readers, guarded by CI) Remove the remaining legacy save paths after the original uiFlag cleanup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2)\
 [KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-47)\
 [KI#48 - (Historical first SAS building-value rework; regular-building hard gates superseded by KI#48.5, Wonder policy rework continued in KI#48.9) AI building walls when already safe/strong, Wonders while weak/in danger, and related hard building-policy rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
 [KI#48.2 - (Historical SAS happiness-prefilter enhancement; regular-building hard gate superseded by KI#48.5) Kish built a Theatre instead of immediately useful happiness infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
@@ -4159,6 +4160,86 @@ In the DLL i have cleaned up the old `uiFlag` code that was super redundant and 
 While it would be nice if old savegames could be preserved across all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean.
 
 As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well.
+
+See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up sweep, the original commit sequence, and the CI guard.
+
+<a id="ki-46.2"></a>
+
+## KI#46.2 - (Cleaned up inherited AdvCiv and SAS save readers, guarded by CI) Remove the remaining legacy save paths after the original uiFlag cleanup
+
+Reviewing the AdvCiv 1.14 merge through f1rpo's 2026-10-15 upstream commit `5970334b6` exposed how easily an upstream save reader could bring back branches for older layouts, such as `uiFlag < 23` in `CvPlayer`.
+
+That prompted a separate sweep of SAS `main` before the merge. It found inherited paths that survived the 2025 cleanup and one gate SAS added later. The upstream religion and corporation count widening and its `CvPlayer=23` writer marker belong to the merge.
+
+### What SAS had already changed
+
+On 2025-08-14, wonderingabout removed most version dispatch from the DLL in SAS practical commits 4939–4948. The original [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) credits ChatGPT 5 and some Claude assistance. The cleanup kept the component markers in the stream because the existing readers and writers still consume or emit them.
+
+Firaxis's vanilla Civ4 SDK already used these markers, including the expansion flag in `CvCity::read` and `CvCity::write`. Warlords, BtS, Better BTS AI r597, and K-Mod carried that pattern forward. The specific legacy readers and helpers below came from AdvCiv or SAS.
+
+The vanilla SDK also tested individual bits, for example `SAVEDATA_LAST_DEFENSE_DAMAGE` in `CvCity::read`. Warlords already reads the last-defense-damage field directly, as SAS does today.
+
+In the local snapshots, the six readers for `CvCity`, `CvGame`, `CvPlayer`, `CvPlayerAI`, `CvPlot`, and `CvTeamAI` contain 3 direct numeric save-flag comparisons in BtS, 6 in Better BTS AI r597, 12 in K-Mod 1.46, and 138 in AdvCiv 1.14. SAS has zero in those six readers after this cleanup.
+
+These counts exclude bit tests, other functions and other version checks.
+
+K-Mod also removed inherited gates selectively. Better BTS AI r537 (jdog5000, 2010-03-21) used `uiFlag > 2` for the saved AI strategy random value.
+
+K-Mod practical 73 (`26af73be45`, karadoc, 2011-08-07) removed three BBAI strategy checks in `CvPlayerAI::read` and read the current fields directly while still writing the flag. K-Mod later added gates for other changes, such as its saved attitude cache in practical 385 (`25134da1a7`, karadoc, 2011-12-05).
+
+| SAS practical | Git commit | Save code touched | Net C++ lines |
+| --- | --- | --- | ---: |
+| 4939 | `00866a074` | Began with `CvCity`'s old `uiFlag` branches | −320 |
+| 4940 | `5dfb74d7b` | Simplified `CvGame` reads and set the plot-culture hover flag to true | −170 |
+| 4941 | `294af9e51` | Continued `CvCity` and `CvTeam` | −238 |
+| 4942 | `ad58ea3c5` | Simplified `CvPlayerAI` | −37 |
+| 4943 | `87a57bf06` | Simplified `CvPlayer`, removed Rise and Fall handicap migration, and selected the current `PlayerHistory` layout with `false` | −199 |
+| 4944 | `4a6ecaa86` | Simplified `CvPlot` | −122 |
+| 4945 | `f70627ec6` | Simplified `CvCityAI` | −27 |
+| 4946 | `98a29279d` | Continued `CvGame` and covered `CvArea`, `CvGameAI`, `CvPlotGroup`, and `CvSelectionGroup` | −88 |
+| 4947 | `9cb440007` | Covered `CvInitCore`, `CvMap`, `CvTeamAI`, and `CvUnit`. The map reader started passing `true` to reset plot extras | −180 |
+| 4948 | `f699f0b16` | Removed the remaining checks inside `AIStrengthMemoryMap::read` and left its version argument unused | −21 |
+
+The ten commits form a direct parent chain and each updates the DLL. Most center on the save cleanup.
+
+The opener also caches color and XML lookups in several gameplay and UI paths and edits the README and quick-start guide. The last commit adds the original KI#46 and documents the unsupported-save policy, alongside a separate Sevopedia concepts note.
+
+The combined C++ diff adds 772 lines and removes 2,174 across 18 files.
+
+### Where the remaining paths came from
+
+Git lists f1rpo as the author of the AdvCiv commits below and wonderingabout as the author of the two later SAS commits. Their commit messages credit AI assistance with the SAS land-distance fix and WorldBuilder history work.
+
+- **Old empty-object references and missions.**
+  - AdvCiv practical 1953 (`f0551b743b`, 2020-01-22, `advc.opt`) added `IDInfo::validateOwner` to translate an empty `NO_PLAYER` reference to `BARBARIAN_PLAYER` for its faster lookups. Current SAS constructors and resets already supply the latter.
+  - AdvCiv practical 1399 (`bb97a41a85`, 2018-12-26, `advc.011b`) added `MissionDataLegacy` for queued missions without `bModified`. The current reader already uses `MissionData`, so remove the unused old type.
+- **Missing counts after load.**
+  - AdvCiv practical 1420 (`c24d361ed8`, 2019-02-15, `advc.003b`) added the `CvGame` fallback to rebuild civilization counts for pre-4 saves.
+  - AdvCiv practical 1874 (`8fbc178ba1`, 2019-12-28) added the load-time fallback for war-enemy and war-plan counts through `CvTeam::finalizeInit` and `CvTeamAI::AI_finalizeInit`.
+  - Each current reader takes those fields from its writer. The player/team accessors still count on demand while loading is incomplete.
+- **Plot culture and map extras.**
+  - AdvCiv practical 3152 (`3312c569b3`, 2021-07-14, `advc.099f`) selected hover behavior with a save flag. SAS practical 4940 already enabled the culture display for every save.
+  - AdvCiv practical 3746 (`780966a9fd`, 2022-03-17, `advc.enum`) let pre-7 map resets preserve extras read by `CvGame`. SAS practical 4947 already reset them before reading them from `CvMap`. Remove both constant choices and their implementation branches.
+- **Player history and strength memory.**
+  - AdvCiv practical 2626 (`f6f7fd0b4b`, 2020-11-01, `advc.004s`) added the faster vector and kept a sparse turn/value importer. AdvCiv adjusted that importer in practicals 2681 (`062984adb`, 2020-11-19) and 2724 (`67b0a64e7`, 2020-12-23). SAS practical 4943 already disabled it at its sole call site.
+  - AdvCiv practical 2676 (`96c6996a71`, 2020-11-17, `advc.158`) introduced `AIStrengthMemoryMap::read` with several layout branches. SAS practical 4948 removed the branches, leaving the flag argument unused. Drop the remaining importer and both legacy arguments.
+- **Rise and Fall and UWAI.**
+  - AdvCiv practical 1268 (`e11525d303`, 2017-08-24) introduced the Rise and Fall reader with a version-1 gate for the original leader name. Its current writer always emits the presence bit and writes the name when present.
+  - AdvCiv practical 2920 (`4ae382e5db`, 2021-03-20) added the scaled MilitaryBranch layout and packed typical-unit value, and its UWAI cache city reader supported older field sets. AdvCiv practical 3183 (`59a3e31900`, 2021-08-17) added the version-9 enum-map path.
+  - Read the fields the writers emit today, including the packed words and SAS's current land-only distance from practical 6315 (`f2c966c30a`, 2026-08-28), documented in [KI#591](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-591). Preserve writer markers and byte order.
+- **SAS's later history gate.** SAS practical 6683 (`53aef2f7bf`, 2026-10-25, SGR171) added WorldBuilder and Advanced Start history.
+  - The `uiFlag >= 28` gate skipped missing history to keep pre-28 streams aligned. That inadvertently brought back an older-save path under SAS's current-layout-only policy.
+  - The current writer always emits the history. Read those fields directly and keep the loaded flag available to diagnostics.
+
+This follow-up adds 210 lines and removes 379 across 32 C++ source and header files in `CvGameCoreDLL/`, for a net reduction of 169 lines.
+
+The [source-provenance CI check](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now rejects new or changed save-version comparisons and named retired layout helpers. It ignores comments and literals, keeps writer assignments valid, and leaves unrelated flags such as `uiFlagBits` alone.
+
+The original cleanup comments now point to [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46), and the new removal comments point here.
+
+Traced and documented by Codex (GPT-6.2-Sol).
+
+Claude Code Opus 5.5 independently checked reader/writer parity and smoke-tested the Debug-opt build. A fresh game wrote a turn-3 save, then reloaded it and advanced to turn 5.
 
 <a id="ki-47"></a>
 

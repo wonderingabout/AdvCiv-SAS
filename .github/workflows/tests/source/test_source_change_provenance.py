@@ -374,6 +374,56 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         new = "class Worker {\npublic:\n    inline const Item *\n    capture();\n};\n"
         self.assertEqual(self.errors("CvGameCoreDLL/Test.h", old, new), [])
 
+    def test_removing_first_cpp_function_preserves_next_return_type(self):
+        prefix = '#include "CvGameCoreDLL.h"\n\n'
+        next_function = "int Worker::score() { return 1; }\n"
+        old = prefix + "void legacy() {}\n\n" + next_function
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, prefix + next_function), [])
+
+    def test_cpp_save_layout_gates_reject_new_thresholds(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        for comparison in (
+            "uiFlag < 23",
+            "m_uiSaveFlag <= 28u",
+            "uiSaveStreamFlag >= SASSaveStreamFormat::CV_PLAYER",
+            "getLoadedSaveStreamFlag() > 0",
+            "23 >\n        iSaveVersion",
+            "1 <= savegameVersion",
+            "iSaveVersion == 1",
+            "1 != savegameVersion",
+        ):
+            with self.subTest(comparison=comparison):
+                code = "void load() { if (" + comparison + ") readLegacy(); }\n"
+                self.assertTrue(any("new save-layout version gate" in error for error in self.errors(path, "", code)))
+
+    def test_cpp_save_layout_gates_leave_existing_checks_and_flags_alone(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        old = "void load() { if (uiFlag >= 28) readExtra(); }\n"
+        reflowed = "void load() {\n    if (28 <=\n        uiFlag) readExtra();\n}\n"
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, old, reflowed), [])
+        self.assertEqual(len(checker.cpp_save_layout_gate_errors(path, old, old + reflowed)), 1)
+        self.assertEqual(len(checker.cpp_save_layout_gate_errors(path, old, old.replace("28", "29"))), 1)
+        unrelated = 'uiFlag = SASSaveStreamFormat::CV_GAME;\nif (uiFlagBits < 23) run();\nprint("if (uiFlag < 23)");\n// if (uiFlag < 23)\n'
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, "", unrelated), [])
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, old, ""), [])
+
+    def test_cpp_save_layout_check_rejects_retired_helpers(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        for statement in (
+            "m_aTargetCities[eLoopPlayer].validateOwner();",
+            "MissionDataLegacy mission;",
+            "LegacyArrayEnumMap<ReligionTypes, int>::convert(counts, stream);",
+            "team.AI_finalizeInit();",
+            "gameText.setAlwaysShowPlotCulture(true);",
+            "void reset(MapData* data, bool bResetPlotExtraData);",
+        ):
+            with self.subTest(statement=statement):
+                self.assertTrue(any("new save-layout compatibility helper" in error
+                                    for error in self.errors(path, "", statement + "\n")))
+                self.assertEqual(checker.cpp_save_layout_gate_errors(path, statement, statement), [])
+        valid = 'counts.readArray<int>(stream);\nprint("MissionDataLegacy");\n// item.validateOwner();\n'
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, "", valid), [])
+
     def test_return_change_preserves_unchanged_overloads(self):
         old = "int Worker::capture(int id) { return id; }\nvoid Worker::capture() {}\n"
         new = "int Worker::capture(int id) { return id; }\nbool Worker::capture() { return true; }\n"

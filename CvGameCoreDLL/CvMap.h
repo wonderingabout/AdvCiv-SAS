@@ -201,9 +201,9 @@ public:
 
 	DllExport void init(CvMapInitData* pInitData=NULL);
 	DllExport void setupGraphical();
-	DllExport void reset(CvMapInitData* pInitData)  // <advc.enum>
-	{ reset(pInitData, true); }
-	void reset(CvMapInitData const* pInitData, bool bResetPlotExtraData); // </advc.enum>
+	// <!-- custom: Keep the EXE reset entry point and always clear map-owned plot extras in the current layout.
+	// Note: The removed bResetPlotExtraData overload let old readers preserve plot extras stored by CvGame (advc.enum). See KI#46.2. (GPT-6.2-Sol) -->
+	DllExport void reset(CvMapInitData* pInitData);
 
 protected:
 

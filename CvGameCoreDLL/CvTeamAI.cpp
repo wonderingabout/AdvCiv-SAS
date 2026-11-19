@@ -5275,6 +5275,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 		uwai().init(getID()); // </advc.104>
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -5317,26 +5318,14 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 		pStream->Read((int)iSize, (int*)&m_aeNukeExplosions[0]);
 	// </advc.650>
 
-	m_strengthMemory.read(pStream, uiFlag, getID()); // advc.158
+	m_strengthMemory.read(pStream, getID()); // advc.158
 	// <advc.104>
 	if (isEverAlive() && !isBarbarian() && !isMinorCiv())
 		m_pUWAI->read(pStream); // </advc.104>
 }
 
-// advc.opt: (for legacy savegames)
-void CvTeamAI::AI_finalizeInit()
-{
-	m_aiWarPlanCounts.reset(); // De-allocate in case that the counts are all 0
-	FOR_EACH_ENUM(WarPlan)
-	{
-		m_aiWarPlanCounts.set(eLoopWarPlan, AI_countWarPlans(eLoopWarPlan,
-				true, MAX_CIV_PLAYERS)); // Last argument just to avoid a failed assertion
-		if (m_aiWarPlanCounts.get(eLoopWarPlan) > 0)
-			m_bAnyWarPlan = true;
-	}
-}
-
-
+// <!-- custom: Note: CvTeamAI::AI_finalizeInit (advc.opt) used to rebuild missing war-plan counts after load.
+// The current save layout already includes them. See KI#46.2. (GPT-6.2-Sol) -->
 void CvTeamAI::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
@@ -5345,6 +5334,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE(CvString::format("TeamAI(%d)", getID()).GetCString());
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvTeamAI write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_TEAM_AI; // advc.130r
