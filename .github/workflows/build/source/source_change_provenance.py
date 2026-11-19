@@ -94,6 +94,7 @@ class Signature:
     start: int
     end: int
     return_type: str = ""
+    layout_start: int | None = None
 
 
 def changed_paths(repo: Path, base_ref: str) -> list[str]:
@@ -662,7 +663,18 @@ def cpp_signatures(text: str) -> list[Signature]:
         return_prefix = re.sub(r"\b(?:public|private|protected)\s*:", "", return_prefix)
         return_prefix = re.sub(r"\b(?:static|inline|virtual|explicit|friend|constexpr|extern|DllExport)\b", "", return_prefix)
         return_type = " ".join(re.findall(r"[A-Za-z_]\w*|::|&&|[^\s]", return_prefix))
-        result.append(Signature(name, params, start_line, end_line, return_type))
+        # <!-- custom: Include the return type so moving it above the name cannot evade the one-line check.
+        # Exclude standalone access labels, template lines and directives so their placement does not make a one-line signature appear wrapped. (GPT-6.2-Sol) -->
+        prefix_lines = code[boundary + 1:name_start].split("\n")
+        layout_start = start_line
+        if len(prefix_lines) > 1 and not prefix_lines[-1].strip():
+            for offset, line in enumerate(reversed(prefix_lines[:-1]), 1):
+                if line.strip():
+                    if not re.match(r"\s*(?:#|template\b|(?:public|private|protected)\s*:\s*$)", line):
+                        layout_start -= offset
+                    break
+        end_line += after[:len(after) - len(qualifier)].rstrip().count("\n")
+        result.append(Signature(name, params, start_line, end_line, return_type, layout_start))
     # <!-- custom: Nested parentheses can generate duplicate heuristic candidates; keep only unique signature spans before comparing parameter lists. (ChatGPT-6-Sol) -->
     unique = {}
     for sig in result:
@@ -700,18 +712,17 @@ def signatures(text: str, suffix: str) -> list[Signature]:
     return []
 
 
-# <!-- custom: Compare parameter/return contracts and clear local renames; accept the caller's existing line-diff opcodes so rename detection does not compute the same whole-file diff twice. (GPT-6.1-Sol) -->
-def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
+# <!-- custom: Compare parameter/return contracts and clear local renames using the caller's line diff. (GPT-6.1-Sol) -->
+# <!-- custom: Keep exact pairs too so a line split is reviewable even when the signature tokens stay the same. (GPT-6.2-Sol) -->
+def signature_pairs(old_text: str, new_text: str, suffix: str, opcodes=None):
     old_by = defaultdict(list)
     new_by = defaultdict(list)
     for sig in signatures(old_text, suffix):
         old_by[sig.name].append(sig)
     for sig in signatures(new_text, suffix):
         new_by[sig.name].append(sig)
-    changes = []
+    pairs = []
     for name in sorted(set(old_by) & set(new_by)):
-        if SAS_FUNCTION_RE.search(name):
-            continue
         old_list = old_by[name][:]
         new_list = new_by[name][:]
         # <!-- custom: Remove exact overload matches first so only unmatched overloads are paired as possible parameter/return-contract changes. (ChatGPT-6-Sol + GPT-6.1-Sol) -->
@@ -729,16 +740,15 @@ def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
                 remaining_old.append(old_sig)
             else:
                 used_new.add(found)
+                pairs.append((old_sig, new_list[found]))
         remaining_new = [sig for index, sig in enumerate(new_list) if index not in used_new]
-        for old_sig, new_sig in zip(remaining_old, remaining_new):
-            if (old_sig.params, old_sig.return_type) != (new_sig.params, new_sig.return_type):
-                changes.append((old_sig, new_sig))
+        pairs.extend(zip(remaining_old, remaining_new))
     # <!-- custom: A name-only change otherwise disappears as one deletion plus one addition.
     # Match only one removed and one added function in the same replacement hunk and scope; distant moves or ambiguous many-function rewrites remain manual review rather than guessed renames. (GPT-6.1-Sol) -->
     removed = [sig for name in old_by.keys() - new_by.keys() for sig in old_by[name] if not SAS_FUNCTION_RE.search(name)]
     added = [sig for name in new_by.keys() - old_by.keys() for sig in new_by[name]]
     if not removed or not added:
-        return changes
+        return pairs
     if opcodes is None:
         opcodes = line_opcodes(old_text, new_text)[2]
     for tag, old_start, old_end, new_start, new_end in opcodes:
@@ -749,8 +759,18 @@ def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
         if len(before) == len(after) == 1:
             old_sig, new_sig = before[0], after[0]
             if old_sig.name.rpartition("::")[0] == new_sig.name.rpartition("::")[0]:
-                changes.append((old_sig, new_sig))
-    return changes
+                pairs.append((old_sig, new_sig))
+    return pairs
+
+
+def signature_interface_changed(old_sig: Signature, new_sig: Signature) -> bool:
+    if old_sig.name == new_sig.name and SAS_FUNCTION_RE.search(old_sig.name):
+        return False
+    return (old_sig.name, old_sig.params, old_sig.return_type) != (new_sig.name, new_sig.params, new_sig.return_type)
+
+
+def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
+    return [pair for pair in signature_pairs(old_text, new_text, suffix, opcodes) if signature_interface_changed(*pair)]
 
 
 # <!-- custom: Boost.Python .def bindings are interfaces too; a help string describes usage but does not explain why Python needs the operation.
@@ -1129,7 +1149,14 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
                     errors.append("%s:%d: Python .def binding lacks a nearby new custom rationale comment (%s %s)" % (path, position, action, name))
 
     if not new_file and suffix in CPP_SUFFIXES | PY_SUFFIXES:
-        for old_sig, new_sig in changed_signatures(old_text, new_text, suffix, opcodes):
+        changed_old_lines = {line for tag, start, end, _, _ in opcodes if tag != 'equal' for line in range(start + 1, end + 1)}
+        for old_sig, new_sig in signature_pairs(old_text, new_text, suffix, opcodes):
+            if (suffix in CPP_SUFFIXES and old_sig.layout_start == old_sig.end
+                    and old_sig.end in changed_old_lines and new_sig.layout_start < new_sig.end):
+                # <!-- custom: Keep the complete signature greppable through parameter edits and upstream merges. (GPT-6.2-Sol) -->
+                errors.append(f"{path}:{new_sig.layout_start}: keep the existing one-line C++ signature for {new_sig.name} on one line")
+            if not signature_interface_changed(old_sig, new_sig):
+                continue
             nearby = nearby_added_custom(added_custom, new_sig.start, new_sig.end, radius=6)
             if not nearby:
                 details = []

@@ -32,6 +32,12 @@ if _ARCHIVE_SPEC is None or _ARCHIVE_SPEC.loader is None:
 	raise SystemExit("cannot load LLM_Helpers/housekeeping/archive_old_files.py")
 archive_old_files = importlib.util.module_from_spec(_ARCHIVE_SPEC)
 _ARCHIVE_SPEC.loader.exec_module(archive_old_files)
+# <!-- custom: Likewise load diagnostics/toggle_dev_diagnostics.py to warn before launch when the development defines are only partly on, as when SAS_UI_DAWN_OF_MAN_ON alone was left at 1 (2026-11-19). (Claude code Opus 5.5) -->
+_TOGGLE_SPEC = importlib.util.spec_from_file_location("toggle_dev_diagnostics", Path(__file__).resolve().parents[1] / "diagnostics" / "toggle_dev_diagnostics.py")
+if _TOGGLE_SPEC is None or _TOGGLE_SPEC.loader is None:
+	raise SystemExit("cannot load LLM_Helpers/diagnostics/toggle_dev_diagnostics.py")
+toggle_dev_diagnostics = importlib.util.module_from_spec(_TOGGLE_SPEC)
+_TOGGLE_SPEC.loader.exec_module(toggle_dev_diagnostics)
 
 REPO_ROOT = next(p for p in Path(__file__).resolve().parents if p.name == "LLM_Helpers").parent
 MOD_FOLDER = REPO_ROOT.name
@@ -308,6 +314,9 @@ def main():
 	running = desktop_windows.civ4_processes()
 	if running and not args.multiple:
 		sys.exit("Civ4 is already running (%s); close it or pass --multiple" % ", ".join(str(pid) for pid, _ in running))
+	majority, odd = toggle_dev_diagnostics.read_mixed_values()
+	if odd:
+		print("warning: development defines are mostly %s, but not %s; run LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on or off to make them consistent" % (majority, ", ".join(odd)), flush=True)
 
 	launched = utc_now()
 	run_id = "%s_%d" % (stamp(launched), os.getpid())

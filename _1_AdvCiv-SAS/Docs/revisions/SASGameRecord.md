@@ -113,17 +113,23 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 206 - SAS practical 6785
+### Revision 207 - SAS practical 6786
 
 - **Date:** 2026-11-19
 - **Git commit:** pending
+- **Change:** Moved the shipped SASGameRecord defaults that the recorder check requires into `LLM_Helpers/diagnostics/define_values.py`, which `toggle_dev_diagnostics.py` also reads, so `off` restores the same values CI accepts. The recorder and its shipped values are unchanged.
+
+### Revision 206 - SAS practical 6785
+
+- **Date:** 2026-11-19
+- **Git commit:** `897990198d0d9cc6a3a73a6a667404e09e259133`
 - **Change:** Read the persisted WorldBuilder and Advanced Start history directly from the current layout after removing the pre-28 load gate. The writer still reports `CvGame=28`, and loaded flags remain available to SASGameRecord. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
 
 ### Revision 205 - SAS practical 6784
 
 - **Date:** 2026-11-19
 - **Git commit:** `fa2393c93c4934b05bb2d64b28c42227d714d4db`
-- **Change:** Added a retroactive [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2) cross-reference above the surviving `CvInfo_Symbol.h` include so the original consolidation can be traced from the source.
+- **Change:** Added a retroactive [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2) comment above the surviving `CvInfo_Symbol.h` include, noting that SAS had included it twice until 989eb50ce merged the two directives, so this earlier duplicate can be traced from the source like the duplicate includes KI#1098.2 removed elsewhere.
 
 ### Revision 204 - SAS practical 6776
 

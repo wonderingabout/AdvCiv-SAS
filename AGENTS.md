@@ -941,6 +941,11 @@ Clear, accurate explanations help users and developers understand the code and i
   - Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star.
   - Useful examples: `SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND = 6807` is shared by the expandable text panels of many Sevopedia pages instead of being defined in each; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
 - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+- The same holds for our tooling: a value that several scripts need, such as a define's shipped value, lives once in a shared module, and the scripts import it. A change is then made and seen in one place, rather than in one copy while another goes stale; where practical, a CI check keeps it so.
+  - Example (2026-11-19): `SAS_UI_DAWN_OF_MAN_ON` alone stayed at its shipped `1` after a branch switch, so the Dawn of Man screen showed in agent test games.
+    - Claude Code Opus 5.5 first added only a warning for a partly enabled set. The user asked whether other defines could slip the same way, which led to the toggle itself: each shipped value was written twice, in a CI check and in `toggle_dev_diagnostics.py`, with nothing keeping the two in step.
+    - The shipped and development values now sit together in [`define_values.py`](/LLM_Helpers/README.md#define_valuespy), which the checks and the toggle import, and [`shared_define_values.py`](/.github/workflows/README.md#buildsourceshared_define_valuespy) fails when a script writes one of them again; the committed toggle would have failed it 9 times.
+  - A value only one script uses can stay beside its code. What matters is that each value has one home, so a later change is easy to find and nothing else needs to follow it by hand.
 
 ### XML
 

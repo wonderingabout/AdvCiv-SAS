@@ -369,10 +369,13 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 comment = "// <!-- custom: Return success so callers can distinguish failed capture from an empty result. (GPT-6.1-Sol) -->\n"
                 self.assertEqual(self.errors(path, old, comment + new), [])
 
-    def test_return_type_reflow_and_storage_qualifiers_are_not_return_changes(self):
+    # <!-- custom: Test the layout rule separately from return-type provenance, which compares tokens. (GPT-6.2-Sol) -->
+    def test_return_type_reflow_is_a_layout_change_only(self):
         old = "class Worker {\npublic:\n    const Item* capture();\n};\n"
         new = "class Worker {\npublic:\n    inline const Item *\n    capture();\n};\n"
-        self.assertEqual(self.errors("CvGameCoreDLL/Test.h", old, new), [])
+        errors = self.errors("CvGameCoreDLL/Test.h", old, new)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("one-line C++ signature for capture", errors[0])
 
     def test_removing_first_cpp_function_preserves_next_return_type(self):
         prefix = '#include "CvGameCoreDLL.h"\n\n'
@@ -423,6 +426,23 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 self.assertEqual(checker.cpp_save_layout_gate_errors(path, statement, statement), [])
         valid = 'counts.readArray<int>(stream);\nprint("MissionDataLegacy");\n// item.validateOwner();\n'
         self.assertEqual(checker.cpp_save_layout_gate_errors(path, "", valid), [])
+
+    def test_cpp_signature_wrap_only_rejects_new_splits(self):
+        old = "bool Worker::spread(int iUnit, bool bFast) const\n{ return true; }\n"
+        wrapped = "bool Worker::spread(int iUnit,\n        bool bFast) const\n{ return true; }\n"
+        path = "CvGameCoreDLL/Test.cpp"
+        self.assertTrue(any("one-line C++ signature" in error for error in self.errors(path, old, wrapped)))
+        self.assertEqual(self.errors(path, wrapped, wrapped.replace("return true", "return false")), [])
+        self.assertEqual(self.errors(path, "", wrapped), [])
+
+    def test_cpp_signature_wrap_detects_parameter_edits_and_qualifiers(self):
+        old = "bool Worker::spread(int iUnit, bool bFast) const\n{ return true; }\n"
+        for new in (
+            "bool Worker::spread(int iUnit,\n        bool bQuick) const\n{ return true; }\n",
+            "bool Worker::spread(int iUnit, bool bFast)\n        const\n{ return true; }\n",
+        ):
+            with self.subTest(new=new):
+                self.assertTrue(any("one-line C++ signature" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, new)))
 
     def test_return_change_preserves_unchanged_overloads(self):
         old = "int Worker::capture(int id) { return id; }\nvoid Worker::capture() {}\n"

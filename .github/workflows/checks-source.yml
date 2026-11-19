@@ -47,6 +47,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/checkout_byte_compares.py
 
+      - name: Switched define values are written only in LLM_Helpers/diagnostics/define_values.py
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/shared_define_values.py
+
       - name: Runtime Python never starts a button path as u""
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/unicode_button_paths.py

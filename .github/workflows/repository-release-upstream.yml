@@ -1,0 +1,33 @@
+name: Checks - Release upstream
+
+on:
+  push:
+    tags:
+      - '[0-9]+'
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+      - name: Release includes the latest base AdvCiv
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        # <!-- custom: The local CI runner also reads steps from tag-only workflows.
+        # Keep branch runs offline and use the tag ref explicitly to check the actual release commit. (GPT-6.2-Sol) -->
+        run: |
+          if [[ "$RELEASE_REF" == refs/tags/* ]]; then
+            python .github/workflows/build/repository/release_upstream.py --release-ref "$RELEASE_REF"
+          fi

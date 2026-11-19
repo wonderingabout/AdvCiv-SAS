@@ -83,6 +83,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
+    - [`build/repository/release_upstream.py`](#buildrepositoryrelease_upstreampy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
@@ -112,6 +113,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
+    - [`build/source/shared_define_values.py`](#buildsourceshared_define_valuespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
     - [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy)
     - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
@@ -269,13 +271,13 @@ The automated layout has two matching layers: workflow categories at `.github/wo
 | `build/exe_patches/` | `checks-exe-patches.yml` |
 | `build/hygiene/` | `checks-hygiene.yml` |
 | `build/python/` | `python24-compile.yml`; `python-ruff.yml` invokes Ruff directly |
-| `build/repository/` | `checks-repository.yml` |
+| `build/repository/` | `checks-repository.yml`; release checks use `repository-release-upstream.yml` |
 | `build/runtime/` | `checks-runtime.yml`; the predump refresh bot reuses its helper through `runtime-aip-predump-refresh.yml` |
 | `build/source/` | `checks-source.yml`; this workflow also runs `LLM_Helpers/formatting/reflow_custom_comments.py --check` |
 | `build/xml/` | `checks-xml.yml` |
 | `tests/` | `checks-tests.yml` |
 
-There are nine `checks-*.yml` category workflows plus four specialized workflows: Markdown lint, Ruff, the real Python 2.4 compile check, and the AIP predump refresh bot. Each blocking checker has its own named GitHub step so progress, failures, duration and logs stay attributable to one concern.
+There are nine `checks-*.yml` category workflows plus five specialized workflows for Markdown lint, Ruff, the real Python 2.4 compile check, the AIP predump refresh bot, and release upstream freshness. Each blocking checker has its own named GitHub step so progress, failures, duration and logs stay attributable to one concern.
 
 The category checks cover repository/shipping safety, text hygiene, maintained documentation, XML/rules consistency, asset references, diagnostic defaults/history, runtime configuration, source-change conventions and the workflow-helper regression suite. They are still sanity checks rather than a substitute for C++ compilation, Civ4 runtime testing or code review.
 
@@ -1086,6 +1088,19 @@ Fails when the DLL Makefiles call a tool that both Windows and Git ship under th
 
 Checks that root `CvGameCoreDLL/*.cpp` and `*.h` files appear under the matching `ClCompile`/`ClInclude` project entries, and reports stale or misclassified root entries. NMake discovers sources independently, so a successful build does not prove that files are visible in the VC2010 IDE. Project-local resources and nested generated files are excluded.
 
+#### `build/repository/release_upstream.py`
+
+When a numeric release tag is pushed or a GitHub release is published, the check fetches the tip of the highest-numbered base AdvCiv release branch directly from upstream. The tagged commit must contain that tip in its Git history.
+
+- If upstream advertises multiple branches at the same highest version, the check requires their tips.
+- Ordinary branch pushes and technical anchor tags do not trigger this workflow.
+
+Run the same check before tagging a candidate.
+
+```sh
+python .github/workflows/build/repository/release_upstream.py --release-ref HEAD
+```
+
 #### `build/repository/temp_files.py`
 
 Verifies that git tracks nothing under `CvGameCoreDLL/Project/temp_files/` and that the only `temp_files` rule in `.gitignore` or `.gitattributes` is the `.gitignore` line ignoring the whole folder.
@@ -1322,6 +1337,13 @@ Fails when a Sevopedia page reads `self.top.X` and `SevoPediaMain.py` neither as
 - Added on 2026-11-13 for [KI#1086](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086): the move of the Sevopedia colors into `SASVisuals.Color` left `SevoPediaIndex.py` reading `self.top.COLOR_HIGHLIGHT_TEXT`, which raised a Python exception on Down after a search.
 - Files are read with Python's tokenizer, so a comment such as "Was self.top.COLOR_HIGHLIGHT_TEXT" or a string holding the same text does not count; a first draft cut comments by hand, which Codex's review showed a string or an escaped quote could fool. No page reads a member of BtS's `CvPediaScreen` base class, which CI does not have; a page that starts to would need it listed.
 
+#### `build/source/shared_define_values.py`
+
+Fails when a Python script writes one of the switched GlobalDefines names with a number, as in `{"SAS_SGR_LOG": 0}` or `"SAS_UI_DAWN_OF_MAN_ON": (1, 0)`, anywhere but [`LLM_Helpers/diagnostics/define_values.py`](/LLM_Helpers/README.md#define_valuespy). Scripts import the values from there instead; a name alone, as in `getDefineINT("SAS_SGR_LOG")`, is fine.
+
+- Added on 2026-11-19: `SAS_UI_DAWN_OF_MAN_ON` alone stayed at its shipped `1` after a branch switch, and the audit of the toggle behind it found each shipped value written twice, once in a CI check and once in `toggle_dev_diagnostics.py`, with nothing keeping them in step. The committed toggle had 9 such copies.
+- Test folders are skipped, since tests feed chosen values to the checks rather than restate what ships, as are the Git-ignored review copies in `LLM_Helpers/outputs/`.
+
 #### `build/source/source_change_provenance.py`
 
 For `Assets/XML/GlobalDefines_advciv_sas.xml` only, separators must contain exactly three blank lines, or none between adjacent blocks. Users read and edit this configuration file directly, so three blank lines distinguish thematic groups while related settings stay adjacent.
@@ -1332,6 +1354,10 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
+- existing one-line C++ declarations and definitions must remain on one line so the complete signature can be found with grep;
+  - Added on 2026-11-19, after the base AdvCiv 1.14 merge carried upstream's wrapped parameter list into `CvCityAI::AI_bestSpreadUnit`, splitting SAS's one-line signature.
+  - Moving the return type or a trailing qualifier such as `const` onto its own line counts as a split; template lines, access labels such as `public:` and preprocessor directives above the signature do not.
+  - Only signatures that were on one line and whose lines the change touches are checked, so new functions and signatures already wrapped in inherited code can still be edited.
 - Newly added or changed comparisons on DLL save-layout flags and versions fail, including `uiFlag < 23` and `iSaveVersion == 1`.
   - The same check catches reintroduced legacy helpers such as `IDInfo::validateOwner`, `MissionDataLegacy`, and `LegacyArrayEnumMap` uses.
   - It compares active code with the base and permits writer marker assignments, comments, and unrelated flags such as `uiFlagBits`. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
