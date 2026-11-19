@@ -306,6 +306,13 @@ template<typename E> char const* getSASInfoTypeOrNone(E eType)
 {
 	return (eType < 0 ? "-" : GC.getInfo(eType).getType());
 }
+// <!-- custom: XML type of a raw int ID from a command or popup payload, or "-" when it is outside the table; the World Changes history and SGR each wrote this out per type with a hand-written `iData >= 0 && iData < GC.getNumUnitInfos()` test.
+// AdvCiv's checkEnumBounds takes the table size from the enum type, so a check cannot pair one table's count with another table's cast. (Claude code Opus 5.5) -->
+template<typename E> char const* getSASInfoTypeInBounds(int iData)
+{
+	E const eType = static_cast<E>(iData);
+	return (checkEnumBounds(eType) ? GC.getInfo(eType).getType() : "-");
+}
 // <!-- custom: A completed trade query can explicitly return NO_DENIAL, meaning the AI would trade, so this keeps that token rather than "-"; optional cancellation reasons use getSASInfoTypeOrNone for an absent denial.
 // Not getSASInfoTypeOrNone here: its "-" means no value, so a row would read "would trade" as unknown.
 // Callers that already skip NO_DENIAL print the same either way, but use this too so every denial reason goes through one formatter.
@@ -424,6 +431,8 @@ char const* getSASAIStrategyType(AIStrategy eStrategy); // <!-- custom: Shared r
 char const* getSASFoundLogContextType(SASFoundLogContextTypes eContext);
 // <!-- custom: Share one bounds-checked mission label between SASGameRecord dispatch/state rows and BBAI. (GPT-6.1-Sol) -->
 char const* getSASMissionTypeName(MissionTypes eMission);
+// <!-- custom: Advanced Start target of one action for both the saved World Changes history and SGR rows, which kept identical copies in CvGame.cpp and SASGameRecordLog.cpp. (Claude code Opus 5.5) -->
+char const* getSASAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind);
 char const* getSASAreaAIType(AreaAITypes eAreaAI); // <!-- custom: Shared raw enum-token text for AreaAITypes so SASGameRecord and detailed AI diagnostics can describe theater posture without opaque enum integers. (ChatGPT-5.6-Sol) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
 int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->

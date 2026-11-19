@@ -3403,8 +3403,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
 			if (eDirtyPlayer != NO_PLAYER)
 			{
 				gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
-				// advc.003p:
-				GET_PLAYER(getOwner()).setBonusHelpDirty();
+				GET_PLAYER(getOwner()).setBonusHelpDirty(); // advc.003p
 			}
 		} // </advc.004w>
 	}
@@ -8593,6 +8592,13 @@ void CvCity::changeNumBonuses(BonusTypes eBonus, int iChange, bool bVerifyProduc
 
 	if (isCorporationBonus(eBonus))
 		updateCorporation(/* advc.06d: */ bVerifyProduction);
+	// <advc.003p> CvPlayer::getNumAvailableBonuses has changed
+	if (isActiveOwned() && isCapital())
+	{
+		GET_PLAYER(getOwner()).setBonusHelpDirty();
+		// (New routes, improvements don't already set this.)
+		gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+	} // </advc.003p>
 }
 
 // advc.149:
@@ -9523,8 +9529,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 				if (isActiveOwned() && kGame.getCurrentLayer() == GLOBE_LAYER_RESOURCE)
 				{
 					gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
-					// advc.003p:
-					kOwner.setBonusHelpDirty();
+					kOwner.setBonusHelpDirty(); // advc.003p
 				} // </advc.004w>
 			}
 		}

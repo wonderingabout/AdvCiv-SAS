@@ -3309,6 +3309,7 @@ int CvTeamAI::AI_getAirPower() const
 	return iTotalPower;
 }
 
+// <!-- custom: AdvCiv clarifies that the average includes all rivals, including enemies. (GPT-6.2-Sol) -->
 /*	Sum up air power of enemies plus average of other civs we've met
 	K-Mod: I've rewritten this BBAI function to loop over unit classes
 	rather than unit types. This is because a loop over unit types will double-count
@@ -3332,16 +3333,18 @@ int CvTeamAI::AI_getRivalAirPower() const
 	// Count enemy air units, not just those visible to us
 	int iRivalAirPower = 0;
 	int iEnemyAirPower = 0;
-	int iTeamCount = 0;
 	// <!-- custom: K-Mod counted the rival population once per qualifying air class, understating the average by roughly the number of air classes.
 	// Iterate eligible rivals outside the air-class sum so numerator and denominator use the same teams exactly once. See KI#355. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
-	for (; itRival.hasNext(); ++itRival)
-	{
-		// <advc.131>
+	// <!-- custom: Match AdvCiv's rival counter name and loop syntax (cbf6ebad1).
+	// AdvCiv filters only when the evaluating team is major.
+	// SAS also filters for minor teams because their city AI uses this estimate to value air defense. (GPT-6.2-Sol) -->
+	int iRivals = 0;
+	for (TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
+		itRival.hasNext(); ++itRival)
+	{	// <advc.131>
 		if (!isBarbarian() && itRival->AI_isAvoidWar(getID()))
 			continue; // </advc.131>
-		iTeamCount++;
+		iRivals++;
 		for (size_t i = 0; i < aeAirUnitTypes.size(); i++) // advc.opt
 		{
 			CvUnitInfo const& kUnit = GC.getInfo(aeAirUnitTypes[i]);
@@ -3354,7 +3357,7 @@ int CvTeamAI::AI_getRivalAirPower() const
 				iEnemyAirPower += iUnitPower;
 		}
 	}
-	return iEnemyAirPower + iRivalAirPower / std::max(1, iTeamCount);
+	return iEnemyAirPower + iRivalAirPower / std::max(1, iRivals);
 }
 
 // K-Mod:
@@ -3535,7 +3538,7 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	}
 	// K-Mod.
 	if (iCitiesThreatenedByOthers > (1 + iCitiesThreatenedByUs/2) &&
-			(bMightCapToOther || iCitiesThreatenedByOthers >= iValuableCities)) //
+		(bMightCapToOther || iCitiesThreatenedByOthers >= iValuableCities)) //
 	{	// Keep others from capturing spoils, but let it go if surrender civ is too small to care about
 		/*if (6 * (iValuableCities + kSurrenderTeam.getNumCities()) > getNumCities())
 			return true;*/ // BBAI
@@ -3548,10 +3551,11 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	// If we're low on the totem pole, accept so enemies don't drag anyone else into war with us
 	// Top rank is 0, second is 1, etc.
 	if ((bMightCapToOther || iOurWarSuccessRating < 60) &&
-			GC.getGame().getTeamRank(getID()) >
-			1 + GC.getGame().countCivTeamsAlive()/3)
+		GC.getGame().getTeamRank(getID()) >
+		1 + GC.getGame().countCivTeamsAlive()/3)
+	{
 		return true;
-
+	}
 	if (iOurWarSuccessRating < 50)
 	{
 		// Accept if we have other wars to fight
@@ -3576,7 +3580,10 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	if (!bMightCapToOther)
 	{
 		iWearinessThreshold += 20*iValuableCities + 30*iCitiesThreatenedByUs;
-		iWearinessThreshold += 10*std::max(0, GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities() - kSurrenderTeam.getNumCities()); // (to help finish off small civs)
+		// (to help finish off small civs)
+		iWearinessThreshold += 10*std::max(0,
+			GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities()
+			- kSurrenderTeam.getNumCities());
 	}
 
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -4473,7 +4480,7 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 		for (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO> it(getID()); it.hasNext(); ++it)
 		{
 			TeamTypes const eOther = it->getID();
-			if(eOther == m_eWorstEnemy) // The old enemy can't have traded with itself
+			if (eOther == m_eWorstEnemy) // The old enemy can't have traded with itself
 				continue;
 			int iOldGrantVal = AI_getEnemyPeacetimeGrantValue(eOther);
 			int iOldTradeVal = AI_getEnemyPeacetimeTradeValue(eOther);

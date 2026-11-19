@@ -180,7 +180,8 @@ void CDialogTemplate::AppendString(LPCSTR string)
 	free(wideString);
 }
 
-void CDialogTemplate::AppendData(void* data, int dataLength)
+// <!-- custom: AdvCiv's advc.cppstd accepts a const input buffer because AppendData only copies from it. See KI#1099. (GPT-6.2-Sol) -->
+void CDialogTemplate::AppendData(void const* data, int dataLength)
 {
 	EnsureSpace(dataLength);
 

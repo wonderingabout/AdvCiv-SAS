@@ -10335,40 +10335,6 @@ static SASWorldChangesHistoryCategory getSASAdvancedStartHistoryCategory(Advance
 	}
 }
 
-static CvString getSASAdvancedStartHistoryTarget(AdvancedStartActionTypes eAction, int iData, CvString& szTargetKind)
-{
-	szTargetKind = "NONE";
-	switch (eAction)
-	{
-	case ADVANCEDSTARTACTION_UNIT:
-		szTargetKind = "UNIT";
-		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(GC.getInfo((UnitTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_BUILDING:
-		szTargetKind = "BUILDING";
-		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(GC.getInfo((BuildingTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_IMPROVEMENT:
-		szTargetKind = "IMPROVEMENT";
-		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(GC.getInfo((ImprovementTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_ROUTE:
-		szTargetKind = "ROUTE";
-		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(GC.getInfo((RouteTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_TECH:
-		szTargetKind = "TECH";
-		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(GC.getInfo((TechTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_CITY:
-	case ADVANCEDSTARTACTION_VISIBILITY:
-		szTargetKind = "PLOT";
-		break;
-	case ADVANCEDSTARTACTION_POP:
-	case ADVANCEDSTARTACTION_CULTURE:
-		szTargetKind = "CITY";
-		break;
-	default:
-		break;
-	}
-	return CvString("-");
-}
-
 static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes eAction, bool bAdd)
 {
 	if (eAction == ADVANCEDSTARTACTION_EXIT)
@@ -10404,7 +10370,10 @@ void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartAct
 	kEntry.iResolvedDataId = iResolvedData;
 	kEntry.szAction = getSASAdvancedStartActionType(eAction);
 	kEntry.szOperation = getSASAdvancedStartHistoryOperation(eAction, bAdd);
-	kEntry.szTarget = getSASAdvancedStartHistoryTarget(eAction, iResolvedData, kEntry.szTargetKind);
+	// <!-- custom: The shared getSASAdvancedStartTarget replaces this file's copy of SGR's target switch; it reports the kind through a char const*, which the saved CvString field then copies. (Claude code Opus 5.5) -->
+	char const* szTargetKind = NULL;
+	kEntry.szTarget = getSASAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
+	kEntry.szTargetKind = szTargetKind;
 	kEntry.iQuotedCost = iQuotedCost;
 	kEntry.iPointsBefore = iPointsBefore;
 	kEntry.iPointsAfter = kPlayer.getAdvancedStartPoints();

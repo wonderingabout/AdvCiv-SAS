@@ -21,18 +21,8 @@ import desktop_windows as d
 import run_autoplay
 
 REPO = Path(__file__).resolve().parents[2]
-GAME_OPTIONS_XML = REPO / "Assets" / "XML" / "GameInfo" / "CIV4GameOptionInfos.xml"
-
-
-def game_options(base: str, names: list[str]) -> str:
-	# <!-- custom: The INI's GameOptions holds one digit per option in CIV4GameOptionInfos.xml order, so GAMEOPTION_ADVANCED_START, the first, is its first digit. (Claude code Opus 5.5) -->
-	order = re.findall(r"<Type>(GAMEOPTION_[A-Z0-9_]+)</Type>", GAME_OPTIONS_XML.read_text(encoding="utf-8"))
-	digits = list(base.ljust(len(order), "0"))
-	for name in names:
-		if name not in order:
-			raise SystemExit("unknown game option %s" % name)
-		digits[order.index(name)] = "1"
-	return "".join(digits)
+# <!-- custom: game_options moved to run_autoplay.py on 2026-11-19, so its --option for autoplayed games shares this one copy. (Claude code Opus 5.5) -->
+game_options = run_autoplay.game_options
 
 
 def wait_until_settled(pid: int, timeout: float = 600) -> None:

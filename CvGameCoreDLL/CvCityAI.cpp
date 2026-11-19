@@ -17501,12 +17501,13 @@ bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitAIWeightMap const& kWeights, in
 	return false;
 }
 
-bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* eBestSpreadUnit, int* iBestSpreadUnitValue)
+// <!-- custom: Match AdvCiv's output pointer names so future changes to this signature are easier to compare. (GPT-6.2-Sol) -->
+bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* peBestSpreadUnit, int* piBestSpreadUnitValue)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 
-	FAssert(eBestSpreadUnit != NULL && iBestSpreadUnitValue != NULL);
+	FAssert(peBestSpreadUnit != NULL && piBestSpreadUnitValue != NULL);
 
 	int iBestValue = 0;
 
@@ -17557,8 +17558,8 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 						if (iValue > iBestValue)
 						{
 							iBestValue = iValue;
-							*eBestSpreadUnit = eLoopUnit;
-							*iBestSpreadUnitValue = iReligionValue;
+							*peBestSpreadUnit = eLoopUnit;
+							*piBestSpreadUnitValue = iReligionValue;
 						}
 					}
 				}
@@ -17635,8 +17636,8 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 						if (iValue > iBestValue)
 						{
 							iBestValue = iValue;
-							*eBestSpreadUnit = eLoopUnit;
-							*iBestSpreadUnitValue = iCorporationValue;
+							*peBestSpreadUnit = eLoopUnit;
+							*piBestSpreadUnitValue = iCorporationValue;
 						}
 					}
 				}
@@ -17646,7 +17647,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 
 	// <!-- custom: BtS compared the UnitTypes output with NULL (0), so NO_UNIT (-1) incorrectly reported success.
 	// Compare with the enum sentinel; existing caller guards remain defense in depth. See KI#74. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	return (*eBestSpreadUnit != NO_UNIT);
+	return (*peBestSpreadUnit != NO_UNIT);
 }
 
 bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold, int iOdds) // BBAI

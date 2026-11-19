@@ -84,6 +84,21 @@ def save_mod_folder(save_path):
 	return header[8:8 + length].decode("latin-1")
 
 
+GAME_OPTIONS_XML = REPO_ROOT / "Assets" / "XML" / "GameInfo" / "CIV4GameOptionInfos.xml"
+
+
+# <!-- custom: Moved here from start_game.py on 2026-11-19 so --option serves autoplayed games too; start_game.py uses this copy. (Claude code Opus 5.5) -->
+def game_options(base, names):
+	# <!-- custom: The INI's GameOptions holds one digit per option in CIV4GameOptionInfos.xml order, so GAMEOPTION_ADVANCED_START, the first, is its first digit. (Claude code Opus 5.5) -->
+	order = re.findall(r"<Type>(GAMEOPTION_[A-Z0-9_]+)</Type>", GAME_OPTIONS_XML.read_text(encoding="utf-8"))
+	digits = list(base.ljust(len(order), "0"))
+	for name in names:
+		if name not in order:
+			raise SystemExit("unknown game option %s" % name)
+		digits[order.index(name)] = "1"
+	return "".join(digits)
+
+
 # <!-- custom: extra_lines appends further sections, such as SASPilotClient.py's [SASPilot]; added as an optional last parameter so existing callers are unchanged. (Claude code Fable 5.2) -->
 def write_request_ini(base_ini, out_ini, turns, debug_mode, run_id, alias, game_settings, leaders=None, extra_lines=None):
 	# <!-- custom: Copy the user's CivilizationIV.ini so graphics and audio settings match, then load this mod in a window and append the autoplay request.
@@ -264,6 +279,9 @@ def main():
 	parser.add_argument("--climate", help="e.g. CLIMATE_TEMPERATE")
 	parser.add_argument("--sea-level", help="e.g. SEALEVEL_MEDIUM")
 	parser.add_argument("--fixed-seeds", action="store_true", help="set SyncRandSeed and MapRandSeed to 1 for a repeatable new game")
+	parser.add_argument("--option", action="append", default=[], help="turn on a game option for --new-game, such as GAMEOPTION_ADVANCED_START; repeatable")
+	# <!-- custom: QuickStart gives Advanced Start 0 points, since only Custom Game sets them, so on 2026-11-19 testing the shared Advanced Start target lookup needed this; every civ player gets the points at game start and autoplay's AI spends them. (Claude code Opus 5.5) -->
+	parser.add_argument("--advanced-start-points", type=int, help="with --option GAMEOPTION_ADVANCED_START, give every civ player this many Advanced Start points at game start")
 	parser.add_argument("--leaders", help="comma-separated leader types for the civ slots in order, '-' keeping a random one, e.g. LEADER_ALEXANDER,-,LEADER_MANSA_MUSA (needs an SGR199+ DLL)")
 	parser.add_argument("--turns", type=int, required=True, help="AI Auto Play turns; counts the loaded turn, so 5 from T0 plays T0-T4")
 	# <!-- custom: Debug Mode seems to change the AI's game: from one save, runs with and without it diverged by T84 while same-mode pairs matched.
@@ -294,7 +312,14 @@ def main():
 		if args.fixed_seeds:
 			game_settings["SyncRandSeed"] = "1"
 			game_settings["MapRandSeed"] = "1"
+		if args.option:
+			current = re.search(r"(?mi)^\s*GameOptions\s*=\s*(\d+)", args.base_ini.read_bytes().decode("latin-1"))
+			game_settings["GameOptions"] = game_options(current.group(1) if current else "", args.option)
+		if args.advanced_start_points is not None and "GAMEOPTION_ADVANCED_START" not in args.option:
+			sys.exit("--advanced-start-points needs --option GAMEOPTION_ADVANCED_START")
 	else:
+		if args.option or args.advanced_start_points is not None:
+			sys.exit("--option and --advanced-start-points apply to --new-game only; a save already has its options")
 		if args.save is None:
 			sys.exit("pass a save, or --new-game")
 		if args.leaders:
@@ -323,7 +348,7 @@ def main():
 	args.output_root.mkdir(parents=True, exist_ok=True)
 	ini_name = "SASAutoplay_%s.ini" % run_id
 	ini_path = args.civ4_dir / ini_name
-	write_request_ini(args.base_ini, ini_path, args.turns, args.debug_mode, run_id, "Autoplay", game_settings, args.leaders)
+	write_request_ini(args.base_ini, ini_path, args.turns, args.debug_mode, run_id, "Autoplay", game_settings, args.leaders, None if args.advanced_start_points is None else ["AdvancedStartPoints = %d" % args.advanced_start_points])
 	if save is None:
 		arguments = "ini=%s" % ini_name
 	else:

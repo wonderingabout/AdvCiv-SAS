@@ -205,6 +205,18 @@ class DLLCommitMessageTests(unittest.TestCase):
         merge = self.git('rev-parse', 'HEAD')
         self.assertEqual(len(checker.check(self.repo, [merge])[0]), 1)
 
+    # <!-- custom: An upstream merge brings commits that update the DLL without SAS's marker; only the merge itself, on the first-parent chain, is judged, from a range and from a push payload alike. (Claude code Opus 5.5) -->
+    def test_upstream_commits_in_a_merge_are_not_judged(self):
+        parent = self.git('branch', '--show-current')
+        self.git('checkout', '-qb', 'upstream')
+        upstream = self.dll_commit('Upstream DLL without the marker')
+        self.git('checkout', parent)
+        self.git('merge', '--no-ff', '-m', 'Merge upstream\n\n- Update DLL', 'upstream')
+        merge = self.git('rev-parse', 'HEAD')
+        self.assertEqual(checker.commits_in_range(self.repo, self.base, merge), [merge])
+        event = {'before': self.base, 'after': merge, 'commits': [{'id': upstream}, {'id': merge}]}
+        self.assertEqual(checker.event_commits(self.repo, 'push', event), [merge])
+
     def test_force_push_uses_new_commits_without_old_base(self):
         commit = self.dll_commit('Accidental binary')
         event = {'before': 'f' * 40, 'after': commit, 'commits': [{'id': commit}]}
@@ -275,19 +287,21 @@ class DLLCommitMessageTests(unittest.TestCase):
         missing_before = checker.git(clone, 'rev-list', '--objects', '--all', '--missing=print')
         self.assertIn(('?' + old_blob).encode(), missing_before)
         expected = [bad, marked, feature, merge]
+        # <!-- custom: Only the first-parent chain is judged since the 2026-11-19 AdvCiv merge, so the feature commit, reached through the merge, is left out; the merge itself still is. (Claude code Opus 5.5) -->
+        judged = [bad, marked, merge]
         commits = checker.commits_in_range(clone, self.base, merge)
-        self.assertEqual(set(commits), set(expected))
+        self.assertEqual(set(commits), set(judged))
         errors, count = checker.check(clone, commits)
-        self.assertEqual(count, 4)
+        self.assertEqual(count, 3)
         self.assertEqual(len(errors), 2)
         self.assertTrue(any(bad[:12] in error for error in errors))
         self.assertTrue(any(merge[:12] in error for error in errors))
         pr = {'pull_request': {'base': {'sha': self.base}, 'head': {'sha': merge}}}
         self.assertEqual(checker.event_commits(clone, 'pull_request', pr), commits)
         push = {'before': 'f' * 40, 'after': merge, 'commits': [{'id': commit} for commit in expected]}
-        self.assertEqual(checker.event_commits(clone, 'push', push), expected)
+        self.assertEqual(checker.event_commits(clone, 'push', push), judged)
         new_branch = dict(push, before='0' * 40)
-        self.assertEqual(checker.event_commits(clone, 'push', new_branch), expected)
+        self.assertEqual(checker.event_commits(clone, 'push', new_branch), judged)
         truncated = dict(push, before=self.base)
         with patch.object(checker, 'PUSH_PAYLOAD_LIMIT', 1):
             self.assertEqual(checker.event_commits(clone, 'push', truncated), commits)

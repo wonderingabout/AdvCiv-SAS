@@ -2058,6 +2058,8 @@ These helpers let an agent run Civ4 itself: load a save or start a new game, aut
   - `--debug-mode` turns on Debug Mode, which seems to change the game ([KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)).
   - `--keep-open` leaves Civ4 running; `--multiple` allows other clients and passes Civ4's `multiple` argument.
   - `--map`, `--world-size`, `--speed`, `--handicap`, `--era`, `--climate`, `--sea-level`, `--fixed-seeds` and `--leaders` set up a new game.
+  - `--option GAMEOPTION_...` turns on game options for it, and `--advanced-start-points N` gives every civ player N Advanced Start points at game start, which QuickStart otherwise leaves at 0.
+    - The AI civs spend theirs on their first turn. The active player's Advanced Start panel stays open during autoplay while the turns go on; clicking Begin! spends that player's points too.
 - Writes `SASAutoplay_<run id>.json` to `Logs/` under the Civ4 user folder. Optional final images share `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/` and use capture UTC and the Civ4 PID in their names. Override the report directory with `--output-root` or the image directory with `--screenshot-root`. Use `--no-screenshot` to skip capture.
 
 ```bash

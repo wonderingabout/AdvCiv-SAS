@@ -563,6 +563,39 @@ class SourceChangeProvenanceTests(unittest.TestCase):
             self.assertTrue(any("new/rewritten non-custom comment" in error for error in checker.check(repo, base)[0]))
 
 
+    # <!-- custom: An upstream merge keeps upstream's own comments word for word; they count as inherited through MERGE_HEAD before the merge commit and through its second parent after, while a reworded copy still fails. (Claude code Opus 5.5) -->
+    def test_upstream_merge_comments_are_inherited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            def git(*args):
+                return subprocess.check_output(["git", *args], cwd=repo, stderr=subprocess.DEVNULL).decode().strip()
+            # <!-- custom: The fixture file has no SAS header, which another rule reports; only the comment rule is under test. (Claude code Opus 5.5) -->
+            def comment_errors():
+                return [error for error in checker.check(repo, base)[0] if "new/rewritten non-custom comment" in error]
+            git("init", "-q")
+            git("config", "user.name", "CI fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            git("config", "commit.gpgsign", "false")
+            path = repo / "PrivateMaps/Map.py"
+            path.parent.mkdir()
+            body = "".join("value_%d = %d\n" % (i, i) for i in range(20))
+            path.write_text(body, encoding="utf-8")
+            git("add", ".")
+            git("commit", "-qm", "fixture base")
+            base = git("rev-parse", "HEAD")
+            git("checkout", "-qb", "upstream")
+            path.write_text("# advc.oxi: New method to replace erroneous uses of getCirclePoints\n" + body, encoding="utf-8")
+            git("commit", "-qam", "upstream comment")
+            upstream = git("rev-parse", "HEAD")
+            git("checkout", "-q", base)
+            git("merge", "-q", "--no-commit", "--no-ff", upstream)
+            self.assertFalse(comment_errors())
+            git("commit", "-qm", "merge upstream")
+            self.assertFalse(comment_errors())
+            path.write_text("# advc.oxi: A reworded upstream note\n" + body, encoding="utf-8")
+            self.assertTrue(comment_errors())
+
+
     # <!-- custom: Spacing fixtures cover inserted and deletion-created separators, inherited cleanup, and multiline payloads whose blank rows belong to captured data rather than source layout. (GPT-6.1-Sol) -->
     def test_new_blank_separators_in_each_source_language(self):
         for suffix, first, last in ((".py", "value = 1", "other = 2"), (".cpp", "int value;", "int other;"), (".xml", "<root>", "</root>")):

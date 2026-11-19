@@ -27,7 +27,11 @@ void CvXMLLoadUtility::errorMessage(char const* szMessage, XMLErrorTypes eErrTyp
 void CvXMLLoadUtility::logMsg(char const* szRecord, char* format, ...)
 {
 	static char buf[kBufSize];
-	_vsnprintf(buf, kBufSize-4, format, (char*)(&format+1));
+	// <!-- custom: Take AdvCiv's portable varargs setup (advc.cppstd, 616238930) so the formatter does not depend on argument stack layout. See KI#1099. (GPT-6.2-Sol) -->
+	va_list args;
+	va_start(args, format);
+	_vsnprintf(buf, kBufSize-4, format, args);
+	va_end(args);
 	// <!-- custom: VC2003 _vsnprintf can leave truncated output unterminated; force a terminator before the structured wrapper treats buf as a C string. (ChatGPT-5.6-Sol) -->
 	buf[kBufSize - 4] = '\0';
 	logSASCiv4LegacyLogRow("xml.log", szRecord, buf);

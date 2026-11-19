@@ -2916,8 +2916,8 @@ void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int
 		return;
 	bool const bHasOld = (strcmp(szEvent, "EDIT") == 0 || strcmp(szEvent, "REMOVE") == 0);
 	bool const bHasNew = (strcmp(szEvent, "SNAPSHOT") == 0 || strcmp(szEvent, "ADD") == 0 || strcmp(szEvent, "EDIT") == 0);
-	bool const bOldColorValid = (bHasOld && iOldColor >= 0 && iOldColor < GC.getNumColorInfos());
-	bool const bNewColorValid = (bHasNew && iNewColor >= 0 && iNewColor < GC.getNumColorInfos());
+	bool const bOldColorValid = (bHasOld && checkEnumBounds((ColorTypes)iOldColor));
+	bool const bNewColorValid = (bHasNew && checkEnumBounds((ColorTypes)iNewColor));
 	char const* szOldType = "-";
 	char const* szNewType = "-";
 	NiColorA kOldColor(-1.0f, -1.0f, -1.0f, -1.0f);
@@ -7257,7 +7257,7 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 			CvPlot const& kPlot = *kMap.plot(iX, iY);
 			if (kPlot.getFeatureType() == eIce) iIce++;
 			TerrainTypes const eTerrain = kPlot.getTerrainType();
-			if (eTerrain >= 0 && eTerrain < GC.getNumTerrainInfos())
+			if (checkEnumBounds(eTerrain))
 			{
 				aiCounts[eTerrain]++;
 				aiNatureFood[eTerrain] += kPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM);
@@ -13483,10 +13483,10 @@ void logSASGameRecordRandomEventPlayerResult(CvPlayer const& kPlayer, EventTypes
 void logSASGameRecordRandomEventFreePromotionResult(CvPlayer const& kPlayer, EventTypes eEvent, int iTriggeredId, char const* szScope, int iScopeId, PromotionTypes ePromotion, int iExistingUnitsNewlyPromoted, int iFreePromotionBefore, int iFreePromotionAfter)
 {
 	char const* szScopeType = "-";
-	if (strcmp(szScope, "UNIT_COMBAT") == 0 && iScopeId >= 0 && iScopeId < GC.getNumUnitCombatInfos())
-		szScopeType = getSASInfoTypeOrNone((UnitCombatTypes)iScopeId);
-	else if (strcmp(szScope, "UNIT_CLASS") == 0 && iScopeId >= 0 && iScopeId < GC.getNumUnitClassInfos())
-		szScopeType = GC.getInfo((UnitClassTypes)iScopeId).getType();
+	if (strcmp(szScope, "UNIT_COMBAT") == 0)
+		szScopeType = getSASInfoTypeInBounds<UnitCombatTypes>(iScopeId);
+	else if (strcmp(szScope, "UNIT_CLASS") == 0)
+		szScopeType = getSASInfoTypeInBounds<UnitClassTypes>(iScopeId);
 	logSASGameRecord("GAME_RECORD_RANDOM_EVENT_FREE_PROMOTION_RESULT turn=%d player=%d team=%d triggeredId=%d event=%s scope=%s scopeType=%s promotion=%s existingUnitsNewlyPromoted=%d freePromotionBefore=%d freePromotionAfter=%d",
 			GC.getGame().getGameTurn(), kPlayer.getID(), kPlayer.getTeam(), iTriggeredId, getSASInfoTypeOrNone(eEvent), szScope, szScopeType,
 			getSASInfoTypeOrNone(ePromotion), iExistingUnitsNewlyPromoted, iFreePromotionBefore, iFreePromotionAfter);
@@ -16246,7 +16246,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		else
 		{
 			szChoice = "SELECT_ESPIONAGE_MISSION";
-			if (iButtonClicked >= 0 && iButtonClicked < GC.getNumEspionageMissionInfos())
+			if (checkEnumBounds((EspionageMissionTypes)iButtonClicked))
 			{
 				szTargetKind = "ESPIONAGE_MISSION";
 				szTarget = getSASInfoTypeOrNone((EspionageMissionTypes)iButtonClicked);
@@ -16266,7 +16266,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		bRecordMetadata = true;
 		if (iButtonClicked == GC.getNumTechInfos()) szChoice = "OPEN_TECH_CHOOSER";
 		// <!-- custom: This popup constructs ordinary buttons with TechTypes IDs, so those names are unambiguous; retain unknown values as numeric responses rather than indexing XML blindly. (GPT-6.1-Sol) -->
-		else if (iButtonClicked >= 0 && iButtonClicked < GC.getNumTechInfos())
+		else if (checkEnumBounds((TechTypes)iButtonClicked))
 		{
 			szChoice = "SELECT_TECH";
 			szTargetKind = "TECH";
@@ -16367,8 +16367,8 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 		break;
 	case BUTTONPOPUP_VASSAL_DEMAND_TRIBUTE:
 		bRecordMetadata = true;
-		szChoice = (iButtonClicked >= 0 && iButtonClicked < GC.getNumBonusInfos() ? "DEMAND_TRIBUTE" : "CANCEL");
-		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumBonusInfos())
+		szChoice = (checkEnumBounds((BonusTypes)iButtonClicked) ? "DEMAND_TRIBUTE" : "CANCEL");
+		if (checkEnumBounds((BonusTypes)iButtonClicked))
 		{
 			szTargetKind = "BONUS";
 			szTarget = getSASInfoTypeOrNone((BonusTypes)iButtonClicked);
@@ -16386,7 +16386,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 	case BUTTONPOPUP_EVENT:
 		bRecordMetadata = true;
 		if (iButtonClicked == GC.getNumEventInfos()) szChoice = "EXAMINE_CITY";
-		else if (iButtonClicked >= 0 && iButtonClicked < GC.getNumEventInfos())
+		else if (checkEnumBounds((EventTypes)iButtonClicked))
 		{
 			szChoice = "SELECT_EVENT";
 			szTargetKind = "EVENT";
@@ -16422,7 +16422,7 @@ void logSASGameRecordPlayerPopupChoice(CvPopupInfo const& kInfo, int iButtonClic
 	case BUTTONPOPUP_FOUND_RELIGION:
 		bRecordMetadata = true;
 		szChoice = "FOUND_RELIGION";
-		if (iButtonClicked >= 0 && iButtonClicked < GC.getNumReligionInfos())
+		if (checkEnumBounds((ReligionTypes)iButtonClicked))
 		{
 			szTargetKind = "RELIGION";
 			szTarget = getSASInfoTypeOrNone((ReligionTypes)iButtonClicked);
@@ -16548,7 +16548,7 @@ void logSASGameRecordPlayerResearchChoice(PlayerTypes ePlayer, TechTypes eTech, 
 	CvGame const& kGame = GC.getGame();
 	if (!kGame.isFinalInitialized())
 		return;
-	char const* szTech = (eTech >= 0 && eTech < GC.getNumTechInfos() ? getSASInfoTypeOrNone(eTech) : "-");
+	char const* szTech = getSASInfoTypeInBounds<TechTypes>(eTech);
 	char const* szRequest = (iDiscover > 0 ? "CHOOSE_FREE_TECH" : (eTech == NO_TECH ? "CLEAR_RESEARCH_QUEUE" : "SELECT_RESEARCH"));
 	logSASGameRecord("GAME_RECORD_PLAYER_RESEARCH_CHOICE turn=%d elapsed=%d player=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE request=%s tech=%s techId=%d discover=%d shift=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, getSASGameRecordSessionWallMilliseconds(), szRequest, szTech, eTech, iDiscover, bShift ? 1 : 0);
@@ -16890,44 +16890,6 @@ static char const* getSASGameRecordAdvancedStartOperation(AdvancedStartActionTyp
 	return (bAdd ? "ADD" : "REMOVE");
 }
 
-// <!-- custom: Resolve only fixed XML identities already carried by the Advanced Start command/result; coordinates and city/object IDs remain separate fields.
-// Target-kind labels describe the logged payload rather than another gameplay enum: a CITY action targets a plot, while POP/CULTURE target an existing city.
-// These literals are output only, not string-based dispatch.
-// Bounds-check command payload before indexing XML because a network response is evidence, not permission for diagnostics to assume valid enum storage. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-static CvString getSASGameRecordAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind)
-{
-	szTargetKind = "NONE";
-	switch (eAction)
-	{
-	case ADVANCEDSTARTACTION_UNIT:
-		szTargetKind = "UNIT";
-		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(getSASInfoTypeOrNone((UnitTypes)iData)) : CvString("-"));
-	case ADVANCEDSTARTACTION_BUILDING:
-		szTargetKind = "BUILDING";
-		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(getSASInfoTypeOrNone((BuildingTypes)iData)) : CvString("-"));
-	case ADVANCEDSTARTACTION_IMPROVEMENT:
-		szTargetKind = "IMPROVEMENT";
-		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(getSASInfoTypeOrNone((ImprovementTypes)iData)) : CvString("-"));
-	case ADVANCEDSTARTACTION_ROUTE:
-		szTargetKind = "ROUTE";
-		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(getSASInfoTypeOrNone((RouteTypes)iData)) : CvString("-"));
-	case ADVANCEDSTARTACTION_TECH:
-		szTargetKind = "TECH";
-		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(getSASInfoTypeOrNone((TechTypes)iData)) : CvString("-"));
-	case ADVANCEDSTARTACTION_CITY:
-	case ADVANCEDSTARTACTION_VISIBILITY:
-		szTargetKind = "PLOT";
-		break;
-	case ADVANCEDSTARTACTION_POP:
-	case ADVANCEDSTARTACTION_CULTURE:
-		szTargetKind = "CITY";
-		break;
-	default:
-		break;
-	}
-	return CvString("-");
-}
-
 // <!-- custom: Keep reference quotes separate from exact city/tile quotes.
 // Getter rejection (-1) is preserved without inventing a reason; budget coverage is not a claim that the gameplay handler will accept a purchase.
 // In particular, the first-city exception and replacement refunds mean gross quoted cost alone is not a complete acceptance rule. (GPT-6.1-Sol) -->
@@ -17022,7 +16984,7 @@ static void logSASAdvancedStartOfferRow(CvPlayer const& kPlayer, SASAdvancedStar
 	default: break;
 	}
 	char const* szTargetKind = NULL;
-	CvString const szTarget = getSASGameRecordAdvancedStartTarget(kKey.eAction, kKey.iData, szTargetKind);
+	CvString const szTarget = getSASAdvancedStartTarget(kKey.eAction, kKey.iData, szTargetKind);
 	logSASGameRecord("GAME_RECORD_ADVANCED_START_OFFER turn=%d player=%d snapshotId=%d event=%s scope=%s action=%s dataId=%d targetKind=%s target=%s x=%d y=%d cityId=%d buyQuote=%d removeQuote=%d buyEligibleAtTarget=%d budgetCoversBuyQuote=%d",
 		GC.getGame().getGameTurn(), kPlayer.getID(), g_iSASAdvancedStartOfferSnapshot, bRemoved ? "REMOVE" : "SET", szScope, getSASAdvancedStartActionType(kKey.eAction), kKey.iData, szTargetKind, szTarget.GetCString(), kKey.iX, kKey.iY, kOffer.iCityId,
 		kOffer.iBuy, kOffer.iRemove, kOffer.iBuy < 0 ? 0 : (kKey.eScope == SAS_AS_OFFER_BASE_REFERENCE ? -1 : 1), kOffer.iBudgetCoversQuote);
@@ -17239,7 +17201,7 @@ void logSASGameRecordAdvancedStartChoice(PlayerTypes ePlayer, AdvancedStartActio
 	int iUIRecommendationSnapshot = 0;
 	int const iWasUIRecommended = (eAction == ADVANCEDSTARTACTION_CITY && bAdd && pPlot != NULL ? getSASGameRecordUIRecommendedSite(kPlayer, *pPlot, true, iUIRecommendationSnapshot) : -1);
 	char const* szTargetKind = NULL;
-	CvString const szTarget = getSASGameRecordAdvancedStartTarget(eAction, iData, szTargetKind);
+	CvString const szTarget = getSASAdvancedStartTarget(eAction, iData, szTargetKind);
 	CvGame const& kGame = GC.getGame();
 	logSASGameRecord("GAME_RECORD_ADVANCED_START_CHOICE turn=%d elapsed=%d player=%d team=%d choiceId=%d sessionWallMilliseconds=%u stage=COMMAND_DISPATCH source=NETWORK_MESSAGE action=%s operation=%s x=%d y=%d cityId=%d dataId=%d targetKind=%s target=%s pointsBefore=%d goldBefore=%d cityRecommendationSnapshotId=%d wasUIRecommendedSite=%d",
 		kGame.getGameTurn(), kGame.getElapsedGameTurns(), ePlayer, kPlayer.getTeam(), iChoiceId, getSASGameRecordSessionWallMilliseconds(),
@@ -17254,7 +17216,7 @@ void logSASGameRecordAdvancedStartResult(CvPlayer const& kPlayer, AdvancedStartA
 {
 	logSASGameRecordAdvancedStartContext(kPlayer);
 	char const* szTargetKind = NULL;
-	CvString const szTarget = getSASGameRecordAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
+	CvString const szTarget = getSASAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
 	int const iPointsAfter = kPlayer.getAdvancedStartPoints();
 	bool const bPointsDeltaValid = (iPointsBefore >= 0 && iPointsAfter >= 0);
 	int const iPointsDelta = (bPointsDeltaValid ? iPointsAfter - iPointsBefore : 0);

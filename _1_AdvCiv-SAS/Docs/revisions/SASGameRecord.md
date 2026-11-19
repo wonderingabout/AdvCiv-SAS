@@ -113,10 +113,17 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 207 - SAS practical 6786
+### Revision 208 - SAS practical 6824
 
 - **Date:** 2026-11-19
 - **Git commit:** pending
+- **Change:** The AdvCiv 1.14 merge widens the religion and corporation city counts. `GAME_RECORD_SAVE_COMPONENT_FORMATS` now reports the matching AdvCiv writer flag `CvPlayer=23`.
+  - The Advanced Start target lookup that SGR rows and the saved World Changes history each kept a copy of now lives once in `CvGameCoreUtils`, and SGR's hand-written XML bounds checks use AdvCiv's `checkEnumBounds`; rows are unchanged.
+
+### Revision 207 - SAS practical 6786
+
+- **Date:** 2026-11-19
+- **Git commit:** `d6860ced99309307239ee2a2c0b3a150d026bb36`
 - **Change:** Moved the shipped SASGameRecord defaults that the recorder check requires into `LLM_Helpers/diagnostics/define_values.py`, which `toggle_dev_diagnostics.py` also reads, so `off` restores the same values CI accepts. The recorder and its shipped values are unchanged.
 
 ### Revision 206 - SAS practical 6785

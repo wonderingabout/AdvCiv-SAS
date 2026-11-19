@@ -1278,7 +1278,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
 [KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
-[KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)
+[KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
+[KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)
 
 <a id="ki-1"></a>
 
@@ -38363,3 +38364,24 @@ During the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, the old-save cle
   - The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) recorded the duplicate. `989eb50ce` removed it and kept both reasons in the remaining include comment. That cleanup had no duplicate-include CI check.
 
 Found and fixed by Codex (GPT-6.2-Sol).
+
+<a id="ki-1099"></a>
+
+## KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler
+
+While reviewing the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, wonderingabout asked why `CyPlayer::disbandUnit` had changed from `return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;` to an `if`, since both do the same. The answer was AdvCiv's `616238930` (2026-10-12), "Fix some standard C++ compliance issues in BtS code", tagged `advc.cppstd`.
+
+- f1rpo adapted it from a downstream port that builds the BtS DLL with Clang in C++23 ([CFC thread](https://forums.civfanatics.com/threads/32-bit-c-23-clang-cvgamecoredll.705110/)). He fixed the BtS code only and noted that AdvCiv's own additions still do not comply; AdvCiv does not aim to build with a modern compiler, but someone downstream might.
+- Standard C++ requires both branches of `?:` to be `void` once one is, so a `void` call against `NULL` does not compile there. VC2003, which builds our DLL, accepts it, so the game behaves the same either way: if there is a player, the unit is disbanded, and otherwise nothing happens.
+- The same commit also replaced a backslash `#include ".\cvreplaymessage.h"` with `CvReplayMessage.h`, reading varargs as `(char*)(&format+1)` in `CvXMLLoadUtility.cpp` with `va_start`, narrow `"+"` passed to wide `%s` formats in `CvGameTextMgr.cpp` with `L"+"`, and `void*` with `void const*` in `CDialogTemplate::AppendData`.
+
+The merge brought all of these in, and a scan of the merged tree found no other instance in SAS. wonderingabout asked for a CI check anyway: new SAS code, such as the SASPilot or save-transplant work, could add them back unnoticed, since VC2003 never complains.
+
+- Added [`cpp_standard_conformance.py`](/.github/workflows/README.md#buildsourcecpp_standard_conformancepy). It fails on a `void` function returning a `?:` expression, a backslash in an `#include` path, and varargs read through `(char*)(&x+1)`.
+  - On pre-merge `main` it reports exactly the three such spots the merge fixes, in `CyPlayer.cpp`, `CvReplayMessage.cpp` and `CvXMLLoadUtility.cpp`, so it has to land with the merge or after it.
+  - `return f();` in a `void` function stays allowed, since returning a void call is valid standard C++; eleven such returns in `CyUnit.cpp`, `CySelectionGroup.cpp`, `CyGlobalContext.h` and `EnumMap.h` are fine. A `?:` inside a call's arguments is allowed too.
+- Not covered: the narrow-to-wide `%s` literals and the `void const*` parameter, which a pattern cannot tell apart from correct code reliably, and the other non-standard code in AdvCiv's additions that f1rpo mentions. A port to a standard-conforming compiler would list those itself.
+- The check guards against a portability regression, not a gameplay bug: with VC2003, valid and invalid forms produce the same DLL behavior.
+- `CyPlayer::disbandUnit` now explains the change in a comment, and the merge's comments at each `advc.cppstd` site, in `CvDLLWidgetData.cpp`, `CvReplayMessage.cpp`, `CvXMLLoadUtility.cpp`, `CyPlayer.cpp` and `FDialogTemplate`, point here.
+
+Found while reviewing the merge with wonderingabout; the check, its tests and this entry by Claude Code Opus 5.5.

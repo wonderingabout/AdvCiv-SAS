@@ -104,6 +104,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
+    - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
@@ -951,6 +952,8 @@ For example, use `- Update DLL: install the tested Release build` in the commit 
 
 A later marked commit cannot excuse an earlier unmarked DLL update; each message is checked separately. Merge commits are compared against their first parent, and root commits include additions.
 
+- Only the first-parent chain of a push or pull request is judged, so commits that arrive through a merge are not. The base AdvCiv 1.14 merge (2026-11-19) brought in upstream commits such as `5970334b6` that update their DLL without SAS's marker; the merge commit itself still needs the marker for the DLL it ships.
+
 On pushes, inspect all commit identities supplied by the GitHub push event and read the actual paths/messages from Git. This avoids depending on a discarded push-before object after an amendment.
 
 If the payload may be truncated, require the complete Git range instead; missing history produces a clear failure rather than silently passing.
@@ -1234,6 +1237,16 @@ Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) w
 - On 2026-11-16 [`ui_map_sync.py`](#buildrepositoryui_map_syncpy) compared the checked-out UI map with its generator's output as bytes. A Windows clone with `core.autocrlf` checks text out with CRLF while the generator writes LF, so it failed locally on an unchanged file while GitHub's LF checkout passed, and GitHub could never catch it.
 - Text comparisons (`read_text`) ignore line endings, so they are the default; a byte comparison that is needed, such as for a binary file, states why in its note.
 
+#### `build/source/cpp_standard_conformance.py`
+
+Fails when the DLL source brings back one of the non-standard C++ forms that AdvCiv's `advc.cppstd` commit removed from the BtS code it inherited. VC2003 accepts them, so the game is unaffected, but a standard-conforming compiler such as Clang rejects them or leaves their behavior undefined. See [KI#1099](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099).
+
+- A `void` function that returns a `?:` expression, such as BtS's `return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;`.
+  - `return f();` in a `void` function stays allowed, since returning a void call is valid, and so does a `?:` inside a call's arguments.
+- An `#include` path with a backslash, such as `".\cvreplaymessage.h"`.
+- Varargs read through the address after a named parameter, `(char*)(&format+1)`, instead of `va_start`.
+- It scans every tracked C/C++ file under `CvGameCoreDLL/`, skipping comments and string literals. It does not cover the other cases that commit fixed, such as narrow `"+"` passed to a wide `%s` format or a `void*` parameter that should be `void const*`.
+
 #### `build/source/custom_comment_indentation.py`
 
 Verifies that no `// <!-- custom: ... -->` or `# <!-- custom: ... -->` comment in DLL sources, runtime Python or map scripts is indented deeper than both the code line before it and the code line after it.
@@ -1361,6 +1374,9 @@ It enforces these review rules introduced after repeated provenance mistakes:
 - Newly added or changed comparisons on DLL save-layout flags and versions fail, including `uiFlag < 23` and `iSaveVersion == 1`.
   - The same check catches reintroduced legacy helpers such as `IDInfo::validateOwner`, `MissionDataLegacy`, and `LegacyArrayEnumMap` uses.
   - It compares active code with the base and permits writer marker assignments, comments, and unrelated flags such as `uiFlagBits`. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
+- in an upstream merge, a comment found word for word in the merged parent's copy of the same file counts as inherited, so upstream's own notes can be kept as they are;
+  - Added on 2026-11-19, when the base AdvCiv 1.14 merge's restored comments, such as PerfectMongoose.py's `# advc.oxi: New method to replace erroneous uses of getCirclePoints`, failed as new uncredited prose, and the merge had first reworded them as custom comments to pass.
+  - The merged parent is the second parent of a merge commit in the checked range, or `MERGE_HEAD` while the merge is prepared; [`ci_report.py`](/LLM_Helpers/README.md#ci_reportpy) gives its temporary commit that parent too. Comments are compared line by line without indentation, so a reworded copy still fails;
 - another mod's comment may be quoted as is, without a model credit or reflow: a custom line saying it is a quote, such as "Quoted from", and naming the source, then lines each starting with `// >` or `# >`; our own prose mixed into the quote still fails. Added on 2026-11-12 after the globe patch's comments restated Realism Invictus's findings in our voice;
 - added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits, which include mod-component credits written as "by <Name>, ver." (e.g. `*ActualQuotes* by Willowmound, ver. 4.20`);
   - in XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;

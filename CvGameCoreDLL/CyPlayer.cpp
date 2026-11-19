@@ -149,7 +149,11 @@ CyUnit* CyPlayer::initUnit(int /*UnitTypes*/ iIndex, int iX, int iY, UnitAITypes
 
 void CyPlayer::disbandUnit(bool bAnnounce)
 {
-	return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;
+	// <!-- custom: AdvCiv's advc.001 checks the player before calling the void disband operation. (GPT-6.2-Sol) -->
+	// <!-- custom: The old one-line form returned a conditional expression whose branches were the void disbandUnit call and NULL, which standard C++ rejects; VC2003 accepted it, so behavior is unchanged.
+	// AdvCiv rewrote such BtS code in 616238930 so the DLL can also build with a standard-conforming compiler such as Clang. See KI#1099. (Claude code Opus 5.5) -->
+	if (m_pPlayer)
+		m_pPlayer->disbandUnit(bAnnounce);
 }
 
 void CyPlayer::killUnits()
@@ -249,12 +253,16 @@ std::wstring CyPlayer::getStateReligionKey()
 
 std::wstring CyPlayer::getBestAttackUnitName(int iForm)
 {
-	return m_pPlayer ? m_pPlayer->getBestAttackUnitName((uint)iForm) : std::wstring();
+	if (m_pPlayer != NULL) // <!-- custom: Keep AdvCiv's explicit null check before returning wide text. See KI#1099. (GPT-6.2-Sol) -->
+		return m_pPlayer->getBestAttackUnitName((uint)iForm);
+	return std::wstring();
 }
 
 std::wstring CyPlayer::getWorstEnemyName()
 {
-	return m_pPlayer ? m_pPlayer->getWorstEnemyName() : std::wstring();
+	if (m_pPlayer != NULL) // <!-- custom: Keep AdvCiv's explicit null check before returning wide text. See KI#1099. (GPT-6.2-Sol) -->
+		return m_pPlayer->getWorstEnemyName();
+	return std::wstring();
 }
 
 std::wstring CyPlayer::getBestAttackUnitKey()

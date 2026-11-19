@@ -1194,6 +1194,19 @@ def renamed_paths(repo: Path, base_ref: str) -> dict[str, str]:
 
 # <!-- custom: Forward the optional warning collector across the Git range without treating user-optional model credits as CI failures.
 # Resolve renamed files to their old paths before applying the same provenance rules. (GPT-6.1-Sol) -->
+# <!-- custom: The AdvCiv 1.14 merge restored upstream's own comments word for word, such as PerfectMongoose.py's "# advc.oxi: New method to replace erroneous uses of getCirclePoints", and this check failed all 7 as new uncredited prose because it compared only with main.
+# Codex had first reworded such comments as custom ones to pass, which lost upstream's text; so a comment found exactly in a merged parent's copy of the file now counts as inherited.
+# Merged parents are the second and later parents of merge commits in the range, or MERGE_HEAD while a merge is being prepared. (Claude code Opus 5.5) -->
+def merged_parents(repo: Path, base: str) -> list[str]:
+    parents = []
+    for line in run_git(repo, "rev-list", "--merges", "--parents", "%s..HEAD" % base, check=False).stdout.decode("utf-8").splitlines():
+        parents.extend(line.split()[2:])
+    merge_head = run_git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).stdout.decode("utf-8").strip()
+    if merge_head:
+        parents.append(merge_head)
+    return list(dict.fromkeys(parents))
+
+
 def check(repo: Path, base_ref: str | None, event_name: str | None = None, warnings: list[str] | None = None) -> tuple[list[str], int]:
     base = ensure_base(repo, base_ref, event_name)
     if base is None:
@@ -1201,6 +1214,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
     errors = []
     count = 0
     renamed = renamed_paths(repo, base)
+    upstream_parents = merged_parents(repo, base)
     for path in changed_paths(repo, base):
         old = git_text(repo, base, renamed.get(path, path))
         new = current_text(repo, path)
@@ -1211,10 +1225,19 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
         if old != new:
             errors.extend(modification_header_errors(path, new))
         history_path = renamed.get(path, path)
+        # <!-- custom: A multiline block's raw text joins its lines without their indentation, so PerfectMongoose.py's indented two-line getCirclePoints note never matched upstream byte for byte; compare stripped lines, which must still appear in the same order and next to each other.
+        # A comment after code on its line, such as "} // </advc.003p>", is matched as plain text instead. (Claude code Opus 5.5) -->
+        upstream_texts = [text for text in (git_text(repo, parent, path) for parent in upstream_parents) if text]
+        upstream_lines = ["\n" + "\n".join(line.strip() for line in text.splitlines()) + "\n" for text in upstream_texts]
         # <!-- custom: Pickaxe search up to the base commit, so only wording this file already contained counts as restored. (Claude code Opus 5.5) -->
-        def restored_comment(raw: str, history_path: str = history_path) -> bool:
+        # <!-- custom: upstream_texts and upstream_lines were added beside history_path, as default arguments that bind this file's merged-parent copies to the closure. (Claude code Opus 5.5) -->
+        def restored_comment(raw: str, history_path: str = history_path, upstream_texts: list[str] = upstream_texts, upstream_lines: list[str] = upstream_lines) -> bool:
+            stripped = "\n" + "\n".join(line.strip() for line in raw.splitlines()) + "\n"
+            if any(raw in text for text in upstream_texts) or any(stripped in text for text in upstream_lines):
+                return True
             # <!-- custom: Multiline comments are parsed with LF, so a CRLF file also needs the CRLF spelling to match. (Claude code Opus 5.5) -->
-            for needle in dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))):
+            needles = list(dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))))
+            for needle in needles:
                 if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", history_path, check=False).stdout.strip():
                     return True
             return False

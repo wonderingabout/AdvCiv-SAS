@@ -1,5 +1,6 @@
 #include "CvGameCoreDLL.h"
-#include ".\cvreplaymessage.h"
+// <!-- custom: AdvCiv's advc.cppstd normalizes the local header spelling for case-sensitive file systems. See KI#1099. (GPT-6.2-Sol) -->
+#include "CvReplayMessage.h"
 
 CvReplayMessage::CvReplayMessage(int iTurn, ReplayMessageTypes eType, PlayerTypes ePlayer) :
 	m_iTurn(iTurn),

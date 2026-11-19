@@ -6783,7 +6783,7 @@ bool CvUnit::canInfiltrate(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	if (!bTestVisible)
 	{
-		if (NULL != pCity && pCity->getTeam() == getTeam())
+		if (pCity != NULL && pCity->getTeam() == getTeam())
 			return false;
 	}
 	return true;
@@ -8152,6 +8152,8 @@ bool CvUnit::isGarrisonInTeamCity() const
 	if (!getPlot().isCity())
 		return false;
 	CvTeam const& kCityTeam = GET_TEAM(getPlot().getTeam());
+	// <!-- custom: AdvCiv's advc.184 lets teams see cargo in their own ports.
+	// Use the city team for the invisibility test. (GPT-6.2-Sol) -->
 	if (isInvisible(kCityTeam.getID(), false))
 		return false;
 	return (kCityTeam.getID() == getTeam() ||
@@ -9258,8 +9260,12 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
 		return false;
 	if (alwaysInvisible())
 		return true;
-	if (bCheckCargo && isCargo())
+	if (bCheckCargo && isCargo() &&
+		// <!-- custom: AdvCiv's advc.184 lets eTeam see cargo in its own ports. (GPT-6.2-Sol) -->
+		(!getPlot().isCity() || getPlot().getPlotCity()->getTeam() != eTeam))
+	{
 		return true;
+	}
 	if (getInvisibleType() == NO_INVISIBLE)
 		return false;
 	return !getPlot().isInvisibleVisible(eTeam, getInvisibleType());

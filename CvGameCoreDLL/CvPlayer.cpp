@@ -15396,8 +15396,9 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 
-	// <!-- custom: Reuse the existing CvPlayer write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
-	uiFlag = SASSaveStreamFormat::CV_PLAYER; // advc: Bugs fixed with civ-wide special commerce rate cache
+	// <!-- custom: Reuse AdvCiv flag 23 for the widened religion and corporation counts.
+	// Read the writer flag from the shared registry so SASGameRecord reports the same layout the DLL writes. (GPT-6.1-Sol + GPT-6.2-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_PLAYER; // advc: Larger EnumMap for religion, corporation count
 
 	pStream->Write(uiFlag);
 

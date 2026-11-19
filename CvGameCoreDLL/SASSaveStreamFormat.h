@@ -27,7 +27,7 @@
 	DO(CV_MAP, CvMap, 7) \
 	DO(CV_PLOT, CvPlot, 13) \
 	DO(CV_PLOT_GROUP, CvPlotGroup, 1) \
-	DO(CV_PLAYER, CvPlayer, 22) \
+	DO(CV_PLAYER, CvPlayer, 23) \
 	DO(CV_PLAYER_AI, CvPlayerAI, 22) \
 	DO(CV_SELECTION_GROUP, CvSelectionGroup, 3) \
 	DO(CV_SELECTION_GROUP_AI, CvSelectionGroupAI, 0) \

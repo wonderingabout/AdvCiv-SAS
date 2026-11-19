@@ -47,6 +47,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/checkout_byte_compares.py
 
+      - name: DLL source keeps the standard C++ forms AdvCiv's advc.cppstd introduced
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/cpp_standard_conformance.py
+
       - name: Switched define values are written only in LLM_Helpers/diagnostics/define_values.py
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/shared_define_values.py
