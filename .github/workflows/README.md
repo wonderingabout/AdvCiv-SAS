@@ -254,7 +254,7 @@ npx markdownlint-cli2@0.24.0
 
 ## Python 2.4 compile workflow
 
-[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and the in-game `LLM_Helpers/saspilot/SASPilotCommands.py` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
 
 This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4.
 
@@ -297,6 +297,8 @@ python -m unittest discover -s .github/workflows/tests/repository -t .github/wor
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
 The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+
+SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -860,7 +862,9 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps`, as well as SASPilot command module loaded into Civ4, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml).
+
+It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -1193,6 +1197,7 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
 Requires the shipped values of the hands-free switches, which spare players clicks and manual steps, so players still get them.
 
 - `SAS_UI_DAWN_OF_MAN_ON=1` keeps the Dawn of Man screen for players; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets it to `0` locally.
+- The same holds since 2026-11-13 for the tech splash and the era, wonder, religion and project movies (`SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON`).
 - The others are not changed locally, but one switched off by mistake would bring back what it removes: AI Auto Play's no-decision popups and its speed-scaled default turns, SASFastSave's start, end and autoplay-stop saves, scoreboard autocenter, and silent assertion handling (`SAS_ASSERT_SILENT_ACTION=1`).
 - Like the diagnostic-default checks it accepts `--staged`, which the local CI runner uses.
 

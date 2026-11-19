@@ -1,0 +1,14 @@
+{
+ "about": "Turn 105 of the 2026-11-13 fog-on playthrough: the Oracle's free tech is owed. Takes Sailing, then checks that a second free tech is refused and the chooser is gone. The grant arrives as a net message a few frames after 'freetech' replies, so the check waits a second; without it a fresh launch saw Sailing and its splash where a reused client did not. The last todo ignores infoScreens: whether Sailing's splash shows depends on SAS_UI_TECH_SPLASH_ON, which ships on but the dev toggle turns off (2026-11-13).",
+ "save": "sas_pilot_fogplay_t105.CivBeyondSwordSave",
+ "steps": [
+  {"cmd": "todo"},
+  {"cmd": "popups"},
+  {"cmd": "freetech"},
+  {"cmd": "freetech", "args": {"tech": "TECH_SAILING"}},
+  {"cmd": "freetech", "args": {"tech": "TECH_THE_WHEEL"}, "expectError": true},
+  {"cmd": "py", "args": {"code": "(gc.getTeam(0).isHasTech(gc.getInfoTypeForString('TECH_SAILING')), gc.getTeam(0).isHasTech(gc.getInfoTypeForString('TECH_THE_WHEEL')))"}, "sleep": 1, "expect": [true, false]},
+  {"cmd": "popups"},
+  {"cmd": "todo", "ignore": ["infoScreens"]}
+ ]
+}

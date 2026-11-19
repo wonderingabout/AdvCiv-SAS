@@ -113,6 +113,24 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 210 - SAS practical 6779 (SASSaveTransplanter branch)
+
+- **Date:** 2026-11-18
+- **Git commit:** `9f698a2505fd4b9ac5080e3343ed60d878150ab2`
+- **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's.
+  - First taken as 206 in merge commit `94bf831d30e6cf8621026f189d41e8a59d2778d9`, then 205 in `4985acbe8bb133398e426366cf57d7b42c0e91cf` when saspilot folded its 205 into 204.
+  - Saspilot's entry became 205 on 2026-11-18, when main took 204, so this branch is 206 again, one above saspilot's, as both are squashed when they land.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made saspilot's entry 209 and this one 210.
+
+### Revision 209 - SAS practical 6778 (SASPilot branch)
+
+- **Date:** 2026-11-18
+- **Git commit:** `3d19e6aa1d4719b23a458f2103694169d96ab06c`
+- **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
+  - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+
 ### Revision 208 - SAS practical 6824
 
 - **Date:** 2026-11-19

@@ -61,6 +61,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
       - [`SASRuntimeSourceWatch_*.json` (watcher state and host)](#sasruntimesourcewatch_json-watcher-state-and-host)
       - [`SASRuntimeSourceChanges_*.jsonl` (live file changes)](#sasruntimesourcechanges_jsonl-live-file-changes)
   - [Autoplay run summary](#autoplay-run-summary)
+  - [SASPilot command log](#saspilot-command-log)
   - [DLL build reports](#dll-build-reports)
     - [`CvGameCoreDLL.dll.build.json` (toolchain and build launcher)](#cvgamecoredlldllbuildjson-toolchain-and-build-launcher)
     - [`AdvCiv.log` (compiler output and build summaries)](#advcivlog-compiler-output-and-build-summaries)
@@ -180,7 +181,9 @@ Inventory snapshot: **2026-10-20 08:34:07 UTC**. The Python captures were taken 
 | `SASRuntimeStatus.json` | Yes | 2026-10-20 08:30:49 | Latest fixed-name runtime observation and linked history identity. |
 | `SASRuntimeHistory_*.jsonl` | Yes, 32 files | 2026-10-20 08:30:49 | Per-process runtime history. |
 
-The autoplay runner writes `Logs/SASAutoplay_<run id>.json` alongside the game logs. Its report links to any optional `SASAutoplay_<capture UTC>_<Civ4 PID>_final.png` under `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/`. See the [Game Runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md).
+The autoplay runner writes `Logs/SASAutoplay_<run id>.json` alongside the game logs, and `SASPilotClient.py` writes each piloted client's commands to `Logs/SASPilot_<processStartUtc>_<pid>.jsonl` ([SASPilot command log](#saspilot-command-log)).
+
+Its report links to any optional `SASAutoplay_<capture UTC>_<Civ4 PID>_final.png` under `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/`. See the [Game Runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md).
 
 The BBAI/SASGameRecord counts above describe timestamped files, not a requirement that their legacy fixed filenames exist. Configured filename/session/player variations are handled by the shared filename builder.
 
@@ -1312,6 +1315,98 @@ The complete report from the 2026-11-11 one-turn save-load test, `SASAutoplay_20
 - `newGameSettings` is `null` for a save load; a new game records its settings there instead, and `save` is then `null`.
 - `exitObservation` says how Civ4 closed. `pythonErrors` holds the last 30 lines of `PythonErr.log` when that file was written during the run, and is empty otherwise; `newSaves` lists the saves the run wrote.
 - With `--no-screenshot`, the summary still records the outcome and `screenshot` is `null`. See the [Game Runs guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#how-the-run-ends).
+
+### SASPilot command log
+
+`Logs/SASPilot_<processStartUtc>_<pid>.jsonl` holds every request an agent sent to one piloted Civ4 client through [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py), one JSON object per line: the time to the millisecond, the command and its arguments, `kind` (`read`, `order` or `game`), the agent's reason (`note`), the game turn, the result or error, and two counters, `n` within the turn and `seq` within the log.
+
+See [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole) for the commands.
+
+- Why it exists: SASPilot's request and reply files are deleted once read, so before 2026-11-14 the user had nothing to watch while an agent played, and a game reviewed later had no record of the orders and the reasons for them to set beside SASGameRecord, which records what then happened.
+- Why the client writes it, not the game: the game pays nothing, and the client spends about 0.2 ms a line against about 7 ms for the request itself (measured 2026-11-14). `SAS_PILOT_LOG=0` in the environment switches it off.
+- Why one line per request: agents are its main readers and grep or parse it line by line. A result longer than 1,500 characters is cut, with its full size in `bytes`; the same command gives it again. `SASPilotConsole.py` shows it in SASPilotConsole, one line per command, or `--pretty` for indented results.
+- Why per process, named like the Runtime files: Windows reuses process IDs, so `<processStartUtc>_<pid>` keeps two clients, or one PID reused later, apart ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)).
+- Unlike SASGameRecord and BBAI, which the DLL splits per load, one pilot client often plays dozens of games in a session, as each replay and each `menu path=` loads one.
+  - A row of kind `game` therefore marks each `start` and load with the save (or the new game's map), the turn and the client's load count: `grep '"kind": "game"'` splits the log by game, and the watcher prints it as a banner. A file per game was not chosen, as a session of short replays would leave dozens of small files.
+- `n` and `seq` are kept in a `.seq` file beside the log, locked while a line is written, so two commands at once get distinct numbers (200 parallel writes gave 200 distinct `seq`, 2026-11-14). `seq` is the exact reference, as a turn's `n` repeats after reloading an earlier turn.
+- `operator` names the agent that sent a row, from `--operator` or `SAS_PILOT_OPERATOR`, so agents sharing a client are told apart, and `operatorSession` its session (`SAS_PILOT_OPERATOR_SESSION`, `CLAUDE_CODE_SESSION_ID` or `CODEX_THREAD_ID`), as two sessions of one agent are different operators; rows sent without one have no such field.
+  - An operator's first row in a log is preceded by a row of kind `operator` with `args.event` `joined` and `args.number` in order of arrival, kept in the same locked `.seq` file; `SASPilotClient.py operator left` writes the `left` row. `grep '"kind": "operator"'` lists who piloted the client.
+- Each SASPilotConsole color stands for a field an agent can grep in the plain log (the user asked that the two match, 2026-11-14): the log itself never holds color codes.
+
+  | Console color | Shown for | Log field to grep |
+  | --- | --- | --- |
+  | Red | an error | `"ok": false`, with the message in `error` |
+  | Yellow | a game or operator banner | `"kind": "game"`, `"kind": "operator"` |
+  | Bold orchid | the agent's reason | `note` |
+  | Light green | code sent through `py` | `args.code` on `"cmd": "py"` |
+  | Sky blue | a result | `result` (cut at 1,500 characters, `truncated` then true) |
+  | Console color | the command line | `cmd`, `kind` (`read` or `order`), `args`, `turn`, `n`, `seq` |
+
+  - `SASPilotConsole.py --html <file>` writes the whole log as the console shows it, colors included, as a page for documentation; the palette is shared through [`console_colors.py`](/LLM_Helpers/README.md#console_colorspy).
+
+  A sample of the console, copied by script from `pilot_watch.py --pid 17864 --once --no-color --width 160` on the turn-0 game of 2026-11-14, before the script was renamed `SASPilotConsole.py` the same day (`--width 160` cuts long results and arguments as shown; `...` marks lines left out between the three excerpts: the opening, the first error and a `map` picture).
+
+  In a console the same lines carry the colors of the table above. Trailing spaces were trimmed from the map rows, as Markdown checks reject them.
+
+  ```text
+  === SASPilot watcher started 2026-11-14T12:47:10.908Z ===
+  command: C:\Users\PC\AppData\Local\Programs\Python\Python314\python.exe "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\LLM_Helpers\game_runs\pilot_watch.py" --pid 17864 --once --no-color --width 160
+  log:     C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASPilot_20261114T123004_17864.jsonl
+  client:  Civ4 process 17864, started 20261114T123004 UTC (from the log's name)
+  shows:   orders, errors, and game and operator banners; --all adds reads
+  ...
+  === 2026-11-14 (UTC) ===
+  12:30:14.829 === operator 1 joined: Claude Code Opus 5.5 (session 748de630) ===
+  12:30:14.829 T0-00002 order fog on=1
+      why: turn-0 game to learn Workers and settling by hand
+      -> {"fog":true}
+  12:30:14.830 === game new: new game (map Pangaea, turn 0) ===
+  12:30:19.599 === operator 2 joined: Claude Code Opus 5.5 (session test-sec) ===
+  12:30:50.055 T0-00011 order mission mission=MISSION_FOUND unit=8192
+      why: settle in place: fresh water, Pig, Banana, hills; the only recommended site
+      -> {"activity":"ACTIVITY_MISSION","automate":null,"baseMoves":2,"canMove":false,"cargo":0,"cargoSpace":0,"damage":0,"domain":"DOMAIN_LAND","experience":0,"forti...
+  12:30:56.005 T0-00014 order research tech=TECH_ANIMAL_HUSBANDRY
+      why: Pig at 23,25 needs Animal Husbandry; Hunting comes first as its prerequisite
+      -> {"queue":[{"tech":"TECH_HUNTING","turns":4},{"tech":"TECH_ANIMAL_HUSBANDRY","turns":7}],"research":"TECH_HUNTING"}
+  ...
+  12:36:05.873 T25-00006 order mission data1=BUILD_PASTURE mission=MISSION_BUILD unit=32770
+      why: retry the Pasture order directly
+      ERROR #1: ValueError: unit 32770 cannot start MISSION_BUILD (13, -1) now (moves left 0, group 32770 of 1 unit(s))
+  ...
+  12:41:33.170 T25-00028 order map
+      -> {"known":150,"plots":3168,"x0":18,"y1":33}
+          33
+          32    ~~~~~
+          31   .~~~~~~
+          30  ..~...~~
+          29  .~~f^f~hf..h
+          28  ~~..f.h.^.hf
+          27  ~f.^C.^hfh.f
+          26   .fu.~hhfh.f^^fhx
+  ```
+
+Three lines from the 2026-11-14 modern-baseline game, copied verbatim (the first from client 21720, the others from client 31664):
+
+```json
+{"utc": "2026-11-14T11:04:25.228Z", "cmd": "game", "kind": "game", "args": {"event": "load", "save": "C:\\Users\\PC\\Documents\\My Games\\beyond the sword\\Saves\\single\\sas_pilot_large_t292_isabella_peace.CivBeyondSwordSave", "map": "Pangaea", "gameTurn": 292, "loads": 11}, "turn": 292, "ok": true, "ms": 0.0, "bytes": null, "result": null, "n": 3, "seq": 150}
+{"utc": "2026-11-14T10:28:13.581Z", "cmd": "produce", "kind": "order", "args": {"city": 16385, "item": "BUILDING_AQUEDUCT"}, "note": "Utica pop 11 with health room 15 vs 12: Aqueduct to grow past 12", "turn": 286, "ok": true, "ms": 2.378, "bytes": 258, "result": {"foodTurnsLeft": 0, "id": 16385, "name": "Utica", "owner": 0, "population": 11, "productionTurnsLeft": 6, "queue": ["BUILDING_AQUEDUCT"], "x": 20, "y": 46}, "n": 7, "seq": 7}
+{"utc": "2026-11-14T10:31:27.029Z", "cmd": "command", "kind": "order", "args": {"unit": 106503, "command": "COMMAND_AUTOMATE", "data1": "AUTOMATE_BUILD"}, "note": "workers survey: all worked plots improved and railroad bonuses taken, so automation", "turn": 287, "ok": false, "ms": 3.92, "error": "ValueError: unit 106503 cannot do COMMAND_AUTOMATE (0, -1) now", "n": 22, "seq": 35}
+```
+
+The same lines as `SASPilotConsole.py` prints them:
+
+```text
+=== game load: C:\Users\PC\Documents\My Games\beyond the sword\Saves\single\sas_pilot_large_t292_isabella_peace.CivBeyondSwordSave (map Pangaea, turn 292) ===
+10:28:13.581 T286-00007 order produce city=16385 item=BUILDING_AQUEDUCT
+    why: Utica pop 11 with health room 15 vs 12: Aqueduct to grow past 12
+    -> {"foodTurnsLeft":0,"id":16385,"name":"Utica","owner":0,"population":11,"productionTurnsLeft":6,"queue":["BUILDING_AQUEDUCT"],"x":20,"y":46}
+10:31:27.029 T287-00022 order command command=COMMAND_AUTOMATE data1=AUTOMATE_BUILD unit=106503
+    why: workers survey: all worked plots improved and railroad bonuses taken, so automation
+    ERROR: ValueError: unit 106503 cannot do COMMAND_AUTOMATE (0, -1) now
+```
+
+- The error shows how the log helps afterwards: the Worker was in another Worker's group, which the earlier order had already automated, and the refusal is now explained in the reply itself.
+- The same log kept the evidence for [KI#1094](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094): a `reply` row whose result read "We're glad you accepted our offer." with `"atWar": true`.
 
 ### DLL build reports
 

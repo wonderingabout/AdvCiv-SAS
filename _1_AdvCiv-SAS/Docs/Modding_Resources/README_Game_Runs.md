@@ -29,6 +29,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Launch Civ4 into a save made with this mod, or start a new game with a chosen map, size, speed, difficulty, era and leaders.
 - Run AI Auto Play for a requested number of turns, optionally in Debug Mode so a watching user sees the whole map.
 - Tell how the run ended: completed, ended early, never started, stalled, crashed or timed out.
+- Read and drive a running game as JSON, without the window: SASPilot, added on 2026-11-13, has its own [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.
@@ -95,6 +96,7 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 - `--new-game` sets the INI's `QuickStart = 1`, which starts a game straight from the INI's `[GAME]` settings, without menus.
 - `--map` (script name without `.py`), `--world-size`, `--speed`, `--handicap`, `--era`, `--climate` and `--sea-level` override the user's last settings. Other settings, such as the game options string, come from the user's INI.
   - That string, `GameOptions`, has one digit per option in `CIV4GameOptionInfos.xml` order. On 2026-11-13 the user's INI had only digit 23 set, `GAMEOPTION_NO_EVENTS`: the user tests with random events off, as they add variation between runs that says nothing about the AI. Unattended new games inherit it; keep it on for benchmarks and comparisons.
+  - `SASPilotClient.py ping` lists a running game's enabled options as `gameOptions`, to confirm what a run really used; [`start_game.py --option`](/LLM_Helpers/README.md#start_gamepy) turns others on.
 - `--fixed-seeds` sets `SyncRandSeed` and `MapRandSeed` to `1`. Two such games on Standard Pangaea matched at every RNG and state checkpoint over 60 turns, so a repeatable benchmark needs no save.
 - `--leaders` names a leader for each civilization slot in order, with `-` keeping the random one. Each leader brings the first playable civilization that lists it; a requested leader already drawn for another slot is swapped with it.
   - Tested on 2026-11-10: `LEADER_ALEXANDER,-,LEADER_MANSA_MUSA,LEADER_GANDHI` gave Alexander, a random leader, Mansa Musa and Gandhi, and SGR recorded the three as chosen rather than random.
@@ -372,6 +374,8 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - No option or Python call hides the minimap's white camera frame: `setShowInterface(INTERFACE_MINIMAP_ONLY)` hides the rest of the interface, `CONTROL_BARE_MAP` hides units and symbols.
     - Planned instead: capture the minimap three times with the camera in different places (click the minimap) and keep each pixel's median, which drops the frame even over snow; merge as PNG, compress only the final `.dds`.
   - Ctrl+W opens WorldBuilder from a game. Its tool icons sit in two rows of six at the top right, about y 63 and 98, x 1718 to 1893, 35 px apart, beside the Units, Buildings and Technologies panel at the top left.
+    - Through SASPilot, `control control=CONTROL_WORLD_BUILDER` first shows an "Are you sure?" panel at the top right, whose "Enter WorldBuilder" sat at (1700, 180) in the 1080p window on 2026-11-13; SASPilot lets this confirmation through, as it comes from a person's choice.
+      - The same control again leaves WorldBuilder without asking, and the fog comes back. WorldBuilder shows the whole map, rivals' cities included.
     - Their tooltips, recorded as the `worldbuilder` screen in `civ4_ui_map.json`: Enter erase mode, Change All Plots, Save, Load, Exit World Builder on the top row after Enter landmark mode, and Edit Unit, Edit City, Player, Map, Reveal Tile and Diplomacy modes below. What each mode opens is recorded there too.
     - Tooltips appeared only with Civ4 in front and a few seconds' dwell: `hover_tooltips.py --front --wait 4` showed all twelve, while hovers from `capture_screens.py`, which does not bring the window forward, showed none (2026-11-12).
     - Change All Plots opens a modal panel: until its Cancel is clicked, other icons, hovers and tooltips do nothing.
@@ -393,7 +397,7 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
     - For an autoplayed game, `run_autoplay.py --new-game --option GAMEOPTION_ADVANCED_START --advanced-start-points 600` gives every civ player the points at game start instead (2026-11-19). The AI civs spend theirs on their first turn, and the game goes on while the active player's Advanced Start panel stays open; clicking its Begin! at about (117, 97) spends that player's points too.
     - Hovering a plot with an item selected shows its price, a click buys it, and a right-click sells it back for the full price, except items whose help says Not removable, such as cities, culture, buildings and visibility. Build Improvements (Automated) spends nearly all points at once, and Begin! ends the phase, turning leftover points into gold.
 - A WorldBuilder scenario opens three setup steps before its game: Civilization, Your Details and Game Snapshot, recorded as `scenario_civilization`, `scenario_details` and `scenario_snapshot` in the UI map (2026-11-16, in SAS and in base AdvCiv 1.14).
-  - Launching `Civ4BeyondSword.exe /FXSLOAD="<file>.CivBeyondSwordWBSave" ini=<per-run INI>` goes straight to the first step, skipping the main menu, as SASSaveTransplanter does; a mod copy is chosen by the INI's `Mod` line.
+  - Launching `Civ4BeyondSword.exe /FXSLOAD="<file>.CivBeyondSwordWBSave" ini=<per-run INI>` goes straight to the first step, skipping the main menu, as [`SASSaveTransplanter.py`](/LLM_Helpers/sassavetransplanter/SASSaveTransplanter.py) does; a mod copy is chosen by the INI's `Mod` line.
   - OK sits at `1855,1095` on all three in a 1926x1120 window, and the last one starts the game. GO BACK on Your Details returns to the scenario list, not to Civilization, in both mods.
   - In SAS all three steps fill the enlarged setup box, Your Details at 0.56 of its width; before a 2026-11-16 fix, a `/FXSLOAD` launch left Civilization at BtS's 850x569 ([KI#1082.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082.2)). Base AdvCiv shows them at BtS's size, its radio rows about 31 px apart against SAS's 24.
   - Your Details takes the keyboard: letters typed elsewhere land in its Leader Name box, so click through it only while the user is idle.

@@ -1272,10 +1272,10 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
 [KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
-[KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
+[KI#1093 - (Fixed AdvCiv-SAS bug; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
-[KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
+[KI#1096 - (Fixed AdvCiv-SAS bug) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
 [KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
 [KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
@@ -3577,7 +3577,7 @@ See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
 
-Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`), still on the SASPilot branch, to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
+Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`) to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
 
 Running `bin\fastdep.exe -q -O x <file>` on each edited translation unit isolated `CvGameTextMgr.cpp` in seconds; the other edited files passed.
 
@@ -23384,6 +23384,10 @@ The exact notification and Timeline branches therefore remain source-verified ra
 
 This is an inherited AdvCiv `advc.004u` information-visibility bug with an AdvCiv-SAS KI#204 persistence amplification. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol, thanks.
 
+- Checked again on 2026-11-15, as the user remembered general deaths missing from the Timeline even in debug mode: in a Huge Pangaea autoplay saved at turn 299 (SAS 6749), the replay held "The Great General Subutai (United States) has died in combat!" at turn 197, and the Info screen's Timeline listed it both without debug mode (624 entries, the United States met) and with everything revealed as debug mode does (688 entries).
+  - The Timeline still hides it when the general's owner is not met, as the text names the civilization.
+  - Which case the user had seen was not found; earlier games may predate this fix.
+
 <a id="ki-335"></a>
 
 ## KI#335 - (Fixed AdvCiv-SAS bug) Military Advisor Battles vassal perspective could expose hidden battle locations
@@ -38109,7 +38113,7 @@ Found by Claude Code Opus 5.5 during a visual pass over the advisors that the us
 
 <a id="ki-1093"></a>
 
-## KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
+## KI#1093 - (Fixed AdvCiv-SAS bug; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
 
 - Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
 - Found through the SASPilot work, on its own branch, at turn 291 of its modern-era baseline (2026-11-14): two `SASPilotClient.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
@@ -38151,7 +38155,7 @@ Found by Claude Code Opus 5.5 while asking for peace through SASPilot.
 
 <a id="ki-1096"></a>
 
-## KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape
+## KI#1096 - (Fixed AdvCiv-SAS bug) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape
 
 - `SASPilotCommands.fromJson` read the client's JSON as a Python 2 literal and decoded `\uXXXX` escapes afterwards. A Windows path whose backslash comes before a "u" looks the same, so `...\save_transplants\sas4986_249_variants\update_T0` broke the request, while the `preserve_T0` save in the same folder had worked minutes before.
 - Found on 2026-11-16 in SASSaveTransplanter's first `--map-variants both` run, on its own branch. Requests are now read by `requestFromJson` in SASPilot's `SASPilotCommands.py`, which reads every JSON string as a Python unicode literal (both escapes known) and returns plain ASCII strings as before; checked under Python 2.4 with `\update` and a literal `\u`. The DLL's replies still go through `fromJson`, as they carry no backslash paths.

@@ -1,0 +1,29 @@
+{
+ "about": "Turn 115 of the 2026-11-13 fog-on playthrough, at peace after the Aztec war, four cities and a Galley. Reads most commands with fog on, opens diplomacy with Pacal and leaves it, then ends one turn. The AI's greeting line is drawn at random among its texts, so only its comment type is compared.",
+ "save": "sas_pilot_fogplay_t115.CivBeyondSwordSave",
+ "steps": [
+  {"cmd": "fog", "args": {"on": 1}},
+  {"cmd": "todo"},
+  {"cmd": "cities"},
+  {"cmd": "city", "args": {"city": "Carthage"}},
+  {"cmd": "citizens", "args": {"city": "Utica"}},
+  {"cmd": "units"},
+  {"cmd": "unit", "args": {"unit": 139275}},
+  {"cmd": "path", "args": {"unit": 16385, "x": 35, "y": 25}},
+  {"cmd": "builds", "args": {"unit": 24576, "x": 31, "y": 23}},
+  {"cmd": "plot", "args": {"x": 39, "y": 27}},
+  {"cmd": "research"},
+  {"cmd": "civics"},
+  {"cmd": "sliders"},
+  {"cmd": "religion"},
+  {"cmd": "trade", "args": {"with": 1}},
+  {"cmd": "produce", "args": {"city": "Carthage", "item": "UNIT_NOT_A_UNIT"}, "expectError": true},
+  {"cmd": "contact", "args": {"with": 1}},
+  {"cmd": "diplo", "sleep": 2, "ignore": ["screen", "aiText"]},
+  {"cmd": "reply", "args": {"n": 99}, "from": {"screen": "steps[17].result.screen"}, "expectError": true},
+  {"cmd": "reply", "args": {"n": 3}, "from": {"screen": "steps[17].result.screen"}, "ignore": ["screen"]},
+  {"cmd": "pedia", "args": {"type": "UNIT_GALLEY"}},
+  {"cmd": "endturn"},
+  {"cmd": "turn", "afterTurn": "steps[21].result.gameTurn"}
+ ]
+}
