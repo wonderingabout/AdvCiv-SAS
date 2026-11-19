@@ -432,6 +432,72 @@ Later the same day the agent replayed the map from turn 0 with the tools alone, 
   - Trades are checked every turn. A tech we give stays ours and can be traded again; gold and resources are spent once. A tech another met civ also knows can be sold to the buyer by them first, so sell it now; if the buyer can pay nothing, a gift earns goodwill. The reminders count the met civs knowing each tech and name these cases. Met with the most civs, we broker.
   - Resource trades decide more than open borders: sell spares for gold per turn, buy rarely. Gold enters a deal when either side has the gold-trading tech (`CvPlayer::canTradeItem`), and resources need the two trade networks linked; the reminder lists spare copies and who can pay.
   - Seafaring gives coastal trade in SAS, linking two coastal cities without a road.
+- From turn 51 the user's comments showed what the tools did not weigh, as of 2026-11-19 (save `sas_pilot_ireland_val_t054_plan`):
+  - Expansion outran support: a Settler was queued with 2 cities, 1 Worker and no defender, while 5 resources in our borders stayed unimproved. A reminder should flag a Settler queued or out while a city has no defender or there is less than about one Worker per city.
+  - The Settler was queued before a site was chosen. `plansites` rates only fully revealed plots, so a site at the fog's edge never ranks; it should list fogged candidates with how many of their radius plots are unknown.
+  - Site value alone pulled toward far sites, such as Crab at 29,14, 11 plots from Dublin, and Corn at 24,22, 14 plots away past Persia. `plansites` should give each site's distance to the Palace or nearest government center, its estimated distance upkeep, and whether it keeps the empire compact.
+  - Overlap: 20,12 shares tiles with Dublin and 29,14 shares 2 with Cork. Overlap is fine when no better site exists, but avoid it where possible, especially over strong plots. `plansites` counts shared plots but not their yields or bonuses. Marking our own cities on the dot map shows overlap, but the done-with reminder then asks to clear those marks.
+  - Calendar was researched with no plantation resource in our borders, then nearly dropped for The Wheel. Yet `techs` (the Foreign Advisor's tech tab) showed Calendar, 56 of 80 done, as a tech no met civ has: trade stock. Tech choice should weigh our resources, the chosen strategy, and the market: research what nobody has, trade for the rest.
+  - The Wheel, Bronze Working and Writing have `bTrade` off in SAS, and Construction needs The Wheel before we can receive it. So `trade with=4` left both The Wheel and Construction off the table, while `research ahead=` listed Cyrus as holding them. Both replies should say why a held tech is off the table.
+  - Since we have Writing and none of the three met civs does, they can trade techs with us but not with each other, which makes us the only broker. `techs` shows it; read it every turn.
+  - No stated plan: the empire is food-rich and hammer-poor (Dublin: 15 food, 2 hammers), with Persia at 3 times our power, so the plan is economy with minimum defense: an Archer per city and an escort for each Settler.
+    - Whipping should be for hammer items only, with 1 citizen, at the happy cap or onto a poor tile, with a Granary first; in SAS, Workers and Settlers already eat surplus food.
+    - A stated plan the reminders check against would catch drift.
+  - `players` does not show a met rival's state religion, which a player sees on the scoreboard; it was needed to judge a Paganism conversion popup.
+- The same day these became reusable checks, generic so other strategies, maps and rules are read from the game rather than assumed:
+  - `plansites` gives each site's distance to our government center, the nearest rival city, the shared plots with their yields and the unknown plots; `upkeepReference` gives what our cities pay at their distances. At turn 54 it showed Crab at 29,14 at 14 plots and Corn at 24,22 nearer Pasargadae than any city of ours.
+  - `research` gives each tech's case: who sells it, who would buy it, what it unlocks and leads to, the resources it improves, and the needs it meets, with each unit's resources. Bronze Working's Axeman needs Copper or Iron, neither seen, and The Wheel's Chariot a Horse seen only at Pasargadae: with no metal or mount, the Camel is the military option.
+  - `trade` gives each held tech that is off the table with why. Reminders: `expansionSupport`, `homeUnknown`, `happyHealth` (happiness binds first for Dublin at 1 to spare, no trait helps, and no trade link with any met civ yet for health-for-happiness trades), `whip` (the city is capped and growing wastes food, or the citizen regrows fast), research with no case. `players` gives met rivals' state religion, and a mark on our own city stays.
+  - `plansites` marks a site `contested` when a rival city is at most 2 plots farther than ours: 20,12 and 24,22 were.
+    - The user then pointed out that 24,22, 9 plots from our nearest city and nearer Pasargadae, could not be defended: we would build and improve it for Persia to take.
+    - Growth is radial, with a dart ahead only for a chokepoint or the map edge and with defenders, so `priority` now gives `first` (contested within 6 plots), `dart only` (contested beyond) or `can wait`.
+    - The user next noted the plains around 28,21: very low food and no bonus, so a city there would not grow, nor link to our land short of taking Pasargadae.
+    - `foodAtSize6` now weighs a site's natural food against 6 citizens' needs (28,21: -3, so `skip`), and a site with 4 or more unknown radius plots is `scout first`, as the food check first wrongly skipped 14,10 and 26,8 west and east of Dublin, 8 plots unknown each.
+    - So 20,12 goes first, while the low-value east (29,14) and the coastal fillers, uncontested and with 8 unknown plots each, wait for scouting, as the user judged.
+  - Trade and exploration, checked in the DLL after the user recalled it: a foreign trade route needs open borders, the partner city revealed to us (advc.124) and connected networks, so `trade` now gives `tradeRoutes` per civ.
+    - The AI values our map by the plots we revealed that it has not, land 5 and water 1, divided by 10 (`CvTeamAI::AI_mapTradeVal`), so every land plot scouted before Paper raises its price.
+  - The user named happiness the focus of this game. `limits` gathers the sources: Dublin binds on happiness (1 to spare), no trait helps, Paganism as state religion would add +1 but only in Cork, the one city it has spread to, and the Gold at 20,14 (+1, workable with Mining) lies in site 20,12's radius, which `plansites` now names as `happyBonuses`. Six happiness resources were seen, all outside our borders.
+  - The user then pointed at the military: no defender anywhere, Persia at 3 times our power and aggressive AI on, while Dublin made 2 hammers a turn, so an Archer took 13 turns.
+    - Archers moved ahead in both queues, and `lowProduction` names a city's hammer sources: Dublin's Stone quarry (5 hammers) and hill mines were all unbuilt, since Dublin worked only food tiles.
+    - The user's summary: tend our own garden first, defense, Workers, hammers and happiness, before ambitious plans.
+  - Turn 56: Calendar founded Hinduism in Cork.
+    - Cyrus followed Paganism, which had also spread to Cork, and Sitting Bull and Mehmed had none, so Paganism was adopted for 1 turn of anarchy: Cyrus went from +2 to Pleased (+4).
+    - The user's caution: a state religion other than a neighbour's costs about -3 to -4 with them, so converting to our own faith can cost more diplomacy than it gives.
+    - `religion` now lists who shares each faith and who follows another.
+  - Turn 57: the new `whip` check named Cork's Archer, 1 citizen regrowing in 4 turns at +6 food, and it was whipped. The trade reminder then wrongly said Cyrus could buy Calendar from Sitting Bull, who knew it, but neither had Writing, so they could not trade techs; it now counts a holder only when the holder or the buyer has the tech-trading tech.
+  - The user then asked how often Slavery had been used: twice in 20 turns (the Settler at turn 39, Cork's Archer at 57), for 2 turns of anarchy at turn 37.
+    - The agent first called that premature, but the Archer whip alone saved about 12 turns in a 2-hammer city with no defender, so the two whips likely repaid the anarchy; the rule is to weigh the anarchy's cost against what the civic returns soon.
+    - Combining it with the Paganism switch would not have saved anarchy either: the DLL refuses a second change while anarchy runs (`CvPlayer::canRevolution`, `canConvert`), so each change costs its own, and only a golden age makes them free.
+    - `civics`' help now says to weigh the anarchy against the civic's near-term return.
+    - Hinduism's holy city still gives Cork culture.
+  - Turn 58: the Granary first went to Cork; the user pointed out it belongs in Dublin, the +9-food city about to cap and whip repeatedly, while Cork, size 1 after its whip, builds the Work Boat for the Clam.
+    - The `whip` check now names a food-keeping building only for a city whose whip pays.
+    - At turn 59 `idleGarrison` told Cork's only Archer to go exploring with Pasargadae 7 plots away; a city's only defender now stays home when a seen rival city is within 8 plots, while the 2026-11-14 rule to explore still holds where nothing threatens.
+  - Turns 59 to 63, the garden first: Dublin's Granary moved ahead of its Archer, as the user advised whipping a hammer item such as a Granary rather than a food-built Worker while Cyrus was Pleased; a citizen moved from the Crab (4/0/4) to the hill forest (0/3/0), taking Dublin from 2 to 5 hammers, food it could not use one citizen from its happy cap; research dropped from 80% to 70% when gold ran out in 5 turns; the Granary was whipped at turn 63 for 1 citizen.
+    - Cork, growing fast on its Pig, whipped its Work Boat, which went to the Clam.
+    - The Scout, drifting back, got `scout`'s new `frontiers` and found Cahokia (Sitting Bull, size 6, 18,34), our second seen rival city, on our trade network for a route.
+  - Turns 64 to 73: Calendar was refused for Construction by Mehmed and Cyrus, who valued Construction at about twice Calendar (69 against 34).
+    - The Stone's quarry gave Dublin 9 hammers.
+    - Improved resources supplied nothing without roads; the user noted roading every resource is inefficient, as a worked tile yields without one and health had room, so `unimproved` now names a road only when the resource answers a need (happiness or health within 1 of a city's cap, or a unit or building that requires it), and the Workers built Civ4's Route To between Dublin and Cork instead.
+    - A road into Persia would not link trade either: our network already reached Pasargadae, which is not Cyrus's capital, so the missing link was on his side.
+    - `scout` gained `frontierSectors`, as nearest-first frontiers showed only 1-plot pockets; whip suggestions stop while whip anger runs at 1 happy face or less, after one suggested stacking it in Dublin.
+    - Emain Macha was founded at 20,12 on turn 71; the user noted it needs culture against Pasargadae, a holy city, to hold the Gold, so its Monument comes first and `borderPressure` names strong plots under a rival's culture.
+    - A Settler's leftover site mark on its new city is flagged for a city mark, and `religion` shows each civ's power and distance.
+    - On turn 73 two Barbarian Archers appeared 3 plots from Cork, whose one Archer cannot be helped by a whip (2 citizens at size 2); the second Archer and a Worker were called back.
+  - Turns 74 to 77: the two Barbarian Archers attacked Cork; its fortified Archer on the hill fought at 5.0 against 2.0 (hill, city and fortify bonuses), killed one and drove the other off at 10 HP, which the second Archer then finished at 100% odds.
+    - Attacking them on their hill would have been 11%: the user's point, let them attack into city defense.
+    - Sailing, which no met civ had, bought Construction from Mehmed, but only through his counter-offer: `propose` with the same items was refused, while `price ... accept=1` on his "try this deal" went through, so ask the counter-offer first.
+    - The user's caution: an AI may not repeat an offer we refuse, so weigh it before answering; in the DLL, refusing a request (tribute, help, religion, civic, joining a war, stopping trade) leaves a memory, while a refused trade proposal does not, and completed trades feed the "fair trade" attitude.
+    - Sitting Bull turned Jewish and fell from +2 to 0, which matters little at his distance.
+    - The tech cases now count Temples for our state religion or one in our cities (Polytheism, +1 happiness, binds first), skip the Palace, and say "this tech reveals it" for Copper under Bronze Working.
+  - Turns 78 to 80: Polytheism, for Temples (+1 happiness under our state religion), came from Cyrus for Sailing through his counter-offer.
+    - Dublin could not build a Pagan Temple, as Paganism had not spread there, so it builds Stonehenge, a free Monument in every city, for Emain Macha's culture against Pasargadae; no western site was scouted yet, so the Settler waits.
+    - Mehmed converted to Paganism too, so both neighbours share our faith.
+    - The user moved the eastern candidate from 29,14 to 30,15 (no overlap with Cork's grown borders, more food; the AI's value had rated it 0 for being near our cities), asked that sites be re-judged as information arrives (`sitesChanged`), and set radial growth from the capital as the rule (`later` beyond 8 plots), with the west also low in food (`(poor food)`).
+
+  - The user's frame for all of it: everything is a trade-off, not a checklist to complete. Here, with Persia close and stronger, defense and diplomacy come first; on an isolated start the same tools would usually point to a pure economic game.
+  - Replies carry data only: `plansites` had repeated the same advice line in every reply, which the user flagged, so the reasoning moved into the help text, as did `tradeRoutes`' note.
+  - Marks on our cities take `color=contrast`, magenta for Ireland's white and green, since white on white was hard to read; the SASPilot Guide has the colour legend.
 
 ## Where to take it
 

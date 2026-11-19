@@ -83,22 +83,30 @@ def _readCommandsFile():
 
 def _loadCommands(bCompareContent=False):
 	global _commands, _commandsStamp, _commandsDigest, _szReloadError
-	stamp = _fileStamp(_commandsPath)
-	data = None
+	# <!-- custom: A tool that saves by replacing the file can leave it missing for a moment, which os.stat reports as OSError; the next check retries. (Claude code Opus 5.5) -->
+	try:
+		stamp = _fileStamp(_commandsPath)
+	except OSError:
+		return
+	if stamp == _commandsStamp and not bCompareContent:
+		return
+	# <!-- custom: The read can meet a save in progress: on 2026-11-19 a script rewriting SASPilotCommands.py made it fail with IOError Errno 13 (Permission denied), and the traceback reached PythonErr.log.
+	# The stamp was also set before the read, so a failed read counted as loaded until the next content check.
+	# Now a failed read leaves the stamp as it was and returns quietly; the next check, a fraction of a second later, reads the finished file. (Claude code Opus 5.5) -->
+	try:
+		data = _readCommandsFile()
+	except IOError:
+		CvUtil.pyPrintRecord("SAS_PILOT", "outcome=COMMANDS_READ_RETRY errno=%s" % sys.exc_info()[1].errno)
+		return
 	if stamp == _commandsStamp:
 		# <!-- custom: ChatGPT's review (2026-11-14): an edit of the same size within the same second keeps (size, mtime), so it could be missed for good.
 		# The content's MD5 is compared every SASPilot._DIGEST_EVERY_CHECKS checks rather than every check, as reading 110 KB a few times a second would cost every player-visible frame more than the rare miss it catches. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
-		if not bCompareContent:
-			return
-		data = _readCommandsFile()
 		if md5.new(data).hexdigest() == _commandsDigest:
 			return
 	_commandsStamp = stamp
 	try:
 		# <!-- custom: Civ4 caches the mod's Python at startup, so an ordinary import or reload() would return the code from launch (civai found the same); loading from the file picks up edits without restarting Civ4.
 		# imp.load_source did that but left a SASPilotCommands.pyc beside the source, so compile the text ourselves into a fresh module. (Claude code Fable 5.2) -->
-		if data is None:
-			data = _readCommandsFile()
 		_commandsDigest = md5.new(data).hexdigest()
 		source = data.replace("\r\n", "\n")
 		module = imp.new_module(_COMMANDS_NAME)

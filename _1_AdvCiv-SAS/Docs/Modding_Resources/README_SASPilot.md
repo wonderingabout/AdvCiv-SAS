@@ -19,6 +19,11 @@ The video demos cover two stages of the playtest.
 &emsp;[Changing commands while Civ4 runs](#changing-commands-while-civ4-runs)\
 &emsp;[Why Python, and where the DLL comes in](#why-python-and-where-the-dll-comes-in)\
 [Commands](#commands)\
+&emsp;[Trade fields](#trade-fields)\
+&emsp;[City sites](#city-sites)\
+&emsp;[Tech cases](#tech-cases)\
+&emsp;[Reminders](#reminders)\
+&emsp;[Dot-map colours](#dot-map-colours)\
 &emsp;[Graph queries](#graph-queries)\
 &emsp;[Plot grid and trade network](#plot-grid-and-trade-network)\
 &emsp;&emsp;[Roles](#roles)\
@@ -119,6 +124,9 @@ python SASPilotClient.py look follow=1
 - `ping` reports the loaded `PILOT_REVISION`. Keep one revision for the candidate during a draft PR and record its command changes in [SASPilot revisions](/_1_AdvCiv-SAS/Docs/revisions/SASPilot.md).
 - A script writing the command file can fail with `OSError: [Errno 22] Invalid argument` while the game has the file open for its reload check; it happened twice on 2026-11-14, and a retry a moment later succeeded. The Edit tool retries on its own.
   - Later the same day the same error came three times when writing `SASPilotClient.py`, which the game never reads, so the game's reload check is not the only cause; some other process held the file a moment. The cause was not found; a retry loop of a few one-second tries always got through.
+- The other way round, the game's reload can meet a save in progress: on 2026-11-19 a script rewriting the command file made the game's read fail with `IOError: [Errno 13] Permission denied`, and the traceback reached `PythonErr.log`, which the user saw.
+  - The loader had also marked the file as loaded before reading it, so the edit waited for the next content check.
+  - Since then a failed read leaves the file unloaded and writes only a `COMMANDS_READ_RETRY` record to `PythonDbg.log`, and the next check, a fraction of a second later, loads the finished file.
 
 ### Why Python, and where the DLL comes in
 
@@ -150,22 +158,23 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `path` | the route a unit would take to a plot before ordering it: each step's plot, turn and moves left, and the total turns |
 | `messages` | the messages the game showed the player at the top of the screen and still lists, such as combat results |
 | `citizens`, `work`, `specialist`, `emphasize` | the city screen: worked plots, specialists, citizens left unassigned, governor and emphasis buttons, and the clicks that change them; a plot claimed from another city brings that city's screen too (`claimedFrom`), as its freed citizen waits unassigned until its governor runs |
-| `civics`, `sliders`, `religion` | the civic options with what can be adopted, the commerce percentages, the state religion; each also makes the change |
+| `civics`, `sliders`, `religion` | the civic options with what can be adopted, the commerce percentages, the state religion; each also makes the change. `religion` gives each candidate faith with our cities that have it (where its happiness applies), our holy city of it, and the met civs whose state religion it is (`sharedWith`) or who follow another (`otherFaithOf`, a diplomatic cost of about -3 to -4 the user recalled), as a state religion trades happiness against diplomacy. Added when the validation run chose Paganism over Hinduism, founded in Cork, for Cyrus, the strongest neighbour, who went to Pleased (+4) |
 | `types`, `pedia` | the XML types of one kind, and a type's Sevopedia text: its name and the effects text the DLL composes |
 | `info` | any XML info by type, such as `type=UNIT_WARRIOR` or `type=BUILDINGCLASS_PALACE`: every simple getter of its info object, which is the data the Sevopedia shows |
 | `mission`, `move` | give a unit's group a mission (`MISSION_FOUND`, `MISSION_FORTIFY`, `MISSION_BUILD data1=BUILD_FARM`...); `move` is `MISSION_MOVE_TO` after a path check; with `append=1` the mission is checked where the queue ends; a unit with no moves left takes a new order too, starting next turn, as in the window (a Worker's replacement queue was refused as "moves left 0", 2026-11-14) |
 | `builds` | what a unit could build on a plot, with turns, the improvement or route, and the improvement's yield change; with `refused=1`, also each build the plot refuses and why, in `CvPlayer::canBuild`'s order: the plot's own check first (an improvement the plot cannot have, a feature that unclaimed land cannot have removed (advc.119; in SAS a road drains Marsh, which is why a road at 26,28 of the turn-0 game was refused), or another team's land), then a missing tech, a missing feature tech, and gold with inflation, nothing for a build already begun. The first version asked the tech first and took the XML gold cost (Codex's review, round 32) |
 | `buildsteps` | a Worker's plan over several plots in one order, as shift-clicks queue it: `steps=BUILD_ROAD@99,26;BUILD_FARM@100,27` moves to each plot and builds there in order, each through `mission`'s checks; replaces the queue unless `append=1` |
 | `sites` | the recommended city sites the window circles for a selected Settler, with found value and path turns |
-| `plansites` | city sites planned ahead without a Settler: each revealed legal site of our landmasses with the AI's found value, coastal, food bonuses and open coast in reach, and plots shared with our cities; `spread=N` keeps sites N apart, `legal=1` adds the sites the AI rates 0 near our cities, for a tight coastal fill. The AI's value is a reference, not the answer: on the isolated island of the [islands replay](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#islands-replay-from-turn-0) it rated one site, while corner sites that claim the coast fitted the plan better |
+| `limits` | happiness and health, the two limits on growth, and where more could come from: per city the happy and health margins and turns to grow, which binds first, what our traits give, the resources giving either with our status and the tech that lets a city use one, the buildings giving either that a city can build now or after one tech, and state religion (the religions in our cities, the happiness our civics give). The user named happiness this game's focus at turn 54 of the 2026-11-19 validation run; it showed +1 from a state religion (Paganism, in Cork only) and the Gold at 20,14 inside the next site's radius |
+| `plansites` | city sites planned ahead without a Settler: each revealed legal site of our landmasses with the AI's found value and what the empire's shape needs, each field and priority as in [City sites](#city-sites); `spread=N` keeps sites N apart, `legal=1` adds the sites the AI rates 0 near our cities. The AI's value is a reference, not the answer |
 | `potential` | what each revealed plot of a square could yield once improved: today's yields, and every improvement the player could build there with its yields and whether it can start now (false: a tech away); counts today's techs, so later tech bonuses are left out, and under fog skips builds only a hidden bonus allows |
-| `mark` | a sign with text on a plot and, by default, dots over its city radius, so a candidate city site shows on screen; `grid` lists the marks too, so the agent's analysis and the screen show the same sites; `clear=1` removes them. The user's idea in the scouting trial (2026-11-14), when the agent compared sites only in JSON and the user could not see which plots it meant. Cosmetic: nothing in the game changes |
+| `mark` | a sign with text on a plot and, by default, dots over its city radius, so a candidate city site shows on screen; `grid` lists the marks too, so the agent's analysis and the screen show the same sites; `clear=1` removes them. The user's idea in the scouting trial (2026-11-14), when the agent compared sites only in JSON and the user could not see which plots it meant. `color=contrast`, the default on one of our cities, picks the colour farthest from our civ's colours (see [Dot-map colours](#dot-map-colours)). Cosmetic: nothing in the game changes |
 | `signs` | the map signs the player sees (theirs and those for everyone), with plot, caption and owner, including the user's own |
 | `odds` | the combat odds the window shows when a unit is pointed at a plot: the defender the game would pick, strengths, and the chance to win in per mille |
 | `group` | group a unit with another on its plot, as selecting both does, so they move as one; without `with=`, split it off |
 | `diplo`, `reply`, `contact` | the diplomacy screen as the window shows it: the AI's line, the numbered replies and the screen's number; `reply n= screen=` answers one as a click does, refused if the screen has changed since, and `comment=` names the reply instead of its number (`comment=COMPLETE_DEAL`), which is safer: at turn 128 of the turn-0 game the agent sent `n=1` meaning "What would make this deal work?", but with only our Pig on the table the list was FISH_FOR_DEAL, GIFT, and the Pig went to Gilgamesh as a gift; `contact` opens the screen with a leader, and with `give=`/`take=` on its trade table with that deal on it |
 | `freetech` | choose a free tech such as the Oracle's, while one is owed |
-| `trade` | the diplomacy screen's table with another player: what each side could give, the AI's refusal reason per item (`DENIAL_` type), and its attitude; `tradeRules` says which kinds of trade (tech, gold, maps, open borders, pacts, alliance, vassal) each side's techs allow and the techs that allow each, read from the XML so other rules are followed (in SAS: Writing for techs and open borders, Currency for gold) |
+| `trade` | the diplomacy screen's table with another player: what each side could give, the AI's refusal reason per item (`DENIAL_` type), and its attitude, with the fields in [Trade fields](#trade-fields) |
 | `propose` | propose a deal to an AI, as the Propose button does: `give=[...] take=[...]` with items as `trade` lists them; an accepted deal is made |
 | `techs` | the tech market across the players met: each tech we lack that a rival holds, with its cost, whether SAS's XML lets it be traded at all (`bTrade`, off for 32 techs such as Bronze Working, Engineering and Chivalry), and per holder whether it can go in a deal, the AI's refusal and whether it will talk; then what we could give each, with the gold each could pay at once (`maxGoldTrade`, the tab's coin column); and `nobodyHas`, the techs we can research that none of them holds, with `unseenPlayers` counting met players whose techs the fog hides. Under fog, as the Foreign Advisor's tech tab shows it. The user pointed out at turn 139 of the turn-0 game that the agent kept researching techs every neighbour had, which trade buys far cheaper, while a tech nobody has trades to several leaders; at that turn Navigation was the only one |
 | `rivaltechs` | met rivals' tech trees beside ours, as the tech screen shows who knows each tech: with one rival, what they know, could research next, have that we lack and lack that we have (each with its XML trade flag), and races with our research; `layout` lays the tree out by tech-screen column with who knows each tech, overlapping several rivals with `with=8,3` or `with=all` |
@@ -174,7 +183,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `look` | turn the window's camera to a plot, a unit or a city; following is on by default since the user, watching the Orleans attack (turn 129 of the turn-0 game, 2026-11-14), asked for it without anyone switching it on (`follow=0` stops it): it makes each `move` and attack look at its destination first, and each order on one of our units or cities (`mission`, `command`, `produce`, `hurry`, `spy`...) look at it, so a person watching sees the action; only our own units and cities, so fog hides nothing more than in the window |
 | `command` | a unit command, such as `COMMAND_PROMOTION data1=PROMOTION_COMBAT1`, `COMMAND_AUTOMATE data1=AUTOMATE_EXPLORE` or `COMMAND_DELETE confirm=1`. Deleting needs `confirm=1` or `true`, as the window asks: at turn 90 of the turn-0 game the agent sent `COMMAND_DELETE` to two new Workers meaning to clear their queues, and lost one (a new mission without `append=1` clears a queue) |
 | `produce`, `hurry` | set or append a city's production; hurry it, or without `hurry=` list the ways with their gold and population costs (gold needs Universal Suffrage, population Slavery) |
-| `research` | the techs available now with turns, and the queue; or research a tech, queueing missing prerequisites first, `append=1` to add. Use `effects=1` to include each available tech's rules and unlocks. `ahead=N` lists every tech at most N techs away in the tree's column and row order, with era, steps, beakers and turns, the techs on the way, its OR alternatives, what it unlocks or reveals, and the met players seen to hold it, to plan by proximity; `rivals` gives each met player's current research and percent when espionage shows it, as the scoreboard does, else `unknown` |
+| `research` | the techs available now with turns, and the queue; or research a tech, queueing missing prerequisites first, `append=1` to add. `effects=1` adds each tech's rules and unlocks; `ahead=N` lists every tech at most N techs away, with the techs on the way, OR alternatives, unlocks and the met players seen to hold it; `rivals` gives each met player's current research when espionage shows it. Without args each available tech comes with its case, as in [Tech cases](#tech-cases) |
 | `tech` | one tech's effects and requirements, with the selected team's cost, progress and missing immediate prerequisites, and its `path`: every tech still to research, prerequisites first, in the order `research` queues them, with beakers and turns each and in total. Effects say `leadsTo` for later techs and `prerequisite` for what it unlocks |
 | `graph` | the tech tree, promotion prerequisites, unit upgrade paths, current diplomatic relations or completed-turn Info graphs as JSON. See [Graph queries](#graph-queries) |
 | `endturn` | end the turn, reporting what was left (`skipped`); the client then waits for the next turn and prints its `turn` digest, unless `--no-wait`; `--turns N` keeps ending turns until something waits |
@@ -218,12 +227,12 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `routes` | a text map of the player's land, one row per map row from the north: `C` city, `#` railroad, `=` road, `.` own land with no route, `~` own water, `x` another's land, `?` unrevealed under fog; plus each city's connection to the capital. Under fog, only our own team: `player=` naming a rival still drew the map's edges from all its plots and listed its cities (Codex's review, 2026-11-14) |
 | `map` | a text map of the known world, one character per plot: `C` our city, `c` another's, `~` water, `^` peak, `h` hills, `f` forest or jungle, `x` another's land, `u` one of our units, space unknown; under fog, only revealed plots, with their last-seen owners. Made for an opening's scouting and city sites: at turn 25 of the turn-0 game only 150 of 3168 plots were known; `owners=1` draws each land plot as its owner's ID to read border shapes |
 | `resources` | every resource the team knows of, with its owner, improvement and each build that connects it, with the build's tech and whether we have it: at turn 37 of the turn-0 game it showed that SAS's Agriculture opens the Banana's Plantation and five more resources nearby, so Agriculture went ahead of Masonry (the user's advice: check resources first). `connected` on our own plots says whether the plot supplies its resource: at turn 90 the Banana, the Copper and two Pigs were improved but unconnected, with no road from their plots to a city, which the user saw before the agent did; each with its happiness and health and how many we already have available (`weHaveAvailable`), as a second source adds only its plot's yields |
-| `reminders` | what the game does not announce but a player would want pointed out, as small checks: no research, an empty build queue, a starving or angry city, a city growing within 5 turns past its happy or healthy limit, research that a met rival would sell us (buy it, research what nobody met has), a wounded unit outside our borders, gold running out within ten turns, techs a met player could be offered, and screens or popups left open in the window, which the user noticed before SASPilot did (2026-11-14). Each turn's digest carries them, and `endturn --brief` prints them as `remind:` when they change. Added when the user noted that a missed choice can cost a turn the game never mentions; Seafaring, 2 turns of research no neighbour had, then bought Construction and Metal Casting (2026-11-14). A `losses` check lists our units destroyed or captured since the previous turn: two Workers killed by a barbarian Archer went unnoticed when the agent cut each digest to its last lines. An `unfinished` check lists builds a city has hammers in but is not making, as a city keeps them after switching (the user's advice: a Worker one turn from done is worth finishing). An `unimproved` check lists resources inside our borders that supply nothing though we have the tech for a build that would connect them, such as the Clam at 22,31 of the turn-0 game, outside every city's radius but in our borders, which the user pointed out a cheap Work Boat connects for health (turn 156); it also catches an improvement pillaged by barbarians or rivals, and names a worker of ours already headed there (`unitOnTheWay`, where its group's mission queue ends), as at turn 160 the agent queued a second Work Boat for the Clam while the first was one plot away. A `sleepingWorkers` check lists Workers asleep, as a sleeping unit is not idle and appears nowhere else: three slept near York from turn 155 to 160 while the user saw York under-improved. An `exports` check lists resources we give away in a deal while none is left for ourselves, as the Iron was from turn 118 to 128 of the turn-0 game, with nothing in the game saying so. Added in the scouting trial and the Continents game (2026-11-14), each after a slip the user caught: `idleImprovements` (an improved plot no city works while the city works an unimproved one: the Clam's boats sat unworked six turns with the governor off), `scoutBeforeFounding` (no city yet and units with moves left besides the Settler), `exposed` (a unit within two plots of a visible animal or barbarian: a Scout died beside a Bear), `huts` (every goody hut seen, with our nearest unit), `idleGarrison` (military units waiting in a city, with the nearest foreign unit and how much of the map is revealed; usually they should explore early, not always); `unimproved` also names a unit for it already in a city's queue (`inProduction`); a food bonus two cities share, with the `work` click that moves it to the hungrier one; a city-site dot or sign that one of our cities now stands on or within 2 plots of, with the `mark ... clear=1` that removes it (`staleMarks`); a met rival whose attitude, the techs and resources it would trade, or the resources we could offer it (last copies marked, with what they give) changed since the last call (`rivalMoods`); `mute=CHECK` or `mute=CHECK@x,y` silences a check or one entry for the session, `unmute=` lifts it (`all` for every one) |
+| `reminders` | what the game does not announce but a player would want pointed out, as small checks, each in [Reminders](#reminders); each turn's digest carries them, and `endturn --brief` prints them as `remind:` when they change. `mute=CHECK` or `mute=CHECK@x,y` silences a check or one entry for the session, `unmute=` lifts it (`all` for every one) |
 | `role` | the session's role, the user's idea (2026-11-14): `play` allows what a player sees and does, keeps fog on and refuses `py`, the WorldBuilder, `fog=0` and orders or reads with another team's `player=`, in `batch` and `profile` too; `assist` adds advice to `play`; `all`, the default, allows everything. `lock=1` holds the role until Civ4 closes, and `start --role` locks it. See [Roles](#roles) below |
 | `directions` | what is known in each of 8 compass sectors around a city: good and poor land, fresh water, resources, rival plots and the unknown edge, with a rough value, so scouting and new cities go where the land promises more. The user's idea after the Warrior walked into tundra the map already showed (validation run, 2026-11-19) |
 | `advise` | advice, a heuristic of ours that may be wrong, naming its rule in each reply: `about=scout` ranks `scout`'s steps; `about=threats` weighs each animal and barbarian within 4 plots of a unit and says which to `avoid`. See [Roles](#roles) below |
 | `SASPilotClient.py health` | SASPilot's own state in one reply, the user's idea (2026-11-14): the bridge's tick errors, settings not at their recommended values, this session's errors and `py` snippets, operators present, role and fog, and whether SASPilotConsole follows the client; `problems` lists what needs a look and is empty when all is well |
-| `scout` | each plot a scout could step to now, with how many unknown plots it would reveal, its defense bonus and the animals and barbarians seen within two plots, in a fixed order; the choice stays the agent's, as automated exploring lost a Warrior that fought on at 15 HP. Its ranking moved to `advise about=scout` with the facts-versus-advice split |
+| `scout` | each plot a scout could step to now, with how many unknown plots it would reveal, its defense bonus and the animals and barbarians seen within two plots, in a fixed order; the choice stays the agent's, as automated exploring lost a Warrior that fought on at 15 HP. Its ranking moved to `advise about=scout` with the facts-versus-advice split. `frontiers` gives the nearest known land of our landmass bordering the unknown, by distance from the unit, as far targets: at turn 60 of the 2026-11-19 validation run every step around the Scout revealed little and it drifted back toward home, while a pocket inside Sitting Bull's land 2 plots away still hid his city Cahokia, found 2 turns later |
 | `greatpeople` | Great People planning: the threshold, per city its points, points per turn, rate modifier, turns left and the mix of types with each one's chance (`chancePctX100`), as the city screen's bar shows; and the techs whose first discoverer gets a free Great Person that nobody has yet |
 | `workers` | planning Workers by hand instead of automating them: without `city=`, each Worker with its mission, per city the worked plots left unimproved and the city AI's three most valued builds, and per leader we can trade with whether their capital is on our trade network (a missing road link means no foreign trade routes); with `city=`, each plot's terrain, feature, bonus, river, improvement, route and yields, the city AI's best build and value (`getSASPilotCityBuildsJson`, as Python had no getter), and every improvement a Worker could build with its yield change and turns. The AI's choice is a reference to compare with, as the user wanted SASPilot to decide as a player (2026-11-14); as advice no screen shows, it is left out unless the session's role allows advice |
 
@@ -234,6 +243,105 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 - An order's reply shows the state at the moment the order was given. A mission is carried out on the following game updates: right after `MISSION_FOUND` the reply still showed the Settler, and the city existed a moment later. Read again before relying on the result.
 - A `MISSION_MOVE_TO` longer than the unit's moves continues when the turn ends, as it does for a human's unit.
 - `start`, `list`, `wait` and `close` are handled by `SASPilotClient.py` itself and are not in `help`.
+
+### Trade fields
+
+`trade` gives these fields beside the two columns of the diplomacy screen.
+
+| Field | What it gives |
+| --- | --- |
+| `tradeRules` | which kinds of trade (tech, gold, maps, open borders, pacts, alliance, vassal) each side's techs allow, and the techs that allow each, read from the XML so other rules are followed (in SAS: Writing for techs and open borders, Currency for gold) |
+| `techsNotOffered` | each tech they hold and we lack that is off the table, with why: bTrade off in the XML, as for The Wheel in SAS, or a prerequisite we lack |
+| `tradeRoutes` | whether a trade route with them can exist: allowed at all (open borders or other free trade), their cities we have seen (AdvCiv's advc.124 skips unrevealed cities, so exploring finds partners, as the user recalled) and those our network reaches |
+
+Resource trades follow a stricter rule (`CvPlayer::canTradeNetworkWith`: their city must also reach their own capital), which `bonustrade` gives: at turn 54 Pasargadae was on our network for a route, while `bonustrade` said Persia was not connected.
+
+### City sites
+
+`plansites` gives each site these fields, added when the 2026-11-19 validation run leaned toward a Crab site 14 plots from the Palace and a Corn site past Persia.
+
+| Field | What it gives |
+| --- | --- |
+| `value` | the AI's found value (`CvPlayerAI::AI_foundValue`), a reference: on the isolated island of the [islands replay](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#islands-replay-from-turn-0) it rated one site, while corner sites that claim the coast fitted the plan better, and at turn 79 it rated 30,15 at 0 for being near Cork |
+| `coastal`, `openCoast` | whether the site is on the sea, and the open coast in its radius |
+| `foodBonuses`, `happyBonuses` | the food and happiness resources revealed in its radius |
+| `foodAtSize6` | the centre's and best tiles' natural food, revealed bonuses included, less what 6 citizens eat |
+| `sharedPlots`, `sharedStrong` | the plots it shares with our cities, with their yields; strong ones have a bonus or 4+ total yield |
+| `unknownPlots` | its radius plots still in fog |
+| `toGovCenter`, `toOurNearestCity` | its distance to our nearest government center and to our nearest city |
+| `nearestRivalCity`, `nearerRivalThanUs` | the nearest seen rival city, and whether it is nearer than ours |
+| `contested`, `withinReach` | a rival city at most 2 plots farther than ours; within 6 plots of our nearest city |
+| `upkeepReference` | per reply: the distance upkeep our cities pay now at their distances |
+
+Each site's `priority` is the first that applies:
+
+| Priority | When | Case that prompted it |
+| --- | --- | --- |
+| `scout first` | 4 or more radius plots unknown | the user: exploring near the capital comes first; the food check had skipped 14,10 and 26,8 with 8 plots unknown |
+| `skip` | food at size 6 is 0 or less | the plains around 28,21: no food, no bonus, no link to our land short of taking Pasargadae |
+| `first` | contested and within reach | 20,12, 6 plots from Pasargadae, became Emain Macha |
+| `dart only` | contested beyond reach: it needs defenders and a reason, such as a chokepoint or the map edge | 24,22, 9 plots from Cork and nearer Pasargadae, would be built for Persia to take |
+| `later` | uncontested and more than 8 plots from our government center | radial growth fills the ring around the capital first (the user, turn 80) |
+| `can wait` | uncontested and near | the low-value east at turn 54 |
+| `(poor food)` mark | food at size 6 is 2 or less | the west's plains and tundra (the user, turn 80) |
+
+### Tech cases
+
+`research` without args gives each available tech these fields, added when the validation run researched Calendar with no case for it.
+
+| Field | What it gives |
+| --- | --- |
+| `buyFrom` | met civs that would sell it to us now: buy it rather than research it |
+| `sellTo` | met civs lacking it, when the XML lets it be traded: trade stock |
+| `leadsTo`, `unlocks` | the techs it leads to, and the units, buildings and other things it unlocks |
+| `forOurResources` | the resources in sight whose improvement it would unlock |
+| `meetsNeeds` | a happiness or health building where a city has 1 or less to spare, the limit with the smaller margin marked as binding first; or a land unit stronger than any we train, with the resources it needs and our status for each (have, ours, elsewhere, hidden until a tech, or this tech reveals it), as a Chariot or Axeman is no army without Horse, Copper or Iron. Temples count for our state religion or one in our cities; the Palace and other maxed-out classes are skipped; the first 3 are listed, then a count |
+
+`limits` gives each city's happy and health margins, and which limit binds first.
+
+### Reminders
+
+| Check | What it points out | Case that prompted it |
+| --- | --- | --- |
+| research, cities, gold, wounded, trades, screens | no research, an empty build queue, a starving or angry city, a city growing within 5 turns past its happy or healthy limit, research a met rival would sell us, a wounded unit outside our borders, gold running out within ten turns, techs a met player could be offered, screens or popups left open | a missed choice can cost a turn the game never mentions; Seafaring, 2 turns no neighbour had, bought Construction and Metal Casting (2026-11-14) |
+| `losses` | our units destroyed or captured since the previous turn | two Workers killed by a barbarian Archer went unnoticed when the agent cut each digest to its last lines |
+| `unfinished` | builds a city has hammers in but is not making, as a city keeps them after switching | the user's advice: a Worker one turn from done is worth finishing |
+| `unimproved` | resources in our borders that supply nothing though we have the tech, with a unit on its way (`unitOnTheWay`) or in a queue (`inProduction`); an improved one not on a city's trade network gets a road only when it answers a need (happiness or health within 1 of a cap, or a unit or building that requires it) | the Clam at 22,31 of the turn-0 game, connected by a cheap Work Boat for health; at turn 66 of the validation run, roading every resource was inefficient, as a worked tile yields without one |
+| `sleepingWorkers` | Workers asleep, as a sleeping unit is not idle and appears nowhere else | three slept near York from turn 155 to 160 |
+| `exports` | resources we give away while none is left for ourselves | the Iron from turn 118 to 128 of the turn-0 game |
+| `idleImprovements` | an improved plot no city works while the city works an unimproved one, with each plot's yields; a deliberate hammer swap is left out | the Clam's boats unworked six turns with the governor off; Dublin's 3-hammer hill forest over its Crab at turn 61 |
+| `scoutBeforeFounding` | no city yet and units with moves left besides the Settler | scouting trial, 2026-11-14 |
+| `exposed` | a unit within two plots of a visible animal or barbarian | a Scout died beside a Bear |
+| `huts` | every goody hut seen, with our nearest unit | scouting trial, 2026-11-14 |
+| `idleGarrison` | military units waiting in a city, with the nearest foreign unit; a city's only defender with a rival city within 8 plots stays | usually they should explore early; at turn 59 it sent Cork's only Archer out with Pasargadae 7 plots away |
+| `sharedBonuses` | a food bonus two cities share, with the `work` click that moves it to the hungrier one | Continents game, 2026-11-14 |
+| `staleMarks` | a site mark one of our cities stands on or near, with the `mark ... clear=1` that removes it; a mark on our own city is kept, and a site mark left on a new city is flagged for a city mark | the user marks our cities to see a site's overlap |
+| `rivalMoods` | a met rival whose attitude, tradeable techs and resources, or the resources we could offer changed since the last call | the user: check trades every turn |
+| `expansionSupport` | a Settler queued or out while Workers number fewer than 2 per city less 1, or a city has no defender | at turn 52, 2 cities had 1 Worker and no defender |
+| `homeUnknown` | land still unknown within 6 plots of a city, by direction | a unit sat fortified in the capital while east and west were unknown |
+| `happyHealth` | a city with 1 or less to spare in either limit: which binds first, trait effects, resources of the other kind to trade away, met civs exporting what we lack, linked trade networks | happiness is usually scarce early while our health was plentiful |
+| `lowProduction` | a city under 3 hammers a turn: its best unworked hammer tiles and the improvements that would add hammers, river plots first | Dublin made 2 at turn 54, so an Archer took 13 turns |
+| `borderPressure` | a city's strong plots that a rival owns or whose rival culture reaches 70% of ours, with its culture rate and culture buildings | Emain Macha, 6 plots from Pasargadae, a holy city |
+| `sitesChanged` | a change in the verdict of a city site worth settling since the last call | Cork's grown borders made 29,14 take 2 of Cork's strong plots at turn 79 |
+| `whip` | a 1-citizen whip that pays: the city is capped and growing wastes food, or the citizen regrows within 6 turns; not while whip anger runs at 1 happy face or less; it names a food-keeping building such as the Granary | the user: whip hammer items, and a Granary goes well with it |
+| `research` (no case) | our research improving no resource, finding no buyer and meeting no need | Calendar at turn 54 |
+
+### Dot-map colours
+
+The agent marks the dot map (BUG's Alt+X) with one colour per kind of mark, so a person watching can follow its plan.
+
+- It marks our own cities too, so a planned site's overlap with them shows.
+- In the 2026-11-19 validation run, white marks on Ireland's white cities were hard to read, so a mark on one of our cities now takes `color=contrast` by default.
+  - This picks the colour farthest from our civ's two colours, so it works for any civ; Ireland's white and green gave magenta.
+
+| Mark | Colour | Example (Ireland, turn 54) |
+| --- | --- | --- |
+| One of our cities | `contrast`, the default on our city | Dublin and Cork in magenta |
+| Planned site, next in line | `COLOR_GREEN`, the default elsewhere | 20,12, the next Settler's site |
+| Filler or later site | `COLOR_YELLOW` | 14,10 and 26,8, coastal fillers; 29,14, 14 plots from the Palace |
+| Contested site, nearer a rival city than ours | `COLOR_RED` | 24,22, nearer Pasargadae |
+
+A sign (`text=`) gives the reason, such as "2 Corn, contested with Persia and Mehmed".
 
 ### Graph queries
 
