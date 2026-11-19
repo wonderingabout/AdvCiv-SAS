@@ -24,7 +24,8 @@
 #include "BBAILog.h"
 #include "CitySiteEvaluator.h" // <!-- custom: Known-water-bonus queries for cached coastal comparisons avoid replaying found-value scoring. See KI#505.2. (GPT-6.1-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
-#include "RiseFall.h" // advc.708: Needed only for savegame compatibility
+// <!-- custom: The second RiseFall.h include was added here for advc.708 old-save migration.
+// SAS removed that migration, and the first include still supplies the Rise and Fall scoring and turn hooks. See KI#1098.2. (GPT-6.2-Sol) -->
 #include "SelfMod.h" // advc.092b
 #include "CvDLLButtonPopup.h" // <!-- custom: closeSASPilotPopups and answerSASPilotPopup use the held-popup list and call the response handler OnOkClicked directly. (Claude code Fable 5.2) -->
 #include "CvPopupReturn.h" // <!-- custom: answerSASPilotPopup builds the PopupReturn that handler reads; a forward declaration cannot construct one. (Claude code Fable 5.2) -->
@@ -14953,6 +14954,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	reset();
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -15173,6 +15175,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	m_researchQueue.Read(pStream);
 
 	// <!-- custom: lone bracket left as is as seemingly not related to the uiflag cleanup we are doing here -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		m_cityNames.clear();
 		CvWString szBuffer;
@@ -15249,8 +15252,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	FOR_EACH_ENUM(PlayerHistory)
 	{
 		PlayerHistory& kHist = m_playerHistory[eLoopPlayerHistory];
-		// <!-- custom: note: i just replaced the old uiflag check with false since it was not true (checking for low uiflag number), ideally chatgpt 5 says one can, if want sot optimize or clean up further, go in the callee as it calls it (no pun) and remove old parameter references then remove the parameter entirely, as well as other related things it suggested -->
-		kHist.read(pStream, getID(), false);
+		// <!-- custom: KI#46 already switched this caller to the vector layout.
+		// Remove the old-format argument with its only reader. See KI#46.2. (GPT-6.2-Sol) -->
+		kHist.read(pStream, getID());
 	} // </advc.004s>
 
 	{
@@ -15338,6 +15342,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
 	}
 
 	// <!-- custom: adding lone brackets just in case as is seemingly done as a pattern here, after we have cleaned up the old conditional uiflag check hence its scope as well -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		m_triggersFired.clear();
 		uint iSize;
@@ -15390,10 +15395,12 @@ void CvPlayer::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt1(%d)", getID()));
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 
-	// <!-- custom: Reuse the existing CvPlayer write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
-	uiFlag = SASSaveStreamFormat::CV_PLAYER; // advc: Bugs fixed with civ-wide special commerce rate cache
+	// <!-- custom: Reuse AdvCiv flag 23 for the widened religion and corporation counts.
+	// Read the writer flag from the shared registry so SASGameRecord reports the same layout the DLL writes. (GPT-6.1-Sol + GPT-6.2-Sol) -->
+	uiFlag = SASSaveStreamFormat::CV_PLAYER; // advc: Larger EnumMap for religion, corporation count
 
 	pStream->Write(uiFlag);
 

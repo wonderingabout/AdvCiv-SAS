@@ -594,10 +594,6 @@ def check_save_mod(path):
 		raise PilotError("%s was saved with %s, not %s; Civ4 would ask to restart into that mod" % (path, found or "no mod", expected))
 
 
-# <!-- custom: Settings that agent runs want besides toggle_dev_diagnostics.py's list: informational popups dismissed during autoplay. (Claude code Opus 5.5) -->
-PILOT_RECOMMENDED = {"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1}
-
-
 def settings_check():
 	# <!-- custom: The user suggested a greeting that lists the recommended settings for agent runs with their values, warning of those not set (2026-11-14): with the Dawn of Man screen or a tech splash on, a game waits on a Continue button SASPilot does not press, and with SASGameRecord off a game leaves no record to review.
 	# The development values come from toggle_dev_diagnostics.py, so the two cannot drift apart.
@@ -605,9 +601,11 @@ def settings_check():
 	# Returns one row per setting: file, name, current, recommended, ok. (Claude code Opus 5.5) -->
 	sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "diagnostics"))
 	import toggle_dev_diagnostics
+	# <!-- custom: The settings agent runs want besides the toggle's list moved to define_values.py as AGENT_RUN_VALUES on 2026-11-19, so each switched value has one home. (Claude code Opus 5.5) -->
+	from define_values import AGENT_RUN_VALUES
 	text = toggle_dev_diagnostics.DEFINES_PATH.read_bytes().decode("utf-8")
 	wanted = dict([(name, dev) for (name, (shipped, dev)) in toggle_dev_diagnostics.DEV_DIAGNOSTICS.items()])
-	wanted.update(PILOT_RECOMMENDED)
+	wanted.update(AGENT_RUN_VALUES)
 	rows = []
 	for name, value in sorted(wanted.items()):
 		matches = toggle_dev_diagnostics.define_pattern(name).findall(text)

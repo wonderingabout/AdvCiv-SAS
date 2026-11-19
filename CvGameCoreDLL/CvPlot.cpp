@@ -7790,6 +7790,7 @@ void CvPlot::read(FDataStreamBase* pStream)
 	//reset(); // advc: Constructor handles that
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -7888,10 +7889,8 @@ void CvPlot::read(FDataStreamBase* pStream)
 	pStream->Read(&m_workingCity.iID);
 	pStream->Read((int*)&m_workingCityOverride.eOwner);
 	pStream->Read(&m_workingCityOverride.iID);
-	// <advc.opt>
-	m_plotCity.validateOwner();
-	m_workingCity.validateOwner();
-	m_workingCityOverride.validateOwner(); // </advc.opt>
+	// <!-- custom: Note: Current saves write BARBARIAN_PLAYER for empty plot-city, working-city and override references.
+	// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 
 	m_aiYield.read(pStream);
 
@@ -7944,6 +7943,7 @@ void CvPlot::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvPlot write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_PLOT; // advc.enum: new enum map save behavior

@@ -78,6 +78,14 @@ def _armRequest(szTrigger):
 	bDebugMode = (int(request.get("debugmode", "0")) > 0)
 	if szTrigger == "GAME_START" and request.get("leaders"):
 		_checkLeaders(request["leaders"], request.get("runid", "-"))
+	# <!-- custom: QuickStart gives Advanced Start 0 points, as only Custom Game sets them, so an agent testing Advanced Start (2026-11-19) asks for points here; each living civ player gets them before its first turn, when the AI spends them. (Claude code Opus 5.5) -->
+	if request.get("advancedstartpoints"):
+		iPoints = int(request["advancedstartpoints"])
+		if szTrigger != "GAME_START" or not CyGame().isOption(GameOptionTypes.GAMEOPTION_ADVANCED_START) or iPoints < 0:
+			raise ValueError("[%s] AdvancedStartPoints needs a new Advanced Start game and a non-negative value in %s" % (_SECTION, path))
+		for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+			if gc.getPlayer(iPlayer).isAlive():
+				gc.getPlayer(iPlayer).setAdvancedStartPoints(iPoints)
 	_iPendingTurns = iTurns
 	_bPendingDebugMode = bDebugMode
 	CvUtil.pyPrintRecord("SAS_AUTOPLAY_REQUEST", "outcome=ARMED trigger=%s turns=%d debugMode=%d ini=%s" % (szTrigger, iTurns, int(_bPendingDebugMode), path))

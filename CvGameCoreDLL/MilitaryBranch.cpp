@@ -50,28 +50,13 @@ void MilitaryBranch::write(FDataStreamBase* pStream) const
 
 void MilitaryBranch::read(FDataStreamBase* pStream)
 {
-	int iSaveVersion;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 1000;
-		if (iSaveVersion <= 0)
-			m_eTypicalUnit = (UnitTypes)iTmp;
-		else m_eTypicalUnit = (UnitTypes)((iTmp % 1000) - 1);
-	}
-	if (iSaveVersion < 1)
-	{
-		double dTypicalPower, dTotalPower;
-		pStream->Read(&dTypicalPower);
-		pStream->Read(&dTotalPower);
-		m_rTypicalPower = scaled::fromDouble(dTypicalPower);
-		m_rTotalPower = scaled::fromDouble(dTotalPower);
-	}
-	else
-	{
-		m_rTypicalPower.read(pStream);
-		m_rTotalPower.read(pStream);
-	}
+	// <!-- custom: The current writer packs the unit ID with a +1 offset and stores power as scaled values.
+	// Read that layout directly because SAS does not load the old raw unit IDs or double-valued power fields. See KI#46.2. (GPT-6.2-Sol) -->
+	int iPackedTypicalUnit;
+	pStream->Read(&iPackedTypicalUnit);
+	m_eTypicalUnit = (UnitTypes)((iPackedTypicalUnit % 1000) - 1);
+	m_rTypicalPower.read(pStream);
+	m_rTotalPower.read(pStream);
 	pStream->Read(&m_iUnits);
 	pStream->Read(&m_bCanBombard);
 	pStream->Read(&m_bCanSoften);

@@ -369,10 +369,80 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 comment = "// <!-- custom: Return success so callers can distinguish failed capture from an empty result. (GPT-6.1-Sol) -->\n"
                 self.assertEqual(self.errors(path, old, comment + new), [])
 
-    def test_return_type_reflow_and_storage_qualifiers_are_not_return_changes(self):
+    # <!-- custom: Test the layout rule separately from return-type provenance, which compares tokens. (GPT-6.2-Sol) -->
+    def test_return_type_reflow_is_a_layout_change_only(self):
         old = "class Worker {\npublic:\n    const Item* capture();\n};\n"
         new = "class Worker {\npublic:\n    inline const Item *\n    capture();\n};\n"
-        self.assertEqual(self.errors("CvGameCoreDLL/Test.h", old, new), [])
+        errors = self.errors("CvGameCoreDLL/Test.h", old, new)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("one-line C++ signature for capture", errors[0])
+
+    def test_removing_first_cpp_function_preserves_next_return_type(self):
+        prefix = '#include "CvGameCoreDLL.h"\n\n'
+        next_function = "int Worker::score() { return 1; }\n"
+        old = prefix + "void legacy() {}\n\n" + next_function
+        self.assertEqual(self.errors("CvGameCoreDLL/Test.cpp", old, prefix + next_function), [])
+
+    def test_cpp_save_layout_gates_reject_new_thresholds(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        for comparison in (
+            "uiFlag < 23",
+            "m_uiSaveFlag <= 28u",
+            "uiSaveStreamFlag >= SASSaveStreamFormat::CV_PLAYER",
+            "getLoadedSaveStreamFlag() > 0",
+            "23 >\n        iSaveVersion",
+            "1 <= savegameVersion",
+            "iSaveVersion == 1",
+            "1 != savegameVersion",
+        ):
+            with self.subTest(comparison=comparison):
+                code = "void load() { if (" + comparison + ") readLegacy(); }\n"
+                self.assertTrue(any("new save-layout version gate" in error for error in self.errors(path, "", code)))
+
+    def test_cpp_save_layout_gates_leave_existing_checks_and_flags_alone(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        old = "void load() { if (uiFlag >= 28) readExtra(); }\n"
+        reflowed = "void load() {\n    if (28 <=\n        uiFlag) readExtra();\n}\n"
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, old, reflowed), [])
+        self.assertEqual(len(checker.cpp_save_layout_gate_errors(path, old, old + reflowed)), 1)
+        self.assertEqual(len(checker.cpp_save_layout_gate_errors(path, old, old.replace("28", "29"))), 1)
+        unrelated = 'uiFlag = SASSaveStreamFormat::CV_GAME;\nif (uiFlagBits < 23) run();\nprint("if (uiFlag < 23)");\n// if (uiFlag < 23)\n'
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, "", unrelated), [])
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, old, ""), [])
+
+    def test_cpp_save_layout_check_rejects_retired_helpers(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        for statement in (
+            "m_aTargetCities[eLoopPlayer].validateOwner();",
+            "MissionDataLegacy mission;",
+            "LegacyArrayEnumMap<ReligionTypes, int>::convert(counts, stream);",
+            "team.AI_finalizeInit();",
+            "gameText.setAlwaysShowPlotCulture(true);",
+            "void reset(MapData* data, bool bResetPlotExtraData);",
+        ):
+            with self.subTest(statement=statement):
+                self.assertTrue(any("new save-layout compatibility helper" in error
+                                    for error in self.errors(path, "", statement + "\n")))
+                self.assertEqual(checker.cpp_save_layout_gate_errors(path, statement, statement), [])
+        valid = 'counts.readArray<int>(stream);\nprint("MissionDataLegacy");\n// item.validateOwner();\n'
+        self.assertEqual(checker.cpp_save_layout_gate_errors(path, "", valid), [])
+
+    def test_cpp_signature_wrap_only_rejects_new_splits(self):
+        old = "bool Worker::spread(int iUnit, bool bFast) const\n{ return true; }\n"
+        wrapped = "bool Worker::spread(int iUnit,\n        bool bFast) const\n{ return true; }\n"
+        path = "CvGameCoreDLL/Test.cpp"
+        self.assertTrue(any("one-line C++ signature" in error for error in self.errors(path, old, wrapped)))
+        self.assertEqual(self.errors(path, wrapped, wrapped.replace("return true", "return false")), [])
+        self.assertEqual(self.errors(path, "", wrapped), [])
+
+    def test_cpp_signature_wrap_detects_parameter_edits_and_qualifiers(self):
+        old = "bool Worker::spread(int iUnit, bool bFast) const\n{ return true; }\n"
+        for new in (
+            "bool Worker::spread(int iUnit,\n        bool bQuick) const\n{ return true; }\n",
+            "bool Worker::spread(int iUnit, bool bFast)\n        const\n{ return true; }\n",
+        ):
+            with self.subTest(new=new):
+                self.assertTrue(any("one-line C++ signature" in error for error in self.errors("CvGameCoreDLL/Test.cpp", old, new)))
 
     def test_return_change_preserves_unchanged_overloads(self):
         old = "int Worker::capture(int id) { return id; }\nvoid Worker::capture() {}\n"
@@ -491,6 +561,39 @@ class SourceChangeProvenanceTests(unittest.TestCase):
             moved.write_text(moved.read_text(encoding="utf-8") + "# Newly authored untagged explanation.\n", encoding="utf-8")
             git("add", "-A")
             self.assertTrue(any("new/rewritten non-custom comment" in error for error in checker.check(repo, base)[0]))
+
+
+    # <!-- custom: An upstream merge keeps upstream's own comments word for word; they count as inherited through MERGE_HEAD before the merge commit and through its second parent after, while a reworded copy still fails. (Claude code Opus 5.5) -->
+    def test_upstream_merge_comments_are_inherited(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            def git(*args):
+                return subprocess.check_output(["git", *args], cwd=repo, stderr=subprocess.DEVNULL).decode().strip()
+            # <!-- custom: The fixture file has no SAS header, which another rule reports; only the comment rule is under test. (Claude code Opus 5.5) -->
+            def comment_errors():
+                return [error for error in checker.check(repo, base)[0] if "new/rewritten non-custom comment" in error]
+            git("init", "-q")
+            git("config", "user.name", "CI fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            git("config", "commit.gpgsign", "false")
+            path = repo / "PrivateMaps/Map.py"
+            path.parent.mkdir()
+            body = "".join("value_%d = %d\n" % (i, i) for i in range(20))
+            path.write_text(body, encoding="utf-8")
+            git("add", ".")
+            git("commit", "-qm", "fixture base")
+            base = git("rev-parse", "HEAD")
+            git("checkout", "-qb", "upstream")
+            path.write_text("# advc.oxi: New method to replace erroneous uses of getCirclePoints\n" + body, encoding="utf-8")
+            git("commit", "-qam", "upstream comment")
+            upstream = git("rev-parse", "HEAD")
+            git("checkout", "-q", base)
+            git("merge", "-q", "--no-commit", "--no-ff", upstream)
+            self.assertFalse(comment_errors())
+            git("commit", "-qm", "merge upstream")
+            self.assertFalse(comment_errors())
+            path.write_text("# advc.oxi: A reworded upstream note\n" + body, encoding="utf-8")
+            self.assertTrue(comment_errors())
 
 
     # <!-- custom: Spacing fixtures cover inserted and deletion-created separators, inherited cleanup, and multiline payloads whose blank rows belong to captured data rather than source layout. (GPT-6.1-Sol) -->

@@ -34,7 +34,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `desktop/` | controlling the computer rather than the game, for any app, in the two groups below; `layouts/` holds the apps' click points and saved window layouts |
 | `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
 | `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
-| `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) |
+| `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) with its [`define_values.py`](#define_valuespy) |
 | `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
@@ -147,6 +147,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`summarize_sasgamerecord_volume.py`](#summarize_sasgamerecord_volumepy)
   - [Local development diagnostics toggle](#local-development-diagnostics-toggle)
     - [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy)
+    - [`define_values.py`](#define_valuespy)
 - [`dll_builds/`](#dll_builds)
   - [`build_dll.py`](#build_dllpy)
   - [`debug_dll.py`](#debug_dllpy)
@@ -1206,10 +1207,15 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
 #### `toggle_dev_diagnostics.py`
 
 - Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
-  - The set and its shipped/development values live in the script's `DEV_DIAGNOSTICS` table; edit it as preferences change.
+  - The set and both its values live in [`define_values.py`](#define_valuespy): `DEVELOPMENT_VALUES` lists what `on` sets, beside the shipped values the CI checks require, so both settings of each define are seen and changed in one place; edit it as preferences change.
+  - A toggled define without a shipped value there stops the script.
   - `on` includes All, Team and Direct chat text in local SGR logs. For a channel-isolation test, enable only the desired chat switch in XML instead.
   - `off` restores the shipped values, including withholding text for all three chat channels. Use `status` to print the current values without writing.
   - `on` also skips the Dawn of Man screen (`SAS_UI_DAWN_OF_MAN_ON=0`), which players keep; [`hands_free_defaults.py`](/.github/workflows/README.md#buildruntimehands_free_defaultspy) checks that it ships as `1`.
+- Restore the values with `on` rather than by hand: on 2026-11-19 all of them were back at their development values except `SAS_UI_DAWN_OF_MAN_ON`, left at `1` after a branch switch, so the Dawn of Man screen showed in agent test games.
+  - `status` now ends with `all development`, `all shipped`, or a `MIXED` line naming the values that differ from the rest, and exits with code 1 in that case.
+  - [`run_autoplay.py`](#run_autoplaypy) prints the same warning before it launches Civ4.
+  - `status` also lists every other integer define that differs from the committed XML, so a value changed locally outside the table, which `off` would not reset, shows up without another list to keep.
 - Edits only those values in place and preserves the file's CRLF line endings.
 - Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
 
@@ -1221,6 +1227,14 @@ python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on
 python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py off
 ```
 
+- Added with help of Claude code Opus 5.5.
+
+#### `define_values.py`
+
+- Holds the shipped GlobalDefines values that the SASGameRecord, runtime-status and hands-free CI checks require, so [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) restores the same values with `off` instead of keeping its own copy.
+  - It also lists the development values the toggle's `on` sets; CI does not read them, but keeping them beside the shipped values shows both settings of each define in one place.
+  - It sits here rather than in `.github/workflows/lib/` because the values serve local development and future helpers more than CI, which checks only the shipped half.
+- Change a value here only: [`shared_define_values.py`](/.github/workflows/README.md#buildsourceshared_define_valuespy) fails when another script writes one of these names with a number.
 - Added with help of Claude code Opus 5.5.
 
 ## `dll_builds/`
@@ -2061,6 +2075,8 @@ These helpers let an agent run Civ4 itself: load a save or start a new game, aut
   - `--debug-mode` turns on Debug Mode, which seems to change the game ([KI#1080](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1080)).
   - `--keep-open` leaves Civ4 running; `--multiple` allows other clients and passes Civ4's `multiple` argument.
   - `--map`, `--world-size`, `--speed`, `--handicap`, `--era`, `--climate`, `--sea-level`, `--fixed-seeds` and `--leaders` set up a new game.
+  - `--option GAMEOPTION_...` turns on game options for it, and `--advanced-start-points N` gives every civ player N Advanced Start points at game start, which QuickStart otherwise leaves at 0.
+    - The AI civs spend theirs on their first turn. The active player's Advanced Start panel stays open during autoplay while the turns go on; clicking Begin! spends that player's points too.
 - Writes `SASAutoplay_<run id>.json` to `Logs/` under the Civ4 user folder. Optional final images share `Downloads/AdvCiv-SAS_LLM/autoplay_screenshots/` and use capture UTC and the Civ4 PID in their names. Override the report directory with `--output-root` or the image directory with `--screenshot-root`. Use `--no-screenshot` to skip capture.
 
 ```bash

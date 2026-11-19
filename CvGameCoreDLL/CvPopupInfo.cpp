@@ -1,5 +1,6 @@
 #include "CvGameCoreDLL.h"
-//#include ".\cvpopupinfo.h"
+// <!-- custom: AdvCiv already uses the case-correct local header below.
+// SAS extended that cleanup during the AdvCiv 1.14 merge by removing the commented-out `.\cvpopupinfo.h` left beside it. (GPT-6.2-Sol) -->
 #include "CvPopupInfo.h" // advc
 
 /*	advc (note): There's a convention of checking for a NULL pointer

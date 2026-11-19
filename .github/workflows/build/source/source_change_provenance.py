@@ -21,6 +21,8 @@ from io import StringIO
 # <!-- custom: Git range resolution and historical text decoding are shared with the Markdown prose checker; import them from lib instead of making documentation depend on the source-provenance scanner. (GPT-6.1-Sol) -->
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from git_context import ensure_base, git_text, run_git
+# <!-- custom: Share comment and literal masking with the duplicate-include check so both inspect active C++ code. See KI#1098.2. (GPT-6.2-Sol) -->
+from cpp_lex import mask_cpp
 # <!-- custom: Reuse the extracted literal/ancestry-aware separator check; source spacing keeps its two-blank allowance while text hygiene supplies format-specific limits. (GPT-6.1-Sol) -->
 from blank_lines import blank_line_errors
 
@@ -92,6 +94,7 @@ class Signature:
     start: int
     end: int
     return_type: str = ""
+    layout_start: int | None = None
 
 
 def changed_paths(repo: Path, base_ref: str) -> list[str]:
@@ -551,57 +554,6 @@ def import_include_changes(old_text: str, new_text: str, suffix: str):
     return changes
 
 
-def mask_cpp(text: str) -> str:
-    chars = list(text)
-    i = 0
-    n = len(chars)
-    state = "code"
-    quote = ""
-    while i < n:
-        ch = chars[i]
-        nxt = chars[i + 1] if i + 1 < n else ""
-        if state == "code":
-            if ch in ('"', "'"):
-                state = "string"
-                quote = ch
-                chars[i] = " "
-                i += 1
-                continue
-            if ch == "/" and nxt == "/":
-                chars[i] = chars[i + 1] = " "
-                i += 2
-                while i < n and chars[i] != "\n":
-                    chars[i] = " "
-                    i += 1
-                continue
-            if ch == "/" and nxt == "*":
-                chars[i] = chars[i + 1] = " "
-                i += 2
-                while i < n - 1 and not (chars[i] == "*" and chars[i + 1] == "/"):
-                    if chars[i] != "\n":
-                        chars[i] = " "
-                    i += 1
-                if i < n - 1:
-                    chars[i] = chars[i + 1] = " "
-                    i += 2
-                continue
-        else:
-            if ch == "\\":
-                chars[i] = " "
-                if i + 1 < n and chars[i + 1] != "\n":
-                    chars[i + 1] = " "
-                i += 2
-                continue
-            if ch == quote:
-                state = "code"
-            if ch != "\n":
-                chars[i] = " "
-            i += 1
-            continue
-        i += 1
-    return "".join(chars)
-
-
 def matching_paren(text: str, open_pos: int) -> int | None:
     depth = 0
     for index in range(open_pos, len(text)):
@@ -705,10 +657,24 @@ def cpp_signatures(text: str) -> list[Signature]:
         end_line = code.count("\n", 0, close_pos) + 1
         # <!-- custom: Return types are interface facts too; compare tokens rather than physical wrapping or pointer/reference spacing.
         # Access labels and storage/declaration qualifiers are not the return type. (GPT-6.1-Sol) -->
-        return_prefix = re.sub(r"\b(?:public|private|protected)\s*:", "", prefix)
+        # <!-- custom: Removing the first function can bring preceding includes into the next function's prefix.
+        # Strip those directives so deleting a legacy helper does not look like a return-type change. (GPT-6.2-Sol) -->
+        return_prefix = re.sub(r"(?m)^\s*#[^\n]*", "", prefix)
+        return_prefix = re.sub(r"\b(?:public|private|protected)\s*:", "", return_prefix)
         return_prefix = re.sub(r"\b(?:static|inline|virtual|explicit|friend|constexpr|extern|DllExport)\b", "", return_prefix)
         return_type = " ".join(re.findall(r"[A-Za-z_]\w*|::|&&|[^\s]", return_prefix))
-        result.append(Signature(name, params, start_line, end_line, return_type))
+        # <!-- custom: Include the return type so moving it above the name cannot evade the one-line check.
+        # Exclude standalone access labels, template lines and directives so their placement does not make a one-line signature appear wrapped. (GPT-6.2-Sol) -->
+        prefix_lines = code[boundary + 1:name_start].split("\n")
+        layout_start = start_line
+        if len(prefix_lines) > 1 and not prefix_lines[-1].strip():
+            for offset, line in enumerate(reversed(prefix_lines[:-1]), 1):
+                if line.strip():
+                    if not re.match(r"\s*(?:#|template\b|(?:public|private|protected)\s*:\s*$)", line):
+                        layout_start -= offset
+                    break
+        end_line += after[:len(after) - len(qualifier)].rstrip().count("\n")
+        result.append(Signature(name, params, start_line, end_line, return_type, layout_start))
     # <!-- custom: Nested parentheses can generate duplicate heuristic candidates; keep only unique signature spans before comparing parameter lists. (ChatGPT-6-Sol) -->
     unique = {}
     for sig in result:
@@ -746,18 +712,17 @@ def signatures(text: str, suffix: str) -> list[Signature]:
     return []
 
 
-# <!-- custom: Compare parameter/return contracts and clear local renames; accept the caller's existing line-diff opcodes so rename detection does not compute the same whole-file diff twice. (GPT-6.1-Sol) -->
-def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
+# <!-- custom: Compare parameter/return contracts and clear local renames using the caller's line diff. (GPT-6.1-Sol) -->
+# <!-- custom: Keep exact pairs too so a line split is reviewable even when the signature tokens stay the same. (GPT-6.2-Sol) -->
+def signature_pairs(old_text: str, new_text: str, suffix: str, opcodes=None):
     old_by = defaultdict(list)
     new_by = defaultdict(list)
     for sig in signatures(old_text, suffix):
         old_by[sig.name].append(sig)
     for sig in signatures(new_text, suffix):
         new_by[sig.name].append(sig)
-    changes = []
+    pairs = []
     for name in sorted(set(old_by) & set(new_by)):
-        if SAS_FUNCTION_RE.search(name):
-            continue
         old_list = old_by[name][:]
         new_list = new_by[name][:]
         # <!-- custom: Remove exact overload matches first so only unmatched overloads are paired as possible parameter/return-contract changes. (ChatGPT-6-Sol + GPT-6.1-Sol) -->
@@ -775,16 +740,15 @@ def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
                 remaining_old.append(old_sig)
             else:
                 used_new.add(found)
+                pairs.append((old_sig, new_list[found]))
         remaining_new = [sig for index, sig in enumerate(new_list) if index not in used_new]
-        for old_sig, new_sig in zip(remaining_old, remaining_new):
-            if (old_sig.params, old_sig.return_type) != (new_sig.params, new_sig.return_type):
-                changes.append((old_sig, new_sig))
+        pairs.extend(zip(remaining_old, remaining_new))
     # <!-- custom: A name-only change otherwise disappears as one deletion plus one addition.
     # Match only one removed and one added function in the same replacement hunk and scope; distant moves or ambiguous many-function rewrites remain manual review rather than guessed renames. (GPT-6.1-Sol) -->
     removed = [sig for name in old_by.keys() - new_by.keys() for sig in old_by[name] if not SAS_FUNCTION_RE.search(name)]
     added = [sig for name in new_by.keys() - old_by.keys() for sig in new_by[name]]
     if not removed or not added:
-        return changes
+        return pairs
     if opcodes is None:
         opcodes = line_opcodes(old_text, new_text)[2]
     for tag, old_start, old_end, new_start, new_end in opcodes:
@@ -795,8 +759,18 @@ def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
         if len(before) == len(after) == 1:
             old_sig, new_sig = before[0], after[0]
             if old_sig.name.rpartition("::")[0] == new_sig.name.rpartition("::")[0]:
-                changes.append((old_sig, new_sig))
-    return changes
+                pairs.append((old_sig, new_sig))
+    return pairs
+
+
+def signature_interface_changed(old_sig: Signature, new_sig: Signature) -> bool:
+    if old_sig.name == new_sig.name and SAS_FUNCTION_RE.search(old_sig.name):
+        return False
+    return (old_sig.name, old_sig.params, old_sig.return_type) != (new_sig.name, new_sig.params, new_sig.return_type)
+
+
+def changed_signatures(old_text: str, new_text: str, suffix: str, opcodes=None):
+    return [pair for pair in signature_pairs(old_text, new_text, suffix, opcodes) if signature_interface_changed(*pair)]
 
 
 # <!-- custom: Boost.Python .def bindings are interfaces too; a help string describes usage but does not explain why Python needs the operation.
@@ -998,6 +972,46 @@ def cpp_json_format_errors(path: str, old: str, new: str) -> list[str]:
     return errors
 
 
+# <!-- custom: KI#46 removed old save-layout branches.
+# The AdvCiv 1.14 merge review exposed how easily uiFlag and m_uiSaveFlag gates can return.
+# Compare active thresholds against the base to catch added or changed gates while allowing writer markers. See KI#46.2. (GPT-6.2-Sol) -->
+def cpp_save_layout_gate_errors(path: str, old: str, new: str) -> list[str]:
+    flag = (r"\b(?:(?:m_)?(?:uiFlag|(?:i|ui)?Save(?:Game|Stream|Format)?(?:Flag|Version))\b"
+            r"|getLoadedSaveStreamFlag\s*\(\s*\))")
+    threshold = r"(?:-?\s*(?:0[xX][0-9a-f]+|\d+)[uUlL]*\b|(?:[A-Za-z_]\w*\s*::\s*)*[A-Za-z_]\w*\b)"
+    operator = r"(?:==|!=|<=|>=|(?<!<)<(?![<=])|(?<!>)>(?![>=]))"
+    comparison = re.compile(rf"({flag})\s*({operator})\s*({threshold})|({threshold})\s*({operator})\s*({flag})", re.IGNORECASE)
+    opposite = {"==": "==", "!=": "!=", "<": ">", ">": "<", "<=": ">=", ">=": "<="}
+    # <!-- custom: Some retired layouts had no version comparison at the call site.
+    # Catch these specific old readers and conversions without banning the generic EnumMap readArray machinery. (GPT-6.2-Sol) -->
+    legacy_helper = re.compile(
+        r"\b(?:(?:validateOwner|AI_finalizeInit)\s*\(\s*\)|setAlwaysShowPlotCulture\s*\("
+        r"|(?:MissionDataLegacy|bResetPlotExtraData)\b|LegacyArrayEnumMap\b(?=\s*<))"
+    )
+
+    def gates(text):
+        code = mask_cpp(text)
+        for match in comparison.finditer(code):
+            name, test, limit, reverse_limit, reverse_test, reverse_name = match.groups()
+            if reverse_name is not None:
+                name, test, limit = reverse_name, opposite[reverse_test], reverse_limit
+            expression = " ".join(re.sub(r"\s+", "", part) for part in (name, test, limit))
+            yield ("version gate", expression), match.start()
+        for match in legacy_helper.finditer(code):
+            yield ("compatibility helper", re.sub(r"\s+", "", match.group())), match.start()
+
+    previous = Counter(gate for gate, _ in gates(old))
+    errors = []
+    for gate, position in gates(new):
+        if previous[gate]:
+            previous[gate] -= 1
+            continue
+        line = new.count("\n", 0, position) + 1
+        kind, expression = gate
+        errors.append(f"{path}:{line}: new save-layout {kind} ({expression}); read the current layout directly (KI#46.2)")
+    return errors
+
+
 PREDUMP_GENERATOR_MARKER = "# Generated by: .github/workflows/build/runtime/aip_predump_values.py"
 
 
@@ -1018,6 +1032,8 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
         errors.extend(python_inline_suite_errors(path, old_text, new_text))
     if suffix in CPP_SUFFIXES:
         errors.extend(cpp_json_format_errors(path, old_text, new_text))
+        if Path(path).parts[0] == 'CvGameCoreDLL':
+            errors.extend(cpp_save_layout_gate_errors(path, old_text, new_text))
     old_comments = comments(old_text, suffix)
     new_comments = comments(new_text, suffix)
     # <!-- custom: A KI#243.2 rationale used a multiline C++ block around its custom prose, unlike our per-line // convention.
@@ -1133,7 +1149,14 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
                     errors.append("%s:%d: Python .def binding lacks a nearby new custom rationale comment (%s %s)" % (path, position, action, name))
 
     if not new_file and suffix in CPP_SUFFIXES | PY_SUFFIXES:
-        for old_sig, new_sig in changed_signatures(old_text, new_text, suffix, opcodes):
+        changed_old_lines = {line for tag, start, end, _, _ in opcodes if tag != 'equal' for line in range(start + 1, end + 1)}
+        for old_sig, new_sig in signature_pairs(old_text, new_text, suffix, opcodes):
+            if (suffix in CPP_SUFFIXES and old_sig.layout_start == old_sig.end
+                    and old_sig.end in changed_old_lines and new_sig.layout_start < new_sig.end):
+                # <!-- custom: Keep the complete signature greppable through parameter edits and upstream merges. (GPT-6.2-Sol) -->
+                errors.append(f"{path}:{new_sig.layout_start}: keep the existing one-line C++ signature for {new_sig.name} on one line")
+            if not signature_interface_changed(old_sig, new_sig):
+                continue
             nearby = nearby_added_custom(added_custom, new_sig.start, new_sig.end, radius=6)
             if not nearby:
                 details = []
@@ -1171,6 +1194,19 @@ def renamed_paths(repo: Path, base_ref: str) -> dict[str, str]:
 
 # <!-- custom: Forward the optional warning collector across the Git range without treating user-optional model credits as CI failures.
 # Resolve renamed files to their old paths before applying the same provenance rules. (GPT-6.1-Sol) -->
+# <!-- custom: The AdvCiv 1.14 merge restored upstream's own comments word for word, such as PerfectMongoose.py's "# advc.oxi: New method to replace erroneous uses of getCirclePoints", and this check failed all 7 as new uncredited prose because it compared only with main.
+# Codex had first reworded such comments as custom ones to pass, which lost upstream's text; so a comment found exactly in a merged parent's copy of the file now counts as inherited.
+# Merged parents are the second and later parents of merge commits in the range, or MERGE_HEAD while a merge is being prepared. (Claude code Opus 5.5) -->
+def merged_parents(repo: Path, base: str) -> list[str]:
+    parents = []
+    for line in run_git(repo, "rev-list", "--merges", "--parents", "%s..HEAD" % base, check=False).stdout.decode("utf-8").splitlines():
+        parents.extend(line.split()[2:])
+    merge_head = run_git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).stdout.decode("utf-8").strip()
+    if merge_head:
+        parents.append(merge_head)
+    return list(dict.fromkeys(parents))
+
+
 def check(repo: Path, base_ref: str | None, event_name: str | None = None, warnings: list[str] | None = None) -> tuple[list[str], int]:
     base = ensure_base(repo, base_ref, event_name)
     if base is None:
@@ -1178,6 +1214,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
     errors = []
     count = 0
     renamed = renamed_paths(repo, base)
+    upstream_parents = merged_parents(repo, base)
     for path in changed_paths(repo, base):
         old = git_text(repo, base, renamed.get(path, path))
         new = current_text(repo, path)
@@ -1188,10 +1225,19 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
         if old != new:
             errors.extend(modification_header_errors(path, new))
         history_path = renamed.get(path, path)
+        # <!-- custom: A multiline block's raw text joins its lines without their indentation, so PerfectMongoose.py's indented two-line getCirclePoints note never matched upstream byte for byte; compare stripped lines, which must still appear in the same order and next to each other.
+        # A comment after code on its line, such as "} // </advc.003p>", is matched as plain text instead. (Claude code Opus 5.5) -->
+        upstream_texts = [text for text in (git_text(repo, parent, path) for parent in upstream_parents) if text]
+        upstream_lines = ["\n" + "\n".join(line.strip() for line in text.splitlines()) + "\n" for text in upstream_texts]
         # <!-- custom: Pickaxe search up to the base commit, so only wording this file already contained counts as restored. (Claude code Opus 5.5) -->
-        def restored_comment(raw: str, history_path: str = history_path) -> bool:
+        # <!-- custom: upstream_texts and upstream_lines were added beside history_path, as default arguments that bind this file's merged-parent copies to the closure. (Claude code Opus 5.5) -->
+        def restored_comment(raw: str, history_path: str = history_path, upstream_texts: list[str] = upstream_texts, upstream_lines: list[str] = upstream_lines) -> bool:
+            stripped = "\n" + "\n".join(line.strip() for line in raw.splitlines()) + "\n"
+            if any(raw in text for text in upstream_texts) or any(stripped in text for text in upstream_lines):
+                return True
             # <!-- custom: Multiline comments are parsed with LF, so a CRLF file also needs the CRLF spelling to match. (Claude code Opus 5.5) -->
-            for needle in dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))):
+            needles = list(dict.fromkeys((raw, raw.replace("\r\n", "\n").replace("\n", "\r\n"))))
+            for needle in needles:
                 if run_git(repo, "log", "-1", "--format=%H", "-S", needle, base, "--", history_path, check=False).stdout.strip():
                     return True
             return False

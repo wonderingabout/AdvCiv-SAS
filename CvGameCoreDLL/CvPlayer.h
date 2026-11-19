@@ -1410,8 +1410,9 @@ protected:  // <advc.210>
 	ArrayEnumMap<SpecialBuildingTypes,int,char> m_aiSpecialBuildingNotRequiredCount;
 	ArrayEnumMap<CivicOptionTypes,int,char> m_aiHasCivicOptionCount;
 	ArrayEnumMap<CivicOptionTypes,int,char> m_aiNoCivicUpkeepCount;
-	ArrayEnumMap<ReligionTypes,int,char> m_aiHasReligionCount;
-	ArrayEnumMap<CorporationTypes,int,char> m_aiHasCorporationCount;
+	// <!-- custom: Use AdvCiv's widened storage for players with more cities than a signed byte can count. (GPT-6.2-Sol) -->
+	ArrayEnumMap<ReligionTypes,int,short> m_aiHasReligionCount;
+	ArrayEnumMap<CorporationTypes,int,short> m_aiHasCorporationCount;
 	ArrayEnumMap<UpkeepTypes,int,char> m_aiUpkeepCount; // advc (comment): unused (but accessible)
 	ArrayEnumMap<SpecialistTypes,int,char> m_aiSpecialistValidCount;
 	/*int** m_paiExtraBuildingYield;

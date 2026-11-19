@@ -661,7 +661,8 @@ public:
 	void onAllGameDataRead();
 	bool isAllGameDataRead() const { return m_bAllGameDataRead; }
 	// <!-- custom: Expose the loaded CvGame stream-layout flag already retained in AdvCiv's m_uiSaveFlag; this accessor adds no per-object tracking and is not the mod/source version.
-	// Loaded saves preserve the flag read from their stream; writers and diagnostics use SASSaveStreamFormat::CV_GAME directly, without adding a registry dependency to this header. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
+	// Loaded saves preserve the flag read from their stream; writers and diagnostics use SASSaveStreamFormat::CV_GAME directly, without adding a registry dependency to this header.
+	// The reader consumes the current layout without branching on the loaded flag. See KI#46.2. (ChatGPT-5.6-Sol + GPT-6.1-Sol + GPT-6.2-Sol + Claude code Opus 5.5) -->
 	unsigned int getLoadedSaveStreamFlag() const { return m_uiSaveFlag; }
 	void onGraphicsInitialized(); // </advc>
 

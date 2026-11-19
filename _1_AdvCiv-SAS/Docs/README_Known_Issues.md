@@ -92,6 +92,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#44.6 - Disable auto citizen specialists for the human player as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.6)\
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
+[KI#46.2 - (Cleaned up inherited AdvCiv and SAS save readers, guarded by CI) Remove the remaining legacy save paths after the original uiFlag cleanup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2)\
 [KI#47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first for (e.g. as of no city_garrison first for unitai_city_defense, city_raider first for unitai_attack_city, etc if any more)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-47)\
 [KI#48 - (Historical first SAS building-value rework; regular-building hard gates superseded by KI#48.5, Wonder policy rework continued in KI#48.9) AI building walls when already safe/strong, Wonders while weak/in danger, and related hard building-policy rules](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48)\
 [KI#48.2 - (Historical SAS happiness-prefilter enhancement; regular-building hard gate superseded by KI#48.5) Kish built a Theatre instead of immediately useful happiness infrastructure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-48.2)\
@@ -1276,7 +1277,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
 [KI#1096 - (Fixed AdvCiv-SAS bug) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
 [KI#1097 - (Guarded by CI) Edits that changed a file's line endings between LF and CRLF made a handful of real changes show as thousands of changed lines](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1097)\
-[KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)
+[KI#1098 - (Fixed inherited vanilla Civ4 and BUG-era slips and a SAS one, guarded by CI) Three code lines repeated the line above them: CvDanQuayle.py assigned SCORE_ID twice, CvCustomizableDomesticAdvisor.py hid the rename button twice, and SevoPediaMusic.py set the music title label twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)\
+[KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2)\
+[KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)
 
 <a id="ki-1"></a>
 
@@ -4158,6 +4161,86 @@ In the DLL i have cleaned up the old `uiFlag` code that was super redundant and 
 While it would be nice if old savegames could be preserved across all versions, it is ridiculously complicated to do so, and the previous code was beyond a mess xd (at least to me). I have cleaned up all of it, which saved about 50 kB from the DLL size as of now, and is hopefully much cleaner in this case i mean.
 
 As a result, savegames are not compatible whenever a breaking change is made in AdvCiv-SAS. See related info at [/README.md#not-supported-in-advciv-sas](/README.md#not-supported-in-advciv-sas) as well.
+
+See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up sweep, the original commit sequence, and the CI guard.
+
+<a id="ki-46.2"></a>
+
+## KI#46.2 - (Cleaned up inherited AdvCiv and SAS save readers, guarded by CI) Remove the remaining legacy save paths after the original uiFlag cleanup
+
+Reviewing the AdvCiv 1.14 merge through f1rpo's 2026-10-15 upstream commit `5970334b6` exposed how easily an upstream save reader could bring back branches for older layouts, such as `uiFlag < 23` in `CvPlayer`.
+
+That prompted a separate sweep of SAS `main` before the merge. It found inherited paths that survived the 2025 cleanup and one gate SAS added later. The upstream religion and corporation count widening and its `CvPlayer=23` writer marker belong to the merge.
+
+### What SAS had already changed
+
+On 2025-08-14, wonderingabout removed most version dispatch from the DLL in SAS practical commits 4939–4948. The original [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) credits ChatGPT 5 and some Claude assistance. The cleanup kept the component markers in the stream because the existing readers and writers still consume or emit them.
+
+Firaxis's vanilla Civ4 SDK already used these markers, including the expansion flag in `CvCity::read` and `CvCity::write`. Warlords, BtS, Better BTS AI r597, and K-Mod carried that pattern forward. The specific legacy readers and helpers below came from AdvCiv or SAS.
+
+The vanilla SDK also tested individual bits, for example `SAVEDATA_LAST_DEFENSE_DAMAGE` in `CvCity::read`. Warlords already reads the last-defense-damage field directly, as SAS does today.
+
+In the local snapshots, the six readers for `CvCity`, `CvGame`, `CvPlayer`, `CvPlayerAI`, `CvPlot`, and `CvTeamAI` contain 3 direct numeric save-flag comparisons in BtS, 6 in Better BTS AI r597, 12 in K-Mod 1.46, and 138 in AdvCiv 1.14. SAS has zero in those six readers after this cleanup.
+
+These counts exclude bit tests, other functions and other version checks.
+
+K-Mod also removed inherited gates selectively. Better BTS AI r537 (jdog5000, 2010-03-21) used `uiFlag > 2` for the saved AI strategy random value.
+
+K-Mod practical 73 (`26af73be45`, karadoc, 2011-08-07) removed three BBAI strategy checks in `CvPlayerAI::read` and read the current fields directly while still writing the flag. K-Mod later added gates for other changes, such as its saved attitude cache in practical 385 (`25134da1a7`, karadoc, 2011-12-05).
+
+| SAS practical | Git commit | Save code touched | Net C++ lines |
+| --- | --- | --- | ---: |
+| 4939 | `00866a074` | Began with `CvCity`'s old `uiFlag` branches | −320 |
+| 4940 | `5dfb74d7b` | Simplified `CvGame` reads and set the plot-culture hover flag to true | −170 |
+| 4941 | `294af9e51` | Continued `CvCity` and `CvTeam` | −238 |
+| 4942 | `ad58ea3c5` | Simplified `CvPlayerAI` | −37 |
+| 4943 | `87a57bf06` | Simplified `CvPlayer`, removed Rise and Fall handicap migration, and selected the current `PlayerHistory` layout with `false` | −199 |
+| 4944 | `4a6ecaa86` | Simplified `CvPlot` | −122 |
+| 4945 | `f70627ec6` | Simplified `CvCityAI` | −27 |
+| 4946 | `98a29279d` | Continued `CvGame` and covered `CvArea`, `CvGameAI`, `CvPlotGroup`, and `CvSelectionGroup` | −88 |
+| 4947 | `9cb440007` | Covered `CvInitCore`, `CvMap`, `CvTeamAI`, and `CvUnit`. The map reader started passing `true` to reset plot extras | −180 |
+| 4948 | `f699f0b16` | Removed the remaining checks inside `AIStrengthMemoryMap::read` and left its version argument unused | −21 |
+
+The ten commits form a direct parent chain and each updates the DLL. Most center on the save cleanup.
+
+The opener also caches color and XML lookups in several gameplay and UI paths and edits the README and quick-start guide. The last commit adds the original KI#46 and documents the unsupported-save policy, alongside a separate Sevopedia concepts note.
+
+The combined C++ diff adds 772 lines and removes 2,174 across 18 files.
+
+### Where the remaining paths came from
+
+Git lists f1rpo as the author of the AdvCiv commits below and wonderingabout as the author of the two later SAS commits. Their commit messages credit AI assistance with the SAS land-distance fix and WorldBuilder history work.
+
+- **Old empty-object references and missions.**
+  - AdvCiv practical 1953 (`f0551b743b`, 2020-01-22, `advc.opt`) added `IDInfo::validateOwner` to translate an empty `NO_PLAYER` reference to `BARBARIAN_PLAYER` for its faster lookups. Current SAS constructors and resets already supply the latter.
+  - AdvCiv practical 1399 (`bb97a41a85`, 2018-12-26, `advc.011b`) added `MissionDataLegacy` for queued missions without `bModified`. The current reader already uses `MissionData`, so remove the unused old type.
+- **Missing counts after load.**
+  - AdvCiv practical 1420 (`c24d361ed8`, 2019-02-15, `advc.003b`) added the `CvGame` fallback to rebuild civilization counts for pre-4 saves.
+  - AdvCiv practical 1874 (`8fbc178ba1`, 2019-12-28) added the load-time fallback for war-enemy and war-plan counts through `CvTeam::finalizeInit` and `CvTeamAI::AI_finalizeInit`.
+  - Each current reader takes those fields from its writer. The player/team accessors still count on demand while loading is incomplete.
+- **Plot culture and map extras.**
+  - AdvCiv practical 3152 (`3312c569b3`, 2021-07-14, `advc.099f`) selected hover behavior with a save flag. SAS practical 4940 already enabled the culture display for every save.
+  - AdvCiv practical 3746 (`780966a9fd`, 2022-03-17, `advc.enum`) let pre-7 map resets preserve extras read by `CvGame`. SAS practical 4947 already reset them before reading them from `CvMap`. Remove both constant choices and their implementation branches.
+- **Player history and strength memory.**
+  - AdvCiv practical 2626 (`f6f7fd0b4b`, 2020-11-01, `advc.004s`) added the faster vector and kept a sparse turn/value importer. AdvCiv adjusted that importer in practicals 2681 (`062984adb`, 2020-11-19) and 2724 (`67b0a64e7`, 2020-12-23). SAS practical 4943 already disabled it at its sole call site.
+  - AdvCiv practical 2676 (`96c6996a71`, 2020-11-17, `advc.158`) introduced `AIStrengthMemoryMap::read` with several layout branches. SAS practical 4948 removed the branches, leaving the flag argument unused. Drop the remaining importer and both legacy arguments.
+- **Rise and Fall and UWAI.**
+  - AdvCiv practical 1268 (`e11525d303`, 2017-08-24) introduced the Rise and Fall reader with a version-1 gate for the original leader name. Its current writer always emits the presence bit and writes the name when present.
+  - AdvCiv practical 2920 (`4ae382e5db`, 2021-03-20) added the scaled MilitaryBranch layout and packed typical-unit value, and its UWAI cache city reader supported older field sets. AdvCiv practical 3183 (`59a3e31900`, 2021-08-17) added the version-9 enum-map path.
+  - Read the fields the writers emit today, including the packed words and SAS's current land-only distance from practical 6315 (`f2c966c30a`, 2026-08-28), documented in [KI#591](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-591). Preserve writer markers and byte order.
+- **SAS's later history gate.** SAS practical 6683 (`53aef2f7bf`, 2026-10-25, SGR171) added WorldBuilder and Advanced Start history.
+  - The `uiFlag >= 28` gate skipped missing history to keep pre-28 streams aligned. That inadvertently brought back an older-save path under SAS's current-layout-only policy.
+  - The current writer always emits the history. Read those fields directly and keep the loaded flag available to diagnostics.
+
+This follow-up adds 210 lines and removes 379 across 32 C++ source and header files in `CvGameCoreDLL/`, for a net reduction of 169 lines.
+
+The [source-provenance CI check](/.github/workflows/README.md#buildsourcesource_change_provenancepy) now rejects new or changed save-version comparisons and named retired layout helpers. It ignores comments and literals, keeps writer assignments valid, and leaves unrelated flags such as `uiFlagBits` alone.
+
+The original cleanup comments now point to [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46), and the new removal comments point here.
+
+Traced and documented by Codex (GPT-6.2-Sol).
+
+Claude Code Opus 5.5 independently checked reader/writer parity and smoke-tested the Debug-opt build. A fresh game wrote a turn-3 save, then reloaded it and advanced to turn 5.
 
 <a id="ki-47"></a>
 
@@ -38262,3 +38345,47 @@ warning: in the working copy of 'LLM_Helpers/formatting/fix_line_endings.py', LF
   - `CvPlot.cpp`'s two `iTurnsLeft++` look like one too, but in BtS the first sits in an `if` block and the second follows a blank line: one rounds the build time up and the other adds the current turn. AdvCiv dropped the braces, which put them side by side.
   - It and `CvXMLLoadUtilitySet.cpp`'s two `SetToParent` calls, as in BtS, each moving the XML cursor up one level, now carry a comment saying they are meant.
   - XML files are not checked: their lists repeat rows on purpose, such as several `<iCommerce>0</iCommerce>` or `<GoodyType>GOODY_TECH</GoodyType>` in a row, 213 and 17 times across the tracked XML, so a repeated row there is data, not a slip.
+
+<a id="ki-1098.2"></a>
+
+## KI#1098.2 - (Fixed inherited Civ4 and AdvCiv duplicate includes, guarded by CI) CvPlayer.cpp and FDialogTemplate.cpp each included one header twice
+
+During the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, the old-save cleanup exposed two `RiseFall.h` includes in `CvPlayer.cpp`. wonderingabout asked for a Known Issue and a CI guard, then asked for a full sweep to catch any existing cases. The sweep found the second duplicate in `FDialogTemplate.cpp`.
+
+- AdvCiv added the first direct `RiseFall.h` include in `CvPlayer.cpp` on 2019-05-07 (`20e0f16882`, `advc.700`). Its parent had no direct include in that file. The 2020-11-01 header cleanup (`1c909f88f1`) kept it and dropped the inline `advc.700` label.
+  - The 2021-09-23 Rise and Fall handicap change (`b1128b818a`, `advc.708`) added a second include for old-save migration. SAS removed the handicap migration in `87a57bf06f` and left both directives. They were still present at the AdvCiv 1.14 merge tip.
+  - Both directives were unconditional and other headers separated them, so the adjacent-line guard from [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098) could not see the pair.
+- The header guard prevented a second set of declarations. The extra include was redundant, with no expected gameplay effect.
+- `CvPlayer.cpp` still needs one direct include for Rise and Fall scoring and turn hooks.
+- Extended the existing [duplicate-lines CI check](/.github/workflows/README.md#buildrepositoryadjacent_duplicate_linespy) from KI#1098 to report both lines when a change adds the same literal include in the same preprocessor arm or an enclosing scope. Its include comparison also checks merge results against their first parent. Includes in mutually exclusive arms remain valid.
+
+- The vanilla Civ4, Warlords and BtS SDKs all include `CvGameCoreDLLUndefNew.h` twice in `FDialogTemplate.cpp`, once unconditionally and again after `tchar.h` in the Windows branch.
+  - The vanilla and Warlords header copies lack a one-time guard, so the header can run twice there. BtS adds `#pragma once`, which makes the second include ineffective in SAS.
+  - Better BTS AI's local SVN r597 snapshot and K-Mod's initial Git snapshot (`2414225e6`) still contain both includes. The 2011 K-Mod line-ending conversion (`d0a44eb132`) preserved them. AdvCiv's C++ standards pass (`616238930`) changed `AppendData` in the same file and left both directives.
+  - Kept the first include so the allocation macros are already undefined before the system header and the dialog code. The final sweep of all 356 tracked C and C++ files passed after removing the second include.
+
+- Earlier SAS precedent: `cac3fa4d2b` already included `CvInfo_Symbol.h` in `SASGameRecordLog.cpp` for commerce-slider names. The player-color logging change (`724500d4a`) added it a second time for the color info types.
+  - The [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) recorded the duplicate. `989eb50ce` removed it and kept both reasons in the remaining include comment. That cleanup had no duplicate-include CI check.
+
+Found and fixed by Codex (GPT-6.2-Sol).
+
+<a id="ki-1099"></a>
+
+## KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler
+
+While reviewing the AdvCiv 1.14 merge through `5970334b6` on 2026-11-19, wonderingabout asked why `CyPlayer::disbandUnit` had changed from `return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;` to an `if`, since both do the same. The answer was AdvCiv's `616238930` (2026-10-12), "Fix some standard C++ compliance issues in BtS code", tagged `advc.cppstd`.
+
+- f1rpo adapted it from a downstream port that builds the BtS DLL with Clang in C++23 ([CFC thread](https://forums.civfanatics.com/threads/32-bit-c-23-clang-cvgamecoredll.705110/)). He fixed the BtS code only and noted that AdvCiv's own additions still do not comply; AdvCiv does not aim to build with a modern compiler, but someone downstream might.
+- Standard C++ requires both branches of `?:` to be `void` once one is, so a `void` call against `NULL` does not compile there. VC2003, which builds our DLL, accepts it, so the game behaves the same either way: if there is a player, the unit is disbanded, and otherwise nothing happens.
+- The same commit also replaced a backslash `#include ".\cvreplaymessage.h"` with `CvReplayMessage.h`, reading varargs as `(char*)(&format+1)` in `CvXMLLoadUtility.cpp` with `va_start`, narrow `"+"` passed to wide `%s` formats in `CvGameTextMgr.cpp` with `L"+"`, and `void*` with `void const*` in `CDialogTemplate::AppendData`.
+
+The merge brought all of these in, and a scan of the merged tree found no other instance in SAS. wonderingabout asked for a CI check anyway: new SAS code, such as the SASPilot or save-transplant work, could add them back unnoticed, since VC2003 never complains.
+
+- Added [`cpp_standard_conformance.py`](/.github/workflows/README.md#buildsourcecpp_standard_conformancepy). It fails on a `void` function returning a `?:` expression, a backslash in an `#include` path, and varargs read through `(char*)(&x+1)`.
+  - On pre-merge `main` it reports exactly the three such spots the merge fixes, in `CyPlayer.cpp`, `CvReplayMessage.cpp` and `CvXMLLoadUtility.cpp`, so it has to land with the merge or after it.
+  - `return f();` in a `void` function stays allowed, since returning a void call is valid standard C++; eleven such returns in `CyUnit.cpp`, `CySelectionGroup.cpp`, `CyGlobalContext.h` and `EnumMap.h` are fine. A `?:` inside a call's arguments is allowed too.
+- Not covered: the narrow-to-wide `%s` literals and the `void const*` parameter, which a pattern cannot tell apart from correct code reliably, and the other non-standard code in AdvCiv's additions that f1rpo mentions. A port to a standard-conforming compiler would list those itself.
+- The check guards against a portability regression, not a gameplay bug: with VC2003, valid and invalid forms produce the same DLL behavior.
+- `CyPlayer::disbandUnit` now explains the change in a comment, and the merge's comments at each `advc.cppstd` site, in `CvDLLWidgetData.cpp`, `CvReplayMessage.cpp`, `CvXMLLoadUtility.cpp`, `CyPlayer.cpp` and `FDialogTemplate`, point here.
+
+Found while reviewing the merge with wonderingabout; the check, its tests and this entry by Claude Code Opus 5.5.

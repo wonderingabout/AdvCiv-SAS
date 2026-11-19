@@ -83,6 +83,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/repository/ki_commit_titles.py`](#buildrepositoryki_commit_titlespy)
     - [`build/repository/makefile_windows_tools.py`](#buildrepositorymakefile_windows_toolspy)
     - [`build/repository/project_sources.py`](#buildrepositoryproject_sourcespy)
+    - [`build/repository/release_upstream.py`](#buildrepositoryrelease_upstreampy)
     - [`build/repository/temp_files.py`](#buildrepositorytemp_filespy)
     - [`build/repository/ui_map_sync.py`](#buildrepositoryui_map_syncpy)
     - [`build/repository/version_metadata.py`](#buildrepositoryversion_metadatapy)
@@ -95,8 +96,15 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/runtime/hands_free_defaults.py`](#buildruntimehands_free_defaultspy)
     - [`build/runtime/mapscripts.py`](#buildruntimemapscriptspy)
     - [`build/runtime/worldsizes.py`](#buildruntimeworldsizespy)
+  - [Shared helpers](#shared-helpers)
+    - [`lib/blank_lines.py`](#libblank_linespy)
+    - [`lib/cpp_lex.py`](#libcpp_lexpy)
+    - [`lib/git_context.py`](#libgit_contextpy)
+    - [`lib/revision_history.py`](#librevision_historypy)
+    - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
+    - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
@@ -106,6 +114,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/python_wrapper_null_args.py`](#buildsourcepython_wrapper_null_argspy)
     - [`build/source/raw_getinfotype.py`](#buildsourceraw_getinfotypepy)
     - [`build/source/sevopedia_top_attributes.py`](#buildsourcesevopedia_top_attributespy)
+    - [`build/source/shared_define_values.py`](#buildsourceshared_define_valuespy)
     - [`build/source/source_change_provenance.py`](#buildsourcesource_change_provenancepy)
     - [`build/source/string_label_compares.py`](#buildsourcestring_label_comparespy)
     - [`build/source/unicode_button_paths.py`](#buildsourceunicode_button_pathspy)
@@ -263,13 +272,13 @@ The automated layout has two matching layers: workflow categories at `.github/wo
 | `build/exe_patches/` | `checks-exe-patches.yml` |
 | `build/hygiene/` | `checks-hygiene.yml` |
 | `build/python/` | `python24-compile.yml`; `python-ruff.yml` invokes Ruff directly |
-| `build/repository/` | `checks-repository.yml` |
+| `build/repository/` | `checks-repository.yml`; release checks use `repository-release-upstream.yml` |
 | `build/runtime/` | `checks-runtime.yml`; the predump refresh bot reuses its helper through `runtime-aip-predump-refresh.yml` |
 | `build/source/` | `checks-source.yml`; this workflow also runs `LLM_Helpers/formatting/reflow_custom_comments.py --check` |
 | `build/xml/` | `checks-xml.yml` |
 | `tests/` | `checks-tests.yml` |
 
-There are nine `checks-*.yml` category workflows plus four specialized workflows: Markdown lint, Ruff, the real Python 2.4 compile check, and the AIP predump refresh bot. Each blocking checker has its own named GitHub step so progress, failures, duration and logs stay attributable to one concern.
+There are nine `checks-*.yml` category workflows plus five specialized workflows for Markdown lint, Ruff, the real Python 2.4 compile check, the AIP predump refresh bot, and release upstream freshness. Each blocking checker has its own named GitHub step so progress, failures, duration and logs stay attributable to one concern.
 
 The category checks cover repository/shipping safety, text hygiene, maintained documentation, XML/rules consistency, asset references, diagnostic defaults/history, runtime configuration, source-change conventions and the workflow-helper regression suite. They are still sanity checks rather than a substitute for C++ compilation, Civ4 runtime testing or code review.
 
@@ -551,7 +560,8 @@ Keeps folder indexes listing what their folders hold, in alphabetical order, so 
   - It found `light_source_python24_linux.py` undescribed when it was added on 2026-11-10.
   - Exception: a folder in `GUIDE_DOCUMENTED_FOLDERS` is documented only in its guide, so every helper file in it, Ghidra `.java` scripts included, must be named in that guide instead, and its README section must be a single line linking to the guide and its disclaimer, with no subsections.
     - Since 2026-11-12 `exe_analysis/` is documented in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): its technical details stay for agents in Git and the light-source ZIP, but out of player downloads, while the README, which ships, says only "See the EXE patches guide and the corresponding disclaimer", so a downloaded ZIP holds no description of the EXE work.
-- This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical.
+- This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical. Each check script in `build/` and shared module in `lib/` has a matching heading in the reference and appears in the menu. Private modules prefixed with `_` are exempt.
+- The short `build/` and `tests/` READMEs list each subject folder that exists in their own directory.
 - Every guide in `_1_AdvCiv-SAS/Docs/Modding_Resources/` is listed under its README's "Guides in this folder", by file name; a list that claims to cover its folder should not need remembering either.
 
 ```bash
@@ -869,6 +879,8 @@ Rejects a code line that a commit adds when it repeats the line right above or b
 - Lines of only brackets, separators or comment rules are not counted, nor XML, which repeats rows on purpose, nor test folders, whose harnesses call a function twice to prove the second call changes nothing. Line-ending-only changes are ignored, so a conversion does not count every line as added.
 - Replayed over the last 400 commits of main, saspilot and sassavetransplanter, it flags none. Commit selection is shared with `dll_commit_message.py`.
 - [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098) traces where each of the three doubles came from.
+- The same check also rejects newly duplicated literal C++ includes, including non-adjacent headers and duplicates added by a merge. It reports both lines when the directives share a preprocessor arm or one is in an enclosing scope.
+  - Existing duplicates and includes under separate conditional groups are outside the comparison. See [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2).
 
 #### `build/repository/assets_dlls.py`
 
@@ -943,6 +955,8 @@ Requires the exact, case-sensitive phrase `Update DLL` in the title or body of e
 For example, use `- Update DLL: install the tested Release build` in the commit body. Source-only commits need no marker. With the reporting wrapper present, changing either a DLL or its `<DLL filename>.build.json` requires both paths to change in that same commit; `Update DLL` without a changed pair also fails.
 
 A later marked commit cannot excuse an earlier unmarked DLL update; each message is checked separately. Merge commits are compared against their first parent, and root commits include additions.
+
+- Only the first-parent chain of a push or pull request is judged, so commits that arrive through a merge are not. The base AdvCiv 1.14 merge (2026-11-19) brought in upstream commits such as `5970334b6` that update their DLL without SAS's marker; the merge commit itself still needs the marker for the DLL it ships.
 
 On pushes, inspect all commit identities supplied by the GitHub push event and read the actual paths/messages from Git. This avoids depending on a discarded push-before object after an amendment.
 
@@ -1081,6 +1095,19 @@ Fails when the DLL Makefiles call a tool that both Windows and Git ship under th
 
 Checks that root `CvGameCoreDLL/*.cpp` and `*.h` files appear under the matching `ClCompile`/`ClInclude` project entries, and reports stale or misclassified root entries. NMake discovers sources independently, so a successful build does not prove that files are visible in the VC2010 IDE. Project-local resources and nested generated files are excluded.
 
+#### `build/repository/release_upstream.py`
+
+When a numeric release tag is pushed or a GitHub release is published, the check fetches the tip of the highest-numbered base AdvCiv release branch directly from upstream. The tagged commit must contain that tip in its Git history.
+
+- If upstream advertises multiple branches at the same highest version, the check requires their tips.
+- Ordinary branch pushes and technical anchor tags do not trigger this workflow.
+
+Run the same check before tagging a candidate.
+
+```sh
+python .github/workflows/build/repository/release_upstream.py --release-ref HEAD
+```
+
 #### `build/repository/temp_files.py`
 
 Verifies that git tracks nothing under `CvGameCoreDLL/Project/temp_files/` and that the only `temp_files` rule in `.gitignore` or `.gitattributes` is the `.gitignore` line ignoring the whole folder.
@@ -1182,6 +1209,30 @@ Verifies every playable `PrivateMaps/*.py` script is listed exactly once across 
 
 Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
 
+### Shared helpers
+
+Workflow checks import these modules to share parsing and repository logic.
+
+#### `lib/blank_lines.py`
+
+Finds newly introduced runs of excess blank lines while preserving spacing within literals and structured text. Used by the source provenance and text spacing checks.
+
+#### `lib/cpp_lex.py`
+
+Masks C++ comments and string and character literals while retaining line breaks and character offsets. The duplicate-include and source provenance checks use `mask_cpp` to distinguish active code from commented-out code and literal text.
+
+#### `lib/git_context.py`
+
+Runs Git commands, resolves comparison bases for local and CI checks, and decodes historical file contents.
+
+#### `lib/revision_history.py`
+
+Parses diagnostic revision history entries and validates their Change fields for the SASGameRecord and Runtime checks.
+
+#### `lib/xml_defines.py`
+
+Reads integer and text values from Civ4 GlobalDefines XML and supports checks of staged diagnostic defaults.
+
 ### Source
 
 #### `build/source/checkout_byte_compares.py`
@@ -1190,6 +1241,16 @@ Fails when a CI build script compares bytes (`read_bytes()` with `==` or `!=`) w
 
 - On 2026-11-16 [`ui_map_sync.py`](#buildrepositoryui_map_syncpy) compared the checked-out UI map with its generator's output as bytes. A Windows clone with `core.autocrlf` checks text out with CRLF while the generator writes LF, so it failed locally on an unchanged file while GitHub's LF checkout passed, and GitHub could never catch it.
 - Text comparisons (`read_text`) ignore line endings, so they are the default; a byte comparison that is needed, such as for a binary file, states why in its note.
+
+#### `build/source/cpp_standard_conformance.py`
+
+Fails when the DLL source brings back one of the non-standard C++ forms that AdvCiv's `advc.cppstd` commit removed from the BtS code it inherited. VC2003 accepts them, so the game is unaffected, but a standard-conforming compiler such as Clang rejects them or leaves their behavior undefined. See [KI#1099](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099).
+
+- A `void` function that returns a `?:` expression, such as BtS's `return m_pPlayer ? m_pPlayer->disbandUnit(bAnnounce) : NULL;`.
+  - `return f();` in a `void` function stays allowed, since returning a void call is valid, and so does a `?:` inside a call's arguments.
+- An `#include` path with a backslash, such as `".\cvreplaymessage.h"`.
+- Varargs read through the address after a named parameter, `(char*)(&format+1)`, instead of `va_start`.
+- It scans every tracked C/C++ file under `CvGameCoreDLL/`, skipping comments and string literals. It does not cover the other cases that commit fixed, such as narrow `"+"` passed to a wide `%s` format or a `void*` parameter that should be `void const*`.
 
 #### `build/source/custom_comment_indentation.py`
 
@@ -1294,6 +1355,13 @@ Fails when a Sevopedia page reads `self.top.X` and `SevoPediaMain.py` neither as
 - Added on 2026-11-13 for [KI#1086](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1086): the move of the Sevopedia colors into `SASVisuals.Color` left `SevoPediaIndex.py` reading `self.top.COLOR_HIGHLIGHT_TEXT`, which raised a Python exception on Down after a search.
 - Files are read with Python's tokenizer, so a comment such as "Was self.top.COLOR_HIGHLIGHT_TEXT" or a string holding the same text does not count; a first draft cut comments by hand, which Codex's review showed a string or an escaped quote could fool. No page reads a member of BtS's `CvPediaScreen` base class, which CI does not have; a page that starts to would need it listed.
 
+#### `build/source/shared_define_values.py`
+
+Fails when a Python script writes one of the switched GlobalDefines names with a number, as in `{"SAS_SGR_LOG": 0}` or `"SAS_UI_DAWN_OF_MAN_ON": (1, 0)`, anywhere but [`LLM_Helpers/diagnostics/define_values.py`](/LLM_Helpers/README.md#define_valuespy). Scripts import the values from there instead; a name alone, as in `getDefineINT("SAS_SGR_LOG")`, is fine.
+
+- Added on 2026-11-19: `SAS_UI_DAWN_OF_MAN_ON` alone stayed at its shipped `1` after a branch switch, and the audit of the toggle behind it found each shipped value written twice, once in a CI check and once in `toggle_dev_diagnostics.py`, with nothing keeping them in step. The committed toggle had 9 such copies.
+- Test folders are skipped, since tests feed chosen values to the checks rather than restate what ships, as are the Git-ignored review copies in `LLM_Helpers/outputs/`.
+
 #### `build/source/source_change_provenance.py`
 
 For `Assets/XML/GlobalDefines_advciv_sas.xml` only, separators must contain exactly three blank lines, or none between adjacent blocks. Users read and edit this configuration file directly, so three blank lines distinguish thematic groups while related settings stay adjacent.
@@ -1304,6 +1372,16 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 
 It enforces these review rules introduced after repeated provenance mistakes:
 
+- existing one-line C++ declarations and definitions must remain on one line so the complete signature can be found with grep;
+  - Added on 2026-11-19, after the base AdvCiv 1.14 merge carried upstream's wrapped parameter list into `CvCityAI::AI_bestSpreadUnit`, splitting SAS's one-line signature.
+  - Moving the return type or a trailing qualifier such as `const` onto its own line counts as a split; template lines, access labels such as `public:` and preprocessor directives above the signature do not.
+  - Only signatures that were on one line and whose lines the change touches are checked, so new functions and signatures already wrapped in inherited code can still be edited.
+- Newly added or changed comparisons on DLL save-layout flags and versions fail, including `uiFlag < 23` and `iSaveVersion == 1`.
+  - The same check catches reintroduced legacy helpers such as `IDInfo::validateOwner`, `MissionDataLegacy`, and `LegacyArrayEnumMap` uses.
+  - It compares active code with the base and permits writer marker assignments, comments, and unrelated flags such as `uiFlagBits`. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
+- in an upstream merge, a comment found word for word in the merged parent's copy of the same file counts as inherited, so upstream's own notes can be kept as they are;
+  - Added on 2026-11-19, when the base AdvCiv 1.14 merge's restored comments, such as PerfectMongoose.py's `# advc.oxi: New method to replace erroneous uses of getCirclePoints`, failed as new uncredited prose, and the merge had first reworded them as custom comments to pass.
+  - The merged parent is the second parent of a merge commit in the checked range, or `MERGE_HEAD` while the merge is prepared; [`ci_report.py`](/LLM_Helpers/README.md#ci_reportpy) gives its temporary commit that parent too. Comments are compared line by line without indentation, so a reworded copy still fails;
 - another mod's comment may be quoted as is, without a model credit or reflow: a custom line saying it is a quote, such as "Quoted from", and naming the source, then lines each starting with `// >` or `# >`; our own prose mixed into the quote still fails. Added on 2026-11-12 after the globe patch's comments restated Realism Invictus's findings in our voice;
 - added/modified Python and XML files carry the standard AdvCiv-SAS modification copyright header alongside inherited owners' notices; newly inserted/moved SAS notices must follow pre-existing owner credits, which include mod-component credits written as "by <Name>, ver." (e.g. `*ActualQuotes* by Willowmound, ver. 4.20`);
   - in XML, place the SAS notice before explanatory comments. Unchanged files and pure renames are excluded;

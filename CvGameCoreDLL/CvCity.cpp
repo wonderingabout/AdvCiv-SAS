@@ -3403,8 +3403,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
 			if (eDirtyPlayer != NO_PLAYER)
 			{
 				gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
-				// advc.003p:
-				GET_PLAYER(getOwner()).setBonusHelpDirty();
+				GET_PLAYER(getOwner()).setBonusHelpDirty(); // advc.003p
 			}
 		} // </advc.004w>
 	}
@@ -8593,6 +8592,13 @@ void CvCity::changeNumBonuses(BonusTypes eBonus, int iChange, bool bVerifyProduc
 
 	if (isCorporationBonus(eBonus))
 		updateCorporation(/* advc.06d: */ bVerifyProduction);
+	// <advc.003p> CvPlayer::getNumAvailableBonuses has changed
+	if (isActiveOwned() && isCapital())
+	{
+		GET_PLAYER(getOwner()).setBonusHelpDirty();
+		// (New routes, improvements don't already set this.)
+		gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+	} // </advc.003p>
 }
 
 // advc.149:
@@ -9523,8 +9529,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
 				if (isActiveOwned() && kGame.getCurrentLayer() == GLOBE_LAYER_RESOURCE)
 				{
 					gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
-					// advc.003p:
-					kOwner.setBonusHelpDirty();
+					kOwner.setBonusHelpDirty(); // advc.003p
 				} // </advc.004w>
 			}
 		}
@@ -11496,6 +11501,8 @@ bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
 
 void CvCity::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: The original KI#46 cleanup began here.
+	// Consume the marker before reading the current city layout. (GPT-6.2-Sol) -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 
@@ -11677,7 +11684,8 @@ void CvCity::read(FDataStreamBase* pStream)
 	{
 		pStream->Read((int*)&m_aTradeCities[i].eOwner);
 		pStream->Read(&m_aTradeCities[i].iID);
-		m_aTradeCities[i].validateOwner(); // advc.opt
+		// <!-- custom: Note: Current saves write BARBARIAN_PLAYER for empty trade-city slots.
+		// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 	}
 
 	m_orderQueue.Read(pStream);

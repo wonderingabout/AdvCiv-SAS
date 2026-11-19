@@ -17501,12 +17501,13 @@ bool CvCityAI::AI_chooseLeastRepresentedUnit(UnitAIWeightMap const& kWeights, in
 	return false;
 }
 
-bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* eBestSpreadUnit, int* iBestSpreadUnitValue)
+// <!-- custom: Match AdvCiv's output pointer names so future changes to this signature are easier to compare. (GPT-6.2-Sol) -->
+bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* peBestSpreadUnit, int* piBestSpreadUnitValue)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 
-	FAssert(eBestSpreadUnit != NULL && iBestSpreadUnitValue != NULL);
+	FAssert(peBestSpreadUnit != NULL && piBestSpreadUnitValue != NULL);
 
 	int iBestValue = 0;
 
@@ -17557,8 +17558,8 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 						if (iValue > iBestValue)
 						{
 							iBestValue = iValue;
-							*eBestSpreadUnit = eLoopUnit;
-							*iBestSpreadUnitValue = iReligionValue;
+							*peBestSpreadUnit = eLoopUnit;
+							*piBestSpreadUnitValue = iReligionValue;
 						}
 					}
 				}
@@ -17635,8 +17636,8 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 						if (iValue > iBestValue)
 						{
 							iBestValue = iValue;
-							*eBestSpreadUnit = eLoopUnit;
-							*iBestSpreadUnitValue = iCorporationValue;
+							*peBestSpreadUnit = eLoopUnit;
+							*piBestSpreadUnitValue = iCorporationValue;
 						}
 					}
 				}
@@ -17646,7 +17647,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 
 	// <!-- custom: BtS compared the UnitTypes output with NULL (0), so NO_UNIT (-1) incorrectly reported success.
 	// Compare with the enum sentinel; existing caller guards remain defense in depth. See KI#74. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	return (*eBestSpreadUnit != NO_UNIT);
+	return (*peBestSpreadUnit != NO_UNIT);
 }
 
 bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold, int iOdds) // BBAI
@@ -22620,6 +22621,7 @@ void CvCityAI::read(FDataStreamBase* pStream)
 	CvCity::read(pStream);
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -22632,7 +22634,8 @@ void CvCityAI::read(FDataStreamBase* pStream)
 
 	pStream->Read((int*)&m_routeToCity.eOwner);
 	pStream->Read(&m_routeToCity.iID);
-	m_routeToCity.validateOwner(); // advc.opt
+	// <!-- custom: Note: Current saves write BARBARIAN_PLAYER when there is no route city.
+	// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 
 	pStream->Read(NUM_YIELD_TYPES, m_aiEmphasizeYieldCount);
 	pStream->Read(NUM_COMMERCE_TYPES, m_aiEmphasizeCommerceCount);
@@ -22681,6 +22684,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
 	CvCity::write(pStream);
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvCityAI write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_CITY_AI; // advc.131d

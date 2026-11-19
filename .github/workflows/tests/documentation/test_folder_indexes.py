@@ -65,6 +65,11 @@ class HelperDocOrderTests(unittest.TestCase):
             (root / path).parent.mkdir(parents=True, exist_ok=True)
             (root / path).write_text(content, encoding="utf-8")
         (root / "LLM_Helpers/outputs").mkdir()
+        workflows_root = root / ".github/workflows"
+        (workflows_root / "build/xml").mkdir(parents=True)
+        (workflows_root / "build/README.md").write_text("- `xml/`: XML checks.\n", encoding="utf-8")
+        (workflows_root / "tests").mkdir()
+        (workflows_root / "tests/README.md").touch()
         return root
 
     def errors(self, root):
@@ -75,15 +80,48 @@ class HelperDocOrderTests(unittest.TestCase):
             self.assertEqual(self.errors(self.repository(folder)), [])
 
     def test_check_script_without_a_section_fails(self):
-        # <!-- custom: A check script needs its own README section, while shared lib/ helpers and "_" modules need none. (Claude code Opus 5.5) -->
+        # <!-- custom: A check script needs its own README section.
+        # The build/ scan skips "_" modules and library subdirectories. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
         with tempfile.TemporaryDirectory() as folder:
             root = self.repository(folder)
-            for path in ("build/xml/launch_guard.py", "build/xml/new_check.py", "build/lib/shared.py", "build/xml/_helpers.py"):
+            for path in ("build/xml/launch_guard.py", "build/xml/new_check.py", "build/xml/lib/shared.py", "build/xml/_helpers.py"):
                 (root / ".github/workflows" / path).parent.mkdir(parents=True, exist_ok=True)
                 (root / ".github/workflows" / path).write_text("", encoding="utf-8")
             errors = self.errors(root)
             self.assertEqual(len(errors), 1)
             self.assertIn("build/xml/new_check.py", errors[0])
+
+    def test_shared_lib_helper_without_a_section_fails(self):
+        # <!-- custom: A shared module was invisible to the menu when it had no heading.
+        # Require its entry in the helper reference. (GPT-6.2-Sol) -->
+        with tempfile.TemporaryDirectory() as folder:
+            workflows = WORKFLOWS_README.replace(
+                "### XML and rules",
+                "### Shared helpers\n\n#### `lib/cpp_lex.py`\n\n### XML and rules",
+            )
+            root = self.repository(folder, workflows=workflows)
+            library = root / ".github/workflows/lib"
+            library.mkdir()
+            (library / "cpp_lex.py").touch()
+            self.assertEqual(self.errors(root), [])
+            (library / "git_context.py").touch()
+            errors = self.errors(root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("lib/git_context.py", errors[0])
+
+    def test_workflow_subject_indexes_report_missing_and_stale_rows(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = self.repository(folder)
+            workflows = root / ".github/workflows"
+            (workflows / "build/exe_patches").mkdir()
+            (workflows / "tests/exe_patches").mkdir()
+            (workflows / "tests/__pycache__").mkdir()
+            (workflows / "tests/README.md").write_text("| `old_subject/` | Old tests |\n", encoding="utf-8")
+            self.assertEqual(self.errors(root), [
+                ".github/workflows/build/exe_patches/ is not listed in .github/workflows/build/README.md",
+                ".github/workflows/tests/exe_patches/ is not listed in .github/workflows/tests/README.md",
+                ".github/workflows/tests/README.md lists old_subject/, which does not exist",
+            ])
 
     def test_loose_helper_and_undescribed_file_fail(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -6185,6 +6185,7 @@ void CvTeam::read(FDataStreamBase* pStream)
 	reset(); // Init data before load
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -6214,6 +6215,8 @@ void CvTeam::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iRiverTradeCount);
 
 	// <advc.500c> (Older saves handled after techs are loaded)
+	// <!-- custom: Note: AdvCiv recovered this count after loading techs when a save did not store it.
+	// Current SAS saves already include the count. See KI#46.2. (GPT-6.2-Sol) -->
 	pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
 
 	pStream->Read(&m_iEspionagePointsEver);
@@ -6241,8 +6244,9 @@ void CvTeam::read(FDataStreamBase* pStream)
 	m_aiEspionagePointsAgainstTeam.read(pStream);
 	m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
 	m_aiCounterespionageModAgainstTeam.read(pStream);
-	// <advc.130k> (Handle old saves in CvTeamAI) 
-
+	// <advc.130k> (Handle old saves in CvTeamAI)
+	// <!-- custom: Note: CvTeamAI recovered peace counters when an old save did not store them.
+	// Current SAS saves already include the counters. See KI#46.2. (GPT-6.2-Sol) -->
 	m_aiTurnsAtPeace.read(pStream); // </advc.130k>
 
 	m_aiCommerceFlexibleCount.read(pStream);
@@ -6319,23 +6323,15 @@ void CvTeam::read(FDataStreamBase* pStream)
 	m_abRevealedBonuses.read(pStream);
 }
 
-// <advc.003m>  (for legacy savegames)
-void CvTeam::finalizeInit()
-{
-	m_iMajorWarEnemies = countWarEnemies();
-	m_iMinorWarEnemies = countWarEnemies(false, false) - m_iMajorWarEnemies;
-	FAssert(m_iMinorWarEnemies >= 0);
-	m_iVassalWarEnemies = m_iMajorWarEnemies - countWarEnemies(true, true);
-	FAssert(m_iVassalWarEnemies >= 0);
-} // </advc.003m>
-
-
+// <!-- custom: Note: CvTeam::finalizeInit (advc.003m) used to reconstruct war-enemy counts here for old saves.
+// Current saves serialize those counts directly. See KI#46.2. (GPT-6.2-Sol) -->
 void CvTeam::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvTeam write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_TEAM; // advc.enum: Bugfix in bool-valued ArrayEnumMap

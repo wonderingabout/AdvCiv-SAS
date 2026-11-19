@@ -49,9 +49,16 @@ def build(configuration: str, request: str) -> int:
 	return run_in_vc_environment(command, PROJECT)
 
 
+def generated_header_folders() -> list[Path]:
+	# <!-- custom: CvGameCoreUtils.cpp includes SASBuildProvenance.generated.h, which only a build writes into temp_files/<target>, so on 2026-11-19 its /Zs check failed with C1083 while the other files passed.
+	# Use the newest such header; its values do not matter for a syntax check. (Claude code Opus 5.5) -->
+	headers = sorted((PROJECT / "temp_files").glob("*/SASBuildProvenance.generated.h"), key=lambda path: path.stat().st_mtime, reverse=True)
+	return [headers[0].parent] if headers else []
+
+
 def syntax(files: list[str]) -> int:
 	failures = 0
-	includes = " ".join('/I"%s"' % path for path in SYNTAX_INCLUDES)
+	includes = " ".join('/I"%s"' % path for path in SYNTAX_INCLUDES + generated_header_folders())
 	for name in files:
 		path = Path(name)
 		if not path.is_absolute():

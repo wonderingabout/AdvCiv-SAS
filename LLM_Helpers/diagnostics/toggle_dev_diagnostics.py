@@ -7,37 +7,35 @@
 # <!-- custom: __future__.annotations postpones evaluation of this Python-3 helper's annotations. (Claude code Opus 5.5) -->
 from __future__ import annotations
 
-# <!-- custom: argparse exposes the on/off/status CLI; re edits define values in place, subprocess checks for a running Civ4 process, and pathlib locates the XML. (Claude code Opus 5.5) -->
+# <!-- custom: argparse exposes the on/off/status CLI; re edits define values in place, subprocess checks for a running Civ4 process and reads the committed XML, pathlib locates the XML, and sys finds define_values.py beside this script. (Claude code Opus 5.5) -->
 import argparse
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
 # <!-- custom: Helpers now sit in LLM_Helpers folders named by job, so find the repo root from the LLM_Helpers folder instead of a fixed parent depth. (Claude code Opus 5.5) -->
-DEFINES_PATH = next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent / "Assets" / "XML" / "GlobalDefines_advciv_sas.xml"
-# <!-- custom: Remembering to re-enable these unstaged development values after each commit/amend was tedious, and forgetting meant losing records from the next test run.
-# Shipped values match the diagnostics CI expectations, so "off" yields a committable XML.
-# Each entry is name: (shipped, development). (Claude code Opus 5.5) -->
-DEV_DIAGNOSTICS = {
-    "SAS_SGR_LOG": (0, 3),
-    "SAS_SGR_MAP_ANNOTATION_TEXT_ON": (0, 1),
-    # <!-- custom: The local chat test profile captures all three channels; off restores each privacy default. (GPT-6.1-Sol) -->
-    "SAS_SGR_CHAT_ALL_TEXT_ON": (0, 1),
-    "SAS_SGR_CHAT_TEAM_TEXT_ON": (0, 1),
-    "SAS_SGR_CHAT_DIRECT_TEXT_ON": (0, 1),
-    "SAS_RUNTIME_STATUS_ON": (0, 1),
-    "SAS_RUNTIME_SCREENSHOT_WATCH_ON": (0, 1),
-    "SAS_RUNTIME_SOURCE_WATCH_ON": (0, 1),
-    # <!-- custom: Not a diagnostic but the same kind of local switch: skip the Dawn of Man screen during development and agent runs; players keep it. (Claude Code Opus 5.5) -->
-    "SAS_UI_DAWN_OF_MAN_ON": (1, 0),
-    # <!-- custom: The same for the screens that only inform, one switch each, added after a traded tech's splash held up a pilot game (2026-11-13). (Claude code Opus 5.5) -->
-    "SAS_UI_TECH_SPLASH_ON": (1, 0),
-    "SAS_UI_ERA_MOVIE_ON": (1, 0),
-    "SAS_UI_WONDER_MOVIE_ON": (1, 0),
-    "SAS_UI_RELIGION_MOVIE_ON": (1, 0),
-    "SAS_UI_PROJECT_MOVIE_ON": (1, 0),
-}
+REPO_ROOT = next(path for path in Path(__file__).resolve().parents if path.name == "LLM_Helpers").parent
+DEFINES_RELATIVE = "Assets/XML/GlobalDefines_advciv_sas.xml"
+DEFINES_PATH = REPO_ROOT / DEFINES_RELATIVE
+# <!-- custom: The shipped values once lived in this table too, a second copy of what the CI checks require that could drift from them.
+# Import them from define_values.py, which those checks import too, so "off" always yields what CI accepts; the development values sit beside them so both settings are seen in one place.
+# Remembering to re-enable the unstaged development values after each commit/amend was tedious, and forgetting meant losing records from the next test run. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from define_values import DEVELOPMENT_VALUES, SHIPPED_VALUES  # noqa: E402 - run_autoplay.py loads this script by file path, so its folder is not always on sys.path
+
+
+def build_dev_diagnostics() -> dict[str, tuple[int, int]]:
+    # <!-- custom: A toggled define without a CI-required shipped value would have no committable value for "off"; add it to define_values.py first. (Claude code Opus 5.5) -->
+    unpinned = [name for name in DEVELOPMENT_VALUES if name not in SHIPPED_VALUES]
+    if unpinned:
+        raise SystemExit("No CI check pins a shipped value for %s; add one to LLM_Helpers/diagnostics/define_values.py before toggling it." % ", ".join(unpinned))
+    return {name: (SHIPPED_VALUES[name], dev) for name, dev in DEVELOPMENT_VALUES.items()}
+
+
+# Each entry is name: (shipped, development).
+DEV_DIAGNOSTICS = build_dev_diagnostics()
 
 
 def define_pattern(name: str) -> re.Pattern:
@@ -49,26 +47,70 @@ def civ4_running() -> bool:
     return "Civ4BeyondSword.exe" in result.stdout
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Toggle the usual local development diagnostics (%s) on, or back to shipped defaults." % ", ".join(DEV_DIAGNOSTICS))
-    parser.add_argument("mode", choices=("on", "off", "status"), help="on = development values, off = shipped defaults, status = print current values")
-    args = parser.parse_args()
-    # <!-- custom: Read/write bytes so the file's CRLF line endings and encoding stay untouched. (Claude code Opus 5.5) -->
-    text = DEFINES_PATH.read_bytes().decode("utf-8")
-    for name, (shipped, dev) in DEV_DIAGNOSTICS.items():
+def current_values(text: str) -> dict[str, int]:
+    values = {}
+    for name in DEV_DIAGNOSTICS:
         matches = define_pattern(name).findall(text)
         if len(matches) != 1:
             raise SystemExit("Expected exactly one %s define in %s, found %d." % (name, DEFINES_PATH, len(matches)))
-        current = int(matches[0][1])
-        if args.mode == "status":
+        values[name] = int(matches[0][1])
+    return values
+
+
+# <!-- custom: On 2026-11-19 every value was at its development setting except SAS_UI_DAWN_OF_MAN_ON, left at 1 after a branch switch, and the per-line status did not make the odd one out stand out; the screen then showed in agent test games.
+# Report which values are not at the setting most of them share, so a partial restore is visible from status and from run_autoplay.py. (Claude code Opus 5.5) -->
+def mixed_values(values: dict[str, int]) -> tuple[str, list[str]]:
+    dev_names = [name for name, value in values.items() if value == DEV_DIAGNOSTICS[name][1]]
+    if len(dev_names) == len(values):
+        return "development", []
+    shipped_names = [name for name, value in values.items() if value == DEV_DIAGNOSTICS[name][0]]
+    if len(shipped_names) == len(values):
+        return "shipped", []
+    if len(dev_names) >= len(shipped_names):
+        return "development", [name for name in values if name not in dev_names]
+    return "shipped", [name for name in values if name not in shipped_names]
+
+
+def int_defines(text: str) -> dict[str, int]:
+    return {match.group(1): int(match.group(2)) for match in re.finditer(r"<DefineName>(\w+)</DefineName>\s*<iDefineIntVal>(-?\d+)</iDefineIntVal>", text)}
+
+
+# <!-- custom: The toggle sees only its own table, so a define changed locally by habit outside it would go unnoticed and "off" would not reset it.
+# Comparing every integer define with the committed XML shows such changes without another list to keep. (Claude code Opus 5.5) -->
+def untoggled_changes(text: str) -> list[tuple[str, int | None, int | None]]:
+    committed = int_defines(subprocess.run(["git", "-C", str(REPO_ROOT), "show", "HEAD:" + DEFINES_RELATIVE], capture_output=True, check=True).stdout.decode("utf-8"))
+    current = int_defines(text)
+    return [(name, committed.get(name), current.get(name)) for name in sorted(set(committed) | set(current)) if name not in DEV_DIAGNOSTICS and committed.get(name) != current.get(name)]
+
+
+def read_mixed_values() -> tuple[str, list[str]]:
+    return mixed_values(current_values(DEFINES_PATH.read_bytes().decode("utf-8")))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Toggle the usual local development diagnostics (%s) on, or back to shipped defaults." % ", ".join(DEV_DIAGNOSTICS))
+    parser.add_argument("mode", choices=("on", "off", "status"), help="on = development values, off = shipped defaults, status = print current values, exiting 1 when they are mixed")
+    args = parser.parse_args()
+    # <!-- custom: Read/write bytes so the file's CRLF line endings and encoding stay untouched. (Claude code Opus 5.5) -->
+    text = DEFINES_PATH.read_bytes().decode("utf-8")
+    values = current_values(text)
+    if args.mode == "status":
+        for name, current in values.items():
+            shipped, dev = DEV_DIAGNOSTICS[name]
             label = "development" if current == dev else "shipped" if current == shipped else "custom"
             print("%s=%d (%s)" % (name, current, label))
-            continue
+        for name, committed, current in untoggled_changes(text):
+            print("not toggled, differs from HEAD: %s %s -> %s" % (name, "-" if committed is None else committed, "-" if current is None else current))
+        majority, odd = mixed_values(values)
+        if not odd:
+            print("all %s" % majority)
+            return
+        raise SystemExit("MIXED: mostly %s, but not %s; run 'on' or 'off' to make them consistent" % (majority, ", ".join(odd)))
+    for name, current in values.items():
+        shipped, dev = DEV_DIAGNOSTICS[name]
         target = dev if args.mode == "on" else shipped
         text = define_pattern(name).sub(lambda m: "%s%d%s" % (m.group(1), target, m.group(3)), text)
         print("%s: %d -> %d" % (name, current, target))
-    if args.mode == "status":
-        return
     # <!-- custom: Live XML edits during a run have produced XML errors and crashes; refuse rather than edit under a running game. (Claude code Opus 5.5) -->
     if civ4_running():
         raise SystemExit("Civ4BeyondSword.exe is running; close it before editing GlobalDefines (nothing was written).")

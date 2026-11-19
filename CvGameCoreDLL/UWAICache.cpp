@@ -174,13 +174,11 @@ void UWAICache::write(FDataStreamBase* pStream) const
 
 void UWAICache::read(FDataStreamBase* pStream)
 {
-	int iSaveVersion=-1;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 100;
-		m_eOwner = (PlayerTypes)(iTmp % 100);
-	}
+	// <!-- custom: Keep AdvCiv's packed owner field so the reader matches the current writer.
+	// The version portion is unnecessary for dispatch because SAS reads only the current cache layout. See KI#46.2. (GPT-6.2-Sol) -->
+	int iPackedOwner;
+	pStream->Read(&iPackedOwner);
+	m_eOwner = (PlayerTypes)(iPackedOwner % 100);
 	// Important to set owner first b/c clear uses it
 	clear();
 	{
@@ -193,125 +191,31 @@ void UWAICache::read(FDataStreamBase* pStream)
 			m_cityMap.insert(std::make_pair(m_cityList[i]->getID(), m_cityList[i]));
 		}
 	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiReachableCities.read(pStream);
-		m_aiTargetMissions.read(pStream);
-	}
-	else
-	{
-		m_aiReachableCities.readArray<int>(pStream);
-		m_aiTargetMissions.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 8)
-	{
-		if (iSaveVersion >= 9)
-			m_arThreatRating.read(pStream);
-		else m_arThreatRating.readArray<scaled>(pStream);
-	}
-	else
-	{
-		CivPlayerMap<float> afThreatRating;
-		if (iSaveVersion >= 6)
-			afThreatRating.readArray<float>(pStream);
-		else afThreatRating.readArray<double>(pStream);
-		FOR_EACH_ENUM(CivPlayer)
-		{
-			m_arThreatRating.set(eLoopCivPlayer, scaled::fromDouble(
-					afThreatRating.get(eLoopCivPlayer)));
-		}
-	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiVassalTechScore.read(pStream);
-		m_aiVassalResourceScore.read(pStream);
-		m_aiAdjLandPlots.read(pStream);
-	}
-	else
-	{
-		m_aiVassalTechScore.readArray<int>(pStream);
-		m_aiVassalResourceScore.readArray<int>(pStream);
-		m_aiAdjLandPlots.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 1)
-	{
-		if (iSaveVersion >= 8)
-		{
-			if (iSaveVersion >= 9)
-				m_arRelativeNavyPow.read(pStream);
-			else m_arRelativeNavyPow.readArray<scaled>(pStream);
-		}
-		else
-		{
-			CivPlayerMap<float> afRelativeNavyPow;
-			if (iSaveVersion >= 6)
-				afRelativeNavyPow.readArray<float>(pStream);
-			else afRelativeNavyPow.readArray<double>(pStream);
-			FOR_EACH_ENUM(CivPlayer)
-			{
-				m_arRelativeNavyPow.set(eLoopCivPlayer, scaled::fromDouble(
-						afRelativeNavyPow.get(eLoopCivPlayer)));
-			}
-		}
-	}
-	if (iSaveVersion >= 8)
-	{
-		if (iSaveVersion >= 9)
-			m_arWarAnger.read(pStream);
-		else m_arWarAnger.readArray<scaled>(pStream);
-	}
-	else
-	{
-		CivPlayerMap<float> afWarAnger;
-		if (iSaveVersion >= 6)
-			afWarAnger.readArray<float>(pStream);
-		else afWarAnger.readArray<double>(pStream);
-		FOR_EACH_ENUM(CivPlayer)
-		{
-			m_arWarAnger.set(eLoopCivPlayer, scaled::fromDouble(
-					afWarAnger.get(eLoopCivPlayer)));
-		}
-	}
-	// <advc.035>
-	if (iSaveVersion >= 2)
-	{
-		if (iSaveVersion >= 9)
-			m_aiPlotsLostAtWar.read(pStream);
-		else m_aiPlotsLostAtWar.readArray<int>(pStream);
-	} // </advc.035>
-	if (iSaveVersion >= 9)
-		m_aiPastWarScore.read(pStream);
-	else m_aiPastWarScore.readArray<int>(pStream);
-	if (iSaveVersion < 4)
-	{
-		for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
-			m_aiPastWarScore.multiply(it->getID(), 100);
-	}
-	if (iSaveVersion >= 9)
-	{
-		m_aiBounty.read(pStream);
-		m_aeSponsorPerTarget.read(pStream);
-		m_aiWarUtilityIgnoringDistraction.read(pStream);
-	}
-	else
-	{
-		m_aiBounty.readArray<int>(pStream);
-		m_aeSponsorPerTarget.readArray<int>(pStream);
-		m_aiWarUtilityIgnoringDistraction.readArray<int>(pStream);
-	}
-	if (iSaveVersion >= 3)
-	{
-		if (iSaveVersion >= 9)
-			m_abCanBeHiredAgainst.read(pStream);
-		else m_abCanBeHiredAgainst.readArray<bool>(pStream);
-	}
+	// <!-- custom: The current UWAI_CACHE writer stores enum maps and scaled values in this order.
+	// Older layouts used arrays, floats or doubles, including the old advc.035 war-loss counter encoding.
+	// The pre-7 reader also consumed and discarded latestTurnReachableBySea.
+	// The current writer omits it. See KI#46.2. (GPT-6.2-Sol) -->
+	m_aiReachableCities.read(pStream);
+	m_aiTargetMissions.read(pStream);
+	m_arThreatRating.read(pStream);
+	m_aiVassalTechScore.read(pStream);
+	m_aiVassalResourceScore.read(pStream);
+	m_aiAdjLandPlots.read(pStream);
+	m_arRelativeNavyPow.read(pStream);
+	m_arWarAnger.read(pStream);
+	m_aiPlotsLostAtWar.read(pStream);
+	m_aiPastWarScore.read(pStream);
+	m_aiBounty.read(pStream);
+	m_aeSponsorPerTarget.read(pStream);
+	m_aiWarUtilityIgnoringDistraction.read(pStream);
+	m_abCanBeHiredAgainst.read(pStream);
+
 	pStream->Read(&m_bOffensiveTrait);
 	pStream->Read(&m_bDefensiveTrait);
 	pStream->Read(&m_bCanScrub);
 	pStream->Read(&m_bHaveDeepSeaTransports);
 	pStream->Read(&m_bHaveAnyTransports);
-	if (iSaveVersion >= 5)
-		pStream->Read(&m_bFocusOnPeacefulVictory);
+	pStream->Read(&m_bFocusOnPeacefulVictory);
 	{
 		int iSize;
 		pStream->Read(&iSize);
@@ -323,40 +227,12 @@ void UWAICache::read(FDataStreamBase* pStream)
 			m_readyToCapitulateTo.insert(eMaster);
 		}
 	}
-	if (iSaveVersion < 7)
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iKey, iFirstVal, iSecondVal;
-			pStream->Read(&iKey);
-			pStream->Read(&iFirstVal);
-			pStream->Read(&iSecondVal);
-			// No longer used; just discard the data.
-			//latestTurnReachableBySea[iKey] = std::make_pair(iFirstVal, iSecondVal);
-		}
-	}
 	createMilitaryBranches();
 	for (size_t i = 0; i < m_militaryPower.size(); i++)
 		m_militaryPower[i]->read(pStream);
 	pStream->Read(&m_iNonNavalUnits);
-	if (iSaveVersion < 8)
-	{
-		double dTotalAssets;
-		pStream->Read(&dTotalAssets);
-		double dGoldPerProduction;
-		pStream->Read(&dGoldPerProduction);
-		m_rTotalAssets = scaled::fromDouble(dTotalAssets);
-		m_rGoldPerProduction = scaled::fromDouble(dGoldPerProduction);
-	}
-	else
-	{
-		m_rTotalAssets.read(pStream);
-		m_rGoldPerProduction.read(pStream);
-	}
-	if (iSaveVersion < 1)
-		updateRelativeNavyPower();
+	m_rTotalAssets.read(pStream);
+	m_rGoldPerProduction.read(pStream);
 }
 
 /*	Called each turn. Some data are also updated throughout the turn, e.g. through
@@ -1728,8 +1604,7 @@ void UWAICache::City::write(FDataStreamBase* pStream) const
 	pStream->Write(m_iAssetScore);
 	/*	I hadn't thought of a version number in the initial release.
 		Fold it into m_iDistance to avoid breaking compatibility. */
-	FAssertMsg(m_iDistance >= -1 && m_iDistance < 10000,
-			"-2 is OK if loaded from an old savegame version");
+	FAssert(m_iDistance >= -1 && m_iDistance < 10000);
 	int iDistance = ::range(m_iDistance, -1, 9999);
 	// Add 1 b/c distance can be -1
 	pStream->Write(iDistance + 1 + 10000 * iSaveVersion);
@@ -1745,30 +1620,16 @@ void UWAICache::City::read(FDataStreamBase* pStream)
 {
 	pStream->Read((int*)&m_ePlot);
 	pStream->Read(&m_iAssetScore);
-	int iSaveVersion=-1;
-	{
-		int iTmp;
-		pStream->Read(&iTmp);
-		iSaveVersion = iTmp / 10000;
-		m_iDistance = (iTmp % 10000) - 1;
-	}
-	// <!-- custom: Read the current-format land-only distance directly; no older-save migration is retained. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Consume AdvCiv's packed distance field and reverse the writer's +1 offset.
+	// Read land distance and capital-area status directly from the current city layout.
+	// SAS does not read the older layouts with missing or retired fields. See KI#591 and KI#46.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol + GPT-6.2-Sol) -->
+	int iPackedDistance;
+	pStream->Read(&iPackedDistance);
+	m_iDistance = (iPackedDistance % 10000) - 1;
 	pStream->Read(&m_iDistanceByLand);
 	pStream->Read(&m_iTargetValue);
 	pStream->Read(&m_bReachByLand);
-	if (iSaveVersion >= 4)
-		pStream->Read(&m_bCapitalArea);
-	else m_bCapitalArea = m_bReachByLand;
-	if (iSaveVersion < 3)
-	{
-		bool bReachBySea; // discard
-		pStream->Read(&bReachBySea);
-	}
-	if (iSaveVersion == 1)
-	{
-		bool bCanDeduce; // discard
-		pStream->Read(&bCanDeduce);
-	}
+	pStream->Read(&m_bCapitalArea);
 }
 
 

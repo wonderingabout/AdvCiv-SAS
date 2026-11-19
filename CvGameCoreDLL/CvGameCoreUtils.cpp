@@ -2480,6 +2480,45 @@ char const* getSASMissionTypeName(MissionTypes eMission)
 	return (eMission >= 0 && eMission < NUM_MISSION_TYPES ? GC.getInfo(eMission).getType() : "-");
 }
 
+// <!-- custom: Moved from SASGameRecordLog.cpp, which had the same switch as CvGame.cpp's World Changes history copy, so a new Advanced Start action could reach one and not the other; both now call this.
+// Resolve only fixed XML identities already carried by the Advanced Start command/result; coordinates and city/object IDs remain separate fields.
+// Target-kind labels describe the logged payload rather than another gameplay enum: a CITY action targets a plot, while POP/CULTURE target an existing city.
+// These literals are output only, not string-based dispatch.
+// Bounds-check command payload before indexing XML because a network response is evidence, not permission for diagnostics to assume valid enum storage. (ChatGPT-5.6-Sol + GPT-6.1-Sol + Claude code Opus 5.5) -->
+char const* getSASAdvancedStartTarget(AdvancedStartActionTypes eAction, int iData, char const*& szTargetKind)
+{
+	szTargetKind = "NONE";
+	switch (eAction)
+	{
+	case ADVANCEDSTARTACTION_UNIT:
+		szTargetKind = "UNIT";
+		return getSASInfoTypeInBounds<UnitTypes>(iData);
+	case ADVANCEDSTARTACTION_BUILDING:
+		szTargetKind = "BUILDING";
+		return getSASInfoTypeInBounds<BuildingTypes>(iData);
+	case ADVANCEDSTARTACTION_IMPROVEMENT:
+		szTargetKind = "IMPROVEMENT";
+		return getSASInfoTypeInBounds<ImprovementTypes>(iData);
+	case ADVANCEDSTARTACTION_ROUTE:
+		szTargetKind = "ROUTE";
+		return getSASInfoTypeInBounds<RouteTypes>(iData);
+	case ADVANCEDSTARTACTION_TECH:
+		szTargetKind = "TECH";
+		return getSASInfoTypeInBounds<TechTypes>(iData);
+	case ADVANCEDSTARTACTION_CITY:
+	case ADVANCEDSTARTACTION_VISIBILITY:
+		szTargetKind = "PLOT";
+		break;
+	case ADVANCEDSTARTACTION_POP:
+	case ADVANCEDSTARTACTION_CULTURE:
+		szTargetKind = "CITY";
+		break;
+	default:
+		break;
+	}
+	return "-";
+}
+
 // <!-- custom: Keep one canonical machine-readable name for AreaAI theater posture; these raw tokens intentionally match the C++ enum rather than player-facing prose. (ChatGPT-5.6-Sol) -->
 char const* getSASAreaAIType(AreaAITypes eAreaAI)
 {

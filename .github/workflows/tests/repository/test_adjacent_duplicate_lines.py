@@ -52,5 +52,43 @@ class AdjacentDuplicateLineTests(unittest.TestCase):
         self.assertEqual(self.commit("g.py", "if a:\n\t\treturn None\n\treturn None\n"), [])
 
 
+    def test_cpp_duplicate_include_detects_nonadjacent_addition(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        old = '#include "RiseFall.h"\n#include "CvBugOptions.h"\n'
+        new = old + '# include "RiseFall.h" // advc.708\n'
+        self.commit(path, old)
+        errors = self.commit(path, new)
+        self.assertTrue(any(':3: duplicate C++ include "RiseFall.h"; first included on line 1' in error for error in errors))
+        self.assertEqual(checker.cpp_duplicate_include_errors(path, new, new), [])
+
+    def test_cpp_duplicate_include_respects_preprocessor_arms_and_comments(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        conditional = '#if FIRST\n#include "Same.h"\n#elif SECOND\n#include "Same.h"\n#else\n#include "Same.h"\n#endif\n'
+        examples = '/*\n#include "Same.h"\n*/\n// #include "Same.h"\n'
+        self.assertEqual(checker.cpp_duplicate_include_errors(path, "", conditional + examples), [])
+        nested = '#include "Same.h"\n#if FIRST\n#if NESTED\n#include "Same.h"\n#endif\n#endif\n'
+        self.assertEqual(len(checker.cpp_duplicate_include_errors(path, "", nested)), 1)
+        repeated_in_arm = conditional.replace('#if FIRST\n', '#if FIRST\n#include "Same.h"\n')
+        self.assertEqual(len(checker.cpp_duplicate_include_errors(path, conditional, repeated_in_arm)), 1)
+
+    def test_cpp_adjacent_include_is_reported_once(self):
+        header = '#include "Same.h"\n'
+        errors = self.commit("adjacent.cpp", header + header)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("duplicate C++ include", errors[0])
+
+    def test_cpp_duplicate_include_added_by_merge_is_checked(self):
+        path = "CvGameCoreDLL/Test.cpp"
+        header = '#include "Same.h"\n'
+        self.commit(path, header)
+        subprocess.run(["git", "switch", "-q", "-c", "side"], cwd=self.repo, check=True)
+        self.commit("note.txt", "side branch\n")
+        subprocess.run(["git", "switch", "-q", "-"], cwd=self.repo, check=True)
+        subprocess.run(["git", "merge", "-q", "--no-ff", "--no-commit", "side"], cwd=self.repo, check=True)
+        errors = self.commit(path, header + '\n#include "Same.h"\n')
+        self.assertEqual(len(errors), 1)
+        self.assertIn("duplicate C++ include", errors[0])
+
+
 if __name__ == "__main__":
     unittest.main()

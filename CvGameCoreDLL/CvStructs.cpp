@@ -17,16 +17,8 @@
 #include "CvPlot.h" // advc.071
 #include "CvInfo_Command.h" // advc (for NukeMissionDef)
 
-// advc.opt: For reading legacy savegames
-void IDInfo::validateOwner()
-{
-	if (eOwner == NO_PLAYER)
-	{
-		if (iID == FFreeList::INVALID_INDEX)
-			eOwner = BARBARIAN_PLAYER;
-		else FAssert(iID == FFreeList::INVALID_INDEX);
-	}
-}
+// <!-- custom: Removed IDInfo::validateOwner (advc.opt, f0551b743b), which converted empty owners from NO_PLAYER in old saves.
+// Current saves already serialize BARBARIAN_PLAYER for an empty reference. See KI#46.2. (GPT-6.2-Sol) -->
 
 int EventTriggeredData::getID() const
 {

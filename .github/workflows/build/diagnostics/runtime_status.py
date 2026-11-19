@@ -17,6 +17,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 # <!-- custom: Reuse integer-Define parsing and shipped-value validation rather than inspect source spellings. (GPT-6.1-Sol) -->
 # <!-- custom: add_staged_argument adds the shared local --staged option for checking the Git index instead of the working tree. (Claude code Opus 5.5) -->
 from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, require_int_values
+# <!-- custom: The shipped runtime values moved out of main to LLM_Helpers/diagnostics/define_values.py so toggle_dev_diagnostics.py reads the same list. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "diagnostics"))
+from define_values import EXPECTED_RUNTIME_DEFAULTS
 
 
 # <!-- custom: Default-value checks alone did not require a newly added observer to declare its control.
@@ -64,7 +67,7 @@ def main() -> int:
     args = parser.parse_args()
     # <!-- custom: Source and screenshot observation are independently opt-in; enforce their shipped defaults too, even when the parent runtime switch is off. (GPT-6.1-Sol) -->
     defines = read_global_define_ints(args.repo_root, args.staged)
-    failures = require_int_values(defines, {"SAS_RUNTIME_STATUS_ON": 0, "SAS_RUNTIME_PLAYER_TURN_LIVE_THRESHOLD_MS": 3000, "SAS_RUNTIME_PLAYER_TURN_LIVE_REFRESH_MS": 3000, "SAS_RUNTIME_SOURCE_WATCH_ON": 0, "SAS_RUNTIME_SCREENSHOT_WATCH_ON": 0})
+    failures = require_int_values(defines, EXPECTED_RUNTIME_DEFAULTS)
     failures.extend(observer_control_errors(args.repo_root, defines))
     if failures:
         print("FAIL SAS runtime-status default")

@@ -46,7 +46,8 @@ private:
 
 	void AlignData(int size);
 	void AppendString(LPCSTR string);
-	void AppendData(void* data, int dataLength);
+	// <!-- custom: AdvCiv's advc.cppstd lets this read-only input accept const buffers. See KI#1099. (GPT-6.2-Sol) -->
+	void AppendData(void const* data, int dataLength);
 	void EnsureSpace(int length);
 
 	DLGTEMPLATE* dialogTemplate;

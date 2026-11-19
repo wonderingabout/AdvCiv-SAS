@@ -300,7 +300,8 @@ public:
 	int AI_getAttitudeWeight(TeamTypes eTeam) const;
 	int AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const;
 	bool AI_isWaterAreaRelevant(CvArea const& kArea) /* advc: */ const;
-	void AI_finalizeInit(); // advc.opt
+	// <!-- custom: Note: CvTeamAI::AI_finalizeInit (advc.opt) was declared here to rebuild war-plan counts for old saves.
+	// CvTeamAI::read now takes the stored counts directly. See KI#46.2. (GPT-6.2-Sol) -->
 
 	void read(FDataStreamBase* pStream);
 	void write(FDataStreamBase* pStream);
