@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 208 - SAS practical 6824
 
 - **Date:** 2026-11-19
-- **Git commit:** pending
+- **Git commit:** `a2738348bb0e55f8cdfb20b74702ab197a1763b9`
 - **Change:** The AdvCiv 1.14 merge widens the religion and corporation city counts. `GAME_RECORD_SAVE_COMPONENT_FORMATS` now reports the matching AdvCiv writer flag `CvPlayer=23`.
   - The Advanced Start target lookup that SGR rows and the saved World Changes history each kept a copy of now lives once in `CvGameCoreUtils`, and SGR's hand-written XML bounds checks use AdvCiv's `checkEnumBounds`; rows are unchanged.
 

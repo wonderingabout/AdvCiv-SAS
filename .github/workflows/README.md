@@ -230,7 +230,7 @@ Note: Separate artifacts were considered, which according to ChatGPT-5.5 are as 
 
 ## Markdown lint workflow
 
-[`documentation-markdownlint.yml`](/.github/workflows/documentation-markdownlint.yml) fails on markdownlint findings in maintained documentation, using [markdownlint-cli2-action](https://github.com/DavidAnson/markdownlint-cli2-action) v24.2.0 (markdownlint-cli2 0.23.2 / markdownlint 0.41.1). Pushes and pull requests touching Markdown, either Markdown configuration, or this workflow trigger it; manual runs are also available. The mirrored base AdvCiv comparison branch is excluded as in the other sanity workflows.
+[`documentation-markdownlint.yml`](/.github/workflows/documentation-markdownlint.yml) fails on markdownlint findings in maintained documentation, using [markdownlint-cli2-action](https://github.com/DavidAnson/markdownlint-cli2-action) v25.0.0 (markdownlint-cli2 0.24.0 / markdownlint 0.42.0). Pushes and pull requests touching Markdown, either Markdown configuration, or this workflow trigger it; manual runs are also available. The mirrored base AdvCiv comparison branch is excluded as in the other sanity workflows.
 
 Rule settings come from [`.markdownlint.jsonc`](/.markdownlint.jsonc), shared with the VS Code extension. Existing exceptions for tabs, long lines, raw HTML and intentional code-span whitespace remain unchanged.
 
@@ -247,7 +247,7 @@ A real README failure prompted this addition: three tab-indented history bullets
 Run the same scope and configuration locally:
 
 ```sh
-npx markdownlint-cli2@0.23.2
+npx markdownlint-cli2@0.24.0
 ```
 
 `npx` comes with Node.js; on Windows, `winget install --id OpenJS.NodeJS.LTS` installs it. Check the [markdownlint-cli2 project](https://github.com/DavidAnson/markdownlint-cli2) for more current installation advice.
