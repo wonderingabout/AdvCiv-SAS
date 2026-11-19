@@ -338,6 +338,24 @@ bool CyGame::flushSASDiagnosticLogs()
 	return ::flushSASDiagnosticLogs();
 }
 
+// <!-- custom: The Greatest Civilizations screen (CvTopCivs.py) ranked us 2nd in culture at turn 82 of the 2026-11-19 validation run, and its ranking was gone once closed; the user wanted each screen kept in the save and on the Timeline.
+// Replay messages are both, and KI#337's visibility mask limits this one to the viewer's team, as its "Unknown Civilization" lines are that team's view; a coordinate-less major event. (Claude code Opus 5.5) -->
+void CyGame::addSASTeamReplayMessage(int iPlayer, std::wstring szText)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+	qword uiTeamMask = 0;
+	// <!-- custom: A plain loop over the players: MemberIter is not declared in this file's includes, which cl.exe /Zs reported (C3861). (Claude code Opus 5.5) -->
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (GET_PLAYER((PlayerTypes)i).getTeam() == kPlayer.getTeam())
+			uiTeamMask |= ((qword)1 << i);
+	}
+	// <!-- custom: NO_COLOR, which addReplayMessage turns to white as for other plain rows: the player's own colour, Ireland's dark green, was hard to read on the Timeline's background (first test, 2026-11-19). (Claude code Opus 5.5) -->
+	m_kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, kPlayer.getID(), szText.c_str(), NO_COLOR, INVALID_PLOT_COORD, INVALID_PLOT_COORD, uiTeamMask);
+}
+
 // <!-- custom: Python owns the actual WorldBuilder screen lifecycle.
 // Always pass that literal visibility into CvGame's persisted edit-history attribution, independently of optional runtime logging.
 // Runtime status remains separately gated/default-off and still treats Advanced Start as distinct from ordinary WorldBuilder mode. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -449,6 +467,19 @@ void CyGame::logSASGameRecordDotMapSummary(std::string szEvent, std::string szRe
 void CyGame::logSASGameRecordDotMapMarker(std::string szEvent, std::string szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer)
 {
 	if (gGameRecordLogLevel >= 2 && isSASGameRecordActionTraceEnabled()) ::logSASGameRecordDotMapMarker(szEvent.c_str(), szReason.c_str(), iOwnerPlayer, iX, iY, iOldColor, iOldLayer, iNewColor, iNewLayer);
+}
+
+// <!-- custom: A rare game-history fact, so level 1, the compact factual history, rather than the level-2 action trace.
+// The gate is the caller's: CvTopCivs.py checks the same cached level before calling SASGameRecordActions.logTopCivs, so a disabled record never reaches here and never evaluates the arguments.
+// This check, after the call, is only a backstop that keeps a caller that forgot from writing; it cannot save that caller's argument work, so a new Python caller must pre-gate too. (Claude code Opus 5.5) -->
+void CyGame::logSASGameRecordTopCivs(std::string szCategory, std::wstring szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown)
+{
+	if (gGameRecordLogLevel >= 1) ::logSASGameRecordTopCivs(szCategory.c_str(), CvString(szHistorian).GetCString(), iListed, iRanked, iUnknownListed, bShown);
+}
+
+void CyGame::logSASGameRecordTopCivsRank(std::string szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown)
+{
+	if (gGameRecordLogLevel >= 1) ::logSASGameRecordTopCivsRank(szCategory.c_str(), iRank, iPlayer, iValue, bListed, bKnown);
 }
 
 std::string CyGame::getSASGameRecordIniFileArgument() const

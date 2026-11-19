@@ -50,6 +50,7 @@ EXPECTED_HANDS_FREE_VALUES = {
 	"SAS_UI_WONDER_MOVIE_ON": 1,
 	"SAS_UI_RELIGION_MOVIE_ON": 1,
 	"SAS_UI_PROJECT_MOVIE_ON": 1,
+	"SAS_UI_TOP_CIVS_ON": 1,
 	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
 	"SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON": 1,
 	"SAS_FAST_SAVE_GAME_START_ON": 1,
@@ -81,6 +82,8 @@ DEVELOPMENT_VALUES = {
 	"SAS_UI_WONDER_MOVIE_ON": 0,
 	"SAS_UI_RELIGION_MOVIE_ON": 0,
 	"SAS_UI_PROJECT_MOVIE_ON": 0,
+	# <!-- custom: The Greatest Civilizations screen, recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
+	"SAS_UI_TOP_CIVS_ON": 0,
 }
 
 # <!-- custom: Settings that agent runs want besides the toggled ones, which SASPilotClient.py lists in its greeting: informational popups dismissed during autoplay.

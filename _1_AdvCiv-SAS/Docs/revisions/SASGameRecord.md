@@ -121,6 +121,8 @@ Only the listed collections use this convention; other compact fields retain the
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
   - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
   - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+  - The same branch revision adds `GAME_RECORD_TOP_CIVS` and `GAME_RECORD_TOP_CIVS_RANK` (2026-11-19, level 1): each Greatest Civilizations ranking, with whether the screen showed, how many ranks it listed and the viewer did not know, then one row per alive player with its rank, value, team, civilization and leader types, and whether it was listed and known.
+    - `CvTopCivs.py` pre-gates and calls `SASGameRecordActions.logTopCivs`, which writes them through `CyGame.logSASGameRecordTopCivs` and `logSASGameRecordTopCivsRank`.
 
 ### Revision 208 - SAS practical 6824
 

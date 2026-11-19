@@ -1398,8 +1398,9 @@ def _adviceAllowed():
 	return not szRole or "advice" in _ROLE_ALLOWED[szRole]
 
 
+# <!-- custom: showTopCivs left the list on 2026-11-19: a player has no button for the Greatest Civilizations screen, which comes only on its schedule, so calling it under play gave a fresh ranking of unmet civs at will, and each call uses a draw of the synchronized random number; under all it stays, for tests. (Claude code Opus 5.5) -->
 # <!-- custom: The screens a player opens from the window's buttons, the play role's 'screen' calls, without arguments. Round 32 had any show*/pedia* name pass, but showReplay forwards its args[0] to CyGame.saveReplay, so args=[9999,0,0,0,0] reached GET_PLAYER(9999) in CvGame::saveReplay (Codex's review, round 33). A list, and no args: the advisors take none from a player, and 'pedia' gives Sevopedia text without the pedia jumps' indices. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-_PLAY_SCREENS = ("showTechChooser", "showPolicyAdvisorScreen", "showReligionScreen", "showCorporationScreen", "showForeignAdvisorScreen", "showForeignDiplomacyAdvisor", "showDomesticAdvisor", "showMilitaryAdvisor", "showEspionageAdvisor", "showInfoScreen", "showWorldAdvisorScreen", "showVictoryScreen", "showTopCivs", "showHallOfFame", "pediaShow", "pediaMain", "pediaBack", "pediaForward")
+_PLAY_SCREENS = ("showTechChooser", "showPolicyAdvisorScreen", "showReligionScreen", "showCorporationScreen", "showForeignAdvisorScreen", "showForeignDiplomacyAdvisor", "showDomesticAdvisor", "showMilitaryAdvisor", "showEspionageAdvisor", "showInfoScreen", "showWorldAdvisorScreen", "showVictoryScreen", "showHallOfFame", "pediaShow", "pediaMain", "pediaBack", "pediaForward")
 
 
 def _screenRole(szName, args):
@@ -3569,63 +3570,53 @@ def _openScreens():
 			continue
 	# <!-- custom: The Greatest Civilizations screen (CvTopCivs) has no getScreen method, so the loop above missed it: at turn 82 of the islands replay (2026-11-15) the user saw it up while 'todo' reported nothing.
 	# Its screen object exists once shown. (Claude code Opus 5.5) -->
-	topCivs = getattr(CvScreensInterface, "topCivs", None)
-	if topCivs is not None and getattr(topCivs, "screen", None) is not None:
-		try:
-			if topCivs.screen.isActive():
-				result.append("topCivs")
-		except Exception:
-			pass
+	# <!-- custom: Asked of the screen by its ID: CvEventManager shows it through its own throwaway instance, so CvScreensInterface.topCivs never had it up, and 'todo' missed the screen again at turn 82 of the 2026-11-19 validation run. (Claude code Opus 5.5) -->
+	import CvScreenEnums
+	if CyGInterfaceScreen("CvTopCivs", CvScreenEnums.TOP_CIVS).isActive():
+		result.append("topCivs")
 	if CyInterface().isCityScreenUp():
 		result.append("cityScreen")
 	return result
 
 
-_HELP["topcivs"] = "The Greatest Civilizations screen, while it is up (it comes now and then, while the player has met half the teams or fewer): what it ranks (wealth, power, tech, culture or land) and the top eight as the player reads them, met players by name and the others unknown, and whether we are among them. The values behind the ranks are not shown, as on screen. args: player."
+_HELP["topcivs"] = "Every Greatest Civilizations screen this player's team saw (it comes now and then, while the player has met half the teams or fewer), from the replay rows the save keeps, as the Timeline lists them: history, each with its turn, title row (category and historian) and one row per rank, met players by leader, civilization, player and team, the others unknown; latest, the newest of them; ourRank in it; and screenUp. The values behind the ranks are not shown, as on screen. args: player."
 
 
 def cmd_topcivs(args):
 	# <!-- custom: The user saw this screen at turn 82 of the islands replay (2026-11-15) and asked that SASPilot map it: a ranking of the most powerful civilizations, public in that a player reads it, all eight unknown to us then.
-	# CvTopCivs keeps its ranking in aiTopCivsValues but not which category it chose, so the category is found by matching the order against each measure, as makeList computes them. (Claude code Opus 5.5) -->
-	import CvScreensInterface
-	topCivs = getattr(CvScreensInterface, "topCivs", None)
-	if topCivs is None or getattr(topCivs, "screen", None) is None or not topCivs.screen.isActive():
-		raise ValueError("the Greatest Civilizations screen is not up")
+	# CvEventManager showed it through a throwaway CvTopCivs instance, so its ranking could not be read; since the 2026-11-19 validation run (turn 82, us 2nd in culture, unseen by SASPilot) CvTopCivs records each screen as replay rows, read here. (Claude code Opus 5.5) -->
 	player = _player(args)
-	team = gc.getTeam(player.getTeam())
-	# <!-- custom: CvEventManager shows the screen through a throwaway CvTopCivs instance (CvTopCivs.CvTopCivs().turnChecker), so the module's topCivs object holds no ranking: the first version read aiTopCivsValues from it and failed.
-	# Until the game keeps the last ranking, only the screen being up is known. (Claude code Opus 5.5) -->
-	if not hasattr(topCivs, "aiTopCivsValues"):
-		raise ValueError("the Greatest Civilizations screen is up, but the game keeps its ranking only in a throwaway CvTopCivs instance (CvEventManager), so it cannot be read; look at the screen, or close it with 'closescreens'")
-	values = topCivs.aiTopCivsValues
-	measures = {}
-	for (iValue, iPlayer) in values[:3]:
-		other = gc.getPlayer(iPlayer)
-		otherTeam = gc.getTeam(other.getTeam())
-		iTechCost = 0
-		for i in range(gc.getNumTechInfos()):
-			if otherTeam.isHasTech(i):
-				iTechCost += gc.getTechInfo(i).getResearchCost()
-		for (szName, iMeasure) in (("power", other.getPower()), ("tech", iTechCost), ("culture", other.countTotalCulture()), ("land", other.getTotalLand()), ("wealth", otherTeam.AI_estimateYieldRate(iPlayer, YieldTypes.YIELD_COMMERCE))):
-			if iMeasure == iValue:
-				measures[szName] = measures.get(szName, 0) + 1
-	category = None
-	for (szName, iMatches) in measures.items():
-		if iMatches == len(values[:3]):
-			category = szName
-	iRanks = 8
-	if gc.getGame().countCivPlayersAlive() == iRanks + 1:
-		iRanks = 7
-	ranks = []
-	bUs = False
-	for i in range(min(iRanks, len(values))):
-		iPlayer = values[i][1]
-		other = gc.getPlayer(iPlayer)
-		bKnown = iPlayer == player.getID() or team.isHasMet(other.getTeam())
-		if iPlayer == player.getID():
-			bUs = True
-		ranks.append({"rank": i + 1, "player": (bKnown and iPlayer) or None, "name": (bKnown and other.getName()) or "unknown"})
-	return {"category": category, "ranks": ranks, "weAreInTop": bUs}
+	# <!-- custom: Read through CyReplayInfo.createInfo, as the Timeline does, so each row's stored audience (KI#337) decides what this player sees; the first version checked the writer's current team, which a later team change would get wrong.
+	# A CvTopCivs.g_lastShown global went too, as it outlived loading an earlier save and a hot-seat change (Codex's review, 2026-11-19).
+	# Title rows are matched in the current language, so rows saved in another language are missed, as on the Timeline; a known limit kept for simplicity. (Claude code Opus 5.5) -->
+	replay = CyReplayInfo()
+	replay.createInfo(player.getID())
+	szTitle = CyTranslator().getText("TXT_KEY_TOPCIVS_TITLE", ())
+	# <!-- custom: CvTopCivs writes the rank rows from the last to the first, then the title, so the Timeline (newest first) reads them in order; a title row collects the rank rows just before it from the same turn and player, back in rank order. (Claude code Opus 5.5) -->
+	history = []
+	for i in range(replay.getNumReplayMessages()):
+		if not replay.getReplayMessageText(i).startswith(szTitle):
+			continue
+		iTurn = replay.getReplayMessageTurn(i)
+		iWho = replay.getReplayMessagePlayer(i)
+		ranks = []
+		j = i - 1
+		while j >= 0 and replay.getReplayMessageTurn(j) == iTurn and replay.getReplayMessagePlayer(j) == iWho and re.match(r"^\d+\) ", replay.getReplayMessageText(j)):
+			ranks.append(replay.getReplayMessageText(j))
+			j -= 1
+		history.append({"turn": iTurn, "title": replay.getReplayMessageText(i), "ranks": ranks})
+	if not history:
+		raise ValueError("no Greatest Civilizations screen has been shown to this player's team yet")
+	# <!-- custom: Our rank from the latest screen's rows, whose met ranks end "player <ID>, team <ID>" (TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK, English only like all SAS text). (Claude code Opus 5.5) -->
+	iOurRank = None
+	for szRank in history[-1]["ranks"]:
+		match = re.match(r"^(\d+)\) .*, player (\d+), team \d+$", szRank)
+		if match and int(match.group(2)) == player.getID():
+			iOurRank = int(match.group(1))
+	# <!-- custom: Whether the screen is up, asked of the screen itself: CvScreensInterface.topCivs is another instance than the one shown, and read false while the screen was up. (Claude code Opus 5.5) -->
+	import CvScreenEnums
+	bUp = bool(CyGInterfaceScreen("CvTopCivs", CvScreenEnums.TOP_CIVS).isActive())
+	return {"latest": history[-1], "ourRank": iOurRank, "screenUp": bUp, "history": history}
 
 
 _HELP["closescreens"] = "Close the screens left open in the window, as Esc or their Exit button does: every advisor or other Python screen 'todo' lists in openScreens, and the city screen; or only one with name (as openScreens names it, or cityScreen). Returns what was closed. args: name."
@@ -3644,7 +3635,9 @@ def cmd_closescreens(args):
 			CyInterface().clearSelectedCities()
 		# <!-- custom: The Greatest Civilizations screen has no getScreen; its screen object is closed directly, as its Exit button does (islands replay, 2026-11-15). (Claude code Opus 5.5) -->
 		elif szName == "topCivs":
-			CvScreensInterface.topCivs.screen.hideScreen()
+			# <!-- custom: CvScreenEnums for the screen's ID, TOP_CIVS: closed by its ID, as CvEventManager shows it through its own instance that CvScreensInterface.topCivs is not (2026-11-19 validation run). (Claude code Opus 5.5) -->
+			import CvScreenEnums
+			CyGInterfaceScreen("CvTopCivs", CvScreenEnums.TOP_CIVS).hideScreen()
 		else:
 			getattr(CvScreensInterface, szName).getScreen().hideScreen()
 		closed.append(szName)
@@ -7194,7 +7187,8 @@ def cmd_screen(args):
 			function()
 		except TypeError:
 			function(None)
-	return None
+	# <!-- custom: Replied null, the screen functions' own return, which read as a failure in SASPilotConsole (the user, 2026-11-19); the call made is said instead. (Claude code Opus 5.5) -->
+	return {"called": args["name"], "args": args.get("args")}
 
 
 _POPUP_FIELDS = ("state", "id", "type", "typeId", "data1", "data2", "data3", "flags", "option1", "option2", "pythonButtons", "pythonModule", "onClicked", "buttons", "text")

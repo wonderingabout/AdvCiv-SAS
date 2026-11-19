@@ -2941,6 +2941,31 @@ void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int
 		bNewColorValid, bNewColorValid ? iNewColor : -1, szNewType, kNewColor.r, kNewColor.g, kNewColor.b, kNewColor.a, bHasNew ? iNewLayer : -1);
 }
 
+// <!-- custom: A Greatest Civilizations ranking, which the game shows the active player now and then (every TOP_CIVS_INTERVAL turns from turn 75 at Normal speed, while it has met half the teams or fewer: advc.038).
+// The summary row says whether the screen showed (SAS_UI_TOP_CIVS_ON and the AI Auto Play info-popup switch) and how many ranks it listed and the viewer did not know; the Timeline row keeps only what the viewer read. (Claude code Opus 5.5) -->
+void logSASGameRecordTopCivs(char const* szCategory, char const* szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized())
+		return;
+	logSASGameRecord("GAME_RECORD_TOP_CIVS turn=%d elapsed=%d viewerPlayer=%d sessionWallMilliseconds=%u category=%s historian=%s shown=%d listed=%d ranked=%d unknownListed=%d",
+		kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getActivePlayer(), getSASGameRecordSessionWallMilliseconds(),
+		getSASDiagnosticOrDash(szCategory), getSASDiagnosticQuoted(szHistorian == NULL ? "" : szHistorian).GetCString(),
+		bShown, std::max(0, iListed), std::max(0, iRanked), std::max(0, iUnknownListed));
+}
+
+// <!-- custom: One row per alive player the ranking compared, not only the listed ranks: value is the measure of the category (CvTopCivs.makeList: commerce estimate, power, research cost of known techs, culture or land), listed says whether the screen listed it and known whether the viewer had met it. (Claude code Opus 5.5) -->
+void logSASGameRecordTopCivsRank(char const* szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown)
+{
+	CvGame const& kGame = GC.getGame();
+	if (!kGame.isFinalInitialized() || iPlayer < 0 || iPlayer >= MAX_PLAYERS)
+		return;
+	CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+	logSASGameRecord("GAME_RECORD_TOP_CIVS_RANK turn=%d viewerPlayer=%d category=%s rank=%d player=%d team=%d civType=%s leaderType=%s value=%d listed=%d known=%d",
+		kGame.getGameTurn(), kGame.getActivePlayer(), getSASDiagnosticOrDash(szCategory), iRank, iPlayer, kPlayer.getTeam(),
+		getSASInfoTypeOrNone(kPlayer.getCivilizationType()), getSASInfoTypeOrNone(kPlayer.getLeaderType()), iValue, bListed, bKnown);
+}
+
 // <!-- custom: Serialize a pre/post Boolean only when the authoritative getter reports a real change; callers capture state around the native operation and pre-gate the action subject before requesting the second getter.
 // Replace the draft's component/reason/key string arguments with the existing control enum; derive CAMERA and its source/key here so call sites cannot accidentally pair the wrong labels. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 void logSASGameRecordCameraBoolChange(ControlTypes eControl, bool bOldValue, bool bNewValue)

@@ -382,6 +382,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - Each has its own switch, so a player can, for example, keep wonder movies and skip the rest. All ship as `1`; [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) `on` sets them to `0` locally, as for Dawn of Man, and CI checks the shipped values.
   - Why: on 2026-11-13 a tech bought from an AI during a pilot playthrough put its splash on display at once, and the window waited on Continue while SASPilot's `todo` reported nothing waiting. What these screens say also reaches the event log, such as "You have discovered Navigation!".
   - They are skipped where the game shows them, so a tech splash the DLL launches is covered too. Feat popups, such as "first Swordsman", already have a switch of their own: the Advisor Popups player option.
+  - (Requires AdvCiv-SAS 6868+) `SAS_UI_TOP_CIVS_ON` does the same for the Greatest Civilizations screen; its ranking is recorded as Timeline rows either way, so skipping it loses nothing.
+    - For example "The Greatest Civilizations, Wealthiest, by Herodotus", then one row per rank such as "1) Cyrus of Persia, player 4, team 4" or "3) An Unknown Civilization"; see [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
   - See [CvScreensInterface.py](/Assets/Python/EntryPoints/CvScreensInterface.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - (Requires AdvCiv-SAS 6746+) **AI Auto Play can start without the keyboard:** a launch settings file passed as `ini=` can hold an `[SASAutoplay]` section with `Turns`, and optionally `DebugMode` and `RunId`; the game starts that many turns of autoplay right after loading a save, or after starting a new game when the file also sets `QuickStart = 1`.
   - Ordinary launches never read it, since they pass no `ini=` file.
@@ -3132,6 +3134,12 @@ Make some of the data-dense advisors use using a **higher constrast background t
   - Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance.
   - Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py).
   - See [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
+  - (Requires AdvCiv-SAS 6868+) Each **Greatest Civilizations** screen, the historians' ranking shown now and then, is kept on the **Timeline**: a title row with the category and historian, then one row per rank giving leader, civilization, player ID and team, with unmet civilizations still unknown.
+    - Before, it was gone once closed; it is now kept in the save, replays and Hall of Fame too, visible only to the team that saw it.
+    - `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` (default on) hides these rows from the Timeline for players who find them noise; the save and replay keep them, so turning it back on shows past rankings again.
+      - At SASGameRecord level 1 each ranking also adds rows with the values behind every rank, for all players; see the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#greatest-civilizations-rankings).
+    - The ranking is recorded either way, so the screen itself can be turned off with `SAS_UI_TOP_CIVS_ON` (default on), as for the other information-only screens; during AI Auto Play `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON` skips it too.
+    - Change in [CvTopCivs.py](/Assets/Python/Screens/CvTopCivs.py) and [CyGame.cpp](/CvGameCoreDLL/CyGame.cpp), with a binding in [CyGameInterface.cpp](/CvGameCoreDLL/CyGameInterface.cpp).
 - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as **icon chars**, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs).
   - Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**.
   - Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn.

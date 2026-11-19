@@ -74,6 +74,7 @@ The EXE is closed source, mods can supply arbitrary filenames, and some outputs 
   - [Military Advisor: Battles](#military-advisor-battles)
   - [World Advisor: Changes](#world-advisor-changes)
   - [Info Screen: Timeline](#info-screen-timeline)
+    - [Greatest Civilizations rankings](#greatest-civilizations-rankings)
   - [Sevopedia chart exports](#sevopedia-chart-exports)
     - [Era chart](#era-chart)
     - [Handicap chart](#handicap-chart)
@@ -1879,6 +1880,28 @@ Timeline exports its built/cached, perspective-filtered event text in chronologi
 2026-10-26T04:38:33.781Z - January, AD 2083: Napoleon completes the SS Casing!
 2026-10-26T04:38:33.781Z - January, AD 2105: Session 3 starts
 2026-10-26T04:38:33.787Z SAS_CV_INFO_SCREEN_TIMELINE_PANEL_END
+```
+
+#### Greatest Civilizations rankings
+
+Each Greatest Civilizations ranking (`CvTopCivs.py`) becomes Timeline rows visible only to the team that saw it: a title row, then one row per rank in rank order.
+
+- `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON=0` hides them from the Timeline only; the save, the replay and SASPilot's `topcivs` keep them. `SAS_UI_TOP_CIVS_ON` decides separately whether the screen itself shows.
+- At SASGameRecord level 1 the same ranking adds `GAME_RECORD_TOP_CIVS` and one `GAME_RECORD_TOP_CIVS_RANK` per alive player, with the value behind each rank, also for civilizations the viewer has not met: the all-player record, so a spoiler.
+
+Captured at turn 82 of the 2026-11-19 Ireland validation run, with the screen itself off:
+
+```log
+1560 BC: The Greatest Civilizations, Wealthiest, by Herodotus
+1560 BC: 1) Cyrus of Persia, player 4, team 4
+1560 BC: 2) Mehmed II of Ottomans, player 6, team 6
+1560 BC: 3) An Unknown Civilization
+```
+
+```log
+GAME_RECORD_TOP_CIVS seq=435 turn=82 elapsed=82 viewerPlayer=0 sessionWallMilliseconds=2719 category=WEALTH historian="Herodotus" shown=0 listed=8 ranked=8 unknownListed=4
+GAME_RECORD_TOP_CIVS_RANK seq=436 turn=82 viewerPlayer=0 category=WEALTH rank=1 player=4 team=4 civType=CIVILIZATION_PERSIA leaderType=LEADER_CYRUS value=45 listed=1 known=1
+GAME_RECORD_TOP_CIVS_RANK seq=438 turn=82 viewerPlayer=0 category=WEALTH rank=3 player=3 team=3 civType=CIVILIZATION_MALI leaderType=LEADER_MANSA_MUSA value=34 listed=1 known=0
 ```
 
 ### Sevopedia chart exports

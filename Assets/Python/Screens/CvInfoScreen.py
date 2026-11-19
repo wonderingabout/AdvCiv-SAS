@@ -250,6 +250,8 @@ class CvInfoScreen:
 
 		# <!-- custom: Timeline tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
 		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
+		# <!-- custom: A Greatest Civilizations rank row, "3) An Unknown Civilization", for SAS_INFO_UI_TIMELINE_TOP_CIVS_ON. (Claude code Opus 5.5) -->
+		self.RE_TOP_CIVS_RANK = re.compile(r"^\d+\) ")
 		self.RE_COLOR_CLOSE = re.compile(r"</color>")
 
 		# <!-- custom: Timeline tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
@@ -451,6 +453,7 @@ class CvInfoScreen:
 		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON") > 0)
 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
 		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_CACHE_ON") > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (gc.getDefineINT("SAS_INFO_UI_TIMELINE_TOP_CIVS_ON") > 0)
 		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = gc.getDefineINT("SAS_INFO_UI_SCORE_MAX_RENDER_THRESH")
 
 	def reset(self):
@@ -939,6 +942,20 @@ class CvInfoScreen:
 		if replayInfo.getNumReplayMessages() <= 0:
 			return records
 
+		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player, as SASPilot's 'topcivs' groups them.
+		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
+		dHiddenMessages = {}
+		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
+			szTopCivsTitle = localText.getText("TXT_KEY_TOPCIVS_TITLE", ())
+			for iMessage in range(replayInfo.getNumReplayMessages()):
+				if not replayInfo.getReplayMessageText(iMessage).startswith(szTopCivsTitle):
+					continue
+				dHiddenMessages[iMessage] = True
+				iRow = iMessage - 1
+				while iRow >= 0 and replayInfo.getReplayMessageTurn(iRow) == replayInfo.getReplayMessageTurn(iMessage) and replayInfo.getReplayMessagePlayer(iRow) == replayInfo.getReplayMessagePlayer(iMessage) and self.RE_TOP_CIVS_RANK.match(replayInfo.getReplayMessageText(iRow)):
+					dHiddenMessages[iRow] = True
+					iRow -= 1
+
 		# Build unknown colors dict once
 		dUnknownColors = {}
 		if not self.bRevealAll:
@@ -965,6 +982,8 @@ class CvInfoScreen:
 
 		# Iterate backwards (newest first) so no reverse needed later
 		for iMessage in range(replayInfo.getNumReplayMessages() - 1, -1, -1):
+			if dHiddenMessages.has_key(iMessage):
+				continue
 			iPlayer = replayInfo.getReplayMessagePlayer(iMessage)
 			iX = replayInfo.getReplayMessagePlotX(iMessage)
 			iY = replayInfo.getReplayMessagePlotY(iMessage)

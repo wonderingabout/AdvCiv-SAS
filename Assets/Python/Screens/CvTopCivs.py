@@ -2,18 +2,29 @@
 ## Copyright Firaxis Games 2005
 # Author - Jon Shafer
 # Top Civilizations screen
+#
+# AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
+# (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
 import PyHelpers
 import CvUtil
 import CvScreenEnums
 import random
 from CvPythonExtensions import *
+# <!-- custom: SASGameRecordConfig for the cached SGR level that pre-gates the ranking's rows, SASGameRecordActions for the helper that writes them. (Claude code Opus 5.5) -->
+import SASGameRecordConfig
+import SASGameRecordActions
 
 PyPlayer = PyHelpers.PyPlayer
 gc = CyGlobalContext()
 localText = CyTranslator()
 
 NUM_CIVILIZATIONS = 8
+
+TOP_CIVS_CATEGORY_KEYS = ("WEALTH", "POWER", "TECH", "CULTURE", "SIZE")
+# <!-- custom: Lazy caches of SAS_UI_TOP_CIVS_ON and SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON, read on the first ranking after XML has loaded; define edits need a Civ4 restart anyway. (Claude code Opus 5.5) -->
+g_bTopCivsOn = None
+g_bDismissInfoPopupsOn = None
 
 class CvTopCivs:
 	# The Greatest Civilizations screen
@@ -65,6 +76,9 @@ class CvTopCivs:
 		#
 		if ( CyGame().isPitbossHost() ):
 			return
+		# <!-- custom: turnChecker already skips network games, but CvScreensInterface.showTopCivs calls this directly; on one peer its two synchronized random draws below would put that peer out of sync, and its replay rows would exist there only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
+		if CyGame().isNetworkMultiPlayer():
+			return
 
 		# Text
 		self.TITLE_TEXT = u"<font=3>" + localText.getText("TXT_KEY_TOPCIVS_TITLE", ()).upper() + u"</font>"
@@ -79,6 +93,8 @@ class CvTopCivs:
 		]
 		# <advc.038>
 		randIndex = gc.getGame().getSorenRandNum(len(self.TypeList), "advc.038")
+		# <!-- custom: Kept for the SASGameRecord rows, which name the category by key rather than by its translated text. (Claude code Opus 5.5) -->
+		self.szCategoryKey = TOP_CIVS_CATEGORY_KEYS[randIndex]
 		if(randIndex == 0): # Wealth: Herodotus, Thucydides
 			self.HistorianList = [	localText.getText("TXT_KEY_TOPCIVS_HISTORIAN1", ()), localText.getText("TXT_KEY_TOPCIVS_HISTORIAN2", ()) ]
 		elif(randIndex == 1): # Power: Tacitus, Machiavelli
@@ -129,6 +145,18 @@ class CvTopCivs:
 		szTypeRand = self.TypeList[randIndex]
 		szHistorianRand = self.HistorianList[gc.getGame().getSorenRandNum(len(self.HistorianList), "advc.038")]
 		# </advc.038>
+		# <!-- custom: The ranking is recorded whether or not the screen shows (printList: the replay rows the Timeline and SASPilot read), and SAS_UI_TOP_CIVS_ON decides only whether it shows, as the user asked rather than drawing it and closing it again (2026-11-19 validation run).
+		# During AI Auto Play the info-popup switch skips it too (KI#203).
+		# The advc.038 draws above stay first, so the game's random sequence is the same either way. (Claude code Opus 5.5) -->
+		global g_bTopCivsOn, g_bDismissInfoPopupsOn
+		if g_bTopCivsOn is None:
+			g_bTopCivsOn = gc.getDefineINT("SAS_UI_TOP_CIVS_ON") > 0
+			g_bDismissInfoPopupsOn = gc.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0
+		self.szHistorian = szHistorianRand
+		self.bDraw = g_bTopCivsOn and not (g_bDismissInfoPopupsOn and CyGame().getAIAutoPlay() > 0)
+		if not self.bDraw:
+			self.makeList(szTypeRand)
+			return
 		# Create screen
 
 		self.screen = CyGInterfaceScreen( "CvTopCivs", CvScreenEnums.TOP_CIVS )
@@ -234,6 +262,36 @@ class CvTopCivs:
 		iRanks = 8
 		if gc.getGame().countCivPlayersAlive() == iRanks + 1:
 			iRanks = iRanks - 1
+		# <!-- custom: Record what this screen lists, before the loop's early return, as replay messages visible only to the viewer's team, which the save keeps and the Timeline and SASPilot list.
+		# One row per rank under a title row: a single row first ran past the Timeline's width, then lost the unknown civilizations' places, and a leader name alone can repeat or pair oddly with a civilization, so each met rank gives leader, civilization, player ID and team, and an unmet one the screen's own words (the user, 2026-11-19). (Claude code Opus 5.5) -->
+		iViewer = CyGame().getActivePlayer()
+		pViewerTeam = gc.getTeam(gc.getPlayer(iViewer).getTeam())
+		ranks = []
+		rankTexts = []
+		for iRankLoop in range(min(iRanks, len(self.aiTopCivsValues))):
+			iRankPlayer = self.aiTopCivsValues[iRankLoop][1]
+			if iRankPlayer == iViewer or pViewerTeam.isHasMet(gc.getPlayer(iRankPlayer).getTeam()):
+				ranks.append(iRankPlayer)
+				# <!-- custom: The team always, not only when it has several members: the user found a row without it unclear, and a met civilization's team is no secret. (Claude code Opus 5.5) -->
+				pRankPlayer = gc.getPlayer(iRankPlayer)
+				rankTexts.append(localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK", (iRankLoop + 1, pRankPlayer.getName(), pRankPlayer.getCivilizationShortDescription(0), iRankPlayer, pRankPlayer.getTeam())))
+			else:
+				ranks.append(-1)
+				rankTexts.append(localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK_UNKNOWN", (iRankLoop + 1, localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ()))))
+		# <!-- custom: A g_lastShown global first kept the last ranking for SASPilot, but it outlived a load of an earlier save and a hot-seat change of viewer (Codex's review, 2026-11-19); the replay rows cover it. (Claude code Opus 5.5) -->
+		# <!-- custom: Guarded: a DLL built before addSASTeamReplayMessage keeps the screen working without the record.
+		# The Timeline lists newest first, so the ranks go in from the last to the first and the title last, to read top down in rank order.
+		# A screen costs at most 9 rows (a title and 8 ranks, iRanks, even on SAS48), and it comes rarely: every TOP_CIVS_INTERVAL turns from turn 75 at Normal speed, only while the viewer has met half the teams or fewer, so a few times a game and mostly early.
+		# The Timeline's "X is the first to discover Y" rows come far more often, so these add little by comparison, and SAS_INFO_UI_TIMELINE_TOP_CIVS_ON hides them for anyone who disagrees (the user, 2026-11-19). (Claude code Opus 5.5) -->
+		if hasattr(gc.getGame(), "addSASTeamReplayMessage"):
+			for i in range(len(rankTexts) - 1, -1, -1):
+				gc.getGame().addSASTeamReplayMessage(iViewer, rankTexts[i])
+			gc.getGame().addSASTeamReplayMessage(iViewer, localText.getText("TXT_KEY_SAS_TOPCIVS_TIMELINE_TITLE", (localText.getText("TXT_KEY_TOPCIVS_TITLE", ()), szType, self.szHistorian)))
+		# <!-- custom: The SASGameRecord rows, pre-gated here on the cached level so a disabled record skips the call; the rows themselves are built in SASGameRecordActions. (Claude code Opus 5.5) -->
+		if SASGameRecordConfig.getLogLevel() >= 1:
+			SASGameRecordActions.logTopCivs(gc, self.szCategoryKey, self.szHistorian, self.aiTopCivsValues, len(ranks), ranks.count(-1), self.bDraw)
+		if not self.bDraw:
+			return
 		for iRankLoop in range(iRanks): # </advc.038>
 
 			if (iRankLoop > len(self.aiTopCivsValues)-1):

@@ -23,6 +23,7 @@ The video demos cover two stages of the playtest.
 &emsp;[City sites](#city-sites)\
 &emsp;[Tech cases](#tech-cases)\
 &emsp;[Reminders](#reminders)\
+&emsp;[Greatest Civilizations](#greatest-civilizations)\
 &emsp;[Dot-map colours](#dot-map-colours)\
 &emsp;[Graph queries](#graph-queries)\
 &emsp;[Plot grid and trade network](#plot-grid-and-trade-network)\
@@ -215,7 +216,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `settings` | the Victory screen's Settings tab: the game being played (difficulty, map script, size and real grid, climate, sea level, map options, speed, era, options, disabled victories), our leader and civilization with traits and unique units and buildings, and the rivals the tab lists: those met, those not met whose pick at setup was not random (leader, civilization or both, with the possible leaders or civilizations for the random half), and how many were fully random; every leader named with its AI personality as the Sevopedia ranks it. See [What a player knows about rivals not met](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#what-a-player-knows-about-rivals-not-met) |
 | `shore` | a plot's relation to water for choosing a city site: coastal (can build ships), fresh water, river, lake, adjacent water and ocean plots, and for a Farm whether the plot is irrigated or can take irrigation now; revealed plots only |
 | `seareach` | where a ship can still explore: per direction (north, south, east, west of it), the unknown coast its pathfinder reaches and in how many turns, marked when it lies in a met rival's waters, and the nearest reachable unknown coast as `recommend` (crossing a rival's waters toward the unknown is fine, touring its known shore is not); a failed path means no route through revealed plots, not ocean, as unrevealed water may connect |
-| `topcivs` | the Greatest Civilizations screen while it is up: `todo` lists it in `openScreens` and `closescreens` closes it; its ranking cannot be read yet, as the game shows it through a throwaway `CvTopCivs` instance |
+| `topcivs` | the Greatest Civilizations screens our team saw: `history` from the replay messages the save keeps (turn and the row the Timeline shows), the latest one, our rank in it and whether the screen is still up; see [Greatest Civilizations](#greatest-civilizations) |
 | `step` | one plot along the path toward a target, with what that step showed (position, moves left, steps still to go, plots newly revealed, foreign units within two plots), so the next step can react; `move` takes one plot only unless `whole=1`, as moves over several plots go a plot at a time |
 | `victory` | the Victory screen's Victories tab per valid victory: score and turns left, rivals left and met, domination shares needed against ours and the best met team's, Legendary cities needed with our best cities' culture and turns to it, space parts; and the world totals its percentages imply (population and land plots, unmet players included) |
 | `geography` | the map as our team has seen it, with takeaways: land, water and ocean seen, each landmass with its owners, cities, unowned land and whether fully explored, landmass count with mean and median size of explored ones, the bonus mix on seen plots, met rivals sharing our landmass and open borders; the map settings and the AI's land- or naval-heavy reading; the script's World Picker preview. See [Map composition and contact](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#map-composition-and-contact); `settings` quotes the map script's own description and every one of its options with this game's value (`mapOptionsAll`), defaults included, such as SAS_Large_Facing_Islands' east-west coast lanes |
@@ -325,6 +326,22 @@ Each site's `priority` is the first that applies:
 | `sitesChanged` | a change in the verdict of a city site worth settling since the last call | Cork's grown borders made 29,14 take 2 of Cork's strong plots at turn 79 |
 | `whip` | a 1-citizen whip that pays: the city is capped and growing wastes food, or the citizen regrows within 6 turns; not while whip anger runs at 1 happy face or less; it names a food-keeping building such as the Granary | the user: whip hammer items, and a Granary goes well with it |
 | `research` (no case) | our research improving no resource, finding no buyer and meeting no need | Calendar at turn 54 |
+
+### Greatest Civilizations
+
+The Greatest Civilizations screen ranks the civilizations by one category, now and then: every 40 turns at Normal speed from turn 75, while we have met half the other teams or fewer (AdvCiv's advc.038), so a few times a game.
+
+- At turn 82 of the 2026-11-19 validation run it ranked us 2nd in culture, and SASPilot saw none of it: CvEventManager shows it through a throwaway `CvTopCivs` instance, which kept the ranking until the screen closed, while `todo` and `closescreens` asked `CvScreensInterface.topCivs`, another instance.
+- `CvTopCivs.py` now records each screen as a replay message visible only to the viewer's team (`CyGame.addSASTeamReplayMessage`, KI#337's visibility mask), which the save, replays and Hall of Fame keep and the Timeline lists: a title row, "The Greatest Civilizations, Wealthiest, by Herodotus", then one row per rank, such as "1) Cyrus of Persia, player 4, team 4" or "3) An Unknown Civilization".
+  - Leader, civilization, player ID and team, as a leader can repeat or pair oddly with a civilization; plain white, as the player's colour was hard to read.
+  - The ranks are written from the last to the first and the title last, so the Timeline, newest first, reads them top down in rank order; `topcivs` regroups each title with its rank rows.
+  - A single row first ran past the Timeline's width, then lost the unknown civilizations' places when they were counted at its end.
+  - `topcivs` reads the rows through `CyReplayInfo.createInfo`, as the Timeline does, so each row's stored audience decides what a player sees. A first `CvTopCivs.g_lastShown` global outlived loading an earlier save and a hot-seat change of viewer, so it went (Codex's review, 2026-11-19).
+  - Title rows are matched in the current language, so rows saved in another language are missed, here and by the Timeline's switch; a known limit kept for simplicity, as SAS adds English text only.
+- The ranking is recorded whether or not the screen shows; `SAS_UI_TOP_CIVS_ON` decides only whether it shows (1 for players, 0 in the development values, as for the other hands-free screens), and during AI Auto Play `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON` skips it too.
+- `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON=0` hides the rows from the Timeline only, and SASGameRecord level 1 adds rows with the values behind every rank for all players ([Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#greatest-civilizations-rankings)).
+- `todo` and `closescreens` ask the screen by its ID.
+- `screen name=showTopCivs` needs the `all` role: a player has no button for this screen, so calling it under play gave a fresh ranking of unmet civs at will, and each call uses a draw of the synchronized random number. Tests show it once, then reload the save to undo that draw.
 
 ### Dot-map colours
 
