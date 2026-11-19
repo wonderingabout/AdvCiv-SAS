@@ -8,11 +8,14 @@ Many tests use small deterministic fixtures in temporary directories. A fixture 
 
 Tests are named for the helper or area they exercise and grouped under the same subject folders as `build/`:
 
+<!-- custom: Keep the exe_patches/ entry link-only so EXE internals stay in the guide, which is excluded from player archives. Link the license disclaimer for the copyright context. (GPT-6.2-Sol) -->
+
 | Folder | Subject |
 | --- | --- |
 | `assets/` | Asset structure |
 | `diagnostics/` | Recorder revisions/history |
 | `documentation/` | Markdown, generated documents and long-comment references |
+| `exe_patches/` | See the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md) and [disclaimer](/LICENSE.md#the-games-executable). |
 | `hygiene/` | Repository text/path hygiene |
 | `repository/` | DLL shipping and commit-diff packaging |
 | `source/` | Source conventions and related manual source-editing helpers |

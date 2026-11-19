@@ -15093,6 +15093,7 @@ uint CvPlayerAI::AI_unitImpassables(UnitTypes eUnit) const
 	// <advc.057>
 	uint const uiCountBits = 3;
 	// <!-- custom: note: as part of cleaning up the old uiFlag code, not deleting these uiFlagBits code "bits" xd (no pun) though as recommended by claude ai and chatgpt 5 as according to chatgpt 5 for example this isn't using the savegame uiFlag so kept as such -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint const uiFlagBits = std::numeric_limits<uint>::digits - uiCountBits;
 	uint const uiTerrains = (uint)GC.getNumTerrainInfos();
 	FAssert(uiTerrains + ((uint)GC.getNumFeatureInfos()) <= uiFlagBits);
@@ -26270,6 +26271,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	CvPlayer::read(pStream);
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -26358,6 +26360,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iTurnLastProductionDirty);
 
 	// <!-- custom: note: lone bracket was as such, left as is as it is not related to our uiflag logic, check if accurate -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		m_aeAICitySites.clear();
 		uint uiSize;
@@ -26413,6 +26416,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
 	pStream->Read(MAX_PLAYERS, &m_aiCloseBordersAttitude[0]); // K-Mod
 
 	// <!-- custom: using another identifier since now that we removed the old uiFlag check inner scope, this is now on same scope as existing iSize causing a compile error if i'm not mistaken, so distinguishing these 2 by renaming the 2nd definition to iSizeTwo hehe if i may say creative name xd but why not -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <advc.opt>
 	int iSizeTwo;
 	pStream->Read(&iSizeTwo);
@@ -26447,6 +26451,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 
 	// <!-- custom: Reuse the existing CvPlayerAI write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->

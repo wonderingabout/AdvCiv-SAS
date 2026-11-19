@@ -3309,6 +3309,7 @@ int CvTeamAI::AI_getAirPower() const
 	return iTotalPower;
 }
 
+// <!-- custom: AdvCiv clarifies that the average includes all rivals, including enemies. (GPT-6.2-Sol) -->
 /*	Sum up air power of enemies plus average of other civs we've met
 	K-Mod: I've rewritten this BBAI function to loop over unit classes
 	rather than unit types. This is because a loop over unit types will double-count
@@ -3332,16 +3333,18 @@ int CvTeamAI::AI_getRivalAirPower() const
 	// Count enemy air units, not just those visible to us
 	int iRivalAirPower = 0;
 	int iEnemyAirPower = 0;
-	int iTeamCount = 0;
 	// <!-- custom: K-Mod counted the rival population once per qualifying air class, understating the average by roughly the number of air classes.
 	// Iterate eligible rivals outside the air-class sum so numerator and denominator use the same teams exactly once. See KI#355. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
-	for (; itRival.hasNext(); ++itRival)
-	{
-		// <advc.131>
+	// <!-- custom: Match AdvCiv's rival counter name and loop syntax (cbf6ebad1).
+	// AdvCiv filters only when the evaluating team is major.
+	// SAS also filters for minor teams because their city AI uses this estimate to value air defense. (GPT-6.2-Sol) -->
+	int iRivals = 0;
+	for (TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
+		itRival.hasNext(); ++itRival)
+	{	// <advc.131>
 		if (!isBarbarian() && itRival->AI_isAvoidWar(getID()))
 			continue; // </advc.131>
-		iTeamCount++;
+		iRivals++;
 		for (size_t i = 0; i < aeAirUnitTypes.size(); i++) // advc.opt
 		{
 			CvUnitInfo const& kUnit = GC.getInfo(aeAirUnitTypes[i]);
@@ -3354,7 +3357,7 @@ int CvTeamAI::AI_getRivalAirPower() const
 				iEnemyAirPower += iUnitPower;
 		}
 	}
-	return iEnemyAirPower + iRivalAirPower / std::max(1, iTeamCount);
+	return iEnemyAirPower + iRivalAirPower / std::max(1, iRivals);
 }
 
 // K-Mod:
@@ -3535,7 +3538,7 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	}
 	// K-Mod.
 	if (iCitiesThreatenedByOthers > (1 + iCitiesThreatenedByUs/2) &&
-			(bMightCapToOther || iCitiesThreatenedByOthers >= iValuableCities)) //
+		(bMightCapToOther || iCitiesThreatenedByOthers >= iValuableCities)) //
 	{	// Keep others from capturing spoils, but let it go if surrender civ is too small to care about
 		/*if (6 * (iValuableCities + kSurrenderTeam.getNumCities()) > getNumCities())
 			return true;*/ // BBAI
@@ -3548,10 +3551,11 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	// If we're low on the totem pole, accept so enemies don't drag anyone else into war with us
 	// Top rank is 0, second is 1, etc.
 	if ((bMightCapToOther || iOurWarSuccessRating < 60) &&
-			GC.getGame().getTeamRank(getID()) >
-			1 + GC.getGame().countCivTeamsAlive()/3)
+		GC.getGame().getTeamRank(getID()) >
+		1 + GC.getGame().countCivTeamsAlive()/3)
+	{
 		return true;
-
+	}
 	if (iOurWarSuccessRating < 50)
 	{
 		// Accept if we have other wars to fight
@@ -3576,7 +3580,10 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	if (!bMightCapToOther)
 	{
 		iWearinessThreshold += 20*iValuableCities + 30*iCitiesThreatenedByUs;
-		iWearinessThreshold += 10*std::max(0, GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities() - kSurrenderTeam.getNumCities()); // (to help finish off small civs)
+		// (to help finish off small civs)
+		iWearinessThreshold += 10*std::max(0,
+			GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities()
+			- kSurrenderTeam.getNumCities());
 	}
 
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -4473,7 +4480,7 @@ void CvTeamAI::AI_updateWorstEnemy(/* advc.130p: */ bool bUpdateTradeMemory)
 		for (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO> it(getID()); it.hasNext(); ++it)
 		{
 			TeamTypes const eOther = it->getID();
-			if(eOther == m_eWorstEnemy) // The old enemy can't have traded with itself
+			if (eOther == m_eWorstEnemy) // The old enemy can't have traded with itself
 				continue;
 			int iOldGrantVal = AI_getEnemyPeacetimeGrantValue(eOther);
 			int iOldTradeVal = AI_getEnemyPeacetimeTradeValue(eOther);
@@ -5275,6 +5282,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 		uwai().init(getID()); // </advc.104>
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -5317,26 +5325,14 @@ void CvTeamAI::read(FDataStreamBase* pStream)
 		pStream->Read((int)iSize, (int*)&m_aeNukeExplosions[0]);
 	// </advc.650>
 
-	m_strengthMemory.read(pStream, uiFlag, getID()); // advc.158
+	m_strengthMemory.read(pStream, getID()); // advc.158
 	// <advc.104>
 	if (isEverAlive() && !isBarbarian() && !isMinorCiv())
 		m_pUWAI->read(pStream); // </advc.104>
 }
 
-// advc.opt: (for legacy savegames)
-void CvTeamAI::AI_finalizeInit()
-{
-	m_aiWarPlanCounts.reset(); // De-allocate in case that the counts are all 0
-	FOR_EACH_ENUM(WarPlan)
-	{
-		m_aiWarPlanCounts.set(eLoopWarPlan, AI_countWarPlans(eLoopWarPlan,
-				true, MAX_CIV_PLAYERS)); // Last argument just to avoid a failed assertion
-		if (m_aiWarPlanCounts.get(eLoopWarPlan) > 0)
-			m_bAnyWarPlan = true;
-	}
-}
-
-
+// <!-- custom: Note: CvTeamAI::AI_finalizeInit (advc.opt) used to rebuild missing war-plan counts after load.
+// The current save layout already includes them. See KI#46.2. (GPT-6.2-Sol) -->
 void CvTeamAI::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
@@ -5345,6 +5341,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE(CvString::format("TeamAI(%d)", getID()).GetCString());
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvTeamAI write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_TEAM_AI; // advc.130r

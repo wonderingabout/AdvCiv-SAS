@@ -226,7 +226,8 @@ protected:
 	void AI_doPanic();
 	//int AI_calculateCulturePressure(bool bGreatWork = false) const; // disabled by K-Mod
 
-	bool AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* eBestSpreadUnit, int* iBestSpreadUnitValue);
+	// <!-- custom: Match AdvCiv's output pointer names in the declaration and definition. (GPT-6.2-Sol) -->
+	bool AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseChance, UnitTypes* peBestSpreadUnit, int* piBestSpreadUnitValue);
 	bool AI_chooseUnit(UnitAITypes eUnitAI = NO_UNITAI, int iOdds = -1); // BETTER_BTS_AI_MOD, 01/09/10, jdog5000: City AI
 	// <!-- custom: The optional result distinguishes a KI#53 siege veto from other terminal concrete-unit failures, allowing only the former to try another unit of the same role. See KI#53.3. (GPT-5.6-Sol) -->
 	bool AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI, bool* pbRetrySameRole = NULL);

@@ -1502,7 +1502,8 @@ void CvSelectionGroupAI::read(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eMissionAIType);
 
 	pStream->Read((int*)&m_missionAIUnit.eOwner);
-	m_missionAIUnit.validateOwner(); // advc.opt
+	// <!-- custom: Note: Current saves write BARBARIAN_PLAYER when the group has no mission unit.
+	// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 	pStream->Read(&m_missionAIUnit.iID);
 
 	pStream->Read(&m_bGroupAttack);

@@ -3124,13 +3124,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
 		}
 	} // </advc.187>
 	PlayerTypes const eRevealedOwner = kPlot.getRevealedOwner(eActiveTeam, true);
-	if (eRevealedOwner != NO_PLAYER ||
-		/*	<advc.099f> As of AdvCiv 1.0, culture no longer spreads to unowned plots.
-			However, for legacy saves, showing culture w/o an option is annoying.
-			Solution: let CvGame set this bool member based on the save version. */
-		m_bAlwaysShowPlotCulture ||
-		bShift/* || BUGOption::isEnabled("MiscHover__CultureInUnownedTiles", false)*/)
-	{	// </advc.099f>
+	/*	<advc.099f> As of AdvCiv 1.0, culture no longer spreads to unowned plots.
+		However, for legacy saves, showing culture w/o an option is annoying.
+		Solution: let CvGame set this bool member based on the save version. */
+	// <!-- custom: With the advc.099f flag clear, AdvCiv showed culture on owned plots or when Shift was held.
+	// SAS always enabled it through setAlwaysShowPlotCulture, so the current hover still shows culture on unowned plots. See KI#46.2. (GPT-6.2-Sol) -->
+	{
 		if (kPlot.isActiveVisible(true))
 		{	// <advc.101>
 			if (kPlot.isCity() &&
@@ -3913,13 +3912,13 @@ void CvGameTextMgr::setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer, CvP
 			if (iHappyChange != 0)
 			{
 				szBuffer.append(bFirst ? szNewItem : L", "); bFirst = false;
-				szBuffer.append(CvWString::format(L"%s%d%c", iHappyChange > 0 ? "+" : "",
+				szBuffer.append(CvWString::format(L"%s%d%c", iHappyChange > 0 ? L"+" : L"",
 						iHappyChange, gDLL->getSymbolID(HAPPY_CHAR)));
 			}
 			if (iUnhappyChange != 0)
 			{
 				szBuffer.append(bFirst ? szNewItem : L", "); bFirst = false;
-				szBuffer.append(CvWString::format(L"%s%d%c", iUnhappyChange > 0 ? "+" : "",
+				szBuffer.append(CvWString::format(L"%s%d%c", iUnhappyChange > 0 ? L"+" : L"",
 						iUnhappyChange, gDLL->getSymbolID(UNHAPPY_CHAR)));
 			}
 			if (iGoodHealthPercentChange != 0)
@@ -10763,7 +10762,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
 	{
 		szTempBuffer.Format(
 				(bInBuildingList ? L"\n%s%d%c" : // advc.004w: Doesn't fit in one line
-				L", %s%d%c"), (kBuilding.getGreatPeopleRateChange() > 0) ? "+" : "",
+				L", %s%d%c"), (kBuilding.getGreatPeopleRateChange() > 0) ? L"+" : L"",
 				kBuilding.getGreatPeopleRateChange(), gDLL->getSymbolID(GREAT_PEOPLE_CHAR));
 		szBuffer.append(szTempBuffer);
 		UnitClassTypes eGPClass = kBuilding.getGreatPeopleUnitClass(); // advc
@@ -14845,7 +14844,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
 					::applyColorToString(szDescr, "COLOR_HIGHLIGHT_TEXT");
 				szBuffer.append(CvWString::format(L"%c%s%d%% %s",
 						gDLL->getSymbolID(BULLET_CHAR),
-						iProductionMod > 0 ? "+" : "", iProductionMod,
+						iProductionMod > 0 ? L"+" : L"", iProductionMod,
 						gDLL->getText("TXT_KEY_BONUS_SPEED_FOR",
 						szDescr.GetCString()).GetCString()));
 			}
@@ -14891,7 +14890,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
 			szBuffer.append(NEWLINE);
 			szBuffer.append(CvWString::format(L"%c%s%d%% %s",
 					gDLL->getSymbolID(BULLET_CHAR),
-					iProductionMod > 0 ? "+" : "",
+					iProductionMod > 0 ? L"+" : L"",
 					iProductionMod, gDLL->getText("TXT_KEY_BONUS_SPEED_FOR",
 					kProject.getDescription()).GetCString()));
 		}
@@ -14938,7 +14937,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
 			{
 				szBuffer.append(NEWLINE);
 				szBuffer.append(CvWString::format(L"%c%s%d%c: ",
-						gDLL->getSymbolID(BULLET_CHAR), iSpeed > 0 ? "+" : "",
+						gDLL->getSymbolID(BULLET_CHAR), iSpeed > 0 ? L"+" : L"",
 						iSpeed, gDLL->getSymbolID(MOVES_CHAR)));
 				szBuffer.append(kUnit.getDescription());
 			}
@@ -15176,7 +15175,7 @@ void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes
 					if (!bFirst)
 						szBuffer.append(L", ");
 					bFirst = false;
-					szTempBuffer.Format(L"%s%d%c", iRate > 0 ? "+" : "",
+					szTempBuffer.Format(L"%s%d%c", iRate > 0 ? L"+" : L"",
 							iRate, GC.getInfo(eLoopCommerce).getChar());
 					szBuffer.append(szTempBuffer);
 				}
@@ -15462,7 +15461,7 @@ void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer, Corporatio
 				if (bHandled)
 					szBuffer.append(L", ");
 				CvWString szTempBuffer;
-				szTempBuffer.Format(L"%s%d%c", iYieldRate > 0 ? "+" : "",
+				szTempBuffer.Format(L"%s%d%c", iYieldRate > 0 ? L"+" : L"",
 						(iYieldRate + 99) / 100,
 						GC.getInfo(eLoopYield).getChar());
 				szBuffer.append(szTempBuffer);
@@ -15487,7 +15486,7 @@ void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer, Corporatio
 			if (bHandled)
 				szBuffer.append(L", ");
 			CvWString szTempBuffer;
-			szTempBuffer.Format(L"%s%d%c", iCommerceRate > 0 ? "+" : "",
+			szTempBuffer.Format(L"%s%d%c", iCommerceRate > 0 ? L"+" : L"",
 					(iCommerceRate + 99) / 100,
 					GC.getInfo(eLoopCommerce).getChar());
 			szBuffer.append(szTempBuffer);

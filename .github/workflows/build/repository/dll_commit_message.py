@@ -36,10 +36,12 @@ def commit_id(repo, ref):
     return git(repo, "rev-parse", "--verify", "--end-of-options", ref + "^{commit}").decode().strip()
 
 
+# <!-- custom: Walk only the first-parent chain, as sas_revision_history.py does: the base AdvCiv 1.14 merge (2026-11-19) brought in upstream's own commits, such as 5970334b6, which update their DLL without SAS's Update DLL marker, and this check failed all three.
+# The merge commit itself is still checked against its first parent, so a DLL it ships still needs the marker and a Release report. (Claude code Opus 5.5) -->
 def commits_in_range(repo, base, head):
     base = commit_id(repo, base)
     head = commit_id(repo, head)
-    return git(repo, "rev-list", "--reverse", head, "--not", base).decode().splitlines()
+    return git(repo, "rev-list", "--reverse", "--first-parent", head, "--not", base).decode().splitlines()
 
 
 def event_commits(repo, event_name, event, head="HEAD"):
@@ -60,7 +62,9 @@ def event_commits(repo, event_name, event, head="HEAD"):
             after = commit_id(repo, event["after"])
             if after not in commits:
                 raise RuntimeError("push payload does not include its head commit; cannot validate the complete push")
-            return commits
+            # <!-- custom: A pushed merge lists the merged branch's commits too; keep those on the head's first-parent chain, as commits_in_range does. (Claude code Opus 5.5) -->
+            first_parent = set(git(repo, "rev-list", "--first-parent", after).decode().split())
+            return [commit for commit in commits if commit in first_parent]
         before = event.get("before", "")
         if not before or set(before) == {"0"}:
             raise RuntimeError("push payload is missing or potentially truncated and has no prior commit; cannot validate the complete push")

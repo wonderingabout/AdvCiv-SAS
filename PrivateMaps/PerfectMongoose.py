@@ -3778,7 +3778,7 @@ class PangaeaBreaker:
 		x, y = self.getHighestCentrality(biggestContinentID)
 		return x, y
 
-	# advc (note): All three unused. Unclear if circle points past map edges handled correctly.
+	# advc (note): All three unused. Unclear if getCirclePoints is employed correctly.
 	def isChokePoint(self, x, y, biggestContinentID):
 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
 		waterOpposite = False
@@ -3900,6 +3900,8 @@ class PangaeaBreaker:
 			# advc: 0 elevation leads to coastal peaks when using the lowest-neighbor slope option.
 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
 
+	# advc (note): These are not simply all coordinates that lie close to a circle.
+	# LLM-generated interpretation: Midpoint-circle boundary pixels in scanline-pair order
 	def getCirclePoints(self, xCenter, yCenter, radius):
 		# <!-- custom: castMeteorUponTheEarth consumes same-y boundary points as insertion-ordered left/right pairs.
 		# CirclePoint has identity equality, so the set neither removed coordinate duplicates nor preserved those pairs; restore the ordered list to keep crater rows complete. See KI#218. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -3929,7 +3931,7 @@ class PangaeaBreaker:
 		circlePoints.append(CirclePoint(xCenter + y, yCenter - x))
 		circlePoints.append(CirclePoint(xCenter - y, yCenter - x))
 
-	# advc.oxi: New method to replace some erroneous uses of getCirclePoints
+	# advc.oxi: New method to replace erroneous uses of getCirclePoints
 	def getFilledCirclePoints(self, xCenter, yCenter, radius):
 		points = []
 		for dy in range(-radius, radius + 1):

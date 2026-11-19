@@ -15,23 +15,9 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 
 from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, require_int_values
-
-
-EXPECTED_SHIPPED_VALUES = {
-	"SAS_UI_DAWN_OF_MAN_ON": 1,
-	"SAS_UI_TECH_SPLASH_ON": 1,
-	"SAS_UI_ERA_MOVIE_ON": 1,
-	"SAS_UI_WONDER_MOVIE_ON": 1,
-	"SAS_UI_RELIGION_MOVIE_ON": 1,
-	"SAS_UI_PROJECT_MOVIE_ON": 1,
-	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
-	"SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON": 1,
-	"SAS_FAST_SAVE_GAME_START_ON": 1,
-	"SAS_FAST_SAVE_GAME_END_ON": 1,
-	"SAS_FAST_SAVE_AUTOPLAY_STOP_ON": 1,
-	"SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON": 1,
-	"SAS_ASSERT_SILENT_ACTION": 1,
-}
+# <!-- custom: The shipped hands-free values moved to LLM_Helpers/diagnostics/define_values.py so toggle_dev_diagnostics.py reads the same list. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "diagnostics"))
+from define_values import EXPECTED_HANDS_FREE_VALUES
 
 
 def main() -> int:
@@ -40,7 +26,7 @@ def main() -> int:
 	add_staged_argument(parser)
 	args = parser.parse_args()
 
-	failures = require_int_values(read_global_define_ints(args.repo_root, args.staged), EXPECTED_SHIPPED_VALUES)
+	failures = require_int_values(read_global_define_ints(args.repo_root, args.staged), EXPECTED_HANDS_FREE_VALUES)
 	if failures:
 		print("FAIL hands-free switch shipped values")
 		for failure in failures:

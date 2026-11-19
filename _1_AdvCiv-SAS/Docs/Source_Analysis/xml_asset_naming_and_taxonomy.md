@@ -232,6 +232,8 @@ Historical Git/changelog/source-analysis evidence retains the old SAS machine na
 
 This improves map-script/scenario/mod interoperability but does **not** promise general old-save or pre-SAS scenario compatibility: AdvCiv-SAS has many other structural additions/removals and does not support save compatibility across arbitrary revisions.
 
+See [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) for the original cleanup and [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2) for the follow-up.
+
 In particular, `BONUS_WINE` still displays and plays as SAS Grapes, `BONUS_CORN` as Maize, `BONUS_CLAM` as Molluscs, `BONUS_COW` as Cattle, `BONUS_IVORY` as Elephants and `BONUS_GEMS` as Gemstones.
 
 The detailed notes below preserve the original rename history and rationale.

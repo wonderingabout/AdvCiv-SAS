@@ -5,7 +5,8 @@
 #if defined(WIN32)
 
 #include <tchar.h>
-#include "CvGameCoreDLLUndefNew.h"
+// <!-- custom: Undefine the DLL allocation macros before the system header and dialog code.
+// BtS's pragma once made the second include below tchar.h ineffective. See KI#1098.2. (GPT-6.2-Sol) -->
 
 // advc.make: Some int-to-short conversions here that are probably harmless
 #pragma warning(disable: 244) // "type conversion: possible loss of data"
@@ -179,7 +180,8 @@ void CDialogTemplate::AppendString(LPCSTR string)
 	free(wideString);
 }
 
-void CDialogTemplate::AppendData(void* data, int dataLength)
+// <!-- custom: AdvCiv's advc.cppstd accepts a const input buffer because AppendData only copies from it. See KI#1099. (GPT-6.2-Sol) -->
+void CDialogTemplate::AppendData(void const* data, int dataLength)
 {
 	EnsureSpace(dataLength);
 

@@ -87,7 +87,9 @@ void CvMap::uninit()
 }
 
 // Initializes data members that are serialized.
-void CvMap::reset(CvMapInitData const* pInitInfo, bool bResetPlotExtraData) // advc.enum (only needed for legacy saves)
+// <!-- custom: Before map flag 7, bResetPlotExtraData let the AdvCiv reader preserve plot extras loaded by CvGame (advc.enum).
+// Current saves store the extras in CvMap, so clear them on every reset before reading the map's fields. See KI#46.2. (GPT-6.2-Sol) -->
+void CvMap::reset(CvMapInitData* pInitInfo)
 {
 	uninit();
 
@@ -201,8 +203,7 @@ void CvMap::reset(CvMapInitData const* pInitInfo, bool bResetPlotExtraData) // a
 	m_aiNumBonusOnLand.reset();
 	m_aebBalancedBonuses.reset(); // advc.108c
 	// <advc.enum>
-	if (bResetPlotExtraData)
-		resetPlotExtraData(); // </advc.enum>
+	resetPlotExtraData(); // </advc.enum>
 	m_areas.removeAll();
 }
 
@@ -1316,13 +1317,14 @@ void CvMap::read(FDataStreamBase* pStream)
 	// Finalize them against the old map before this read resets it, even if CvGame has already read the loaded game state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession("MAP_READ_REPLACEMENT");
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
 
 	CvMapInitData defaultMapData;
-	// <!-- custom: note: uiflag check replaced with simple boolean -->
-	reset(&defaultMapData, /* advc.enum: */ true);
+	// <!-- custom: Clear the map-owned plot extras (advc.enum) before reading them from the current map stream. See KI#46.2. (GPT-6.2-Sol) -->
+	reset(&defaultMapData);
 
 	pStream->Read(&m_iGridWidth);
 	pStream->Read(&m_iGridHeight);
@@ -1400,6 +1402,7 @@ void CvMap::write(FDataStreamBase* pStream)
 	REPRO_TEST_BEGIN_WRITE("Map");
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvMap write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_MAP; // advc.enum: Extra plot yields, costs moved from CvGame

@@ -6783,7 +6783,7 @@ bool CvUnit::canInfiltrate(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	if (!bTestVisible)
 	{
-		if (NULL != pCity && pCity->getTeam() == getTeam())
+		if (pCity != NULL && pCity->getTeam() == getTeam())
 			return false;
 	}
 	return true;
@@ -8152,6 +8152,8 @@ bool CvUnit::isGarrisonInTeamCity() const
 	if (!getPlot().isCity())
 		return false;
 	CvTeam const& kCityTeam = GET_TEAM(getPlot().getTeam());
+	// <!-- custom: AdvCiv's advc.184 lets teams see cargo in their own ports.
+	// Use the city team for the invisibility test. (GPT-6.2-Sol) -->
 	if (isInvisible(kCityTeam.getID(), false))
 		return false;
 	return (kCityTeam.getID() == getTeam() ||
@@ -9258,8 +9260,12 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
 		return false;
 	if (alwaysInvisible())
 		return true;
-	if (bCheckCargo && isCargo())
+	if (bCheckCargo && isCargo() &&
+		// <!-- custom: AdvCiv's advc.184 lets eTeam see cargo in its own ports. (GPT-6.2-Sol) -->
+		(!getPlot().isCity() || getPlot().getPlotCity()->getTeam() != eTeam))
+	{
 		return true;
+	}
 	if (getInvisibleType() == NO_INVISIBLE)
 		return false;
 	return !getPlot().isInvisibleVisible(eTeam, getInvisibleType());
@@ -11543,6 +11549,7 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 void CvUnit::read(FDataStreamBase* pStream)
 {
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -11617,6 +11624,7 @@ void CvUnit::read(FDataStreamBase* pStream)
 	// </advc.164>
 
 	// <!-- custom: note: lone bracket left as is as part of / while doing the old uiflag cleanup -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	{
 		bool bTmp; // advc.pt: For reading bitfield members
 		pStream->Read(&bTmp);
@@ -11650,9 +11658,8 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_combatUnit.iID);
 	pStream->Read((int*)&m_transportUnit.eOwner);
 	pStream->Read(&m_transportUnit.iID);
-	// <advc.opt>
-	m_combatUnit.validateOwner();
-	m_transportUnit.validateOwner(); // </advc.opt>
+	// <!-- custom: Note: Current saves write BARBARIAN_PLAYER for empty combat and transport unit references.
+	// IDInfo::validateOwner (advc.opt) converted NO_PLAYER from older saves. See KI#46.2. (GPT-6.2-Sol) -->
 
 	m_aiExtraDomainModifier.read(pStream);
 
@@ -11678,6 +11685,7 @@ void CvUnit::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag;
 	// <!-- custom: Reuse the existing CvUnit write marker from the shared diagnostic registry; its value and serialized layout are unchanged. (GPT-6.1-Sol) -->
 	uiFlag = SASSaveStreamFormat::CV_UNIT; // advc.313: Disorganized promo removed, advc.enum: bugfix.

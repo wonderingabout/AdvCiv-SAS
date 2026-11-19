@@ -17,32 +17,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
 from xml_defines import add_staged_argument, get_default_repo_root, read_global_define_ints, read_staged_bytes, require_int_values
 # <!-- custom: Require the same nonempty explanation as runtime history without duplicating Markdown-entry validation. (GPT-6.1-Sol) -->
 from revision_history import change_errors
+# <!-- custom: The shipped recorder values moved to LLM_Helpers/diagnostics/define_values.py so toggle_dev_diagnostics.py reads the same list. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "LLM_Helpers" / "diagnostics"))
+from define_values import EXPECTED_GAME_RECORD_DEFAULTS
 
 
 REVISION_DEFINES = Path("Assets/XML/GlobalDefines_advciv_sas.xml")
 REVISION_SOURCE = Path("CvGameCoreDLL/SASGameRecordLog.cpp")
 REVISION_HISTORY = Path("_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md")
-EXPECTED_GAME_RECORD_DEFAULTS = {
-    "SAS_SGR_LOG": 0,
-    # <!-- custom: Ship action tracing ready for deliberately enabled records while the recorder master stays off; catch accidental staging of an actions-off test override. (GPT-6.1-Sol) -->
-    "SAS_SGR_ACTION_TRACE_ON": 1,
-    # <!-- custom: Preserve the independent caption-text opt-in when shipping the annotation observer; local test values remain unstaged. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-    "SAS_SGR_MAP_ANNOTATION_TEXT_ON": 0,
-    # <!-- custom: Player-authored multiplayer chat bodies are private/free-form text; metadata remains available, but exact bodies must ship opt-in. (ChatGPT-5.6-Sol) -->
-    "SAS_SGR_CHAT_ALL_TEXT_ON": 0,
-    "SAS_SGR_CHAT_TEAM_TEXT_ON": 0,
-    "SAS_SGR_CHAT_DIRECT_TEXT_ON": 0,
-    # <!-- custom: Saved Changes history is independent of the recorder master; ship applied WorldBuilder script-text capture enabled as documented, while allowing local opt-out tests. (GPT-6.1-Sol) -->
-    "SAS_WORLD_CHANGES_SCRIPT_TEXT_ON": 1,
-    # <!-- custom: Keep richer support context opt-in; catch hardware/path/process and private/network INI test settings accidentally staged for shipping. (GPT-6.1-Sol + ChatGPT-5.6-Sol) -->
-    "SAS_SGR_SYSTEM_CONTEXT_LVL": 2,
-    "SAS_SGR_HARDWARE_IDENTITY_ON": 0,
-    "SAS_SGR_EXACT_PATHS_ON": 0,
-    "SAS_SGR_PROCESS_CONTEXT_ON": 0,
-    "SAS_SGR_BUG_STRING_VALS_ON": 0,
-    "SAS_SGR_INI_PRIVATE_VALS_ON": 0,
-    "SAS_SGR_INI_NETWORK_VALS_ON": 0,
-}
 
 
 def latest_history_revision(history_text: str) -> tuple[int | None, list[str]]:

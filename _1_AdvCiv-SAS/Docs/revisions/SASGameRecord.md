@@ -113,13 +113,39 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
-### Revision 205 - SAS practical 6778 (SASPilot branch)
+### Revision 209 - SAS practical 6778 (SASPilot branch)
 
 - **Date:** 2026-11-18
 - **Git commit:** `3d19e6aa1d4719b23a458f2103694169d96ab06c`
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
   - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+
+### Revision 208 - SAS practical 6824
+
+- **Date:** 2026-11-19
+- **Git commit:** `a2738348bb0e55f8cdfb20b74702ab197a1763b9`
+- **Change:** The AdvCiv 1.14 merge widens the religion and corporation city counts. `GAME_RECORD_SAVE_COMPONENT_FORMATS` now reports the matching AdvCiv writer flag `CvPlayer=23`.
+  - The Advanced Start target lookup that SGR rows and the saved World Changes history each kept a copy of now lives once in `CvGameCoreUtils`, and SGR's hand-written XML bounds checks use AdvCiv's `checkEnumBounds`; rows are unchanged.
+
+### Revision 207 - SAS practical 6786
+
+- **Date:** 2026-11-19
+- **Git commit:** `d6860ced99309307239ee2a2c0b3a150d026bb36`
+- **Change:** Moved the shipped SASGameRecord defaults that the recorder check requires into `LLM_Helpers/diagnostics/define_values.py`, which `toggle_dev_diagnostics.py` also reads, so `off` restores the same values CI accepts. The recorder and its shipped values are unchanged.
+
+### Revision 206 - SAS practical 6785
+
+- **Date:** 2026-11-19
+- **Git commit:** `897990198d0d9cc6a3a73a6a667404e09e259133`
+- **Change:** Read the persisted WorldBuilder and Advanced Start history directly from the current layout after removing the pre-28 load gate. The writer still reports `CvGame=28`, and loaded flags remain available to SASGameRecord. See [KI#46.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46.2).
+
+### Revision 205 - SAS practical 6784
+
+- **Date:** 2026-11-19
+- **Git commit:** `fa2393c93c4934b05bb2d64b28c42227d714d4db`
+- **Change:** Added a retroactive [KI#1098.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.2) comment above the surviving `CvInfo_Symbol.h` include, noting that SAS had included it twice until 989eb50ce merged the two directives, so this earlier duplicate can be traced from the source like the duplicate includes KI#1098.2 removed elsewhere.
 
 ### Revision 204 - SAS practical 6776
 

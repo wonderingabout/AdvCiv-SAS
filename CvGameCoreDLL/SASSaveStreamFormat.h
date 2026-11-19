@@ -6,11 +6,15 @@
 #define SAS_SAVE_STREAM_FORMAT_H
 
 // <!-- custom: One list supplies the existing gameplay/replay writer markers and their compact diagnostic names.
+// GAME_RECORD_SAVE_COMPONENT_FORMATS reports these markers by component.
+// Reuse AdvCiv's number when the matching component adopts the same layout change.
+// The numbers do not identify mod releases.
 // Each entry supplies its diagnostic label as well as its constant/value; stringify that label instead of reverse-looking-up numeric values, which repeat across components.
 // These are current writer capabilities, not values captured from loaded objects or a complete save-schema compatibility identifier; XML-info caches are outside this list.
-// Loaded markers are stream input; historical reader thresholds describe particular past layouts and must not be replaced by these current writer constants.
+// Keep consuming loaded markers in their original positions.
+// SAS reads the current layouts directly. See KI#46.2.
 // Keep the existing marker when only centralizing it; change it deliberately when that subsystem's serialized layout changes.
-// The list generates compile-time constants and the recorder's cold-path descriptor array, with no runtime registry initialization or gameplay lookup. (GPT-6.1-Sol) -->
+// The list generates compile-time constants and the recorder's cold-path descriptor array, with no runtime registry initialization or gameplay lookup. (GPT-6.1-Sol + GPT-6.2-Sol) -->
 #define SAS_SAVE_STREAM_FORMATS(DO) \
 	DO(CV_AREA, CvArea, 4) \
 	DO(CV_CITY, CvCity, 17) \
@@ -23,7 +27,7 @@
 	DO(CV_MAP, CvMap, 7) \
 	DO(CV_PLOT, CvPlot, 13) \
 	DO(CV_PLOT_GROUP, CvPlotGroup, 1) \
-	DO(CV_PLAYER, CvPlayer, 22) \
+	DO(CV_PLAYER, CvPlayer, 23) \
 	DO(CV_PLAYER_AI, CvPlayerAI, 22) \
 	DO(CV_SELECTION_GROUP, CvSelectionGroup, 3) \
 	DO(CV_SELECTION_GROUP_AI, CvSelectionGroupAI, 0) \

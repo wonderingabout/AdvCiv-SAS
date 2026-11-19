@@ -116,7 +116,10 @@ def candidate_commit(message):
 	# So before a commit they had nothing new to judge and passed silently: on 2026-11-12 a local run passed while GitHub failed the commit that followed, as map_preview_dds.py had begun reading SGR rows without the SAS_SGR_REVISION bump the rule asks for.
 	# The staged files become a temporary commit on top of HEAD, made with git commit-tree, which records a commit object without moving any branch or touching the working tree; it is passed to the checks as the pushed commit. (Claude code Opus 5.5) -->
 	tree = git("write-tree")
-	result = subprocess.run(["git", "commit-tree", tree, "-p", "HEAD"], input=message, capture_output=True, text=True, encoding="utf-8", cwd=REPO)
+	# <!-- custom: While a merge is being prepared, MERGE_HEAD becomes the second parent, so checks that treat a merge differently, such as source_change_provenance.py accepting comments taken word for word from upstream, judge the candidate as the merge commit it will be. (Claude code Opus 5.5) -->
+	merge_head = subprocess.run(["git", "rev-parse", "-q", "--verify", "MERGE_HEAD"], capture_output=True, text=True, cwd=REPO).stdout.strip()
+	parents = ["-p", "HEAD"] + (["-p", merge_head] if merge_head else [])
+	result = subprocess.run(["git", "commit-tree", tree] + parents, input=message, capture_output=True, text=True, encoding="utf-8", cwd=REPO)
 	if result.returncode:
 		raise SystemExit("could not make the candidate commit: %s" % result.stderr.strip())
 	return result.stdout.strip()

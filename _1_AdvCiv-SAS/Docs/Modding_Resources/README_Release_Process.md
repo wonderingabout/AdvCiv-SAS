@@ -183,6 +183,7 @@ Prefer verifying the current repository state over mechanically following stale 
 - When asked to prepare a tag command, use the actual final release SHA/version and previous stable release boundary rather than stale examples from the documentation.
 - Prepare the plain-text changelog for ModDB and any concise GitHub/download-page summary, but leave website-specific formatting/publication to the user unless explicitly requested.
 - Keep the chosen primary download link stable when that is the current release policy, while updating the hosted archive behind it as appropriate.
+- Before pushing the tag, run the [upstream freshness check](/.github/workflows/README.md#buildrepositoryrelease_upstreampy) on the release commit. Release CI repeats the check on numeric tag pushes and GitHub release publication.
 - After publication, verify the public tag/download/release references point to the intended final commit/files.
 
 ## 10. After release

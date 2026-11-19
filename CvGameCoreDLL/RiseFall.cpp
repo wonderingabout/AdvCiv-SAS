@@ -208,16 +208,16 @@ void RiseFall::write(FDataStreamBase* pStream) {
 void RiseFall::read(FDataStreamBase* pStream) {
 
 	reset();
-	int savegameVersion = -1;
+	// <!-- custom: Consume the Rise and Fall writer marker before the original-name field.
+	// SAS reads the layout that includes this field because saves from before it was added are unsupported. See KI#46.2. (GPT-6.2-Sol) -->
+	int savegameVersion;
 	pStream->Read(&savegameVersion);
-	if(savegameVersion >= 1) { // else leave it as NULL
-		bool origNameGiven = false;
-		pStream->Read(&origNameGiven);
-		if(origNameGiven) {
-			wchar* tmp = pStream->ReadWideString();
-			originalName = new CvWString(tmp);
-			delete tmp;
-		}
+	bool origNameGiven = false;
+	pStream->Read(&origNameGiven);
+	if(origNameGiven) {
+		wchar* tmp = pStream->ReadWideString();
+		originalName = new CvWString(tmp);
+		delete tmp;
 	}
 	pStream->Read(&interludeLength);
 	pStream->Read(&interludeCountdown);

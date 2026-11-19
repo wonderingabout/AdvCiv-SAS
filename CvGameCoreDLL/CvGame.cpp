@@ -4943,6 +4943,8 @@ void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStat
 int CvGame::getCivPlayersEverAlive() const
 {
 	// Could pose a savegame compatibility problem (uiFlag<4)
+	// <!-- custom: Current saves store the player count.
+	// The fallback below still handles calls before load finishes. See KI#46.2. (GPT-6.2-Sol) -->
 	FAssert(m_bAllGameDataRead || m_iCivPlayersEverAlive > 0);
 	if (!m_bAllGameDataRead)
 		return countCivPlayersEverAlive();
@@ -4963,6 +4965,8 @@ void CvGame::changeCivPlayersEverAlive(int iChange)
 int CvGame::getCivTeamsEverAlive() const
 {
 	// Could pose a savegame compatibility problem (uiFlag<4)
+	// <!-- custom: Current saves store the team count.
+	// The fallback below still handles calls before load finishes. See KI#46.2. (GPT-6.2-Sol) -->
 	FAssert(m_bAllGameDataRead || m_iCivTeamsEverAlive > 0);
 	if (!m_bAllGameDataRead)
 		return countCivTeamsEverAlive();
@@ -9483,6 +9487,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	if (isSASRuntimeStatusEnabled()) updateSASRuntimeStatusSessionStarted(true);
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	uint uiFlag=0;
 
 	pStream->Read(&uiFlag);
@@ -9623,6 +9628,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	// </advc.027b>
 
 	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 
 	// Simplified: assuming current UI flag version (27)
 	// Simplified: assuming current UI flag version (no backwards compatibility)
@@ -9724,47 +9730,46 @@ void CvGame::read(FDataStreamBase* pStream)
 		pStream->ReadString(kEntry.szVersion);
 		pStream->ReadString(kEntry.szCommitHash);
 	}
-	// <!-- custom: Stream flag 28 adds ordered setup/editor history after the already-existing source history.
-	// Older SAS saves therefore leave this vector empty instead of reading into the next serialized object and misaligning the stream. (ChatGPT-5.6-Sol) -->
-	if (uiFlag >= 28)
+	// <!-- custom: The pre-28 read gate inadvertently brought back an older-save path when SAS added ordered WorldBuilder and Advanced Start history.
+	// The gate skipped fields missing from pre-28 saves to keep those streams aligned.
+	// The flag-28 writer always stores this history after the source history, and SASGameRecord reports it after load.
+	// Read it directly from the current layout. See KI#46.2. (ChatGPT-5.6-Sol + GPT-6.2-Sol) -->
+	unsigned int uiWorldChangesHistorySize = 0;
+	pStream->Read(&uiWorldChangesHistorySize);
+	m_aSASWorldChangesHistory.resize(uiWorldChangesHistorySize);
+	for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
 	{
-		unsigned int uiWorldChangesHistorySize = 0;
-		pStream->Read(&uiWorldChangesHistorySize);
-		m_aSASWorldChangesHistory.resize(uiWorldChangesHistorySize);
-		for (unsigned int i = 0; i < uiWorldChangesHistorySize; i++)
-		{
-			SASWorldChangesHistoryEntry& kEntry = m_aSASWorldChangesHistory[i];
-			pStream->Read(&kEntry.iSource);
-			pStream->Read(&kEntry.iCategory);
-			pStream->Read(&kEntry.iActor);
-			pStream->Read(&kEntry.iActorTeam);
-			pStream->Read(&kEntry.iTargetPlayer);
-			pStream->Read(&kEntry.iTargetTeam);
-			pStream->Read(&kEntry.iTurn);
-			pStream->Read(&kEntry.iYear);
-			pStream->Read(&kEntry.iElapsedTurn);
-			pStream->Read(&kEntry.iVersionIndex);
-			pStream->Read(&kEntry.iX);
-			pStream->Read(&kEntry.iY);
-			pStream->Read(&kEntry.iCityId);
-			pStream->Read(&kEntry.iObjectId);
-			pStream->Read(&kEntry.iRequestedDataId);
-			pStream->Read(&kEntry.iResolvedDataId);
-			pStream->ReadString(kEntry.szAction);
-			pStream->ReadString(kEntry.szOperation);
-			pStream->ReadString(kEntry.szTargetKind);
-			pStream->ReadString(kEntry.szTarget);
-			pStream->Read(&kEntry.bOldValueValid);
-			pStream->Read(&kEntry.iOldValue);
-			pStream->Read(&kEntry.bNewValueValid);
-			pStream->Read(&kEntry.iNewValue);
-			pStream->Read(&kEntry.bContentWithheld);
-			pStream->Read(&kEntry.iQuotedCost);
-			pStream->Read(&kEntry.iPointsBefore);
-			pStream->Read(&kEntry.iPointsAfter);
-			pStream->Read(&kEntry.iGoldBefore);
-			pStream->Read(&kEntry.iGoldAfter);
-		}
+		SASWorldChangesHistoryEntry& kEntry = m_aSASWorldChangesHistory[i];
+		pStream->Read(&kEntry.iSource);
+		pStream->Read(&kEntry.iCategory);
+		pStream->Read(&kEntry.iActor);
+		pStream->Read(&kEntry.iActorTeam);
+		pStream->Read(&kEntry.iTargetPlayer);
+		pStream->Read(&kEntry.iTargetTeam);
+		pStream->Read(&kEntry.iTurn);
+		pStream->Read(&kEntry.iYear);
+		pStream->Read(&kEntry.iElapsedTurn);
+		pStream->Read(&kEntry.iVersionIndex);
+		pStream->Read(&kEntry.iX);
+		pStream->Read(&kEntry.iY);
+		pStream->Read(&kEntry.iCityId);
+		pStream->Read(&kEntry.iObjectId);
+		pStream->Read(&kEntry.iRequestedDataId);
+		pStream->Read(&kEntry.iResolvedDataId);
+		pStream->ReadString(kEntry.szAction);
+		pStream->ReadString(kEntry.szOperation);
+		pStream->ReadString(kEntry.szTargetKind);
+		pStream->ReadString(kEntry.szTarget);
+		pStream->Read(&kEntry.bOldValueValid);
+		pStream->Read(&kEntry.iOldValue);
+		pStream->Read(&kEntry.bNewValueValid);
+		pStream->Read(&kEntry.iNewValue);
+		pStream->Read(&kEntry.bContentWithheld);
+		pStream->Read(&kEntry.iQuotedCost);
+		pStream->Read(&kEntry.iPointsBefore);
+		pStream->Read(&kEntry.iPointsAfter);
+		pStream->Read(&kEntry.iGoldBefore);
+		pStream->Read(&kEntry.iGoldAfter);
 	}
 	// <!-- custom: A loaded save starts outside any active WorldBuilder UI/bulk context even when its ordered history contains previous editor actions. (ChatGPT-5.6-Sol) -->
 	m_bSASWorldBuilderScreenVisible = false;
@@ -9772,7 +9777,6 @@ void CvGame::read(FDataStreamBase* pStream)
 	m_iSASWorldBuilderBulkChangedPlots = 0;
 
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
-	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
 
@@ -9804,6 +9808,7 @@ void CvGame::write(FDataStreamBase* pStream)
 	PROFILE_FUNC(); // advc
 
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <!-- custom: Keep the serialized CvGame stream-layout flag and diagnostic reporting on one source of truth.
 	// The ordered setup/editor history advances this marker to 28 because it changes the serialized CvGame tail. (ChatGPT-5.6-Sol) -->
 	uint const uiFlag = SASSaveStreamFormat::CV_GAME; // advc.130w: RivalVassalAttitude tweak
@@ -10332,40 +10337,6 @@ static SASWorldChangesHistoryCategory getSASAdvancedStartHistoryCategory(Advance
 	}
 }
 
-static CvString getSASAdvancedStartHistoryTarget(AdvancedStartActionTypes eAction, int iData, CvString& szTargetKind)
-{
-	szTargetKind = "NONE";
-	switch (eAction)
-	{
-	case ADVANCEDSTARTACTION_UNIT:
-		szTargetKind = "UNIT";
-		return (iData >= 0 && iData < GC.getNumUnitInfos() ? CvString(GC.getInfo((UnitTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_BUILDING:
-		szTargetKind = "BUILDING";
-		return (iData >= 0 && iData < GC.getNumBuildingInfos() ? CvString(GC.getInfo((BuildingTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_IMPROVEMENT:
-		szTargetKind = "IMPROVEMENT";
-		return (iData >= 0 && iData < GC.getNumImprovementInfos() ? CvString(GC.getInfo((ImprovementTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_ROUTE:
-		szTargetKind = "ROUTE";
-		return (iData >= 0 && iData < GC.getNumRouteInfos() ? CvString(GC.getInfo((RouteTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_TECH:
-		szTargetKind = "TECH";
-		return (iData >= 0 && iData < GC.getNumTechInfos() ? CvString(GC.getInfo((TechTypes)iData).getType()) : CvString("-"));
-	case ADVANCEDSTARTACTION_CITY:
-	case ADVANCEDSTARTACTION_VISIBILITY:
-		szTargetKind = "PLOT";
-		break;
-	case ADVANCEDSTARTACTION_POP:
-	case ADVANCEDSTARTACTION_CULTURE:
-		szTargetKind = "CITY";
-		break;
-	default:
-		break;
-	}
-	return CvString("-");
-}
-
 static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes eAction, bool bAdd)
 {
 	if (eAction == ADVANCEDSTARTACTION_EXIT)
@@ -10401,7 +10372,10 @@ void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartAct
 	kEntry.iResolvedDataId = iResolvedData;
 	kEntry.szAction = getSASAdvancedStartActionType(eAction);
 	kEntry.szOperation = getSASAdvancedStartHistoryOperation(eAction, bAdd);
-	kEntry.szTarget = getSASAdvancedStartHistoryTarget(eAction, iResolvedData, kEntry.szTargetKind);
+	// <!-- custom: The shared getSASAdvancedStartTarget replaces this file's copy of SGR's target switch; it reports the kind through a char const*, which the saved CvString field then copies. (Claude code Opus 5.5) -->
+	char const* szTargetKind = NULL;
+	kEntry.szTarget = getSASAdvancedStartTarget(eAction, iResolvedData, szTargetKind);
+	kEntry.szTargetKind = szTargetKind;
 	kEntry.iQuotedCost = iQuotedCost;
 	kEntry.iPointsBefore = iPointsBefore;
 	kEntry.iPointsAfter = kPlayer.getAdvancedStartPoints();
@@ -10562,7 +10536,7 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
 void CvGame::onAllGameDataRead()
 {
 	// <!-- custom: Reconcile persisted game-source history with the currently running source before any loaded-save log header reads it.
-	// Older saves deliberately enter as creation-untracked and begin history at this load. (ChatGPT-5.6-Sol) -->
+	// An empty history starts at load, since it provides no creation provenance. See KI#46.2. (ChatGPT-5.6-Sol + GPT-6.2-Sol) -->
 	updateSASVersionHistoryAfterLoad();
 	// <!-- custom: Retry previous-session output and close its handles before load rolls to new filenames; BUG reaffirms the user root and the post-handler checkpoint covers any pending startup output. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	if (isSASBBAILogEnabled() || isSASGameRecordLogEnabled()) flushSASDiagnosticLogs(true);
@@ -10574,38 +10548,14 @@ void CvGame::onAllGameDataRead()
 	#endif
 	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
 	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForLoadedSave();
-	// <advc.opt> Savegame compatibility (uiFlag<4)
-	if (m_iCivPlayersEverAlive == 0)
-		m_iCivPlayersEverAlive = countCivPlayersEverAlive();
-	if (m_iCivTeamsEverAlive == 0)
-		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
-	// </advc.opt>
+	// <!-- custom: CvGame, CvTeam and CvTeamAI already read the civilization counts, war-enemy counts and war-plan counts their writers store.
+	// AdvCiv reconstructed those fields here for old saves (advc.opt, advc.003m).
+	// Finish loading with the serialized values in the current SAS layout. See KI#46.2. (GPT-6.2-Sol) -->
 	GC.getAgents().gameStart(true); // advc.agent
-	// <!-- custom: removed old m_uiSaveFlag code -->
-
-	// <advc.003m>
-	for (TeamIter<> it; it.hasNext(); ++it)
-	{
-		if (it->getNumWars() < 0 || it->getNumWars(false, false) < 0 ||
-			it->getNumWars(true, true) < 0)
-		{
-			it->finalizeInit();
-		}
-	} // </advc.003m>  <advc.opt>
-	for (TeamAIIter<> it; it.hasNext(); ++it)
-	{
-		FOR_EACH_ENUM(WarPlan)
-		{
-			if (it->AI_getNumWarPlans(eLoopWarPlan) < 0)
-			{
-				it->AI_finalizeInit();
-				break;
-			}
-		}
-	} // </advc.opt>
 	m_bAllGameDataRead = true;
 
 	// <!-- custom: while removing old m_uiSaveFlag code, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these -->
+	// <!-- custom: Note: See KI#46 for the original cleanup. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
 	// <advc.127> Save created during AI Auto Play
 	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
