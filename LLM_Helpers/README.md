@@ -2678,7 +2678,20 @@ python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
   - See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
 - [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units.
   - Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
+  - Rules added in the Continents replay (2026-11-19), each after a slip the user caught:
+    - It keeps a unit's target across turns while it still reveals something: re-ranked from scratch, the target flipped each step and a Warrior circled one spot for six turns.
+    - It avoids stopping on the unit's last six plots unless nothing else is left, as back-and-forth reveals nothing.
+    - It remembers hostiles seen for five turns and keeps stops two plots from them, not only from those in sight.
+    - Avoiding is the default, not a rule against fighting: a hostile next to the unit stops the run with our attack odds on it, and attacking with confident odds is the agent's call when it serves the goal.
+    - Its state sits in the temp folder per client, as each run is a new process.
+- [`SASPilotWatch.py`](/LLM_Helpers/saspilot/SASPilotWatch.py) follows a game a person plays in the window, one line per change, with named saves at key moments (`--saves`); see [Watching a person play](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#watching-a-person-play).
 - [`SASPilotSites.py`](/LLM_Helpers/saspilot/SASPilotSites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
+  - Since the Continents replay (2026-11-19), where the user named the best site, 21,15, and both this tool and the AI's found value had missed it:
+    - It reads `plots` rather than `grid`, as grid gave river edges only for plots in sight, so every site out of sight read "no fresh water".
+    - It counts flood plains, oases, river plots and bare desert, and the default reach is 8 plots (was 6).
+    - The user's dot-map marks are always rated, at any distance.
+    - Each site shows the AI's found value beside its own score, and the nearest rival border with its owner and direction, the lane the user read from Persia's border.
+    - Sites within 2 plots of a better one are listed under it as alternatives, one region per entry.
 - [`SASPilotPlots.py`](/LLM_Helpers/saspilot/SASPilotPlots.py) judges plots in numbers rather than pictures, with numpy and scipy, which Civ4's Python 2.4 lacks: `layer` prints food, production, commerce, owner or coast as a grid you can read row by row, or with `--sum` each plot's total over a city radius, and `regions` lists landmasses and unowned clusters with their sizes.
   - With `--potential food,production,commerce`, each plot counts its best improvement by those weights, from the in-game `potential` command (`--later` adds builds a tech away), so a site with two unimproved Clams no longer reads as plain coast.
   - The square is centered on an anchor, `--x/--y`, `--unit`, `--city`, `--bonus` or `--camera`, with `--radius` for its size, so a large map such as SAS48 is read a crop at a time.

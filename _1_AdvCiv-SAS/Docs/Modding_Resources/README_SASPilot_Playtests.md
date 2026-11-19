@@ -11,6 +11,8 @@ What agents learned by playing through SASPilot: games played as a person would,
 [What a player knows about rivals not met](#what-a-player-knows-about-rivals-not-met)\
 [Map composition and contact](#map-composition-and-contact)\
 [Islands replay from turn 0](#islands-replay-from-turn-0)\
+[Ireland Continents replays, 2026-11-19](#ireland-continents-replays-2026-11-19)\
+&emsp;[Validation run, the agent alone](#validation-run-the-agent-alone)\
 [Where to take it](#where-to-take-it)\
 &emsp;[Modern baseline, 2026-11-14](#modern-baseline-2026-11-14)\
 &emsp;[Turn-0 game, 2026-11-14](#turn-0-game-2026-11-14)
@@ -370,6 +372,66 @@ The user then had SASPilot replay the same start (`WILLEM_VAN_T0000_SAS48_SAS_LA
   - Rules the user gave, now in SASPilot: scout and move one plot at a time (`step`, and `move` refuses a longer path without `whole=1`); move the scouts before trading, as a new contact changes what a tech is worth; buy what rivals sell and research what nobody met has (a `research` reminder); techs lose value as they spread, so sell new ones fast.
   - Pilot fixes on the way: a `work` click that only claims a plot is said so (`claimOnly`), as the game applies the click after the reply; AI offers of techs we already have are rejected by the turn helper; `buildable` gives happiness, health and culture; the Greatest Civilizations screen is detected, though its ranking is lost in a throwaway instance (a proposal is in `changes_new.md`).
   - Saved as `sas_pilot_islands_replay2_t082`.
+
+## Ireland Continents replays, 2026-11-19
+
+A Standard Continents map (Grace O'Malley of Ireland, fog on, `GRACE_T0000_STANDARD_CONTINENTS_..._START`), replayed from turn 0 several times to compare openings, then played by the user in the window with the agent following through `SASPilotWatch.py`. Each rule below came from a slip the user caught or an idea of theirs; the tool change it led to follows it.
+
+- Dublin (18,8): coastal, with Fish, Crab, Deer, Sheep and Stone in reach, and a forested plains hill at (17,9) that gives 0/3/0 unimproved.
+- Openings compared:
+  - Work Boat first (run 1): the Fish boated at turn 9, size 3 by turn 18, Settler at turn 36, but nothing improved on land until turn 25.
+  - Worker first (runs 2 and 3): the Worker at turn 14, but Dublin grew slowly, and its first useful job was a quarry, which is hammers, not food. The Settler came about turn 45, and Cork, founded at turn 53 at 21,15, found Persia's culture already on 10 of its plots: reloaded.
+  - The user's version (runs 4 and 5): stall growth on the 0/3/0 forest so the Work Boat comes on turn 7, not 9; then a Scout, not an Archer, as filler while Dublin grows on the Fish; the Settler at size 3. The Worker comes after the Settler, as Dublin's best food is on water and a Worker has little land food to improve early.
+  - Rule: look at where a start's food is before choosing its first builds. On land, a Worker first; on water, boats first and a late Worker.
+- Food as production: a Settler or Worker takes the food surplus as production and stops growth. So grow first when the food bar is nearly full (`reminders` now says so), and judge tile swaps by food plus hammers during those builds. `citizens` now gives `foodSurplusToProduction` and `swaps`, each single tile swap's build turns, food and growth, which made the forest stall a computed trade.
+- The Scout over the Archer as early filler: 15 hammers against 25, 2 moves against 1, and huts give it no bad result. On Noble one Barbarian can come out of a hut from turn 0 (advc.314 holds back only two or more until turn 16). `trainable` shows `noBadGoodies`, and the hut reminder names the risk and a safe unit.
+- City site 2, the user's reasoning: settle the contested centre first and the safe edges later.
+  - Persia's border at 17,19 and the northern desert left north-east as the only lane, so 21,15 (a plains hill with fresh water, the Gold, a Camel, flood plains and oases) beat the AI's 20,12, which only poked out of our cocoon and overlapped Dublin. The safe west waits, as 13,11 keeps both the Whale and a Camel.
+  - `SASPilotSites.py` missed 21,15 too; it now reads river and fresh water for every revealed plot, counts flood plains, oases and desert, rates the user's dot-map marks, names the nearest rival border's owner and direction, counts rival-owned and at-risk plots, and groups nearby sites.
+- Scouting: radial and outward unless an inner pocket reveals more; one plot at a time near known animals; end turns on forest or hill; no back-and-forth; heal where the unit stands unless the plot is unsafe, as walking home bought no time.
+  - `SASPilotExplore.py` keeps a target, avoids its last plots, remembers hostiles and stops when an area is done; `scout` gives each step's direction; `unit` compares heal turns where it stands with a friendly plot or city (DLL binding `CyUnit.healTurnsAt`).
+- Facts read from SAS's XML while playing, as a mod-mod may differ: Grace O'Malley is Financial (+1 commerce on plots with 2 or more, so coast gives 3) and Aggressive; Persia's Immortal replaces the Swordsman and needs Copper or Iron, so denying Iron alone does not stop it; Chariots and Horse Archers need Horses, and Camels give their own line (Camel Archer with Mounted Combat).
+- A Settler walking to a contested site goes behind a screen: the user's hindsight on the route to Cork, where a Lion came within 2 plots; the Scout ran a turn ahead from then on.
+- A turn ended with no research chosen loses nothing: the user tested it at turn 25, and the beakers went to whichever tech was chosen next.
+- SAS's Scout may climb peaks (`bCanMoveImpassable`), safe look-outs that animals cannot reach; `unit` now says `canMoveImpassable`, and `SASPilotScout.py` keeps peaks for such units.
+- Research one tech at a time, as a long queue locks in a plan made before the map was known: a hut's free Pottery changed the plan at turn 16. `research` shows, per tech, which known resources it would improve (`forOurResources`): Agriculture had none. In SAS, Slavery comes with Masonry, and Camels give their own mounted line (Camel Archer with Mounted Combat).
+- Named saves at decision points, never left in an autosave: an autosave is named by game year, so a replay reaching the same year overwrites it. `SASPilotWatch.py --saves PREFIX` takes them itself.
+- The user's own run, played in the window with the agent watching, against the Worker-first run, read from both saves (`sas_pilot_ireland_replay_t053_found` and `_t042_cork_founded`):
+  - Worker first: the Settler at turn 45, Cork founded at 21,15 on turn 53. One turn earlier, Persia already owned 6 plots of that radius, the band 19-22,16-17 up to the hill, from a city we never saw; the Horse at 21,18 lay unrevealed behind that border.
+  - The user's run: the Settler at turn 36 (the Work Boat stall, a Scout as filler, growth on the Fish), and Cork founded on turn 42 one plot north, at 21,16, to take the Horse. No Persian plot in its radius, and the Persian cities seen, 17,26 and 18,21, were 5 or more plots away.
+  - The eleven turns decided it: Persia's culture reached the band next to the site between turns 42 and 52. Denying the Horse, the only one seen and the likely reason Persia pressed that way, was the user's reason for the extra plot.
+  - Scouting Persia's side early mattered too: the Worker-first run never saw the city behind the border, while the user's Warrior found both Persian cities and the Scout the Horse before the Settler arrived.
+
+### Validation run, the agent alone
+
+Later the same day the agent replayed the map from turn 0 with the tools alone, to test them against the user's run; the user commented as it went. Saves: `sas_pilot_ireland_val_t012_scout` to `_t051_trades`.
+
+- Milestones against the user's run:
+
+| Milestone | User | Agent |
+| --- | --- | --- |
+| Work Boat | turn 7 | turn 7 |
+| First contact | Persia, turn 23 | Sitting Bull 14, Persia 18 |
+| Writing | turn 36 | turn 44 |
+| Settler | turn 36 | turn 39 (whipped) |
+| City 2 | Cork at 21,16 on turn 42, with the Horse | Cork at 25,13 on turn 44 |
+
+- Pasargadae (20,18) took the Horse on about turn 41, while the Settler walked; three turns too late for 21,16, as in the Worker-first run. The Settler went to 25,13 instead, a coastal hill with Corn, Clam and Pig, hammer-poor but a chokepoint against Persia.
+- What cost the turns, each now in the tools:
+  - The Scout ended a turn on flat ground and a Bear out of the fog killed it at 74% odds (reloaded): `SASPilotExplore.py` now prefers turn stops on hills and forest. Animals also hurt rivals, so avoiding them is the default.
+  - In SAS, Animal Husbandry obsoletes the Warrior, and the queued Warrior vanished with its hammers: `reminders` now warns when the current research obsoletes a unit queued or partly built.
+  - Slavery was adopted at size 2 for 2 turns of anarchy, which stopped production as well as research: `civics` now lists each candidate with its anarchy turns, upkeep change and the cities that could whip now, and a change with anarchy needs `confirm=1`.
+  - A chop meant for the Settler fed a filler Work Boat: `builds` names the city that gets the hammers and its current build.
+  - `produce` without `append=1` replaced the queue, and the second Warrior was lost the first time.
+- Other rules from the user's comments, each in the tools:
+  - A promotion heals half the damage and its pick can wait for the matchup, so hold it while healthy: `unit` gives `promotionHealsNow` and the advice. Taken at 17 damage it healed 8; held until a Lion fight left 48, it healed 24.
+  - A whip trades a citizen (24 food to regrow at size 3) for hammers: `hurry` gives `whipTrade`. At that stage it was a last resort.
+  - `directions` sums what is known in each of 8 sectors around a city (good and poor land, fresh water, resources, rival plots, the unknown edge), so scouting skips land the map already shows as poor, as the tundra south-east.
+  - `citizens` lists the swaps with the most food as `growthSwaps`: sorted by build turns, the improved Fish (+5 food, 0 hammers) was hidden.
+  - A sleeping garrison with no threat near wastes a unit; the Ancient Maceman (Warrior) is meant to roam in SAS. The reminder now says what to do instead.
+  - Trades are checked every turn. A tech we give stays ours and can be traded again; gold and resources are spent once. A tech another met civ also knows can be sold to the buyer by them first, so sell it now; if the buyer can pay nothing, a gift earns goodwill. The reminders count the met civs knowing each tech and name these cases. Met with the most civs, we broker.
+  - Resource trades decide more than open borders: sell spares for gold per turn, buy rarely. Gold enters a deal when either side has the gold-trading tech (`CvPlayer::canTradeItem`), and resources need the two trade networks linked; the reminder lists spare copies and who can pay.
+  - Seafaring gives coastal trade in SAS, linking two coastal cities without a road.
 
 ## Where to take it
 

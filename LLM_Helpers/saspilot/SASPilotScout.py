@@ -62,12 +62,20 @@ def compare(pid, unit, radius, limit, around=None, band=(3, 5), counterclockwise
     # <!-- custom: Use the full reveal mask so the search boundary cannot turn known tiles into apparent fog. (GPT-6.1-Sol) -->
     known = {(plot["x"], plot["y"]) for plot in grid["tiles"]}
     search = set(neighborhood(origin, radius, grid))
+    # <!-- custom: Only hostile units count: Barbarians (animals included) and players we are at war with.
+    # Every foreign unit counted first, so a peaceful player's Scout next to our Warrior ruled out every choice (Continents replay, turn 16, 2026-11-19). (Claude code Opus 5.5) -->
+    players = ask("players", {})
+    hostile = set(p["player"] for p in players if p.get("civ") == "CIVILIZATION_BARBARIAN" and p.get("player") is not None)
+    for p in players:
+        if p.get("human"):
+            hostile.update(p.get("atWarWith") or [])
     visible_foreign = {(plot["x"], plot["y"], other["id"], other["owner"]): other["type"]
-        for plot in plots for other in plot["units"] if other["owner"] != grid["player"]}
+        for plot in plots for other in plot["units"] if other["owner"] != grid["player"] and other["owner"] in hostile}
     candidates = []
     for tile in grid["tiles"]:
         point = tile["x"], tile["y"]
-        if point not in search or point == origin or tile["water"] or tile["peak"]:
+        # <!-- custom: Peaks stay in for a unit the game lets climb them, the path probe below deciding: SAS's Scout has bCanMoveImpassable, and the user used peaks as safe look-outs in the Continents replay (2026-11-19), while this check had left every peak out. (Claude code Opus 5.5) -->
+        if point not in search or point == origin or tile["water"] or (tile["peak"] and not scout.get("canMoveImpassable")):
             continue
         # <!-- custom: --around keeps a loop around a city, the user's advice for the opening (2026-11-14): circle the capital first to find city sites, huts and the nearest rivals before heading far.
         # Candidates outside the distance band from the center are left out. (Claude code Opus 5.5) -->

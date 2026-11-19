@@ -652,8 +652,11 @@ def start(args):
 	else:
 		save = None
 		settings["QuickStart"] = "1"
-		for key, value in (("Map", args.map), ("WorldSize", args.world_size), ("GameSpeed", args.speed), ("QuickHandicap", args.handicap)):
+		# <!-- custom: The INI wants full type names, and Civ4 silently fell back to Standard for "--world-size Large" (Continents game, 2026-11-19, noticed only from the START save's name), so a short name gets its prefix. (Claude code Opus 5.5) -->
+		for key, value, prefix in (("Map", args.map, None), ("WorldSize", args.world_size, "WORLDSIZE_"), ("GameSpeed", args.speed, "GAMESPEED_"), ("QuickHandicap", args.handicap, "HANDICAP_")):
 			if value:
+				if prefix and not value.upper().startswith(prefix):
+					value = prefix + value.upper()
 				settings[key] = value
 		if args.fixed_seeds:
 			settings["SyncRandSeed"] = "1"

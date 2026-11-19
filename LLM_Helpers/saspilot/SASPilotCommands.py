@@ -434,6 +434,10 @@ def _unitBrief(unit, iFogTeam=None):
 		result["automate"] = _enumName(AutomateTypes, group.getAutomateType())
 		result["fortifyTurns"] = unit.getFortifyTurns()
 		result["promotionReady"] = bool(unit.isPromotionReady())
+		# <!-- custom: Promoting heals half the damage (CvUnit::promotionHeal, leader promotions excepted), and the pick can wait for the opponent: at turn 17 of the 2026-11-19 validation run the Warrior took Combat I at 17 damage, healing 8, which the user pointed out was the cheap use of both. (Claude code Opus 5.5) -->
+		if result["promotionReady"]:
+			result["promotionHealsNow"] = unit.getDamage() * 50 / 100
+			result["promotionAdvice"] = "promoting heals half the damage and the pick can wait: hold it while healthy and nothing is to fight, use it after a hard fight or just before a known matchup, as plans change (a planned city assault can turn into a field battle, or the reverse)"
 		result["mission"] = None
 		if group.getLengthMissionQueue() > 0:
 			result["mission"] = gc.getMissionInfo(group.getMissionType(0)).getType()
@@ -483,6 +487,8 @@ def _unitFull(unit, iFogTeam=None):
 	result["name"] = unit.getName()
 	result["strength"] = unit.baseCombatStr()
 	result["baseMoves"] = unit.baseMoves()
+	# <!-- custom: Whether the unit may enter peaks, as SAS's Scout may; SASPilotScout.py then keeps peaks as look-outs (2026-11-19). (Claude code Opus 5.5) -->
+	result["canMoveImpassable"] = unit.canMoveImpassable()
 	result["level"] = unit.getLevel()
 	result["experience"] = unit.getExperience()
 	result["fortifyTurns"] = unit.getFortifyTurns()
@@ -574,6 +580,16 @@ def _orderData(order):
 	return "ORDER_%d" % int(eOrder)
 
 
+# <!-- custom: While a Settler or Worker (bFood) is built, foodDifference reads 0 because K-Mod's CvCity::foodDifference caps it there, yet the surplus goes into production.
+# At turn 18 of the Continents game (2026-11-19) that 0 led to trading a food for a hammer during the Worker, which changed nothing; the user pointed out that food is production then. (Claude code Opus 5.5) -->
+def _foodProduction(city):
+	bFoodProduction = city.isFoodProduction()
+	result = {"foodProduction": bFoodProduction}
+	if bFoodProduction:
+		result["foodSurplusToProduction"] = max(0, city.getYieldRate(YieldTypes.YIELD_FOOD) - city.foodConsumption(False, 0))
+	return result
+
+
 def _cityBrief(city):
 	queue = [_orderData(city.getOrderFromQueue(i)) for i in range(city.getOrderQueueLength())]
 	return {"id": city.getID(), "name": city.getName(), "x": city.getX(), "y": city.getY(), "owner": city.getOwner(), "population": city.getPopulation(), "queue": queue, "productionTurnsLeft": city.getProductionTurnsLeft(), "foodTurnsLeft": city.getFoodTurnsLeft()}
@@ -585,6 +601,7 @@ def _cityFull(city):
 	result["food"] = city.getFood()
 	result["growthThreshold"] = city.growthThreshold()
 	result["foodDifference"] = city.foodDifference(True)
+	result.update(_foodProduction(city))
 	result["production"] = city.getProduction()
 	# <!-- custom: With an empty queue the game returns MAX_INT, which came back as 2147483647 (fog-on playthrough, 2026-11-13); give null instead, as nothing is being produced. (Claude code Opus 5.5) -->
 	result["productionNeeded"] = None
@@ -810,7 +827,7 @@ def cmd_units(args):
 	return RawJson(text)
 
 
-_HELP["unit"] = "One unit in full, with the orders it can take now. args: unit (ID), player."
+_HELP["unit"] = "One unit in full, with the orders it can take now. A wounded unit of ours also gets heal: healing where it stands against walking first to the best plot inside our borders (friendly) or to our best city within 4 plots, each with travel, heal and total turns, defense, whether it is inside our borders (animals cannot enter) and the hostiles in sight within 2 plots. args: unit (ID), player."
 
 
 def cmd_unit(args):
@@ -825,7 +842,65 @@ def cmd_unit(args):
 		return result
 	result = _unitFull(unit, _fogTeam(args))
 	result["actions"] = _unitActions(unit)
+	heal = _healOptions(unit)
+	if heal is not None:
+		result["heal"] = heal
 	return result
+
+
+# <!-- custom: A wounded unit's choices: heal where it stands, or walk to the best friendly plot or our nearest city first, each with travel and heal turns and the danger a player sees there.
+# At turn 22 of the Continents replay (2026-11-19) a Warrior at 25 HP walked 3 turns home to heal at 15 a turn, the same 8 turns as resting where it stood at 10, and lost those turns of scouting; the user asked for the calculation, and that danger counts too. (Claude code Opus 5.5) -->
+HEAL_SEARCH_RADIUS = 4
+
+
+def _healOptions(unit):
+	if not unit.isHurt() or not hasattr(unit, "healTurnsAt"):
+		return None
+	iTeam = unit.getTeam()
+	team = gc.getTeam(iTeam)
+	here = unit.plot()
+
+	def option(plot, iTravel):
+		iHeal = unit.healTurnsAt(plot.getX(), plot.getY())
+		hostiles = []
+		for dx in range(-2, 3):
+			for dy in range(-2, 3):
+				near = CyMap().plot(plot.getX() + dx, plot.getY() + dy)
+				if near.isNone() or not near.isVisible(iTeam, False):
+					continue
+				for i in range(near.getNumUnits()):
+					other = near.getUnit(i)
+					if other.getTeam() != iTeam and (gc.getPlayer(other.getOwner()).isBarbarian() or team.isAtWar(other.getTeam())) and not other.isInvisible(iTeam, False):
+						hostiles.append({"type": gc.getUnitInfo(other.getUnitType()).getType(), "x": near.getX(), "y": near.getY()})
+		bHeals = iHeal >= 0 and iHeal < MAX_HEAL_TURNS
+		return {"x": plot.getX(), "y": plot.getY(), "travelTurns": iTravel, "healTurns": bHeals and iHeal or None, "totalTurns": bHeals and iTravel + iHeal or None, "defensePct": plot.defenseModifier(iTeam, False, False), "insideOurBorders": plot.getTeam() == iTeam, "hostilesWithin2": hostiles}
+
+	def travel(plot):
+		path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
+		if path is None or not path.get("found"):
+			return None
+		return path["turns"]
+
+	result = {"damage": unit.getDamage(), "here": option(here, 0)}
+	best = {}
+	for dx in range(-HEAL_SEARCH_RADIUS, HEAL_SEARCH_RADIUS + 1):
+		for dy in range(-HEAL_SEARCH_RADIUS, HEAL_SEARCH_RADIUS + 1):
+			plot = CyMap().plot(here.getX() + dx, here.getY() + dy)
+			if plot.isNone() or (dx == 0 and dy == 0) or plot.getTeam() != iTeam or not plot.isRevealed(iTeam, False):
+				continue
+			kind = plot.isCity() and "city" or "friendly"
+			iTravel = travel(plot)
+			if iTravel is None:
+				continue
+			entry = option(plot, iTravel)
+			if entry["totalTurns"] is not None and (kind not in best or entry["totalTurns"] < best[kind]["totalTurns"]):
+				best[kind] = entry
+	result.update(best)
+	return result
+
+
+# <!-- custom: CvUnit::healTurns returns MAX_INT when a plot does not heal the unit at all. (Claude code Opus 5.5) -->
+MAX_HEAL_TURNS = 10000
 
 
 _HELP["cities"] = "A player's cities, briefly. args: player."
@@ -921,6 +996,9 @@ def cmd_trainable(args):
 		entry = {"unit": info.getType(), "turns": city.getUnitProductionTurnsLeft(i, 0), "cost": iCost, "strength": info.getCombat(), "moves": info.getMoves(), "combatType": _typeOrNone(gc.getUnitCombatInfo, info.getUnitCombatType())}
 		if iCost > 0:
 			entry["strengthPer100Hammers"] = info.getCombat() * 10000 / iCost
+		# <!-- custom: Whether huts give this unit no bad result, such as Barbarians: in the Continents replay (2026-11-19) an Archer was built as filler while Dublin grew, and the user pointed out that a Scout costs 15 hammers instead of 25, has 2 moves instead of 1 and is safe at huts, which a hut-hunting opening needs. (Claude code Opus 5.5) -->
+		if info.isNoBadGoodies():
+			entry["noBadGoodies"] = True
 		for (szKey, iValue) in (("firstStrikes", info.getFirstStrikes()), ("chanceFirstStrikes", info.getChanceFirstStrikes()), ("collateralDamage", info.getCollateralDamage()), ("collateralMaxUnits", info.getCollateralDamageMaxUnits()), ("withdrawalPct", info.getWithdrawalProbability()), ("bombardRate", info.getBombardRate()), ("cityAttackPct", info.getCityAttackModifier()), ("cityDefensePct", info.getCityDefenseModifier())):
 			if iValue:
 				entry[szKey] = iValue
@@ -1859,7 +1937,7 @@ def _techPathVisit(player, team, iTech, path, seen, memo):
 	path.append(iTech)
 
 
-_HELP["research"] = "Without args: the techs the player can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it, the techs on the way, its OR alternatives (orChoice), what it unlocks or reveals, the met players seen to hold it and whether the XML lets it be traded; rivals lists each met player's current research with its percent, or unknown when espionage does not show it. args: tech (TECH_ type), append, effects, ahead, player."
+_HELP["research"] = "Without args: the techs the player knows (known), the techs it can research now, each with its turns, and the research queue. With tech: research it; a tech not available yet is queued after its missing prerequisites, as a shift-click in the tech tree does. append=1 adds to the queue instead of replacing it. With effects=1, include the effects of each available tech. With ahead=N, every tech at most N techs away, in F6 column then row order, with era, steps, beakers and turns to reach it, the techs on the way, its OR alternatives (orChoice), what it unlocks or reveals, the met players seen to hold it and whether the XML lets it be traded; rivals lists each met player's current research with its percent, or unknown when espionage does not show it. args: tech (TECH_ type), append, effects, ahead, player."
 
 
 def cmd_research(args):
@@ -1878,7 +1956,17 @@ def cmd_research(args):
 			effects = _techEffects(player.getCivilizationType())
 			for entry in available:
 				entry["effects"] = effects[entry["tech"]]
-		return {"available": available, "queue": _researchQueue(player)}
+		# <!-- custom: For each tech, the resources in sight whose improvement it would unlock, so "what would this tech do for the land we know" is read beside it: at turn 16 of the Continents replay (2026-11-19) the user looked through the resources to find that Agriculture had nothing to improve yet, and asked for it in the API. (Claude code Opus 5.5) -->
+		uses = {}
+		for resource in cmd_resources(args)["resources"]:
+			for build in resource["builds"]:
+				if not build["haveTech"] and build["tech"]:
+					uses.setdefault(build["tech"], []).append("%s@%d,%d" % (resource["bonus"][6:], resource["x"], resource["y"]))
+		for entry in available:
+			entry["forOurResources"] = uses.get(entry["tech"], [])
+		# <!-- custom: The techs already known, as the tech screen shows them; at turn 0 of the Continents game (2026-11-19) they took a 'py' snippet, which the play role refuses. (Claude code Opus 5.5) -->
+		known = [gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if team.isHasTech(i)]
+		return {"known": known, "available": available, "queue": _researchQueue(player)}
 	iTech = _typedIndex(args["tech"], "TECH_", gc.getNumTechInfos(), gc.getTechInfo)
 	# <!-- custom: Only techs available now were taken, so 'tech=TECH_BRONZE_WORKING' was refused while Mining was its one missing prerequisite (fog-on playthrough, 2026-11-13).
 	# CvPlayer::pushResearch queues the missing prerequisites first, as the tech tree's shift-click does, so take any tech the player could ever research and does not have. (Claude code Opus 5.5) -->
@@ -2019,7 +2107,23 @@ def describe(target):
 
 # <!-- custom: Order commands (Claude code Opus 5.5) -->
 
-_HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. Under fog, MISSION_MOVE_TO_UNIT (data1=owner, data2=unit) follows only our own team's units. args: unit, mission, data1, data2, flags, append, player."
+_HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. Under fog, MISSION_MOVE_TO_UNIT (data1=owner, data2=unit) follows only our own team's units. MISSION_FOUND refuses while another of our units still has all its moves and waits for orders, as what it reveals can change the site; anyway=1 founds regardless. args: unit, mission, data1, data2, flags, append, anyway, player."
+
+
+FOUND_GUARD_RADIUS = 3
+
+
+def _unmovedOthers(unit):
+	# <!-- custom: Our units other than this one that still have all their moves and wait for orders: not fortified, asleep, automated or on a mission, nor inside the same group.
+	# Only within FOUND_GUARD_RADIUS plots of the Settler: the first version also named a Worker and an Archer 6 plots away in Dublin, which could reveal nothing about the site (Continents replay, turn 53). (Claude code Opus 5.5) -->
+	player = gc.getPlayer(unit.getOwner())
+	waiting = []
+	(loopUnit, iter) = player.firstUnit(False)
+	while loopUnit:
+		if loopUnit.getID() != unit.getID() and max(abs(loopUnit.getX() - unit.getX()), abs(loopUnit.getY() - unit.getY())) <= FOUND_GUARD_RADIUS and loopUnit.getGroupID() != unit.getGroupID() and loopUnit.canMove() and loopUnit.getMoves() == 0 and loopUnit.getGroup().getActivityType() == ActivityTypes.ACTIVITY_AWAKE and not loopUnit.isAutomated() and loopUnit.getGroup().getLengthMissionQueue() == 0:
+			waiting.append(loopUnit)
+		(loopUnit, iter) = player.nextUnit(iter, False)
+	return waiting
 
 
 def cmd_mission(args):
@@ -2041,6 +2145,11 @@ def cmd_mission(args):
 	# <!-- custom: The check above then refused 'MISSION_FOUND append=1' right after a 'move': canStartMission returns false while the group is busy, as it was a few ms into its move, and the same call passed seconds later (2026-11-13). isBusy is not exposed to Python, and the window does not check a shift-clicked mission either; the game checks it when it starts and drops it if invalid, and the unit then shows in 'todo'. So a mission queued behind others is not checked here. (Claude code Opus 5.5) -->
 	# <!-- custom: The data checks run for an immediate mission too: Codex's review found that a move given at once with coordinates off the map, or a build index out of range, reached native code that assumes them valid, as only queued missions were checked. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	_checkMissionData(eMission, iData1, iData2, bQueued)
+	# <!-- custom: Founding waits until our other units have moved, the user's rule from the turn-0 games (2026-11-14), as what they reveal can change the site; the scoutBeforeFounding reminder alone did not stop it, and turn 0 of the Ireland replay (2026-11-19) founded Dublin before its Warrior moved. anyway=1 founds regardless. (Claude code Opus 5.5) -->
+	if eMission == MissionTypes.MISSION_FOUND and not args.get("anyway"):
+		waiting = _unmovedOthers(unit)
+		if waiting:
+			raise ValueError("move our other units first, as they may reveal a better site: %s; or pass anyway=1" % ", ".join(["%s %d at %d,%d" % (gc.getUnitInfo(other.getUnitType()).getType(), other.getID(), other.getX(), other.getY()) for other in waiting]))
 	# <!-- custom: Under fog, a Move To Unit only toward a unit of our own team: the game takes any owner and unit ID, so the order would follow a rival out of sight.
 	# A first version accepted a rival in sight, but the queued mission keeps steering toward the target's live position on later turns, so our unit's moves would still track it through fog (Codex's reviews of the unit state, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	iFogTeam = _fogTeam(args)
@@ -3167,17 +3276,41 @@ def _remindResearch(player, args):
 	return [{"text": "%s, our research, is for sale from %s: buy it, and research what no met rival has instead (%s)" % (szTech, ", ".join(sellers), ", ".join(nobody) or "none tradeable"), "tech": szTech, "sellers": sellers, "nobodyHas": nobody}]
 
 
+# <!-- custom: Turns of growth a food-as-production build may cost before the foodProductionTiming reminder speaks; beyond that, growing first delays the build more than it gains. (Claude code Opus 5.5) -->
+FOOD_PRODUCTION_GROW_TURNS = 2
+
+
 def _remindCities(player, args):
 	result = []
+	# <!-- custom: Units the current research makes obsolete: in SAS, Animal Husbandry obsoletes the Warrior, and at turn 18 of the 2026-11-19 validation run Dublin's queued Warrior and its 12 hammers vanished without a message when it landed. (Claude code Opus 5.5) -->
+	eResearch = player.getCurrentResearch()
+	obsoleted = []
+	if eResearch >= 0:
+		obsoleted = [i for i in range(gc.getNumUnitInfos()) if gc.getUnitInfo(i).getObsoleteTech() == eResearch]
 	(city, iterator) = player.firstCity(False)
 	while city:
 		name = city.getName()
 		if city.getOrderQueueLength() == 0:
 			result.append({"text": "%s builds nothing" % name, "city": city.getID()})
+		for eUnit in obsoleted:
+			bQueued = city.getOrderQueueLength() > 0 and eUnit in [city.getOrderFromQueue(i).iData1 for i in range(city.getOrderQueueLength()) if city.getOrderFromQueue(i).eOrderType == OrderTypes.ORDER_TRAIN]
+			iStored = city.getUnitProduction(eUnit)
+			if bQueued or iStored > 0:
+				result.append({"text": "%s: researching %s makes %s obsolete; it then leaves the queue and its %d stored hammers are lost: finish it first or build something else" % (name, gc.getTechInfo(eResearch).getType(), gc.getUnitInfo(eUnit).getType(), iStored), "city": city.getID(), "unit": gc.getUnitInfo(eUnit).getType(), "storedHammers": iStored})
 		if city.foodDifference(True) < 0:
 			result.append({"text": "%s starves: food %d a turn" % (name, city.foodDifference(True)), "city": city.getID()})
 		if city.angryPopulation(0) > 0:
 			result.append({"text": "%s has %d angry citizens" % (name, city.angryPopulation(0)), "city": city.getID()})
+		# <!-- custom: A Settler or Worker turns the food surplus into production and stops growth, so a nearly full food bar waits; at turn 34 of the Continents replay (2026-11-19) Dublin started its Settler at 23 of 24 food, and the user noticed it could have grown first.
+		# Named when the bar would fill within FOOD_PRODUCTION_GROW_TURNS turns with the surplus it has: building something else that long lets the city grow first. (Claude code Opus 5.5) -->
+		if city.isFoodProduction():
+			iSurplus = city.getYieldRate(YieldTypes.YIELD_FOOD) - city.foodConsumption(False, 0)
+			iMissing = city.growthThreshold() - city.getFood()
+			if iSurplus > 0 and iMissing > 0:
+				iTurns = (iMissing + iSurplus - 1) / iSurplus
+				if iTurns <= FOOD_PRODUCTION_GROW_TURNS:
+					szItem = city.getOrderQueueLength() > 0 and str(_orderData(city.getOrderFromQueue(0))) or "its build"
+					result.append({"text": "%s is %d food from size %d, but %s takes the food as production and stops growth: build something else %d turn(s) first to grow" % (name, iMissing, city.getPopulation() + 1, szItem, iTurns), "city": city.getID(), "growsInIfNotFoodProduction": iTurns})
 		# <!-- custom: The user's idea while reading the domestic overview at turn 71 of the islands replay (2026-11-15): what the overview implies but does not say, a city about to grow past its happy or healthy limit.
 		# Utrecht had one happy face to spare and grew in 7 turns.
 		# Within 5 turns of growing, with no face to spare: the new citizen would be unhappy (works nothing) or unhealthy (costs a food each turn).
@@ -3367,9 +3500,38 @@ def _remindTrades(player, args):
 	# Taken from 'techs', which applies the fog rules. (Claude code Opus 5.5) -->
 	result = []
 	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	# <!-- custom: Which of those another met civ also knows, the user's point at turn 41 of the 2026-11-19 validation run: that civ can sell it to the buyer first, so holding it gains nothing and a sale now is the chance; a unique one keeps its value. (Claude code Opus 5.5) -->
+	team = gc.getTeam(player.getTeam())
 	for entry in market["weCouldGive"]:
 		if entry["techs"]:
-			result.append({"text": "%s could be offered %s" % (entry["name"], ", ".join(entry["techs"])), "player": entry["player"]})
+			buyer = gc.getPlayer(entry["player"]).getTeam()
+			contested = []
+			for szTech in entry["techs"]:
+				iTech = gc.getInfoTypeForString(szTech)
+				for iTeam in range(gc.getMAX_CIV_TEAMS()):
+					if iTeam not in (player.getTeam(), buyer) and gc.getTeam(iTeam).isAlive() and team.isHasMet(iTeam) and gc.getTeam(iTeam).isHasTech(iTech):
+						contested.append(szTech)
+						break
+			szText = "%s could be offered %s" % (entry["name"], ", ".join(entry["techs"]))
+			# <!-- custom: "Sell it now" misled at turn 44 of the same run: Cyrus had no tech we lacked and gold trading needs Currency, so he could pay nothing; then a gift only buys goodwill, which costs nothing when another civ would hand it over anyway. (Claude code Opus 5.5) -->
+			bCanPay = len([1 for wanted in market["wanted"] for holder in wanted["holders"] if holder["player"] == entry["player"] and holder["canTrade"] and holder["denial"] is None]) > 0
+			if contested and bCanPay:
+				szText += "; another met civ also knows %s and can sell it to them first: sell it now" % ", ".join(contested)
+			elif contested:
+				szText += "; they have nothing we lack to pay with now, and another met civ also knows %s: a gift costs nothing and earns goodwill, unless helping them hurts us" % ", ".join(contested)
+			result.append({"text": szText, "player": entry["player"], "othersCanSell": contested})
+	# <!-- custom: Resource trades decide more than open borders, the user's point at turn 51 of the 2026-11-19 validation run: sell spare copies for gold per turn, buy rarely (when short of a key one such as Iron).
+	# Gold in deals needs a tech in SAS, so name it while it is missing. (Claude code Opus 5.5) -->
+	spares = [gc.getBonusInfo(i).getType() for i in range(gc.getNumBonusInfos()) if player.getNumAvailableBonuses(i) >= 2]
+	if spares:
+		# <!-- custom: Either side's tech allows gold in a deal, as CvPlayer::canTradeItem checks isGoldTrading on either team; the user's question. (Claude code Opus 5.5) -->
+		payers = [gc.getPlayer(i).getName() for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and gc.getPlayer(i).getTeam() != player.getTeam() and team.isHasMet(gc.getPlayer(i).getTeam()) and (team.isGoldTrading() or gc.getTeam(gc.getPlayer(i).getTeam()).isGoldTrading())]
+		szText = "spare resource copies to sell for gold per turn: %s" % ", ".join(spares)
+		if payers:
+			szText += "; gold deals possible with %s" % ", ".join(payers)
+		else:
+			szText += "; no met civ can put gold in a deal yet: either side needs %s" % " or ".join([gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if gc.getTechInfo(i).isGoldTrading()])
+		result.append({"text": szText, "spares": spares, "goldDealsWith": payers})
 	return result
 
 
@@ -3381,7 +3543,10 @@ def _remindRivalMoods(player, args):
 	seen = _state.setdefault("rivalMoods", {})
 	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
 	gives = {}
+	# <!-- custom: How many met civs know each tech we lack, the user's point at turn 39 of the 2026-11-19 validation run: a tech everyone knows is cheap and soon offered by all, so paying a unique tech or gold for it is bad, while the one who has met the most civs can broker unique techs between them. (Claude code Opus 5.5) -->
+	spread = {}
 	for entry in market["wanted"]:
+		spread[entry["tech"]] = len(entry["holders"])
 		for holder in entry["holders"]:
 			if holder["canTrade"] and holder["denial"] is None:
 				gives.setdefault(holder["player"], []).append(entry["tech"])
@@ -3439,7 +3604,9 @@ def _remindRivalMoods(player, args):
 			if len(before) < 6 or before[5] != szBorders:
 				parts.append("open borders: %s" % szBorders)
 			szText = "%s: %s" % (other.getName(), "; ".join(parts))
-		result.append({"text": szText, "player": iOther, "attitude": szAttitude, "attitudeValue": iValue, "openBorders": szBorders, "wouldTradeTechs": techs, "wouldTradeResources": theirs, "weCouldOffer": offers})
+		if techs:
+			szText += " (met civs knowing each: %s; a widely known tech is cheap, so pay little for it; a tech we give stays ours and can be traded again to each civ, while gold and resources are spent once)" % ", ".join(["%s %d" % (t, spread.get(t, 0)) for t in techs])
+		result.append({"text": szText, "player": iOther, "attitude": szAttitude, "attitudeValue": iValue, "openBorders": szBorders, "wouldTradeTechs": techs, "techKnownByMetCivs": dict([(t, spread.get(t, 0)) for t in techs]), "wouldTradeResources": theirs, "weCouldOffer": offers})
 	return result
 
 
@@ -3513,6 +3680,9 @@ def _remindExports(player, args):
 
 # <!-- custom: The user asked for reminders the game does not give, so no turn is lost to an unnoticed gap (2026-11-14), made of small checks so each new reminder is one function in this list.
 # Each sees only what the player's own screens show. (Claude code Opus 5.5) -->
+IDLE_GARRISON_THREAT_PLOTS = 4
+
+
 def _remindIdleGarrison(player, args):
 	# <!-- custom: Fortified is read as getFortifyTurns() > 0: ActivityTypes has no ACTIVITY_FORTIFY in Python, and the first version broke every 'endturn' with an AttributeError. (Claude code Opus 5.5) -->
 	# <!-- custom: Military units fortified or asleep in a city, with the nearest foreign unit the team sees and how much of the map it has revealed, so an agent can weigh sending one out: early in the Continents game of 2026-11-14 the Archer was sent home to garrison while nothing threatened and the map was mostly unknown, and the user pointed out that it should explore.
@@ -3547,6 +3717,9 @@ def _remindIdleGarrison(player, args):
 			if near is None or iDist < near:
 				near = iDist
 		szNear = near is None and "no foreign military unit in sight" or "nearest foreign military unit %d plots away" % near
+		# <!-- custom: Says what to do instead: at turn 32 of the 2026-11-19 validation run the Warrior slept in Dublin with nothing in sight, and the user called it wasteful next to exploring. (Claude code Opus 5.5) -->
+		if near is None or near > IDLE_GARRISON_THREAT_PLOTS:
+			szNear += "; with no threat in reach it pays more exploring, fog-busting (the fogBusting posts) or escorting a Settler, and can come back when a threat shows"
 		result.append({"text": "%s %d waits in %s (%s; %d per mille of the map revealed)" % (gc.getUnitInfo(unit.getUnitType()).getType(), unit.getID(), unit.plot().getPlotCity().getName(), szNear, iPerMille), "unit": unit.getID(), "nearestForeign": near, "revealedPerMille": iPerMille})
 	return result
 
@@ -3565,6 +3738,7 @@ def _remindHuts(player, args):
 			units.append(unit)
 		(unit, it) = player.nextUnit(it, False)
 	result = []
+	szRisk = _hutBarbarianRisk(player)
 	kMap = gc.getMap()
 	for i in range(kMap.numPlots()):
 		plot = kMap.plotByIndex(i)
@@ -3580,9 +3754,52 @@ def _remindHuts(player, args):
 				row["nearestUnit"] = nearest[0].getID()
 				row["distance"] = nearest[1]
 				szNear = "nearest %s %d, %d plots" % (gc.getUnitInfo(nearest[0].getUnitType()).getType(), nearest[0].getID(), nearest[1])
-			row["text"] = "goody hut at %d,%d (%s)" % (plot.getX(), plot.getY(), szNear)
+			row["text"] = "goody hut at %d,%d (%s)%s" % (plot.getX(), plot.getY(), szNear, szRisk)
 			result.append(row)
 	return result
+
+
+def _hutBarbarianRisk(player):
+	# <!-- custom: Whether a hut can release Barbarians now, from the handicap's own goody list and AdvCiv's early rule (advc.314 in CvPlayer::canReceiveGoody: no result of more than one Barbarian before turn 16 at Normal speed, scaled by game speed).
+	# The user asked at turn 20 of the Continents replay (2026-11-19) whether huts were safe so early; on Noble one Barbarian can come from turn 0, which the user had guessed could not happen. (Claude code Opus 5.5) -->
+	handicap = gc.getHandicapInfo(player.getHandicapType())
+	iMaxBarbarians = 0
+	for i in range(handicap.getNumGoodies()):
+		goody = gc.getGoodyInfo(handicap.getGoodies(i))
+		if goody.isBad():
+			iMaxBarbarians = max(iMaxBarbarians, goody.getMinBarbarians())
+	if iMaxBarbarians <= 0:
+		return ""
+	iTrainHalved = (gc.getGameSpeedInfo(CyGame().getGameSpeedType()).getTrainPercent() + 100) / 2
+	iStrongTurn = (iTrainHalved * 16 + 99) / 100
+	if CyGame().getGameTurn() < iStrongTurn:
+		szRisk = "; it can release 1 Barbarian now, more from turn %d: enter with a healthy unit that can defend" % iStrongTurn
+	else:
+		szRisk = "; it can release %d Barbarians or more: enter with a healthy unit that can defend" % iMaxBarbarians
+	return szRisk + _hutSafeUnit(player)
+
+
+def _hutSafeUnit(player):
+	# <!-- custom: A unit safe at huts, as the player knows the Scout to be: ours if we have one, else the cheapest one a city of ours can train.
+	# The user's point in the Continents replay (2026-11-19): a Scout, not an Archer, as the opening's filler while the capital grows. (Claude code Opus 5.5) -->
+	(unit, it) = player.firstUnit(False)
+	while unit:
+		if unit.isNoBadGoodies():
+			return ", or %s %d, which huts give no bad result" % (gc.getUnitInfo(unit.getUnitType()).getType(), unit.getID())
+		(unit, it) = player.nextUnit(it, False)
+	best = None
+	(city, it) = player.firstCity(False)
+	while city:
+		for i in range(gc.getNumUnitInfos()):
+			info = gc.getUnitInfo(i)
+			if info.isNoBadGoodies() and city.canTrain(i, False, False):
+				iCost = player.getUnitProductionNeeded(i)
+				if best is None or iCost < best[0]:
+					best = (iCost, info, city)
+		(city, it) = player.nextCity(it, False)
+	if best is None:
+		return ""
+	return "; huts give no bad result to %s (%d hammers, %d moves), which %s can train" % (best[1].getType(), best[0], best[1].getMoves(), best[2].getName())
 
 
 def _remindExposed(player, args):
@@ -4194,7 +4411,94 @@ def cmd_resources(args):
 	return {"resources": result}
 
 
+_HELP["directions"] = "What we know in each of 8 compass sectors around a city (the capital by default) within radius plots (12 by default), to pick where scouting or the next cities pay: known land and water, good land (natural food plus production at least 2), poor land (tundra, desert, peaks and such), fresh-water land, revealed resources, plots rivals own, and the unknown edge (unrevealed plots next to known land, where more land may lie). value is a rough sort: good land, resources twice, fresh water and the unknown edge half, poor land minus half; rival plots are left out of it, as a contested side can be the urgent one. North is +y. args: city, radius, player."
+DIRECTION_NAMES = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+
+def _sectorName(dx, dy):
+	# <!-- custom: 2.414 is tan(67.5 degrees): within 22.5 degrees of an axis counts as that axis. (Claude code Opus 5.5) -->
+	if abs(dx) * 100 > abs(dy) * 241:
+		return dx > 0 and "E" or "W"
+	if abs(dy) * 100 > abs(dx) * 241:
+		return dy > 0 and "N" or "S"
+	return (dy > 0 and "N" or "S") + (dx > 0 and "E" or "W")
+
+
+def cmd_directions(args):
+	# <!-- custom: The user's idea at turn 24 of the 2026-11-19 validation run: the Warrior had walked into the south-east, tundra and plains of little value, which the known map already showed; a per-direction summary lets scouting go where the land promises more. (Claude code Opus 5.5) -->
+	player = _player(args)
+	iTeam = _fogTeam(args)
+	if iTeam < 0:
+		iTeam = player.getTeam()
+	if args.get("city") is not None:
+		center = _city(args)
+	else:
+		center = player.getCapitalCity()
+		if center is None or center.isNone():
+			raise ValueError("no capital: give city=")
+	iRadius = int(args.get("radius", 12))
+	if iRadius < 3 or iRadius > 25:
+		raise ValueError("radius must be between 3 and 25")
+	sectors = {}
+	for name in DIRECTION_NAMES:
+		sectors[name] = {"direction": name, "knownLand": 0, "water": 0, "goodLand": 0, "poorLand": 0, "freshWaterLand": 0, "resources": [], "rivalPlots": 0, "unknownEdge": 0}
+	for dy in range(-iRadius, iRadius + 1):
+		for dx in range(-iRadius, iRadius + 1):
+			if dx == 0 and dy == 0:
+				continue
+			plot = plotXY(center.getX(), center.getY(), dx, dy)
+			if plot is None or plot.isNone():
+				continue
+			entry = sectors[_sectorName(dx, dy)]
+			if not plot.isRevealed(iTeam, False):
+				for ndy in (-1, 0, 1):
+					for ndx in (-1, 0, 1):
+						near = plotXY(plot.getX(), plot.getY(), ndx, ndy)
+						if near is not None and not near.isNone() and near.isRevealed(iTeam, False) and not near.isWater():
+							entry["unknownEdge"] += 1
+							break
+					else:
+						continue
+					break
+				continue
+			if plot.getOwner() >= 0 and plot.getTeam() != player.getTeam():
+				entry["rivalPlots"] += 1
+			iBonus = plot.getBonusType(iTeam)
+			if iBonus >= 0:
+				entry["resources"].append("%s@%d,%d" % (gc.getBonusInfo(iBonus).getType(), plot.getX(), plot.getY()))
+			if plot.isWater():
+				entry["water"] += 1
+				continue
+			entry["knownLand"] += 1
+			iFoodProd = plot.calculateNatureYield(YieldTypes.YIELD_FOOD, TeamTypes(iTeam), False) + plot.calculateNatureYield(YieldTypes.YIELD_PRODUCTION, TeamTypes(iTeam), False)
+			if iFoodProd >= 2:
+				entry["goodLand"] += 1
+			elif iBonus < 0:
+				entry["poorLand"] += 1
+			if plot.isFreshWater():
+				entry["freshWaterLand"] += 1
+	result = []
+	for name in DIRECTION_NAMES:
+		entry = sectors[name]
+		entry["value"] = entry["goodLand"] + 2 * len(entry["resources"]) + (entry["freshWaterLand"] + entry["unknownEdge"]) / 2 - entry["poorLand"] / 2
+		result.append(entry)
+	result.sort(key=lambda e: -e["value"])
+	return {"city": center.getName(), "x": center.getX(), "y": center.getY(), "radius": iRadius, "sectors": result}
+
+
 _HELP["scout"] ="Where a scout could step next: each plot next to the unit it can enter now, with how many unknown plots it would reveal (seeing one plot around, two from hills), its defense bonus, and the animals and barbarians we see within two plots of it, in a fixed order (north-west first, row by row). Also the unit's damage. Facts only: 'advise about=scout' ranks the steps. args: unit, player."
+
+
+def _nearestOwnCityDistance(iPlayer, iX, iY):
+	player = gc.getPlayer(iPlayer)
+	best = None
+	(city, it) = player.firstCity(False)
+	while city:
+		iDistance = max(abs(city.getX() - iX), abs(city.getY() - iY))
+		if best is None or iDistance < best:
+			best = iDistance
+		(city, it) = player.nextCity(it, False)
+	return best
 
 
 def cmd_scout(args):
@@ -4206,6 +4510,7 @@ def cmd_scout(args):
 	_requireOwnTeamUnderFog(args, gc.getPlayer(unit.getOwner()), "scouting")
 	iTeam = unit.getTeam()
 	kMap = gc.getMap()
+	iHereDistance = _nearestOwnCityDistance(unit.getOwner(), unit.getX(), unit.getY())
 	enemies = []
 	for dx in range(-4, 5):
 		for dy in range(-4, 5):
@@ -4239,7 +4544,13 @@ def cmd_scout(args):
 			for (ex, ey, szType, bAnimal) in enemies:
 				if max(abs(ex - plot.getX()), abs(ey - plot.getY())) <= 2:
 					near.append({"x": ex, "y": ey, "type": szType, "animal": bAnimal})
-			steps.append({"x": plot.getX(), "y": plot.getY(), "reveals": iReveal, "defense": plot.defenseModifier(iTeam, False, False), "hills": plot.isHills(), "feature": _typeOrNone(gc.getFeatureInfo, plot.getFeatureType()), "enemiesNear": near})
+			step = {"x": plot.getX(), "y": plot.getY(), "reveals": iReveal, "defense": plot.defenseModifier(iTeam, False, False), "hills": plot.isHills(), "feature": _typeOrNone(gc.getFeatureInfo, plot.getFeatureType()), "enemiesNear": near}
+			# <!-- custom: Each step's distance from our nearest city and whether it goes outward, sideways or back toward it: at turn 10 of the Continents replay (2026-11-19) the user weighed a hill revealing 9 but one plot back toward Dublin against forests revealing 2 outward, and asked for it beside the reveal. (Claude code Opus 5.5) -->
+			iCityDistance = _nearestOwnCityDistance(unit.getOwner(), plot.getX(), plot.getY())
+			if iCityDistance is not None and iHereDistance is not None:
+				step["fromOurCity"] = iCityDistance
+				step["direction"] = iCityDistance > iHereDistance and "outward" or iCityDistance < iHereDistance and "back" or "sideways"
+			steps.append(step)
 	# <!-- custom: The ranking (most revealed, then fewest enemies near, then the best defense) moved to 'advise about=scout', as a judgment of ours: the user's facts-versus-advice split (2026-11-14). The steps keep the loop's order, so the same position gives the same list. (Claude code Opus 5.5) -->
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "damage": unit.getDamage(), "movesLeft": unit.movesLeft(), "steps": steps}
 
@@ -5227,6 +5538,11 @@ def cmd_builds(args):
 		# CyPlot.getFeatureProduction fills a city pointer it does not return, so the receiving city is not named here; the amount already counts distance and the team's techs. (Claude code Opus 5.5) -->
 		if plot.getFeatureType() >= 0 and info.isFeatureRemove(plot.getFeatureType()):
 			entry["featureProduction"] = plot.getFeatureProduction(i, unit.getTeam(), CyCity())
+			# <!-- custom: The hammers go to whatever that city builds when the chop ends: at turn 32 of the 2026-11-19 validation run a chop meant for the Settler fed a filler Work Boat.
+			# The city working the plot is named as the likely receiver. (Claude code Opus 5.5) -->
+			city = plot.getWorkingCity()
+			if city is not None and not city.isNone() and city.getOrderQueueLength() > 0:
+				entry["featureProductionTo"] = {"city": city.getName(), "buildingNow": str(_orderData(city.getOrderFromQueue(0))), "note": "hammers go to the city's build when the chop ends: have the intended build first by then"}
 		result.append(entry)
 	if not args.get("refused"):
 		return result
@@ -5453,7 +5769,7 @@ def cmd_step(args):
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "movesLeft": unit.movesLeft(), "stepsLeft": len(path["steps"]) - 1, "newlyRevealed": after - before, "foreignNear": foreign}
 
 
-_HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what SASPilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, spy, targets, hurry, produce, dequeue, citizens, work, specialist, emphasize) looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
+_HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what SASPilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, hurry with hurry=, produce, dequeue, citizens with automated=, work, specialist, emphasize); reads never move it looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
 
 
 def _lookAt(plot):
@@ -5461,7 +5777,8 @@ def _lookAt(plot):
 
 
 # <!-- custom: Orders on one of our units or cities that follow=1 looks at first. Following only 'move' left the camera on a far fog-covered city while production, missions and a spy's work went on elsewhere (the user, turn 285, 2026-11-14). (Claude code Opus 5.5) -->
-FOLLOW_UNIT_ORDERS = ("mission", "command", "group", "spy", "targets", "hurry")
+# <!-- custom: Orders only, never reads: 'spy' and 'targets' only list choices, as the action goes through 'mission', so they left the lists after a read-only 'citizens' kept pulling the user's camera back to Dublin while SASPilotWatch.py polled it (2026-11-19); 'hurry' and 'citizens' follow only in their acting forms (_followOrder). (Claude code Opus 5.5) -->
+FOLLOW_UNIT_ORDERS = ("mission", "command", "group", "hurry")
 FOLLOW_CITY_ORDERS = ("produce", "dequeue", "hurry", "citizens", "work", "specialist", "emphasize")
 
 
@@ -5469,11 +5786,14 @@ def _followOrder(name, args):
 	# <!-- custom: Only the active player's own units and cities, so the camera never shows a place fog hides; a bad argument is left to the command's own error. (Claude code Opus 5.5) -->
 	try:
 		plot = None
+		if name == "hurry" and args.get("hurry") is None:
+			return
 		if name in FOLLOW_UNIT_ORDERS and args.get("unit") is not None:
 			unit = _unit(args)
 			if unit.getOwner() == gc.getGame().getActivePlayer():
 				plot = unit.plot()
-		elif name in FOLLOW_CITY_ORDERS and args.get("city") is not None:
+		# <!-- custom: 'citizens' without automated= only reads the city screen, so it moves no camera: SASPilotWatch.py read each city's citizens every 2 seconds while the user played in the window, and the camera kept jumping back to Dublin (Continents replay, 2026-11-19). (Claude code Opus 5.5) -->
+		elif name in FOLLOW_CITY_ORDERS and args.get("city") is not None and not (name == "citizens" and args.get("automated") is None):
 			city = _city(args)
 			if city.getOwner() == gc.getGame().getActivePlayer():
 				plot = city.plot()
@@ -5915,7 +6235,14 @@ def cmd_hurry(args):
 	# <!-- custom: 'hurry city=Gondar' without a type raised a bare KeyError while looking for a way to rush a Trireme (2026-11-13, turn 154); like 'freetech' and 'research', it now lists the choices instead. (Claude code Opus 5.5) -->
 	if args.get("hurry") is None:
 		# <!-- custom: maxHurryPopulation, the most citizens a whip may take (half the city in CvCity::maxHurryPopulation): in the scouting trial (2026-11-14) a size-3 Constantinople read can=false for a 2-citizen whip with no reason given, and the DLL's canHurry showed the cap. (Claude code Opus 5.5) -->
-		return {"city": city.getName(), "gold": gc.getPlayer(city.getOwner()).getGold(), "population": city.getPopulation(), "maxHurryPopulation": city.maxHurryPopulation(), "hurries": [{"hurry": gc.getHurryInfo(i).getType(), "can": bool(city.canHurry(i, False)), "goldCost": city.hurryGold(i), "populationCost": city.hurryPopulation(i)} for i in range(gc.getNumHurryInfos())]}
+		result = {"city": city.getName(), "gold": gc.getPlayer(city.getOwner()).getGold(), "population": city.getPopulation(), "maxHurryPopulation": city.maxHurryPopulation(), "hurries": [{"hurry": gc.getHurryInfo(i).getType(), "can": bool(city.canHurry(i, False)), "goldCost": city.hurryGold(i), "populationCost": city.hurryPopulation(i)} for i in range(gc.getNumHurryInfos())]}
+		# <!-- custom: What a whip trades: at turn 38 of the 2026-11-19 validation run 1 citizen (a 24-food bar to regrow) saved about 3 turns of a food-production Settler, which the user called a last resort at that stage.
+		# Hammers it would add and turns saved, against the food bar a citizen costs. (Claude code Opus 5.5) -->
+		if city.getOrderQueueLength() > 0:
+			iLeft = city.getProductionNeeded() - city.getProduction()
+			iRate = max(1, city.getCurrentProductionDifference(False, True))
+			result["whipTrade"] = {"hammersLeft": iLeft, "turnsSaved": (iLeft + iRate - 1) / iRate - 1, "foodToRegrowOneCitizen": city.growthThreshold(), "note": "worth it when the turns saved matter (a contested site, a defender in time) or the city is at its happy or health cap; otherwise growing is usually better"}
+		return result
 	iHurry = _typedIndex(args["hurry"], "HURRY_", gc.getNumHurryInfos(), gc.getHurryInfo)
 	if not city.canHurry(iHurry, False):
 		raise ValueError("%s cannot hurry with %s now" % (city.getName(), args["hurry"]))
@@ -5934,7 +6261,10 @@ def cmd_endturn(args):
 	# It still ends the turn, as Ctrl+Enter does in the window, but reports in 'skipped' what 'todo' listed, so a caller sees what it left. (Claude code Opus 5.5) -->
 	# <!-- custom: Moctezuma's war declaration at turn 148 stayed open on the diplomacy screen while three 'endturn' calls went through, each reporting it under 'skipped' (2026-11-13); in the window that screen covers the End Turn button until it is answered, so 'endturn' refuses as well. (Claude code Opus 5.5) -->
 	if _diploState()["open"]:
-		raise ValueError("a diplomacy screen waits for an answer; see 'diplo' and 'reply'")
+		# <!-- custom: The refusal carries the screen's leader, comment and replies with a screen token, so its options are seen once and answered at once: at Sitting Bull's first contact (Continents game, turn 32, 2026-11-19) it said only "see 'diplo'", and the user suggested checking the options at every meeting. (Claude code Opus 5.5) -->
+		screen = cmd_diplo({})
+		szReplies = "; ".join(["%d %s" % (reply["n"], reply["comment"]) for reply in screen["replies"]])
+		raise ValueError(("a diplomacy screen waits for an answer: %s (player %d), %s; replies: %s; answer with 'reply n=N screen=%d'" % (screen["whoName"], screen["who"], screen["aiComment"], szReplies, screen["screen"])).encode("ascii", "replace"))
 	# <!-- custom: A contact SASPilot queued opens on later frames, so an 'endturn' right after it could slip past the check above (Codex's review); refused as 'menu' does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if _pendingContact() is not None:
 		raise ValueError("a contact is queued and its screen has not opened yet; read 'diplo' once it does")
@@ -6315,6 +6645,7 @@ def _cityPlots(city):
 
 def _citizens(city):
 	result = {"city": city.getName(), "population": city.getPopulation(), "angry": city.angryPopulation(0), "automated": city.isCitizensAutomated(), "foodDifference": city.foodDifference(True), "yieldRate": _yields(city.getYieldRate)}
+	result.update(_foodProduction(city))
 	result["plots"] = _cityPlots(city)
 	# <!-- custom: A citizen neither on a plot nor a specialist, as the city that lost the Sheep to 'work' had in the islands replay (2026-11-15) until its governor reassigned it; a click in that moment made it a specialist instead of working the plot clicked. (Claude code Opus 5.5) -->
 	result["unassigned"] = city.getPopulation() - city.getWorkingPopulation() - city.getSpecialistPopulation()
@@ -6326,10 +6657,57 @@ def _citizens(city):
 			specialists[gc.getSpecialistInfo(i).getType()] = {"count": iCount, "max": iMax, "forced": city.getForceSpecialistCount(i), "canAdd": city.isSpecialistValid(i, 1), "free": city.getFreeSpecialistCount(i)}
 	result["specialists"] = specialists
 	result["emphasize"] = [gc.getEmphasizeInfo(i).getType() for i in range(gc.getNumEmphasizeInfos()) if city.AI_isEmphasize(i)]
+	swaps = _tileSwaps(city, result["plots"])
+	if swaps is not None:
+		result["swaps"] = swaps
 	return result
 
 
-_HELP["citizens"] = "A city's screen: each plot in its radius with whether it is worked and can be, its specialists with their limits, whether the governor assigns citizens, and its emphasis buttons. With automated=1 or 0, switch the governor first. args: city, automated, player."
+# <!-- custom: What each single swap of a worked plot for a free one does to the current build and to growth, so a trade such as stalling growth for a faster build is computed rather than played out.
+# At turn 0 of the Continents replay (2026-11-19) the user had Dublin work a 0/3/0 forested hill instead of a 1/2/0 hill: growth stalled, and the Fish's Work Boat came out on turn 7 instead of 9; the user then asked for the calculation in the API.
+# Production uses the city's own modifier; food counts as production while a Settler or Worker is built.
+# Plots with yields shown as they are now. (Claude code Opus 5.5) -->
+SWAPS_SHOWN = 6
+SWAPS_SHOWN_GROWTH = 3
+
+
+def _tileSwaps(city, plots):
+	if city.getOrderQueueLength() == 0:
+		return None
+	iNeeded = city.getProductionNeeded() - city.getProduction()
+	iBaseHammers = city.getBaseYieldRate(YieldTypes.YIELD_PRODUCTION)
+	iModifier = city.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, 0)
+	iFood = city.getYieldRate(YieldTypes.YIELD_FOOD)
+	iEat = city.foodConsumption(False, 0)
+	iGrowthLeft = city.growthThreshold() - city.getFood()
+	bFoodProduction = city.isFoodProduction()
+
+	def outcome(iHammers, iFoodNow):
+		iSurplus = iFoodNow - iEat
+		iRate = iHammers * iModifier / 100 + (bFoodProduction and max(0, iSurplus) or 0)
+		entry = {"turns": iRate > 0 and (iNeeded + iRate - 1) / iRate or None, "foodSurplus": iSurplus}
+		entry["growsIn"] = (not bFoodProduction and iSurplus > 0) and (iGrowthLeft + iSurplus - 1) / iSurplus or None
+		return entry
+
+	result = {"build": str(_orderData(city.getOrderFromQueue(0))), "now": outcome(iBaseHammers, iFood), "swaps": []}
+	worked = [p for p in plots if p["worked"] and (p["x"], p["y"]) != (city.getX(), city.getY())]
+	free = [p for p in plots if not p["worked"] and p["canWork"]]
+	for w in worked:
+		for f in free:
+			entry = outcome(iBaseHammers - w["yields"][1] + f["yields"][1], iFood - w["yields"][0] + f["yields"][0])
+			entry["free"] = [w["x"], w["y"]]
+			entry["work"] = [f["x"], f["y"]]
+			result["swaps"].append(entry)
+	result["swaps"].sort(key=lambda e: (e["turns"] is None, e["turns"], -e["foodSurplus"]))
+	# <!-- custom: Fastest builds alone hid the improved Fish at turn 9 of the 2026-11-19 validation run (+5 food, 0 hammers), so the most food is listed too. (Claude code Opus 5.5) -->
+	byBuild = result["swaps"][:SWAPS_SHOWN]
+	byFood = [e for e in sorted(result["swaps"], key=lambda e: -e["foodSurplus"]) if e not in byBuild][:SWAPS_SHOWN_GROWTH]
+	result["swaps"] = byBuild
+	result["growthSwaps"] = byFood
+	return result
+
+
+_HELP["citizens"] = "A city's screen: each plot in its radius with whether it is worked and can be, its specialists with their limits, whether the governor assigns citizens, and its emphasis buttons. While it builds something, swaps gives the build's turns, food surplus and turns to grow now and after each single swap of a worked plot for a free one, fastest build first, so a trade such as stalling growth for a faster build is computed. With automated=1 or 0, switch the governor first. args: city, automated, player."
 
 
 def cmd_citizens(args):
@@ -6395,7 +6773,7 @@ def cmd_emphasize(args):
 
 # <!-- custom: Empire choices (Claude code Opus 5.5) -->
 
-_HELP["civics"] = "Without set: each civic option with the current civic and the ones the player can adopt, and whether a revolution is possible now. With set: adopt those civics, one per option at most, as the civics screen's Revolution button does. args: set (list of CIVIC_ types), player."
+_HELP["civics"] = "Without set: each civic option with the current civic and the ones the player can adopt, and whether a revolution is possible now. With set: adopt those civics, one per option at most, as the civics screen's Revolution button does; a change with anarchy needs confirm=1. args: set (list of CIVIC_ types), confirm, player."
 
 
 def cmd_civics(args):
@@ -6406,7 +6784,38 @@ def cmd_civics(args):
 		for iOption in range(gc.getNumCivicOptionInfos()):
 			available = [gc.getCivicInfo(i).getType() for i in range(gc.getNumCivicInfos()) if gc.getCivicInfo(i).getCivicOptionType() == iOption and player.canDoCivics(i)]
 			options[gc.getCivicOptionInfo(iOption).getType()] = {"current": gc.getCivicInfo(civics[iOption]).getType(), "available": available}
-		return {"options": options, "canRevolution": player.canRevolution(0), "revolutionTimer": player.getRevolutionTimer(), "anarchyTurns": player.getAnarchyTurns()}
+		# <!-- custom: When a switch pays, not only that it is possible: the user's request after Slavery cost 2 turns of anarchy at turn 26 of the 2026-11-19 validation run with nothing to whip.
+		# Per candidate civic: anarchy turns alone, upkeep change, and for a whip civic the cities that could whip now; anarchyCostPerTurn is what the empire makes in a turn, all lost in anarchy. (Claude code Opus 5.5) -->
+		iUpkeepNow = player.getCivicUpkeep(civics, False)
+		candidates = []
+		for iOption in range(gc.getNumCivicOptionInfos()):
+			for iCivic in range(gc.getNumCivicInfos()):
+				kCivic = gc.getCivicInfo(iCivic)
+				if kCivic.getCivicOptionType() != iOption or iCivic == civics[iOption] or not player.canDoCivics(iCivic):
+					continue
+				changed = list(civics)
+				changed[iOption] = iCivic
+				entry = {"civic": kCivic.getType(), "anarchyTurns": player.getCivicAnarchyLength(changed), "upkeepChange": player.getCivicUpkeep(changed, False) - iUpkeepNow}
+				whips = [i for i in range(gc.getNumHurryInfos()) if kCivic.isHurry(i) and gc.getHurryInfo(i).getProductionPerPopulation() > 0]
+				if whips:
+					ready = []
+					(city, it) = player.firstCity(False)
+					while city:
+						iNeeded = city.getProductionNeeded() - city.getProduction()
+						iPerPop = gc.getHurryInfo(whips[0]).getProductionPerPopulation() * gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getHurryPercent() / 100
+						if city.getOrderQueueLength() > 0 and city.maxHurryPopulation() > 0 and iPerPop > 0:
+							iPop = (iNeeded + iPerPop - 1) / iPerPop
+							if iPop <= city.maxHurryPopulation():
+								ready.append({"city": city.getName(), "build": str(_orderData(city.getOrderFromQueue(0))), "population": iPop})
+						(city, it) = player.nextCity(it, False)
+					entry["couldWhipNow"] = ready
+				candidates.append(entry)
+		iHammers = 0
+		(city, it) = player.firstCity(False)
+		while city:
+			iHammers += city.getYieldRate(YieldTypes.YIELD_PRODUCTION)
+			(city, it) = player.nextCity(it, False)
+		return {"options": options, "canRevolution": player.canRevolution(0), "revolutionTimer": player.getRevolutionTimer(), "anarchyTurns": player.getAnarchyTurns(), "candidates": candidates, "anarchyCostPerTurn": {"hammers": iHammers, "commerce": player.calculateTotalYield(YieldTypes.YIELD_COMMERCE)}, "advice": "switch when a candidate pays at once (couldWhipNow, upkeep saved, a needed effect) and bundle changes into one anarchy"}
 	wanted = args["set"]
 	if isinstance(wanted, (str, unicode)):
 		wanted = [wanted]
@@ -6422,6 +6831,9 @@ def cmd_civics(args):
 		# Say so. (Claude code Opus 5.5) -->
 		raise ValueError("player %d cannot start a revolution to %s now (revolution timer %d, anarchy turns %d)" % (player.getID(), ", ".join(wanted), player.getRevolutionTimer(), player.getAnarchyTurns()))
 	iAnarchy = player.getCivicAnarchyLength(civics)
+	# <!-- custom: At turn 26 of the 2026-11-19 validation run Slavery was adopted at once for 2 turns of anarchy, which stopped production as well as research (the Worker sat at 56 of 60), while size-2 Dublin had nothing to whip yet; the user asked why so soon. (Claude code Opus 5.5) -->
+	if iAnarchy > 0 and not args.get("confirm"):
+		raise ValueError("this revolution costs %d turn(s) of anarchy, in which cities produce nothing and research stops: switch when the civic pays at once (a whip ready, a big upkeep saving) and bundle changes into one anarchy; confirm=1 adopts" % iAnarchy)
 	# <!-- custom: Applied directly rather than with CyMessageControl().sendUpdateCivics, which the civics screen uses: the net message is handled after the reply is written, so the first test's reply still showed the old civics.
 	# Both end in CvPlayer::revolution; a network game would need the message. (Claude code Fable 5.2) -->
 	player.revolution(civics, False)
