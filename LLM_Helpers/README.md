@@ -1252,6 +1252,8 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
   - `status` also lists every other integer define that differs from the committed XML, so a value changed locally outside the table, which `off` would not reset, shows up without another list to keep.
 - Edits only those values in place and preserves the file's CRLF line endings.
 - Refuses to write while `Civ4BeyondSword.exe` is running, because live XML edits during a run have produced XML errors and crashes.
+- `stage` stages the file with the shipped values and leaves the working file, and any game reading it, unchanged; it works with Civ4 open, where `off` and `on` around `git add` do not.
+  - Added on 2026-11-19, when a commit came while the user had Civ4 open on a game.
 
 ```bash
 python ./LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on
