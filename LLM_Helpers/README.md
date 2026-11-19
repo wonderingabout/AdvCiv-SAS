@@ -33,7 +33,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `context/` | reference corpora rather than helpers: `commit_diffs/`, generated except Better BTS AI's tracked SVN revisions, and [map-script originals](#inherited-map-script-reference-sources) |
 | `desktop/` | controlling the computer rather than the game, for any app, in the two groups below; `layouts/` holds the apps' click points and saved window layouts |
 | `desktop/`: windows and agent apps | [`desktop_windows.py`](#desktop_windowspy) screenshots, clicks, types into, lays out or closes a Civ4 window or any other app's, such as another agent's; [`agent_message.py`](#agent_messagepy) sends a tagged message to the Codex or Claude app |
-| `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play |
+| `desktop/`: records and captures | [`git_bash_history.py`](#git_bash_historypy) prints what the user did in Git Bash or VS Code's Git; [`contact_sheet.py`](#contact_sheetpy) puts the same regions of several captures on one labelled sheet; [`sound_check.py`](#sound_checkpy) records and measures what the speakers play; [`screen_record.py`](#screen_recordpy) records a monitor while a command runs and keeps the frames that changed |
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) with its [`define_values.py`](#define_valuespy) |
 | `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
@@ -138,6 +138,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`git_bash_history.py`](#git_bash_historypy)
     - [`contact_sheet.py`](#contact_sheetpy)
     - [`sound_check.py`](#sound_checkpy)
+    - [`screen_record.py`](#screen_recordpy)
 - [`diagnostics/`](#diagnostics)
   - [SASGameRecord comparison helpers](#sasgamerecord-comparison-helpers)
     - [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy)
@@ -1110,6 +1111,22 @@ python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png w
 ```
 
 - Added with help of Claude Code Opus 5.5.
+
+#### `screen_record.py`
+
+- Records one monitor's work area, the screen without the taskbar and Start menu, with ffmpeg's `gdigrab`, optionally while running a command given after `--`. It then saves the frames whose picture changed as `frame_NNN.png`, which an agent reads or tiles with [`contact_sheet.py`](#contact_sheetpy).
+- No OBS is needed: ffmpeg is already installed and runs without a window to drive. OBS remains the tool for long demo recordings with scenes and sound.
+- Written on 2026-11-19, when a SASPilot save from 2026-11-15 made Civ4 quit within a second of loading. The user saw a popup flash; polling Civ4's windows found only the startup box and the game window, as Civ4 draws its popups inside the game window. The recording showed "Load Error: Failed to uncompress game data", then "Load Failed.".
+  - The save predated the base AdvCiv 1.14 merge, which widened CvPlayer's religion and corporation city counts and moved its save flag from 22 to 23, mirroring AdvCiv. SAS kept no reader for flag 22, so the old save's stream no longer lines up (KI#46).
+  - Below: the five changed frames, tiled with `contact_sheet.py` (the startup box, the desktop, the loading window, the two popups over the loading screen, then the desktop after the exit), and the popups enlarged from the fourth frame.
+- `--fps` (default 20) must be high enough for what flashes; `--scene` (default 0.02) lowers to keep more frames.
+
+<img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_frames.PNG" alt="llm_screen_record_civ4_load_failed_frames.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_popups.PNG" alt="llm_screen_record_civ4_load_failed_popups.PNG" width="250">
+
+```bash
+python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python LLM_Helpers/saspilot/SASPilotClient.py --save my_save --no-wait start
+python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3 --scale 0.25 captures/frame_*.png
+```
 
 ## `diagnostics/`
 
