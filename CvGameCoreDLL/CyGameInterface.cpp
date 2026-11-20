@@ -401,6 +401,10 @@ void CyGamePythonInterface()
 		// <!-- custom: SASPilot's notices dropped popups through closeSASPilotPopups, whose killAll relaunches the popups on display (Codex's review); this drops one exactly. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		.def("dropSASPilotPopup", &CyGame::dropSASPilotPopup, "bool (int iHeldId, int iButtonPopupType, int iData1, int iData3, wstring szText) - drop the held popup with that ID, or with -1 the first queued one matching type, data1, data3 and text")
 		.def("chooseSASPilotFreeTech", &CyGame::chooseSASPilotFreeTech, "bool (int iTech, int iHeldId) - choose a free tech as the tech chooser does, through the held chooser with that ID")
+		// <!-- custom: SASPilotUI clicks typed widgets by name, which the EXE otherwise hands to CvDLLWidgetData::executeAction only from a real click. (Claude code Opus 5.5) -->
+		.def("executeSASPilotWidget", &CyGame::executeSASPilotWidget, "bool (int /*WidgetTypes*/ iWidgetType, int iData1, int iData2, bool bOption, bool bAlt) - run a widget's click action, or with bAlt its right-click action, as a click on it would; executeAction's own return, false for most widgets")
+		// <!-- custom: SASPilotUI reads a widget's hover text, which the EXE asks of CvDLLWidgetData::parseHelp only on a real hover. (Claude code Opus 5.5) -->
+		.def("getSASPilotWidgetHelp", &CyGame::getSASPilotWidgetHelp, "wstring (int /*WidgetTypes*/ iWidgetType, int iData1, int iData2, bool bOption) - the hover text the window shows for this widget")
 		.def("isSASPilotChoosingFreeTech", &CyGame::isSASPilotChoosingFreeTech, "bool () - whether the active player still owes a free tech choice")
 		.def("proposeSASPilotDeal", &CyGame::proposeSASPilotDeal, "string (int iPlayer, int iOther, string szWeGive, string szTheyGive) - propose a deal to an AI as 'kind:data,...' lists; JSON with whether it was accepted and made")
 		// <!-- custom: Python cannot put items on the EXE's trade table; SASPilot's 'contact' opens the table with a deal on it so the screen's own replies, "What would you want?"

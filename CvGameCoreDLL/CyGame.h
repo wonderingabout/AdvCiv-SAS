@@ -398,6 +398,8 @@ public:
 	std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: For SASPilot's 'group' command. (Claude code Opus 5.5) -->
 	bool chooseSASPilotFreeTech(int iTech, int iHeldId); // <!-- custom: For SASPilot's 'freetech' command. (Claude code Opus 5.5) -->
 	bool isSASPilotChoosingFreeTech(); // <!-- custom: For SASPilot's 'todo': whether a free tech is still owed, which a chooser left on display cannot tell. (Claude code Opus 5.5) -->
+	bool executeSASPilotWidget(int iWidgetType, int iData1, int iData2, bool bOption, bool bAlt); // <!-- custom: For SASPilotUI's 'uipress'. (Claude code Opus 5.5) -->
+	std::wstring getSASPilotWidgetHelp(int iWidgetType, int iData1, int iData2, bool bOption); // <!-- custom: For SASPilotUI's 'uihover'. (Claude code Opus 5.5) -->
 	bool dropSASPilotPopup(int iHeldId, int iButtonPopupType, int iData1, int iData3, std::wstring szText); // <!-- custom: For SASPilot's notices. (Claude code Opus 5.5) -->
 
 	void setCityBarWidth(bool bWide); // advc.095

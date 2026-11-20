@@ -155,6 +155,9 @@ def poll(state, szReloadError):
 	global _state
 	_state = state
 	state["reloadError"] = szReloadError
+	_loadUI()
+	if state.get("uiInstalled") and sys.modules.has_key(_UI_NAME):
+		sys.modules[_UI_NAME]._tick()
 	mailbox = state["mailbox"]
 	if not state.get("helloWritten"):
 		_writeAtomic(os.path.join(mailbox, "hello.json"), toJson({"pid": os.getpid(), "pilotRevision": PILOT_REVISION, "session": state.get("session")}))
@@ -192,7 +195,74 @@ def poll(state, szReloadError):
 			pass  # <!-- custom: the reply is out; a run_ file left behind only means the claim was not cleaned up (Claude code Opus 5.5) -->
 
 
+# <!-- custom: SASPilotUI.py beside this file holds the ui* commands, loaded as SASPilot.py loads this one: compiled from the file, again whenever it changes, and once more after this module reloads (_uiStamp starts over). (Claude code Opus 5.5) -->
+_UI_NAME = "SASPilotUI"
+_uiStamp = None
+
+
+def _loadUI():
+	# <!-- custom: imp builds the SASPilotUI module from its file.
+	# Imported here, as the game's Python 2.4 has it but the modern Python the CI tests load this file with does not (removed in 3.12): a top-level import broke all 9 tests of test_saspilot_graphs.py. (Claude code Opus 5.5) -->
+	import imp
+	global _uiStamp
+	# <!-- custom: Codex's review found two flaws in the first version: os.stat ran outside the error handler before any request was served, so a missing or briefly locked SASPilotUI.py would have stopped every command, and the stamp was taken before the read, so a failed read waited for the next edit.
+	# A read error now leaves the stamp alone and is retried on the next tick; only a file that was read is marked, whether it then loaded or failed to compile. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	path = os.path.join(os.path.dirname(__file__), _UI_NAME + ".py")
+	try:
+		stat = os.stat(path)
+		stamp = (stat.st_size, stat.st_mtime)
+		if stamp == _uiStamp:
+			# <!-- custom: The loaded file is readable again after a read error: the error is cleared, as it otherwise blocked the ui commands until the next edit (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if _state.get("uiLoadErrorRead"):
+				_state["uiLoadError"] = None
+				_state["uiLoadErrorRead"] = False
+			return
+		handle = open(path, "rb")
+		source = handle.read().replace("\r\n", "\n")
+		handle.close()
+	except (IOError, OSError):
+		_state["uiLoadError"] = "%s cannot be read: %s" % (path, sys.exc_info()[1])
+		_state["uiLoadErrorRead"] = True
+		return
+	_uiStamp = stamp
+	# <!-- custom: A failed load keeps the previous ui commands and is reported by each ui command, so a syntax error in an edit does not stop the other commands. (Claude code Opus 5.5) -->
+	try:
+		module = imp.new_module(_UI_NAME)
+		module.__file__ = path
+		module.__dict__["pilot"] = sys.modules.get(__name__)
+		eval(compile(source + "\n", path, "exec"), module.__dict__)
+		# <!-- custom: Kept alive before its wrappers go on the screen class, and for good: the first test kept no reference to the module, and Python 2 set the freed module's globals to None, so every recorded call failed with "'NoneType' object is not callable", 479 popups from the main interface's own drawing.
+		# Every loaded version stays in this list, as a wrapper left by a failed or partial install could still point to it (Codex's review); a few modules per session. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		_state.setdefault("uiModules", []).append(module)
+		module._reloaded()
+	except Exception:
+		_state["uiLoadError"] = "".join(traceback.format_exception(*sys.exc_info()))
+		_state["uiLoadErrorRead"] = False
+		return
+	_state["uiLoadError"] = None
+	_state["uiLoadErrorRead"] = False
+	sys.modules[_UI_NAME] = module
+	for szName in dir(module):
+		if szName.startswith("cmd_"):
+			globals()[szName] = getattr(module, szName)
+	_HELP.update(module._HELP)
+
+
+def aroundMainInterfaceBuild(state, bBefore):
+	# <!-- custom: Called by SASPilot.py around the main interface's build at game start, possibly before the first poll, so the state is taken here; SASPilotUI records the build. (Claude code Opus 5.5) -->
+	global _state
+	_state = state
+	# <!-- custom: Loaded before the build only, so the cleanup after it runs in the module that started recording (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if bBefore:
+		_loadUI()
+	ui = sys.modules.get(_UI_NAME)
+	if ui is not None:
+		ui._aroundMainBuild(bBefore)
+
+
 def _checkedHandler(name, args):
+	if str(name).startswith("ui") and _state.get("uiLoadError"):
+		raise ValueError("SASPilotUI.py failed to load:\n%s" % _state["uiLoadError"])
 	# <!-- custom: The command's function, once its name and argument keys are checked: 'civics adopt=CIVIC_THEOCRACY' returned the civics list as if it had worked, as the command takes set= and the unknown key was ignored (fog-on playthrough, turn 131, 2026-11-13). A key the command's help does not list is refused; player and fog are read by shared helpers for any command.
 	# Used by 'batch' and 'profile' too, which first called handlers directly and so skipped the check (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	handler = globals().get("cmd_" + str(name))
@@ -1386,7 +1456,7 @@ _HELP["fog"] = "Without args: whether fog is on. With on=1 or 0: switch it. With
 # Commands not listed are play; some depend on their arguments, see _commandRole. (Claude code Opus 5.5) -->
 # <!-- custom: The user's next idea the same day: tell facts from judgments. play commands state what the game shows a player, the same for every player who can see it, and rarely change; advice weighs facts into a recommendation by a heuristic of ours, which may be wrong and gets tuned as we learn, such as 'advise about=threats'.
 # So advice is a role of its own: the session role 'play' gets facts only, which shows what an agent works out by itself, and 'assist' adds advice, so the log shows which advice an agent asked for. 'sites' stays play, as the window circles those sites for any player with a Settler selected; the city AI's builds in 'workers' are advice, as no screen shows them. (Claude code Opus 5.5) -->
-_COMMAND_ROLES = {"py": "create", "autoplay": "meta", "save": "meta", "menu": "meta", "profile": "meta", "batch": "meta", "ping": "meta", "help": "meta", "role": "meta", "advise": "advice"}
+_COMMAND_ROLES = {"py": "create", "autoplay": "meta", "save": "meta", "menu": "meta", "profile": "meta", "batch": "meta", "ping": "meta", "help": "meta", "role": "meta", "advise": "advice", "uiprobe": "omniscient", "meet": "create"}
 _ROLE_ALLOWED = {"play": ("play", "meta"), "assist": ("play", "meta", "advice"), "all": ("play", "meta", "advice", "omniscient", "create")}
 # <!-- custom: Controls that leave play, checked by value: the play role compared the control's name as typed, so its number passed (Codex's review, round 32). Loading a save is meta, as 'menu path=' is. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 _CONTROL_ROLES = (("CONTROL_WORLD_BUILDER", "create"), ("CONTROL_ADMIN_DETAILS", "omniscient"), ("CONTROL_LOAD_GAME", "meta"), ("CONTROL_QUICK_LOAD", "meta"))
@@ -1426,6 +1496,9 @@ def _commandRole(name, args):
 				return szRole
 	if name == "screen" and args.get("name") is not None:
 		return _screenRole(str(args["name"]), args)
+	# <!-- custom: A recorded widget is what the window shows a player, but widgettype, data1, data2 or option can send any widget action with any data, which no click can. (Claude code Opus 5.5) -->
+	if name == "uipress" and [szKey for szKey in ("widgettype", "data1", "data2", "option") if args.get(szKey) is not None]:
+		return "create"
 	if args.get("fog") is not None and not args.get("fog"):
 		return "omniscient"
 	return _COMMAND_ROLES.get(name, "play")
@@ -1471,7 +1544,7 @@ def cmd_role(args):
 	roles = {}
 	for name in _HELP.keys():
 		roles[name] = _COMMAND_ROLES.get(name, "play")
-	return {"role": _state.get("role") or "all", "locked": bool(_state.get("roleLocked")), "commands": roles, "byArguments": "fog on=0 and fog=0 are omniscient; control CONTROL_WORLD_BUILDER is create, CONTROL_ADMIN_DETAILS omniscient, CONTROL_LOAD_GAME and CONTROL_QUICK_LOAD meta; screen is play for the advisors and Sevopedia navigation (_PLAY_SCREENS) without args, omniscient for Debug ones, else create; workers leaves out the city AI's builds unless advice is allowed; players under fog gives other teams' players only once met, briefly"}
+	return {"role": _state.get("role") or "all", "locked": bool(_state.get("roleLocked")), "commands": roles, "byArguments": "fog on=0 and fog=0 are omniscient; control CONTROL_WORLD_BUILDER is create, CONTROL_ADMIN_DETAILS omniscient, CONTROL_LOAD_GAME and CONTROL_QUICK_LOAD meta; screen is play for the advisors and Sevopedia navigation (_PLAY_SCREENS) without args, omniscient for Debug ones, else create; workers leaves out the city AI's builds unless advice is allowed; players under fog gives other teams' players only once met, briefly; uipress with widgettype, data1, data2 or option is create"}
 
 
 def cmd_fog(args):
@@ -5564,6 +5637,33 @@ def cmd_group(args):
 	return {"group": unit.getGroupID(), "units": [_unitBrief(group.getUnitAt(i)) for i in range(group.getNumUnits())]}
 
 
+_HELP["meet"] = "Make our team meet other teams, as the WorldBuilder's diplomacy screen can: every living team, or the ones in team (a number or a list). For setting up tests, such as an SAS48 scoreboard that must overflow; changes the game, so the create role. Returns the teams met now. args: team."
+
+
+def cmd_meet(args):
+	# <!-- custom: Was a 'py' loop on 2026-11-20 to fill an SAS48 scoreboard so its scroll buttons appear; the user's rule: what the game can do (here the WorldBuilder) and is likely needed again becomes a command. (Claude code Opus 5.5) -->
+	# <!-- custom: Codex's review: CyTeam.meet changes only this machine's game in a network game, and a bad team number late in the list raised after the earlier ones were met; so network games are refused and the list is checked first. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if gc.getGame().isNetworkMultiPlayer():
+		raise ValueError("'meet' is for single-player tests; in a network game it would change only this machine's game")
+	player = _player(args)
+	team = gc.getTeam(player.getTeam())
+	targets = args.get("team")
+	if targets is None:
+		targets = range(gc.getMAX_CIV_TEAMS())
+	elif not isinstance(targets, list):
+		targets = [targets]
+	targets = [int(iTeam) for iTeam in targets]
+	for iTeam in targets:
+		if iTeam < 0 or iTeam >= gc.getMAX_CIV_TEAMS():
+			raise ValueError("no team %d; nothing was met" % iTeam)
+	met = []
+	for iTeam in targets:
+		if iTeam != player.getTeam() and gc.getTeam(iTeam).isAlive() and not team.isHasMet(iTeam):
+			team.meet(iTeam, False)
+			met.append(iTeam)
+	return {"met": met, "hasMet": team.getHasMetCivCount(True)}
+
+
 _HELP["freetech"] = "Choose a free tech, such as the Oracle's, as the tech chooser does: 'todo' lists the held BUTTONPOPUP_CHOOSETECH with data1 above 0 while one is owed. Without tech: the techs it may be. args: tech (TECH_ type)."
 
 
@@ -7171,14 +7271,19 @@ def cmd_menu(args):
 _HELP["screen"] = "Call a CvScreensInterface function, e.g. name=showDomesticAdvisor, name=pediaJumpToUnit args=[UNIT_ index], name=pediaShow. args: name, args (list, optional)."
 
 
-# <!-- custom: Fixed arguments for the play screens that index an argument list, as the play role allows them only without args and the None retry below failed for them (Codex's review, round 34): the Info Screen's first tab outside the end of a game, the Hall of Fame without replays, the Sevopedia's first category. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+# <!-- custom: Fixed arguments for the play screens that index an argument list, as the play role allows them only without args and the None retry below failed for them (Codex's review, round 34): the Info Screen's first tab outside the end of a game, the Hall of Fame without replays, the Sevopedia's first category (see cmd_screen). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 # <!-- custom: showForeignAdvisorScreen too: called with None it passed None as the tab to SASGameRecordActions.logScreenAction, whose DLL binding takes an int, and failed (turn 114 of the turn-0 game, 2026-11-14); -1 is its own default tab. (Claude code Opus 5.5) -->
-_SCREEN_DEFAULT_ARGS = {"showInfoScreen": [0, 0], "showHallOfFame": [0], "pediaMain": [0], "showForeignAdvisorScreen": [-1]}
+_SCREEN_DEFAULT_ARGS = {"showInfoScreen": [0, 0], "showHallOfFame": [0], "showForeignAdvisorScreen": [-1]}
 
 
 def cmd_screen(args):
 	function = getattr(CvScreensInterface, args["name"])
-	if "args" not in args and _SCREEN_DEFAULT_ARGS.has_key(args["name"]):
+	# <!-- custom: pediaMain [0] failed in SevoPediaMain.showContents with "'NoneType' object is not callable": SAS's Sevopedia has no list for category 0 (2026-11-20).
+	# Its own first category, which pediaShow falls back to, is used instead. (Claude code Opus 5.5) -->
+	if "args" not in args and args["name"] == "pediaMain":
+		CvScreensInterface.createCivilopedia()
+		function([CvScreensInterface.pediaMainScreen.SAS_defaultCategory])
+	elif "args" not in args and _SCREEN_DEFAULT_ARGS.has_key(args["name"]):
 		function(_SCREEN_DEFAULT_ARGS[args["name"]])
 	elif "args" in args:
 		function(args["args"])

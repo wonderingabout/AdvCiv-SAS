@@ -16,6 +16,7 @@
 #include "CvPlayer.h" // <!-- custom: The SASPilot popup wrappers call CvPlayer through GET_PLAYER; without this include the first build failed with C3861 "'GET_PLAYER': identifier not found", as CvGameAI.h only forward-declares the player classes. (Claude code Fable 5.2) -->
 #include "CvDLLButtonPopup.h" // <!-- custom: The held-popup list SASPilot reads and switches lives with the popup launcher. (Claude code Fable 5.2) -->
 #include "CvPopupInfo.h" // <!-- custom: getSASPilotPopups reads each popup's type, data and text, which needs the complete CvPopupInfo type. (Claude code Fable 5.2) -->
+#include "CvDLLWidgetData.h" // <!-- custom: executeSASPilotWidget runs a widget's click action through CvDLLWidgetData::getInstance; without this include the syntax check failed with C3861 "'getInstance': identifier not found". (Claude code Opus 5.5) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Python supplies BUG's resolved user root and can request a live shared BBAI/SASGameRecord buffer flush without going through the EXE logger. (ChatGPT-5.6-Sol) -->
 
 namespace
@@ -1798,6 +1799,37 @@ bool CyGame::isSASPilotChoosingFreeTech()
 {
 	PlayerTypes const eActive = m_kGame.getActivePlayer();
 	return (eActive != NO_PLAYER && GET_PLAYER(eActive).isChoosingFreeTech());
+}
+// <!-- custom: A click on a typed widget (pedia links, the slider buttons, a city's build buttons and the like) reaches CvDLLWidgetData::executeAction from the EXE, which Python cannot call; SASPilotUI's 'uipress' needs it to click such widgets by name.
+// A widget type outside the enum is refused rather than indexed.
+// bAlt runs executeAltAction, a right click's action, such as the K-Mod slider buttons' jump to min or max. (Claude code Opus 5.5) -->
+bool CyGame::executeSASPilotWidget(int iWidgetType, int iData1, int iData2, bool bOption, bool bAlt)
+{
+	if (iWidgetType < 0 || iWidgetType >= NUM_WIDGET_TYPES)
+		return false;
+	CvWidgetDataStruct widgetData(iData1, iData2, bOption, (WidgetTypes)iWidgetType);
+	if (bAlt)
+		return CvDLLWidgetData::getInstance().executeAltAction(widgetData);
+	return CvDLLWidgetData::getInstance().executeAction(widgetData);
+}
+// <!-- custom: The hover text the window shows for a typed widget comes from CvDLLWidgetData::parseHelp, which the EXE calls on hover and Python cannot; SASPilotUI's 'uihover' reads it, so an agent sees the tooltip a player sees. (Claude code Opus 5.5) -->
+std::wstring CyGame::getSASPilotWidgetHelp(int iWidgetType, int iData1, int iData2, bool bOption)
+{
+	if (iWidgetType < 0 || iWidgetType >= NUM_WIDGET_TYPES)
+		return L"";
+	// <!-- custom: Codex's review found two hazards in a tooltip asked outside a real hover: the city tooltips dereference GET_PLAYER(iData1).getCity(iData2) unchecked, so a recorded cell for a city since lost would crash, and the scoreboard tooltips set the active player's scoreboard expanded (advc.085).
+	// So the city is checked first, and parseHelp skips the expansion during this query (CvDLLWidgetData::m_bSASPilotHelpQuery): putting the flag back afterwards, the first fix, still restarted its timers (Codex's next review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (iWidgetType == WIDGET_ZOOM_CITY || iWidgetType == WIDGET_EXAMINE_CITY)
+	{
+		if (iData1 < 0 || iData1 >= MAX_PLAYERS || GET_PLAYER((PlayerTypes)iData1).getCity(iData2) == NULL)
+			return L"";
+	}
+	CvWidgetDataStruct widgetData(iData1, iData2, bOption, (WidgetTypes)iWidgetType);
+	CvWStringBuffer szBuffer;
+	CvDLLWidgetData::m_bSASPilotHelpQuery = true;
+	CvDLLWidgetData::getInstance().parseHelp(szBuffer, widgetData);
+	CvDLLWidgetData::m_bSASPilotHelpQuery = false;
+	return szBuffer.getCString();
 }
 // advc.095:
 void CyGame::setCityBarWidth(bool bWide)

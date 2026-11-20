@@ -16,6 +16,7 @@
 
 
 CvDLLWidgetData* CvDLLWidgetData::m_pInst = NULL;
+bool CvDLLWidgetData::m_bSASPilotHelpQuery = false; // <!-- custom: see the header. (Claude code Opus 5.5) -->
 
 CvDLLWidgetData& CvDLLWidgetData::getInstance()
 {
@@ -883,7 +884,9 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 			widgetDataStruct.m_eWidgetType == WIDGET_TRADE_ROUTES_SCOREBOARD ||
 			widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO)
 		{
-			GET_PLAYER(getActivePlayer()).setScoreboardExpanded(true);
+			// <!-- custom: Not for SASPilot's tooltip queries: putting the flag back afterwards still restarted the expansion's timers and redraws (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if (!m_bSASPilotHelpQuery)
+				GET_PLAYER(getActivePlayer()).setScoreboardExpanded(true);
 		}
 	} // </advc.085>
 }

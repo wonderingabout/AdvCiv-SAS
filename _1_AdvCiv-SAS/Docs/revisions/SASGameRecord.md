@@ -116,7 +116,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 210 - SAS practical 6874 (SASPilot branch)
 
 - **Date:** 2026-11-18
-- **Git commit:** pending
+- **Git commit:** `8f24208b71c0ba1aa6c9568e41e363010714febc`
 - **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
   - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
   - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.

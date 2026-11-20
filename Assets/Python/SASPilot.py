@@ -124,11 +124,15 @@ def _loadCommands(bCompareContent=False):
 		sys.stderr.write(_szReloadError)
 
 
-def _start():
+def _setCommandsPath():
 	global _commandsPath
 	# <!-- custom: The command file first sat in Assets/Python: saving an edit there made the running Civ4 reinitialize its Python, after which PythonErr.log filled with "Can't find module CvScreensInterface" and the mailbox went unanswered (2026-11-13).
 	# Moving it to Assets/SASPilot did the same, so the EXE watches all of Assets; LLM_Helpers/saspilot, beside its client SASPilotClient.py, is outside it (LLM_Helpers/game_runs until 2026-11-15). (Claude code Fable 5.2) -->
 	_commandsPath = os.path.join(BugPath.getModDir(), "LLM_Helpers", "saspilot", _COMMANDS_NAME + ".py")
+
+
+def _start():
+	_setCommandsPath()
 	# <!-- custom: One folder per process, named by PID like our logs, so several clients can each be piloted. See KI#1081. (Claude code Fable 5.2) -->
 	mailbox = os.path.join(BugPath.getRootDir(), "SASPilot", str(os.getpid()))
 	if not os.path.isdir(mailbox):
@@ -217,6 +221,25 @@ def onLoad(argsList):
 			gc.getGame().setSASPilotPopupsHeld(True)
 	except:
 		_keepTickError("OnLoad")
+
+
+def aroundMainInterfaceBuild(bBefore):
+	# <!-- custom: Called before and after the main interface's build at game start, which comes before the first game update starts SASPilot, so the command file is loaded here if needed, as onLoad reads the switch.
+	# SASPilotUI records that build: the advisor, minimap and scoreboard buttons are created only then.
+	# Errors are kept as tick errors, never raised into the build. (Claude code Opus 5.5) -->
+	try:
+		bOn = _bEnabled
+		if bOn is None:
+			bOn = _resolveEnabled()
+		if not bOn:
+			return
+		if _commands is None:
+			_setCommandsPath()
+			_loadCommands()
+		if _commands is not None and hasattr(_commands, "aroundMainInterfaceBuild"):
+			_commands.aroundMainInterfaceBuild(state, bBefore)
+	except:
+		_keepTickError("MainInterfaceBuild")
 
 
 def onUpdate(argsList):
