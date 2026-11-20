@@ -10,7 +10,7 @@ An important milestone is the addition of SASPilot, a new Civ4 CLI API that allo
 
 It also helps debugging: its `py` command runs Python live inside the running game, for example to time a scoreboard redraw or check which screen is open.
 
-Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests.
+Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests; the commands it runs and the agents' client live in [`SASPilot/`](/SASPilot/README.md).
 
 <a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>
 

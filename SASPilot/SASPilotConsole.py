@@ -17,9 +17,9 @@ import time
 from pathlib import Path
 
 # <!-- custom: format_json from the formatting helpers lays out --pretty results as the UI map files are. (Claude code Opus 5.5) -->
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers"))
 # <!-- custom: desktop_windows for --window, from LLM_Helpers/desktop since 2026-11-15. (Claude code Opus 5.5) -->
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "desktop"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "desktop"))
 format_json = import_module("formatting.json_format").format_json
 # <!-- custom: console_colors, from the same folder, holds the shared palette and to_html for --html. (Claude code Opus 5.5) -->
 console_colors = import_module("formatting.console_colors")
@@ -325,7 +325,7 @@ def main():
 	started = time.time()
 	# <!-- custom: Named SASPilotConsole, one word as the user asked, the name the SASPilot Guide uses for the window people watch (2026-11-14): its title bar showed only the path to python.exe, so with two clients open nothing told which console was whose.
 	# The script, first pilot_watch.py, became pilot_console.py the same day, lowercase like SASPilot.py and pilot_scout.py of then, as a CamelCase name beside SASPilotCommands.py, the one in-game file Civ4 hot-reloads, could read as another in-game file.
-	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads.
+	# On 2026-11-15 the user asked for it to carry the window's name, SASPilotConsole.py, so the script, the title bar and the guide match; the other desktop scripts followed as SASPilot<Role>.py in their own LLM_Helpers/saspilot folder, which Civ4 never loads; since 2026-11-20 they sit in SASPilot/ at the root, and the in-game files in SASPilot/game.
 	# They start with a shebang and argparse, unlike SASPilotCommands.py. (Claude code Opus 5.5) -->
 	if os.name == "nt":
 		import ctypes

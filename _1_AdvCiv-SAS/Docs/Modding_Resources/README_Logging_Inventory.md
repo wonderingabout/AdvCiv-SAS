@@ -1318,7 +1318,7 @@ The complete report from the 2026-11-11 one-turn save-load test, `SASAutoplay_20
 
 ### SASPilot command log
 
-`Logs/SASPilot_<processStartUtc>_<pid>.jsonl` holds every request an agent sent to one piloted Civ4 client through [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py), one JSON object per line: the time to the millisecond, the command and its arguments, `kind` (`read`, `order` or `game`), the agent's reason (`note`), the game turn, the result or error, and two counters, `n` within the turn and `seq` within the log.
+`Logs/SASPilot_<processStartUtc>_<pid>.jsonl` holds every request an agent sent to one piloted Civ4 client through [`SASPilotClient.py`](/SASPilot/SASPilotClient.py), one JSON object per line: the time to the millisecond, the command and its arguments, `kind` (`read`, `order` or `game`), the agent's reason (`note`), the game turn, the result or error, and two counters, `n` within the turn and `seq` within the log.
 
 See [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole) for the commands.
 

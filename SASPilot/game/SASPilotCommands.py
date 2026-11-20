@@ -7811,7 +7811,7 @@ _HELP["batch"] = "Run several commands in one request, in order, stopping at the
 
 
 def cmd_batch(args):
-	# <!-- custom: A request waited for the next game update, about 250 ms each when measured (2026-11-13), so a turn's worth of orders was far quicker as one request; served every frame it is now about 2 ms, which still makes one request cheaper. (Claude code Fable 5.2 + Opus 5.5) -->
+	# <!-- custom: A request waited for the next game update, about 250 ms each when measured (2026-11-13), so a turn's worth of orders was far quicker as one request; served every frame it is now about 2 ms, which still makes one request cheaper. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
 	results = []
 	for item in args["commands"]:
 		try:

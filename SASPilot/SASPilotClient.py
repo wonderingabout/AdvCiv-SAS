@@ -4,7 +4,7 @@
 
 # <!-- custom: Command-line client of SASPilot, the in-game bridge in Assets/Python/SASPilot.py: reads and drives a running Civ4 through JSON requests instead of screenshots and clicks.
 # A request is a file req_<id>.json in the game's mailbox folder SASPilot/<pid>, written whole and renamed into place; the game answers with rep_<id>.json on its next frame.
-# See _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md for the commands and what was tried. (Claude code Fable 5.2 + Opus 5.5) -->
+# See _1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md for the commands and what was tried. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
 
 # <!-- custom: argparse reads the options, json the requests and replies, os and time the mailbox files and waits, sys the exit codes, uuid the request IDs, Path the folders. (Claude code Fable 5.2) -->
 import argparse
@@ -15,9 +15,9 @@ import time
 import uuid
 from pathlib import Path
 
-# <!-- custom: run_autoplay from game_runs and desktop_windows from desktop, imported where used: on 2026-11-15 SASPilot's files moved to their own LLM_Helpers/saspilot folder, as the user saw piloting as a job of its own, and desktop_windows to LLM_Helpers/desktop. (Claude code Opus 5.5) -->
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "game_runs"))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "desktop"))
+# <!-- custom: run_autoplay from game_runs and desktop_windows from desktop, imported where used: on 2026-11-15 SASPilot's files moved to their own LLM_Helpers/saspilot folder, as the user saw piloting as a job of its own, and desktop_windows to LLM_Helpers/desktop; since 2026-11-20 SASPilot sits at the mod's root, so both are found under LLM_Helpers. (Claude code Opus 5.5) -->
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "game_runs"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "desktop"))
 
 # <!-- custom: desktop_windows launches and closes Civ4; run_autoplay writes the per-run INI and reads save headers. (Claude code Fable 5.2) -->
 # <!-- custom: Both are imported only in the functions that need them: they took 18 of the 38 ms that importing this file cost, and every command starts a new Python (2026-11-13). (Claude code Opus 5.5) -->
@@ -450,7 +450,7 @@ def request(pid, command, args=None, timeout=60.0):
 
 def _request(pid, command, args=None, timeout=60.0):
 	# <!-- custom: Returns the reply dict: ok, result or error and traceback, gameTurn.
-	# The game serves requests on its updates, every frame in game, so a reply can wait behind a long AI turn or a load. (Claude code Fable 5.2 + Opus 5.5) -->
+	# The game serves requests on its updates, every frame in game, so a reply can wait behind a long AI turn or a load. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
 	mailbox = MAILBOX_ROOT / str(pid)
 	if not mailbox.is_dir():
 		raise PilotError("no mailbox %s; is SASPilot on for that client?" % mailbox)
@@ -599,7 +599,7 @@ def settings_check():
 	# The development values come from toggle_dev_diagnostics.py, so the two cannot drift apart.
 	# They are read from the working tree, which may differ from the committed values players get.
 	# Returns one row per setting: file, name, current, recommended, ok. (Claude code Opus 5.5) -->
-	sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "diagnostics"))
+	sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "diagnostics"))
 	import toggle_dev_diagnostics
 	# <!-- custom: The settings agent runs want besides the toggle's list moved to define_values.py as AGENT_RUN_VALUES on 2026-11-19, so each switched value has one home. (Claude code Opus 5.5) -->
 	from define_values import AGENT_RUN_VALUES

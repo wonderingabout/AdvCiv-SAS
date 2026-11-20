@@ -3,7 +3,7 @@
 #
 # <!-- custom: Stage part of a file without touching the working file: the non-interactive counterpart of 'git add -p', which agents cannot drive.
 # On 2026-11-19 the SASPilot strategy commit had to leave out the Greatest Civilizations work mixed into the same files (a command, its help, two screen fixes, a doc row and a playtests bullet), kept for its own commit; a scratch script did it first, and the user asked that such scripts join the repository. (Claude code Opus 5.5) -->
-# <!-- custom: Example: python LLM_Helpers/commits/stage_partial.py LLM_Helpers/saspilot/SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --drop " - Turn 82:" "\n - The user's" (Claude code Opus 5.5) -->
+# <!-- custom: Example: python LLM_Helpers/commits/stage_partial.py SASPilot/game/SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --drop " - Turn 82:" "\n - The user's" (Claude code Opus 5.5) -->
 
 # <!-- custom: argparse for the regions, codecs to decode the markers' escapes, difflib for the dry run, io and os to read the working file, subprocess for git, sys for the exit code. (Claude code Opus 5.5) -->
 import argparse

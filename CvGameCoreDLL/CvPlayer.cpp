@@ -21201,7 +21201,7 @@ void CvPlayer::takeSASPilotQueuedPopups()
 	if (!isActive() || !isHuman() || GC.getGame().isNetworkMultiPlayer())
 		return;
 	// <!-- custom: killAll puts relaunched popups at the front and counts them to keep their sound quiet; one taken here never launches, so it is counted as launched, or a later popup would lose its sound (Codex's review).
-	// Only a popup taken from that counted front run lowers the count: counting every taken popup let a popup SASPilot leaves at the front, such as a Python screen, replay its sound (Codex's next review). (Claude code Opus 5.5 + Fable 5.2 + GPT-6.1-Sol) -->
+	// Only a popup taken from that counted front run lowers the count: counting every taken popup let a popup SASPilot leaves at the front, such as a Python screen, replay its sound (Codex's next review). (Claude code Opus 5.5 + Claude code Fable 5.2 + GPT-6.1-Sol) -->
 	int iRelaunchingLeft = m_iButtonPopupsRelaunching;
 	int iPos = 0;
 	CvPopupQueue::iterator it = m_listPopups.begin();

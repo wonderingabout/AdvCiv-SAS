@@ -50,7 +50,7 @@ The video demos cover two stages of the playtest.
 
 ## Quick start
 
-Run these from `LLM_Helpers/saspilot/`. `start` launches Civ4 with SASPilot on and returns once the first turn waits for orders; every other command talks to that client.
+Run these from `SASPilot/`. `start` launches Civ4 with SASPilot on and returns once the first turn waits for orders; every other command talks to that client.
 
 ```bash
 python SASPilotClient.py start --map Pangaea --world-size WORLDSIZE_SMALL --fixed-seeds
@@ -110,9 +110,9 @@ python SASPilotClient.py look follow=1
 
 - [`SASPilot.py`](/Assets/Python/SASPilot.py), in the game, is a small loader hooked to the `gameUpdate` event beside the autoplay request in `AIAutoPlay.py`, and to screen updates in `CvScreensInterface.update`, which come every frame (see [Speed](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md#speed)).
 - Each client has a mailbox folder, `SASPilot/<process ID>` beside `CivilizationIV.ini` in `Documents/My Games/beyond the sword`, so several clients can be piloted at once; see [KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081) for why our files are named by process.
-- [`SASPilotClient.py`](/LLM_Helpers/saspilot/SASPilotClient.py) writes a request as `req_<id>.json`, whole and then renamed into place. On its next frame the game claims it by renaming it `run_<id>.json`, runs it and writes `rep_<id>.json` the same way: `{"id", "ok", "result" or "error" and "traceback", "gameTurn", "gameMs", "tick"}`, where `tick` names the event that served it.
+- [`SASPilotClient.py`](/SASPilot/SASPilotClient.py) writes a request as `req_<id>.json`, whole and then renamed into place. On its next frame the game claims it by renaming it `run_<id>.json`, runs it and writes `rep_<id>.json` the same way: `{"id", "ok", "result" or "error" and "traceback", "gameTurn", "gameMs", "tick"}`, where `tick` names the event that served it.
   - On a timeout the client deletes its `req_` if it is still there, so the command never runs; a `run_` means the game took it, so the error says to check the game's state before retrying.
-- The commands themselves are in [`SASPilotCommands.py`](/LLM_Helpers/saspilot/SASPilotCommands.py), which the loader reads from disk; it is Python 2.4, run inside Civ4.
+- The commands themselves are in [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py), which the loader reads from disk; it is Python 2.4, run inside Civ4.
 - Commands see everything, without fog of war, and orders are applied directly to the game objects, as a human's are in single player. Network games are untested.
 - Python 2.4 has no `json` module, so the command file carries its own small writer and reader.
 
@@ -128,7 +128,7 @@ python SASPilotClient.py look follow=1
 - Save an edit to `SASPilotCommands.py` and the running game picks it up within a fraction of a second (it compares the file's size and time every 20 updates, about 30 times a second in game). `ping` then shows `reloadError` if the new file failed to load; the previous version keeps serving.
   - The failure is also written to stderr, which the game shows as a Python error in its window. On 2026-11-13 an edit saved a help string with double quotes inside it, the user watching saw the error, and the corrected file loaded 4 seconds later; so an error that appears while an agent edits this file is usually such a transient save, and `PythonErr.log` names the line.
   - Checking the edit first with Python 2.4 (`C:\Python24\python.exe`, as in [Syntax checks](/AGENTS.md#syntax-checks-and-linting)) before relying on the reload catches such a slip, but the Edit tool saves at once, so the game may load the broken version first.
-- This is why the command file lives in `LLM_Helpers/saspilot/` and not in `Assets/Python/`; see [What did not work](#what-did-not-work-and-why).
+- This is why the command file lives in `SASPilot/game/` and not in `Assets/Python/`; see [What did not work](#what-did-not-work-and-why).
 - `SASPilot.py` itself is in `Assets/Python/`, so changing it needs Civ4 closed first, like any mod Python.
 - `ping` reports the loaded `PILOT_REVISION`. Keep one revision for the candidate during a draft PR and record its command changes in [SASPilot revisions](/_1_AdvCiv-SAS/Docs/revisions/SASPilot.md).
 - A script writing the command file can fail with `OSError: [Errno 22] Invalid argument` while the game has the file open for its reload check; it happened twice on 2026-11-14, and a retry a moment later succeeded. The Edit tool retries on its own.
@@ -392,7 +392,7 @@ python SASPilotClient.py plots x=26 y=27 radius=2 fog=1
 
 ### Plot grid and trade network
 
-For numbers over an area, such as each plot's food over a city radius around a unit, a city, a bonus or where the camera looks, [`SASPilotPlots.py`](/LLM_Helpers/README.md#piloting-a-running-game) computes them from `plots` with numpy and scipy. Both `grid` and `plots` take `camera=1` to center on the plot the main view looks at.
+For numbers over an area, such as each plot's food over a city radius around a unit, a city, a bonus or where the camera looks, [`SASPilotPlots.py`](/SASPilot/README.md#piloting-a-running-game) computes them from `plots` with numpy and scipy. Both `grid` and `plots` take `camera=1` to center on the plot the main view looks at.
 
 Use `grid` for spatial analysis. It gives the requested bounds, map size, wrapping flags, sparse plot rows keyed by coordinates, and trade links between neighboring plots. Request an inclusive `box=[west,south,east,north]`, center on `x=` and `y=`, `city=` or `unit=` with `radius=`, or omit the area to get the full map.
 
@@ -402,7 +402,7 @@ Radius clips at the map boundary. Pass `network=0` when the calculation needs on
 python SASPilotClient.py grid 'box=[19,21,30,32]' fog=1 network=0 > grid.json
 ```
 
-Run this from `LLM_Helpers/saspilot`. An agent can load the JSON into desktop Python, index the tiles by `(x, y)`, compute features for every candidate in the rectangle, and print only the matching plots or aggregate results.
+Run this from `SASPilot`. An agent can load the JSON into desktop Python, index the tiles by `(x, y)`, compute features for every candidate in the rectangle, and print only the matching plots or aggregate results.
 
 For repeated neighborhood scans, use separate numeric arrays for each yield and Boolean masks for land, hills and visibility. Track missing tiles in the mask so an unknown yield stays distinct from a known zero.
 
@@ -437,7 +437,7 @@ SASPilotConsole shows the command log for a running Civ4 client. This full conso
 Every request `SASPilotClient.py` sends is appended to `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, named per client like the other per-process logs ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)): its time, turn, command, arguments, `kind` (`read` or `order`), and its result, cut at 1,500 characters, or its error.
 
 ```bash
-python LLM_Helpers/saspilot/SASPilotConsole.py
+python SASPilot/SASPilotConsole.py
 ```
 
 - `SASPilotConsole.py` follows the newest log, like `tail -f`, and prints each order with its turn and result; `--all` adds the reads, `--from-start` the earlier lines, `--pid` picks a client; results and arguments show whole, `--width 160` cuts them (the log keeps at most 1,500 characters of a result).
@@ -484,7 +484,7 @@ python LLM_Helpers/saspilot/SASPilotConsole.py
 
 ### Watching a person play
 
-[`SASPilotWatch.py`](/LLM_Helpers/saspilot/SASPilotWatch.py) follows a game a person plays in the window: clicks there do not pass through the command log, so it polls the game every 2 seconds and prints one line per change, units moved, created or gone, city sizes, queues and worked plots, research, the game's messages and each new turn.
+[`SASPilotWatch.py`](/SASPilot/SASPilotWatch.py) follows a game a person plays in the window: clicks there do not pass through the command log, so it polls the game every 2 seconds and prints one line per change, units moved, created or gone, city sizes, queues and worked plots, research, the game's messages and each new turn.
 
 - Run it under a streaming tool, such as Claude Code's Monitor, so each line reaches the agent as it happens: `python -u SASPilotWatch.py --interval 2 --saves sas_pilot_<game>`.
 - It also prints the game's messages (hut results, combat, techs), foreign units and rival cities that come into sight within 3 plots of ours, with a rival Settler flagged as `RIVAL SETTLER`, and `research queue empty` when a turn would pass without research.
@@ -531,14 +531,14 @@ pilot.wait_for_turn(pid, 600, after_turn=0)
 
 ### Replaying commands
 
-[`SASPilotReplay.py`](/LLM_Helpers/saspilot/SASPilotReplay.py) runs a sequence, a list of commands against a save, and compares each reply with the run last accepted. A changed answer after a DLL rebuild or an edit of the command file then shows as a list of differences, instead of turning up in the middle of a playthrough.
+[`SASPilotReplay.py`](/SASPilot/SASPilotReplay.py) runs a sequence, a list of commands against a save, and compares each reply with the run last accepted. A changed answer after a DLL rebuild or an edit of the command file then shows as a list of differences, instead of turning up in the middle of a playthrough.
 
 ```bash
 python SASPilotReplay.py sequences/fogplay_t105_freetech.json
 ```
 
 - They were called scenarios until 2026-11-13. Civ4 already uses "scenario" for its scenario maps and "replay" for Hall of Fame replays, so the user and Codex chose "command sequence", which says what the files hold; the runner kept its name.
-- A sequence is JSON in [`sequences/`](/LLM_Helpers/saspilot/sequences/): `save` (a file in `Saves/single`, or a full path) and `steps`, each with `cmd`, `args`, and optionally `ignore` (result keys left out for that step) and `expectError`.
+- A sequence is JSON in [`sequences/`](/SASPilot/sequences/): `save` (a file in `Saves/single`, or a full path) and `steps`, each with `cmd`, `args`, and optionally `ignore` (result keys left out for that step) and `expectError`.
 - The first clean run is written as the baseline, `Logs/SASPilotReplay_<sequence>.json`; later runs list each differing path, such as `steps[3].result.queue[0].turns: 5 -> 4`, and exit 1. `--accept` makes the run the new baseline once a change is meant.
 - It starts its own client from the save and closes it after (`--keep` leaves it open), or loads the save in a running one with `--pid`.
 - Timings and reply sizes are left out; a failed step is kept by its error line, not its traceback, whose line numbers move with every edit.
@@ -600,7 +600,7 @@ The Esc menu and its confirmations still open, so a person at the window can lea
 
 ## Screens and buttons by name (SASPilotUI)
 
-The user's idea (2026-11-20): click what a player clicks, by name, without memorizing hotkeys, tab positions or screen coordinates, and without screenshots. [`SASPilotUI.py`](/LLM_Helpers/saspilot/SASPilotUI.py) holds its commands; `SASPilotCommands.py` loads it from disk and reloads it when it changes, as the loader does for the command file.
+The user's idea (2026-11-20): click what a player clicks, by name, without memorizing hotkeys, tab positions or screen coordinates, and without screenshots. [`SASPilotUI.py`](/SASPilot/game/SASPilotUI.py) holds its commands; `SASPilotCommands.py` loads it from disk and reloads it when it changes, as the loader does for the command file.
 
 | Command | What it does |
 | --- | --- |

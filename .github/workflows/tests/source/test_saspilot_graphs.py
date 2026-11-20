@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[4]
-COMMANDS = ROOT / "LLM_Helpers/saspilot/SASPilotCommands.py"
+COMMANDS = ROOT / "SASPilot/game/SASPilotCommands.py"
 
 
 def infos(relative_path, element):

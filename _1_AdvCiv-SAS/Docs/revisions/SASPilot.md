@@ -12,14 +12,14 @@
 `PILOT_REVISION` tells an agent which command interface the running game answers with, so a client or a saved command sequence can tell whether a command it relies on may have changed. Like [SASGameRecord's revision](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md#revision-policy), it is an update signal, not a compatibility promise.
 
 - Increment it once per commit that changes a command's name, arguments, reply or observable behavior, in `SASPilotCommands.py`, the in-game loader [`SASPilot.py`](/Assets/Python/SASPilot.py) or the C++ bindings the commands call.
-  - Desktop-only changes to the client, console or helpers in [`LLM_Helpers/saspilot/`](/LLM_Helpers/README.md#saspilot) do not change what the game answers, so they need no bump.
+  - Desktop-only changes to the client, console or helpers in [`SASPilot/`](/SASPilot/README.md) do not change what the game answers, so they need no bump.
   - Do not debate whether a change is compatible; when in doubt, increment.
 - A squash-bound PR keeps one number for the whole candidate, relative to its base, however many local commits it has.
 - Add one short latest-first entry below in the same commit, with `pending` as its commit until the next commit fills it in.
 
 ## Where the number lives
 
-- `PILOT_REVISION` sits in [`SASPilotCommands.py`](/LLM_Helpers/saspilot/SASPilotCommands.py), beside the interface it identifies; it is the one file Civ4 hot-reloads, so the number changes with the commands without restarting the game.
+- `PILOT_REVISION` sits in [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py), beside the interface it identifies; Civ4 hot-reloads it, so the number changes with the commands without restarting the game.
 - The mailbox greeting (`hello.json`) and `ping` report the number the running game loaded.
 - The XML define `SAS_PILOT_ON` only switches the pilot on; it carries no revision.
 

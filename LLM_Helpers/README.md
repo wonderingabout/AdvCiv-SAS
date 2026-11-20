@@ -4,6 +4,8 @@ Primary audience: coding agents (Claude Code, Codex, etc.) invoking these script
 
 This folder contains external development tools, mostly Python 3 scripts, for tasks outside Civ4's embedded Python runtime.
 
+SASPilot, which reads and drives a running game, has its own root folder, [`SASPilot/`](/SASPilot/README.md), since 2026-11-20.
+
 Platform-specific test programs live separately under [`tests/`](/tests/README.md); workflow-helper regression tests live under [`.github/workflows/tests/`](/.github/workflows/tests/README.md).
 
 These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
@@ -40,14 +42,13 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
 | `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
-| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`saspilot/`](#saspilot) |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`SASPilot/`](/SASPilot/README.md) at the root |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
 | `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
 | `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot; [`python_versions.py`](#python_versionspy) reports when the helpers can move to a newer Python |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
-| `saspilot/` | reading and driving a running game through SASPilot, the in-game bridge, as JSON rather than screenshots and clicks: [`SASPilotClient.py`](#saspilotclientpy-and-saspilotcommandspy) and the commands it sends, `SASPilotCommands.py`, with the screen commands in `SASPilotUI.py`; SASPilotConsole for watching; the scouting and site helpers; `SASPilotReplay.py` with its `sequences/`, and in-game `checks/`. Moved out of `game_runs/` on 2026-11-15, as the user saw piloting as a job of its own, and each script renamed `SASPilot<Role>.py` to match the console window's name |
 
 - Run a helper from the repository root by its path, for example `python LLM_Helpers/audits/ci_report.py`.
 - A helper imports from its own folder, which Python puts on the import path when it runs a script.
@@ -220,9 +221,6 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
         - [Full-refresh example](#full-refresh-example)
       - [Notes (light_source ZIP)](#notes-light_source-zip)
     - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
-- [`saspilot/`](#saspilot)
-  - [Piloting a running game](#piloting-a-running-game)
-    - [`SASPilotClient.py` and `SASPilotCommands.py`](#saspilotclientpy-and-saspilotcommandspy)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
 ## `art_viewing/`
@@ -950,7 +948,7 @@ Stages a file with chosen regions taken from HEAD or dropped, leaving the workin
 - Added on 2026-11-19, when the SASPilot strategy commit had to leave out the Greatest Civilizations work in the same files, kept for its own commit; a scratch script did it first, and the user asked that such scripts join the repository.
 
 ```powershell
-python LLM_Helpers\commits\stage_partial.py LLM_Helpers\saspilot\SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --dry-run
+python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --dry-run
 ```
 
 ## `context/`
@@ -1145,7 +1143,7 @@ python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png w
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_frames.PNG" alt="llm_screen_record_civ4_load_failed_frames.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_popups.PNG" alt="llm_screen_record_civ4_load_failed_popups.PNG" width="250">
 
 ```bash
-python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python LLM_Helpers/saspilot/SASPilotClient.py --save my_save --no-wait start
+python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python SASPilot/SASPilotClient.py --save my_save --no-wait start
 python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3 --scale 0.25 captures/frame_*.png
 ```
 
@@ -2671,68 +2669,6 @@ From the repository root:
 ```bash
 python LLM_Helpers/packaging/refresh_commit_diffs.py
 python LLM_Helpers/packaging/refresh_commit_diffs.py --dry-run
-```
-
-## `saspilot/`
-
-### Piloting a running game
-
-- Why a folder of its own: SASPilot started in `game_runs/` beside the autoplay and click tools, but it is a job of its own, reading and driving a game as JSON, and had grown to seven scripts and two data folders. The user asked for its own folder on 2026-11-15.
-  - Inside it the old `pilot_` prefix said nothing, so `pilot_checks/` and `pilot_sequences/` became `checks/` and `sequences/`.
-  - The folder is `saspilot/`, not `pilot/`: a bare "pilot" leaves a reader wondering what it is, while SASPilot names the feature, as SGR and BBAI logging do, and greps as one word (the user's point).
-  - `run_autoplay.py` stays in `game_runs/` and `desktop_windows.py` sits in [`desktop/`](#desktop), as other tools use them too; `SASPilotClient.py` and `SASPilotConsole.py` add those folders to their import path.
-- Why `SASPilot<Role>.py`: the console window was already called SASPilotConsole, and the user wanted script and window to share one name, so the other scripts followed.
-  - `SASPilotClient.py`, not `SASPilot.py`, for the old `pilot.py`: [`SASPilot.py`](/Assets/Python/SASPilot.py) is already the in-game bridge that answers it, and two files of one name would make every grep and link ambiguous. Client says what it is: the desktop side of that bridge. `Core` or `Main` were considered and said less.
-  - A CamelCase name had been avoided at first, lest it read as another in-game file like `SASPilotCommands.py`; the folder now tells them apart, as Civ4 loads only `SASPilotCommands.py` from it, and the desktop scripts start with a shebang and argparse.
-  - The helpers import the client as `import SASPilotClient as pilot`, so their code still reads `pilot.request(...)`.
-
-#### `SASPilotClient.py` and `SASPilotCommands.py`
-
-- `SASPilotClient.py` is the command-line client of SASPilot: it starts a piloted game (`start`), then reads and drives it as JSON, such as `todo`, `units`, `city city=Carthage`, `move unit=16385 x=40 y=28`, `produce`, `research`, `endturn`, `save`, `autoplay`, `info type=UNIT_WARRIOR`, and `py "<code>"` to run Python inside the game. `help` lists the commands.
-- `SASPilotCommands.py` holds those commands. It is Python 2.4 run inside Civ4, loaded from this folder by [SASPilot.py](/Assets/Python/SASPilot.py) and reloaded when it changes, so commands can be added while a game runs. It sits here because the EXE reinitializes its Python when a `.py` under `Assets` changes.
-  - The Python 2.4 compile check covers `Assets/Python` and `PrivateMaps` only, so check this file by hand: `C:\Python24\python.exe -c "import py_compile; py_compile.compile('LLM_Helpers/saspilot/SASPilotCommands.py', doraise=True)"` writes a `.pyc` beside it; delete that afterwards.
-- [`SASPilotUI.py`](/LLM_Helpers/saspilot/SASPilotUI.py) holds the `ui*` commands, which open screens and read and click their widgets by name; `SASPilotCommands.py` loads it from this folder the same way and adds its commands.
-  - Added on 2026-11-20 by Claude Code Opus 5.5 at the user's request; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui).
-- SASPilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
-- Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
-- Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
-- `SASPilotReplay.py` replays a sequence from [`sequences/`](/LLM_Helpers/saspilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once.
-  - Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).
-  - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
-- `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/LLM_Helpers/saspilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`.
-  - Added by Claude Code Opus 5.5 on 2026-11-14 so the user can watch an agent play and a game can be reviewed afterwards beside SASGameRecord; see [SASPilotConsole](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#saspilotconsole).
-- [`SASPilotScout.py`](/LLM_Helpers/saspilot/SASPilotScout.py) is a read-only opening experiment for locked play clients.
-  - It shortlists frontier destinations from the fogged grid and checks travel times with Civ4's pathfinder.
-  - `--around X,Y` (with `--band` and `--ccw`) loops around a city, and each choice gives the best-defended plot to stop on this turn; it refuses a wounded unit and stops near visible animals, rules added after the 2026-11-14 playthroughs lost a Warrior's health to a Lion and a Scout to a Bear.
-  - See [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
-- [`SASPilotExplore.py`](/LLM_Helpers/saspilot/SASPilotExplore.py) moves several scouting units a turn at a time, each looping around its own center with `SASPilotScout.py`'s choices (`UNIT:X,Y:MIN,MAX[:ccw,nohut]`), one plot per step, huts first, then ends the turn; it stops on a hostile next to a unit and on new messages, reminders or idle units.
-  - Grown from a scratch driver over the 2026-11-14 playthroughs; see [the scouting trial](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#scouting-trial).
-  - Rules added in the Continents replay (2026-11-19), each after a slip the user caught:
-    - It keeps a unit's target across turns while it still reveals something: re-ranked from scratch, the target flipped each step and a Warrior circled one spot for six turns.
-    - It avoids stopping on the unit's last six plots unless nothing else is left, as back-and-forth reveals nothing.
-    - It remembers hostiles seen for five turns and keeps stops two plots from them, not only from those in sight.
-    - Avoiding is the default, not a rule against fighting: a hostile next to the unit stops the run with our attack odds on it, and attacking with confident odds is the agent's call when it serves the goal.
-    - Its state sits in the temp folder per client, as each run is a new process.
-- [`SASPilotWatch.py`](/LLM_Helpers/saspilot/SASPilotWatch.py) follows a game a person plays in the window, one line per change, with named saves at key moments (`--saves`); see [Watching a person play](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#watching-a-person-play).
-- [`SASPilotSites.py`](/LLM_Helpers/saspilot/SASPilotSites.py) compares candidate city sites from the fogged grid before a Settler exists: resources, fresh water, coast, hill, grassland, overlap, unknown plots and distance to rival borders, with a heuristic score whose parts come from the user's reviews of the same playthroughs. Advice, not fact: it prints the facts beside the score.
-  - Since the Continents replay (2026-11-19), where the user named the best site, 21,15, and both this tool and the AI's found value had missed it:
-    - It reads `plots` rather than `grid`, as grid gave river edges only for plots in sight, so every site out of sight read "no fresh water".
-    - It counts flood plains, oases, river plots and bare desert, and the default reach is 8 plots (was 6).
-    - The user's dot-map marks are always rated, at any distance.
-    - Each site shows the AI's found value beside its own score, and the nearest rival border with its owner and direction, the lane the user read from Persia's border.
-    - Sites within 2 plots of a better one are listed under it as alternatives, one region per entry.
-- [`SASPilotPlots.py`](/LLM_Helpers/saspilot/SASPilotPlots.py) judges plots in numbers rather than pictures, with numpy and scipy, which Civ4's Python 2.4 lacks: `layer` prints food, production, commerce, owner or coast as a grid you can read row by row, or with `--sum` each plot's total over a city radius, and `regions` lists landmasses and unowned clusters with their sizes.
-  - With `--potential food,production,commerce`, each plot counts its best improvement by those weights, from the in-game `potential` command (`--later` adds builds a tech away), so a site with two unimproved Clams no longer reads as plain coast.
-  - The square is centered on an anchor, `--x/--y`, `--unit`, `--city`, `--bonus` or `--camera`, with `--radius` for its size, so a large map such as SAS48 is read a crop at a time.
-  - It reads `plots`, which gives every revealed plot's yields under fog, where `grid` gives them only for plots in sight.
-  - Begun at the user's request in the islands replay (2026-11-15), for Workers and military as well as settling.
-- [`SASPilotTurns.py`](/LLM_Helpers/saspilot/SASPilotTurns.py) ends turns until something needs the agent (`todo`'s `blocking`), handling only routine steps: the ships named with `--explorers` scout one plot at a time toward `seareach`'s recommendation; with `--peace-on-contact` a first-contact greeting gets peace; with `--refuse-recommendations` the advisor's production popup is refused; an AI offer of techs we already have is rejected.
-  - After each turn it prints only the new reminders and messages.
-  - Written in the islands replay (2026-11-15) after the same shell loop had been rewritten many times, and once ended six turns against an open diplomacy screen.
-- [`checks/`](/LLM_Helpers/saspilot/checks/) holds snippets run inside the game with `SASPilotClient.py py @<file>`. `trade_items_parity.py` compares the C++ trade table (`getSASPilotTradeItemsJson`) with the Python loop it replaced, for every pair of players, and lists any entry only one side has; written for that port's first test on 2026-11-13 and kept to recheck either side after a change.
-
-```bash
-python LLM_Helpers/saspilot/SASPilotReplay.py LLM_Helpers/saspilot/sequences/fogplay_t115_core.json
 ```
 
 ## General notes for future LLM helpers

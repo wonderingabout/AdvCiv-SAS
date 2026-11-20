@@ -1657,7 +1657,7 @@ void CyGame::doControl(int iControl)
 
 // <!-- custom: One popup per line for SASPilot, tab-separated: HELD, DISPLAYED or QUEUED, type name, type number, data1, data2, data3, flags, option1, option2, Python button count, Python module, on-clicked callback, text.
 // A delimited string keeps the binding to one call; tabs and line breaks inside the text become spaces.
-// Held popups come first. (Claude code Fable 5.2 + Opus 5.5) -->
+// Held popups come first. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
 // <!-- custom: The second field is the held popup's ID, -1 for displayed and queued ones, which 'answer' takes. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 static void appendSASPilotPopupRow(CvWString& szOut, CvPopupInfo const& kInfo, wchar const* szState, int iId)
 {

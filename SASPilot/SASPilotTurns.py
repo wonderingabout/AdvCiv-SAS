@@ -121,7 +121,7 @@ def report(checks, seen):
 
 def main():
 	# <!-- custom: The examples live in --help rather than the header comment, where the comment reflow joined the two command lines into one sentence. (Claude code Opus 5.5) -->
-	parser = argparse.ArgumentParser(description="End turns until something needs the agent, handling only routine steps.", formatter_class=argparse.RawDescriptionHelpFormatter, epilog="examples:\n  python LLM_Helpers/saspilot/SASPilotTurns.py --turns 10 --peace-on-contact --explorers 49155,73733\n  python LLM_Helpers/saspilot/SASPilotTurns.py --turns 5 --checks cities,rivalMoods,sharedBonuses")
+	parser = argparse.ArgumentParser(description="End turns until something needs the agent, handling only routine steps.", formatter_class=argparse.RawDescriptionHelpFormatter, epilog="examples:\n  python SASPilot/SASPilotTurns.py --turns 10 --peace-on-contact --explorers 49155,73733\n  python SASPilot/SASPilotTurns.py --turns 5 --checks cities,rivalMoods,sharedBonuses")
 	parser.add_argument("--turns", type=int, default=5, help="turns to end at most")
 	parser.add_argument("--peace-on-contact", action="store_true", help="answer a first-contact greeting with peace")
 	parser.add_argument("--refuse-recommendations", action="store_true", help="refuse the advisor's production recommendation popups, which would replace a city's queue")
