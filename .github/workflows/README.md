@@ -103,6 +103,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`lib/revision_history.py`](#librevision_historypy)
     - [`lib/xml_defines.py`](#libxml_definespy)
   - [Source](#source)
+    - [`build/source/advisor_scoreboard_space.py`](#buildsourceadvisor_scoreboard_spacepy)
     - [`build/source/checkout_byte_compares.py`](#buildsourcecheckout_byte_comparespy)
     - [`build/source/cpp_standard_conformance.py`](#buildsourcecpp_standard_conformancepy)
     - [`build/source/custom_comment_indentation.py`](#buildsourcecustom_comment_indentationpy)
@@ -1238,6 +1239,15 @@ Parses diagnostic revision history entries and validates their Change fields for
 Reads integer and text values from Civ4 GlobalDefines XML and supports checks of staged diagnostic defaults.
 
 ### Source
+
+#### `build/source/advisor_scoreboard_space.py`
+
+Fails when an `Assets/Python` file calls `getAdvisorScoreboardSpace` without declaring `SAS_LEAVES_SCOREBOARD_SPACE = True` in a class body, or declares the marker without calling it.
+
+- While such an advisor is open, the scoreboard shortens leader names to fit beside it, and `CvScreensInterface` finds the open advisors by that marker. An unmarked advisor would leave the scoreboard's war dots and power ratios under it at 1920 px and font 4.
+- Added on 2026-11-20, when the marker replaced a hand-kept list of 8 screen IDs in `CvMainInterface.py`, which a new advisor could have missed.
+- The check follows a direct-call convention rather than resolving inheritance: the advisor class that calls the helper declares the marker in its own file. A subclass inheriting both, such as `CvForeignDiplomacyAdvisor`, needs nothing.
+- Definitions and comments do not count as calls. `CvScreensInterface.py`, which looks up the open advisor's space, and `CvTechChooser.py`, whose space is read apart, are exempt with their reasons in the check.
 
 #### `build/source/checkout_byte_compares.py`
 

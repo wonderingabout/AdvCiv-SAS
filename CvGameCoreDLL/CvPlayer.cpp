@@ -13582,13 +13582,18 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
 		}
 		break;
 	case ADVANCEDSTARTACTION_AUTOMATE:
+	{
+		// <!-- custom: The Automate row is written once the AI has spent the points, after every buy it made, so the Changes tab, newest first, listed this summary above its own buys (the user, 2026-11-19); it now takes the place where the automation began. See KI#1100. (Claude code Opus 5.5) -->
+		int const iSASHistoryIndex = GC.getGame().getNumSASWorldChangesHistoryEntries();
 		if (isActive())
 			gDLL->UI().setBusy(true);
 		AI().AI_doAdvancedStart(true);
 		if (isActive())
 			gDLL->UI().setBusy(false);
 		recordSASAdvancedStartApplied(*this, bLogSASAdvancedStart, eAction, iX, iY, iData, iData, bAdd, -1, iSASAdvancedStartPointsBefore, iSASAdvancedStartGoldBefore, -1, -1);
+		GC.getGame().moveLastSASWorldChangesHistoryEntryTo(iSASHistoryIndex);
 		break;
+	}
 	case ADVANCEDSTARTACTION_UNIT:
 	{
 		if(pPlot == NULL)

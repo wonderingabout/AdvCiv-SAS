@@ -10346,6 +10346,17 @@ static char const* getSASAdvancedStartHistoryOperation(AdvancedStartActionTypes 
 	return (bAdd ? "ADD" : "REMOVE");
 }
 
+// <!-- custom: Moves the newest Changes history row to iIndex, keeping the order of the rows in between; Advanced Start's Automate row uses it to sit where the automation began. See KI#1100. (Claude code Opus 5.5) -->
+void CvGame::moveLastSASWorldChangesHistoryEntryTo(int iIndex)
+{
+	int const iLast = (int)m_aSASWorldChangesHistory.size() - 1;
+	if (iIndex < 0 || iIndex >= iLast)
+		return;
+	SASWorldChangesHistoryEntry const kEntry = m_aSASWorldChangesHistory[iLast];
+	m_aSASWorldChangesHistory.pop_back();
+	m_aSASWorldChangesHistory.insert(m_aSASWorldChangesHistory.begin() + iIndex, kEntry);
+}
+
 // <!-- custom: Persist each successful Advanced Start mutation/completion in order, including the actual resolved target and budget transition.
 // Failed network choices remain diagnostic-only CHOICE rows and do not enter save history. (ChatGPT-5.6-Sol) -->
 void CvGame::recordSASAdvancedStartHistory(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iRequestedData, int iResolvedData, bool bAdd, int iQuotedCost, int iPointsBefore, int iGoldBefore, int iCityId, int iObjectId)

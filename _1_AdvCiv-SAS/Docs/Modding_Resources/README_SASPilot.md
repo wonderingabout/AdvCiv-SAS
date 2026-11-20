@@ -502,6 +502,9 @@ python SASPilotClient.py py "print player.getName(); result = [c.getName() for c
 - `py -` reads the code from standard input and `py @file.py` from a file, for anything longer than a line.
 - `describe(obj)` calls every zero-argument `get`/`is`/`can`/`has`/`count` method of an object, which is how `info` works; use it to see what a `CyCity` or `CyPlayer` can tell.
 - The [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) and the [BUG API text](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt) say which methods exist; with SASPilot a doubt is now settled by calling the method in a running game.
+- It also serves debugging, as the code runs live in the game with its real screens and state.
+  - Example (2026-11-20): to check the cost of shortening scoreboard names beside an open advisor, one `py` call turned on debug mode, opened the Military Advisor and timed 20 `updateScoreStrings` calls, with and without trimming by swapping `CvMainInterface.isScoreboardSpaceAdvisorUp` for a stub.
+    - A redraw took 133 ms instead of 88, which led to reusing the last name cap; the same call then gave 62 ms. Another call had first confirmed that `CyInterface().isScreenUp` reports the open screen.
 - When a `py` snippet proves useful twice, make it a `cmd_<name>` function in the command file.
 
 ### Using it from a script

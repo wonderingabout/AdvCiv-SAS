@@ -27,6 +27,9 @@ localText = CyTranslator()
 class CvMilitaryAdvisor:
 	"Military Advisor"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 
 		self.screenId = screenId
@@ -78,7 +81,6 @@ class CvMilitaryAdvisor:
 
 		# <!-- custom: keep screen-independent advisor shell constants in init; compute runtime resolution-dependent geometry in updateRuntimeLayout via SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
@@ -344,7 +346,7 @@ class CvMilitaryAdvisor:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute runtime shell bounds/anchors through shared helpers so Military Advisor follows the same runtime layout flow as Foreign/Info/Domestic. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
@@ -568,9 +570,15 @@ class CvMilitaryAdvisor:
 		return iCombat
 
 	def getBattleStoredStrengthText(self, iStrength):
-		if iStrength > 0:
-			return u"%.2f" % (iStrength / 100.0)
-		return u""
+		# <!-- custom: At most 4 digits, cut rather than rounded so 99.99 never reads 100.0: "2.00", "12.34", "123.4", "1234", from the stored strength x100.
+		# A 3-digit strength is rare and its second decimal matters little, and a 6-character "123.45" set the strength columns' width; capping it narrows all six (the user, 2026-11-19). (Claude code Opus 5.5) -->
+		if iStrength <= 0:
+			return u""
+		if iStrength < 10000:
+			return u"%d.%02d" % (iStrength / 100, iStrength % 100)
+		if iStrength < 100000:
+			return u"%d.%d" % (iStrength / 100, (iStrength % 100) / 10)
+		return u"%d" % (iStrength / 100)
 
 	def getBattleEntryColumns(self, entry):
 		if len(entry) < 7:
@@ -841,14 +849,18 @@ class CvMilitaryAdvisor:
 		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
 		screen.enableSort(self.BATTLE_TABLE_ID)
 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, 104)
+		iTurnColW = getAdvisorNumberColW(4)
+		# <!-- custom: was 104; 8 characters fit the widest year, such as "12750 BC", 88 px at font 4, and the rest goes to the unit names; 9 left about 23 px unused at font 4. (Claude code Opus 5.5) -->
+		iYearColW = getAdvisorNumberColW(8)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, iTurnColW)
+		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 1, self.TEXT_BATTLE_YEAR, iYearColW)
 		iResultColW = 35
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 2, u"R", iResultColW)
 		iPlotColW = 35
 		# <!-- custom: use one shared 2-digit-friendly width for compact numeric columns (E%, base strength, XP, PID, Cap#).
 		# Values like 100%, 3-digit strength, or 3-digit XP may clip, but this preserves the plot-camera column when the vertical scrollbar appears. (GPT-5.5) -->
-		iTwoDigitColW = 38
+		# <!-- custom: was 38; the shared rule sizes 3 characters, for the 3-letter "PID" header or a 100% odds. (Claude code Opus 5.5) -->
+		iTwoDigitColW = getAdvisorNumberColW(3)
 		iEstOddsColW = iTwoDigitColW
 		iRoleColW = 35
 		iBaseColW = iTwoDigitColW
@@ -863,7 +875,8 @@ class CvMilitaryAdvisor:
 			iTerrainColW = 35
 			iFeatureColW = 35
 			iHillPeakColW = 35
-		iStrengthColW = 78
+		# <!-- custom: was 78, for a 6-character "123.45"; getBattleStoredStrengthText now shows 5 at most, such as "99.99" or "123.4". (Claude code Opus 5.5) -->
+		iStrengthColW = getAdvisorNumberColW(4, True)
 		# <!-- custom: reserve right-side width for the table scrollbar gutter so unit-name text does not clip under it; Battles fills fast so the scrollbar is the common case.
 		# Matches CvInfoScreen's 14px convention. (Claude code Opus 4.7) -->
 		iScrollbarGutterW = 14
@@ -871,9 +884,12 @@ class CvMilitaryAdvisor:
 		# The remaining width is split equally between Our Unit and Their Unit, so both text columns grow at higher resolutions. (GPT-6.1-Sol) -->
 		iAxisColW = 0
 		if self.IS_SAS_MILIT_UI_BATTLE_XY_ON:
-			iAxisColW = 45
+			iAxisColW = getAdvisorNumberColW(3)
 		iUnitColBudget = iTableW - iScrollbarGutterW - 2 * iAxisColW
-		iUnitColW = max(105, (iUnitColBudget - 55 - 105 - iResultColW - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
+		# <!-- custom: The unit columns take what is left, as V/M does on the Info Screen's Score tab, but a fixed 105 px minimum made the row wider than the table in a 1926 px window (about 1480 px of table), cutting off the camera column after Y (2026-11-19).
+		# So they may shrink further, to a floor where a name still shows its start before the ellipsis the table adds, as "Ancie..." did; the year column was also subtracted as 105 while drawn 104. (Claude code Opus 5.5) -->
+		iUnitColMinW = 60
+		iUnitColW = max(iUnitColMinW, (iUnitColBudget - iTurnColW - iYearColW - iResultColW - iEstOddsColW - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iXPColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup.
 		# Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_EST_ODDS, iEstOddsColW)

@@ -73,6 +73,9 @@ def ForeignAdvisorPrint (stuff):
 class CvForeignAdvisor:
 	"Foreign Advisor Screen"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self):
 		self.iScreen = -1
 		self.nWidgetCount = 0
@@ -87,7 +90,6 @@ class CvForeignAdvisor:
 		# <!-- custom: these are screen-independent edge constants (safe in __init__); runtime geometry that depends on actual resolution is computed in interfaceScreen.
 		# Constants are shared through SASUtils so advisor screens use one source of truth. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
@@ -448,7 +450,7 @@ class CvForeignAdvisor:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: runtime layout wrapper (same structure as CvInfoScreen) so resolution-dependent bounds/anchors are centralized. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LEGEND = self.H_SCREEN - self.H_LEGEND - 75
 		self.X_LEADER_CIRCLE_TOP = self.X_SCREEN + 10

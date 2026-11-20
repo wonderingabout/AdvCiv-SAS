@@ -46,6 +46,9 @@ import ScreenInput as PyScreenInput
 from CvScreenEnums import *
 from CvPythonExtensions import *
 import SASDefineGuard
+# <!-- custom: getAdvisorScoreboardSpace and the label font size give the space an open advisor leaves the scoreboard; see getOpenAdvisorScoreboardSpace. (Claude code Opus 5.5) -->
+from SASUtils import getAdvisorScoreboardSpace
+import SASTextScale
 # <!-- custom: Major advisor/screen entry points are Python-owned, so revision 151 records their fixed screen IDs here rather than guessing from DLL widgets.
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
@@ -116,24 +119,62 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
+# <!-- custom: While a marked advisor (see isScoreboardSpaceAdvisor) is open the scoreboard may shorten leader names to fit beside it, so redraw it when one opens, and in onClose when it closes, as the Tech Advisor does; mainInterface tells whether that changes anything.
+# A first version redrew for any advisor these show functions open, including BUG's own Domestic and Military advisors, which carry no marker (Claude code Opus 5.5 + GPT-6.2-Sol). -->
+def redrawScoreboardForAdvisor(advisor, bOpening=True):
+	if not getattr(advisor, "SAS_LEAVES_SCOREBOARD_SPACE", False):
+		return
+	iSpace = 0
+	if bOpening:
+		iSpace = getAdvisorScoreboardSpace(CyGInterfaceScreen("MainInterface", MAIN_INTERFACE).getXResolution(), SASTextScale.getSASUIFontLabel())
+	if mainInterface.isScoreboardRedrawNeededForAdvisor(bOpening, iSpace):
+		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
+
+# <!-- custom: Which screens leave the scoreboard the space getAdvisorScoreboardSpace gives: those whose screen object in HandleInputMap carries SAS_LEAVES_SCOREBOARD_SPACE, so no separate list of screen IDs can miss one; the advisor_scoreboard_space CI check makes each advisor calling getAdvisorScoreboardSpace carry it.
+# BUG's Customizable Domestic Advisor and BUG Military Advisor, both off by default, share their screen IDs but size themselves, so they carry no marker; neither does the Tech Advisor, whose space getOpenAdvisorScoreboardSpace reads apart.
+# The Policy and Foreign Diplomacy advisors also stand in for the Religion, Corporation and Espionage screen IDs; isScreenUp reports the ID shown, which these never are.
+# A list of screen IDs, first kept in CvMainInterface.py, was replaced by this marker: the layout leaves the space, and the SAS and BUG advisors share an ID while leaving different room, which a list would need exceptions for (the user, 2026-11-20). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+def isScoreboardSpaceAdvisor(eScreen):
+	return getattr(HandleInputMap.get(eScreen), "SAS_LEAVES_SCOREBOARD_SPACE", False)
+
+# <!-- custom: isScreenUp takes the screen ID alone, while CyGInterfaceScreen.isActive also needs a name that the Foreign advisors vary per tab; for these advisors it turned false on close, unlike for the Tech Advisor. (Claude code Opus 5.5) -->
+def isScoreboardSpaceAdvisorUp():
+	for eScreen in HandleInputMap.keys():
+		if isScoreboardSpaceAdvisor(eScreen) and CyInterface().isScreenUp(eScreen):
+			return True
+	return False
+
+# <!-- custom: The space the open advisor leaves the scoreboard on the screen's right, or None with none open; the main interface fits the scoreboard into it.
+# It is queried at each scoreboard draw, so the engine stays the source of truth for which screen is open (Claude code Opus 5.5 + GPT-6.2-Sol).
+# isScreenUp(TECH_CHOOSER) stays true after the Tech Advisor closes, so a first version cut names to its room on the map and beside other advisors too; isActive reports it correctly, as the earlier right-aligned names used. (Claude code Opus 5.5) -->
+def getOpenAdvisorScoreboardSpace():
+	if CyGInterfaceScreen("TechChooser", TECH_CHOOSER).isActive():
+		return techChooser.iRightSpaceForScoreboard
+	if isScoreboardSpaceAdvisorUp():
+		return getAdvisorScoreboardSpace(CyGInterfaceScreen("MainInterface", MAIN_INTERFACE).getXResolution(), SASTextScale.getSASUIFontLabel())
+	return None
+
 policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
 # <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
 def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
 		# <!-- custom: preserve last visited Policy tab on reopen, matching tabbed-advisor behavior used elsewhere. (GPT-5.3-Codex) -->
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
 		policyAdvisorScreen.interfaceScreen()
 
 # <!-- custom: Religion advisor is integrated as a native Policy advisor tab; open Policy tab index for Religion instead of standalone CvReligionScreen. (GPT-5.3-Codex) -->
 def showReligionScreen():
 	if (-1 != CyGame().getActivePlayer()):
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, policyAdvisorScreen.PAGE_RELIGION)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
 		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_RELIGION])
 
 # <!-- custom: Corporation advisor is integrated as a native Policy advisor tab; open Policy tab index for Corporation instead of standalone CvCorporationScreen. (GPT-5.3-Codex) -->
 def showCorporationScreen():
 	if (-1 != CyGame().getActivePlayer()):
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_POLICY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, policyAdvisorScreen.PAGE_CORPORATION)
+		redrawScoreboardForAdvisor(policyAdvisorScreen)
 		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_CORPORATION])
 
 optionsScreen = CvOptionsScreen.CvOptionsScreen()
@@ -162,15 +203,18 @@ def showForeignAdvisorScreen(argsList):
 		# Keep canonical Foreign defaulting to trade (F4); only diplomacy/intel tab ids route to the F3 shell. (GPT-5.3-Codex) -->
 		if iScreen in FOREIGN_DIPLOMACY_TABS:
 			SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iScreen)
+			redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
 			foreignDiplomacyAdvisor.interfaceScreen(iScreen)
 		else:
 			SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iScreen)
+			redrawScoreboardForAdvisor(foreignAdvisor)
 			foreignAdvisor.interfaceScreen(iScreen)
 
 def showForeignDiplomacyAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
 		# <!-- custom: open F3 with the advisor's persisted tab state (same behavior as F4): -1 reuses last visited tab, and falls back to default only on first open. (GPT-5.4) -->
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, -1)
+		redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
 		foreignDiplomacyAdvisor.interfaceScreen(-1)
 
 # BUG - CustDomAdv - start
@@ -202,6 +246,7 @@ def showDomesticAdvisor(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
 		createDomesticAdvisor()
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_DOMESTIC_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(domesticAdvisor)
 		domesticAdvisor.interfaceScreen()
 
 # BUG - Military Advisor - start
@@ -229,6 +274,7 @@ def showMilitaryAdvisor():
 			# TODO: move to CvBUGMilitaryAdvisor.interfaceScreen()
 			militaryAdvisor.IconGridActive = False
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_MILITARY_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(militaryAdvisor)
 		militaryAdvisor.interfaceScreen()
 # BUG - Military Advisor - end
 
@@ -237,6 +283,7 @@ def showEspionageAdvisor():
 		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
 		iTab = foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"]
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_FOREIGN_DIPLOMACY_ADVISOR, SASGameRecordActions.SHOW_REQUEST, iTab)
+		redrawScoreboardForAdvisor(foreignDiplomacyAdvisor)
 		foreignDiplomacyAdvisor.interfaceScreen(iTab)
 
 dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
@@ -312,6 +359,7 @@ def showInfoScreen(argsList):
 		iTabID = argsList[0]
 		iEndGame = argsList[1]
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_INFO_SCREEN, SASGameRecordActions.SHOW_REQUEST, iTabID, iEndGame)
+		redrawScoreboardForAdvisor(infoScreen)
 		infoScreen.showScreen(-1, iTabID, iEndGame)
 
 # <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
@@ -320,6 +368,7 @@ worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
 def showWorldAdvisorScreen(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_WORLD_ADVISOR, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(worldAdvisorScreen)
 		worldAdvisorScreen.showScreen()
 
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
@@ -363,6 +412,7 @@ victoryScreen = CvVictoryScreen.CvVictoryScreen(VICTORY_SCREEN)
 def showVictoryScreen():
 	if (-1 != CyGame().getActivePlayer()):
 		SASGameRecordActions.logScreenAction(SASGameRecordActions.SCREEN_VICTORY_SCREEN, SASGameRecordActions.SHOW_REQUEST)
+		redrawScoreboardForAdvisor(victoryScreen)
 		victoryScreen.interfaceScreen()
 
 # BUG - Sevopedia - start
@@ -1120,6 +1170,7 @@ def onClose (argsList):
 	if not bHandled and argsList[0] in HandleCloseMap:
 		screen = HandleCloseMap.get(argsList[0])
 		screen.onClose()
+	redrawScoreboardForAdvisor(HandleInputMap.get(argsList[0]), False)
 	# <!-- custom: All standard/Sevopedia page IDs share the pedia object, but a close callback alone does not prove it hidden.
 	# Preserve override dispatch, then confirm the screen inactive before clearing the observed overlay; an override may have kept it open.
 	# This event-driven probe is gated before screen queries and never polls frames. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->

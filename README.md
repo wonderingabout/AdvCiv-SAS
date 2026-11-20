@@ -8,6 +8,8 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
 
 An important milestone is the addition of SASPilot, a new Civ4 CLI API that allows local agents (e.g. Claude Code, Codex) to control Civ 4 and analyze its game state perfectly, without having to rely on tedious and unclear UI. The video demos also feature autonomous peer-agentic ping-pong coding. Conceptual inspiration from [noreff's CivAI](https://github.com/noreff/civai). TODO writeup.
 
+It also helps debugging: its `py` command runs Python live inside the running game, for example to time a scoreboard redraw or check which screen is open.
+
 Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests.
 
 <a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>

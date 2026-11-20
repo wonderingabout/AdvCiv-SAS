@@ -976,6 +976,8 @@ python LLM_Helpers\commits\stage_partial.py LLM_Helpers\saspilot\SASPilotCommand
 #### `desktop_windows.py`
 
 - `screenshot`, `click`, `hover`, `scroll`, `paste`, `key` and `close` act on any app's window chosen by process ID: Civ4, or another agent's app such as Codex or the Claude app. `list` prints the running Civ4 clients and their command lines.
+  - `close --mod AdvCiv-SAS --wait 30 --force` closes every client running that mod, found by its `mod=` argument or, for an agent-started client, its `ini=` file's `Mod` line, waits for each to exit, and ends one that ignores WM_CLOSE; a client of another mod is left alone.
+    - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
@@ -2245,6 +2247,7 @@ python LLM_Helpers/game_runs/map_preview_dds.py Wheel --pick 2 --chooser "Claude
   - It waits until the window is full size and two captures 3 s apart barely differ, and `--debug-mode` then presses Ctrl+Z to reveal the map.
 - Written on 2026-11-12 to map WorldBuilder on a 48-player SAS48 map and the Advanced Start screen.
   - `--option GAMEOPTION_ADVANCED_START` starts Advanced Start with 0 points, since QuickStart skips the setup's Advanced Start Base Points; go through Custom Game for points, as the UI map's `advanced_start` screen describes.
+- `--era ERA_INDUSTRIAL` sets the start era, as the INI's QuickStart `Era` key does; added on 2026-11-19 for a later-era sample, as older late-game saves no longer loaded. For a developed late game, `run_autoplay.py --era` with Advanced Start gives every civ its points and plays the turns.
 
 ```bash
 python LLM_Helpers/game_runs/start_game.py --map Pangaea --world-size WORLDSIZE_SAS48 --debug-mode

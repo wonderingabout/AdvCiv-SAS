@@ -55,9 +55,31 @@ def formatExactHundredths(iValue):
 # Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here.
 # Increase top space (from 28). -->
 SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0
-SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
+# <!-- custom: The widths advisors leave for the scoreboard on their right; getAdvisorScoreboardSpace below picks one.
+# Testing showed that with text upscaling, the scoreboard needs more room at larger fonts: a turn-380 SAS24 scoreboard with war, attitude, vassal and research markers took about 394 px at font 3, the usual one, and 448 at font 4 (2026-11-19).
+# 393 px currently fits the font-3 scoreboard, and there advisors end where the top bar's commerce panel currently begins; both are laid out from the screen's right edge, so they line up at every resolution.
+# 455 px currently fits the font-4 scoreboard's 448 px, with a few px to spare.
+# Note: the scoreboard's war and golden-age dots start about 6 px right of the advisors' edge; a double-digit power ratio does not hide them, as the scoreboard measures its columns at each draw and shortens leader names a little more instead (the user, 2026-11-20). (Claude code Opus 5.5) -->
+SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_3 = 393
+SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4 = 455
 SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
 SAS_ADVISOR_BOTTOM_SPACE = 0
+
+# <!-- custom: Advisors need as much width as possible; their only constraint to using the full screen width is the width they must leave for the scoreboard on their right.
+# Wider screens have room for both: at 2560 px, advisors keep 2105 px even beside a 455 px font-4 scoreboard, against 1527 px at 1920, so only 1920 px or less at font 4 lacks room.
+# The Sevopedia leader page meets the same limit: it currently narrows its item list by font to fit the AI Personality panel only below SAS_SEVO_LEADER_ITEMS_FULL_MIN_WIDTH (2560), where both no longer fit.
+# However, 1920 px width (1080p) *and* font 4 is a rare combination: 1920 x 1080 usually uses font 3 or lower, while mostly higher resolutions such as 2560 x 1440 can use, or may need, font 4.
+# But font 3 at 1920 x 1080 is the user's current setup, and possibly among the most common ones, but either way, advisors should not give up width just to support (very) rare edge cases.
+# Also, some advisors, such as the Technology Advisor, currently overflow into and hide part of the scoreboard even at 1920 x 1080 (and font 3), to display a full column, which shows more; there the scoreboard's leader names are fitted to the strip it leaves, which replaced moving them to the right, and its width is tunable.
+# Therefore, to give advisors their maximum usable width, font 3 at 1920 x 1080, and up to font 4 at 2560 x 1440, are the priority.
+# To support the rare font 4 at 1920 x 1080, advisors do not give up their precious width; the scoreboard works around it instead: while an advisor is open, it shortens leader names just enough for the columns it shows, measured at each draw, so debug mode's extra columns shorten them more (CvMainInterface.updateScoreStrings).
+# 2560 x 1440 can afford font 4, so it should not restrict either: it shows the full scoreboard at font 4, as it has the room anyway, and the font-3 width at font 3, so advisors still get the extra room.
+# Takes the width and the scoreboard's font size, currently SAS_UI_FONT_LABEL, not the screen, as SevoPediaMediaPlayer's layout helpers take iScreenW: a resolution read in __init__ can come before the screen is ready and goes stale on a resolution change, as CvInfoScreen's runtime geometry notes.
+# Each advisor reads screen.getXResolution() and that font size when it draws, so a change applies on the next draw, and this stays a pure function of its inputs: SASUtils need not know about screens or when they are ready (the user, 2026-11-20). (Claude code Opus 5.5) -->
+def getAdvisorScoreboardSpace(iXResolution, iFontSize):
+	if iXResolution > 1920 and iFontSize >= 4:
+		return SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_4
+	return SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD_FONT_3
 
 # <!-- custom: shared advisor title Y is screen-independent and unified for migrated advisors to reduce per-file noise; older per-screen values were close (e.g. 8/12), so use one midpoint default (10).
 # Keep screen-dependent anchors computed at runtime. (GPT-5.3-Codex) -->
@@ -100,6 +122,23 @@ def getAdvisorMaximizedPanelLayout(iWScreen, iYBottomPanel):
 	iTableW = iMainPanelW - 2 * iTableMargin
 	iTableH = iMainPanelH - 2 * iTableMargin - iTableTopVisualAdjust
 	return ((iMainPanelX, iMainPanelY, iMainPanelW, iMainPanelH), (iTableX, iTableY, iTableW, iTableH))
+
+# <!-- custom: One width rule for advisor number columns, which each screen used to guess, such as 38 px for "2 digits": digits times a digit's width, plus a decimal point and cell padding.
+# Sized for font 4 at every font, so advisors keep one layout: at font 3 the columns have room to spare, which reads more easily than a tight cell, while the unit names that give up that room are not essential, as each row also shows the unit's icon (the user, 2026-11-20).
+# Measured with CyInterface().determineWidth at font 4: "8" is 11 px and the decimal point 6.
+# A cell needs about 18 px beyond its text: 15 cut "12750 BC" to "12750 ..." and a 3-digit X to "1...", while 18 fit (2026-11-20).
+# A per-font version, with 9 px digits at font 3, cut the same values there with 12 px padding and fit them with 18; at 1920 px and font 3 it left the Battles tab's unit columns about 140 px each, mostly full names, against about 70 now, an icon and a letter or two.
+# One layout was preferred over that gain. (Claude code Opus 5.5) -->
+SAS_ADVISOR_DIGIT_W = 11
+SAS_ADVISOR_DOT_W = 6
+SAS_ADVISOR_TABLE_CELL_PAD = 18
+
+# <!-- custom: A column for numbers of up to iDigits digits, plus a decimal point with bDecimal, as in "88.88". (Claude code Opus 5.5) -->
+def getAdvisorNumberColW(iDigits, bDecimal=False):
+	iW = iDigits * SAS_ADVISOR_DIGIT_W + SAS_ADVISOR_TABLE_CELL_PAD
+	if bDecimal:
+		iW += SAS_ADVISOR_DOT_W
+	return iW
 
 # <!-- custom: shared weighted tab-link width helper used by advisor tab bars; weights by text width and scales to runtime X_EXIT. (GPT-5.3-Codex) -->
 def getAdvisorRuntimeLinkWidths(cyInterface, aszLabels, szExitLabel, iXExit):

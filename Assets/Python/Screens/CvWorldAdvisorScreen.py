@@ -24,6 +24,9 @@ WIDGET_SAS_CHANGES_TARGET = WidgetUtil.createWidget("WIDGET_SAS_CHANGES_TARGET")
 class CvWorldAdvisorScreen:
 	"World Advisor"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 		self.screenId = screenId
 		self.SCREEN_NAME = "WorldAdvisorScreen"
@@ -35,7 +38,6 @@ class CvWorldAdvisorScreen:
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
@@ -138,7 +140,7 @@ class CvWorldAdvisorScreen:
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
 
 	def updateRuntimeLayout(self, screen):
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 
@@ -782,8 +784,22 @@ class CvWorldAdvisorScreen:
 		# <!-- custom: Keep civilization, leader and player ID in separate sortable columns; repeated leaders in mod-mods or unusual settings must not force leader grouping to sort by player ID.
 		# Keep X/Y beside their far-right jump button; the maximized bounds allow wider action/target text and restore coordinate width for scaled text.
 		# Cost remains the flexible column, reserving 18 pixels for the scrollbar. (GPT-6.1-Sol) -->
-		aiWidths = [56, 60, 88, 37, 28, 28, 36, 210, 230, 96, 96] + [78] * (len(self.CHANGES_NUMERIC_LABELS) - 3)
-		aiWidths.extend([max(70, iW - sum(aiWidths) - 90 - 28 - 18), 45, 45, 28])
+		# <!-- custom: The number columns were fixed widths (56 for "#", 78 for points and gold), so at font 4 a 4-digit "#" showed as "15...", and Cost took the leftover with a 70 px floor that a narrow window could push past the table.
+		# Number columns now come from the shared getAdvisorNumberColW rule (5 digits for "#", points, gold and Cost, 4 for Turn, 3 for X/Y), and Action and Target, the text columns, share what is left in their former 210:230 ratio (the user, 2026-11-19).
+		# An Industrial Advanced Start on SAS24 already wrote 1126 rows before turn 251, and its 6900 points filled 4 digits, so "#", points and gold get a fifth. (Claude code Opus 5.5) -->
+		iSeqW = getAdvisorNumberColW(5)
+		iTurnW = getAdvisorNumberColW(4)
+		iValueW = getAdvisorNumberColW(5)
+		iAxisW = getAdvisorNumberColW(3)
+		iScrollbarGutterW = 18
+		iTextColMinW = 120
+		# <!-- custom: The player column was 36, which cut player 23 to its first digit at font 4; 3 characters leave room for SAS48 IDs and the header. (Claude code Opus 5.5) -->
+		aiLeftWidths = [iSeqW, iTurnW, 88, 37, 28, 28, getAdvisorNumberColW(3)]
+		aiRightWidths = [96, 96] + [iValueW] * (len(self.CHANGES_NUMERIC_LABELS) - 2) + [iAxisW, iAxisW, 28]
+		iTextW = iW - sum(aiLeftWidths) - sum(aiRightWidths) - iScrollbarGutterW
+		iActionW = max(iTextColMinW, iTextW * 210 / 440)
+		iTargetW = max(iTextColMinW, iTextW - iActionW)
+		aiWidths = aiLeftWidths + [iActionW, iTargetW] + aiRightWidths
 		for iCol in range(iNumCols):
 			screen.setTableColumnHeader(self.CHANGES_TABLE_ID, iCol, SASTextScale.sasFontTagLabel + aszHeaders[iCol] + SASTextScale.SAS_FONT_TAG_CLOSE, aiWidths[iCol])
 

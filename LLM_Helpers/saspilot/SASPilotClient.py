@@ -642,6 +642,9 @@ def start(args):
 	import desktop_windows
 	import run_autoplay
 	settings = {}
+	# <!-- custom: Testing a smaller screen by shrinking a running game's window only stretched its picture (2026-11-20), so a test resolution is set at launch, in this run's INI copy; the user's INI is not changed. (Claude code Opus 5.5) -->
+	if args.resolution:
+		settings["ScreenWidth"], settings["ScreenHeight"] = (str(n) for n in args.resolution)
 	if args.save:
 		save = resolve_save(args.save)
 		if not save.is_file():
@@ -1009,6 +1012,7 @@ def main():
 	parser.add_argument("--compact", action="store_true", help="print JSON on one line")
 	parser.add_argument("--map", help="start: map script name without .py")
 	parser.add_argument("--world-size", help="start: e.g. WORLDSIZE_STANDARD")
+	parser.add_argument("--resolution", type=int, nargs=2, metavar=("WIDTH", "HEIGHT"), help="start: run the game at this resolution, such as 1920 1080, in this run's INI only")
 	parser.add_argument("--speed", help="start: e.g. GAMESPEED_NORMAL")
 	parser.add_argument("--handicap", help="start: e.g. HANDICAP_NOBLE")
 	parser.add_argument("--fixed-seeds", action="store_true", help="start: SyncRandSeed and MapRandSeed 1, for a repeatable new game")

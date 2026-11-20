@@ -52,6 +52,9 @@ localText = CyTranslator()
 class CvInfoScreen:
 	"Info Screen! Contains the Demographics, Wonders / Top Cities and Statistics Screens"
 
+	# <!-- custom: This advisor leaves the scoreboard the space getAdvisorScoreboardSpace gives, so the scoreboard shortens leader names to fit beside it; CvScreensInterface finds open advisors by this marker. (Claude code Opus 5.5) -->
+	SAS_LEAVES_SCOREBOARD_SPACE = True
+
 	def __init__(self, screenId):
 
 		# <advc.077> Settings for Demographics tab
@@ -87,7 +90,6 @@ class CvInfoScreen:
 		self.Z_HELP_AREA = self.Z_CONTROLS - 1
 
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
-		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
 
@@ -496,7 +498,7 @@ class CvInfoScreen:
 
 	def updateRuntimeLayout(self, screen):
 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
-		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, getAdvisorScoreboardSpace(screen.getXResolution(), SASTextScale.getSASUIFontLabel()), self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
 

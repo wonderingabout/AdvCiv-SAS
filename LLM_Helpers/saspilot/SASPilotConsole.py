@@ -216,6 +216,10 @@ def console_window():
 	return hwnd
 
 
+# <!-- custom: Wide enough for a command line and its note without wrapping every word. (Claude code Opus 5.5) -->
+CONSOLE_MIN_WIDTH = 800
+
+
 def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 	# <!-- custom: One horizontal band per piloted client, top to bottom: its Civ4 at its own size in the band's top-left corner (shrunk only to fit the band), its watcher console filling the rest of the band to the right.
 	# First set up on 2026-11-14 at the user's 3840x2160 monitor (work area 3840x2100, taskbar excluded) with a 1920x1110 Civ4 window: halving the screen had stretched Civ4 to 1920x2100, which the user called a "monster chicken", and they wanted Civ4 untouched and the console stretched.
@@ -228,6 +232,16 @@ def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 	frame = desktop_windows.visible_frame(civ_pid)
 	civ_width = min(frame[2] - frame[0], right - left)
 	civ_height = min(frame[3] - frame[1], band_height)
+	# <!-- custom: The console took whatever width Civ4 left, so a Civ4 window nearly as wide as the monitor left it a sliver whose text wrapped into spaghetti (2026-11-20); the user asked that the tools never shrink a window to unreadable.
+	# So the console keeps CONSOLE_MIN_WIDTH: on the next monitor when there is one, as Civ4 stays untouched, else by narrowing Civ4. (Claude code Opus 5.5) -->
+	if right - (left + civ_width) < CONSOLE_MIN_WIDTH:
+		if monitor < len(areas):
+			other_left, other_top, other_right, other_bottom = areas[monitor]
+			other_band = (other_bottom - other_top) // slots
+			desktop_windows.place_frame(civ_pid, left, band_top, left + civ_width, band_top + civ_height)
+			desktop_windows.place_window(console_hwnd, other_left, other_top + other_band * slot, other_right, other_top + other_band * (slot + 1))
+			return
+		civ_width = (right - left) - CONSOLE_MIN_WIDTH
 	desktop_windows.place_frame(civ_pid, left, band_top, left + civ_width, band_top + civ_height)
 	desktop_windows.place_window(console_hwnd, left + civ_width, band_top, right, band_top + band_height)
 

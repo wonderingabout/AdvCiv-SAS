@@ -55,6 +55,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/shared_define_values.py
 
+      - name: Every advisor leaving the scoreboard space carries SAS_LEAVES_SCOREBOARD_SPACE
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python .github/workflows/build/source/advisor_scoreboard_space.py
+
       - name: Runtime Python never starts a button path as u""
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python .github/workflows/build/source/unicode_button_paths.py
