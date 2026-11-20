@@ -132,6 +132,10 @@ void logSASGameRecordMapAnnotation(char const* szEvent, char const* szReason, in
 // <!-- custom: BUG DotMap planning markers have stable player/plot identity and controlled XML color IDs; record snapshots/deltas separately from arbitrary caption annotations. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordDotMapSummary(char const* szEvent, char const* szReason, int iTotal, bool bOverlayVisible, int iAdded, int iEdited, int iRemoved);
 void logSASGameRecordDotMapMarker(char const* szEvent, char const* szReason, int iOwnerPlayer, int iX, int iY, int iOldColor, int iOldLayer, int iNewColor, int iNewLayer);
+// <!-- custom: Each Greatest Civilizations ranking (CvTopCivs.py through SASGameRecordActions.logTopCivs): a summary row and one row per alive player with the value behind its rank, for the all-player record; the Timeline keeps only what the viewer read.
+// Placed after the DotMap pair, which the first draft split. (Claude code Opus 5.5) -->
+void logSASGameRecordTopCivs(char const* szCategory, char const* szHistorian, int iListed, int iRanked, int iUnknownListed, bool bShown);
+void logSASGameRecordTopCivsRank(char const* szCategory, int iRank, int iPlayer, int iValue, bool bListed, bool bKnown);
 // <!-- custom: Result and session-boundary rows let parsers distinguish an established game outcome from orderly recorder rollover; Runtime external exit evidence remains authoritative for process termination/crash observation. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordGameResult(char const* szEvent);
 // <!-- custom: Four camera toggles have authoritative pre/post Boolean getters.

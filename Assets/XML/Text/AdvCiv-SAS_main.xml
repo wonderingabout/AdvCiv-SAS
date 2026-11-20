@@ -2204,6 +2204,19 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY</Tag>
 		<English>an unknown city</English>
 	</TEXT>
+	<!-- custom: Timeline rows for a Greatest Civilizations screen, one per rank under a title row: one long row overflowed and lost the unknown civilizations' places, and a leader name alone can repeat (the user, 2026-11-19). (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_TITLE</Tag>
+		<English>%s1, %s2, by %s3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK</Tag>
+		<English>%d1) %s2 of %s3, player %d4, team %d5</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_TOPCIVS_TIMELINE_RANK_UNKNOWN</Tag>
+		<English>%d1) %s2</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_INFO_ENTIRE_TIMELINE</Tag>
 		<English>Entire timeline</English>

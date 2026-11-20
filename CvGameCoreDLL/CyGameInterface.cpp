@@ -87,6 +87,8 @@ void CyGamePythonInterface()
 		// <!-- custom: Let BUG supply its resolved user root and expose a deliberate live-inspection flush for the shared native BBAI/SASGameRecord writer. (ChatGPT-5.6-Sol) -->
 		.def("setSASDiagnosticLogRoot", &CyGame::setSASDiagnosticLogRoot)
 		.def("flushSASDiagnosticLogs", &CyGame::flushSASDiagnosticLogs, "bool () - publish pending diagnostics; false indicates failed output")
+		// <!-- custom: Python needs to keep a screen only one team saw, such as the Greatest Civilizations, in the save and on that team's Timeline; replay messages are both, and none could be added from Python before. (Claude code Opus 5.5) -->
+		.def("addSASTeamReplayMessage", &CyGame::addSASTeamReplayMessage, "void (int iPlayer, wstring text) - add a coordinate-less replay message visible only to iPlayer's team")
 		// <!-- custom: Python owns WorldBuilder screen show/hide callbacks; expose their literal visibility notification so the native recorder can distinguish screen visibility from mode and filter Advanced Start behind its cached enable gate. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 		.def("updateSASRuntimeStatusWorldBuilderScreen", &CyGame::updateSASRuntimeStatusWorldBuilderScreen, "void (bool) - report observed WorldBuilder Python screen visibility")
 		// <!-- custom: The Python WorldBuilder reveal-all loop brackets its many plot setters so save history records one bulk mutation instead of thousands of duplicate per-plot entries. (ChatGPT-5.6-Sol) -->
@@ -112,6 +114,9 @@ void CyGamePythonInterface()
 		// <!-- custom: Persisted BUG DotMap planning markers use a typed scalar bridge, distinct from free-form text annotations and generic Python log strings. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordDotMapSummary", &CyGame::logSASGameRecordDotMapSummary)
 		.def("logSASGameRecordDotMapMarker", &CyGame::logSASGameRecordDotMapMarker)
+		// <!-- custom: CvTopCivs.py computes each Greatest Civilizations ranking in Python, so the SASGameRecord rows for it come from there. (Claude code Opus 5.5) -->
+		.def("logSASGameRecordTopCivs", &CyGame::logSASGameRecordTopCivs, "void (string category, wstring historian, int listed, int ranked, int unknownListed, bool shown) - SASGameRecord summary row of a Greatest Civilizations ranking")
+		.def("logSASGameRecordTopCivsRank", &CyGame::logSASGameRecordTopCivsRank, "void (string category, int rank, int player, int value, bool listed, bool known) - SASGameRecord row of one player in that ranking")
 		.def("getSASGameRecordIniFileArgument", &CyGame::getSASGameRecordIniFileArgument)
 		// <!-- custom: Internal BUG diplomacy bridge; captures only resolved AI->human ordinary offers rejected at the UI boundary. (ChatGPT-5.6-Sol) -->
 		.def("logSASGameRecordRejectedAIOffer", &CyGame::logSASGameRecordRejectedAIOffer)

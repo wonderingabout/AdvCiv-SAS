@@ -757,6 +757,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_INFO_UI_TIMELINE_CACHE_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: 1 lists each Greatest Civilizations ranking on the Timeline tab (a title row and one row per rank); 0 hides them there, for players who find them noise.
+	They stay in the save and the replay either way, so turning it back on shows past rankings again (the user's idea, 2026-11-19).
+	On by default: a ranking comes a few times a game, mostly early, while "X is the first to discover Y" rows come far more often. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_INFO_UI_TIMELINE_TOP_CIVS_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: widen the Info Screen Score Tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_INFO_UI_SCORE_MAX_RENDER_THRESH</DefineName>
@@ -2613,7 +2620,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>208</iDefineIntVal>
+		<iDefineIntVal>209</iDefineIntVal>
 	</Define>
 
 
@@ -2746,6 +2753,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude Code Opus 5.5) -->
 	<Define>
 		<DefineName>SAS_UI_DAWN_OF_MAN_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 shows the Greatest Civilizations screen when it comes, as in base AdvCiv; 0 skips it.
+	Either way its ranking is recorded as a Timeline row in the save, so nothing is lost; at turn 82 of the 2026-11-19 validation run it waited on its Exit button in an agent game.
+	Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_UI_TOP_CIVS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
