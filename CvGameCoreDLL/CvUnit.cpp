@@ -4470,7 +4470,12 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 	if (!canAirlift(pPlot))
 		return false;
 
-	CvPlot const& kTargetPlot = GC.getMap().getPlot(iX, iY);
+	// <!-- custom: Off-map coordinates read past the map: SASPilot's 'unit' asks canStartMission(MISSION_AIRLIFT, -1, -1) for each unit's buttons, and a Paratrooper in a city that could airlift raised "unidentifiable C++ exception" (2026-11-20).
+	// Vanilla passed plotINLINE's NULL on to canMoveInto, and AdvCiv's getPlot reference kept the hole; Paradrop and Range Strike already check NULL. See KI#1091.3. (Claude code Opus 5.5) -->
+	CvPlot const* pTargetPlot = GC.getMap().plot(iX, iY);
+	if (pTargetPlot == NULL)
+		return false;
+	CvPlot const& kTargetPlot = *pTargetPlot;
 
 	// canMoveInto use to be here
 
@@ -4566,6 +4571,10 @@ bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY, TeamTypes eObs) cons
 		return false;
 
 	if (airRange() > 0 && iDistance > airRange())
+		return false;
+	// <!-- custom: Off-map coordinates read past the map, as for the airlift and air bomb: the kekm.7 loop below builds a SquareIter around the target, whose constructor looks the center plot up unchecked, and isNukeVictim takes the target as found.
+	// Codex's review found it after the Air Bomb fix; SASPilot's 'unit' asks canStartMission(MISSION_NUKE, -1, -1) for each unit. See KI#1091.3. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (GC.getMap().plot(iX, iY) == NULL)
 		return false;
 	// <kekm.7> (advc) Can't nuke blindly
 	for (SquareIter itPlot(iX, iY, nukeRange()); itPlot.hasNext(); ++itPlot)

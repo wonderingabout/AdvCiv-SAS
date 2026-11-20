@@ -1271,6 +1271,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1090.2 - (Fixed inherited vanilla Civ4 and AdvCiv Python bindings) Three more Python enum names were bound to the value on the line above, as KI#1090's drafting task was](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1090.2)\
 [KI#1091 - (Fixed inherited vanilla Civ4 Python bindings) Combat strength, firepower and queued missions rejected an absent plot, attacker or mission target from Python](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091)\
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
+[KI#1091.3 - (Fixed inherited vanilla Civ4 bug) Asking from Python whether a unit could airlift, air bomb or nuke, with no target, read past the map: SASPilot's `unit` raised "unidentifiable C++ exception" for a Paratrooper in a city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)\
 [KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
 [KI#1093 - (Fixed AdvCiv-SAS bug; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
@@ -38099,6 +38100,27 @@ Found and fixed by Claude Code Opus 5.5. SDK provenance checked by Codex (GPT-6.
 - Fixed by passing `None` on as null in all ten. Guarded by [`python_wrapper_null_args.py`](/.github/workflows/README.md#buildsourcepython_wrapper_null_argspy): run against the files before these fixes, it finds all 18 arguments of KI#1091 and KI#1091.2.
 
 Found by Claude code Opus 5.5 on 2026-11-17, searching all wrappers for KI#1091's pattern while bringing it over from the SASPilot work, after wonderingabout agreed to fix the pattern rather than the one case.
+
+<a id="ki-1091.3"></a>
+
+## KI#1091.3 - (Fixed inherited vanilla Civ4 bug) Asking from Python whether a unit could airlift, air bomb or nuke, with no target, read past the map: SASPilot's `unit` raised "unidentifiable C++ exception" for a Paratrooper in a city
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bk5h_E6QPRQktv8Bi-qWPQOn9h4izSry?usp=sharing).
+
+- On a turn-402 SAS24 Pangaea save (2026-11-20), SASPilot's `unit` failed with "unidentifiable C++ exception" for a Paratrooper, a Cannon, a Field Gun and other units standing in cities.
+  - `unit` lists what a unit's buttons offer by asking `CySelectionGroup.canStartMission` for each mission with no target (`-1, -1`). A `py` loop over the missions found that only `MISSION_AIRLIFT` threw.
+- `CvUnit::canAirliftAt` reads its target plot without checking the coordinates. A unit in a city that can airlift passes `canAirlift`, so the off-map target is then read.
+  - The local Civ4CE vanilla, Warlords and BtS copies pass `plotINLINE(iX, iY)`, which is NULL there, to `canMoveInto`. Base AdvCiv's `getPlot(iX, iY)` returns a reference with no bounds check, so it kept the hole.
+  - It is the same family as [KI#1091](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091) and [KI#1091.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2), Python asking with no target and native code assuming one, but here the native check dereferences, not the wrapper.
+- The sibling checks were read for the same slip: `canParadropAt` and `canRangeStrikeAt` already return false on NULL, `canReconAt` only measures the distance, and `canNukeAt` walks the plots around the target. The loop over every mission threw only for the airlift.
+- Fixed in [`CvUnit.cpp`](/CvGameCoreDLL/CvUnit.cpp): `canAirliftAt` returns false when the target is off the map.
+- Codex (GPT-6.2-Sol) reviewed the fix and found Air Bomb reading the same way: vanilla's `canAirBombAt` measured the distance to `plotINLINE`'s NULL, and AdvCiv's `canStartMission` passes `getPlot(iData1, iData2)` as a reference.
+  - It did not throw in the loop, as the Paratrooper cannot air bomb and so never reached the target; a bomber would.
+  - [`CvSelectionGroup.cpp`](/CvGameCoreDLL/CvSelectionGroup.cpp) now checks the plot first.
+- Codex's next review found Nuke reading the same way: BtS's `canNukeAt` passed `plotINLINE`'s NULL to `isNukeVictim`, and AdvCiv's kekm.7 check, which refuses a blind nuke, first builds a `SquareIter` around the target, whose constructor looks the plot up unchecked. `canNukeAt` now returns false for an off-map target.
+  - The functions that run these missions, such as `paradrop` and `nuke`, also read their plot unchecked, but only after `canStartMission` has accepted it.
+
+Found and fixed by Claude Code Opus 5.5 on 2026-11-20, while testing SASPilotUI's `uiplot` on a late save.
 
 <a id="ki-1092"></a>
 
